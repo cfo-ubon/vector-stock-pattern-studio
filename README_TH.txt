@@ -1,19 +1,18 @@
-Vector Stock Pattern Studio V5 Premium
+Vector Stock Pattern Studio V7 Final
 
-วิธีอัปโหลด GitHub Pages:
-1) แตก ZIP
-2) อัปโหลด index.html, css, js, README_TH.txt ทับของเดิมใน repository
+วิธีติดตั้ง GitHub Pages:
+1) แตกไฟล์ ZIP
+2) อัปโหลด index.html ทับของเดิมใน repository
 3) Commit changes
-4) เปิดลิงก์ GitHub Pages เดิม
+4) รีเฟรช URL GitHub Pages เดิม
 
-จุดเด่น V5:
-- Theme Library ให้เลือก
-- Asset-Based Pattern Engine ไม่ใช่ random shape ธรรมดา
-- Seamless edge-copy logic
-- Preview 1x1 และ 3x3 repeat
-- Export SVG สำหรับ Affinity Designer 2 iPad
-- Metadata CSV
-- Prompt Builder สำหรับใช้กับ ChatGPT แบบไม่ใช้ API key
+จุดที่ปรับจาก V6:
+- เลิกใช้ random shape ทั่วไป
+- ใช้ botanical motif library ที่เป็น branch/eucalyptus/berry/blossom/leaf
+- เพิ่ม edge wrapping สำหรับ seamless
+- เพิ่ม layout แบบ diagonal/wreath/dense/airy
+- เพิ่ม export SVG และ CSV
+- เพิ่ม 3x3 repeat preview
 
-ข้อควรจำ:
-แอพนี้ช่วยสร้างฐานลายเวกเตอร์ แต่ก่อนส่งขาย stock ควรปรับแต่งด้วยมือใน Affinity Designer เพื่อเพิ่มเอกลักษณ์ ตรวจลิขสิทธิ์ ตรวจ trademark และตรวจความซ้ำทุกครั้ง
+หมายเหตุ:
+ไฟล์นี้เป็น base vector เพื่อเปิดต่อใน Affinity Designer 2 iPad และควรปรับแต่งด้วยมือก่อนส่งขาย stock ทุกครั้ง
