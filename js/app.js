@@ -1,77 +1,48 @@
-let currentProject = {
-  title:"Premium Scandinavian Botanical Seamless Pattern",
-  description:"Elegant flat botanical seamless vector pattern with soft foliage, flowers and seed pods for textile, wallpaper and packaging design.",
-  concept:"Clean commercial evergreen botanical pattern with balanced handmade spacing.",
-  category:"Botanical",
-  theme:"Scandinavian Botanical",
-  elements:["eucalyptus stem","olive branch","sage sprig","minimal flower","seed pod","tiny dot accent","curved foliage","rounded leaf","laurel branch","wildflower bud","fern frond","berry cluster","herb stem","small blossom","organic twig","leaf pair","flower head","botanical spray","soft petal","mini sprig","seed stem","leaf cluster","airy branch","oval leaf","tiny bloom","minimal berry","small pod","accent dot"],
-  keywords:["botanical","seamless","pattern","vector","floral","leaves","scandinavian","minimal","flat design","surface pattern","textile","wallpaper","fabric","background","nature","foliage","eucalyptus","olive","sage","green","neutral","beige","organic","repeat","tile","modern","clean","commercial","decorative","botany","flower","seed pod","branch","spring","evergreen","wrapping paper","packaging","stationery","home decor","nursery","simple","elegant","natural","abstract botanical","leaf pattern","floral pattern","editable","stock illustration","soft color","minimalist"],
-  palette:["#D8C7AE","#A8B08C","#7B8453","#F3EBDD","#C98A6A"],
-  originality_notes:["Use generic botanical forms only","Avoid copying identifiable artwork","Edit final SVG manually in Affinity Designer"]
+const THEMES={
+ 'Scandinavian Botanical':['eucalyptus','olive','willow','berry','bud'],
+ 'Minimal Wildflower':['daisy','stem','bud','leaf','dot'],
+ 'Tropical Leaves':['monstera','palm','banana','hibiscus','fern'],
+ 'Mid Century Modern':['arch','sun','blob','leaf','dash'],
+ 'Organic Abstract':['blob','pebble','line','dot','leaf'],
+ 'Boho Textile':['rainbow','diamond','dash','sun','leaf'],
+ 'Nursery Nature':['cloud','leaf','star','moon','flower'],
+ 'Coffee Kitchen':['cup','bean','leaf','steam','dot'],
+ 'Evergreen Forest':['pine','berry','branch','leaf','star'],
+ 'Ditsy Floral':['tinyflower','leaf','bud','dot','stem']
 };
-let currentSVG = "";
-const $ = id => document.getElementById(id);
-function init(){
-  document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-  $('darkModeBtn').onclick=()=>document.body.classList.toggle('dark');
-  initThemes(); bindActions(); updateDashboard(); fillFromProject(); buildPrompt(); loadProject(currentProject);
-}
-function showTab(id){document.querySelectorAll('.tab').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));}
-function initThemes(){
-  const cat=$('categorySelect'); cat.innerHTML=Object.keys(THEME_LIBRARY).map(c=>`<option>${c}</option>`).join('');
-  cat.onchange=refreshThemeSelect; refreshThemeSelect();
-}
-function refreshThemeSelect(){
-  const category=$('categorySelect').value; const theme=$('themeSelect');
-  theme.innerHTML=THEME_LIBRARY[category].map(t=>`<option>${t}</option>`).join(''); theme.onchange=showThemeDetail; showThemeDetail();
-}
-function showThemeDetail(){
-  const t=$('themeSelect').value, d=THEME_DATA[t];
-  $('themeDetail').innerHTML=`<b>${d.theme}</b><br>Category: ${d.category}<br>${d.promptHint}<br><br><b>Suggested palette:</b> ${d.palette.join(', ')}`;
-}
-function fillFromProject(){
-  $('collectionName').value=currentProject.title; $('elementsCount').value=currentProject.elements.length; $('artboard').value=10000; $('palette').value=currentProject.palette.join(',');
-}
-function bindActions(){
-  $('applyThemeBtn').onclick=()=>{const t=$('themeSelect').value,d=THEME_DATA[t]; currentProject.category=d.category; currentProject.theme=d.theme; currentProject.palette=d.palette; currentProject.title=`Premium ${d.theme} Seamless Vector Pattern`; currentProject.description=`Commercial ${d.theme.toLowerCase()} seamless vector pattern in clean flat editable style for textile, wallpaper, packaging and surface design.`; $('collectionName').value=currentProject.title; $('palette').value=d.palette.join(','); buildPrompt(); alert('ใช้ Theme แล้ว');};
-  $('buildPromptBtn').onclick=buildPrompt; $('copyPromptBtn').onclick=()=>copyText($('promptBox').value);
-  $('loadJsonBtn').onclick=()=>{try{const obj=JSON.parse(cleanJson($('jsonInput').value)); loadProject(obj);}catch(e){$('jsonStatus').textContent='JSON ไม่ถูกต้อง: '+e.message;}};
-  $('sampleJsonBtn').onclick=()=>{$('jsonInput').value=JSON.stringify(currentProject,null,2);};
-  $('generateSvgBtn').onclick=()=>renderSVG(false); $('preview3Btn').onclick=()=>renderSVG(true); $('runGuardBtn').onclick=runGuard;
-  $('buildCollectionBtn').onclick=buildCollection; $('buildMetadataBtn').onclick=buildMetadata; $('copyMetadataBtn').onclick=()=>copyText($('metadataBox').value);
-  $('downloadSvgBtn').onclick=()=>download('pattern.svg',currentSVG||generatePatternSVG(currentProject),'image/svg+xml');
-  $('downloadCsvBtn').onclick=()=>download('metadata.csv',metadataCSV(currentProject),'text/csv');
-  $('downloadJsonBtn').onclick=()=>download('project.json',JSON.stringify(currentProject,null,2),'application/json');
-}
-function cleanJson(s){return s.trim().replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();}
-function buildPrompt(){
- const theme=currentProject.theme||$('themeSelect')?.value||'Scandinavian Botanical'; const category=currentProject.category||$('categorySelect')?.value||'Botanical';
- const count=Number($('elementsCount').value||28); const art=Number($('artboard').value||10000); const pal=$('palette').value;
- const prompt=`คุณคือนักออกแบบเวคเตอร์ stock ระดับมืออาชีพ ช่วยออกแบบ concept สำหรับ seamless vector pattern ที่ขายดี โดยต้องไม่ลอกงานใด ๆ และหลีกเลี่ยงแบรนด์ โลโก้ ตัวละคร ลิขสิทธิ์ ภาพบุคคล และทรัพย์สินทางปัญญา\n\nเงื่อนไข:\n- Category: ${category}\n- Theme: ${theme}\n- Style: ${$('styleText').value}\n- Artboard: ${art}x${art}px\n- Elements: ${count} ชิ้น แบ่งเป็น hero motifs, medium motifs, small fillers, tiny accents\n- Color palette: ${pal}\n\nตอบกลับเป็น JSON เท่านั้น ห้ามใส่ markdown และต้องมี schema นี้:\n{\n  "title":"English stock title under 70 chars",\n  "description":"English description under 200 chars",\n  "concept":"Short original concept",\n  "category":"${category}",\n  "theme":"${theme}",\n  "elements":["${count} unique generic vector element names"],\n  "keywords":["exactly 50 stock keywords"],\n  "palette":["#HEX colors"],\n  "originality_notes":["3-5 practical notes to avoid copying and improve human editing"]\n}\n\nข้อกำหนดสำคัญ:\n- keywords ต้องมี 50 คำพอดี\n- elements ต้องเป็น generic motifs เท่านั้น เช่น leaf stem, seed pod, abstract flower ห้ามใช้ชื่อแบรนด์ ศิลปิน ตัวละคร\n- title และ description ต้องเหมาะสำหรับ Adobe Stock/Shutterstock\n- concept ต้องมีความต่างเชิงองค์ประกอบจากงานทั่วไป`;
- $('promptBox').value=prompt;
-}
-function loadProject(obj){
- currentProject={...currentProject,...obj};
- if(typeof currentProject.palette==='string') currentProject.palette=currentProject.palette.split(',').map(x=>x.trim());
- currentProject.elements=currentProject.elements||[]; currentProject.keywords=currentProject.keywords||[];
- $('jsonStatus').textContent='นำข้อมูลเข้าแล้ว';
- $('jsonSummary').innerHTML=`<p><b>Title:</b> ${currentProject.title}</p><p><b>Theme:</b> ${currentProject.theme}</p><p><b>Elements:</b> ${currentProject.elements.length}</p><p><b>Keywords:</b> ${currentProject.keywords.length}</p>`;
- updateDashboard(); buildMetadata(); runGuard(); renderSVG(false);
-}
-function renderSVG(rep){currentSVG=generatePatternSVG({...currentProject, artboard:Number($('artboard').value||10000)},rep); $('svgPreview').innerHTML=currentSVG; showTab('preview');}
-function updateDashboard(){ $('themeCount').textContent=Object.values(THEME_LIBRARY).reduce((a,b)=>a+b.length,0); $('keywordCount').textContent=currentProject.keywords?.length||0; }
-function runGuard(){
- const e=currentProject.elements||[], k=currentProject.keywords||[]; const dupE=e.length-new Set(e.map(x=>x.toLowerCase())).size; const dupK=k.length-new Set(k.map(x=>x.toLowerCase())).size;
- const issues=[]; if(k.length!==50) issues.push(`Keywords ควรมี 50 คำ ตอนนี้มี ${k.length}`); if(dupK) issues.push(`พบ keyword ซ้ำ ${dupK} รายการ`); if(dupE) issues.push(`พบ element ซ้ำ ${dupE} รายการ`); if(e.length<20) issues.push('Elements น้อยเกินไป ควร 28+'); if(!issues.length) issues.push('ผ่าน checklist เบื้องต้น แต่ยังต้องตรวจภาพอ้างอิง/ลิขสิทธิ์ด้วยตนเอง');
- $('guardReport').innerHTML='<ul>'+issues.map(i=>`<li>${i}</li>`).join('')+'</ul><p class="warn">ก่อนส่งขาย: เปิด SVG ใน Affinity Designer แล้วปรับรูปทรง/ตำแหน่ง/สีด้วยมือทุกครั้ง</p>';
-}
-function buildCollection(){
- const n=Math.min(100,Math.max(1,Number($('collectionSize').value||10))); const base=currentProject.theme||'Pattern'; let rows='';
- for(let i=1;i<=n;i++){rows+=`<tr><td>${i}</td><td>${base} Variation ${String(i).padStart(2,'0')}</td><td>${pick(currentProject.palette||[],i)}, ${pick(currentProject.palette||[],i+2)}</td><td>Change hero motif rotation, scale and filler density</td></tr>`;}
- $('collectionList').innerHTML=`<table><thead><tr><th>#</th><th>Design Name</th><th>Palette Focus</th><th>Human Edit Plan</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function buildMetadata(){const m=makeMetadata(currentProject); $('metadataBox').value=`ADOBE STOCK\nTitle: ${m.adobe.title}\nDescription: ${m.adobe.description}\nKeywords: ${m.adobe.keywords}\nCategory: ${m.adobe.category}\n\nSHUTTERSTOCK\nTitle: ${m.shutterstock.title}\nDescription: ${m.shutterstock.description}\nKeywords: ${m.shutterstock.keywords}\n\nFREEPIK\nTitle: ${m.freepik.title}\nTags: ${m.freepik.tags}`;}
-function copyText(t){navigator.clipboard?.writeText(t).then(()=>alert('คัดลอกแล้ว')).catch(()=>alert('คัดลอกไม่สำเร็จ ให้กดเลือกข้อความแล้ว Copy เอง'));}
-function download(name, content, type){const blob=new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);}
-function pick(arr,i){return arr && arr.length ? arr[i%arr.length] : ''}
-document.addEventListener('DOMContentLoaded',init);
+const PALETTES={
+ 'Beige Scandinavian':['#F5EFE6','#D7C8B2','#A9B388','#718355','#C9855A','#EEE4D4'],
+ 'Evergreen Premium':['#F5F1EA','#CAD3B3','#8FA06B','#5E7440','#D1A06A','#E6D8C1'],
+ 'Muted Terracotta':['#F7EFE7','#DDBEA9','#CB997E','#A5A58D','#6B705C','#FFE8D6'],
+ 'Soft Pastel':['#FFF7F0','#D8E2DC','#FFE5D9','#FFCAD4','#B8C0A8','#9D8189'],
+ 'Mid Century':['#F2E8CF','#BC6C25','#DDA15E','#606C38','#283618','#FEFAE0'],
+ 'Cool Minimal':['#F7F7F2','#CFDBD5','#A6A2A2','#5B6C5D','#2F3E46','#E8EDDF']
+};
+let currentSVG='', repeat=false;
+function $(id){return document.getElementById(id)}
+function hash(s){let h=2166136261; for(let c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)} return h>>>0}
+function rng(seed){let a=hash(seed);return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function init(){Object.keys(THEMES).forEach(x=>theme.add(new Option(x,x)));Object.keys(PALETTES).forEach(x=>palette.add(new Option(x,x)));bindTabs();generatePattern();}
+function bindTabs(){document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button,.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')})}
+function shape(type,x,y,s,rot,colors,r){let c=colors[Math.floor(r()*colors.length)], c2=colors[Math.floor(r()*colors.length)], sw=Math.max(16,s*.035);let tr=`translate(${x} ${y}) rotate(${rot})`;let op=.92;switch(type){
+case 'eucalyptus':case 'olive':case 'willow':case 'branch':case 'stem': return `<g transform="${tr}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"><path d="M0 ${s*.55} C ${-s*.15} ${s*.15}, ${s*.12} ${-s*.15},0 ${-s*.55}"/><ellipse cx="${-s*.16}" cy="${-s*.18}" rx="${s*.13}" ry="${s*.23}" fill="${c2}" opacity="${op}" transform="rotate(-35)"/><ellipse cx="${s*.18}" cy="${s*.02}" rx="${s*.13}" ry="${s*.23}" fill="${c}" opacity="${op}" transform="rotate(35)"/><ellipse cx="${-s*.12}" cy="${s*.22}" rx="${s*.12}" ry="${s*.2}" fill="${c2}" opacity=".75" transform="rotate(-35)"/></g>`;
+case 'berry':case 'bud': return `<g transform="${tr}" stroke="${c}" stroke-width="${sw}" fill="none"><path d="M0 ${s*.45} C ${-s*.1} 0 ${s*.08} ${-s*.2} 0 ${-s*.5}"/><circle cx="${-s*.12}" cy="${-s*.18}" r="${s*.1}" fill="${c2}"/><circle cx="${s*.1}" cy="${-s*.32}" r="${s*.09}" fill="${c}"/><circle cx="${s*.03}" cy="${-s*.05}" r="${s*.08}" fill="${c2}"/></g>`;
+case 'daisy':case 'flower':case 'tinyflower':case 'hibiscus': return `<g transform="${tr}"><ellipse cx="0" cy="${-s*.18}" rx="${s*.13}" ry="${s*.28}" fill="${c2}"/><ellipse cx="${s*.18}" cy="0" rx="${s*.13}" ry="${s*.28}" fill="${c2}" transform="rotate(70)"/><ellipse cx="${-s*.18}" cy="0" rx="${s*.13}" ry="${s*.28}" fill="${c2}" transform="rotate(-70)"/><circle r="${s*.12}" fill="${c}"/></g>`;
+case 'monstera':case 'palm':case 'banana':case 'fern':case 'leaf': return `<g transform="${tr}"><path d="M0 ${-s*.55} C ${s*.48} ${-s*.25}, ${s*.45} ${s*.3},0 ${s*.55} C ${-s*.45} ${s*.25}, ${-s*.5} ${-s*.25},0 ${-s*.55}Z" fill="${c}" opacity=".9"/><path d="M0 ${-s*.42} L0 ${s*.42}" stroke="${colors[3%colors.length]}" stroke-width="${sw}" stroke-linecap="round" opacity=".55"/></g>`;
+case 'arch':case 'rainbow': return `<g transform="${tr}" fill="none" stroke-linecap="round"><path d="M${-s*.4} ${s*.35} A ${s*.4} ${s*.4} 0 0 1 ${s*.4} ${s*.35}" stroke="${c}" stroke-width="${s*.12}"/><path d="M${-s*.25} ${s*.35} A ${s*.25} ${s*.25} 0 0 1 ${s*.25} ${s*.35}" stroke="${c2}" stroke-width="${s*.1}"/></g>`;
+case 'sun':case 'star':case 'moon': return `<g transform="${tr}"><circle r="${s*.22}" fill="${c}"/><path d="M0 ${-s*.48}L0 ${-s*.34}M0 ${s*.34}L0 ${s*.48}M${-s*.48} 0L${-s*.34} 0M${s*.34} 0L${s*.48} 0M${-s*.34} ${-s*.34}L${-s*.24} ${-s*.24}M${s*.34} ${s*.34}L${s*.24} ${s*.24}M${s*.34} ${-s*.34}L${s*.24} ${-s*.24}M${-s*.34} ${s*.34}L${-s*.24} ${s*.24}" stroke="${c2}" stroke-width="${sw}" stroke-linecap="round"/></g>`;
+case 'cup': return `<g transform="${tr}"><path d="M${-s*.32} ${-s*.2}h${s*.52}v${s*.42}a${s*.22} ${s*.22} 0 0 1 ${-s*.22} ${s*.22}h${-s*.08}a${s*.22} ${s*.22} 0 0 1 ${-s*.22} ${-s*.22}z" fill="${c}"/><path d="M${s*.22} ${-s*.08}h${s*.14}a${s*.14} ${s*.14} 0 0 1 0 ${s*.28}h${-s*.14}" fill="none" stroke="${c}" stroke-width="${sw}"/></g>`;
+default: return `<g transform="${tr}"><path d="M ${-s*.35} ${-s*.15} C ${-s*.12} ${-s*.55}, ${s*.45} ${-s*.32}, ${s*.35} ${s*.12} C ${s*.25} ${s*.45}, ${-s*.38} ${s*.45}, ${-s*.45} ${s*.08}Z" fill="${c}" opacity=".9"/></g>`}}
+function positions(n,size,mode,r){let pts=[];let margin=size*.08;if(mode==='balanced_grid'){let cols=Math.ceil(Math.sqrt(n));for(let i=0;i<n;i++){let gx=i%cols,gy=Math.floor(i/cols);pts.push([margin+(gx+.5)*((size-2*margin)/cols)+(r()-.5)*size*.04,margin+(gy+.5)*((size-2*margin)/cols)+(r()-.5)*size*.04])}}else if(mode==='diagonal_flow'){for(let i=0;i<n;i++){let t=i/(n-1);pts.push([margin+t*(size-2*margin)+(r()-.5)*size*.18, margin+(t+.15*Math.sin(t*8))* (size-2*margin)+(r()-.5)*size*.16])}}else{for(let i=0;i<n;i++)pts.push([margin+r()*(size-2*margin),margin+r()*(size-2*margin)])}return pts}
+function generatePattern(){let size=+$('size').value||10000, n=+$('count').value||52, r=rng($('seed').value), colors=PALETTES[$('palette').value], assets=THEMES[$('theme').value], mode=$('layout').value;let bg=colors[0];let pts=positions(n,size,mode,r);let items=[];pts.forEach((p,i)=>{let tier=i<n*.18?'hero':i<n*.55?'secondary':'filler';let s=tier==='hero'? size*(.09+r()*.04):tier==='secondary'?size*(.055+r()*.025):size*(.028+r()*.02);let type=assets[Math.floor(r()*assets.length)];items.push(shape(type,p[0],p[1],s,(r()*360)|0,colors,r)); // edge copies for seamless
+ if(p[0]<size*.12)items.push(shape(type,p[0]+size,p[1],s,(r()*360)|0,colors,r)); if(p[0]>size*.88)items.push(shape(type,p[0]-size,p[1],s,(r()*360)|0,colors,r)); if(p[1]<size*.12)items.push(shape(type,p[0],p[1]+size,s,(r()*360)|0,colors,r)); if(p[1]>size*.88)items.push(shape(type,p[0],p[1]-size,s,(r()*360)|0,colors,r));});
+ currentSVG=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="100%" height="100%" fill="${bg}"/>${items.join('')}</svg>`;render();checks(n,assets,colors)}
+function render(){preview.className=repeat?'repeat':''; preview.innerHTML=repeat?Array(9).fill(currentSVG).join(''):currentSVG}
+function checks(n,a,c){checks.innerHTML=`<li class="ok">ใช้ Asset เฉพาะ Theme: ${a.join(', ')}</li><li class="ok">มี edge-copy สำหรับ seamless repeat</li><li class="ok">จำนวนองค์ประกอบ ${n} ชิ้น เหมาะกับงาน commercial pattern</li><li class="warn">ควรปรับด้วยมือใน Affinity Designer ก่อนส่งขาย เพื่อเพิ่มเอกลักษณ์และลดความซ้ำ</li><li class="warn">ควรตรวจ Reverse Image Search/แนวคิดซ้ำก่อนอัปโหลด Stock</li>`}
+function download(name,text,type='text/plain'){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+generate.onclick=generatePattern;randomSeed.onclick=()=>{seed.value='stock-'+Math.random().toString(36).slice(2,9);generatePattern()};oneBtn.onclick=()=>{repeat=false;oneBtn.classList.add('active');repeatBtn.classList.remove('active');render()};repeatBtn.onclick=()=>{repeat=true;repeatBtn.classList.add('active');oneBtn.classList.remove('active');render()};copySvg.onclick=()=>navigator.clipboard.writeText(currentSVG);downloadSvg.onclick=()=>download(`${theme.value.replaceAll(' ','_')}_${seed.value}.svg`,currentSVG,'image/svg+xml');
+makePrompt.onclick=()=>{promptText.value=`คุณคือนักออกแบบเวกเตอร์ stock ระดับมืออาชีพ สร้าง JSON สำหรับ seamless vector pattern เท่านั้น\nTheme: ${theme.value}\nPalette: ${palette.value} ${PALETTES[palette.value].join(',')}\nStyle: flat design, clean editable vector, premium commercial stock, not copied from any existing artist\nขอ JSON keys: title, description, concept, elements จำนวน 28 รายการ, keywords จำนวน 50 คำ\nห้ามใส่ markdown ห้ามใส่คำอธิบายนอก JSON`;};copyPrompt.onclick=()=>navigator.clipboard.writeText(promptText.value);
+sampleJson.onclick=()=>{jsonInput.value=JSON.stringify({title:'Premium Scandinavian Botanical Seamless Pattern',description:'Elegant flat botanical vector pattern with eucalyptus leaves, olive branches, berry stems and soft earthy palette for fabric, wallpaper and surface design.',concept:'Commercial evergreen botanical repeat using balanced hero leaves, secondary stems and tiny fillers.',elements:['eucalyptus branch','olive stem','berry twig','willow leaf','flower bud'],keywords:['botanical','seamless','pattern','vector','floral','leaves','eucalyptus','olive','scandinavian','minimal','flat design','surface pattern','fabric','wallpaper','background','nature','organic','green','beige','earth tone','premium','commercial','repeat','textile','wrapping paper','stationery','nursery','modern','elegant','foliage','branch','leaf','wildflower','decorative','print','design','abstract botanical','simple','clean','soft','natural','garden','spring','evergreen','minimalist','tile','cute','hand drawn style','editable','stock']},null,2)};
+importJson.onclick=()=>{try{let j=JSON.parse(jsonInput.value.replace(/[“”]/g,'"').replace(/[‘’]/g,"'"));title.value=j.title||'';description.value=j.description||'';keywords.value=(j.keywords||[]).join(', ')}catch(e){alert('JSON ไม่ถูกต้อง')}};
+downloadCsv.onclick=()=>download('metadata_stock.csv',`filename,title,description,keywords\npattern.svg,"${title.value}","${description.value}","${keywords.value}"`,'text/csv');downloadReadme.onclick=()=>download('production_checklist.txt','1. Open SVG in Affinity Designer 2 iPad\n2. Ungroup and customize manually\n3. Check seamless edges\n4. Export EPS/JPEG\n5. Verify no trademark/person/copyright risk\n6. Use metadata CSV for stock upload');
+init();

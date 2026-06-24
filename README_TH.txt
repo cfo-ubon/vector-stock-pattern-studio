@@ -1,19 +1,19 @@
-Vector Stock Pattern Studio V4 Professional
+Vector Stock Pattern Studio V5 Premium
 
-วิธีติดตั้งบน GitHub Pages
+วิธีอัปโหลด GitHub Pages:
 1) แตก ZIP
-2) เปิด Repository เดิม vector-stock-pattern-studio
-3) Upload ไฟล์ทั้งหมด: index.html, css, js, assets, README_TH.txt
-4) Commit changes
-5) รอ GitHub Pages อัปเดต 1-3 นาที
+2) อัปโหลด index.html, css, js, README_TH.txt ทับของเดิมใน repository
+3) Commit changes
+4) เปิดลิงก์ GitHub Pages เดิม
 
-วิธีใช้งาน
-1) Theme Library: เลือก Category และ Theme
-2) Prompt Builder: กดสร้าง Prompt แล้วคัดลอกไปวางใน ChatGPT
-3) JSON Import: นำ JSON จาก ChatGPT กลับมาวาง
-4) SVG Preview: กด Generate SVG Pattern
-5) Export Center: ดาวน์โหลด SVG, CSV, JSON
-6) เปิด SVG ใน Affinity Designer 2 iPad เพื่อปรับแต่งด้วยมือก่อนส่งขาย
+จุดเด่น V5:
+- Theme Library ให้เลือก
+- Asset-Based Pattern Engine ไม่ใช่ random shape ธรรมดา
+- Seamless edge-copy logic
+- Preview 1x1 และ 3x3 repeat
+- Export SVG สำหรับ Affinity Designer 2 iPad
+- Metadata CSV
+- Prompt Builder สำหรับใช้กับ ChatGPT แบบไม่ใช้ API key
 
-คำเตือน
-แอพนี้ช่วยสร้างงานเวคเตอร์แบบ procedural และช่วยวาง metadata แต่ไม่สามารถรับรอง 100% ว่าไม่คล้ายงานใดในโลก ผู้ใช้ต้องตรวจสอบและปรับแต่งด้วยตนเองก่อนส่งขาย stock
+ข้อควรจำ:
+แอพนี้ช่วยสร้างฐานลายเวกเตอร์ แต่ก่อนส่งขาย stock ควรปรับแต่งด้วยมือใน Affinity Designer เพื่อเพิ่มเอกลักษณ์ ตรวจลิขสิทธิ์ ตรวจ trademark และตรวจความซ้ำทุกครั้ง
