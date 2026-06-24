@@ -1,12 +1,5 @@
-Vector Stock Pattern Studio V8 Final
-
-วิธีอัปเดต GitHub Pages:
-1. เปิด repository เดิมใน GitHub
-2. กด index.html
-3. กดไอคอนดินสอ Edit
-4. ลบโค้ดเดิมทั้งหมด
-5. วางโค้ดจาก index.html เวอร์ชัน V8
-6. Commit changes
-7. รีเฟรชหน้าเว็บเดิม
-
-หมายเหตุ: SVG ที่ได้เป็น base vector สำหรับปรับแต่งต่อใน Affinity Designer 2 iPad ก่อนส่งขาย stock
+Vector Stock Pattern Studio V13 Final
+- ปรับ engine เป็น non-overlap layout
+- ใช้ grid cell + collision avoidance ลด motif ซ้อนทับ
+- Export SVG 10000x10000 และ CSV metadata
+วิธีอัปเดต: อัปโหลด index.html ทับไฟล์เดิมใน GitHub Pages แล้ว Commit changes
