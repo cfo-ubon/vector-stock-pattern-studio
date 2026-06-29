@@ -1,5 +1,5 @@
-Vector Stock Pattern Studio V13 Final
-- ปรับ engine เป็น non-overlap layout
-- ใช้ grid cell + collision avoidance ลด motif ซ้อนทับ
-- Export SVG 10000x10000 และ CSV metadata
-วิธีอัปเดต: อัปโหลด index.html ทับไฟล์เดิมใน GitHub Pages แล้ว Commit changes
+Vector Stock Pattern Studio V23 Pro
+- อัปโหลด index.html ทับไฟล์เดิมใน GitHub Pages
+- เปิดลิงก์เดิมแล้ว Refresh
+- กด Generate Pattern เพื่อสร้าง SVG
+- Export SVG for Affinity Designer 2 iPad
