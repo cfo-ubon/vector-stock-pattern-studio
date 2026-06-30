@@ -3,303 +3,119 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vector Stock Pattern Studio V27 Stock Beauty Leap</title>
+<title>Vector Stock Pattern Studio V28 Leap</title>
 <style>
-:root{--bg:#fbf7ef;--card:#fffefb;--ink:#0c3326;--muted:#706a61;--line:#e3d7c6;--green:#0d4a2b;--green2:#477247;--accent:#cc7c5d;--gold:#d79a34;--shadow:0 18px 48px rgba(54,38,18,.08)}
-*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fffdf8,#f5eddf);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}.app{max-width:1680px;margin:auto}header{padding:26px 5vw 18px;border-bottom:1px solid var(--line);background:rgba(255,253,247,.95);position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}h1{font-size:clamp(38px,5vw,70px);letter-spacing:-.05em;line-height:.95;margin:0;font-weight:950}.sub{font-size:clamp(15px,1.7vw,21px);color:var(--muted);margin-top:10px;font-weight:680}.tabs{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}.tab{border:2px solid var(--line);background:#fffefb;border-radius:16px;padding:13px 22px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.035)}.tab.active{background:#071329;color:#fff;border-color:#071329}.wrap{display:grid;grid-template-columns:340px minmax(560px,1fr) 360px;gap:22px;padding:26px 5vw}.panel{background:rgba(255,254,251,.95);border:1.5px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}h2{margin:0 0 14px;font-size:26px}label{display:block;font-weight:950;margin:16px 0 8px}.select,input,textarea{width:100%;padding:14px 16px;border:1.6px solid var(--line);border-radius:14px;background:white;color:#081d16;font-size:16px}.swatches{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.sw{width:39px;height:39px;border-radius:11px;border:1px solid rgba(0,0,0,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}button{border:0;border-radius:14px;padding:14px 18px;font-weight:950;font-size:15px;cursor:pointer}.primary{background:linear-gradient(180deg,#176136,#0f4429);color:white;box-shadow:0 12px 26px rgba(19,70,37,.24)}.secondary{background:white;border:1.5px solid var(--line);color:#071329}.orange{background:#cf7b58;color:white}.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.previewHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.previewBox{border:1.5px solid var(--line);border-radius:22px;overflow:hidden;background:#fffaf1;aspect-ratio:1/1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}.previewBox svg{width:100%;height:100%;display:block}.score{font-size:58px;font-weight:950;letter-spacing:-.05em}.stars{font-size:26px;color:var(--gold);letter-spacing:2px}.check li{margin:9px 0}.repeatPanel{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;aspect-ratio:1/1;background-image:var(--tile);background-repeat:repeat;background-size:33.333% 33.333%;background-color:#fffdf8}.pill{display:inline-flex;align-items:center;gap:6px;padding:10px 13px;background:#edf5ea;border:1px solid #cbdcc4;border-radius:99px;font-weight:850;color:#2b5636}.hidden{display:none!important}.textarea{min-height:260px;font-family:ui-monospace,Consolas,monospace}.exportbar{grid-column:1/-1;display:flex;gap:14px;align-items:center;flex-wrap:wrap}.small{color:var(--muted);font-weight:680;font-size:13px}.notice{background:#fff4d8;border:1px solid #edcf86;border-radius:14px;padding:12px;margin-top:15px;color:#6a4511;font-weight:680}.statline{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0}.quality{color:#1c6a2e;font-weight:950}.miniGrid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.mini{width:44px;height:26px;border-radius:8px;border:1px solid var(--line);display:inline-block}
-@media(max-width:1200px){.wrap{grid-template-columns:1fr}header{position:relative}.panel{width:100%}.previewBox{max-height:80vh}.exportbar{display:block}.exportbar button{margin:6px}}
+:root{--ink:#10352a;--muted:#756f63;--line:#ded2bf;--paper:#fbf7ee;--card:#fffdf8;--green:#17452d;--accent:#c97855;--soft:#eef3e9;--gold:#d89b32}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#fbf8f0,#efe6d7);color:var(--ink)}
+header{padding:28px 32px 18px;border-bottom:1px solid var(--line);background:rgba(255,253,248,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+h1{font-size:clamp(32px,5vw,64px);line-height:1;margin:0 0 8px;font-weight:900;letter-spacing:-1px}.sub{font-size:clamp(15px,2vw,22px);font-weight:700;color:var(--muted)}
+.tabs{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}.tab{border:2px solid var(--line);border-radius:16px;background:#fffdf8;padding:14px 24px;font-weight:800;font-size:17px}.tab.active{background:#07142b;color:white;border-color:#07142b;box-shadow:0 10px 24px #0002}
+.wrap{max-width:1480px;margin:auto;padding:28px;display:grid;grid-template-columns:320px minmax(420px,1fr) 310px;gap:22px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 28px #775f3920;padding:20px}.panel-title{font-size:24px;font-weight:900;margin:0 0 18px}
+label{display:block;font-weight:900;margin:16px 0 8px;font-size:15px;text-transform:uppercase;letter-spacing:.04em}select,input{width:100%;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fff;color:#111;font-size:16px}button{cursor:pointer;border:0;border-radius:14px;padding:14px 18px;font-weight:900;font-size:16px}.primary{background:var(--green);color:white}.secondary{background:#07142b;color:white}.ghost{background:#f2eadc;color:#111}.orange{background:var(--accent);color:white}.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.palette-row{display:flex;gap:8px;margin-top:10px}.sw{width:34px;height:34px;border-radius:10px;border:1px solid #0001}
+.previewHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.badge{background:#eaf3e7;border:1px solid #c7dbc1;color:#28572f;border-radius:999px;padding:10px 14px;font-weight:900}.svgBox{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:white;min-height:520px}.svgBox svg{display:block;width:100%;height:auto}.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.chip{background:#eef6ea;border:1px solid #cfe0c9;border-radius:999px;padding:10px 16px;font-weight:900;color:#2c6532}.score{font-size:52px;font-weight:950;line-height:1;margin:12px 0;color:#0e3627}.stars{font-size:28px;color:var(--gold);letter-spacing:2px}.checks{line-height:1.75;font-weight:750}.repeatGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.tile{aspect-ratio:1/1;border:1px solid var(--line);border-radius:10px;background:#fff;background-size:100% 100%;overflow:hidden}.tile svg{width:100%;height:100%}.export{max-width:1480px;margin:0 auto 30px;padding:0 28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}.export .card{display:flex;align-items:center;gap:14px;font-weight:900}.note{background:#fff6d8;border:1px solid #e0c56a;border-radius:14px;padding:12px;margin-top:16px;color:#6a4e11;font-weight:700}.small{font-size:13px;color:var(--muted);line-height:1.55}.hidden{display:none}.textarea{width:100%;height:220px;border:2px solid var(--line);border-radius:14px;padding:12px;font-family:ui-monospace,Consolas,monospace}
+@media(max-width:1050px){.wrap{grid-template-columns:1fr}.export{grid-template-columns:1fr 1fr}header{position:static}.svgBox{min-height:0}}
+@media(max-width:620px){.wrap{padding:14px}.export{grid-template-columns:1fr;padding:0 14px}.tab{flex:1;padding:12px}h1{font-size:36px}}
 </style>
 </head>
-<body><div class="app">
+<body>
 <header>
-<h1>Vector Stock Pattern Studio V27 Stock Beauty Leap</h1>
-<div class="sub">Professional Surface Pattern Engine • bouquet / branch / botanical detail • seamless SVG 10000×10000 • AI JSON copy/paste • no API key</div>
-<div class="tabs"><button class="tab active" data-tab="studio">Studio</button><button class="tab" data-tab="ai">AI JSON</button><button class="tab" data-tab="prompt">Prompt Builder</button><button class="tab" data-tab="metadata">Metadata</button><button class="tab" data-tab="guide">คู่มือ</button></div>
+  <h1>Vector Stock Pattern Studio V28 Leap</h1>
+  <div class="sub">Professional Surface Pattern Engine • curated hero bouquets • detailed botanical vectors • seamless SVG 10000×10000 • no API key</div>
+  <div class="tabs"><button class="tab active" data-tab="studio">Studio</button><button class="tab" data-tab="ai">AI JSON</button><button class="tab" data-tab="prompt">Prompt Builder</button><button class="tab" data-tab="metadata">Metadata</button><button class="tab" data-tab="guide">คู่มือ</button></div>
 </header>
-<main class="wrap">
-<section class="panel left" id="leftPanel"><h2>ตั้งค่าลาย</h2>
-<label>Theme</label><select id="theme" class="select"><option>Scandinavian Botanical Pro</option><option>Cottage Garden</option><option>Evergreen Forest</option><option>Mediterranean Garden</option><option>Japanese Botanical</option><option>Nursery Nature</option><option>Boho Wildflower</option><option>Minimal Eucalyptus</option></select>
-<label>Palette</label><select id="palette" class="select"><option>Scandinavian Soft 01</option><option>Sage & Clay</option><option>Warm Beige Botanical</option><option>Evergreen Premium</option><option>Cottage Cream</option><option>Terracotta Garden</option><option>Muted Nursery</option><option>Deep Cottage</option></select><div class="swatches" id="swatches"></div>
-<label>Composition</label><select id="composition" class="select"><option>Editorial Flow Premium</option><option>Layered Garden Full Tile</option><option>Elegant Diagonal Botanical</option><option>Half Drop Textile</option><option>Airy Boutique Pattern</option><option>Dense Botanical Textile</option></select>
-<label>Detail Level</label><select id="detail" class="select"><option value="max">Premium Detail Highest</option><option value="high">Premium Detail High</option><option value="medium">Balanced Detail</option></select>
-<label>Density</label><select id="density" class="select"><option>Balanced Natural</option><option>Rich Premium</option><option>Airy Premium</option><option>Dense Textile</option></select>
-<label>Motif Scale</label><select id="scale" class="select"><option>Medium Commercial</option><option>Large Premium</option><option>Small Ditsy</option></select>
-<label>Seed</label><input id="seed" value="KOKO-240001" />
-<div class="btnrow"><button class="primary" onclick="generate()">✦ Generate Pattern</button><button class="secondary" onclick="randomize()">↻ Randomize</button></div>
-<hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
-<div class="btnrow"><button class="orange" onclick="downloadSVG()">Export SVG 10000px</button><button class="orange" onclick="downloadCSV()">Export CSV</button><button class="secondary" onclick="copySVG()">Copy SVG</button></div>
-<div class="notice">V27 Stock Beauty Leap: เพิ่ม art-direction engine, S-curve composition, motif hierarchy, color harmony, edge-safe seamless wrap และ export SVG/CSV พร้อมส่งต่อ Affinity Designer 2 iPad</div>
-</section>
-<section class="panel center" id="studioPanel"><div class="previewHead"><h2>Preview <small>(10000×10000)</small></h2><span class="pill" id="built">สร้างแล้ว</span></div><div class="previewBox" id="preview"></div><div class="btnrow"><span class="pill">✓ Hero</span><span class="pill">✓ Branch flow</span><span class="pill">✓ Leaf veins</span><span class="pill">✓ Flower details</span><span class="pill">✓ Tiny accents</span></div></section>
-<aside class="panel right" id="rightPanel"><h2>Quality Score</h2><div class="score">9.8/10</div><div class="stars">★★★★★</div><p style="color:var(--muted);font-weight:650">เหมาะเป็น base vector เพื่อเปิดแก้ต่อใน Affinity Designer 2 iPad ก่อนส่งขาย</p><div class="statline"><b id="motifCount">0 motifs</b><span>SVG vector</span></div><div class="statline"><b>Hero / Cluster / Filler</b><span>Tiny</span></div><h3 class="quality">V27 Stock Beauty Leap</h3><ul class="check"><li>Hero bouquet composition</li><li>Long botanical branch rhythm</li><li>Leaf vein + highlight detail</li><li>Layered flower + pollen dots</li><li>Density map / breathing space</li><li>Seamless edge wrap</li></ul><button class="primary" onclick="previewRepeat()">Preview 3×3 Repeat</button><div class="repeatPanel" id="repeatPanel"></div></aside>
-<section class="panel exportbar"><b>Export Options</b><button class="secondary" onclick="downloadSVG()">SVG for Affinity</button><button class="secondary" onclick="downloadCSV()">Metadata CSV</button><span class="pill">Tip: เปิด SVG ใน Affinity → ปรับจุด/สี/เส้น → Export EPS/JPG ส่ง stock</span></section>
-<section class="panel hidden" id="aiPanel" style="grid-column:1/-1"><h2>AI JSON Import</h2><p>วาง JSON จาก ChatGPT เพื่อให้แอพใช้ concept / motif / palette ที่ ChatGPT คิด แล้ว render เป็น SVG ในแอพ</p><textarea id="jsonText" class="textarea" placeholder='วาง JSON เช่น {"title":"...","hero_motifs":[...],"palette":[...]}'></textarea><div class="btnrow"><button class="primary" onclick="importJSON()">นำ JSON เข้าแอพ</button><button class="secondary" onclick="sampleJSON()">ใส่ตัวอย่าง</button></div></section>
-<section class="panel hidden" id="promptPanel" style="grid-column:1/-1"><h2>Prompt Builder</h2><textarea id="promptText" class="textarea"></textarea><div class="btnrow"><button class="primary" onclick="buildPrompt()">สร้าง Prompt</button><button class="secondary" onclick="navigator.clipboard.writeText(document.getElementById('promptText').value)">Copy Prompt</button></div></section>
-<section class="panel hidden" id="metadataPanel" style="grid-column:1/-1"><h2>Metadata</h2><textarea id="metaText" class="textarea"></textarea><div class="btnrow"><button class="primary" onclick="makeMetadata()">สร้าง Metadata</button></div></section>
-<section class="panel hidden" id="guidePanel" style="grid-column:1/-1"><h2>คู่มือใช้งานสั้น</h2><p>1) เลือก Theme / Palette / Composition 2) กด Generate Pattern 3) ตรวจ 3×3 Repeat 4) Export SVG 10000px 5) เปิดใน Affinity Designer 2 iPad เพื่อปรับแต่งก่อนส่งขาย</p><p><b>สำคัญ:</b> แอพช่วยสร้าง base vector ในเครื่อง ไม่ใช้ API key และไม่สามารถรับรองได้ 100% ว่างานไม่คล้ายผู้อื่น จึงควรปรับแต่งใน Affinity ก่อนส่งขายทุกครั้ง</p></section>
-</main></div>
+
+<main class="wrap" id="studioTab">
+  <section class="card">
+    <h2 class="panel-title">ตั้งค่าลาย</h2>
+    <label>Theme</label><select id="theme"><option>Scandinavian Botanical Pro</option><option>Cottage Garden</option><option>Evergreen Forest</option><option>Mediterranean Herbarium</option><option>Nursery Nature</option><option>Japanese Botanical</option></select>
+    <label>Palette</label><select id="palette"><option>Scandinavian Soft 01</option><option>Sage & Clay</option><option>Warm Scandinavian Beige</option><option>Forest Cream</option><option>Terracotta Garden</option><option>Ink Botanical</option></select>
+    <div class="palette-row" id="swatches"></div>
+    <label>Composition</label><select id="composition"><option>Editorial Flow Premium</option><option>Hero Bouquet Full Tile</option><option>Botanical S-Curve</option><option>Premium Tossed Natural</option><option>Herbarium Grid Soft</option><option>Half Drop Textile</option></select>
+    <label>Detail Level</label><select id="detail"><option value="high">Premium Detail High</option><option value="ultra">Ultra Detail / More Veins</option><option value="clean">Clean Commercial</option></select>
+    <label>Density</label><select id="density"><option>Balanced</option><option>Rich but Clear</option><option>Airy Premium</option></select>
+    <label>Seed</label><input id="seed" value="KOKO-280001" />
+    <div class="btnrow"><button class="primary" id="gen">สร้างลายใหม่</button><button class="secondary" id="rnd">สุ่มใหม่</button></div>
+    <div class="note">V28 Leap: เปลี่ยน engine เป็น art-directed layout: hero bouquet, density zones, botanical columns, depth layer, detailed leaf vein และ flower pollen</div>
+  </section>
+
+  <section class="card">
+    <div class="previewHead"><h2 class="panel-title">Preview (10000×10000)</h2><span class="badge" id="made">สร้างแล้ว: Scandinavian Botanical Pro</span></div>
+    <div class="svgBox" id="preview"></div>
+    <div class="chips"><span class="chip">✓ Hero bouquet</span><span class="chip">✓ Branch flow</span><span class="chip">✓ Leaf veins</span><span class="chip">✓ Flower details</span><span class="chip">✓ Seamless wrap</span></div>
+  </section>
+
+  <aside class="card">
+    <h2 class="panel-title">Quality Score</h2>
+    <div class="score">9.8/10</div><div class="stars">★★★★★</div>
+    <p>เหมาะเป็น base vector สำหรับเปิดแก้ต่อใน Affinity Designer 2 iPad ก่อนส่งขาย</p><hr>
+    <b id="motifCount">0 motifs</b><p>Hero / Cluster / Filler / Tiny Accents</p>
+    <h3 style="color:#277537">Professional Engine</h3>
+    <ul class="checks"><li>Hero bouquet composition</li><li>Botanical cluster system</li><li>Detailed leaf veins</li><li>Flower pollen & layers</li><li>Density zone rhythm</li><li>True edge wrap</li></ul>
+    <button class="secondary" id="repeatBtn">Preview 3×3 Repeat</button>
+    <div class="repeatGrid" id="repeatGrid"></div>
+  </aside>
+</main>
+
+<section class="export" id="exportBar"><div class="card">Export Options</div><button class="card" id="exportSvg">⬇ SVG for Affinity</button><button class="card" id="exportCsv">⬇ CSV Metadata</button><button class="card" id="copySvg">Copy SVG</button></section>
+
+<main class="wrap hidden" id="aiTab"><section class="card" style="grid-column:1/-1"><h2>AI JSON Import</h2><p>ให้ ChatGPT คิด concept/motif/keywords แล้ววาง JSON ที่นี่ แอพจะนำคำเหล่านั้นไปเพิ่ม variation ใน pattern</p><textarea class="textarea" id="aiJson" placeholder='{"title":"...","hero_motifs":["eucalyptus branch"],"medium_motifs":["daisy cluster"],"fillers":["tiny berry"],"keywords":[...]}'></textarea><div class="btnrow"><button class="primary" id="importJson">นำ JSON เข้าแอพ</button></div><p class="small" id="jsonStatus"></p></section></main>
+<main class="wrap hidden" id="promptTab"><section class="card" style="grid-column:1/-1"><h2>Prompt Builder</h2><textarea class="textarea" id="promptBox"></textarea><div class="btnrow"><button class="primary" id="makePrompt">สร้าง Prompt</button><button class="secondary" id="copyPrompt">Copy Prompt</button></div></section></main>
+<main class="wrap hidden" id="metadataTab"><section class="card" style="grid-column:1/-1"><h2>Metadata</h2><textarea class="textarea" id="metadataBox"></textarea></section></main>
+<main class="wrap hidden" id="guideTab"><section class="card" style="grid-column:1/-1"><h2>คู่มือใช้งานย่อ</h2><ol><li>เลือก Theme / Palette / Composition</li><li>กดสร้างลายใหม่</li><li>ตรวจ 3×3 Repeat</li><li>Export SVG แล้วเปิดใน Affinity Designer 2 iPad</li><li>ปรับเส้น/สี/ตำแหน่งด้วยมือก่อนส่งขาย เพื่อเพิ่มความเป็นต้นฉบับ</li></ol></section></main>
+
 <script>
+const W=10000,H=10000; let svgText='', motifTotal=0, aiData=null;
 const palettes={
- 'Scandinavian Soft 01':['#fbf7ed','#cfd8c4','#9fb091','#63784f','#d78b68','#ead9c1','#173d29'],
- 'Sage & Clay':['#f7f0e5','#c7d2bd','#8ea07d','#55714d','#bd745a','#ead3c2','#123d2b'],
- 'Warm Beige Botanical':['#f8f1e4','#d7c8aa','#a8b08c','#7b8453','#c98a6a','#efe2cc','#203d28'],
- 'Evergreen Premium':['#f7f2e8','#c6d4b6','#8fa76d','#4f7042','#d2a05e','#ead8ba','#0b3a28'],
- 'Cottage Cream':['#fff9ec','#d9dbc2','#9fb483','#5d7447','#d98f73','#f0dbc6','#2e4b32'],
- 'Terracotta Garden':['#fbf2e5','#cdd6bd','#93a379','#4d6841','#cc7958','#e9c9b6','#173b25'],
- 'Muted Nursery':['#fff6ea','#cdd9c8','#a5b98f','#6d8355','#dca378','#f0d9ce','#1e4b32'],
- 'Deep Cottage':['#0f3927','#b8c5ab','#80956e','#e6e2d2','#c97b61','#f1e2cf','#092719']
+ 'Scandinavian Soft 01':['#f8f4e9','#d6dfc8','#a7b894','#65784f','#d38a65','#ead9c3','#123d2a'],
+ 'Sage & Clay':['#f3eee4','#c6d2bd','#8da37a','#52704f','#bd7358','#e3cdbb','#103c2c'],
+ 'Warm Scandinavian Beige':['#f8f0e3','#d7c7ac','#abb894','#71815d','#cf825f','#efe2cc','#23452e'],
+ 'Forest Cream':['#fffaf0','#cbd8bd','#899b70','#315037','#d59a6c','#f0dcc3','#0d2c20'],
+ 'Terracotta Garden':['#fbf3e6','#cfd8bd','#83976b','#506f48','#c87655','#edc9ad','#143b2b'],
+ 'Ink Botanical':['#fbf7ec','#bcc8b1','#879374','#2f4738','#d18b64','#ead8c1','#09231a']
 };
-let imported=null,svgText='';
-function rng(seed){let h=2166136261>>>0;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}return function(){h+=0x6D2B79F5;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
-function num(r,a,b){return a+(b-a)*r()} function pick(r,a){return a[Math.floor(r()*a.length)]} function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function showSwatches(){let p=palettes[palette.value]||palettes['Scandinavian Soft 01'];swatches.innerHTML=p.map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}
-function leaf(cx,cy,s,rot,p,r,detail=1){let dark=p[6]||p[3],fill=pick(r,[p[1],p[2],p[2],p[3]]);let hi=pick(r,[p[0],p[1],p[5]]);let w=s*num(r,.28,.42),h=s*num(r,.72,1.05);let veins='';let n=detail?7:4;for(let i=1;i<=n;i++){let yy=-h*.34+i*(h*.68/(n+1));let side=i%2?1:-1;let len=w*num(r,.20,.38);veins+=`<path d="M0 ${yy.toFixed(1)} Q ${side*len*.45} ${(yy-h*.03).toFixed(1)} ${side*len} ${(yy-h*.10).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(2,s*.012).toFixed(1)}" opacity=".17" fill="none" stroke-linecap="round"/>`}
-return `<g class="motif leaf" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})"><ellipse cx="${(w*.08).toFixed(1)}" cy="${(h*.08).toFixed(1)}" rx="${w.toFixed(1)}" ry="${h.toFixed(1)}" fill="#000" opacity=".035"/><path d="M0 ${(-h*.56).toFixed(1)} C ${w.toFixed(1)} ${(-h*.42).toFixed(1)} ${w.toFixed(1)} ${(h*.30).toFixed(1)} 0 ${(h*.58).toFixed(1)} C ${(-w).toFixed(1)} ${(h*.30).toFixed(1)} ${(-w).toFixed(1)} ${(-h*.42).toFixed(1)} 0 ${(-h*.56).toFixed(1)}Z" fill="${fill}" opacity=".93"/><path d="M${(-w*.10).toFixed(1)} ${(-h*.45).toFixed(1)} C ${(w*.42).toFixed(1)} ${(-h*.12).toFixed(1)} ${(w*.38).toFixed(1)} ${(h*.26).toFixed(1)} ${(-w*.04).toFixed(1)} ${(h*.48).toFixed(1)}" fill="none" stroke="${hi}" stroke-width="${Math.max(4,s*.025).toFixed(1)}" opacity=".28" stroke-linecap="round"/><path d="M0 ${(-h*.48).toFixed(1)} C ${(-w*.03).toFixed(1)} ${(-h*.13).toFixed(1)} ${(-w*.02).toFixed(1)} ${(h*.23).toFixed(1)} 0 ${(h*.50).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(3,s*.018).toFixed(1)}" opacity=".40" fill="none" stroke-linecap="round"/>${veins}</g>`}
-function flower(cx,cy,s,rot,p,r){let petal=pick(r,[p[4],p[5],'#f4ead6','#fff7e9']);let petal2=pick(r,[p[4],p[5],p[1]]);let center=pick(r,[p[2],p[3],'#c18e43']);let n=Math.floor(num(r,7,11));let g=`<g class="motif flower" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-for(let layer=0;layer<2;layer++){for(let i=0;i<n;i++){let a=i*360/n+(layer?360/n/2:0),rr=s*(layer?.18:.23),rx=s*(layer?.09:.11),ry=s*(layer?.25:.30);g+=`<ellipse cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${a} ${Math.cos(a*Math.PI/180)*rr} ${Math.sin(a*Math.PI/180)*rr})" fill="${layer?petal:petal2}" opacity="${layer?.78:.52}"/>`}}
-g+=`<circle cx="0" cy="0" r="${(s*.14).toFixed(1)}" fill="${center}" opacity=".95"/><circle cx="0" cy="0" r="${(s*.07).toFixed(1)}" fill="${p[5]}" opacity=".9"/>`;for(let i=0;i<12;i++){let a=i*30,rr=s*num(r,.15,.20);g+=`<circle cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" r="${(s*.014).toFixed(1)}" fill="${p[6]||p[3]}" opacity=".40"/>`}return g+`</g>`}
-function longBranch(cx,cy,s,rot,p,r,type='olive',depth=1){let dark=p[6]||p[3],stemW=Math.max(12,s*.012);let bend=num(r,-.22,.22)*s;let g=`<g class="motif branch" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)}) scale(${depth.toFixed(2)})" opacity="${(0.72+depth*.25).toFixed(2)}"><path d="M0 ${(-s*.55).toFixed(1)} C ${bend.toFixed(1)} ${(-s*.22).toFixed(1)} ${(-bend*.7).toFixed(1)} ${(s*.20).toFixed(1)} 0 ${(s*.58).toFixed(1)}" stroke="${dark}" stroke-width="${stemW.toFixed(1)}" fill="none" stroke-linecap="round"/>`;
-let n=type==='eucalyptus'?8:type==='fern'?14:10;for(let i=0;i<n;i++){let y=-s*.42+i*(s*.84/(n-1));let side=i%2?1:-1;let ls=s*(type==='eucalyptus'?num(r,.14,.22):type==='fern'?num(r,.08,.13):num(r,.11,.18));let x=side*s*num(r,.045,.09);let ang=side*num(r,35,70);g+=`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${side},1)">${leaf(0,0,ls,0,p,r,1)}</g>`}
-if(type==='eucalyptus'){for(let i=0;i<5;i++){g+=`<circle cx="${(num(r,-.05,.05)*s).toFixed(1)}" cy="${(num(r,-.35,.37)*s).toFixed(1)}" r="${(s*num(r,.025,.05)).toFixed(1)}" fill="${p[2]}" opacity=".30"/>`}}return g+`</g>`}
-function berryStem(cx,cy,s,rot,p,r){let dark=p[6]||p[3];let g=`<g class="motif berry" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})"><path d="M0 ${(-s*.45).toFixed(1)} C ${(s*.10).toFixed(1)} ${(-s*.12).toFixed(1)} ${(-s*.08).toFixed(1)} ${(s*.22).toFixed(1)} 0 ${(s*.50).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(8,s*.013).toFixed(1)}" fill="none" stroke-linecap="round"/>`;for(let i=0;i<9;i++){let y=-s*.36+i*s*.09;let side=i%2?1:-1;let x=side*s*num(r,.06,.13);g+=`<path d="M0 ${y.toFixed(1)} L ${x.toFixed(1)} ${(y-s*.03).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(4,s*.008).toFixed(1)}" opacity=".55"/><circle cx="${x.toFixed(1)}" cy="${(y-s*.035).toFixed(1)}" r="${(s*num(r,.028,.043)).toFixed(1)}" fill="${p[4]}" opacity=".88"/><circle cx="${(x-s*.01).toFixed(1)}" cy="${(y-s*.05).toFixed(1)}" r="${(s*.010).toFixed(1)}" fill="${p[5]}" opacity=".65"/>`}return g+`</g>`}
-function airySprig(cx,cy,s,rot,p,r){let dark=p[6]||p[3];let g=`<g class="motif sprig" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})"><path d="M0 ${(-s*.52).toFixed(1)} C ${(s*.10).toFixed(1)} ${(-s*.18).toFixed(1)} ${(-s*.08).toFixed(1)} ${(s*.24).toFixed(1)} 0 ${(s*.54).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(5,s*.009).toFixed(1)}" fill="none" opacity=".55"/>`;for(let i=0;i<17;i++){let y=-s*.42+i*s*.052,side=i%2?1:-1;g+=`<circle cx="${(side*s*num(r,.06,.13)).toFixed(1)}" cy="${y.toFixed(1)}" r="${(s*num(r,.006,.014)).toFixed(1)}" fill="${pick(r,[p[2],p[3],p[4],p[5]])}" opacity="${num(r,.35,.72).toFixed(2)}"/>`}return g+`</g>`}
-function bouquet(cx,cy,s,rot,p,r){let g=`<g class="motif hero" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;g+=longBranch(0,0,s*.92,-18,p,r,'eucalyptus',1.0);g+=longBranch(s*.18,s*.02,s*.82,24,p,r,'olive',.94);g+=berryStem(-s*.14,s*.05,s*.70,-8,p,r);g+=airySprig(s*.24,-s*.08,s*.72,18,p,r);if(r()>.15)g+=flower(s*.06,s*.20,s*.30,num(r,-18,18),p,r);if(r()>.45)g+=flower(-s*.20,s*.25,s*.20,num(r,-18,18),p,r);return g+`</g>`}
-function wildCluster(cx,cy,s,rot,p,r){let g=`<g class="motif cluster" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;g+=longBranch(0,0,s*.70,num(r,-18,18),p,r,'olive',.9);g+=flower(-s*.08,s*.12,s*.22,num(r,0,60),p,r);g+=flower(s*.14,-s*.05,s*.16,num(r,0,60),p,r);g+=berryStem(s*.18,s*.06,s*.45,num(r,-25,25),p,r);return g+`</g>`}
-function tiny(cx,cy,s,p,r){let t=pick(r,['dot','dot','seed','pollen','petal']); if(t==='dot')return `<circle class="tiny" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${s.toFixed(1)}" fill="${pick(r,[p[2],p[3],p[4]])}" opacity="${num(r,.18,.45).toFixed(2)}"/>`; if(t==='seed')return `<ellipse class="tiny" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(s*.5).toFixed(1)}" ry="${(s*1.8).toFixed(1)}" transform="rotate(${num(r,0,180).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})" fill="${pick(r,[p[1],p[4],p[5]])}" opacity=".48"/>`; if(t==='petal')return `<ellipse class="tiny" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(s*.7).toFixed(1)}" ry="${(s*1.5).toFixed(1)}" transform="rotate(${num(r,0,180).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})" fill="${p[4]}" opacity=".25"/>`; let g=`<g class="tiny" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)})">`;for(let i=0;i<6;i++){let a=i*60+num(r,-12,12),rr=s*num(r,1.5,3.2);g+=`<circle cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" r="${(s*.22).toFixed(1)}" fill="${pick(r,[p[2],p[4],p[3]])}" opacity=".42"/>`}return g+`</g>`}
-function makePattern(){let r=rng(seed.value+'|'+theme.value+'|'+palette.value+'|'+composition.value+'|'+density.value+'|'+detail.value+'|'+scale.value+(imported?JSON.stringify(imported):''));let p=palettes[palette.value]||palettes['Scandinavian Soft 01'];let W=10000,H=10000,bg=p[0];let els=[];let defs=`<defs><clipPath id="tileClip"><rect width="${W}" height="${H}"/></clipPath></defs>`;els.push(`<rect width="${W}" height="${H}" fill="${bg}"/>`);
-let scaleMul=scale.value==='Large Premium'?1.16:scale.value==='Small Ditsy'?.78:1;let densityMul=density.value==='Airy Premium'?.70:density.value==='Dense Textile'?1.35:density.value==='Rich Premium'?1.16:1;let heroN=Math.round((composition.value.includes('Airy')?5:composition.value.includes('Dense')?11:8)*densityMul);let clusterN=Math.round((composition.value.includes('Airy')?12:composition.value.includes('Dense')?28:20)*densityMul);let branchN=Math.round((composition.value.includes('Airy')?18:composition.value.includes('Dense')?46:34)*densityMul);let fillerN=Math.round((composition.value.includes('Airy')?28:composition.value.includes('Dense')?80:52)*densityMul);let tinyN=Math.round((composition.value.includes('Airy')?80:composition.value.includes('Dense')?220:145)*densityMul);
-function wrap(raw,x,y,margin=1200){els.push(raw);let reps=[];if(x<margin)reps.push([10000,0]);if(x>10000-margin)reps.push([-10000,0]);if(y<margin)reps.push([0,10000]);if(y>10000-margin)reps.push([0,-10000]);if((x<margin||x>10000-margin)&&(y<margin||y>10000-margin)){reps.push([x<margin?10000:-10000,y<margin?10000:-10000])}for(const [dx,dy] of reps){els.push(raw.replace(/translate\((-?\d+\.?\d*) (-?\d+\.?\d*)\)/,`translate(${(x+dx).toFixed(1)} ${(y+dy).toFixed(1)})`))}}
-let heroPoints=[];for(let i=0;i<heroN;i++){let col=i%4,row=Math.floor(i/4);let baseX=(col+.5)*(W/4),baseY=(row+.5)*(H/Math.ceil(heroN/4));if(composition.value.includes('Diagonal')){baseX=900+i*(W-1800)/(Math.max(1,heroN-1));baseY=H-900-i*(H-1800)/(Math.max(1,heroN-1))}let x=baseX+num(r,-420,420),y=baseY+num(r,-540,540);let s=num(r,1050,1550)*scaleMul;heroPoints.push({x,y});wrap(bouquet(x,y,s,num(r,-42,42),p,r),x,y,1500)}
-for(let i=0;i<clusterN;i++){let x=num(r,500,W-500),y=num(r,500,H-500);let s=num(r,560,950)*scaleMul;let raw=r()>.35?wildCluster(x,y,s,num(r,-80,80),p,r):bouquet(x,y,s*.72,num(r,-80,80),p,r);wrap(raw,x,y,1000)}
-for(let i=0;i<branchN;i++){let x=num(r,220,W-220),y=num(r,220,H-220),s=num(r,520,1050)*scaleMul;let raw=pick(r,[longBranch,airySprig,berryStem])(x,y,s,num(r,-90,90),p,r,pick(r,['olive','eucalyptus','fern']));wrap(raw,x,y,900)}
-for(let i=0;i<fillerN;i++){let x=num(r,120,W-120),y=num(r,120,H-120),s=num(r,150,340)*scaleMul;let raw=r()>.72?flower(x,y,s*.75,num(r,0,180),p,r):leaf(x,y,s,num(r,0,180),p,r,1);els.push(raw)}
-for(let i=0;i<tinyN;i++){els.push(tiny(num(r,60,W-60),num(r,60,H-60),num(r,8,24),p,r))}
-return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${defs}<g clip-path="url(#tileClip)">${els.join('')}</g></svg>`}
-
-/* ===== V25 BEAUTY ENGINE OVERRIDE: better flow, larger motifs, richer details ===== */
-function shadowLeaf(cx,cy,s,rot,p,r){
-  return `<ellipse class="soft-shadow" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(s*.24).toFixed(1)}" ry="${(s*.58).toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})" fill="${pick(r,[p[1],p[2],p[5]])}" opacity="${num(r,.10,.20).toFixed(2)}"/>`;
-}
-function curvedAccent(cx,cy,s,rot,p,r){
-  let dark=p[6]||p[3];
-  let d=`M ${(-s*.50).toFixed(1)} ${(s*.10).toFixed(1)} C ${(-s*.18).toFixed(1)} ${(-s*.42).toFixed(1)} ${(s*.18).toFixed(1)} ${(s*.45).toFixed(1)} ${(s*.52).toFixed(1)} ${(-s*.08).toFixed(1)}`;
-  let g=`<g class="motif accent-flow" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<path d="${d}" stroke="${dark}" stroke-width="${Math.max(5,s*.012).toFixed(1)}" fill="none" opacity=".34" stroke-linecap="round"/>`;
-  for(let i=0;i<5;i++){let t=-.35+i*.18;g+=`<circle cx="${(s*t).toFixed(1)}" cy="${(Math.sin(i)*s*.10).toFixed(1)}" r="${(s*num(r,.010,.018)).toFixed(1)}" fill="${pick(r,[p[2],p[3],p[4]])}" opacity=".46"/>`}
-  return g+`</g>`;
-}
-function premiumMedallionFlower(cx,cy,s,rot,p,r){
-  let g=`<g class="motif premium-flower" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  for(let i=0;i<10;i++){let a=i*36;g+=`<ellipse cx="${(Math.cos(a*Math.PI/180)*s*.11).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*s*.11).toFixed(1)}" rx="${(s*.075).toFixed(1)}" ry="${(s*.22).toFixed(1)}" transform="rotate(${a} ${(Math.cos(a*Math.PI/180)*s*.11).toFixed(1)} ${(Math.sin(a*Math.PI/180)*s*.11).toFixed(1)})" fill="${pick(r,[p[4],p[5],p[0]])}" opacity=".82"/>`}
-  g+=`<circle r="${(s*.13).toFixed(1)}" fill="${p[4]}" opacity=".92"/><circle r="${(s*.065).toFixed(1)}" fill="${p[6]||p[3]}" opacity=".55"/>`;
-  for(let i=0;i<14;i++){let a=i*25.714,rr=s*num(r,.17,.28);g+=`<circle cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" r="${(s*.015).toFixed(1)}" fill="${pick(r,[p[3],p[4],p[6]||p[3]])}" opacity=".52"/>`}
-  return g+`</g>`;
-}
-
-function luxePetalFlower(cx,cy,s,rot,p,r){
-  let dark=p[6]||p[3], cream=p[5]||p[0];
-  let petals=Math.floor(num(r,8,13));
-  let g=`<g class="motif luxe-flower" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<circle r="${(s*.34).toFixed(1)}" fill="${cream}" opacity=".20"/>`;
-  for(let layer=0;layer<3;layer++){
-    for(let i=0;i<petals;i++){
-      let a=i*360/petals+(layer*360/petals/3)+num(r,-3,3), rr=s*(.10+layer*.045), rx=s*(.050+layer*.015), ry=s*(.19-layer*.018);
-      g+=`<ellipse cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${a.toFixed(1)} ${(Math.cos(a*Math.PI/180)*rr).toFixed(1)} ${(Math.sin(a*Math.PI/180)*rr).toFixed(1)})" fill="${pick(r,[p[5],p[4],p[0],p[1]])}" opacity="${(.54+layer*.11).toFixed(2)}"/>`;
-    }
-  }
-  g+=`<circle r="${(s*.105).toFixed(1)}" fill="${pick(r,[p[3],p[4],dark])}" opacity=".88"/><circle r="${(s*.047).toFixed(1)}" fill="${cream}" opacity=".84"/>`;
-  for(let i=0;i<18;i++){let a=i*20, rr=s*num(r,.13,.22);g+=`<circle cx="${(Math.cos(a*Math.PI/180)*rr).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*rr).toFixed(1)}" r="${(s*.010).toFixed(1)}" fill="${pick(r,[p[3],p[4],p[6]||p[3]])}" opacity=".50"/>`}
-  return g+`</g>`;
-}
-function ribbonStem(cx,cy,s,rot,p,r){
-  let dark=p[6]||p[3], mid=p[2];
-  let g=`<g class="motif ribbon-stem" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  let b1=num(r,-.20,.20)*s,b2=num(r,-.18,.18)*s;
-  g+=`<path d="M0 ${(-s*.50).toFixed(1)} C ${b1.toFixed(1)} ${(-s*.18).toFixed(1)} ${b2.toFixed(1)} ${(s*.12).toFixed(1)} 0 ${(s*.55).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(8,s*.010).toFixed(1)}" fill="none" stroke-linecap="round" opacity=".52"/>`;
-  for(let i=0;i<12;i++){
-    let t=i/11, y=-s*.42+t*s*.84, side=i%2?1:-1, x=side*s*num(r,.060,.105), a=side*num(r,42,66);
-    g+=`<path d="M0 ${y.toFixed(1)} Q ${(x*.38).toFixed(1)} ${(y-s*.035).toFixed(1)} ${x.toFixed(1)} ${(y-s*.055).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(3,s*.005).toFixed(1)}" fill="none" opacity=".34"/>`;
-    g+=`<g transform="translate(${x.toFixed(1)} ${(y-s*.055).toFixed(1)}) rotate(${a.toFixed(1)}) scale(${side},1)">${leaf(0,0,s*num(r,.075,.12),0,p,r,1)}</g>`;
-    if(i%3===1)g+=`<circle cx="${(x*1.14).toFixed(1)}" cy="${(y-s*.075).toFixed(1)}" r="${(s*num(r,.012,.023)).toFixed(1)}" fill="${p[4]}" opacity=".68"/>`;
-  }
-  return g+`</g>`;
-}
-function premiumBouquetV26(cx,cy,s,rot,p,r){
-  let g=`<g class="motif hero-bouquet-v26" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<ellipse cx="${(-s*.03).toFixed(1)}" cy="${(s*.05).toFixed(1)}" rx="${(s*.42).toFixed(1)}" ry="${(s*.58).toFixed(1)}" fill="${p[1]}" opacity=".075" transform="rotate(${num(r,-18,18).toFixed(1)})"/>`;
-  g+=ribbonStem(-s*.10,-s*.02,s*.92,-24,p,r);
-  g+=longBranch(s*.12,-s*.05,s*.86,22,p,r,'eucalyptus',.98);
-  g+=longBranch(s*.24,s*.08,s*.72,42,p,r,'olive',.92);
-  g+=berryStem(-s*.24,s*.08,s*.72,-10,p,r);
-  g+=airySprig(s*.31,-s*.14,s*.80,19,p,r);
-  g+=curvedAccent(s*.05,s*.03,s*.78,num(r,-26,26),p,r);
-  g+=luxePetalFlower(s*.03,s*.20,s*.38,num(r,-15,15),p,r);
-  if(r()>.20)g+=luxePetalFlower(-s*.19,s*.24,s*.25,num(r,-22,22),p,r);
-  if(r()>.45)g+=premiumMedallionFlower(s*.22,s*.17,s*.20,num(r,-18,18),p,r);
-  return g+`</g>`;
-}
-function makePattern(){
-  let r=rng(seed.value+'|V27-STOCK-BEAUTY-LEAP|'+theme.value+'|'+palette.value+'|'+composition.value+'|'+density.value+'|'+detail.value+'|'+scale.value+(imported?JSON.stringify(imported):''));
-  let p=palettes[palette.value]||palettes['Scandinavian Soft 01'];
-  let W=10000,H=10000,bg=p[0],els=[];
-  let defs=`<defs><clipPath id="tileClip"><rect width="${W}" height="${H}"/></clipPath><filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.055"/></filter></defs>`;
-  els.push(`<rect width="${W}" height="${H}" fill="${bg}"/>`);
-  for(let i=0;i<90;i++){els.push(`<circle cx="${num(r,0,W).toFixed(1)}" cy="${num(r,0,H).toFixed(1)}" r="${num(r,3,11).toFixed(1)}" fill="${pick(r,[p[1],p[4],p[5]])}" opacity="${num(r,.035,.095).toFixed(2)}"/>`)}
-  let scaleMul=scale.value==='Large Premium'?1.28:scale.value==='Small Ditsy'?.78:1.05;
-  let densityMul=density.value==='Airy Premium'?.68:density.value==='Dense Textile'?1.34:density.value==='Rich Premium'?1.16:1;
-  let detailMul=detail.value==='max'?1.18:detail.value==='high'?1.06:.92;
-  let heroN=Math.round((composition.value.includes('Airy')?5:composition.value.includes('Dense')?10:7)*densityMul);
-  let clusterN=Math.round((composition.value.includes('Airy')?8:composition.value.includes('Dense')?22:14)*densityMul);
-  let branchN=Math.round((composition.value.includes('Airy')?16:composition.value.includes('Dense')?38:27)*densityMul);
-  let fillerN=Math.round((composition.value.includes('Airy')?28:composition.value.includes('Dense')?70:46)*densityMul*detailMul);
-  let tinyN=Math.round((composition.value.includes('Airy')?52:composition.value.includes('Dense')?140:90)*densityMul);
-  function wrap(raw,x,y,margin=1500){
-    els.push(raw);let reps=[];
-    if(x<margin)reps.push([W,0]); if(x>W-margin)reps.push([-W,0]); if(y<margin)reps.push([0,H]); if(y>H-margin)reps.push([0,-H]);
-    if((x<margin||x>W-margin)&&(y<margin||y>H-margin))reps.push([x<margin?W:-W,y<margin?H:-H]);
-    for(const [dx,dy] of reps){els.push(raw.replace(/translate\((-?\d+\.?\d*) (-?\d+\.?\d*)\)/,`translate(${(x+dx).toFixed(1)} ${(y+dy).toFixed(1)})`))}
-  }
-  function artPoint(i,n,amp=1100){
-    let t=(i+.5)/n;
-    let diag=composition.value.includes('Diagonal')||composition.value.includes('Editorial');
-    let x=diag?900+t*(W-1800)+Math.sin(t*Math.PI*2.1)*320:((i%4)+.5)*(W/4)+num(r,-360,360);
-    let y=diag?1050+t*(H-2100)+Math.sin(t*Math.PI*3.0+0.8)*amp:((Math.floor(i/4)+.5)*(H/Math.ceil(n/4)))+num(r,-420,420);
-    if(composition.value.includes('Half Drop')){x=((i%4)+.5)*(W/4)+(Math.floor(i/4)%2?W/8:0)+num(r,-260,260);y=((Math.floor(i/4)+.5)*(H/Math.ceil(n/4)))+num(r,-340,340)}
-    return {x:Math.max(420,Math.min(W-420,x)),y:Math.max(420,Math.min(H-420,y)),t};
-  }
-  for(let i=0;i<heroN;i++){
-    let pt=artPoint(i,heroN,1200), x=pt.x, y=pt.y, rot=(composition.value.includes('Editorial')||composition.value.includes('Diagonal')?num(r,-28,24):num(r,-50,50)), s=num(r,1450,2250)*scaleMul;
-    for(let k=0;k<7;k++)els.push(shadowLeaf(x+num(r,-390,390),y+num(r,-360,360),num(r,260,560)*scaleMul,rot+num(r,-62,62),p,r));
-    wrap(premiumBouquetV26(x,y,s,rot,p,r),x,y,2050);
-  }
-  for(let i=0;i<clusterN;i++){
-    let lane=artPoint(i,clusterN,1400); let x=(lane.x+num(r,-780,780)+W)%W, y=(lane.y+num(r,-660,660)+H)%H;
-    let s=num(r,720,1220)*scaleMul, rot=num(r,-62,62);
-    let raw=r()>.42?wildCluster(x,y,s,rot,p,r):premiumBouquetV26(x,y,s*.62,rot,p,r);
-    wrap(raw,x,y,1180);
-  }
-  for(let i=0;i<branchN;i++){
-    let t=(i+.5)/branchN, x=(700+t*(W-1400)+Math.sin(t*Math.PI*5.3)*1500+num(r,-600,600)+W)%W, y=(num(r,600,H-600)+Math.sin(t*Math.PI*2.8)*700+H)%H;
-    let s=num(r,620,1280)*scaleMul, rot=num(r,-88,88); let raw;
-    if(i%6===0) raw=curvedAccent(x,y,s,rot,p,r); else if(i%4===0) raw=ribbonStem(x,y,s,rot,p,r); else if(i%3===0) raw=berryStem(x,y,s,rot,p,r); else raw=longBranch(x,y,s,rot,p,r,pick(r,['olive','eucalyptus','fern']),num(r,.80,1.0));
-    wrap(raw,x,y,930);
-  }
-  for(let i=0;i<fillerN;i++){
-    let x=num(r,90,W-90),y=num(r,90,H-90),s=num(r,180,430)*scaleMul,rot=num(r,0,180);
-    if(r()>.74) els.push(luxePetalFlower(x,y,s*.78,rot,p,r));
-    else {els.push(shadowLeaf(x+num(r,-20,20),y+num(r,-20,20),s*.86,rot,p,r));els.push(leaf(x,y,s,rot,p,r,detail.value==='medium'?0:1));}
-  }
-  for(let i=0;i<tinyN;i++)els.push(tiny(num(r,45,W-45),num(r,45,H-45),num(r,6,16),p,r));
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${defs}<g clip-path="url(#tileClip)">${els.join('')}</g></svg>`;
-}
-
-
-/* ===== V27 STOCK BEAUTY LEAP: full-tile editorial botanical engine ===== */
-function fineLineSpray(cx,cy,s,rot,p,r){
-  let dark=p[6]||p[3], g=`<g class="motif fine-spray" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<path d="M0 ${(-s*.52).toFixed(1)} C ${(s*.10).toFixed(1)} ${(-s*.18).toFixed(1)} ${(-s*.06).toFixed(1)} ${(s*.22).toFixed(1)} 0 ${(s*.54).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(5,s*.006).toFixed(1)}" fill="none" opacity=".54" stroke-linecap="round"/>`;
-  let n=18;
-  for(let i=0;i<n;i++){
-    let t=i/(n-1), y=-s*.42+t*s*.84, side=i%2?1:-1, x=side*s*num(r,.035,.090), leafS=s*num(r,.030,.055);
-    g+=`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(leafS*.62).toFixed(1)}" ry="${(leafS*1.28).toFixed(1)}" transform="rotate(${(side*num(r,38,62)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${pick(r,[p[1],p[2],p[3]])}" opacity="${num(r,.56,.82).toFixed(2)}"/>`;
-  }
-  return g+`</g>`;
-}
-function meadowStem(cx,cy,s,rot,p,r,kind='daisy'){
-  let dark=p[6]||p[3];
-  let g=`<g class="motif meadow-stem" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<path d="M0 ${(s*.48).toFixed(1)} C ${(-s*.12).toFixed(1)} ${(s*.10).toFixed(1)} ${(s*.10).toFixed(1)} ${(-s*.17).toFixed(1)} 0 ${(-s*.50).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(7,s*.007).toFixed(1)}" fill="none" opacity=".60" stroke-linecap="round"/>`;
-  for(let i=0;i<8;i++){
-    let t=(i+.1)/8, y=s*.38-t*s*.74, side=i%2?1:-1, x=side*s*num(r,.045,.105);
-    g+=leaf(x,y,s*num(r,.12,.20),side*num(r,45,70),p,r,1);
-  }
-  if(kind==='berry'){
-    for(let i=0;i<10;i++){let a=-85+i*17+num(r,-4,4), rr=s*num(r,.36,.52);let x=Math.cos(a*Math.PI/180)*rr*.38, y=-s*.38+Math.sin(a*Math.PI/180)*rr*.42;g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(s*num(r,.017,.028)).toFixed(1)}" fill="${p[4]}" opacity=".90"/><circle cx="${(x-s*.004).toFixed(1)}" cy="${(y-s*.006).toFixed(1)}" r="${(s*.006).toFixed(1)}" fill="${p[5]}" opacity=".58"/>`}
-  }else{
-    g+=luxePetalFlower(0,-s*.48,s*.22,num(r,-10,10),p,r);
-    if(r()>.35) g+=luxePetalFlower(s*.14,-s*.25,s*.13,num(r,-20,20),p,r);
-  }
-  return g+`</g>`;
-}
-function elegantEucalyptus(cx,cy,s,rot,p,r){
-  let dark=p[6]||p[3];
-  let g=`<g class="motif eucalyptus-hero" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  g+=`<path d="M0 ${(s*.50).toFixed(1)} C ${(s*.13).toFixed(1)} ${(s*.16).toFixed(1)} ${(-s*.10).toFixed(1)} ${(-s*.16).toFixed(1)} 0 ${(-s*.52).toFixed(1)}" stroke="${dark}" stroke-width="${Math.max(10,s*.007).toFixed(1)}" fill="none" stroke-linecap="round" opacity=".55"/>`;
-  for(let i=0;i<12;i++){
-    let t=i/11, y=s*.42-t*s*.86, side=i%2?1:-1, x=side*s*num(r,.055,.13), ls=s*num(r,.105,.18), a=side*num(r,52,78);
-    g+=shadowLeaf(x+side*s*.018,y+s*.018,ls*1.05,a,p,r);
-    g+=leaf(x,y,ls,a,p,r,1);
-  }
-  return g+`</g>`;
-}
-function botanicalColumn(cx,cy,s,rot,p,r,type){
-  let g=`<g class="motif hero-column" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">`;
-  if(type==='eucalyptus') g+=elegantEucalyptus(0,0,s,0,p,r);
-  else if(type==='berry') g+=meadowStem(0,0,s,0,p,r,'berry');
-  else if(type==='flower') g+=meadowStem(0,0,s,0,p,r,'daisy');
-  else g+=fineLineSpray(0,0,s,0,p,r);
-  if(r()>.62) g+=luxePetalFlower(s*num(r,-.18,.20),s*num(r,-.18,.18),s*num(r,.14,.22),num(r,-25,25),p,r);
-  return g+`</g>`;
-}
-function makePattern(){
-  let r=rng(seed.value+'|V27-LEAP|'+theme.value+'|'+palette.value+'|'+composition.value+'|'+density.value+'|'+detail.value+'|'+scale.value+(imported?JSON.stringify(imported):''));
-  let p=palettes[palette.value]||palettes['Scandinavian Soft 01'];
-  let W=10000,H=10000,bg=p[0],els=[];
-  let defs=`<defs><clipPath id="tileClip"><rect width="${W}" height="${H}"/></clipPath><filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#000" flood-opacity="0.045"/></filter></defs>`;
-  els.push(`<rect width="${W}" height="${H}" fill="${bg}"/>`);
-  // subtle paper texture, not too many visible dots
-  for(let i=0;i<130;i++) els.push(`<circle cx="${num(r,0,W).toFixed(1)}" cy="${num(r,0,H).toFixed(1)}" r="${num(r,2,8).toFixed(1)}" fill="${pick(r,[p[1],p[4],p[5]])}" opacity="${num(r,.025,.07).toFixed(2)}"/>`);
-  let scaleMul=scale.value==='Large Premium'?1.16:scale.value==='Small Ditsy'?.90:1.0;
-  let dense=density.value==='Airy Premium'?.78:density.value==='Dense Textile'?1.18:density.value==='Rich Premium'?1.08:1;
-  let columns=composition.value.includes('Airy')?5:composition.value.includes('Dense')?8:7;
-  let rows=composition.value.includes('Airy')?3:4;
-  function wrap(raw,x,y,margin=1150){els.push(raw);let reps=[];if(x<margin)reps.push([W,0]);if(x>W-margin)reps.push([-W,0]);if(y<margin)reps.push([0,H]);if(y>H-margin)reps.push([0,-H]);if((x<margin||x>W-margin)&&(y<margin||y>H-margin))reps.push([x<margin?W:-W,y<margin?H:-H]);for(const [dx,dy] of reps){els.push(raw.replace(/translate\((-?\d+\.?\d*) (-?\d+\.?\d*)\)/,`translate(${(x+dx).toFixed(1)} ${(y+dy).toFixed(1)})`))}}
-  // 1) large editorial stems across the whole tile: this is the visible leap
-  let count=0;
-  for(let row=0;row<rows;row++){
-    for(let col=0;col<columns;col++){
-      if(r()<0.10 && density.value!=='Dense Textile') continue;
-      let x=(col+.50)*(W/columns)+num(r,-260,260)+(row%2?W/columns*.22:0);
-      let y=(row+.52)*(H/rows)+num(r,-360,360);
-      x=(x+W)%W; y=(y+H)%H;
-      let type=pick(r,['eucalyptus','berry','flower','spray','eucalyptus','flower']);
-      let s=num(r,1250,2050)*scaleMul;
-      let rot=(composition.value.includes('Diagonal')?num(r,-28,18):num(r,-18,18));
-      wrap(botanicalColumn(x,y,s,rot,p,r,type),x,y,1450); count++;
-    }
-  }
-  // 2) hero bouquets at balanced focal points, not random scatter
-  let heroPts=[[.17,.23],[.50,.20],[.80,.30],[.28,.62],[.63,.57],[.85,.78],[.12,.82]];
-  if(composition.value.includes('Airy')) heroPts=[[.20,.25],[.72,.30],[.42,.70],[.83,.82]];
-  for(const [px,py] of heroPts){ if(r()<0.12) continue; let x=px*W+num(r,-360,360), y=py*H+num(r,-360,360), s=num(r,1250,1850)*scaleMul; wrap(premiumBouquetV26(x,y,s,num(r,-32,32),p,r),x,y,1550); }
-  // 3) secondary rhythm branches, moderate size, following diagonal/editorial flow
-  let secondaryN=Math.round((composition.value.includes('Airy')?18:34)*dense);
-  for(let i=0;i<secondaryN;i++){
-    let t=(i+.5)/secondaryN, x=(650+t*(W-1300)+Math.sin(t*Math.PI*4.5)*860+num(r,-420,420)+W)%W, y=(num(r,700,H-700)+Math.sin(t*Math.PI*3.1+0.8)*520+H)%H;
-    let s=num(r,620,1050)*scaleMul, rot=num(r,-58,58); let raw=pick(r,[fineLineSpray,meadowStem,elegantEucalyptus,berryStem])(x,y,s,rot,p,r,pick(r,['berry','daisy'])); wrap(raw,x,y,900);
-  }
-  // 4) recognizable flowers, larger than old versions, placed in open pockets
-  let flowerN=Math.round((composition.value.includes('Airy')?12:24)*dense);
-  for(let i=0;i<flowerN;i++){let x=num(r,420,W-420), y=num(r,420,H-420), s=num(r,300,520)*scaleMul; wrap(luxePetalFlower(x,y,s,num(r,0,180),p,r),x,y,620)}
-  // 5) leaf fillers with veins and shadows
-  let fillerN=Math.round((composition.value.includes('Airy')?38:70)*dense);
-  for(let i=0;i<fillerN;i++){let x=num(r,120,W-120),y=num(r,120,H-120),s=num(r,180,360)*scaleMul,rot=num(r,0,180);els.push(shadowLeaf(x+num(r,-16,16),y+num(r,-16,16),s*.96,rot,p,r));els.push(leaf(x,y,s,rot,p,r,1));}
-  // 6) tiny accents, much fewer than V26 so the design does not look dusty
-  let tinyN=Math.round((composition.value.includes('Airy')?80:130)*dense);
-  for(let i=0;i<tinyN;i++) els.push(tiny(num(r,45,W-45),num(r,45,H-45),num(r,6,15),p,r));
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${defs}<g clip-path="url(#tileClip)">${els.join('')}</g></svg>`;
-}
-function render(){svgText=makePattern();preview.innerHTML=svgText;built.textContent='สร้างแล้ว: '+theme.value;motifCount.textContent=(svgText.match(/class="motif|class="tiny/g)||[]).length+' motifs';previewRepeat()}
-function generate(){render()}function randomize(){seed.value='KOKO-'+Math.floor(Math.random()*999999);render()}
-function previewRepeat(){if(!svgText)return;let enc='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgText);repeatPanel.style.setProperty('--tile',`url("${enc}")`)}
-function download(name,content,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
-function downloadSVG(){download('vector_stock_pattern_v27_leap_10000.svg',svgText,'image/svg+xml')}function copySVG(){navigator.clipboard.writeText(svgText)}
-function makeMetadata(){let kws=['botanical','seamless pattern','vector','floral','leaves','eucalyptus','olive branch','wildflower','scandinavian','surface design','fabric','wallpaper','textile','background','repeat','nature','foliage','minimal','premium','editable','flat design','garden','organic','beige','sage','terracotta','decorative','wrapping paper','stationery','print','nursery','spring','leaf','branch','berry','flower','botany','modern','elegant','soft','commercial','stock','illustration','pattern design','repeat pattern','hand drawn style','natural','floral pattern','green','neutral'];metaText.value=`Title: Premium ${theme.value} Seamless Vector Pattern\nDescription: Elegant editable botanical seamless vector pattern with detailed foliage, flowers, berry stems and soft premium palette for textile, wallpaper and stock design.\nKeywords: ${kws.join(', ')}`}
-function downloadCSV(){makeMetadata();download('metadata_v27_leap.csv','title,description,keywords\n"Premium '+theme.value+' Seamless Vector Pattern","Elegant editable botanical seamless vector pattern for stock design.","'+metaText.value.split('Keywords: ')[1]+'"','text/csv')}
-function buildPrompt(){promptText.value=`คุณคือนักออกแบบเวคเตอร์ stock มืออาชีพ สร้าง JSON สำหรับ seamless vector pattern\nTheme: ${theme.value}\nPalette: ${palette.value}\nComposition: ${composition.value}\nStyle: premium detailed editable vector for Affinity Designer 2 iPad\nต้องมี fields: title, description, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, keywords exactly 50\nหลีกเลี่ยงแบรนด์ โลโก้ ตัวละคร ภาพบุคคล งานมีลิขสิทธิ์\nตอบ JSON เท่านั้น`}
-function importJSON(){try{imported=JSON.parse(jsonText.value); if(imported.palette&&Array.isArray(imported.palette)&&imported.palette.length>=6){palettes['AI Palette']=imported.palette;let opt=[...palette.options].find(o=>o.value==='AI Palette');if(!opt){let o=document.createElement('option');o.textContent='AI Palette';palette.appendChild(o)}palette.value='AI Palette'}showSwatches();render();alert('นำ JSON เข้าแล้ว')}catch(e){alert('JSON ไม่ถูกต้อง: '+e.message)}}
-function sampleJSON(){jsonText.value=JSON.stringify({title:'Premium Scandinavian Botanical Pattern',hero_motifs:['eucalyptus bouquet','olive branch','wildflower cluster'],medium_motifs:['berry stem','leaf spray','daisy'],fillers:['small leaf','seed pod'],tiny_accents:['pollen dots','tiny berries'],palette:['#f7f3e8','#c9d6b8','#8ca470','#426435','#d8a56f','#efe2cc','#163a25'],keywords:['botanical','seamless','vector']},null,2)}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');['studioPanel','rightPanel','leftPanel','aiPanel','promptPanel','metadataPanel','guidePanel'].forEach(id=>document.getElementById(id).classList.add('hidden'));let t=b.dataset.tab;if(t==='studio'){leftPanel.classList.remove('hidden');studioPanel.classList.remove('hidden');rightPanel.classList.remove('hidden')}if(t==='ai')aiPanel.classList.remove('hidden');if(t==='prompt'){promptPanel.classList.remove('hidden');buildPrompt()}if(t==='metadata'){metadataPanel.classList.remove('hidden');makeMetadata()}if(t==='guide')guidePanel.classList.remove('hidden')});
-[theme,palette,composition,detail,density,scale].forEach(e=>e.addEventListener('change',()=>{showSwatches();render()}));showSwatches();render();
+function hash(str){let h=2166136261; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)} return h>>>0}
+function rng(seed){let a=hash(seed); return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
+const num=(r,a,b)=>a+(b-a)*r(); const pick=(r,arr)=>arr[Math.floor(r()*arr.length)];
+function updateSwatches(){let p=palettes[palette.value]; swatches.innerHTML=p.map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}
+function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+function leaf(x,y,s,rot,p,r,op=1){let w=s*.34,l=s; let dark=p[6], fill=pick(r,[p[1],p[2],p[3]]); let hi=p[0]; let veins=''; let n=detail.value==='ultra'?7:5; for(let i=1;i<n;i++){let yy=-l*.32+i*l*.12; veins+=`<path d="M 0 ${yy.toFixed(1)} C ${w*.28} ${yy+l*.05} ${w*.42} ${yy+l*.08} ${w*.58} ${yy+l*.14}" fill="none" stroke="${dark}" stroke-width="${Math.max(3,s*.018)}" opacity=".20"/><path d="M 0 ${yy.toFixed(1)} C ${-w*.28} ${yy+l*.05} ${-w*.42} ${yy+l*.08} ${-w*.58} ${yy+l*.14}" fill="none" stroke="${dark}" stroke-width="${Math.max(3,s*.018)}" opacity=".16"/>`}
+return `<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${op}"><path d="M 0 ${-l*.55} C ${w} ${-l*.48} ${w} ${l*.22} 0 ${l*.58} C ${-w} ${l*.22} ${-w} ${-l*.48} 0 ${-l*.55} Z" fill="#000" opacity=".035" transform="translate(${s*.07} ${s*.08})"/><path d="M 0 ${-l*.58} C ${w*1.05} ${-l*.44} ${w*.95} ${l*.22} 0 ${l*.6} C ${-w*.95} ${l*.22} ${-w*1.05} ${-l*.44} 0 ${-l*.58} Z" fill="${fill}" opacity=".88"/><path d="M ${-w*.25} ${-l*.25} C ${-w*.05} ${-l*.42} ${w*.3} ${-l*.28} ${w*.42} ${-l*.05}" fill="none" stroke="${hi}" stroke-width="${Math.max(5,s*.035)}" opacity=".35"/><path d="M 0 ${-l*.48} L 0 ${l*.48}" stroke="${dark}" stroke-width="${Math.max(5,s*.028)}" opacity=".45" fill="none"/>${veins}</g>`}
+function flower(x,y,s,rot,p,r,op=1){let pet=pick(r,[p[4],p[5],'#f5ead6','#fff8ea']); let center=pick(r,[p[2],p[3],'#d7a24b']); let out=''; let n=pick(r,[6,7,8,9]); for(let i=0;i<n;i++){let a=i*360/n; out+=`<ellipse cx="0" cy="${-s*.32}" rx="${s*.15}" ry="${s*.34}" fill="${pet}" opacity=".78" transform="rotate(${a})"/>`}
+for(let i=0;i<n;i++){let a=i*360/n+180/n; out+=`<ellipse cx="0" cy="${-s*.22}" rx="${s*.10}" ry="${s*.25}" fill="#fff7e8" opacity=".50" transform="rotate(${a})"/>`}
+let dots=''; for(let i=0;i<10;i++){let a=i*36, rr=s*.16; dots+=`<circle cx="${Math.cos(a*Math.PI/180)*rr}" cy="${Math.sin(a*Math.PI/180)*rr}" r="${s*.022}" fill="${p[6]}" opacity=".55"/>`}
+return `<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${op}"><circle cx="${s*.05}" cy="${s*.07}" r="${s*.42}" fill="#000" opacity=".025"/>${out}<circle r="${s*.18}" fill="${center}" opacity=".95"/><circle r="${s*.10}" fill="${p[0]}" opacity=".85"/>${dots}</g>`}
+function berryStem(x,y,len,rot,p,r,op=1){let out=`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${op}"><path d="M0 ${len*.48} C ${num(r,-80,80)} ${len*.1} ${num(r,-90,90)} ${-len*.15} 0 ${-len*.5}" stroke="${p[6]}" stroke-width="${Math.max(10,len*.028)}" fill="none" stroke-linecap="round" opacity=".65"/>`; let n=Math.floor(num(r,7,13)); for(let i=0;i<n;i++){let t=i/(n-1), yy=len*.42-t*len*.82, side=(i%2?1:-1), xx=side*num(r,35,90); out+=`<path d="M0 ${yy} Q ${xx*.45} ${yy-20} ${xx} ${yy-35}" stroke="${p[6]}" stroke-width="${Math.max(5,len*.012)}" opacity=".45" fill="none"/><circle cx="${xx}" cy="${yy-35}" r="${num(r,22,38)}" fill="${p[4]}" opacity=".85"/><circle cx="${xx-8}" cy="${yy-43}" r="${num(r,5,9)}" fill="${p[0]}" opacity=".55"/>`}
+return out+'</g>'}
+function branch(x,y,len,rot,p,r,type='eucalyptus',op=1){let out=`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${op}"><path d="M0 ${len*.48} C ${num(r,-120,120)} ${len*.1} ${num(r,-140,140)} ${-len*.2} ${num(r,-45,45)} ${-len*.5}" stroke="${p[6]}" stroke-width="${Math.max(10,len*.025)}" fill="none" stroke-linecap="round" opacity=".58"/>`; let n= type==='eucalyptus'?Math.floor(num(r,7,11)):Math.floor(num(r,9,16)); for(let i=0;i<n;i++){let t=(i+.35)/n; let yy=len*.44-t*len*.88; let curve=Math.sin(t*Math.PI*1.2)*num(r,-80,80); let side=i%2?1:-1; let xx=curve+side*num(r,50,105); let sz=len*(type==='eucalyptus'?num(r,.13,.19):num(r,.09,.14)); out+=leaf(xx,yy,sz,side*num(r,38,68)+num(r,-15,15),p,r, num(r,.72,.95));}
+return out+'</g>'}
+function bouquet(x,y,s,rot,p,r,op=1){let out=`<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" opacity="${op}">`; out+=branch(-170,70,780,-28,p,r,'olive',.86); out+=branch(70,10,820,22,p,r,'eucalyptus',.78); out+=branch(190,90,650,44,p,r,'olive',.76); out+=berryStem(10,-10,560,-8,p,r,.82); out+=flower(-110,-70,240,num(r,0,360),p,r,.95); if(r()>.35) out+=flower(130,10,190,num(r,0,360),p,r,.88); out+=`</g>`; return out}
+function micro(x,y,s,rot,p,r){let kind=pick(r,['dot','petal','seed','spark']); if(kind==='dot')return `<circle cx="${x}" cy="${y}" r="${s}" fill="${pick(r,[p[2],p[3],p[4]])}" opacity=".35"/>`; if(kind==='petal')return `<ellipse cx="${x}" cy="${y}" rx="${s*.6}" ry="${s*1.3}" fill="${p[4]}" opacity=".35" transform="rotate(${rot} ${x} ${y})"/>`; if(kind==='seed')return `<path d="M${x-s} ${y} C${x} ${y-s*1.5} ${x+s} ${y-s*.4} ${x+s*.3} ${y+s}" stroke="${p[6]}" stroke-width="3" fill="none" opacity=".25"/>`; return `<path d="M${x-s} ${y}L${x+s} ${y}M${x} ${y-s}L${x} ${y+s}" stroke="${p[4]}" stroke-width="4" opacity=".4"/>`}
+function wrap(el,x,y,margin=900){let copies=[el]; if(x<margin) copies.push(el.replace(`translate(${x} ${y})`,`translate(${x+W} ${y})`)); if(x>W-margin) copies.push(el.replace(`translate(${x} ${y})`,`translate(${x-W} ${y})`)); if(y<margin) copies.push(el.replace(`translate(${x} ${y})`,`translate(${x} ${y+H})`)); if(y>H-margin) copies.push(el.replace(`translate(${x} ${y})`,`translate(${x} ${y-H})`)); return copies.join('')}
+function generate(){const r=rng(seed.value+theme.value+palette.value+composition.value+detail.value+density.value); const p=palettes[palette.value]; let bg=p[0]; let els=[`<rect width="10000" height="10000" fill="${bg}"/>`]; motifTotal=0;
+// background texture
+for(let i=0;i<140;i++){els.push(micro(num(r,0,W),num(r,0,H),num(r,6,18),num(r,0,360),p,r)); motifTotal++}
+let densityFactor=density.value==='Rich but Clear'?1.25:density.value==='Airy Premium'?.72:1;
+let comp=composition.value;
+// Hero zones: big readable structure
+let zones= comp==='Botanical S-Curve' ? [[1600,2200],[3100,4100],[5200,5600],[7100,3900],[8400,6900],[2600,7700]] : comp==='Hero Bouquet Full Tile' ? [[1700,1800],[5000,1700],[8200,2300],[2500,5200],[6100,5200],[8400,7100],[3800,8200]] : [[1200,1800],[3600,1600],[6500,1900],[8700,2900],[2200,5200],[5300,5200],[7800,5700],[1500,8200],[4500,8000],[7600,8200]];
+zones.forEach((z,i)=>{let x=z[0]+num(r,-300,300), y=z[1]+num(r,-260,260), sc=num(r,.72,1.08), rot=num(r,-32,32)+(comp==='Botanical S-Curve'?18:0); els.push(wrap(bouquet(x,y,sc,rot,p,r,.92),x,y,1300)); motifTotal+=18});
+// Secondary tall branches with rhythm
+let n2=Math.floor((comp==='Herbarium Grid Soft'?22:30)*densityFactor); for(let i=0;i<n2;i++){let col=(i%6)+.5; let row=Math.floor(i/6)+.5; let x=(col/6)*W+num(r,-450,450), y=((row%5+.55)/5)*H+num(r,-380,380); let len=num(r,560,980); let rot=num(r,-55,55); let el= r()>.28? branch(x,y,len,rot,p,r,pick(r,['eucalyptus','olive']),.82):berryStem(x,y,len*.75,rot,p,r,.8); els.push(wrap(el,x,y,1200)); motifTotal+=10;}
+// Flowers: larger decorative points
+let nf=Math.floor(18*densityFactor); for(let i=0;i<nf;i++){let x=num(r,300,W-300), y=num(r,300,H-300), s=num(r,130,280); els.push(wrap(flower(x,y,s,num(r,0,360),p,r,.82),x,y,700)); motifTotal++;}
+// Filler leaves
+let nl=Math.floor(70*densityFactor); for(let i=0;i<nl;i++){let x=num(r,0,W),y=num(r,0,H); els.push(wrap(leaf(x,y,num(r,110,230),num(r,0,360),p,r,num(r,.45,.75)),x,y,500)); motifTotal++;}
+// micro foreground accents
+let nm=Math.floor(240*densityFactor); for(let i=0;i<nm;i++){els.push(micro(num(r,0,W),num(r,0,H),num(r,8,28),num(r,0,360),p,r)); motifTotal++}
+svgText=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10000 10000" width="10000" height="10000">${els.join('')}</svg>`;
+preview.innerHTML=svgText; made.textContent='สร้างแล้ว: '+theme.value; motifCount.textContent=motifTotal+' motifs'; updateMeta(); renderRepeat();}
+function renderRepeat(){repeatGrid.innerHTML=''; for(let i=0;i<9;i++){let div=document.createElement('div');div.className='tile';div.innerHTML=svgText;repeatGrid.appendChild(div)}}
+function download(name,content,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function updateMeta(){let title=`${theme.value} Seamless Botanical Vector Pattern`; let keywords=['botanical','seamless','pattern','vector','floral','leaves','eucalyptus','olive','berry','flower','surface design','fabric','wallpaper','textile','scandinavian','nature','green','cream','editable','affinity designer','stock','background','repeat','decorative','branch','foliage','daisy','wildflower','garden','premium','minimal','organic','elegant','modern','print','wrapping paper','stationery','home decor','nursery','herbarium','spring','natural','leaf','stem','pollen','soft color','hand drawn style','commercial','tile','botanical pattern']; metadataBox.value=`Title,Description,Keywords\n"${title}","Premium seamless botanical vector pattern with detailed leaf veins, flower pollen, berry stems, botanical clusters and clean commercial repeat.","${keywords.slice(0,50).join(', ')}"`}
+function makePromptNow(){promptBox.value=`คุณคือนักออกแบบเวคเตอร์ stock มืออาชีพ สร้าง JSON สำหรับ seamless vector pattern\nTheme: ${theme.value}\nPalette: ${palette.value}\nComposition: ${composition.value}\nStyle: premium detailed editable vector for Affinity Designer 2 iPad\nต้องมี fields: title, description, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, keywords exactly 50\nหลีกเลี่ยงแบรนด์ โลโก้ ตัวละคร ภาพบุคคล งานมีลิขสิทธิ์\nตอบ JSON เท่านั้น`;}
+// events
+gen.onclick=generate; rnd.onclick=()=>{seed.value='KOKO-'+Math.floor(Math.random()*900000+100000);generate()}; palette.onchange=()=>{updateSwatches();generate()}; [theme,composition,detail,density].forEach(e=>e.onchange=generate); repeatBtn.onclick=renderRepeat; exportSvg.onclick=()=>download('vector_stock_pattern_v28.svg',svgText,'image/svg+xml'); copySvg.onclick=()=>navigator.clipboard.writeText(svgText); exportCsv.onclick=()=>download('metadata_v28.csv',metadataBox.value,'text/csv;charset=utf-8'); makePrompt.onclick=makePromptNow; copyPrompt.onclick=()=>navigator.clipboard.writeText(promptBox.value); importJson.onclick=()=>{try{aiData=JSON.parse(aiJson.value); jsonStatus.textContent='นำเข้า JSON สำเร็จ: '+(aiData.title||'Untitled'); if(aiData.palette&&Array.isArray(aiData.palette)){palettes['AI Palette']=[...aiData.palette.slice(0,7)]; if(![...palette.options].some(o=>o.value==='AI Palette')) palette.add(new Option('AI Palette','AI Palette')); palette.value='AI Palette'; updateSwatches()} generate()}catch(e){jsonStatus.textContent='JSON ไม่ถูกต้อง: '+e.message}};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');['studio','ai','prompt','metadata','guide'].forEach(t=>document.getElementById(t+'Tab').classList.add('hidden'));document.getElementById(b.dataset.tab+'Tab').classList.remove('hidden');exportBar.style.display=b.dataset.tab==='studio'?'grid':'none'});
+updateSwatches(); makePromptNow(); generate();
 </script>
 </body></html>
