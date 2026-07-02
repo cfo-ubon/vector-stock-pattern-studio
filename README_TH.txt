@@ -1,17 +1,10 @@
-Vector Stock Pattern Studio V30 Asset-Based Engine
+Vector Stock Pattern Studio V31 JSON-Fix
 
-วิธีใช้:
-1. อัปโหลด index.html ทับไฟล์เดิมใน GitHub Pages
-2. เปิดลิงก์เดิม
-3. เลือก Theme / Palette / Composition
-4. กดสร้างลายใหม่
-5. Export SVG แล้วเปิดใน Affinity Designer 2 iPad
+เพิ่มจาก V30:
+- ปุ่ม “ปรับ JSON อัตโนมัติ”
+- ปุ่ม “สร้าง Prompt” กลับมาใน Studio / AI JSON / Prompt Builder
+- รองรับ JSON ที่ ChatGPT ใส่ ```json, smart quotes, comma เกิน, และข้อความอธิบายปนมา
+- ถ้า JSON มี palette เป็น HEX จะเพิ่ม AI Palette ให้อัตโนมัติ
 
-V30 เปลี่ยนจาก random simple-shape engine เป็น asset-based engine:
-- curated botanical SVG assets
-- hero bouquet
-- botanical branches
-- leaf veins
-- flower details
-- berry stems
-- seamless repeat preview
+วิธีอัปเดต:
+อัปโหลด index.html ทับไฟล์เดิมใน GitHub Pages แล้วกด Commit changes

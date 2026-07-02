@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Vector Stock Pattern Studio V30 Asset-Based Engine</title>
+<title>Vector Stock Pattern Studio V31 JSON-Fix</title>
 <style>
 :root{
   --bg:#f7f1e8;--card:#fffdf8;--ink:#0d3025;--muted:#6d655c;--line:#ded2be;
@@ -45,7 +45,7 @@ textarea{min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:13p
 </head>
 <body>
 <header>
-  <h1>Vector Stock Pattern Studio V30 Asset-Based Engine</h1>
+  <h1>Vector Stock Pattern Studio V31 JSON-Fix</h1>
   <div class="sub">Curated SVG Asset Library • Professional Composition Templates • AI JSON Copy/Paste • Seamless SVG 10000×10000 • No API Key</div>
   <div class="nav">
     <button class="primary" onclick="showTab('studio')">Studio</button>
@@ -104,8 +104,9 @@ textarea{min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:13p
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="green" onclick="generate()">สร้างลายใหม่</button>
       <button onclick="randomize()">สุ่มใหม่</button>
+      <button onclick="showTab('prompt'); buildPrompt()">สร้าง Prompt</button>
     </div>
-    <p class="small" style="margin-top:14px"><b>V30 เปลี่ยนแกนใหม่:</b> ไม่วาดวงรีสุ่ม ๆ แต่ใช้ Asset Library แบบ curated: eucalyptus, olive, daisy, berry spray, fern, herb stem, bouquet cluster และ composition template จริง</p>
+    <p class="small" style="margin-top:14px"><b>V31 เพิ่ม:</b> ปุ่มปรับ JSON อัตโนมัติ, ปุ่มสร้าง Prompt กลับมา, และยังใช้ Asset Library แบบ curated</p>
   </section>
 
   <section class="card">
@@ -131,7 +132,7 @@ textarea{min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:13p
     <hr>
     <h3 id="motifCount">0 motifs</h3>
     <p>Hero / Cluster / Filler / Tiny Accents</p>
-    <h3 style="color:#287234">V30 Asset-Based Engine</h3>
+    <h3 style="color:#287234">V31 JSON-Fix</h3>
     <ul class="checks">
       <li>Curated SVG botanical assets</li>
       <li>Professional composition zones</li>
@@ -149,7 +150,12 @@ textarea{min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:13p
     <h2>AI JSON Import</h2>
     <p>ให้ ChatGPT คิด art direction แล้วนำ JSON มาวาง โปรแกรมจะนำคำเหล่านั้นไปเลือก asset/style/layout</p>
     <textarea id="jsonInput" placeholder="วาง JSON จาก ChatGPT ที่นี่"></textarea>
-    <button class="green" onclick="applyJson()">นำ JSON เข้า Engine</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button onclick="fixJson()">ปรับ JSON อัตโนมัติ</button>
+      <button class="green" onclick="applyJson()">นำ JSON เข้า Engine</button>
+      <button onclick="showTab('prompt'); buildPrompt()">สร้าง Prompt</button>
+    </div>
+    <p class="small">ปุ่ม “ปรับ JSON อัตโนมัติ” ช่วยลบ code fence, แก้ smart quotes, ตัดข้อความนอก JSON และแยก object แรกให้อัตโนมัติ</p>
   </div>
   <div class="card"><h2>ผลลัพธ์</h2><div id="jsonStatus">ยังไม่ได้ import</div></div>
   <div class="card"><h2>Schema</h2><pre class="small">title, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, keywords</pre></div>
@@ -159,7 +165,10 @@ textarea{min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:13p
   <div class="card">
     <h2>Prompt สำหรับ ChatGPT</h2>
     <textarea id="promptBox"></textarea>
-    <button class="green" onclick="copyPrompt()">คัดลอก Prompt</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button onclick="buildPrompt()">สร้าง Prompt</button>
+      <button class="green" onclick="copyPrompt()">คัดลอก Prompt</button>
+    </div>
   </div>
   <div class="card"><h2>วิธีใช้</h2><p>คัดลอก prompt ไปถาม ChatGPT แล้วนำ JSON กลับมาวางใน AI JSON</p></div>
   <div class="card"><h2>คำเตือน</h2><p>ต้องเปิด SVG ใน Affinity Designer แล้วปรับ manual ก่อนขาย เพื่อลดความซ้ำและเพิ่มความเป็นงานมนุษย์</p></div>
@@ -336,16 +345,96 @@ function buildMeta(){
 }
 function downloadCSV(){const m=currentMeta;download('metadata_v30.csv','filename,title,description,keywords\nvector_stock_pattern_v30_10000.svg,"'+m.title+'","'+m.description+'","'+m.keywords.join(', ')+'"','text/csv;charset=utf-8')}
 function buildPrompt(){
- document.getElementById('promptBox').value=`Create original stock-ready seamless vector pattern JSON only.
-Theme: ${document.getElementById('theme').value}
-Style: premium botanical surface pattern, editorial full tile, detailed leaf veins, flower pollen, berry stems
-Return fields: title, description, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, layout, keywords exactly 50.
-Avoid brands, logos, copyrighted characters, people.`;
+ const theme=document.getElementById('theme').value;
+ const paletteName=document.getElementById('palette').value;
+ const comp=document.getElementById('composition').value;
+ document.getElementById('promptBox').value=`You are a professional stock vector surface pattern art director.
+Create ORIGINAL stock-ready seamless vector pattern JSON only.
+
+Theme: ${theme}
+Palette: ${paletteName}
+Composition: ${comp}
+Canvas: 10000 x 10000 px
+Style: premium botanical surface pattern, editorial full tile, detailed leaf veins, layered flowers, flower pollen, berry stems, branch clusters, tiny accents.
+Purpose: The JSON will be pasted into my no-API web app to render editable SVG for Affinity Designer 2 iPad.
+
+Return valid JSON only. No markdown, no code fence, no explanation.
+
+Required fields exactly:
+{
+  "title": "",
+  "description": "",
+  "concept": "",
+  "hero_motifs": [],
+  "medium_motifs": [],
+  "fillers": [],
+  "tiny_accents": [],
+  "palette": [],
+  "layout": "",
+  "keywords": []
+}
+
+Rules:
+- keywords must contain exactly 50 English keywords.
+- Avoid brands, logos, copyrighted characters, people, trademarks.
+- Motifs must be generic and original, such as eucalyptus branch, olive leaf stem, daisy cluster, berry sprig, fern spray, tiny pollen dots.
+- Palette must be 5-7 HEX colors.
+- Make the art direction suitable for Adobe Stock and Shutterstock.`;
 }
 function copyPrompt(){navigator.clipboard.writeText(document.getElementById('promptBox').value)}
+function cleanJsonText(raw){
+ let t=(raw||'').trim();
+ t=t.replace(/```json/gi,'').replace(/```/g,'').trim();
+ t=t.replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
+ t=t.replace(/\u00A0/g,' ');
+ // extract first JSON object if ChatGPT added explanation text
+ const start=t.indexOf('{');
+ const end=t.lastIndexOf('}');
+ if(start>=0 && end>start) t=t.slice(start,end+1);
+ // remove trailing commas before } or ]
+ t=t.replace(/,\s*([}\]])/g,'$1');
+ return t;
+}
+function fixJson(){
+ const box=document.getElementById('jsonInput');
+ const fixed=cleanJsonText(box.value);
+ box.value=fixed;
+ try{
+   const obj=JSON.parse(fixed);
+   const required=["title","description","concept","hero_motifs","medium_motifs","fillers","tiny_accents","palette","layout","keywords"];
+   required.forEach(k=>{
+     if(obj[k]===undefined){
+       if(["hero_motifs","medium_motifs","fillers","tiny_accents","palette","keywords"].includes(k)) obj[k]=[];
+       else obj[k]="";
+     }
+   });
+   if(Array.isArray(obj.keywords) && obj.keywords.length>50) obj.keywords=obj.keywords.slice(0,50);
+   box.value=JSON.stringify(obj,null,2);
+   document.getElementById('jsonStatus').textContent='ปรับ JSON สำเร็จ พร้อมนำเข้า';
+ }catch(e){
+   document.getElementById('jsonStatus').textContent='ยังปรับ JSON ไม่สำเร็จ: '+e.message+' — ให้ตรวจว่ามี { } ครบหรือไม่';
+ }
+}
 function applyJson(){
- try{ aiSpec=JSON.parse(document.getElementById('jsonInput').value); document.getElementById('jsonStatus').textContent='นำเข้า JSON แล้ว: '+(aiSpec.title||'untitled'); document.getElementById('seed').value='AI-'+(aiSpec.title||'pattern').slice(0,12)+'-'+Math.floor(Math.random()*999); generate();}
- catch(e){document.getElementById('jsonStatus').textContent='JSON ไม่ถูกต้อง: '+e.message}
+ try{
+   const fixed=cleanJsonText(document.getElementById('jsonInput').value);
+   aiSpec=JSON.parse(fixed);
+   document.getElementById('jsonInput').value=JSON.stringify(aiSpec,null,2);
+   document.getElementById('jsonStatus').textContent='นำเข้า JSON แล้ว: '+(aiSpec.title||'untitled');
+   document.getElementById('seed').value='AI-'+(aiSpec.title||'pattern').toString().replace(/[^a-z0-9ก-๙]/gi,'').slice(0,12)+'-'+Math.floor(Math.random()*999);
+   // map AI palette if available
+   if(Array.isArray(aiSpec.palette) && aiSpec.palette.length>=5){
+     palettes["AI Palette"]=aiSpec.palette.slice(0,7);
+     let sel=document.getElementById('palette');
+     if(!Array.from(sel.options).some(o=>o.value==="AI Palette")){
+       let opt=document.createElement('option'); opt.value="AI Palette"; opt.textContent="AI Palette"; sel.prepend(opt);
+     }
+     sel.value="AI Palette";
+   }
+   generate();
+ }catch(e){
+   document.getElementById('jsonStatus').textContent='JSON ไม่ถูกต้อง: '+e.message+' — กด “ปรับ JSON อัตโนมัติ” ก่อน';
+ }
 }
 function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.style.display='none');document.getElementById(id).style.display='grid'}
 generate();
