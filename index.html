@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Vector Stock Pattern Studio V35 Art-Directed</title>
+<title>Vector Stock Pattern Studio V36 Strict JSON</title>
 <style>
 :root{
   --bg:#f4eadb;--card:#fffdf8;--ink:#0b3024;--muted:#70685f;--line:#ded0bb;
@@ -37,7 +37,7 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:14px
 </head>
 <body>
 <header>
-<h1>Vector Stock Pattern Studio V35 Art-Directed</h1>
+<h1>Vector Stock Pattern Studio V36 Strict JSON</h1>
 <div class="sub">เปลี่ยนจาก generator แบบซ้ำ grid เป็น art-directed layout: ช่อใหญ่จริง • กิ่งยาวจริง • ดอก/ใบมีรายละเอียด • usable SVG 10000×10000</div>
 <div class="nav">
 <button class="primary" onclick="showTab('studio')">Studio</button>
@@ -90,7 +90,7 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:14px
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
 <button class="green" onclick="generate()">สร้างลายใหม่</button>
 <button onclick="randomize()">สุ่มใหม่</button>
-<button onclick="showTab('prompt');buildPrompt()">สร้าง Prompt</button>
+<button onclick="showTab('prompt');buildPrompt()">สร้าง Prompt</button><button onclick="showTab('prompt');buildStrictPrompt()">Strict JSON Prompt</button>
 </div>
 <div class="notice">V35 แก้ปัญหาที่ได้ 4/10: ไม่วางช่อซ้ำเป็นช่อง ๆ แล้ว แต่ใช้ตำแหน่งแบบ art-directed มีแกน flow, ขนาดหลากหลาย และ motif หลักใหญ่พอใช้จริง</div>
 </section>
@@ -114,7 +114,7 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:14px
 <p>เป็น base vector สำหรับเปิดแก้ต่อใน Affinity Designer 2 iPad ก่อนส่งขาย</p><hr>
 <h3 id="motifCount">0 motifs</h3>
 <p>Large hero / stem / flower / leaf / berry / filler</p>
-<h3 style="color:#287234">V35 Art-Directed Engine</h3>
+<h3 style="color:#287234">V36 Strict JSON Engine</h3>
 <ul class="checks">
 <li>ไม่จัดซ้ำเป็น grid เล็ก</li>
 <li>motif ใหญ่และเห็นรายละเอียด</li>
@@ -128,13 +128,13 @@ select,input,textarea{width:100%;border:1px solid var(--line);border-radius:14px
 </main>
 
 <section id="ai" class="wrap tab" style="display:none">
-<div class="card"><h2>AI JSON Import</h2><textarea id="jsonInput" placeholder="วาง JSON จาก ChatGPT ที่นี่"></textarea><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button onclick="fixJson()">ปรับ JSON อัตโนมัติ</button><button class="green" onclick="applyJson()">นำ JSON เข้า Engine</button><button onclick="showTab('prompt');buildPrompt()">สร้าง Prompt</button></div></div>
+<div class="card"><h2>AI JSON Import</h2><textarea id="jsonInput" placeholder="วาง JSON จาก ChatGPT ที่นี่"></textarea><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button onclick="fixJson()">ปรับ JSON อัตโนมัติ</button><button onclick="detectImageResponse()">ตรวจว่าเป็นรูปภาพหรือ JSON</button><button class="green" onclick="applyJson()">นำ JSON เข้า Engine</button><button onclick="showTab('prompt');buildPrompt()">สร้าง Prompt</button><button onclick="showTab('prompt');buildStrictPrompt()">Strict JSON Prompt</button></div></div>
 <div class="card"><h2>สถานะ</h2><div id="jsonStatus">ยังไม่ได้ import</div></div>
 <div class="card"><h2>Schema</h2><pre class="small">title, description, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, layout, keywords</pre></div>
 </section>
 
 <section id="prompt" class="wrap tab" style="display:none">
-<div class="card"><h2>Prompt สำหรับ ChatGPT</h2><textarea id="promptBox"></textarea><button class="green" onclick="copyPrompt()">คัดลอก Prompt</button></div>
+<div class="card"><h2>Prompt สำหรับ ChatGPT</h2><textarea id="promptBox"></textarea><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button onclick="buildStrictPrompt()">สร้าง Strict JSON Prompt</button><button class="green" onclick="copyPrompt()">คัดลอก Prompt</button></div></div>
 <div class="card"><h2>วิธีใช้</h2><p>นำ prompt ไปถาม ChatGPT แล้วกลับมาวาง JSON ใน AI JSON</p></div>
 <div class="card"><h2>คำเตือน</h2><p>ควรปรับ manual ใน Affinity Designer ก่อนขาย stock เสมอ</p></div>
 </section>
@@ -232,5 +232,73 @@ function buildPrompt(){document.getElementById('promptBox').value='Create valid 
 function copyPrompt(){navigator.clipboard.writeText(document.getElementById('promptBox').value)}
 function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.style.display='none');document.getElementById(id).style.display='grid'}
 generate();
+
+function buildStrictPrompt(){
+document.getElementById('promptBox').value=`IMPORTANT: DO NOT CREATE OR GENERATE ANY IMAGE.
+DO NOT USE IMAGE GENERATION.
+DO NOT ATTACH, DRAW, RENDER, OR PREVIEW ANY IMAGE.
+RETURN JSON ONLY.
+
+You are creating structured art-direction data for a separate SVG web app.
+The app will render the vector pattern later.
+Your output must be one valid JSON object only.
+
+No markdown.
+No code block.
+No explanation.
+No image.
+No prose outside JSON.
+
+Required JSON schema exactly:
+{
+  "title": "",
+  "description": "",
+  "concept": "",
+  "hero_motifs": [],
+  "medium_motifs": [],
+  "fillers": [],
+  "tiny_accents": [],
+  "palette": [],
+  "layout": "",
+  "keywords": []
+}
+
+Content requirements:
+- Original premium botanical seamless vector pattern.
+- Large visible botanical sprays.
+- Detailed leaf veins.
+- Layered flowers.
+- Berry stems.
+- Elegant stock-ready full tile.
+- Palette must contain 5 to 7 HEX colors.
+- keywords must contain exactly 50 English keywords.
+- Avoid brands, logos, copyrighted characters, people, trademarks.
+
+Return JSON only.`;
+}
+function detectImageResponse(){
+const box=document.getElementById('jsonInput');
+const status=document.getElementById('jsonStatus');
+const t=(box.value||'').trim();
+const looksImage=t.includes('![')||t.includes('<img')||t.includes('data:image')||t.toLowerCase().includes('generated image')||t.toLowerCase().includes('image generation');
+const hasJson=t.includes('{')&&t.includes('}');
+if(looksImage||!hasJson){
+ if(status) status.textContent='ผลลัพธ์นี้ไม่ใช่ JSON หรือ AI ส่งรูปภาพกลับมา ให้กด Strict JSON Prompt แล้วถาม ChatGPT ใหม่';
+ return false;
+}
+if(status) status.textContent='ตรวจพบโครงสร้าง JSON สามารถกดปรับ JSON หรือนำเข้าได้';
+return true;
+}
+
+
+function buildPrompt(){
+document.getElementById('promptBox').value=`Create valid JSON only for an original premium botanical seamless vector pattern.
+Include title, description, concept, hero_motifs, medium_motifs, fillers, tiny_accents, palette, layout, keywords exactly 50.
+Style: large visible botanical sprays, detailed leaf veins, layered flowers, berry stems, elegant stock-ready full tile.
+Avoid copyrighted content.
+
+For best results, use the Strict JSON Prompt button.`;
+}
+
 </script>
 </body></html>
