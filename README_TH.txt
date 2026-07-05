@@ -1,2 +1,2 @@
-V38 Button Fix
-แก้ปุ่มกดไม่ได้จาก JavaScript error และรวม Strict JSON Prompt/JSON Import ใหม่
+V39 Beauty Engine
+ปรับการวางลายให้ลดความซ้ำของ bouquet แบบ stamp และเพิ่ม hierarchy ของ motif
