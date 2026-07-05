@@ -1,2 +1,2 @@
-V39 Beauty Engine
-ปรับการวางลายให้ลดความซ้ำของ bouquet แบบ stamp และเพิ่ม hierarchy ของ motif
+V40 Premium Floral
+ปรับการสร้างภาพให้ motif ใหญ่ขึ้น เต็ม tile มากขึ้น และลดพื้นที่ว่างเกินจาก V39
