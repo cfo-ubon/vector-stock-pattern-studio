@@ -1,2 +1,2 @@
-V40 Premium Floral
-ปรับการสร้างภาพให้ motif ใหญ่ขึ้น เต็ม tile มากขึ้น และลดพื้นที่ว่างเกินจาก V39
+V41 Code Fix
+แก้โค้ดโปรแกรมสร้างลวดลายเวคเตอร์โดยตรง เพิ่ม Premium Floral Engine และยังคง JSON/Prompt/Export
