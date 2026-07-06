@@ -1,15 +1,23 @@
-Vector Stock Pattern Studio V45 GitHub Pages Fix
+V110 Portfolio Automation
 
-แก้สำหรับ GitHub Pages:
-1) เพิ่มไฟล์ .nojekyll
-2) เป็น static HTML ล้วน ไม่ต้อง build dependency
-3) มี Runtime Guard กัน JavaScript error ทำให้หน้าเว็บไม่ล่ม
-4) ปรับ engine ลวดลายให้แน่นและเต็มภาพขึ้นกว่า V44
+พัฒนาจาก V70/V80/V100 สู่ระบบบริหารพอร์ตเพื่อขายเร็วที่สุด
 
-วิธีอัปโหลดที่แนะนำ:
-- อัปโหลด index.html
-- อัปโหลด .nojekyll
-- อัปโหลด README_TH.txt
-- ไม่ต้องลบ css/js folder เดิมก็ได้
-- Commit changes
-- รอ Pages 1-3 นาที
+เพิ่ม:
+- Portfolio tab
+- Evergreen Focus: Timeless Botanical / Scandinavian Organic / Vintage Wallpaper
+- Monthly Target planner
+- 7-day production sprint
+- Submission Calendar
+- Portfolio Plan Export
+- Stock QC Checklist
+- Still includes collection generator, prompt builder, AI JSON, metadata, SVG export
+
+แนวคิดสำคัญ:
+ขายเร็วที่สุด = ไม่ใช่สร้างเยอะที่สุด แต่คัด Top 20% ที่ดีที่สุดไปส่งก่อน
+
+วิธีใช้งาน:
+1. อัปโหลด index.html ทับไฟล์เดิมใน GitHub
+2. เปิดแอพ
+3. ไปแท็บ Portfolio
+4. กดสร้าง Portfolio Plan
+5. ใช้แผนนี้ผลิต 3 evergreen collections แล้วส่งเฉพาะผลงานที่ดีที่สุด
