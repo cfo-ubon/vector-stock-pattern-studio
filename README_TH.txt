@@ -1,2 +1,2 @@
-V41 Code Fix
-แก้โค้ดโปรแกรมสร้างลวดลายเวคเตอร์โดยตรง เพิ่ม Premium Floral Engine และยังคง JSON/Prompt/Export
+V43 Pro Workflow
+เพิ่ม AI Art Direction, เพิ่ม Theme/Composition ใหม่, JSON concept จะถูกนำไปใช้กับ engine และปรับลายให้หลากหลายขึ้น
