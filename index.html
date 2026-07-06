@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vector Stock Pattern Studio V44 Dense Premium</title>
+<title>Vector Stock Pattern Studio V45 GitHub Pages Fix</title>
 <style>
 body{margin:0;background:#f4eadb;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#0b3024}
 header{padding:24px 32px;background:#fffdf8;border-bottom:1px solid #ded0bb;position:sticky;top:0;z-index:10}
@@ -17,9 +17,19 @@ label{display:block;margin:14px 0 7px;font-weight:950}select,input,textarea{widt
 .exports{max-width:1640px;margin:0 auto 28px;padding:0 26px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.notice{background:#fff3ce;border:1px solid #e2c777;border-radius:16px;padding:14px;margin-top:16px;color:#684b08;font-weight:800}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.small{font-size:13px;color:#6d655b}
 @media(max-width:1100px){.wrap{grid-template-columns:1fr}.exports{grid-template-columns:1fr 1fr}}@media(max-width:640px){header{padding:20px 14px}.wrap{padding:14px}.exports{grid-template-columns:1fr;padding:0 14px}}
 </style>
+
+<script>
+window.addEventListener('error', function(e){
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#fff3ce;border:1px solid #d9b84a;border-radius:14px;padding:12px;color:#5a3b00;font:14px system-ui';
+  box.textContent='V45 Runtime Guard: พบ JavaScript error แต่หน้าเว็บยังทำงานต่อได้: '+(e.message||'unknown error');
+  document.body.appendChild(box);
+});
+</script>
+
 </head>
 <body>
-<header><h1>Vector Stock Pattern Studio V44 Dense Premium</h1><div class="sub">พัฒนา engine ให้เต็มภาพขึ้น • ลดพื้นที่โล่ง • เพิ่มช่อใหญ่/ช่อกลาง/ใบเติมช่องว่าง • Prompt → JSON → Engine → SVG 10000×10000</div><div class="nav"><button class="primary" onclick="showTab('studio')">Studio</button><button onclick="showTab('prompt');buildStockPrompt()">Prompt Builder</button><button onclick="showTab('ai')">AI JSON</button><button onclick="showTab('meta')">Metadata</button><button onclick="showTab('guide')">คู่มือ</button></div></header>
+<header><h1>Vector Stock Pattern Studio V45 GitHub Pages Fix</h1><div class="sub">แก้ GitHub Pages deploy • static-only build • ไม่มี dependency • ปรับลายเวคเตอร์ให้แน่นและใช้งานได้ขึ้น • SVG 10000×10000</div><div class="nav"><button class="primary" onclick="showTab('studio')">Studio</button><button onclick="showTab('prompt');buildStockPrompt()">Prompt Builder</button><button onclick="showTab('ai')">AI JSON</button><button onclick="showTab('meta')">Metadata</button><button onclick="showTab('guide')">คู่มือ</button></div></header>
 
 <main id="studio" class="wrap tab">
 <section class="card"><h2>ตั้งค่าลาย</h2>
@@ -30,13 +40,13 @@ label{display:block;margin:14px 0 7px;font-weight:950}select,input,textarea{widt
 <label>Density</label><select id="density" onchange="generate()"><option>Dense Premium</option><option>Balanced Premium</option><option>Rich Wallpaper</option><option>Airy Premium</option></select>
 <label>AI Art Direction</label><textarea id="artDirection" style="min-height:110px" placeholder="วาง concept จาก AI หรือพิมพ์แนวลาย เช่น large peony, eucalyptus, berry stems, elegant negative space">large botanical bouquets, layered flowers, eucalyptus branches, berry stems, elegant stock-ready seamless pattern</textarea><label>Seed</label><input id="seed" value="KOKO-440001">
 <div class="row"><button class="green" onclick="generate()">สร้างลายใหม่</button><button onclick="randomize()">สุ่มใหม่</button><button onclick="showTab('prompt');buildStockPrompt()">สร้าง Prompt</button><button onclick="showTab('prompt');buildStrictPrompt()">Strict JSON</button></div>
-<div class="notice">V44 Dense Premium: เพิ่มจำนวน hero/medium/filler, ปรับสัดส่วนให้เต็ม tile มากขึ้น, ลดช่องว่างเกิน และลดการซ้ำเป็นแถว</div></section>
+<div class="notice">V45 GitHub Pages Fix: เพิ่มจำนวน hero/medium/filler, ปรับสัดส่วนให้เต็ม tile มากขึ้น, ลดช่องว่างเกิน และลดการซ้ำเป็นแถว</div></section>
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2>Preview <span class="small">(10000×10000)</span></h2><span id="made" class="badge">สร้างแล้ว</span></div><div id="preview" class="previewBox"></div><div><span class="badge">✓ Prompt Director</span><span class="badge">✓ Premium Bouquet</span><span class="badge">✓ JSON Import</span><span class="badge">✓ SVG Export</span></div></section>
-<aside class="card"><h2>Quality Score</h2><div class="score">9.5/10</div><div class="stars">★★★★★</div><p>base vector สำหรับเปิดแก้ต่อใน Affinity Designer 2 iPad</p><hr><h3 id="motifCount">0 motifs</h3><h3 style="color:#287234">V44 Dense Premium</h3><ul><li>มีปุ่มสร้าง Prompt กลับมา</li><li>สร้าง prompt ตามค่าหน้า Studio</li><li>Strict JSON กัน ChatGPT สร้างรูป</li><li>คัดลอก prompt ได้ทันที</li><li>เปิด ChatGPT ได้จากแอพ</li></ul><button class="green" onclick="makeRepeat()">Preview 3×3 Repeat</button><div id="repeat" class="grid3"></div></aside>
+<aside class="card"><h2>Quality Score</h2><div class="score">9.5/10</div><div class="stars">★★★★★</div><p>base vector สำหรับเปิดแก้ต่อใน Affinity Designer 2 iPad</p><hr><h3 id="motifCount">0 motifs</h3><h3 style="color:#287234">V45 GitHub Pages Fix</h3><ul><li>มีปุ่มสร้าง Prompt กลับมา</li><li>สร้าง prompt ตามค่าหน้า Studio</li><li>Strict JSON กัน ChatGPT สร้างรูป</li><li>คัดลอก prompt ได้ทันที</li><li>เปิด ChatGPT ได้จากแอพ</li></ul><button class="green" onclick="makeRepeat()">Preview 3×3 Repeat</button><div id="repeat" class="grid3"></div></aside>
 </main>
 
 <section id="prompt" class="wrap tab" style="display:none">
-<div class="card"><h2>V44 Dense Premium</h2><label>Prompt Type</label><select id="promptType" onchange="buildPromptByType()"><option>Stock JSON Prompt</option><option>Strict JSON Prompt</option><option>Premium Botanical Director</option></select><textarea id="promptBox"></textarea><div class="row"><button class="green" onclick="buildStockPrompt()">สร้าง Prompt</button><button onclick="buildStrictPrompt()">Strict JSON Prompt</button><button onclick="copyPrompt()">คัดลอก Prompt</button><button onclick="openChatGPT()">เปิด ChatGPT</button></div></div>
+<div class="card"><h2>V45 GitHub Pages Fix</h2><label>Prompt Type</label><select id="promptType" onchange="buildPromptByType()"><option>Stock JSON Prompt</option><option>Strict JSON Prompt</option><option>Premium Botanical Director</option></select><textarea id="promptBox"></textarea><div class="row"><button class="green" onclick="buildStockPrompt()">สร้าง Prompt</button><button onclick="buildStrictPrompt()">Strict JSON Prompt</button><button onclick="copyPrompt()">คัดลอก Prompt</button><button onclick="openChatGPT()">เปิด ChatGPT</button></div></div>
 <div class="card"><h2>ขั้นตอนใช้งาน</h2><ol><li>ตั้งค่าลายในหน้า Studio</li><li>กด <b>สร้าง Prompt</b></li><li>กด <b>คัดลอก Prompt</b></li><li>นำไปวางใน ChatGPT</li><li>นำ JSON ที่ได้กลับมาวางใน AI JSON</li></ol></div>
 <div class="card"><h2>Prompt Summary</h2><p id="promptSummary">พร้อมสร้าง prompt</p></div>
 </section>
@@ -65,7 +75,7 @@ function berries(c,x,y,rot,sc,n,op){let s='<g transform="'+tr(x,y,rot,sc)+'" opa
 function bouquet(c,x,y,rot,sc,v,op){let s='<g transform="'+tr(x,y,rot,sc)+'" opacity="'+op+'">';s+=branch(c,-180,-55,-25,.95,'eucalyptus',.94)+branch(c,90,-30,22,.78,'olive',.90)+branch(c,10,95,70,.48,'fern',.55)+berries(c,20,-60,5,.67,7,.92);s+=flower(c,-130,85,-8,.72,v%2?'rose':'coral',.96)+flower(c,115,55,12,.55,'white',.92)+flower(c,0,170,8,.38,'rose',.72);s+='</g>';motifCount++;return s;}
 function spray(c,x,y,rot,sc,op){return '<g transform="'+tr(x,y,rot,sc)+'" opacity="'+op+'">'+branch(c,0,0,0,.54,'fern',.58)+flower(c,70,95,12,.30,'white',.58)+berries(c,-100,-60,-18,.30,4,.52)+'</g>';}
 function addWrap(arr,fn,x,y,m){arr.push(fn(x,y));if(x<m)arr.push(fn(x+SIZE,y));if(x>SIZE-m)arr.push(fn(x-SIZE,y));if(y<m)arr.push(fn(x,y+SIZE));if(y>SIZE-m)arr.push(fn(x,y-SIZE));}
-function buildPattern(){const r=rng(),c=col();motifCount=0;const els=['<rect width="'+SIZE+'" height="'+SIZE+'" fill="'+c.bg+'"/>'];const den=(document.getElementById('density')||{}).value||'',det=(document.getElementById('detail')||{}).value||'',sb=det.includes('Maximum')?1.22:1.08;let pts=[[650,650,-20,1.30,0],[2500,950,18,1.05,1],[4450,680,-8,1.18,2],[6500,1050,24,1.0,3],[8500,720,-18,1.05,4],[1200,2700,14,1.14,5],[3300,3200,-18,1.28,6],[5500,2650,8,1.12,7],[7700,3300,-24,1.10,8],[9600,2750,15,.98,9],[850,4950,-12,1.05,10],[2850,5450,12,1.02,11],[5000,4950,-20,1.20,12],[7200,5450,16,1.12,13],[9050,5050,-12,1.0,14],[1300,7450,20,1.06,15],[3500,8050,-8,1.15,16],[5900,7500,10,1.1,17],[8200,8200,-18,1.05,18],[9800,7600,22,.95,19]];pts.forEach(p=>addWrap(els,(xx,yy)=>bouquet(c,xx,yy,p[2]+rnd(r,-6,6),p[3]*sb*rnd(r,.95,1.05),p[4],.96),p[0]+rnd(r,-90,90),p[1]+rnd(r,-90,90),1600));const sprayN=den.includes('Rich')?46:(den.includes('Airy')?18:32);for(let i=0;i<sprayN;i++)els.push(spray(c,rnd(r,220,SIZE-220),rnd(r,220,SIZE-220),rnd(r,0,360),rnd(r,.82,1.25),.60));const flowerN=den.includes('Rich')?54:36;for(let i=0;i<flowerN;i++)els.push(flower(c,rnd(r,300,SIZE-300),rnd(r,300,SIZE-300),rnd(r,0,360),rnd(r,.18,.34),pick(r,['white','coral','rose']),rnd(r,.45,.68)));for(let i=0;i<70;i++)els.push(leaf(c,rnd(r,0,SIZE),rnd(r,0,SIZE),rnd(r,0,360),rnd(r,.11,.22),pick(r,['olive','long','pale','dark','round']),rnd(r,.35,.58)));return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V44 Dense Premium Botanical Pattern</title><desc>Editable seamless SVG vector pattern with premium floral bouquets, branches, leaves and berries.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';}
+function buildPattern(){const r=rng(),c=col();motifCount=0;const els=['<rect width="'+SIZE+'" height="'+SIZE+'" fill="'+c.bg+'"/>'];const den=(document.getElementById('density')||{}).value||'',det=(document.getElementById('detail')||{}).value||'',sb=det.includes('Maximum')?1.22:1.08;let pts=[[650,650,-20,1.30,0],[2500,950,18,1.05,1],[4450,680,-8,1.18,2],[6500,1050,24,1.0,3],[8500,720,-18,1.05,4],[1200,2700,14,1.14,5],[3300,3200,-18,1.28,6],[5500,2650,8,1.12,7],[7700,3300,-24,1.10,8],[9600,2750,15,.98,9],[850,4950,-12,1.05,10],[2850,5450,12,1.02,11],[5000,4950,-20,1.20,12],[7200,5450,16,1.12,13],[9050,5050,-12,1.0,14],[1300,7450,20,1.06,15],[3500,8050,-8,1.15,16],[5900,7500,10,1.1,17],[8200,8200,-18,1.05,18],[9800,7600,22,.95,19]];pts.forEach(p=>addWrap(els,(xx,yy)=>bouquet(c,xx,yy,p[2]+rnd(r,-6,6),p[3]*sb*rnd(r,.95,1.05),p[4],.96),p[0]+rnd(r,-90,90),p[1]+rnd(r,-90,90),1600));const sprayN=den.includes('Rich')?46:(den.includes('Airy')?18:32);for(let i=0;i<sprayN;i++)els.push(spray(c,rnd(r,220,SIZE-220),rnd(r,220,SIZE-220),rnd(r,0,360),rnd(r,.82,1.25),.60));const flowerN=den.includes('Rich')?54:36;for(let i=0;i<flowerN;i++)els.push(flower(c,rnd(r,300,SIZE-300),rnd(r,300,SIZE-300),rnd(r,0,360),rnd(r,.18,.34),pick(r,['white','coral','rose']),rnd(r,.45,.68)));for(let i=0;i<70;i++)els.push(leaf(c,rnd(r,0,SIZE),rnd(r,0,SIZE),rnd(r,0,360),rnd(r,.11,.22),pick(r,['olive','long','pale','dark','round']),rnd(r,.35,.58)));return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V45 GitHub Pages Fix Botanical Pattern</title><desc>Editable seamless SVG vector pattern with premium floral bouquets, branches, leaves and berries.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';}
 
 // ===== V43 PRO WORKFLOW ENGINE OVERRIDE =====
 function buildPattern(){
@@ -101,7 +111,7 @@ function buildPattern(){
  for(let i=0;i<leafN;i++){
    els.push(leaf(c,rnd(r,0,SIZE),rnd(r,0,SIZE),rnd(r,0,360),rnd(r,.10,.23)*(isHerb?.72:1),pick(r,['olive','long','pale','dark','round']),rnd(r,.32,.58)));
  }
- return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V44 Dense Premium Botanical Pattern</title><desc>Editable seamless SVG vector pattern with prompt-directed floral bouquets, branches, leaves and berries.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V45 GitHub Pages Fix Botanical Pattern</title><desc>Editable seamless SVG vector pattern with prompt-directed floral bouquets, branches, leaves and berries.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';
 }
 
 
@@ -149,7 +159,51 @@ function buildPattern(){
    const x=rnd(r,0,SIZE),y=rnd(r,0,SIZE),rad=rnd(r,8,22),fill=pick(r,[c.coral,c.l2,c.gold,c.cream,c.l3]);
    els.push('<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="'+fill+'" opacity="'+rnd(r,.18,.48).toFixed(2)+'"/>');
  }
- return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V44 Dense Premium Botanical Pattern</title><desc>Editable seamless SVG vector pattern with denser premium botanical bouquets, flowers, branches, leaves and accents.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V45 GitHub Pages Fix Botanical Pattern</title><desc>Editable seamless SVG vector pattern with denser premium botanical bouquets, flowers, branches, leaves and accents.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';
+}
+
+
+// ===== V45 GITHUB PAGES FIX + PREMIUM DENSE ENGINE OVERRIDE =====
+function buildPattern(){
+ const r=rng(),c=col();motifCount=0;
+ const els=['<rect width="'+SIZE+'" height="'+SIZE+'" fill="'+c.bg+'"/>'];
+ const den=(document.getElementById('density')||{}).value||'';
+ const det=(document.getElementById('detail')||{}).value||'';
+ const comp=(document.getElementById('composition')||{}).value||'';
+ const art=((document.getElementById('artDirection')||{}).value||'').toLowerCase();
+
+ const isAiry=den.includes('Airy')||comp.includes('Airy')||art.includes('airy');
+ const isDense=!isAiry;
+ const sb=det.includes('Maximum')?1.36:(det.includes('Clean')?1.08:1.24);
+
+ let heroPts=[
+ [540,560,-18,1.42,0],[1900,900,16,1.18,1],[3400,620,-8,1.26,2],[4950,1040,24,1.16,3],[6500,650,-18,1.26,4],[8000,1050,12,1.18,5],[9450,560,-10,1.12,6],
+ [980,2350,14,1.22,7],[2550,3000,-18,1.38,8],[4250,2350,8,1.25,9],[5900,3120,-24,1.28,10],[7550,2500,16,1.22,11],[9250,3200,-12,1.14,12],
+ [650,4550,-12,1.24,13],[2100,5350,12,1.18,14],[3700,4550,-20,1.36,15],[5350,5350,18,1.24,16],[7000,4580,-18,1.32,17],[8750,5350,20,1.18,18],
+ [1020,7050,18,1.24,19],[2850,7800,-8,1.30,20],[4600,7000,10,1.24,21],[6300,8000,-16,1.26,22],[8000,7150,20,1.22,23],[9550,8300,-22,1.12,24],
+ [720,9300,-10,1.12,25],[2450,9400,18,1.12,26],[5000,9200,-8,1.18,27],[7400,9400,14,1.14,28],[9300,9500,-16,1.08,29]
+ ];
+ if(isAiry) heroPts=heroPts.filter((_,i)=>i%2===0);
+ heroPts.forEach(p=>addWrap(els,(xx,yy)=>bouquet(c,xx,yy,p[2]+rnd(r,-7,7),p[3]*sb*rnd(r,.95,1.06),p[4],.96),p[0]+rnd(r,-65,65),p[1]+rnd(r,-65,65),1550));
+
+ const mediumN=isAiry?22:(isDense?72:52);
+ for(let i=0;i<mediumN;i++){
+   els.push(spray(c,rnd(r,100,SIZE-100),rnd(r,100,SIZE-100),rnd(r,0,360),rnd(r,.90,1.48),.60));
+ }
+ const soloN=isAiry?40:105;
+ for(let i=0;i<soloN;i++){
+   els.push(flower(c,rnd(r,120,SIZE-120),rnd(r,120,SIZE-120),rnd(r,0,360),rnd(r,.22,.50),pick(r,['white','coral','rose']),rnd(r,.45,.72)));
+ }
+ const leafN=isAiry?80:175;
+ for(let i=0;i<leafN;i++){
+   els.push(leaf(c,rnd(r,-150,SIZE+150),rnd(r,-150,SIZE+150),rnd(r,0,360),rnd(r,.12,.32),pick(r,['olive','long','pale','dark','round']),rnd(r,.34,.62)));
+ }
+ const dotN=isAiry?80:210;
+ for(let i=0;i<dotN;i++){
+   const x=rnd(r,0,SIZE),y=rnd(r,0,SIZE),rad=rnd(r,7,20),fill=pick(r,[c.coral,c.l2,c.gold,c.cream,c.l3]);
+   els.push('<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="'+fill+'" opacity="'+rnd(r,.16,.42).toFixed(2)+'"/>');
+ }
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'"><title>V45 GitHub Pages Fix Premium Pattern</title><desc>Static GitHub Pages safe editable seamless SVG vector pattern.</desc><defs><clipPath id="clip"><rect width="'+SIZE+'" height="'+SIZE+'"/></clipPath></defs><g clip-path="url(#clip)">'+els.join('\n')+'</g></svg>';
 }
 
 function generate(){document.getElementById('swatches').innerHTML=pal().map(v=>'<span class="sw" style="background:'+v+'"></span>').join('');currentSVG=buildPattern();document.getElementById('preview').innerHTML=currentSVG;document.getElementById('made').textContent='สร้างแล้ว';document.getElementById('motifCount').textContent=motifCount+' motifs';makeRepeat();buildMeta();}
@@ -157,10 +211,10 @@ function makeRepeat(){document.getElementById('repeat').innerHTML=Array.from({le
 function randomize(){document.getElementById('seed').value='KOKO-'+Math.floor(Math.random()*999999);generate();}
 function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.style.display='none');document.getElementById(id).style.display='grid';}
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:type}));a.download=name;a.click();}
-function downloadSVG(){download('vector_stock_pattern_v44_10000.svg',currentSVG,'image/svg+xml');}
+function downloadSVG(){download('vector_stock_pattern_v45_10000.svg',currentSVG,'image/svg+xml');}
 function copySVG(){navigator.clipboard.writeText(currentSVG);}
 function buildMeta(){const kws=["botanical","seamless","pattern","vector","floral","scandinavian","eucalyptus","olive","leaves","leaf","flower","wildflower","daisy","berry","branch","foliage","garden","nature","organic","surface pattern","textile","fabric","wallpaper","background","repeat","tile","decorative","premium","modern","elegant","soft","green","beige","terracotta","herbarium","spring","editable","svg","illustration","stock","commercial","affinity designer","floral pattern","leaf pattern","botanical pattern","cottage","minimal","wrapping","natural"];currentMeta={title:"Dense Premium Botanical Seamless Vector Pattern",description:"Dense premium botanical vector pattern with fuller floral bouquets, detailed leaves, berry stems, fillers and stock-ready seamless tile layout.",keywords:kws};const box=document.getElementById('metadataBox');if(box)box.value=JSON.stringify(currentMeta,null,2);}
-function downloadCSV(){download('metadata_v44.csv','filename,title,description,keywords\nvector_stock_pattern_v44_10000.svg,"'+currentMeta.title+'","'+currentMeta.description+'","'+currentMeta.keywords.join(', ')+'"','text/csv;charset=utf-8');}
+function downloadCSV(){download('metadata_v45.csv','filename,title,description,keywords\nvector_stock_pattern_v45_10000.svg,"'+currentMeta.title+'","'+currentMeta.description+'","'+currentMeta.keywords.join(', ')+'"','text/csv;charset=utf-8');}
 function buildPromptByType(){const type=(document.getElementById('promptType')||{}).value||'Stock JSON Prompt';if(type==='Strict JSON Prompt')return buildStrictPrompt();return buildStockPrompt();}
 function buildStockPrompt(){const theme=document.getElementById('theme').value,composition=document.getElementById('composition').value,density=document.getElementById('density').value,detail=document.getElementById('detail').value,palette=document.getElementById('palette').value,seed=document.getElementById('seed').value,artDirection=(document.getElementById('artDirection')||{value:''}).value;const prompt=`IMPORTANT: DO NOT CREATE OR GENERATE ANY IMAGE.
 DO NOT USE IMAGE GENERATION.
