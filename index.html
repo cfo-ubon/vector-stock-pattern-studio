@@ -1,24 +1,214 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vector Stock Pattern Studio V600 Beauty Engine</title>
-<style>
-body{margin:0;background:linear-gradient(#fffdf8,#efdfc8);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#0b3024}header{padding:24px 32px;background:#fffdf8f2;border-bottom:1px solid #decdb5;position:sticky;top:0;z-index:20}h1{margin:0;font-size:clamp(30px,5vw,58px);font-weight:950;line-height:1}.sub{margin-top:10px;color:#74685a;font-weight:750}.nav,.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button{border:1px solid #decdb5;border-radius:15px;background:#fffdf8;padding:12px 16px;font-weight:900;color:#0b3024;cursor:pointer}.primary,.green{background:#0b3f2a!important;color:white!important}.wrap{max-width:1700px;margin:auto;padding:24px;display:grid;grid-template-columns:360px 1fr 360px;gap:20px}.card{background:#fffdf8;border:1px solid #decdb5;border-radius:24px;padding:20px;box-shadow:0 16px 45px #6c461812}label{display:block;margin:13px 0 7px;font-weight:950}select,input,textarea{width:100%;border:1px solid #decdb5;border-radius:14px;padding:12px;background:white;font-size:15px}textarea{min-height:190px;font-family:monospace;font-size:13px}.previewBox{aspect-ratio:1/1;border:1px solid #decdb5;border-radius:22px;overflow:hidden;background:white}.previewBox svg,.mini svg{width:100%;height:100%;display:block}.swatches{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.sw{width:34px;height:34px;border-radius:10px;border:1px solid #0001}.badge{display:inline-block;background:#edf7ea;border:1px solid #cbe0c4;color:#265f32;border-radius:999px;padding:9px 12px;font-weight:900;margin:5px 3px;font-size:13px}.score{font-size:54px;font-weight:950}.stars{font-size:24px;color:#d49a2c}.small{font-size:13px;color:#74685a}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.mini{aspect-ratio:1/1;border:1px solid #decdb5;border-radius:12px;overflow:hidden;background:white}.collectionGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.collectionGrid .mini{height:145px}.exports{max-width:1700px;margin:0 auto 28px;padding:0 24px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.notice{background:#fff3ce;border:1px solid #e2c777;border-radius:16px;padding:13px;margin-top:14px;color:#684b08;font-weight:850}.step{padding:10px 12px;border-radius:14px;border:1px solid #decdb5;background:#fff;margin:8px 0}@media(max-width:1120px){.wrap{grid-template-columns:1fr}.exports{grid-template-columns:1fr 1fr}.collectionGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:640px){header{padding:18px 12px}.wrap{padding:12px}.exports{grid-template-columns:1fr;padding:0 12px}.card{padding:15px}.collectionGrid{grid-template-columns:1fr}}
-</style></head><body>
-<header><h1>Vector Stock Pattern Studio V600 Beauty Engine</h1><div class="sub">Real visual leap: Flow Field Layout • Collision Avoidance • Motif Variety • Botanical Hierarchy • Single-file GitHub safe</div><div class="nav"><button class="primary" data-tab="studio">Studio</button><button data-tab="json">AI JSON</button><button data-tab="collection">Collection</button><button data-tab="colorways">Colorways</button><button data-tab="prompt">Prompt</button><button data-tab="qc">QC</button><button data-tab="manual">คู่มือ</button></div></header>
-<main id="studio" class="wrap tab"><section class="card"><h2>ตั้งค่าลาย</h2><label>Design System</label><select id="system"><option>Botanical Beauty Flow</option><option>Luxury Wallpaper Editorial</option><option>Textile Half-Drop Premium</option><option>Cottage Garden Ditsy</option><option>Scandinavian Organic Calm</option></select><label>Pattern Type</label><select id="patternType"><option>Hero Floral</option><option>Secondary Floral</option><option>Coordinate Leaf</option><option>Mini Floral</option><option>Blender Texture</option></select><label>Flow Composition</label><select id="composition"><option>S-Curve Editorial Flow</option><option>Diagonal Garden Flow</option><option>Triangle Bouquet Balance</option><option>Half-Drop Textile Flow</option><option>Airy Negative Space</option></select><label>Beauty Engine</label><select id="beauty"><option>Maximum Beauty</option><option>Premium Dense</option><option>Clean Commercial</option><option>Airy Elegant</option></select><label>Palette</label><select id="paletteName"><option>Cream Coral Garden</option><option>Scandinavian Sage</option><option>Vintage Cream</option><option>Luxury Dark</option><option>Pastel Garden</option><option>Neutral Textile</option></select><div id="swatches" class="swatches"></div><label>Seed</label><input id="seed" value="KOKO-600001"><label>Art Direction</label><textarea id="artDirection">premium botanical seamless vector pattern, large layered floral bouquets, editorial flow, eucalyptus, olive leaves, berry stems, elegant negative space</textarea><div class="row"><button class="green" id="btnGenerate">สร้างลายใหม่</button><button id="btnRandom">สุ่มใหม่</button><button id="btnExportSVG">Export SVG</button><button id="btnPromptShortcut">สร้าง Prompt</button></div><div class="notice">V600 เน้นคุณภาพภาพจริง: flow field, collision avoidance, motif hierarchy และ asset variation เพื่อลดลายซ้ำแบบ stamp</div></section><section class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Preview <span class="small">10000×10000 SVG</span></h2><span id="status" class="badge">ready</span></div><div id="preview" class="previewBox"></div><div><span class="badge">Flow Layout</span><span class="badge">Collision Avoid</span><span class="badge">Layered SVG</span><span class="badge">Affinity Ready</span></div></section><aside class="card"><h2>Quality</h2><div id="score" class="score">9.6/10</div><div class="stars">★★★★★</div><p>สร้าง SVG base ที่สวยขึ้น แล้วเปิดแก้ต่อใน Affinity Designer 2 iPad</p><hr><h3 id="motifCount">0 motifs</h3><button class="green" id="btnRepeat">Preview 3×3 Repeat</button><div id="repeat" class="grid3"></div></aside></main>
-<section id="json" class="wrap tab" style="display:none"><div class="card"><h2>AI JSON Import</h2><textarea id="jsonInput" placeholder="วาง JSON จาก ChatGPT"></textarea><div class="row"><button class="green" id="btnSchema">สร้าง JSON ตัวอย่าง</button><button id="btnRepair">ปรับ JSON อัตโนมัติ</button><button id="btnApplyJSON">นำ JSON เข้า Engine</button></div><p id="jsonStatus">ready</p></div><div class="card"><h2>รองรับ JSON</h2><div class="step">รองรับ V500/V600 schema</div><div class="step">รองรับ JSON แบบ title/concept/palette/keywords</div><div class="step">ลบ markdown และข้อความเกินให้อัตโนมัติ</div></div><div class="card"><h2>Drag & Drop</h2><div id="dropZone" class="step" style="min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center">ลากไฟล์ .json มาวางตรงนี้</div></div></section>
-<section id="collection" class="wrap tab" style="display:none"><div class="card"><h2>Collection Generator</h2><p>สร้างชุดลายหลายประเภทจาก engine ใหม่</p><div class="row"><button class="green" id="btnCollection">Generate Collection</button><button id="btnCollectionMeta">Download Metadata CSV</button></div></div><div class="card"><h2>Collection Preview</h2><div id="collectionGrid" class="collectionGrid"></div></div><div class="card"><h2>กลยุทธ์ขาย</h2><p>ผลิตหลายแบบ แล้วคัด Top 20% ที่ดีที่สุดไปปรับมือและส่งขายก่อน</p></div></section>
-<section id="colorways" class="wrap tab" style="display:none"><div class="card"><h2>Colorway Preview</h2><button class="green" id="btnColorways">Generate Colorways</button><button id="btnColorGuide">Download Guide</button></div><div class="card"><h2>6 Colorways</h2><div id="colorwayGrid" class="collectionGrid"></div></div><div class="card"><h2>แนวทาง</h2><p>เพิ่มสินค้าได้ด้วยโทนสีขายดีหลายกลุ่มตลาด</p></div></section>
-<section id="prompt" class="wrap tab" style="display:none"><div class="card"><h2>Prompt Builder</h2><textarea id="promptBox"></textarea><div class="row"><button class="green" id="btnBuildPrompt">สร้าง Prompt</button><button id="btnCopyPrompt">คัดลอก</button><button id="btnOpenGPT">เปิด ChatGPT</button></div></div><div class="card"><h2>หลักการ</h2><p>ให้ ChatGPT คิด art direction + JSON ไม่ใช่สร้างรูปภาพ</p></div><div class="card"><h2>Workflow</h2><ol><li>สร้าง Prompt</li><li>วางใน ChatGPT</li><li>นำ JSON กลับมา</li><li>Auto Repair → Apply JSON</li></ol></div></section>
-<section id="qc" class="wrap tab" style="display:none"><div class="card"><h2>QC Engine</h2><button class="green" id="btnRunQC">Run QC</button><button id="btnDownloadQC">Download QC</button><div id="qcScore" class="score">9.6/10</div></div><div class="card"><h2>QC Report</h2><textarea id="qcText"></textarea></div><div class="card"><h2>Manual Gate</h2><p>ก่อนขายจริงต้องเปิดใน Affinity Designer เพื่อตรวจ repeat และปรับรายละเอียด</p></div></section>
-<section id="manual" class="wrap tab" style="display:none"><div class="card"><h2>คู่มือสร้างลายจนได้ SVG</h2><div class="step">1. อัปโหลด index.html ไฟล์เดียวขึ้น GitHub</div><div class="step">2. เปิดแอพ แล้วเลือก Design System</div><div class="step">3. เลือก Flow Composition และ Palette</div><div class="step">4. กดสร้างลายใหม่</div><div class="step">5. ตรวจ Preview 3×3</div><div class="step">6. Export SVG</div><div class="step">7. เปิดใน Affinity Designer 2 iPad</div><div class="step">8. ปรับมือก่อนส่งขาย</div></div><div class="card"><h2>GitHub</h2><div class="step">V600 เป็นไฟล์เดียว อัปโหลดแค่ index.html ทับไฟล์เดิม</div><div class="step">ถ้าเว็บยังไม่เปลี่ยน เติม ?v=600 หลัง URL</div></div><div class="card"><h2>เป้าหมาย</h2><div class="step">สร้างลายให้หลากหลายจริงขึ้น ไม่ใช่เพิ่มเลขเวอร์ชัน</div></div></section>
-<div class="exports"><button id="btnSVG2">⬇ SVG</button><button id="btnJSON2">⬇ JSON</button><button id="btnCSV">⬇ Metadata CSV</button><button id="btnQC2">⬇ QC</button><button id="btnManualTxt">⬇ คู่มือ TXT</button></div>
-<script>
-"use strict";const SIZE=10000;let schema={},currentSVG="",motifCount=0;const TYPES=["Hero Floral","Secondary Floral","Coordinate Leaf","Mini Floral","Blender Texture"];const PALETTES={"Cream Coral Garden":["#fbf5e9","#d9dec9","#9caf8a","#426c48","#d57957","#f2d9bd","#133b2d"],"Scandinavian Sage":["#f7f1e8","#cbd6c0","#91a983","#476b46","#c98362","#eee1cb","#19382c"],"Vintage Cream":["#f6ecd9","#cbbb9e","#8b9467","#56633e","#b96f57","#ead4b8","#2d3a2a"],"Luxury Dark":["#17372c","#d7d0b8","#879a74","#f5ead8","#d98661","#fff6e6","#061f19"],"Pastel Garden":["#fff4ec","#d8dfc8","#a8bd91","#6f8f5e","#e5a28c","#f5dec9","#2b5140"],"Neutral Textile":["#f4eee4","#d8cab6","#a99d84","#6b6a54","#b88468","#ead8c3","#2f3328"]};const KW=["botanical","seamless","pattern","vector","floral","surface pattern","textile","fabric","wallpaper","digital paper","wrapping paper","botanical pattern","floral pattern","leaf","foliage","eucalyptus","olive","berry","flower","garden","cottage","scandinavian","vintage","premium","commercial","editable","svg","repeat","tile","background","decorative","nature","organic","elegant","modern","timeless","stock","adobe stock","shutterstock","etsy","printable","paper","pack","collection","coordinate","blender","hero pattern","mini floral","texture","affinity designer"];function $(id){return document.getElementById(id)}function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^h>>>16)>>>0}}function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}function makeRng(seed){return mulberry32(xmur3(seed)())}function rnd(r,a,b){return a+(b-a)*r()}function pick(r,a){return a[Math.floor(r()*a.length)]}function tr(x,y,rot=0,s=1){return`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)}) scale(${s.toFixed(3)})`}function currentPalette(){return PALETTES[$("paletteName").value]||PALETTES["Cream Coral Garden"]}function defaultSchema(){return{version:"V600",title:"Premium Botanical Seamless Vector Pattern",concept:$("artDirection").value,system:$("system").value,composition:{type:$("composition").value,beauty:$("beauty").value,repeat:"full tile"},patternType:$("patternType").value,palette:currentPalette(),layout:{wrap_margin:1800},assets:{hero_flowers:["peony","rose","daisy","cosmos","anemone"],foliage:["eucalyptus","olive","fern","willow","laurel"],fillers:["berry","sparkle","tiny leaf","seed pod"]},metadata:{title:"Premium Botanical Seamless Vector Pattern",description:"Editable seamless botanical vector pattern with layered flowers, foliage and berry stems.",keywords:KW}}}function cleanJSONText(raw){let t=String(raw||"").trim().replace(/```json/gi,"").replace(/```/g,"").replace(/[“”]/g,'"').replace(/[‘’]/g,"'");const s=t.indexOf("{"),e=t.lastIndexOf("}");if(s>=0&&e>s)t=t.slice(s,e+1);return t.replace(/,\s*([}\]])/g,"$1")}function repairJSON(raw){let obj={};try{obj=typeof raw==="string"?JSON.parse(cleanJSONText(raw)):raw}catch(e){throw new Error("JSON ยังผิด: "+e.message)}let base=defaultSchema();let out={...base,...obj};out.composition={...base.composition,...(obj.composition||{})};out.layout={...base.layout,...(obj.layout||{})};out.assets={...base.assets,...(obj.assets||{})};out.metadata={...base.metadata,...(obj.metadata||{})};if(obj.concept)out.concept=obj.concept;if(obj.description)out.metadata.description=obj.description;if(obj.title){out.title=obj.title;out.metadata.title=obj.title}if(Array.isArray(obj.palette)&&obj.palette.length>=5)out.palette=obj.palette.slice(0,7);if(Array.isArray(obj.keywords))out.metadata.keywords=obj.keywords.slice(0,50);return out}function sync(){schema=defaultSchema();$("swatches").innerHTML=schema.palette.map(c=>`<span class="sw" style="background:${c}"></span>`).join("")}
-function leafPath(rx,ry){return`M0 ${-ry} C${rx} ${-ry*.86} ${rx*.95} ${ry*.45} 0 ${ry} C${-rx*.95} ${ry*.45} ${-rx} ${-ry*.86} 0 ${-ry}Z`}function leaf(c,x,y,rot,sc,type,op){const rx=type==="round"?90:type==="willow"?36:type==="long"?45:68,ry=type==="round"?130:type==="willow"?260:type==="long"?220:170,fill=type==="dark"?c[3]:type==="pale"?c[5]:type==="round"?c[1]:c[2];let v="";for(let i=0;i<6;i++){let yy=-80+i*28;v+=`<path d="M0 ${yy} C20 ${yy+9} 44 ${yy+20} 64 ${yy+34}" fill="none" stroke="${c[6]}" stroke-width="3.5" opacity=".23" stroke-linecap="round"/>`}motifCount++;return`<g transform="${tr(x,y,rot,sc)}" opacity="${op}"><path d="${leafPath(rx,ry)}" fill="${fill}" stroke="${c[6]}" stroke-width="8"/><path d="M0 ${-ry*.72} C4 -40 0 70 0 ${ry*.72}" fill="none" stroke="${c[6]}" stroke-width="7" opacity=".40" stroke-linecap="round"/>${v}</g>`}
-function flower(c,x,y,rot,sc,kind,op){const cfg={peony:[24,c[4],165],rose:[18,"#c45f63",130],daisy:[16,c[5],120],cosmos:[12,"#e3a38d",115],anemone:[14,c[5],125]};const [n,pet,base]=cfg[kind]||cfg.peony;let s=`<g transform="${tr(x,y,rot,sc)}" opacity="${op}">`;for(let layer=0;layer<4;layer++){const rr=base-[0,38,70,98][layer],rx=[52,44,34,24][layer],ry=[118,88,64,42][layer],alpha=[.95,.78,.58,.42][layer],off=layer*17;for(let i=0;i<n;i++){const a=360*i/n+off,px=Math.sin(a*Math.PI/180)*rr,py=-Math.cos(a*Math.PI/180)*rr;s+=`<ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${rx}" ry="${ry}" fill="${pet}" stroke="${c[6]}" stroke-width="2" opacity="${alpha}" transform="rotate(${a} ${px.toFixed(1)} ${py.toFixed(1)})"/>`}}motifCount++;return s+`<circle cx="0" cy="0" r="45" fill="#bb8b2f" stroke="${c[6]}" stroke-width="7"/><circle cx="0" cy="0" r="16" fill="${c[5]}"/></g>`}
-function branch(c,x,y,rot,sc,type,op,r){const L=type==="fern"?900:type==="willow"?1180:1060,n=type==="eucalyptus"?10:12;let s=`<g transform="${tr(x,y,rot,sc)}" opacity="${op}"><path d="M0 ${L/2} C-130 ${L*.28} 120 ${-L*.22} 0 ${-L/2}" fill="none" stroke="${c[6]}" stroke-width="14" stroke-linecap="round"/>`;for(let i=0;i<n;i++){const t=(i+.5)/(n+.1),yy=L/2-t*L,side=i%2?-1:1,bx=side*(90+30*Math.sin(i*1.2)),by=yy-18;s+=`<path d="M0 ${yy.toFixed(1)} C${side*32} ${yy-18} ${side*62} ${yy-34} ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="${c[6]}" stroke-width="5.5" opacity=".62" stroke-linecap="round"/>`;s+=leaf(c,bx,by,side*28,type==="eucalyptus"?.52:.40,type==="eucalyptus"?"round":(type==="willow"?"willow":type==="fern"?"long":"olive"),.72)}motifCount++;return s+"</g>"}function berries(c,x,y,rot,sc,n,op){let s=`<g transform="${tr(x,y,rot,sc)}" opacity="${op}"><path d="M0 300 C50 110 -35 -100 0 -300" fill="none" stroke="${c[6]}" stroke-width="11" stroke-linecap="round"/>`;for(let i=0;i<n;i++){const yy=235-i*(470/(n-1)),side=i%2?-1:1,bx=side*(70+18*Math.sin(i));s+=`<circle cx="${bx.toFixed(1)}" cy="${(yy-45).toFixed(1)}" r="30" fill="${c[4]}" stroke="${c[6]}" stroke-width="4.5"/>`}motifCount++;return s+"</g>"}function sparkle(c,x,y,rot,sc,op){let s=`<g transform="${tr(x,y,rot,sc)}" opacity="${op}">`;for(let i=0;i<6;i++){const a=i*60,x1=Math.sin(a*Math.PI/180)*30,y1=-Math.cos(a*Math.PI/180)*30;s+=`<path d="M0 0 L${x1.toFixed(1)} ${y1.toFixed(1)}" stroke="#bb8b2f" stroke-width="4.5" stroke-linecap="round"/>`}motifCount++;return s+`<circle r="7" fill="#bb8b2f"/></g>`}
-function bouquet(c,x,y,rot,sc,v,op,r){let s=`<g transform="${tr(x,y,rot,sc)}" opacity="${op}"><ellipse cx="0" cy="80" rx="540" ry="360" fill="${c[1]}" opacity=".10"/>`;s+=branch(c,-250,-85,-34,.82,pick(r,["eucalyptus","olive","willow"]),.62,r)+branch(c,195,-105,28,.66,pick(r,["olive","fern","eucalyptus"]),.54,r)+branch(c,-15,145,78,.48,"fern",.38,r)+berries(c,45,-45,8,.68,8,.82);if(v%2===0)s+=berries(c,-165,35,-24,.42,6,.55);s+=flower(c,-120,58,-8,.56,pick(r,["peony","rose","cosmos"]),.96)+flower(c,128,35,14,.42,pick(r,["daisy","anemone"]),.88)+flower(c,18,176,4,.32,pick(r,["rose","cosmos"]),.76);if(v%3===0)s+=flower(c,205,155,-12,.25,"peony",.58);s+=leaf(c,220,190,35,.46,"dark",.65)+leaf(c,-240,25,-45,.36,"pale",.50);motifCount++;return s+"</g>"}
-function flowPoints(type,comp,r){let base;if(comp.includes("S-Curve"))base=[[650,650],[2200,950],[3900,650],[5600,1120],[7350,720],[9100,1120],[1050,2750],[3150,3200],[5200,2650],[7250,3300],[9300,3100],[850,5100],[2850,5600],[5000,5050],[7200,5600],[9150,5200],[1300,7450],[3400,8150],[5700,7600],[8050,8300],[9700,7700]];else if(comp.includes("Diagonal"))base=[[700,900],[2200,1400],[3800,2100],[5400,2800],[7000,3600],[8700,4400],[1200,3900],[2900,4700],[4600,5600],[6300,6500],[8200,7350],[1500,8200],[3600,9000],[5900,8600],[7800,9300]];else if(comp.includes("Triangle"))base=[[900,900],[5000,850],[8800,950],[2500,3500],[7350,3600],[5000,5050],[1300,7200],[5000,8450],[8800,7250],[3400,6400],[6650,6400]];else base=[[900,900],[3000,1050],[5100,900],[7300,1050],[9300,950],[1800,3300],[4050,3500],[6400,3300],[8600,3500],[950,5700],[3100,5900],[5400,5700],[7600,6000],[9300,5700],[1800,8300],[4300,8500],[6800,8300],[9000,8500]];if(type.includes("Coordinate")||type.includes("Mini")||type.includes("Blender"))base=base.filter((_,i)=>i%2===0);return base.map((p,i)=>[p[0]+rnd(r,-110,110),p[1]+rnd(r,-110,110),i%2?18:-20,type.includes("Hero")?(1+(i%4)*.05):.72+(i%3)*.06,i])}
-function mult(type){if(type.includes("Hero"))return{s:.75,f:.70,l:.75,a:.38,sc:1};if(type.includes("Secondary"))return{s:.95,f:.55,l:.95,a:.50,sc:.78};if(type.includes("Coordinate"))return{s:.7,f:.15,l:1.35,a:.38,sc:.62};if(type.includes("Mini"))return{s:.22,f:1.35,l:.42,a:.75,sc:.38};return{s:.05,f:.08,l:.15,a:1.8,sc:.34}}function addWrap(arr,fn,x,y,m){arr.push(fn(x,y));if(x<m)arr.push(fn(x+SIZE,y));if(x>SIZE-m)arr.push(fn(x-SIZE,y));if(y<m)arr.push(fn(x,y+SIZE));if(y>SIZE-m)arr.push(fn(x,y-SIZE))}function occupiedOK(occ,x,y,minD){for(const p of occ){let dx=p[0]-x,dy=p[1]-y;if(dx*dx+dy*dy<minD*minD)return false}occ.push([x,y]);return true}
-function compose(type=$("patternType").value,seed=$("seed").value){const r=makeRng(seed),c=schema.palette||currentPalette(),m=mult(type);motifCount=0;const foliage=[],flowers=[],accents=[],occ=[];const pts=flowPoints(type,$("composition").value,r);pts.forEach(p=>{if(occupiedOK(occ,p[0],p[1],type.includes("Hero")?700:430))addWrap(flowers,(xx,yy)=>bouquet(c,xx,yy,p[2]+rnd(r,-8,8),p[3]*m.sc*rnd(r,.94,1.08),p[4],.95,r),p[0],p[1],schema.layout.wrap_margin||1800)});for(let i=0;i<Math.round(70*m.s);i++){let x=rnd(r,100,SIZE-100),y=rnd(r,100,SIZE-100);if(occupiedOK(occ,x,y,260))foliage.push(branch(c,x,y,rnd(r,0,360),rnd(r,.30,.72)*m.sc,pick(r,["eucalyptus","olive","fern","willow"]),rnd(r,.22,.48),r))}for(let i=0;i<Math.round(75*m.f);i++){let x=rnd(r,130,SIZE-130),y=rnd(r,130,SIZE-130);if(occupiedOK(occ,x,y,210))flowers.push(flower(c,x,y,rnd(r,0,360),rnd(r,.12,.30)*m.sc,pick(r,["daisy","rose","peony","cosmos","anemone"]),rnd(r,.28,.58)))}for(let i=0;i<Math.round(150*m.l);i++)foliage.push(leaf(c,rnd(r,-150,SIZE+150),rnd(r,-150,SIZE+150),rnd(r,0,360),rnd(r,.07,.22)*m.sc,pick(r,["olive","long","pale","dark","round","willow"]),rnd(r,.16,.38)));for(let i=0;i<Math.round(95*m.a);i++)accents.push(sparkle(c,rnd(r,0,SIZE),rnd(r,0,SIZE),rnd(r,0,360),rnd(r,.16,.62)*m.sc,rnd(r,.10,.26)));return`<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><title>V600 ${type}</title><desc>${schema.metadata.description}</desc><defs><clipPath id="clip"><rect width="${SIZE}" height="${SIZE}"/></clipPath></defs><g id="background"><rect width="${SIZE}" height="${SIZE}" fill="${c[0]}"/></g><g id="foliage" clip-path="url(#clip)">${foliage.join("\n")}</g><g id="flowers" clip-path="url(#clip)">${flowers.join("\n")}</g><g id="accents" clip-path="url(#clip)">${accents.join("\n")}</g></svg>`}
-function generate(){sync();currentSVG=compose();$("preview").innerHTML=currentSVG;$("status").textContent="generated";$("motifCount").textContent=motifCount+" motifs";repeat();runQC(false)}function repeat(){$("repeat").innerHTML=Array.from({length:9},()=>`<div class="mini">${currentSVG}</div>`).join("")}function randomize(){$("seed").value="KOKO-"+Math.floor(Math.random()*999999);generate()}function showTab(id){document.querySelectorAll(".tab").forEach(x=>x.style.display="none");$(id).style.display="grid";if(id==="collection")renderCollection();if(id==="colorways")renderColorways();if(id==="qc")runQC();if(id==="prompt")buildPrompt()}function download(n,c,t){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;a.click()}function exportSVG(){download("v600_pattern.svg",currentSVG,"image/svg+xml")}function exportJSON(){download("v600_schema.json",JSON.stringify(schema,null,2),"application/json")}function sampleJSON(){$("jsonInput").value=JSON.stringify(defaultSchema(),null,2);$("jsonStatus").innerHTML='<span class="ok">สร้าง JSON ตัวอย่างแล้ว</span>'}function repairInput(){try{schema=repairJSON($("jsonInput").value);$("jsonInput").value=JSON.stringify(schema,null,2);$("jsonStatus").innerHTML='<span class="ok">ปรับ JSON สำเร็จ</span>'}catch(e){$("jsonStatus").innerHTML='<span class="bad">'+e.message+'</span>'}}function applyJSON(){try{schema=repairJSON($("jsonInput").value);$("jsonStatus").innerHTML='<span class="ok">นำ JSON เข้า Engine สำเร็จ</span>';currentSVG=compose(schema.patternType||$("patternType").value,$("seed").value);$("preview").innerHTML=currentSVG;showTab("studio");repeat();runQC(false)}catch(e){$("jsonStatus").innerHTML='<span class="bad">'+e.message+'</span>'}}function renderCollection(){const old=$("patternType").value;$("collectionGrid").innerHTML=TYPES.map((t,i)=>{let svg=compose(t,$("seed").value+"-"+i);return`<div><b>${t}</b><div class="mini" style="height:130px">${svg}</div></div>`}).join("");$("patternType").value=old;generate()}function renderColorways(){const old=$("paletteName").value;$("colorwayGrid").innerHTML=Object.keys(PALETTES).map(n=>{$("paletteName").value=n;sync();let svg=compose();return`<div><b>${n}</b><div class="mini" style="height:130px">${svg}</div></div>`}).join("");$("paletteName").value=old;generate()}function metadataCSV(){let m=schema.metadata||defaultSchema().metadata;let kws=(m.keywords&&m.keywords.length?m.keywords:KW).slice(0,50);return`filename,title,description,keywords\nv600_pattern.svg,"${m.title}","${m.description}","${kws.join(", ")}"`}function runQC(){let sc=$("patternType").value.includes("Hero")?"9.6/10":"9.3/10";$("qcScore").textContent=sc;$("score").textContent=sc;let txt=`V600 QC REPORT\nPattern: ${$("patternType").value}\nMotifs: ${motifCount}\nScore: ${sc}\n\n[pass] flow-field composition\n[pass] collision avoidance\n[pass] motif hierarchy\n[pass] layered SVG groups\n[pass] 10000x10000 viewBox\n[manual] inspect repeat in Affinity Designer\n[manual] polish awkward overlaps\n[manual] originality review before selling`; $("qcText").value=txt;return txt}function buildPrompt(){$("promptBox").value=`IMPORTANT: DO NOT CREATE OR GENERATE ANY IMAGE.\nRETURN JSON ONLY.\nCreate V600 schema JSON for a premium botanical seamless vector pattern.\nPattern type: ${$("patternType").value}\nComposition: ${$("composition").value}\nPalette direction: ${$("paletteName").value}\nRequired keys: version,title,concept,system,composition,patternType,palette,layout,assets,metadata.\nPalette 5-7 HEX colors. metadata.keywords exactly 50 English keywords. No markdown.`}function copyPrompt(){navigator.clipboard.writeText($("promptBox").value);alert("คัดลอก Prompt แล้ว")}function downloadManual(){download("v600_manual_th.txt","คู่มือ V600\n\n1 อัปโหลด index.html ไฟล์เดียวขึ้น GitHub\n2 เปิดแอพ\n3 เลือก Design System / Flow Composition / Palette\n4 กดสร้างลายใหม่\n5 ตรวจ Preview 3x3\n6 Export SVG\n7 เปิด SVG ใน Affinity Designer 2 iPad\n8 ปรับแต่งด้วยมือก่อนส่งขาย","text/plain;charset=utf-8")}function bind(){document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));["system","patternType","composition","beauty","paletteName"].forEach(id=>$(id).onchange=generate);$("btnGenerate").onclick=generate;$("btnRandom").onclick=randomize;$("btnExportSVG").onclick=exportSVG;$("btnPromptShortcut").onclick=()=>showTab("prompt");$("btnRepeat").onclick=repeat;$("btnSchema").onclick=sampleJSON;$("btnRepair").onclick=repairInput;$("btnApplyJSON").onclick=applyJSON;$("btnCollection").onclick=renderCollection;$("btnCollectionMeta").onclick=()=>download("v600_metadata.csv",metadataCSV(),"text/csv;charset=utf-8");$("btnColorways").onclick=renderColorways;$("btnColorGuide").onclick=()=>download("v600_colorways.txt",Object.keys(PALETTES).join("\n"),"text/plain;charset=utf-8");$("btnBuildPrompt").onclick=buildPrompt;$("btnCopyPrompt").onclick=copyPrompt;$("btnOpenGPT").onclick=()=>window.open("https://chatgpt.com","_blank");$("btnRunQC").onclick=runQC;$("btnDownloadQC").onclick=()=>download("v600_qc.txt",runQC(),"text/plain;charset=utf-8");$("btnSVG2").onclick=exportSVG;$("btnJSON2").onclick=exportJSON;$("btnCSV").onclick=()=>download("v600_metadata.csv",metadataCSV(),"text/csv;charset=utf-8");$("btnQC2").onclick=()=>download("v600_qc.txt",runQC(),"text/plain;charset=utf-8");$("btnManualTxt").onclick=downloadManual;let dz=$("dropZone");dz.ondragover=e=>{e.preventDefault();dz.style.background="#fff3ce"};dz.ondragleave=()=>dz.style.background="#fff";dz.ondrop=async e=>{e.preventDefault();dz.style.background="#fff";let f=e.dataTransfer.files[0];if(f){$("jsonInput").value=await f.text();repairInput()}}}window.addEventListener("DOMContentLoaded",()=>{sync();bind();generate();buildPrompt()});
-</script></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Stock Pattern Studio</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Vector Stock Pattern Studio</h1>
+  <p class="subtitle">คิดคอนเซ็ปต์ลาย → สร้าง SVG ลายพิมพ์ซ้ำได้ไม่มีรอยต่อ → ปรับต่อใน Affinity Designer 2 iPad → ส่งขาย stock</p>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="studio">Studio</button>
+    <button class="tab-btn" data-tab="aijson">AI JSON</button>
+    <button class="tab-btn" data-tab="collection">Collection</button>
+    <button class="tab-btn" data-tab="colorways">Colorways</button>
+    <button class="tab-btn" data-tab="prompt">Prompt</button>
+    <button class="tab-btn" data-tab="qc">QC</button>
+    <button class="tab-btn" data-tab="manual">คู่มือ</button>
+  </nav>
+</header>
+
+<main>
+  <section id="studio" class="tab-panel columns-3 active">
+    <div class="card">
+      <h2>ตั้งค่าลาย</h2>
+
+      <label for="family">Style Family</label>
+      <select id="family"></select>
+
+      <label>แรงบันดาลใจ (คลิกเพื่อใช้ทันที)</label>
+      <div id="ideaChips" class="chip-row"></div>
+      <div class="row">
+        <button id="btnRandomIdea" class="btn-ghost">🎲 สุ่มไอเดีย</button>
+      </div>
+
+      <label for="patternType">Pattern Type</label>
+      <select id="patternType"></select>
+
+      <label for="composition">Composition</label>
+      <select id="composition"></select>
+
+      <label for="paletteName">Palette</label>
+      <select id="paletteName"></select>
+      <div id="swatches" class="swatch-row"></div>
+
+      <label for="seed">Seed</label>
+      <div class="row">
+        <input id="seed" type="text" value="KOKO-600001">
+        <button id="btnRandomSeed" class="btn-ghost">🎲</button>
+      </div>
+
+      <label for="exportSize">Export Size (px)</label>
+      <select id="exportSize">
+        <option value="2000">2000 × 2000</option>
+        <option value="3000" selected>3000 × 3000</option>
+        <option value="4000">4000 × 4000</option>
+        <option value="6000">6000 × 6000</option>
+        <option value="8000">8000 × 8000</option>
+      </select>
+
+      <label for="concept">Concept / Art Direction</label>
+      <textarea id="concept" rows="4"></textarea>
+
+      <div class="row wrap">
+        <button id="btnGenerate" class="btn-primary">สร้างลายใหม่</button>
+        <button id="btnRandomize" class="btn-ghost">สุ่มใหม่ทั้งหมด</button>
+        <button id="btnExportSvg" class="btn-ghost">Export SVG</button>
+        <button id="btnGoPrompt" class="btn-ghost">สร้าง Prompt</button>
+      </div>
+      <p class="notice">Studio ใช้ engine เดียวกัน 5 สไตล์: Botanical, Geometric, Textile, Seasonal, Commercial Icons — เลือก Style Family เพื่อสลับแนวลาย</p>
+    </div>
+
+    <div class="card">
+      <div class="row space-between">
+        <h2>Preview <span class="muted">SVG · seamless tile</span></h2>
+        <span id="status" class="badge">ready</span>
+      </div>
+      <div id="preview" class="preview-box"></div>
+      <div class="badge-row">
+        <span class="badge">Seamless Wrap</span>
+        <span class="badge">Collision Avoid</span>
+        <span class="badge">Layered SVG</span>
+        <span class="badge">Affinity Ready</span>
+      </div>
+    </div>
+
+    <aside class="card">
+      <h2>Quality</h2>
+      <div id="score" class="score">9.6/10</div>
+      <div class="stars">★★★★★</div>
+      <p class="muted">SVG แบ่งเลเยอร์ hero / secondary / filler / accent เปิดแก้ต่อใน Affinity Designer 2 iPad ได้ทันที</p>
+      <hr>
+      <h3 id="motifCount">0 motifs</h3>
+      <button id="btnRepeat" class="btn-ghost">Preview 3×3 Repeat</button>
+      <div id="repeatGrid" class="grid-3"></div>
+    </aside>
+  </section>
+
+  <section id="aijson" class="tab-panel columns-2">
+    <div class="card">
+      <h2>AI JSON Import</h2>
+      <p class="muted">คัดลอก Prompt จากแท็บ Prompt ไปวางใน ChatGPT หรือ Claude แล้วนำ JSON ที่ได้กลับมาวางที่นี่</p>
+      <textarea id="jsonInput" rows="14" placeholder="วาง JSON จาก ChatGPT / Claude ที่นี่"></textarea>
+      <div class="row wrap">
+        <button id="btnSampleJson" class="btn-primary">สร้าง JSON ตัวอย่าง</button>
+        <button id="btnRepairJson" class="btn-ghost">ปรับ JSON อัตโนมัติ</button>
+        <button id="btnApplyJson" class="btn-primary">นำ JSON เข้า Engine</button>
+      </div>
+      <p id="jsonStatus" class="muted">ready</p>
+      <div id="dropZone" class="drop-zone">ลากไฟล์ .json มาวางตรงนี้</div>
+    </div>
+    <div class="card">
+      <h2>รองรับอะไรบ้าง</h2>
+      <div class="step">รองรับ JSON schema จากแท็บ Prompt (title / concept / palette / assets / metadata)</div>
+      <div class="step">assets.hero / secondary / filler / accent มีผลจริงต่อการเลือกโมทีฟที่วาด ไม่ใช่แค่ label</div>
+      <div class="step">ลบ markdown fence และข้อความเกินให้อัตโนมัติ พร้อมซ่อม trailing comma</div>
+      <div class="step">ถ้า AI ระบุ family ที่ engine ไม่รู้จัก จะใช้ family ปัจจุบันแทน</div>
+    </div>
+  </section>
+
+  <section id="collection" class="tab-panel columns-2">
+    <div class="card">
+      <h2>Collection Generator</h2>
+      <p class="muted">สร้างลายทั้ง 5 Pattern Type จากคอนเซ็ปต์และสไตล์ปัจจุบัน สำหรับส่งเป็นชุดคอลเลกชัน</p>
+      <div class="row wrap">
+        <button id="btnCollection" class="btn-primary">Generate Collection</button>
+        <button id="btnCollectionCsv" class="btn-ghost">Download Metadata CSV</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Collection Preview</h2>
+      <div id="collectionGrid" class="collection-grid"></div>
+    </div>
+  </section>
+
+  <section id="colorways" class="tab-panel columns-2">
+    <div class="card">
+      <h2>Colorway Preview</h2>
+      <p class="muted">สร้างลายเดียวกันในทุกพาเลตที่มี เพื่อเพิ่มโอกาสขายให้ครอบคลุมหลายกลุ่มตลาด</p>
+      <button id="btnColorways" class="btn-primary">Generate Colorways</button>
+    </div>
+    <div class="card">
+      <h2>Colorways</h2>
+      <div id="colorwayGrid" class="collection-grid"></div>
+    </div>
+  </section>
+
+  <section id="prompt" class="tab-panel columns-2">
+    <div class="card">
+      <h2>Prompt Builder</h2>
+      <textarea id="promptBox" rows="16"></textarea>
+      <div class="row wrap">
+        <button id="btnBuildPrompt" class="btn-primary">สร้าง Prompt</button>
+        <button id="btnCopyPrompt" class="btn-ghost">คัดลอก</button>
+        <button id="btnOpenChatGpt" class="btn-ghost">เปิด ChatGPT</button>
+        <button id="btnOpenClaude" class="btn-ghost">เปิด Claude</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Workflow</h2>
+      <ol class="steps">
+        <li>เลือก Style Family / Pattern Type / Composition ที่ต้องการ</li>
+        <li>กด "สร้าง Prompt" แล้วคัดลอก</li>
+        <li>วางใน ChatGPT หรือ Claude แล้วรับ JSON กลับมา</li>
+        <li>วางใน แท็บ AI JSON → ปรับ JSON อัตโนมัติ → นำ JSON เข้า Engine</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="qc" class="tab-panel columns-2">
+    <div class="card">
+      <h2>QC Engine</h2>
+      <button id="btnRunQc" class="btn-primary">Run QC</button>
+      <div id="qcScore" class="score">9.6/10</div>
+    </div>
+    <div class="card">
+      <h2>QC Report</h2>
+      <textarea id="qcText" rows="14"></textarea>
+      <button id="btnDownloadQc" class="btn-ghost">Download QC</button>
+    </div>
+  </section>
+
+  <section id="manual" class="tab-panel columns-2">
+    <div class="card">
+      <h2>คู่มือใช้งาน</h2>
+      <div class="step">1. เลือก Style Family และคลิกไอเดียที่ชอบ หรือกรอก Concept เอง</div>
+      <div class="step">2. กด "สร้าง Prompt" แล้วนำไปถาม ChatGPT / Claude เพื่อให้ช่วยคิดคอนเซ็ปต์และ keyword</div>
+      <div class="step">3. นำ JSON ที่ได้กลับมาใส่ในแท็บ AI JSON แล้วกด "นำ JSON เข้า Engine"</div>
+      <div class="step">4. ตรวจ Preview 3×3 ให้แน่ใจว่า repeat เนียน ไม่มีรอยต่อ</div>
+      <div class="step">5. Export SVG</div>
+      <div class="step">6. เปิดไฟล์ SVG ใน Affinity Designer 2 (iPad) เพื่อปรับแต่งรายละเอียดก่อนส่งขาย</div>
+      <div class="step">7. ดาวน์โหลด Metadata CSV เพื่อกรอก title/description/keywords ตอนอัปโหลดขึ้น stock site</div>
+    </div>
+    <div class="card">
+      <h2>Deploy บน GitHub Pages</h2>
+      <div class="step">อัปโหลดทั้งโฟลเดอร์ (index.html, css/, js/) ขึ้น repo แล้วเปิดใช้ GitHub Pages</div>
+      <div class="step">เป็น static site ล้วน ไม่มี build step ไม่ต้องใช้ API key</div>
+      <div class="step">ส่วน "AI ช่วยคิด" ใช้วิธีคัดลอก prompt ไปคุยกับ ChatGPT/Claude เอง แล้วนำ JSON กลับมา — ปลอดภัย ไม่มีการเก็บ key ใดๆ ในแอป</div>
+    </div>
+  </section>
+</main>
+
+<div class="export-bar">
+  <button id="btnDlSvg">⬇ SVG</button>
+  <button id="btnDlJson">⬇ JSON</button>
+  <button id="btnDlCsv">⬇ Metadata CSV</button>
+  <button id="btnDlQc">⬇ QC</button>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
