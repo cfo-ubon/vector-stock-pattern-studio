@@ -1,21 +1,24 @@
-คู่มือ Vector Stock Pattern Studio V210
+Vector Stock Pattern Studio V300 Architecture
 
-วิธีอัปโหลด GitHub:
-1. แตกไฟล์ ZIP
-2. อัปโหลด index.html ทับไฟล์เดิม
-3. Commit changes
-4. รอ 1–3 นาที
-5. Refresh หน้าเว็บ หรือเติม ?v=210 หลัง URL
+ไฟล์ที่ต้องอัปโหลดขึ้น GitHub Pages:
+- index.html
+- styles.css
+- engine/schema.js
+- engine/utils.js
+- engine/assets.js
+- engine/composer.js
+- engine/main.js
 
-วิธีสร้างภาพ:
+วิธีใช้:
 1. เปิด Studio
-2. เลือก Commercial Preset
-3. เลือก Active Pattern
-4. เลือก Colorway
-5. กด สร้างลายใหม่
-6. กด Preview 3×3 Repeat
-7. กด SVG Export
-8. เปิดใน Affinity Designer 2 iPad
-9. ปรับแต่งก่อนส่งขาย
+2. เลือก Pattern Type / Composition / Density / Palette
+3. กด สร้างลายใหม่
+4. ตรวจ Preview 3×3
+5. Export SVG
+6. เปิด SVG ใน Affinity Designer 2 iPad เพื่อปรับแต่งก่อนขาย
 
-หมายเหตุ: ระบบสร้าง SVG base สำหรับนำไปปรับต่อ ไม่ควรส่งขายอัตโนมัติโดยไม่ตรวจ manual
+JSON:
+- กด Generate Schema JSON
+- วาง JSON จาก ChatGPT
+- กด Auto Repair JSON
+- กด นำ JSON เข้า Engine
