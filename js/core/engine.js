@@ -5,6 +5,15 @@ import { STYLE_MODULES } from './families.js';
 
 export const VIEW = 2000;
 
+// A soft pale backdrop drawn beneath each hero motif so it reads as an
+// intentional, unified cluster rather than an isolated sticker floating
+// on empty background — a cheap, pure-vector stand-in for a drop shadow
+// that stays fully editable in Affinity Designer.
+function halo(palette, x, y, scale) {
+  const r = 145 * scale;
+  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${palette[1]}" opacity=".15"/>`;
+}
+
 export function compose(schema) {
   const mod = STYLE_MODULES[schema.family];
   const rng = makeRng(schema.seed);
@@ -23,13 +32,14 @@ export function compose(schema) {
       const name = pick(rng, schema.assets.hero);
       const scale = density.heroScale * range(rng, 0.85, 1.15);
       wrapCopies(p.x, p.y, VIEW, VIEW * 0.12).forEach(([wx, wy]) => {
+        heroLayer.push(halo(palette, wx, wy, scale));
         heroLayer.push(mod.motif('hero', rng, palette, name, wx, wy, p.rot, scale, 0.96));
         motifCount++;
       });
     });
   }
 
-  const secondaryCount = Math.round(30 * density.secondary);
+  const secondaryCount = Math.round(34 * density.secondary);
   for (let i = 0; i < secondaryCount; i++) {
     const x = range(rng, VIEW * 0.05, VIEW * 0.95), y = range(rng, VIEW * 0.05, VIEW * 0.95);
     if (!guard(x, y, VIEW * 0.05)) continue;
@@ -38,7 +48,7 @@ export function compose(schema) {
     motifCount++;
   }
 
-  const fillerCount = Math.round(55 * density.filler);
+  const fillerCount = Math.round(62 * density.filler);
   for (let i = 0; i < fillerCount; i++) {
     const x = range(rng, 0, VIEW), y = range(rng, 0, VIEW);
     const name = pick(rng, schema.assets.filler);

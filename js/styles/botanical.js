@@ -1,5 +1,6 @@
 import { pick, hashPick } from '../core/rng.js';
 import { tr } from '../core/svg.js';
+import { shade } from '../core/color.js';
 
 export const FAMILY = {
   id: 'botanical',
@@ -21,25 +22,32 @@ function flowerShape(kind, palette) {
   const petalColor = { rose: '#c8626a', cosmos: '#e3a38d' }[kind] || palette[4];
   const petalCount = { peony: 8, rose: 6, daisy: 10, cosmos: 8, tulip: 6 }[kind] || 8;
   const layers = kind === 'daisy' ? 1 : kind === 'tulip' ? 2 : 3;
+  const edge = shade(petalColor, -0.25);
+  const highlight = shade(petalColor, 0.4);
   let s = '';
   for (let layer = 0; layer < layers; layer++) {
     const r = 68 - layer * 20;
     const rx = kind === 'tulip' ? 20 - layer * 4 : 40 - layer * 9;
     const ry = kind === 'tulip' ? 58 - layer * 10 : 98 - layer * 22;
-    const alpha = (1 - layer * 0.22).toFixed(2);
+    const alpha = (1 - layer * 0.18).toFixed(2);
     for (let i = 0; i < petalCount; i++) {
       const a = (360 * i) / petalCount + layer * 14;
       const px = Math.sin((a * Math.PI) / 180) * r;
       const py = -Math.cos((a * Math.PI) / 180) * r;
-      s += `<ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${rx}" ry="${ry}" fill="${petalColor}" opacity="${alpha}" transform="rotate(${a.toFixed(1)} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+      s += `<ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${rx}" ry="${ry}" fill="${petalColor}" stroke="${edge}" stroke-width="1.5" opacity="${alpha}" transform="rotate(${a.toFixed(1)} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+      if (layer === 0) {
+        s += `<ellipse cx="${px.toFixed(1)}" cy="${(py - ry * 0.32).toFixed(1)}" rx="${(rx * 0.45).toFixed(1)}" ry="${(ry * 0.28).toFixed(1)}" fill="${highlight}" opacity=".45" transform="rotate(${a.toFixed(1)} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+      }
     }
   }
-  return s + `<circle r="17" fill="${palette[6]}" opacity=".85"/>`;
+  return s + `<circle r="19" fill="${edge}"/><circle r="16" fill="${palette[6]}" opacity=".88"/><circle cx="-4" cy="-4" r="6" fill="${highlight}" opacity=".5"/>`;
 }
 
 function branchShape(kind, palette) {
   const stroke = palette[6];
   const leafFill = kind === 'eucalyptus branch' ? palette[1] : kind === 'fern frond' ? palette[2] : palette[3];
+  const leafEdge = shade(leafFill, -0.22);
+  const leafHi = shade(leafFill, 0.35);
   const length = kind === 'fern frond' ? 340 : 420;
   const leafCount = kind === 'fern frond' ? 8 : 6;
   let s = `<path d="M0 ${length / 2} C-40 ${length * 0.1} 30 ${-length * 0.15} 0 ${-length / 2}" fill="none" stroke="${stroke}" stroke-width="6" stroke-linecap="round"/>`;
@@ -50,7 +58,8 @@ function branchShape(kind, palette) {
     const lx = side * (30 + 10 * Math.sin(i));
     const ly = y - 8;
     s += `<path d="M0 ${y.toFixed(1)} L${lx.toFixed(1)} ${ly.toFixed(1)}" stroke="${stroke}" stroke-width="3" opacity=".6"/>`;
-    s += `<ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="16" ry="30" fill="${leafFill}" opacity=".85" transform="rotate(${side * 30} ${lx.toFixed(1)} ${ly.toFixed(1)})"/>`;
+    s += `<ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="16" ry="30" fill="${leafFill}" stroke="${leafEdge}" stroke-width="1.2" opacity=".9" transform="rotate(${side * 30} ${lx.toFixed(1)} ${ly.toFixed(1)})"/>`;
+    s += `<ellipse cx="${(lx - side * 4).toFixed(1)}" cy="${(ly - 8).toFixed(1)}" rx="5" ry="12" fill="${leafHi}" opacity=".4" transform="rotate(${side * 30} ${lx.toFixed(1)} ${ly.toFixed(1)})"/>`;
   }
   return s;
 }

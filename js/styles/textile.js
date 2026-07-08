@@ -1,5 +1,6 @@
 import { pick, hashPick } from '../core/rng.js';
 import { tr } from '../core/svg.js';
+import { shade } from '../core/color.js';
 
 export const FAMILY = {
   id: 'textile',
@@ -14,9 +15,17 @@ export const FAMILY = {
 
 function heroShape(kind, palette) {
   const a = palette[4], b = palette[3], c = palette[1];
-  if (kind === 'ikat diamond') return `<path d="M0 -60 L45 0 L0 60 L-45 0Z" fill="${a}"/><path d="M0 -34 L26 0 L0 34 L-26 0Z" fill="${c}"/>`;
-  if (kind === 'medallion') return `<circle r="48" fill="none" stroke="${a}" stroke-width="8"/><circle r="26" fill="${b}"/><circle r="8" fill="${a}"/>`;
-  return `<rect x="-40" y="-40" width="80" height="80" fill="${a}"/><rect x="-24" y="-24" width="48" height="48" fill="${c}"/>`;
+  const aEdge = shade(a, -0.28), cHi = shade(c, 0.3);
+  if (kind === 'ikat diamond') {
+    return `<path d="M0 -60 L45 0 L0 60 L-45 0Z" fill="${a}" stroke="${aEdge}" stroke-width="2"/>` +
+      `<path d="M0 -34 L26 0 L0 34 L-26 0Z" fill="${c}" stroke="${shade(c, -0.2)}" stroke-width="1.5"/>` +
+      `<path d="M0 -16 L10 0 L0 16 L-10 0Z" fill="${cHi}" opacity=".7"/>`;
+  }
+  if (kind === 'medallion') {
+    return `<circle r="48" fill="none" stroke="${a}" stroke-width="8"/><circle r="26" fill="${b}" stroke="${shade(b, -0.22)}" stroke-width="2"/>` +
+      `<circle r="8" fill="${a}"/><circle cx="-9" cy="-9" r="5" fill="${shade(a, 0.4)}" opacity=".6"/>`;
+  }
+  return `<rect x="-40" y="-40" width="80" height="80" fill="${a}" stroke="${aEdge}" stroke-width="2"/><rect x="-24" y="-24" width="48" height="48" fill="${c}" stroke="${shade(c, -0.2)}" stroke-width="1.5"/>`;
 }
 
 function secondaryShape(kind, palette) {

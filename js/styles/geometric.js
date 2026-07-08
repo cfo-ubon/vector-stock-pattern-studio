@@ -1,5 +1,6 @@
 import { pick, hashPick, range } from '../core/rng.js';
 import { tr } from '../core/svg.js';
+import { shade } from '../core/color.js';
 
 export const FAMILY = {
   id: 'geometric',
@@ -14,24 +15,30 @@ export const FAMILY = {
 
 function heroShape(kind, palette, rng) {
   const a = palette[4], b = palette[2], c = palette[1];
+  const aEdge = shade(a, -0.25), aHi = shade(a, 0.35);
   if (kind === 'sunburst') {
-    let s = `<circle r="26" fill="${a}"/>`;
+    let s = `<circle r="26" fill="${a}" stroke="${aEdge}" stroke-width="3"/>`;
     for (let i = 0; i < 10; i++) {
       s += `<line x1="0" y1="-30" x2="0" y2="-64" stroke="${a}" stroke-width="7" stroke-linecap="round" transform="rotate(${i * 36})"/>`;
     }
-    return s;
+    return s + `<circle cx="-8" cy="-8" r="9" fill="${aHi}" opacity=".6"/>`;
   }
   if (kind === 'arch') {
-    return `<path d="M-48 46 A48 48 0 0 1 48 46 L48 60 L-48 60 Z" fill="${a}"/><path d="M-28 46 A28 28 0 0 1 28 46 L28 60 L-28 60 Z" fill="${b}"/>`;
+    return `<path d="M-48 46 A48 48 0 0 1 48 46 L48 60 L-48 60 Z" fill="${a}" stroke="${aEdge}" stroke-width="2"/>` +
+      `<path d="M-28 46 A28 28 0 0 1 28 46 L28 60 L-28 60 Z" fill="${b}" stroke="${shade(b, -0.2)}" stroke-width="2"/>` +
+      `<path d="M-40 42 A40 40 0 0 1 -10 8" fill="none" stroke="${aHi}" stroke-width="4" opacity=".55" stroke-linecap="round"/>`;
   }
   if (kind === 'terrazzo') {
-    let s = `<circle r="42" fill="${c}"/>`;
-    for (let i = 0; i < 5; i++) {
-      s += `<circle cx="${range(rng, -30, 30).toFixed(1)}" cy="${range(rng, -30, 30).toFixed(1)}" r="${range(rng, 6, 14).toFixed(1)}" fill="${i % 2 ? a : b}"/>`;
+    let s = `<circle r="42" fill="${c}" stroke="${shade(c, -0.2)}" stroke-width="2"/>`;
+    for (let i = 0; i < 6; i++) {
+      const r = range(rng, 6, 14);
+      const cx = range(rng, -30, 30), cy = range(rng, -30, 30);
+      const fill = i % 2 ? a : b;
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${fill}" stroke="${shade(fill, -0.25)}" stroke-width="1"/>`;
     }
     return s;
   }
-  return `<path d="M-50 30 C-50 -30 50 -30 50 30 C20 55 -20 55 -50 30Z" fill="${a}"/>`;
+  return `<path d="M-50 30 C-50 -30 50 -30 50 30 C20 55 -20 55 -50 30Z" fill="${a}" stroke="${aEdge}" stroke-width="2"/><ellipse cx="-14" cy="-6" rx="16" ry="9" fill="${aHi}" opacity=".5"/>`;
 }
 
 function secondaryShape(kind, palette) {
