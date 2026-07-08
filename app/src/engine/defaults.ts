@@ -32,6 +32,7 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     categoryId: generator.id,
     layoutId: rngPick(rng, layouts),
     paletteId: palette.id,
+    customColors: undefined,
     colorCount: 2 + Math.floor(rng() * 5),
     density: 0.15 + rng() * 0.75,
     motifSize: generator.defaultMotifSize * (0.7 + rng() * 0.7),

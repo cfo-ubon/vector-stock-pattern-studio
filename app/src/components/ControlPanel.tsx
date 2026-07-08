@@ -12,9 +12,11 @@ interface Props {
   onGenerateBatch: () => void;
   onExportSingle: () => void;
   onExportTiled: () => void;
+  onReset: () => void;
+  aiPanel?: React.ReactNode;
 }
 
-export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onGenerateBatch, onExportSingle, onExportTiled }: Props) {
+export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onGenerateBatch, onExportSingle, onExportTiled, onReset, aiPanel }: Props) {
   return (
     <div className="control-panel">
       <section>
@@ -173,7 +175,12 @@ export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onG
         <button type="button" className="btn btn--export" onClick={onExportTiled}>
           Export 3x3 tiled (.svg)
         </button>
+        <button type="button" className="btn btn--danger" onClick={onReset}>
+          ↩ รีเซ็ตเป็นค่าเริ่มต้น
+        </button>
       </section>
+
+      {aiPanel}
     </div>
   );
 }

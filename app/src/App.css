@@ -365,6 +365,73 @@ body {
   color: white;
 }
 
+.btn--danger {
+  border-color: #b3564f;
+  color: #e08a83;
+  background: transparent;
+}
+
+.btn--danger:hover {
+  background: #b3564f;
+  color: white;
+}
+
+.ai-assist {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ai-assist h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.ai-steps {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ai-assist textarea {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
+}
+
+.ai-assist .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ai-status {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.ai-status--ok {
+  color: #7fd6a0;
+}
+
+.ai-status--error {
+  color: #e08a83;
+}
+
 .gallery-header {
   display: flex;
   align-items: center;

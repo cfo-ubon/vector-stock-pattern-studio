@@ -9,7 +9,9 @@ export const halfDropLayout: PatternLayout = {
   label: 'Half-Drop',
   generate(params: LayoutParams, rng: Rng): Placement[] {
     const spacing = spacingForDensity(params.motifSize, params.density);
-    const cols = Math.max(2, Math.round(params.tileSize / spacing));
+    // Even column count so the alternate-column size rhythm below stays
+    // periodic across tile boundaries.
+    const cols = Math.max(2, 2 * Math.round(params.tileSize / spacing / 2));
     const rows = Math.max(2, Math.round(params.tileSize / spacing));
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
@@ -20,7 +22,10 @@ export const halfDropLayout: PatternLayout = {
       for (let r = 0; r < rows; r++) {
         const x = (c + 0.5) * cellW;
         const y = (r + 0.5) * cellH + offset;
-        placements.push(applyCellJitter(x, y % params.tileSize, i++, params, rng));
+        const placement = applyCellJitter(x, y % params.tileSize, i++, params, rng);
+        // Dropped columns slightly smaller — the classic wallpaper rhythm.
+        if (c % 2 === 1) placement.scale *= 0.8;
+        placements.push(placement);
       }
     }
     return placements;

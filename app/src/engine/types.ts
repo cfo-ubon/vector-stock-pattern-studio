@@ -46,6 +46,11 @@ export interface PatternGenerator {
   /** Suggested default motif size (diameter, in tile units) for this
    * category — layouts use this to size their grid/spacing. */
   defaultMotifSize: number;
+  /** Optional per-tile setup called once before the motif loop. Lets a
+   * generator make tile-wide decisions (e.g. Seasonal picking "christmas"
+   * vs "halloween" so one tile never mixes both) deterministically from
+   * the same seeded rng. */
+  beginTile?(rng: Rng): void;
   createMotif(rng: Rng, colors: string[], size: number): Motif;
 }
 
@@ -82,6 +87,9 @@ export interface GenerateParams {
   categoryId: string;
   layoutId: LayoutId;
   paletteId: string;
+  /** When set (e.g. from the AI-assist JSON), overrides the palette:
+   * first color is the background, the rest are motif accents. */
+  customColors?: string[];
   colorCount: number;
   tileSize: number;
   density: number;

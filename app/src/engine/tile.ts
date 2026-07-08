@@ -19,10 +19,12 @@ export function buildTile(params: GenerateParams): TileData {
   const rng = createRng(params.seed);
   const generator = GENERATORS[params.categoryId] ?? Object.values(GENERATORS)[0];
   const layout = LAYOUTS[params.layoutId] ?? Object.values(LAYOUTS)[0];
-  const palette = getPalette(params.paletteId);
-  const colors = resolveColors(palette, params.colorCount);
+  const isValidHex = (c: string) => /^#[0-9a-fA-F]{6}$/.test(c);
+  const custom = params.customColors?.filter(isValidHex) ?? [];
+  const colors = custom.length >= 2 ? custom.slice(0, 6) : resolveColors(getPalette(params.paletteId), params.colorCount);
   const backgroundColor = colors[0];
   const { tileSize } = params;
+  generator.beginTile?.(rng);
 
   const placements: Placement[] = layout.generate(
     {
