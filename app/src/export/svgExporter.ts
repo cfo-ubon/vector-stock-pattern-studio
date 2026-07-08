@@ -7,6 +7,12 @@ const SVG_NS_ATTRS = {
   version: '1.1',
 } as const;
 
+/** Exported artboard size in px. The viewBox stays at the tile's own
+ * coordinate system (SVG scales losslessly), but width/height control the
+ * document size an editor like Affinity Designer opens the file at —
+ * 10000x10000 px comfortably exceeds every stock site's minimum. */
+export const EXPORT_PIXEL_SIZE = 10000;
+
 export function collectIds(node: SvgNode, ids: Set<string>) {
   if (node.attrs?.id) ids.add(String(node.attrs.id));
   node.children?.forEach((c) => collectIds(c, ids));
@@ -56,8 +62,8 @@ export function buildSingleTileSvg(tileData: TileData): string {
     'svg',
     {
       ...SVG_NS_ATTRS,
-      width: round(tileSize),
-      height: round(tileSize),
+      width: EXPORT_PIXEL_SIZE,
+      height: EXPORT_PIXEL_SIZE,
       viewBox: `0 0 ${round(tileSize)} ${round(tileSize)}`,
     },
     [tileData.svg],
@@ -85,13 +91,26 @@ export function buildTiledSvg(tileData: TileData, cols = 3, rows = 3): string {
     'svg',
     {
       ...SVG_NS_ATTRS,
-      width: round(tileSize * cols),
-      height: round(tileSize * rows),
+      width: EXPORT_PIXEL_SIZE,
+      height: EXPORT_PIXEL_SIZE,
       viewBox: `0 0 ${round(tileSize * cols)} ${round(tileSize * rows)}`,
     },
     [h('g', { id: 'pattern-tiled' }, copies)],
   );
   return `${XML_HEADER}\n${serialize(root)}\n`;
+}
+
+/** Descriptive, filesystem-safe filename derived from what the pattern
+ * actually looks like (palette + category + layout + seed), e.g.
+ * "pastel-dream-botanical-half-drop-seamless-pattern-x7k2p9.svg". */
+export function buildExportFilename(parts: string[], seed: string, suffix = ''): string {
+  const slug = parts
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const safeSeed = seed.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'seed';
+  return `${slug}-seamless-pattern-${safeSeed}${suffix}.svg`;
 }
 
 export function downloadSvgFile(filename: string, svgString: string) {

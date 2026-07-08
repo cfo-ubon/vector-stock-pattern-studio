@@ -64,6 +64,14 @@ const CATEGORY_KEYWORDS: Record<string, { phrase: string; words: string[] }> = {
     phrase: 'cute animal faces',
     words: ['cute', 'kawaii', 'animal', 'kids', 'baby', 'nursery', 'children', 'bear', 'cat', 'bunny', 'rabbit', 'paw', 'heart', 'star', 'cartoon', 'childish', 'sweet', 'adorable'],
   },
+  seasonal: {
+    phrase: 'holiday motifs',
+    words: ['holiday', 'christmas', 'halloween', 'festive', 'winter', 'xmas', 'seasonal', 'celebration', 'snowflake', 'tree', 'pumpkin', 'ghost', 'noel', 'greeting', 'december', 'october', 'party', 'gift'],
+  },
+  retro: {
+    phrase: 'groovy seventies shapes',
+    words: ['retro', 'groovy', 'seventies', '70s', 'vintage', 'hippie', 'rainbow', 'daisy', 'sun', 'mushroom', 'psychedelic', 'flower power', 'sixties', 'wavy', 'funky', 'nostalgia', 'mod', 'boho'],
+  },
 };
 
 // Short mood words per palette id (first entry doubles as the description's
@@ -98,13 +106,14 @@ const LAYOUT_WORDS: Record<string, string[]> = {
 };
 
 export function buildStockMetadata(tileData: TileData): StockMetadata {
-  const { categoryId, paletteId, layoutId } = tileData.params;
+  const { categoryId, paletteId, layoutId, customColors } = tileData.params;
   const category = CATEGORY_KEYWORDS[categoryId] ?? CATEGORY_KEYWORDS.geometric;
   const generatorLabel = GENERATORS[categoryId]?.label ?? 'Pattern';
-  const palette = getPalette(paletteId);
-  const moods = PALETTE_MOODS[paletteId] ?? ['colorful'];
+  const usingCustom = !!customColors?.length;
+  const paletteLabel = usingCustom ? 'Colorful' : getPalette(paletteId).label;
+  const moods = usingCustom ? ['colorful', 'multicolor', 'bright'] : (PALETTE_MOODS[paletteId] ?? ['colorful']);
 
-  const title = `${palette.label} ${generatorLabel} Seamless Vector Pattern — Flat ${capitalize(category.phrase)} Repeat for Fabric and Wallpaper`;
+  const title = `${paletteLabel} ${generatorLabel} Seamless Vector Pattern — Flat ${capitalize(category.phrase)} Repeat for Fabric and Wallpaper`;
 
   const description = `Seamless vector pattern with flat ${category.phrase} in ${moods[0]} colors. Hand-crafted repeating tile for fabric, textile, wallpaper, wrapping paper, stationery and web backgrounds. Fully editable vector.`;
 

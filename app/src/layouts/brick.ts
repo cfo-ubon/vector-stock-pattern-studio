@@ -12,7 +12,9 @@ export const brickLayout: PatternLayout = {
   generate(params: LayoutParams, rng: Rng): Placement[] {
     const spacing = spacingForDensity(params.motifSize, params.density);
     const cols = Math.max(2, Math.round(params.tileSize / spacing));
-    const rows = Math.max(2, Math.round(params.tileSize / spacing));
+    // Even row count so the alternate-row size rhythm below stays periodic
+    // across tile boundaries.
+    const rows = Math.max(2, 2 * Math.round(params.tileSize / spacing / 2));
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
     const placements: Placement[] = [];
@@ -22,7 +24,10 @@ export const brickLayout: PatternLayout = {
       for (let c = 0; c < cols; c++) {
         const x = (c + 0.5) * cellW + offset;
         const y = (r + 0.5) * cellH;
-        placements.push(applyCellJitter(x % params.tileSize, y, i++, params, rng));
+        const placement = applyCellJitter(x % params.tileSize, y, i++, params, rng);
+        // Offset rows read better slightly smaller — adds a woven rhythm.
+        if (r % 2 === 1) placement.scale *= 0.8;
+        placements.push(placement);
       }
     }
     return placements;

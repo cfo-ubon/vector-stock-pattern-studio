@@ -10,8 +10,11 @@ export const gridLayout: PatternLayout = {
   label: 'Grid',
   generate(params: LayoutParams, rng: Rng): Placement[] {
     const spacing = spacingForDensity(params.motifSize, params.density);
-    const cols = Math.max(2, Math.round(params.tileSize / spacing));
-    const rows = Math.max(2, Math.round(params.tileSize / spacing));
+    // Even col/row counts so the checkerboard rhythm below stays periodic
+    // across tile boundaries (odd counts would put two same-size cells
+    // next to each other at every seam).
+    const cols = Math.max(2, 2 * Math.round(params.tileSize / spacing / 2));
+    const rows = Math.max(2, 2 * Math.round(params.tileSize / spacing / 2));
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
     const placements: Placement[] = [];
@@ -20,7 +23,11 @@ export const gridLayout: PatternLayout = {
       for (let c = 0; c < cols; c++) {
         const x = (c + 0.5) * cellW;
         const y = (r + 0.5) * cellH;
-        placements.push(applyCellJitter(x, y, i++, params, rng));
+        const placement = applyCellJitter(x, y, i++, params, rng);
+        // Checkerboard large/small rhythm — the classic textile trick that
+        // makes a plain grid read as deliberately designed.
+        if ((r + c) % 2 === 1) placement.scale *= 0.7;
+        placements.push(placement);
       }
     }
     return placements;

@@ -3,11 +3,16 @@ import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
-import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile } from './export/svgExporter';
+import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, buildExportFilename } from './export/svgExporter';
+import { GENERATORS } from './generators';
+import { getPalette } from './palettes/palettes';
+import { LAYOUTS } from './layouts';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
 import { Gallery, type GalleryItem } from './components/Gallery';
 import { MetadataPanel } from './components/MetadataPanel';
+import { AiAssistPanel } from './components/AiAssistPanel';
+import type { TileData } from './engine/types';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -84,15 +89,54 @@ function App() {
     setSelectedId(null);
   }, []);
 
+  // Filename mirrors what the pattern looks like: palette (or "custom
+  // colors"), category and layout, so exported files are self-describing
+  // in a folder full of downloads.
+  const filenameParts = useCallback((data: TileData) => {
+    const p = data.params;
+    const paletteName = p.customColors?.length ? 'custom colors' : getPalette(p.paletteId).label;
+    const categoryName = GENERATORS[p.categoryId]?.label ?? p.categoryId;
+    const layoutName = LAYOUTS[p.layoutId]?.label ?? p.layoutId;
+    return [paletteName, categoryName, layoutName];
+  }, []);
+
   const handleExportSingle = useCallback(() => {
     const svg = buildSingleTileSvg(tileData);
-    downloadSvgFile(`pattern-${tileData.params.categoryId}-${tileData.params.seed}.svg`, svg);
-  }, [tileData]);
+    downloadSvgFile(buildExportFilename(filenameParts(tileData), tileData.params.seed), svg);
+  }, [tileData, filenameParts]);
 
   const handleExportTiled = useCallback(() => {
     const svg = buildTiledSvg(tileData, 3, 3);
-    downloadSvgFile(`pattern-${tileData.params.categoryId}-${tileData.params.seed}-3x3.svg`, svg);
-  }, [tileData]);
+    downloadSvgFile(buildExportFilename(filenameParts(tileData), tileData.params.seed, '-3x3'), svg);
+  }, [tileData, filenameParts]);
+
+  const handleReset = useCallback(() => {
+    const fresh = defaultParams();
+    setParams(fresh);
+    setTileData(buildTile(fresh));
+    setSelectedId(null);
+  }, []);
+
+  const handleAiApply = useCallback(
+    (patches: Partial<GenerateParams>[], concepts: string[]) => {
+      const items: GalleryItem[] = [];
+      let latest: TileData | null = null;
+      const base = defaultParams();
+      patches.forEach((patch, i) => {
+        const merged: GenerateParams = { ...base, ...params, customColors: undefined, ...patch };
+        const data = buildTile(merged);
+        latest = data;
+        items.push({ id: `${Date.now()}-ai${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
+      });
+      void concepts;
+      if (!latest) return;
+      setGallery((prev) => [...items, ...prev].slice(0, GALLERY_LIMIT));
+      setTileData(latest);
+      setParams((latest as TileData).params);
+      setSelectedId(items[items.length - 1].id);
+    },
+    [params],
+  );
 
   return (
     <div className="app-shell">
@@ -119,6 +163,8 @@ function App() {
           onGenerateBatch={handleGenerateBatch}
           onExportSingle={handleExportSingle}
           onExportTiled={handleExportTiled}
+          onReset={handleReset}
+          aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
           <PreviewCanvas tileData={tileData} />
