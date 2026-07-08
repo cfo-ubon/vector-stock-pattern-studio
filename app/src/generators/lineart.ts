@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange } from '../engine/rng';
 
 // Line Art / one-line generator. Every shape is stroke-only (fill: none) —
@@ -14,7 +15,7 @@ function strokeAttrs(color: string, width: number) {
 
 const lineLeaf: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const w = size * 0.055;
   const outline = `M 0 ${round(-r)} C ${round(r * 0.7)} ${round(-r * 0.4)} ${round(r * 0.7)} ${round(r * 0.4)} 0 ${round(r)} C ${round(-r * 0.7)} ${round(r * 0.4)} ${round(-r * 0.7)} ${round(-r * 0.4)} 0 ${round(-r)}`;
   const vein = `M 0 ${round(-r * 0.8)} Q ${round(r * 0.15)} 0 0 ${round(r * 0.8)}`;
@@ -27,7 +28,7 @@ const lineLeaf: Variant = (rng, colors, size) => {
 
 const lineFlower: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const w = size * 0.05;
   const loops = rngInt(rng, 5, 6);
   const children = [];
@@ -50,7 +51,7 @@ const lineFlower: Variant = (rng, colors, size) => {
 
 const spiralSwirl: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const turns = rngRange(rng, 1.5, 2.5);
   const steps = 40;
   let d = '';
@@ -68,7 +69,7 @@ const spiralSwirl: Variant = (rng, colors, size) => {
 
 const wavyContour: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const lines = rngInt(rng, 2, 3);
   const children = [];
   for (let i = 0; i < lines; i++) {
@@ -86,7 +87,7 @@ const wavyContour: Variant = (rng, colors, size) => {
 
 const lineSunburst: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const rays = rngInt(rng, 7, 10);
   const children = [h('circle', { cx: 0, cy: 0, r: round(r * 0.4), ...strokeAttrs(color, size * 0.045) })];
   for (let i = 0; i < rays; i++) {

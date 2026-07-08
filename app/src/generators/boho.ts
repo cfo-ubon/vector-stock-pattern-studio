@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Boho / Tribal generator. Sunrise arches, crescent moons, zigzag chevrons,
@@ -19,7 +20,7 @@ const sunriseArch: Variant = (rng, colors, size) => {
       h('path', {
         d: `M ${round(-bandR)} 0 A ${round(bandR)} ${round(bandR)} 0 0 1 ${round(bandR)} 0`,
         fill: 'none',
-        stroke: rngPick(rng, colors),
+        stroke: rngPick(rng, accentColors(colors)),
         'stroke-width': round((r / bands) * 0.7),
         'stroke-linecap': 'round',
       }),
@@ -30,7 +31,7 @@ const sunriseArch: Variant = (rng, colors, size) => {
 
 const crescentMoon: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const moonColor = rngPick(rng, colors);
+  const moonColor = rngPick(rng, accentColors(colors));
   const bg = colors[0];
   const children = [
     h('circle', { cx: 0, cy: 0, r: round(r * 0.75), fill: moonColor }),
@@ -45,7 +46,7 @@ const crescentMoon: Variant = (rng, colors, size) => {
         cx: round(Math.cos(angle) * dist),
         cy: round(Math.sin(angle) * dist),
         r: round(r * 0.06),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
@@ -55,7 +56,7 @@ const crescentMoon: Variant = (rng, colors, size) => {
 const zigzagChevron: Variant = (rng, colors, size) => {
   const w = size;
   const rows = rngInt(rng, 3, 4);
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const children = [];
   for (let row = 0; row < rows; row++) {
     const y = -size / 2 + (row * size) / (rows - 1 || 1);
@@ -83,20 +84,20 @@ const tribalDiamond: Variant = (rng, colors, size) => {
       h('polygon', {
         points: `0,${round(-ringR)} ${round(ringR)},0 0,${round(ringR)} ${round(-ringR)},0`,
         fill: 'none',
-        stroke: rngPick(rng, colors),
+        stroke: rngPick(rng, accentColors(colors)),
         'stroke-width': round(size * 0.035),
       }),
     );
   }
   if (rngBool(rng)) {
-    children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.12), fill: rngPick(rng, colors) }));
+    children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.12), fill: rngPick(rng, accentColors(colors)) }));
   }
   return { node: h('g', {}, children), radius: r * 1.05 };
 };
 
 const fringeTassel: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const fringeCount = rngInt(rng, 4, 6);
   const children = [h('path', { d: `M ${round(-r * 0.6)} ${round(-r * 0.4)} A ${round(r * 0.6)} ${round(r * 0.4)} 0 0 1 ${round(r * 0.6)} ${round(-r * 0.4)}`, fill: 'none', stroke: color, 'stroke-width': round(size * 0.05), 'stroke-linecap': 'round' })];
   for (let i = 0; i < fringeCount; i++) {
@@ -120,7 +121,7 @@ const fringeTassel: Variant = (rng, colors, size) => {
 const dottedArc: Variant = (rng, colors, size) => {
   const r = size / 2;
   const dotCount = rngInt(rng, 8, 12);
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const children = [];
   for (let i = 0; i < dotCount; i++) {
     const t = i / (dotCount - 1);

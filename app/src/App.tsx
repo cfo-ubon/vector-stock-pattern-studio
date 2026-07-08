@@ -7,6 +7,7 @@ import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile } from './export/svg
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
 import { Gallery, type GalleryItem } from './components/Gallery';
+import { MetadataPanel } from './components/MetadataPanel';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -96,8 +97,18 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>Vector Stock Pattern Studio</h1>
-        <p>Generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.</p>
+        <div>
+          <h1>Vector Stock Pattern Studio</h1>
+          <p>Generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.</p>
+        </div>
+        <a
+          className="guide-link"
+          href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
+          target="_blank"
+          rel="noreferrer"
+        >
+          📖 คู่มือการใช้งาน
+        </a>
       </header>
       <div className="app-body">
         <ControlPanel
@@ -111,6 +122,7 @@ function App() {
         />
         <main className="app-main">
           <PreviewCanvas tileData={tileData} />
+          <MetadataPanel tileData={tileData} />
           <Gallery
             items={gallery}
             selectedId={selectedId}

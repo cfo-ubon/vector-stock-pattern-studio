@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange } from '../engine/rng';
 
 // Tropical generator. Palm fronds, monstera leaves, hibiscus blooms and
@@ -20,7 +21,7 @@ const palmFrond: Variant = (rng, colors, size) => {
   const length = size * rngRange(rng, 0.55, 0.7);
   const width = length * 0.32;
   const spread = 130;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const children = [];
   for (let i = 0; i < bladeCount; i++) {
     const angle = -spread / 2 + (spread * i) / (bladeCount - 1);
@@ -32,7 +33,7 @@ const palmFrond: Variant = (rng, colors, size) => {
 
 const monsteraLeaf: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const leafColor = rngPick(rng, colors);
+  const leafColor = rngPick(rng, accentColors(colors));
   const holeColor = colors[0];
   const leafPath = `M 0 ${round(-r)} C ${round(r * 0.75)} ${round(-r * 0.7)} ${round(r * 0.8)} ${round(r * 0.4)} 0 ${round(r)} C ${round(-r * 0.8)} ${round(r * 0.4)} ${round(-r * 0.75)} ${round(-r * 0.7)} 0 ${round(-r)} Z`;
   const children = [h('path', { d: leafPath, fill: leafColor })];
@@ -71,8 +72,8 @@ const monsteraLeaf: Variant = (rng, colors, size) => {
 const hibiscusBloom: Variant = (rng, colors, size) => {
   const r = size / 2;
   const petals = 5;
-  const petalColor = rngPick(rng, colors);
-  const centerColor = rngPick(rng, colors);
+  const petalColor = rngPick(rng, accentColors(colors));
+  const centerColor = rngPick(rng, accentColors(colors));
   const petalLen = r * 0.95;
   const petalW = petalLen * 0.62;
   const children = [];
@@ -101,8 +102,8 @@ const hibiscusBloom: Variant = (rng, colors, size) => {
 
 const citrusSlice: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const rindColor = rngPick(rng, colors);
-  const fleshColor = rngPick(rng, colors);
+  const rindColor = rngPick(rng, accentColors(colors));
+  const fleshColor = rngPick(rng, accentColors(colors));
   const segments = rngInt(rng, 7, 10);
   const children = [
     h('circle', { cx: 0, cy: 0, r: round(r), fill: rindColor }),

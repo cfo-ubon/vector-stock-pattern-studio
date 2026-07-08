@@ -36,6 +36,25 @@ body {
 .app-header {
   padding: 1.25rem 1.5rem 1rem;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guide-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  white-space: nowrap;
+}
+
+.guide-link:hover {
+  background: var(--accent);
+  color: white;
 }
 
 .app-header h1 {
@@ -270,6 +289,80 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
+}
+
+.metadata-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metadata-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.metadata-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.metadata-hint {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.metadata-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.metadata-field-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.metadata-field label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.metadata-field textarea {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background: var(--accent);
+  color: white;
 }
 
 .gallery-header {
