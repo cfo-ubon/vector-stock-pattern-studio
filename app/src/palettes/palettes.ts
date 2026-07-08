@@ -22,6 +22,14 @@ export const PALETTES: Palette[] = [
   { id: 'ocean-breeze', label: 'Ocean Breeze', colors: ['#F0F9FA', '#A6E3E9', '#71C9CE', '#3B8686', '#0B5563', '#012E3B'] },
   { id: 'terracotta', label: 'Terracotta', colors: ['#FBF3EE', '#E2A16F', '#C46B4E', '#8C4A3A', '#4E3B31', '#D8C3A5'] },
   { id: 'mono-charcoal', label: 'Monochrome Charcoal', colors: ['#F5F5F5', '#D4D4D4', '#A3A3A3', '#737373', '#404040', '#171717'] },
+  { id: 'sage-terracotta', label: 'Sage & Terracotta', colors: ['#F7F2EA', '#D8C7A1', '#9CAF88', '#C97D5D', '#5F7A61', '#7A4B3A'] },
+  { id: 'blush-gold', label: 'Blush & Gold', colors: ['#FFF8F2', '#F6C9CE', '#E8A6A0', '#D4A85A', '#B76E79', '#8C5A44'] },
+  { id: 'retro-sunset', label: 'Retro Sunset', colors: ['#FFF1E0', '#F7A072', '#EF6F6C', '#C4436B', '#6A3E7A', '#2E2360'] },
+  { id: 'coastal-neutral', label: 'Coastal Neutral', colors: ['#F6F4EF', '#E4DCC8', '#A9BBA6', '#7C9A92', '#4E6E64', '#2F4A48'] },
+  { id: 'berry-punch', label: 'Berry Punch', colors: ['#FFF6F8', '#F6A6C1', '#E4509A', '#9C2E6B', '#5A2A56', '#2B1B3D'] },
+  { id: 'midnight-botanical', label: 'Midnight Botanical', colors: ['#EDE9DD', '#8FA68E', '#4A6B57', '#2E4A3F', '#1C2E2A', '#101820'] },
+  { id: 'citrus-pop', label: 'Citrus Pop', colors: ['#FFFDF5', '#FFD166', '#FF8C42', '#EF476F', '#06A77D', '#073B4C'] },
+  { id: 'lavender-fields', label: 'Lavender Fields', colors: ['#FBF7FD', '#E4D4F4', '#C6A9E8', '#9B7EDE', '#6B5197', '#3F2E5C'] },
 ];
 
 export function getPalette(id: string): Palette {

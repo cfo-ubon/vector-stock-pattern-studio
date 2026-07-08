@@ -21,9 +21,30 @@ function blobPoints(rng: Rng, r: number, pointCount: number, irregularity: numbe
 
 const freeBlob: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const pts = blobPoints(rng, r, rngInt(rng, 6, 9), rngRange(rng, 0.25, 0.5));
+  const pts = blobPoints(rng, r, rngInt(rng, 7, 11), rngRange(rng, 0.2, 0.45));
   const node = h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, colors) });
   return { node, radius: r * 1.1 };
+};
+
+const layeredBlob: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const layers = rngInt(rng, 2, 3);
+  const children = [];
+  for (let i = 0; i < layers; i++) {
+    const layerR = r * (1 - i * 0.24);
+    const pts = blobPoints(rng, layerR, rngInt(rng, 7, 10), rngRange(rng, 0.15, 0.3));
+    const offsetAngle = rngRange(rng, 0, Math.PI * 2);
+    const offsetDist = i === 0 ? 0 : r * 0.12;
+    const ox = Math.cos(offsetAngle) * offsetDist;
+    const oy = Math.sin(offsetAngle) * offsetDist;
+    children.push(
+      h('path', {
+        d: smoothClosedPath(pts.map(([x, y]) => [x + ox, y + oy])),
+        fill: rngPick(rng, colors),
+      }),
+    );
+  }
+  return { node: h('g', {}, children), radius: r * 1.15 };
 };
 
 const blobWithAccent: Variant = (rng, colors, size) => {
@@ -97,7 +118,7 @@ const confettiCluster: Variant = (rng, colors, size) => {
   return { node: h('g', {}, children), radius: r * 1.05 };
 };
 
-const VARIANTS: Variant[] = [freeBlob, blobWithAccent, squiggleLine, cutoutArcStack, confettiCluster];
+const VARIANTS: Variant[] = [freeBlob, layeredBlob, blobWithAccent, squiggleLine, cutoutArcStack, confettiCluster];
 
 export const organicGenerator: PatternGenerator = {
   id: 'organic',

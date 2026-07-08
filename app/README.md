@@ -23,8 +23,9 @@ npm run lint
 1. A **layout** (`src/layouts/*`) decides where motifs go inside one square
    tile — grid, brick/offset, half-drop, radial/mandala, or random scatter.
 2. A **generator** (`src/generators/*`) supplies the actual shape for each
-   placement — currently Geometric, Botanical/Floral, and Abstract Organic.
-   Each call returns one randomly-varied motif from that category's pool.
+   placement — currently Geometric, Botanical/Floral, Abstract Organic,
+   Tropical, Boho/Tribal, and Line Art. Each call returns one
+   randomly-varied motif from that category's pool.
 3. The **engine** (`src/engine/tile.ts`) combines the two: for every
    placement it draws the motif not just once but at every periodic offset
    `(x ± tileSize, y ± tileSize)` that could overlap the tile edge, then
@@ -56,9 +57,9 @@ Implement the `PatternGenerator` interface in a new file under
 `src/generators/` (see `geometric.ts` for the smallest example) and add it
 to the registry in `src/generators/index.ts`. Nothing in the engine,
 layouts, or UI needs to change — the control panel picks up new categories
-automatically. The remaining categories from the original brief (Boho/
-Tribal, Tropical, Animal/Cute, Line Art, Mandala/Kaleidoscope, Textile/
-Damask, Seasonal) are not implemented yet; this is where to add them.
+automatically. The remaining categories from the original brief (Animal/
+Cute, Mandala/Kaleidoscope as a dedicated generator, Textile/Damask,
+Seasonal) are not implemented yet; this is where to add them.
 
 ## Adding a new layout
 

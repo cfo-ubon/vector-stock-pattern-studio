@@ -135,7 +135,45 @@ const dotCluster: Variant = (rng, colors, size) => {
   return { node: h('g', {}, children), radius: r * 1.05 };
 };
 
-const VARIANTS: Variant[] = [concentricCircles, triangleStack, hexTile, crossPlus, diamondGrid, stripedArc, halfMoon, dotCluster];
+const archShape: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const color = rngPick(rng, colors);
+  const bandColor = rngPick(rng, colors);
+  const children = [
+    h('path', { d: `M ${round(-r)} ${round(r)} L ${round(-r)} 0 A ${round(r)} ${round(r)} 0 0 1 ${round(r)} 0 L ${round(r)} ${round(r)} Z`, fill: color }),
+  ];
+  if (rngBool(rng)) {
+    children.push(
+      h('path', {
+        d: `M ${round(-r * 0.6)} ${round(r)} L ${round(-r * 0.6)} 0 A ${round(r * 0.6)} ${round(r * 0.6)} 0 0 1 ${round(r * 0.6)} 0 L ${round(r * 0.6)} ${round(r)} Z`,
+        fill: bandColor,
+      }),
+    );
+  }
+  return { node: h('g', {}, children), radius: r * 1.05 };
+};
+
+const waveStripes: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const rows = rngInt(rng, 3, 4);
+  const color = rngPick(rng, colors);
+  const children = [];
+  for (let i = 0; i < rows; i++) {
+    const y = -r + (i * (2 * r)) / (rows - 1 || 1);
+    children.push(
+      h('path', {
+        d: `M ${round(-r)} ${round(y)} Q ${round(-r / 2)} ${round(y - size * 0.14)} 0 ${round(y)} Q ${round(r / 2)} ${round(y + size * 0.14)} ${round(r)} ${round(y)}`,
+        fill: 'none',
+        stroke: color,
+        'stroke-width': round(size * 0.07),
+        'stroke-linecap': 'round',
+      }),
+    );
+  }
+  return { node: h('g', {}, children), radius: r * 1.1 };
+};
+
+const VARIANTS: Variant[] = [concentricCircles, triangleStack, hexTile, crossPlus, diamondGrid, stripedArc, halfMoon, dotCluster, archShape, waveStripes];
 
 export const geometricGenerator: PatternGenerator = {
   id: 'geometric',
