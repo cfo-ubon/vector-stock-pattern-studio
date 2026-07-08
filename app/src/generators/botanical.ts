@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes
@@ -14,8 +15,8 @@ function leafPath(length: number, width: number): string {
 }
 
 function leafNode(rng: Rng, colors: string[], length: number, width: number): ReturnType<typeof h> {
-  const fill = rngPick(rng, colors);
-  const veinColor = rngPick(rng, colors);
+  const fill = rngPick(rng, accentColors(colors));
+  const veinColor = rngPick(rng, accentColors(colors));
   return h('g', {}, [
     h('path', { d: leafPath(length, width), fill }),
     h('line', {
@@ -41,8 +42,8 @@ const singleLeaf: Variant = (rng, colors, size) => {
 const flowerBloom: Variant = (rng, colors, size) => {
   const r = size / 2;
   const petals = rngInt(rng, 5, 7);
-  const petalColor = rngPick(rng, colors);
-  const centerColor = rngPick(rng, colors);
+  const petalColor = rngPick(rng, accentColors(colors));
+  const centerColor = rngPick(rng, accentColors(colors));
   const petalLen = r * 0.85;
   const petalW = petalLen * 0.5;
   const children = [];
@@ -60,8 +61,8 @@ const flowerBloom: Variant = (rng, colors, size) => {
 
 const flowerBud: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const stemColor = rngPick(rng, colors);
-  const budColor = rngPick(rng, colors);
+  const stemColor = rngPick(rng, accentColors(colors));
+  const budColor = rngPick(rng, accentColors(colors));
   const budPath = `M 0 ${round(-r * 0.75)} C ${round(r * 0.42)} ${round(-r * 0.55)} ${round(r * 0.4)} ${round(r * 0.1)} 0 ${round(r * 0.3)} C ${round(-r * 0.4)} ${round(r * 0.1)} ${round(-r * 0.42)} ${round(-r * 0.55)} 0 ${round(-r * 0.75)} Z`;
   const node = h('g', {}, [
     h('line', {
@@ -83,8 +84,8 @@ const flowerBud: Variant = (rng, colors, size) => {
 
 const fernFrond: Variant = (rng, colors, size) => {
   const half = size / 2;
-  const stemColor = rngPick(rng, colors);
-  const leafletColor = rngPick(rng, colors);
+  const stemColor = rngPick(rng, accentColors(colors));
+  const leafletColor = rngPick(rng, accentColors(colors));
   const pairs = rngInt(rng, 4, 6);
   const children = [
     h('line', { x1: 0, y1: round(-half), x2: 0, y2: round(half), stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
@@ -107,8 +108,8 @@ const fernFrond: Variant = (rng, colors, size) => {
 
 const simpleTulip: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const stemColor = rngPick(rng, colors);
-  const petalColor = rngPick(rng, colors);
+  const stemColor = rngPick(rng, accentColors(colors));
+  const petalColor = rngPick(rng, accentColors(colors));
   const petalW = r * 0.4;
   const petalH = r * 0.85;
   const children = [
@@ -129,7 +130,7 @@ const simpleTulip: Variant = (rng, colors, size) => {
 
 const leafyBranch: Variant = (rng, colors, size) => {
   const half = size / 2;
-  const stemColor = rngPick(rng, colors);
+  const stemColor = rngPick(rng, accentColors(colors));
   const leafCount = rngInt(rng, 3, 5);
   const children = [
     h('path', { d: `M 0 ${round(-half)} Q ${round(half * 0.15)} 0 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.045), 'stroke-linecap': 'round' }),

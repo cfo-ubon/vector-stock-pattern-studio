@@ -1,0 +1,157 @@
+# 📖 คู่มือการใช้งาน Vector Stock Pattern Studio
+
+> **ลิงก์เข้าใช้งาน:** https://cfo-ubon.github.io/vector-stock-pattern-studio/studio/
+>
+> คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
+
+แอปสร้างลวดลายเวคเตอร์แบบ **seamless (ต่อกันไร้รอยต่อ)** สำหรับขายบนเว็บ stock
+เช่น Shutterstock, Adobe Stock, Freepik, Creative Fabrica — ทุกอย่างทำงานใน
+เบราว์เซอร์ ไม่เรียก AI API ไม่มีค่าใช้จ่ายต่อครั้ง สร้างได้ไม่จำกัด
+
+---
+
+## 🚀 เริ่มใช้งานใน 1 นาที
+
+1. เปิดแอปที่ลิงก์ด้านบน
+2. กดปุ่ม **Generate 9 variations** — ระบบจะสุ่มลาย 9 แบบเข้า Gallery ให้เลือก
+3. คลิก thumbnail ที่ชอบใน Gallery — ลายจะขึ้นที่ Preview ใหญ่
+4. ตรวจว่า repeat เนียน (ดูตรงรอยต่อระหว่าง tile ใน preview 3×3)
+5. กด **Export single tile (.svg)** เพื่อดาวน์โหลดไฟล์
+6. เปิดแผง **SEO สำหรับ Stock** ใต้ preview → กดคัดลอก Title / Description /
+   Keywords ไปวางในฟอร์มอัปโหลดของ Shutterstock ได้ทันที
+
+---
+
+## 🎨 ส่วนควบคุม (แผงซ้าย)
+
+### Category — หมวดลวดลาย (9 หมวด)
+
+| หมวด | ลักษณะลาย | เหมาะกับ |
+|---|---|---|
+| **Geometric** | วงกลม สามเหลี่ยม หกเหลี่ยม arch คลื่น สไตล์ Scandinavian/Bauhaus | ลาย modern, ของแต่งบ้าน |
+| **Botanical / Floral** | ใบไม้ ดอกไม้ เฟิร์น ทิวลิป กิ่งก้าน | ผ้า, wallpaper, เครื่องเขียน |
+| **Abstract Organic** | blob อิสระ squiggle สไตล์ Memphis/Matisse | แฟชั่น, ลาย trendy |
+| **Tropical** | ใบปาล์ม monstera ชบา ส้มฝาน | ลายหน้าร้อน, ชุดว่ายน้ำ |
+| **Boho / Tribal** | sunrise arch พระจันทร์เสี้ยว zigzag เพชรชนเผ่า | ลาย earthy, มินิมอล |
+| **Line Art** | เส้นล้วน ไม่มีพื้นที่ทึบ ใบไม้/ดอกไม้/เกลียว | ลายหรู มินิมอล |
+| **Mandala** | เหรียญกลมสมมาตรรอบจุดศูนย์กลาง กลีบดอก จุด | โยคะ, สปา, ลายตะวันออก |
+| **Textile / Damask** | ลายผ้าคลาสสิก ogee, acanthus สมมาตรซ้าย-ขวา | wallpaper หรู, วินเทจ |
+| **Cute / Kids** | หน้าสัตว์ (หมี แมว กระต่าย) อุ้งเท้า หัวใจ ดาว | ลายเด็ก, ห้อง nursery |
+
+### Layout — รูปแบบการวางลาย (5 แบบ)
+
+- **Grid** — ตารางแถว-คอลัมน์ตรงๆ (คลาสสิกสุด ดูเป็นระเบียบ)
+- **Brick / Offset** — สลับแถวครึ่งช่องแบบก่ออิฐ
+- **Radial / Mandala** — จัดกลุ่มวนรอบจุดศูนย์กลางเป็นเหรียญ
+- **Random Scatter** — โปรยแบบสุ่มแต่คุมระยะห่าง (ลาย ditsy)
+- **Half-Drop** — สลับคอลัมน์ครึ่งช่อง (มาตรฐานวงการ textile/wallpaper)
+
+### Palette — ชุดสี (18 ชุด)
+
+คลิกแถบสีเพื่อเลือก เช่น Pastel Dream, Earth Tone, Sage & Terracotta,
+Retro Sunset, Midnight Botanical ฯลฯ — สีแรกของทุกชุดคือ **สีพื้นหลัง**
+
+- **Colors (2–6)** — จำนวนสีที่ใช้จริงจากชุด (น้อย = ลาย minimal, มาก = คึกคัก)
+
+### Diversity Controls — ตัวปรับความหลากหลาย
+
+- **Density** — ความหนาแน่นของ motif (สูง = แน่น, ต่ำ = โปร่ง)
+- **Motif size** — ขนาดชิ้นลาย
+- **Rotation randomness** — สุ่มหมุนแต่ละชิ้น (0° = เป๊ะทุกชิ้น)
+- **Scale jitter** — สุ่มขนาดแต่ละชิ้น (ทำให้ดู hand-made ขึ้น)
+- **Mirror symmetry** — พลิกชิ้นสลับกัน
+- **Radial symmetry fold** — จำนวนแฉกสมมาตร (มีผลกับ layout Radial)
+
+### Seed
+
+รหัสสุ่ม — **ลายเดียวกัน 100% จะกลับมาเมื่อใช้ seed + ค่าปรับเดิมทุกตัว**
+จดหรือ copy seed เก็บไว้ถ้าอยากกลับมาแก้ลายเดิมภายหลัง (กด 🎲 เพื่อสุ่มใหม่)
+
+### ปุ่มหลัก
+
+| ปุ่ม | ทำอะไร |
+|---|---|
+| **Generate** | สร้างลายจากค่าปัจจุบัน + เก็บเข้า Gallery |
+| **Randomize All** | สุ่มทุกค่า (หมวด/layout/สี/ฯลฯ) — ยังไม่สร้างลาย กด Generate ต่อ |
+| **Generate 9 variations** | สุ่ม 9 ลายรวดเดียวเข้า Gallery |
+| **Export single tile (.svg)** | ดาวน์โหลด tile เดี่ยว (ใช้อัปโหลดขายเป็นหลัก) |
+| **Export 3x3 tiled (.svg)** | ดาวน์โหลดแบบต่อ 3×3 (ไว้โชว์/ตรวจ หรือทำภาพ preview) |
+
+---
+
+## 🖼 Preview และ Gallery
+
+- **Preview กลางจอ** แสดงลายต่อกันแบบ 2×2 / 3×3 / 4×4 (สลับมุมขวาบน) —
+  ใช้ตรวจว่า seamless จริง ถ้ามีรอยต่อจะเห็นทันที
+- **Gallery** เก็บทุกลายที่ generate ในเครื่องของคุณ (localStorage สูงสุด 24 ลาย)
+  - คลิก thumbnail = โหลดลายนั้นกลับมาที่ preview + ค่าปรับทั้งหมด
+  - ปุ่ม × = ลบลายนั้น, **Clear all** = ล้างทั้งหมด
+  - ลายใน Gallery อยู่ครบแม้ปิดเบราว์เซอร์ (ยกเว้นลบ cache)
+
+---
+
+## 📝 แผง SEO สำหรับ Stock (Shutterstock / Adobe Stock)
+
+อยู่ใต้ Preview — สร้างให้อัตโนมัติตามลายที่แสดงอยู่ เปลี่ยนลายเมื่อไหร่
+ข้อความอัปเดตตามทันที:
+
+- **Title** — ชื่อภาพภาษาอังกฤษพร้อมใช้
+- **Description** — คำอธิบายไม่เกิน 200 ตัวอักษร (ลิมิตของ Shutterstock)
+- **Keywords** — คีย์เวิร์ด **50 คำพอดี** (ลิมิตสูงสุดของ Shutterstock)
+  เรียงคำสำคัญไว้ต้นลิสต์ คั่นด้วย comma
+
+กดปุ่ม **คัดลอก** ของแต่ละช่องแล้วไปวางในฟอร์มอัปโหลดได้เลย ไม่ต้องพิมพ์เอง
+
+> 💡 เคล็ดลับ: Shutterstock ให้ความสำคัญกับ keyword ต้นๆ มากกว่า —
+> ลิสต์ที่แอปสร้างเรียงตามความสำคัญให้แล้ว ถ้าจะแก้ ให้เติม/สลับเฉพาะท้ายลิสต์
+
+---
+
+## ✏️ เปิดไฟล์ต่อใน Affinity Designer 2 (iPad)
+
+1. Export **single tile** จากแอป → ได้ไฟล์ `.svg`
+2. ใน Affinity Designer 2 เลือก Open → เลือกไฟล์ svg
+3. โครงสร้าง layer ที่ได้:
+   - `layer-background` — สี่เหลี่ยมพื้นหลัง (เปลี่ยนสีได้ทันที)
+   - `layer-pattern` → `motif-1`, `motif-2`, ... — แต่ละชิ้นลายแยก group
+     ของใครของมัน แก้สี/ย้าย/ลบ/หมุนรายชิ้นได้
+4. ทุก shape เป็น vector path แท้ ไม่มี filter/effect แปลกๆ — ไฟล์เปิดแล้ว
+   สี ตำแหน่ง ขนาด artboard ตรงตาม preview ทุกประการ
+5. ชิ้นที่ล้นขอบ tile จะถูก clip ด้วย `tile-clip` — ถ้าจะแก้ชิ้นขอบ
+   อย่าลืมว่าสำเนาของมันโผล่ฝั่งตรงข้ามด้วย (นั่นคือหัวใจของ seamless)
+
+> ⚠️ ถ้าแก้ตำแหน่ง motif ริมขอบใน Affinity ลายอาจไม่ seamless อีกต่อไป —
+> แก้สี/รายละเอียดภายในชิ้นปลอดภัยกว่า หรือกลับมาแก้ที่แอปด้วย seed เดิม
+
+---
+
+## 💡 สูตรทำลายให้ขายง่าย
+
+- **ผ้า/แฟชั่น:** Botanical หรือ Tropical + Half-Drop + density 50-70%
+- **ลาย ditsy (ขายดีตลอด):** Botanical + Random Scatter + motif เล็ก + density ต่ำ
+- **Wallpaper หรู:** Damask + Half-Drop + สี 2-3 สี (เช่น Midnight Botanical)
+- **ลายเด็ก:** Cute / Kids + Grid หรือ Scatter + Pastel Dream / Candy Shop
+- **โยคะ/สปา:** Mandala + Grid + Lavender Fields / Sage & Terracotta
+- **Minimal สำหรับ branding:** Line Art + Grid + Mono Charcoal / Coastal Neutral
+- สร้างชุดเดียวกันหลาย colorway: ล็อก seed เดิม แล้วเปลี่ยนเฉพาะ palette —
+  ได้ collection ลายเดียวกันหลายสี (ผู้ซื้อ stock ชอบ collection)
+
+---
+
+## 🗒 บันทึกการอัปเดต
+
+### v1.2 — 8 ก.ค. 2026
+- ➕ หมวดใหม่ 3 หมวด: **Mandala**, **Textile / Damask**, **Cute / Kids** (รวมเป็น 9 หมวด)
+- 🎨 แก้ระบบสี: motif ไม่สุ่มได้สีเดียวกับพื้นหลังอีกต่อไป — ลายคมชัดขึ้นทุกหมวด
+- 📝 เพิ่มแผง **SEO สำหรับ Stock**: Title + Description + Keywords 50 คำ พร้อมปุ่มคัดลอก
+- 📖 เพิ่มคู่มือการใช้งานฉบับนี้ + ลิงก์ในแอป
+
+### v1.1 — 8 ก.ค. 2026
+- ➕ หมวดใหม่ 3 หมวด: Tropical, Boho / Tribal, Line Art (รวมเป็น 6 หมวด)
+- ✨ เพิ่ม variant ใน Botanical (เฟิร์น, ทิวลิป), Geometric (arch, คลื่น), Organic (blob ซ้อนชั้น)
+- 🎨 เพิ่ม palette อีก 8 ชุด (รวม 18 ชุด)
+- 🌐 เปิดใช้งานบน GitHub Pages
+
+### v1.0 — 8 ก.ค. 2026
+- 🎉 เวอร์ชันแรก: engine สร้างลาย seamless, 3 หมวด (Geometric, Botanical, Abstract Organic),
+  5 layouts, 10 palettes, Gallery, Export SVG (single + 3×3), seed reproducible

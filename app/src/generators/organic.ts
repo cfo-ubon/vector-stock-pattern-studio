@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round, smoothClosedPath } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Abstract Organic generator. Memphis / Matisse cut-out inspired: irregular
@@ -22,7 +23,7 @@ function blobPoints(rng: Rng, r: number, pointCount: number, irregularity: numbe
 const freeBlob: Variant = (rng, colors, size) => {
   const r = size / 2;
   const pts = blobPoints(rng, r, rngInt(rng, 7, 11), rngRange(rng, 0.2, 0.45));
-  const node = h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, colors) });
+  const node = h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, accentColors(colors)) });
   return { node, radius: r * 1.1 };
 };
 
@@ -40,7 +41,7 @@ const layeredBlob: Variant = (rng, colors, size) => {
     children.push(
       h('path', {
         d: smoothClosedPath(pts.map(([x, y]) => [x + ox, y + oy])),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
@@ -54,12 +55,12 @@ const blobWithAccent: Variant = (rng, colors, size) => {
   const angle = rngRange(rng, 0, Math.PI * 2);
   const dist = r * rngRange(rng, 0.3, 0.55);
   const node = h('g', {}, [
-    h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, colors) }),
+    h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, accentColors(colors)) }),
     h('circle', {
       cx: round(Math.cos(angle) * dist),
       cy: round(Math.sin(angle) * dist),
       r: round(accentR),
-      fill: rngPick(rng, colors),
+      fill: rngPick(rng, accentColors(colors)),
     }),
   ]);
   return { node, radius: r * 1.1 };
@@ -67,7 +68,7 @@ const blobWithAccent: Variant = (rng, colors, size) => {
 
 const squiggleLine: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const amp = r * rngRange(rng, 0.3, 0.55);
   const d = `M ${round(-r)} 0 Q ${round(-r / 2)} ${round(-amp)} 0 0 Q ${round(r / 2)} ${round(amp)} ${round(r)} 0`;
   const node = h('path', {
@@ -90,7 +91,7 @@ const cutoutArcStack: Variant = (rng, colors, size) => {
     children.push(
       h('path', {
         d: `M ${round(-layerR)} 0 A ${round(layerR)} ${round(layerR)} 0 0 ${sweep} ${round(layerR)} 0 L 0 0 Z`,
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
         transform: `rotate(${round(rngRange(rng, 0, 360))})`,
       }),
     );
@@ -109,10 +110,10 @@ const confettiCluster: Variant = (rng, colors, size) => {
     const cx = Math.cos(angle) * dist;
     const cy = Math.sin(angle) * dist;
     if (rngBool(rng)) {
-      children.push(h('circle', { cx: round(cx), cy: round(cy), r: round(shapeR), fill: rngPick(rng, colors) }));
+      children.push(h('circle', { cx: round(cx), cy: round(cy), r: round(shapeR), fill: rngPick(rng, accentColors(colors)) }));
     } else {
       const pts = blobPoints(rng, shapeR, 5, 0.4).map(([x, y]) => [x + cx, y + cy] as [number, number]);
-      children.push(h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, colors) }));
+      children.push(h('path', { d: smoothClosedPath(pts), fill: rngPick(rng, accentColors(colors)) }));
     }
   }
   return { node: h('g', {}, children), radius: r * 1.05 };

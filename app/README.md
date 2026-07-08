@@ -24,8 +24,8 @@ npm run lint
    tile — grid, brick/offset, half-drop, radial/mandala, or random scatter.
 2. A **generator** (`src/generators/*`) supplies the actual shape for each
    placement — currently Geometric, Botanical/Floral, Abstract Organic,
-   Tropical, Boho/Tribal, and Line Art. Each call returns one
-   randomly-varied motif from that category's pool.
+   Tropical, Boho/Tribal, Line Art, Mandala, Textile/Damask, and Cute/Kids.
+   Each call returns one randomly-varied motif from that category's pool.
 3. The **engine** (`src/engine/tile.ts`) combines the two: for every
    placement it draws the motif not just once but at every periodic offset
    `(x ± tileSize, y ± tileSize)` that could overlap the tile edge, then
@@ -57,9 +57,8 @@ Implement the `PatternGenerator` interface in a new file under
 `src/generators/` (see `geometric.ts` for the smallest example) and add it
 to the registry in `src/generators/index.ts`. Nothing in the engine,
 layouts, or UI needs to change — the control panel picks up new categories
-automatically. The remaining categories from the original brief (Animal/
-Cute, Mandala/Kaleidoscope as a dedicated generator, Textile/Damask,
-Seasonal) are not implemented yet; this is where to add them.
+automatically. The remaining category from the original brief
+(Seasonal/Holiday) is not implemented yet; this is where to add it.
 
 ## Adding a new layout
 

@@ -40,6 +40,15 @@ export function randomPalette(rng: Rng): Palette {
   return rngPick(rng, PALETTES);
 }
 
+/** Colors motifs should fill with: everything except the background
+ * (colors[0]). Prevents motifs from randomly picking the background color
+ * and visually disappearing into the tile. Generators that deliberately
+ * want the background (punch-through holes, moon cutouts) still read
+ * colors[0] directly. */
+export function accentColors(colors: string[]): string[] {
+  return colors.length > 1 ? colors.slice(1) : colors;
+}
+
 /** Resolve a palette to exactly `count` colors, keeping the first entry as
  * background-friendly and evenly sampling the rest for good spread. */
 export function resolveColors(palette: Palette, count: number): string[] {

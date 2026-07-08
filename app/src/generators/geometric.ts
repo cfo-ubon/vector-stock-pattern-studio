@@ -1,5 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, polygonPoints, round } from '../engine/svgAst';
+import { accentColors } from '../palettes/palettes';
 import { rngPick, rngInt, rngBool } from '../engine/rng';
 
 // Geometric / Scandinavian-Bauhaus generator. Every variant is built from
@@ -20,7 +21,7 @@ const concentricCircles: Variant = (rng, colors, size) => {
         cx: 0,
         cy: 0,
         r: round((r * i) / rings),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
@@ -36,7 +37,7 @@ const triangleStack: Variant = (rng, colors, size) => {
     children.push(
       h('polygon', {
         points: polygonPoints(0, i * size * 0.12, s / 2, 3, rot),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
@@ -46,9 +47,9 @@ const triangleStack: Variant = (rng, colors, size) => {
 const hexTile: Variant = (rng, colors, size) => {
   const r = size / 2;
   const inner = rngBool(rng);
-  const children = [h('polygon', { points: polygonPoints(0, 0, r, 6, 0), fill: rngPick(rng, colors) })];
+  const children = [h('polygon', { points: polygonPoints(0, 0, r, 6, 0), fill: rngPick(rng, accentColors(colors)) })];
   if (inner) {
-    children.push(h('polygon', { points: polygonPoints(0, 0, r * 0.55, 6, 0), fill: rngPick(rng, colors) }));
+    children.push(h('polygon', { points: polygonPoints(0, 0, r * 0.55, 6, 0), fill: rngPick(rng, accentColors(colors)) }));
   }
   return { node: h('g', {}, children), radius: r };
 };
@@ -56,13 +57,13 @@ const hexTile: Variant = (rng, colors, size) => {
 const crossPlus: Variant = (rng, colors, size) => {
   const arm = size * 0.22;
   const len = size / 2;
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const children = [
     h('rect', { x: round(-arm / 2), y: round(-len), width: round(arm), height: round(len * 2), fill: color }),
     h('rect', { x: round(-len), y: round(-arm / 2), width: round(len * 2), height: round(arm), fill: color }),
   ];
   if (rngBool(rng)) {
-    children.push(h('circle', { cx: 0, cy: 0, r: round(arm * 0.65), fill: rngPick(rng, colors) }));
+    children.push(h('circle', { cx: 0, cy: 0, r: round(arm * 0.65), fill: rngPick(rng, accentColors(colors)) }));
   }
   return { node: h('g', {}, children), radius: (size / 2) * 1.02 };
 };
@@ -70,12 +71,12 @@ const crossPlus: Variant = (rng, colors, size) => {
 const diamondGrid: Variant = (rng, colors, size) => {
   const r = size / 2;
   const rotation = rngBool(rng) ? 45 : 0;
-  const children = [h('polygon', { points: polygonPoints(0, 0, r, 4, rotation), fill: rngPick(rng, colors) })];
+  const children = [h('polygon', { points: polygonPoints(0, 0, r, 4, rotation), fill: rngPick(rng, accentColors(colors)) })];
   if (rngBool(rng)) {
     children.push(
       h('polygon', {
         points: polygonPoints(0, 0, r * 0.5, 4, rotation),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
@@ -84,7 +85,7 @@ const diamondGrid: Variant = (rng, colors, size) => {
 
 const stripedArc: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const stroke = rngPick(rng, colors);
+  const stroke = rngPick(rng, accentColors(colors));
   const lines = rngInt(rng, 3, 5);
   const children = [];
   for (let i = 0; i < lines; i++) {
@@ -106,8 +107,8 @@ const stripedArc: Variant = (rng, colors, size) => {
 
 const halfMoon: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
-  const bg = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
+  const bg = rngPick(rng, accentColors(colors));
   const node = h('g', {}, [
     h('circle', { cx: 0, cy: 0, r: round(r), fill: bg }),
     h('path', { d: `M ${round(-r)} 0 A ${round(r)} ${round(r)} 0 0 1 ${round(r)} 0 Z`, fill: color }),
@@ -127,18 +128,18 @@ const dotCluster: Variant = (rng, colors, size) => {
         cx: round(Math.cos(angle) * rad),
         cy: round(Math.sin(angle) * rad),
         r: round(size * 0.09),
-        fill: rngPick(rng, colors),
+        fill: rngPick(rng, accentColors(colors)),
       }),
     );
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(size * 0.1), fill: rngPick(rng, colors) }));
+  children.push(h('circle', { cx: 0, cy: 0, r: round(size * 0.1), fill: rngPick(rng, accentColors(colors)) }));
   return { node: h('g', {}, children), radius: r * 1.05 };
 };
 
 const archShape: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const color = rngPick(rng, colors);
-  const bandColor = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
+  const bandColor = rngPick(rng, accentColors(colors));
   const children = [
     h('path', { d: `M ${round(-r)} ${round(r)} L ${round(-r)} 0 A ${round(r)} ${round(r)} 0 0 1 ${round(r)} 0 L ${round(r)} ${round(r)} Z`, fill: color }),
   ];
@@ -156,7 +157,7 @@ const archShape: Variant = (rng, colors, size) => {
 const waveStripes: Variant = (rng, colors, size) => {
   const r = size / 2;
   const rows = rngInt(rng, 3, 4);
-  const color = rngPick(rng, colors);
+  const color = rngPick(rng, accentColors(colors));
   const children = [];
   for (let i = 0; i < rows; i++) {
     const y = -r + (i * (2 * r)) / (rows - 1 || 1);
