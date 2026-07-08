@@ -1,4 +1,4 @@
-import { pick, hashPick } from '../core/rng.js';
+import { pick, hashPick, range } from '../core/rng.js';
 import { tr } from '../core/svg.js';
 import { shade } from '../core/color.js';
 
@@ -18,8 +18,12 @@ const SECONDARY_KINDS = FAMILY.secondaryVocab;
 const FILLER_KINDS = FAMILY.fillerVocab;
 const ACCENT_KINDS = FAMILY.accentVocab;
 
-function flowerShape(kind, palette) {
-  const petalColor = { rose: '#c8626a', cosmos: '#e3a38d' }[kind] || palette[4];
+function flowerShape(kind, palette, rng) {
+  // A small per-instance tint jitter keeps repeated flowers from reading
+  // as an identical rubber-stamp copy — closer to how a hand-painted
+  // botanical pattern varies bloom to bloom.
+  const base = { rose: '#c8626a', cosmos: '#e3a38d' }[kind] || palette[4];
+  const petalColor = shade(base, range(rng, -0.07, 0.07));
   const petalCount = { peony: 8, rose: 6, daisy: 10, cosmos: 8, tulip: 6 }[kind] || 8;
   const layers = kind === 'daisy' ? 1 : kind === 'tulip' ? 2 : 3;
   const edge = shade(petalColor, -0.25);
@@ -43,9 +47,10 @@ function flowerShape(kind, palette) {
   return s + `<circle r="19" fill="${edge}"/><circle r="16" fill="${palette[6]}" opacity=".88"/><circle cx="-4" cy="-4" r="6" fill="${highlight}" opacity=".5"/>`;
 }
 
-function branchShape(kind, palette) {
+function branchShape(kind, palette, rng) {
   const stroke = palette[6];
-  const leafFill = kind === 'eucalyptus branch' ? palette[1] : kind === 'fern frond' ? palette[2] : palette[3];
+  const base = kind === 'eucalyptus branch' ? palette[1] : kind === 'fern frond' ? palette[2] : palette[3];
+  const leafFill = shade(base, range(rng, -0.06, 0.06));
   const leafEdge = shade(leafFill, -0.22);
   const leafHi = shade(leafFill, 0.35);
   const length = kind === 'fern frond' ? 340 : 420;
@@ -94,8 +99,8 @@ function accentShape(kind, palette) {
 
 export function motif(tier, rng, palette, name, x, y, rot, scale, opacity) {
   const group = (inner) => `<g transform="${tr(x, y, rot, scale)}" opacity="${opacity.toFixed(2)}">${inner}</g>`;
-  if (tier === 'hero') return group(flowerShape(name ? hashPick(name, HERO_KINDS) : pick(rng, HERO_KINDS), palette));
-  if (tier === 'secondary') return group(branchShape(name ? hashPick(name, SECONDARY_KINDS) : pick(rng, SECONDARY_KINDS), palette));
+  if (tier === 'hero') return group(flowerShape(name ? hashPick(name, HERO_KINDS) : pick(rng, HERO_KINDS), palette, rng));
+  if (tier === 'secondary') return group(branchShape(name ? hashPick(name, SECONDARY_KINDS) : pick(rng, SECONDARY_KINDS), palette, rng));
   if (tier === 'filler') return group(fillerShape(name ? hashPick(name, FILLER_KINDS) : pick(rng, FILLER_KINDS), palette));
   return group(accentShape(name ? hashPick(name, ACCENT_KINDS) : pick(rng, ACCENT_KINDS), palette));
 }
