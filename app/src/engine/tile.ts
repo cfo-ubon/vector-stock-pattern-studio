@@ -1,6 +1,6 @@
 import type { GenerateParams, Placement, SvgNode, TileData } from './types';
 import { createRng } from './rng';
-import { h, round } from './svgAst';
+import { h, round, computeBoundingRadius } from './svgAst';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { getPalette, resolveColors } from '../palettes/palettes';
@@ -41,7 +41,14 @@ export function buildTile(params: GenerateParams): TileData {
 
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
     const motif = generator.createMotif(rng, colors, params.motifSize);
-    const effectiveRadius = motif.radius * placement.scale;
+    // Never trust the generator's hand-estimated radius alone — a motif
+    // with an off-center appendage (an ear, a ray, a curling leaf) is easy
+    // to under-measure by hand, and an underestimate here means a missing
+    // wrap-clone at the tile edge, i.e. a visible seam. The geometric bound
+    // computed straight from the shape's own coordinates can't be wrong in
+    // that direction, so take whichever is larger.
+    const safeRadius = Math.max(motif.radius, computeBoundingRadius(motif.node));
+    const effectiveRadius = safeRadius * placement.scale;
     const instances: SvgNode[] = [];
 
     for (const oi of WRAP_OFFSETS) {

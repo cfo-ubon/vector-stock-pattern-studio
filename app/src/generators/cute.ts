@@ -53,7 +53,9 @@ const bearFace: Variant = (rng, colors, size) => {
     ...eyesAndCheeks(r, feature, cheek),
     h('ellipse', { cx: 0, cy: round(r * 0.18), rx: round(r * 0.11), ry: round(r * 0.08), fill: feature }),
   ];
-  return { node: h('g', {}, children), radius: r * 0.95 };
+  // Ears sit off-center at (±0.55r, -0.55r) with their own 0.28r radius, so
+  // the true extent is ~1.06r, not the face circle's 0.78r.
+  return { node: h('g', {}, children), radius: r * 1.1 };
 };
 
 const catFace: Variant = (rng, colors, size) => {
@@ -80,7 +82,8 @@ const catFace: Variant = (rng, colors, size) => {
       ),
     ),
   ];
-  return { node: h('g', {}, children), radius: r * 1.0 };
+  // Ear tips reach ~1.1r (triangle apex at (-0.55r,-0.95r) from origin).
+  return { node: h('g', {}, children), radius: r * 1.15 };
 };
 
 const bunnyFace: Variant = (rng, colors, size) => {
@@ -102,7 +105,9 @@ const bunnyFace: Variant = (rng, colors, size) => {
     ...eyesAndCheeks(r * 0.85, feature, cheek),
     h('ellipse', { cx: 0, cy: round(r * 0.2), rx: round(r * 0.08), ry: round(r * 0.06), fill: feature }),
   ];
-  return { node: h('g', {}, children), radius: r * 1.1 };
+  // Ear ellipse centers are ~0.82r from origin with their own 0.5r radius —
+  // worst case (tilt-dependent) reaches up to ~1.3r.
+  return { node: h('g', {}, children), radius: r * 1.35 };
 };
 
 const pawPrint: Variant = (rng, colors, size) => {
@@ -119,7 +124,7 @@ const pawPrint: Variant = (rng, colors, size) => {
       }),
     ),
   ];
-  return { node: h('g', {}, children), radius: r * 0.85 };
+  return { node: h('g', {}, children), radius: r * 0.9 };
 };
 
 const puffyHeart: Variant = (rng, colors, size) => {
@@ -129,7 +134,8 @@ const puffyHeart: Variant = (rng, colors, size) => {
     d: `M 0 ${round(r * 0.75)} C ${round(-r * 1.05)} ${round(r * 0.05)} ${round(-r * 0.6)} ${round(-r * 0.75)} 0 ${round(-r * 0.25)} C ${round(r * 0.6)} ${round(-r * 0.75)} ${round(r * 1.05)} ${round(r * 0.05)} 0 ${round(r * 0.75)} Z`,
     fill: color,
   });
-  return { node, radius: r * 0.95 };
+  // Bezier control points reach out to ~1.05r on each side.
+  return { node, radius: r * 1.1 };
 };
 
 const twinkleStar: Variant = (rng, colors, size) => {

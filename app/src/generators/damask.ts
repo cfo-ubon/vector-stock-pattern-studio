@@ -75,7 +75,8 @@ const acanthusSprig: Variant = (rng, colors, size) => {
   }
   // Bud tip
   half.push(h('ellipse', { cx: 0, cy: round(-r * 0.9), rx: round(r * 0.1), ry: round(r * 0.16), fill: rngPick(rng, accents) }));
-  return { node: mirrored(half), radius: r * 1.05 };
+  // Bud ellipse top reaches -0.9r - 0.16r = -1.06r.
+  return { node: mirrored(half), radius: r * 1.1 };
 };
 
 const damaskDiamond: Variant = (rng, colors, size) => {
