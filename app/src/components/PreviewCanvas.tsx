@@ -6,8 +6,18 @@ interface Props {
   tileData: TileData | null;
 }
 
+const REPEAT_OPTIONS = [
+  { n: 1, label: '1×1 (ภาพเดี่ยว)' },
+  { n: 2, label: '2×2' },
+  { n: 3, label: '3×3 (เช็ค seamless)' },
+  { n: 4, label: '4×4' },
+];
+
 export function PreviewCanvas({ tileData }: Props) {
-  const [repeat, setRepeat] = useState(3);
+  // Defaults to 1x1 since the primary sale format is a single standalone
+  // image, not a repeated swatch — 3x3 stays one click away to verify
+  // seamlessness before export.
+  const [repeat, setRepeat] = useState(1);
   const markup = useMemo(() => (tileData ? buildPreviewMarkup(tileData, repeat, 'main') : ''), [tileData, repeat]);
 
   if (!tileData) {
@@ -25,9 +35,9 @@ export function PreviewCanvas({ tileData }: Props) {
       <div className="preview-toolbar">
         <span>Tile preview</span>
         <div className="repeat-toggle">
-          {[2, 3, 4].map((n) => (
+          {REPEAT_OPTIONS.map(({ n, label }) => (
             <button key={n} type="button" className={n === repeat ? 'active' : ''} onClick={() => setRepeat(n)}>
-              {n}x{n}
+              {label}
             </button>
           ))}
         </div>
