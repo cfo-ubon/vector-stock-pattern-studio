@@ -48,20 +48,36 @@ export function compose(schema) {
     motifCount++;
   }
 
+  // Filler and accent motifs are scattered across the full tile, including
+  // right up to the edge, so they must wrap across the border too — a
+  // motif placed near x=0 needs a matching copy near x=VIEW, or the tile
+  // won't actually repeat seamlessly once placed side by side.
   const fillerCount = Math.round(62 * density.filler);
+  const fillerMargin = VIEW * 0.05;
   for (let i = 0; i < fillerCount; i++) {
     const x = range(rng, 0, VIEW), y = range(rng, 0, VIEW);
     const name = pick(rng, schema.assets.filler);
-    fillerLayer.push(mod.motif('filler', rng, palette, name, x, y, range(rng, 0, 360), density.heroScale * range(rng, 0.3, 0.55), range(rng, 0.4, 0.7)));
-    motifCount++;
+    const rot = range(rng, 0, 360);
+    const scale = density.heroScale * range(rng, 0.3, 0.55);
+    const opacity = range(rng, 0.4, 0.7);
+    wrapCopies(x, y, VIEW, fillerMargin).forEach(([wx, wy]) => {
+      fillerLayer.push(mod.motif('filler', rng, palette, name, wx, wy, rot, scale, opacity));
+      motifCount++;
+    });
   }
 
   const accentCount = Math.round(80 * density.accent);
+  const accentMargin = VIEW * 0.03;
   for (let i = 0; i < accentCount; i++) {
     const x = range(rng, 0, VIEW), y = range(rng, 0, VIEW);
     const name = pick(rng, schema.assets.accent);
-    accentLayer.push(mod.motif('accent', rng, palette, name, x, y, range(rng, 0, 360), density.heroScale * range(rng, 0.3, 0.7), range(rng, 0.15, 0.35)));
-    motifCount++;
+    const rot = range(rng, 0, 360);
+    const scale = density.heroScale * range(rng, 0.3, 0.7);
+    const opacity = range(rng, 0.15, 0.35);
+    wrapCopies(x, y, VIEW, accentMargin).forEach(([wx, wy]) => {
+      accentLayer.push(mod.motif('accent', rng, palette, name, wx, wy, rot, scale, opacity));
+      motifCount++;
+    });
   }
 
   const size = schema.exportSize || VIEW;
