@@ -87,7 +87,21 @@ export interface Placement {
   colorSeed: number;
 }
 
-export type LayoutId = 'grid' | 'brick' | 'radial' | 'scatter' | 'halfDrop';
+export type LayoutId =
+  | 'grid'
+  | 'brick'
+  | 'radial'
+  | 'scatter'
+  | 'halfDrop'
+  | 'heroFlow'
+  | 'heroScatter'
+  | 'sCurve'
+  | 'bouquet'
+  | 'airy'
+  | 'toss'
+  | 'densePremium'
+  | 'gridMinimal'
+  | 'stripe';
 
 export interface LayoutParams {
   tileSize: number;

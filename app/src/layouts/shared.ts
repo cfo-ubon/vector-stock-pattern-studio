@@ -35,3 +35,36 @@ export function applyCellJitter(
 export function wrapCoord(v: number, tileSize: number): number {
   return ((v % tileSize) + tileSize) % tileSize;
 }
+
+/** Poisson-disc-ish point scatter via periodic rejection sampling: checks
+ * candidate distance against all 8 neighbour copies of every existing
+ * point (not just the raw coordinates), so density looks uniform right up
+ * to the tile seam instead of clumping or gapping there. Shared by every
+ * layout that needs "N points, no two closer than minDist" — plain
+ * scatter, hero tiers, bouquet centers, airy/dense composition layers. */
+export function poissonDiscPoints(tileSize: number, minDist: number, targetCount: number, rng: Rng): Array<[number, number]> {
+  const maxAttempts = Math.max(50, targetCount * 40);
+  const points: Array<[number, number]> = [];
+
+  const periodicDist = (ax: number, ay: number, bx: number, by: number) => {
+    let best = Infinity;
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const ddx = ax - (bx + dx * tileSize);
+        const ddy = ay - (by + dy * tileSize);
+        const d = Math.sqrt(ddx * ddx + ddy * ddy);
+        if (d < best) best = d;
+      }
+    }
+    return best;
+  };
+
+  let attempts = 0;
+  while (points.length < targetCount && attempts < maxAttempts) {
+    attempts++;
+    const candidate: [number, number] = [rngRange(rng, 0, tileSize), rngRange(rng, 0, tileSize)];
+    const ok = points.every(([px, py]) => periodicDist(candidate[0], candidate[1], px, py) >= minDist);
+    if (ok) points.push(candidate);
+  }
+  return points;
+}
