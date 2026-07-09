@@ -32,6 +32,7 @@ export function defaultParams(): GenerateParams {
     tileSize: 1200,
     density: 0.55,
     motifSize: generator.defaultMotifSize,
+    patternScale: 1,
     rotationJitter: 15,
     scaleJitter: 0.15,
     mirror: false,
@@ -62,6 +63,7 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     // needs to stay visually rich even at "Randomize All"'s sparse end.
     density: 0.35 + rng() * 0.55,
     motifSize: generator.defaultMotifSize * (0.7 + rng() * 0.7),
+    patternScale: 1,
     rotationJitter: Math.floor(rng() * 90),
     scaleJitter: rng() * 0.4,
     mirror: rng() < 0.4,

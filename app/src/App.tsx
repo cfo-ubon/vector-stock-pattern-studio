@@ -74,6 +74,21 @@ function App() {
     setSelectedId(items[items.length - 1].id);
   }, [params, tileData]);
 
+  // Post-gen pattern rescale: rebuild the *currently shown* tile with the
+  // same seed and params but a new patternScale. Density (as a proportion)
+  // is preserved automatically because layout spacing scales with motif
+  // size — the composition just repeats finer or bolder. Doesn't touch the
+  // gallery; press Generate to save the rescaled version as a new entry.
+  const handleRescale = useCallback(
+    (patternScale: number) => {
+      if (!tileData) return;
+      const p: GenerateParams = { ...tileData.params, patternScale };
+      setTileData(buildTile(p));
+      setParams(p);
+    },
+    [tileData],
+  );
+
   const handleSelectGalleryItem = useCallback((item: GalleryItem) => {
     setTileData(item.tileData);
     setParams(item.tileData.params);
@@ -126,7 +141,7 @@ function App() {
       let latest: TileData | null = null;
       const base = defaultParams();
       patches.forEach((patch, i) => {
-        const merged: GenerateParams = { ...base, ...params, customColors: undefined, mixCategoryIds: undefined, ...patch };
+        const merged: GenerateParams = { ...base, ...params, customColors: undefined, mixCategoryIds: undefined, patternScale: 1, ...patch };
         const data = buildTile(merged);
         latest = data;
         items.push({ id: `${Date.now()}-ai${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
@@ -170,7 +185,7 @@ function App() {
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
-          <PreviewCanvas tileData={tileData} />
+          <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
           <MetadataPanel tileData={tileData} />
           <Gallery
             items={gallery}

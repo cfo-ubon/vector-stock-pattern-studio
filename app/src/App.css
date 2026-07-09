@@ -322,6 +322,62 @@ body {
   color: white;
 }
 
+.rescale-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.rescale-row input[type='range'] {
+  flex: 1;
+  min-width: 120px;
+}
+
+.rescale-label {
+  white-space: nowrap;
+}
+
+.rescale-label strong {
+  color: var(--text);
+}
+
+.rescale-hint {
+  flex-basis: 100%;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+.category-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.category-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.category-site {
+  color: var(--text-dim);
+  white-space: nowrap;
+  min-width: 150px;
+}
+
+.category-values {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .preview-surface {
   display: flex;
   align-items: center;

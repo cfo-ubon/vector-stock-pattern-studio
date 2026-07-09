@@ -95,6 +95,17 @@ excluding motif size, rotation/scale jitter, mirror, radial symmetry, custom
 colors and seed, which multiply it further. See
 `docs/USER_GUIDE.md` § "แอปสร้างลายไม่ซ้ำกันได้กี่แบบ" for the full breakdown.
 
+## Post-generation pattern scale
+
+`GenerateParams.patternScale` (default 1) multiplies the effective motif
+size at build time while the density *value* stays fixed. Because every
+layout's spacing is proportional to motif size (`spacingForDensity` in
+`layouts/shared.ts`), the spacing-to-motif ratio — the visual density
+proportion — is preserved automatically: the same seed and composition
+simply repeat finer (<1) or bolder (>1) within the fixed export canvas.
+The preview toolbar exposes this as a 40–250% slider that rebuilds the
+currently shown tile live without touching the gallery.
+
 ## Adding a new pattern category
 
 Implement the `PatternGenerator` interface in a new file under
