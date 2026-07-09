@@ -21,24 +21,57 @@ interface Props {
   aiPanel?: React.ReactNode;
 }
 
+const MAX_MIX_CATEGORIES = 5;
+
 export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onGenerateBatch, onExportSingle, onExportTiled, onReset, aiPanel }: Props) {
+  const mixMode = !!params.mixCategoryIds;
+  const mixSelection = params.mixCategoryIds ?? [];
+
+  const toggleMixMode = (on: boolean) => {
+    onChange({ mixCategoryIds: on ? [params.categoryId] : undefined });
+  };
+
+  const toggleMixCategory = (id: string) => {
+    const isSelected = mixSelection.includes(id);
+    if (isSelected) {
+      if (mixSelection.length <= 1) return; // keep at least one selected
+      onChange({ mixCategoryIds: mixSelection.filter((x) => x !== id) });
+    } else if (mixSelection.length < MAX_MIX_CATEGORIES) {
+      onChange({ mixCategoryIds: [...mixSelection, id] });
+    }
+  };
+
   return (
     <div className="control-panel">
       <section>
-        <h3>Category</h3>
+        <div className="section-header">
+          <h3>Category</h3>
+          <label className="field--inline mix-toggle">
+            <input type="checkbox" checked={mixMode} onChange={(e) => toggleMixMode(e.target.checked)} />
+            <span>🧩 Asset Mix</span>
+          </label>
+        </div>
+        {mixMode && (
+          <p className="mix-hint">
+            เลือกได้ 2-{MAX_MIX_CATEGORIES} หมวด — แต่ละชิ้นลายจะสุ่มมาจากหมวดที่เลือกแบบผสมกันในลายเดียว
+            (เลือกแล้ว {mixSelection.length})
+          </p>
+        )}
         <div className="chip-row">
           {GENERATOR_LIST.map((g) => (
             <button
               key={g.id}
               type="button"
-              className={`chip ${params.categoryId === g.id ? 'chip--active' : ''}`}
+              className={`chip ${mixMode ? (mixSelection.includes(g.id) ? 'chip--active' : '') : params.categoryId === g.id ? 'chip--active' : ''}`}
               title={g.description}
               onClick={() =>
-                onChange({
-                  categoryId: g.id,
-                  motifSize: g.defaultMotifSize,
-                  ...(g.recommendedDensity !== undefined ? { density: g.recommendedDensity } : {}),
-                })
+                mixMode
+                  ? toggleMixCategory(g.id)
+                  : onChange({
+                      categoryId: g.id,
+                      motifSize: g.defaultMotifSize,
+                      ...(g.recommendedDensity !== undefined ? { density: g.recommendedDensity } : {}),
+                    })
               }
             >
               {g.label}

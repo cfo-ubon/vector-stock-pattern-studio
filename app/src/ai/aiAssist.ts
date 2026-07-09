@@ -1,5 +1,6 @@
 import type { GenerateParams, LayoutId } from '../engine/types';
 import { GENERATORS } from '../generators';
+import { LAYOUTS } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 
@@ -11,6 +12,7 @@ import { randomSeed } from '../engine/rng';
 
 export function buildAiPrompt(): string {
   const categoryIds = Object.keys(GENERATORS).join(', ');
+  const layoutIds = Object.keys(LAYOUTS).join(', ');
   const paletteIds = PALETTES.map((p) => p.id).join(', ');
   return `You are a surface-pattern design expert helping me create seamless vector patterns to sell on stock sites (Shutterstock, Adobe Stock, Creative Fabrica).
 
@@ -20,7 +22,8 @@ Reply with ONLY a JSON array (no prose, no markdown code fences). Each element m
 
 - "concept": short name of your idea (for my reference)
 - "category": one of: ${categoryIds}
-- "layout": one of: grid, brick, halfDrop, radial, scatter
+  OR instead provide "categories": an array of 2-5 of those same ids, to blend multiple categories into one eclectic "asset mix" pattern (each individual motif is drawn from a randomly-picked category in the array)
+- "layout": one of: ${layoutIds}
 - "palette": one of: ${paletteIds}
   OR instead provide "colors": an array of 3-6 hex colors where the FIRST color is the background and the rest are motif colors (make sure motif colors contrast well against the background)
 - "colorCount": integer 2-6 (ignored when "colors" is given)
@@ -29,7 +32,7 @@ Reply with ONLY a JSON array (no prose, no markdown code fences). Each element m
 - "rotationJitter": integer 0-180 (degrees of random rotation; 0 = strict)
 - "scaleJitter": number 0-0.5 (random size variation; 0 = uniform)
 - "mirror": boolean
-- "radialSymmetry": integer 3-12 (only matters for radial layout)
+- "radialSymmetry": integer 3-12 (only matters for the radial layout)
 - "seed": short random-looking string (letters/numbers)
 
 Design brief: (describe here what kind of patterns you want, e.g. "autumn patterns for gift wrap", or leave blank for your best commercial picks)`;
@@ -41,7 +44,7 @@ export interface ParsedAiResult {
   error?: string;
 }
 
-const LAYOUT_IDS: LayoutId[] = ['grid', 'brick', 'radial', 'scatter', 'halfDrop'];
+const LAYOUT_IDS: LayoutId[] = Object.keys(LAYOUTS) as LayoutId[];
 
 function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
@@ -71,7 +74,16 @@ export function parseAiJson(text: string): ParsedAiResult {
     const o = item as Record<string, unknown>;
     const patch: Partial<GenerateParams> = {};
 
-    if (typeof o.category === 'string' && GENERATORS[o.category]) {
+    if (Array.isArray(o.categories)) {
+      const ids = o.categories.filter((c): c is string => typeof c === 'string' && !!GENERATORS[c]);
+      const distinctIds = [...new Set(ids)].slice(0, 5);
+      if (distinctIds.length >= 2) {
+        patch.mixCategoryIds = distinctIds;
+        patch.categoryId = distinctIds[0];
+        patch.motifSize = GENERATORS[distinctIds[0]].defaultMotifSize;
+      }
+    }
+    if (typeof o.category === 'string' && GENERATORS[o.category] && !patch.mixCategoryIds) {
       patch.categoryId = o.category;
       patch.motifSize = GENERATORS[o.category].defaultMotifSize;
     }

@@ -66,6 +66,35 @@ attributes — no CSS filters or classes — so they open cleanly in Affinity
 Designer 2 with real, separately-selectable groups (`layer-background`,
 `layer-pattern`, `motif-1`, `motif-2`, ...).
 
+## Asset-Based Pattern (Asset Mix mode)
+
+`GenerateParams.mixCategoryIds` (`src/engine/types.ts`) is an optional array
+of 2-5 category ids. When set, `buildTile()` (`src/engine/tile.ts`) picks a
+random generator from that set for **each individual placement** — not once
+per tile — instead of using `categoryId` alone. This produces genuinely
+eclectic patterns blended from multiple generators' motif pools within one
+tile, without any changes to the individual generator files. `categoryId` is
+kept in sync to the first entry for display/filename purposes when mix mode
+is active.
+
+The control panel exposes this as the "🧩 Asset Mix" toggle
+(`ControlPanel.tsx`), which switches the category chip row from single-select
+to multi-select (capped at 5). `defaults.ts`'s `randomizedParams()` also
+samples mix mode ~25% of the time so "Randomize All" exercises this part of
+the parameter space. `metadata/shutterstock.ts` interleaves each mixed
+category's keyword list round-robin (instead of concatenating) so no single
+category hogs the high-weight early keyword slots, and truncates
+title/description to a hard word-boundary cap so a 5-way mix never exceeds
+Shutterstock's character limits.
+
+Combined with layout (14), palette (18), color count (2-6) and density
+(0-100% in 5% steps), the discrete category-selection space alone (15 single
++ C(15,2..5) mixes = 4,943 options) yields a conservative lower bound of
+≈130.7 million distinct configurations from just those 5 dimensions —
+excluding motif size, rotation/scale jitter, mirror, radial symmetry, custom
+colors and seed, which multiply it further. See
+`docs/USER_GUIDE.md` § "แอปสร้างลายไม่ซ้ำกันได้กี่แบบ" for the full breakdown.
+
 ## Adding a new pattern category
 
 Implement the `PatternGenerator` interface in a new file under
