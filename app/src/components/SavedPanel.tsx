@@ -30,6 +30,8 @@ interface Props {
   onMoveAllToDisk: () => void;
   /** Restore/merge a library from a library-backup.json file. */
   onImportBackup: (file: File) => void;
+  /** Download a batch-upload metadata CSV for the whole library. */
+  onExportCsv: (site: 'shutterstock' | 'adobestock') => void;
 }
 
 function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: string }) {
@@ -49,6 +51,7 @@ export function SavedPanel({
   onDownload,
   onMoveAllToDisk,
   onImportBackup,
+  onExportCsv,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
@@ -65,6 +68,24 @@ export function SavedPanel({
         </button>
         <button type="button" className="btn btn--save" onClick={() => fileInputRef.current?.click()}>
           📥 นำเข้า backup
+        </button>
+        <button
+          type="button"
+          className="btn btn--save"
+          disabled={items.length === 0}
+          onClick={() => onExportCsv('shutterstock')}
+          title="CSV ผูก metadata กับไฟล์เป็นชุดตอนอัปโหลด Shutterstock — ไม่ต้องกรอกฟอร์มทีละภาพ"
+        >
+          📄 CSV Shutterstock
+        </button>
+        <button
+          type="button"
+          className="btn btn--save"
+          disabled={items.length === 0}
+          onClick={() => onExportCsv('adobestock')}
+          title="CSV ผูก metadata กับไฟล์เป็นชุดตอนอัปโหลด Adobe Stock — ไม่ต้องกรอกฟอร์มทีละภาพ"
+        >
+          📄 CSV Adobe Stock
         </button>
         <input
           ref={fileInputRef}

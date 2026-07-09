@@ -104,6 +104,22 @@ Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
 site's own character caps, keyword counts and category picks. The
 `MetadataPanel` renders these as tabs with per-field copy buttons.
 
+## Batch metadata CSVs
+
+`metadata/csv.ts` builds Shutterstock- and Adobe-Stock-format metadata CSVs
+for the whole saved library (both sites match CSV rows to uploaded files by
+filename; rows use the `.eps` name each SVG becomes after conversion, Adobe
+category = 8 / Graphic Resources). Downloadable standalone from the library
+toolbar and included automatically in the move-to-disk zip.
+
+## Colorway batch & JPEG export
+
+"Colorway ทุกชุดสี → คลัง" rebuilds the current pattern once per palette
+(same seed/composition) and bulk-saves the set to the library without
+per-item downloads. "Export JPEG preview (5000px)" rasterizes the
+single-tile SVG onto a canvas in the browser and downloads a JPEG — for
+sites that require a JPEG paired with the vector.
+
 ## Download bundle
 
 Saving to the library also auto-downloads a zip (re-downloadable per card)

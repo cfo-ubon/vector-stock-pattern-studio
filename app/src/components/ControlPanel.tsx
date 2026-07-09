@@ -17,13 +17,27 @@ interface Props {
   onGenerateBatch: () => void;
   onExportSingle: () => void;
   onExportTiled: () => void;
+  onExportJpeg: () => void;
+  onColorwayAll: () => void;
   onReset: () => void;
   aiPanel?: React.ReactNode;
 }
 
 const MAX_MIX_CATEGORIES = 5;
 
-export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onGenerateBatch, onExportSingle, onExportTiled, onReset, aiPanel }: Props) {
+export function ControlPanel({
+  params,
+  onChange,
+  onGenerate,
+  onRandomizeAll,
+  onGenerateBatch,
+  onExportSingle,
+  onExportTiled,
+  onExportJpeg,
+  onColorwayAll,
+  onReset,
+  aiPanel,
+}: Props) {
   const mixMode = !!params.mixCategoryIds;
   const mixSelection = params.mixCategoryIds ?? [];
 
@@ -233,11 +247,27 @@ export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onG
         <button type="button" className="btn" onClick={onGenerateBatch}>
           Generate 9 variations
         </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={onColorwayAll}
+          title="สร้างลายเดิม (seed เดิม) ครบทุกชุดสี แล้วบันทึกเข้าคลังเป็นคอลเลกชัน"
+        >
+          🎨 Colorway ทุกชุดสี → คลัง
+        </button>
         <button type="button" className="btn btn--export" onClick={onExportSingle}>
           Export single tile (.svg)
         </button>
         <button type="button" className="btn btn--export" onClick={onExportTiled}>
           Export 3x3 tiled (.svg)
+        </button>
+        <button
+          type="button"
+          className="btn btn--export"
+          onClick={onExportJpeg}
+          title="สร้างไฟล์ JPEG จากลายปัจจุบันในเบราว์เซอร์ ไว้ใช้เป็น preview คู่ EPS (เช่น Freepik)"
+        >
+          Export JPEG preview (5000px)
         </button>
         <button type="button" className="btn btn--danger" onClick={onReset}>
           ↩ รีเซ็ตเป็นค่าเริ่มต้น
