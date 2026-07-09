@@ -300,6 +300,28 @@ export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
   ];
 }
 
+/** Plain-text dump of every site's SEO fields, for the download bundle —
+ * one .txt the user can open next to the SVGs while filling upload forms
+ * offline, no need to reopen the app or re-find the pattern. */
+export function buildSeoTextFile(tileData: TileData): string {
+  const sites = buildSiteMetadata(tileData);
+  const lines: string[] = [
+    'SEO metadata — Vector Stock Pattern Studio',
+    `Generated: ${new Date().toISOString().slice(0, 10)} · seed: ${tileData.params.seed}`,
+    '',
+  ];
+  for (const site of sites) {
+    lines.push('='.repeat(60), site.label, '='.repeat(60));
+    if (site.note) lines.push(`หมายเหตุ: ${site.note}`, '');
+    for (const f of site.fields) {
+      lines.push(`--- ${f.label}${f.meta ? ` (${f.meta})` : ''}`);
+      lines.push(f.value, '');
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 /** Hard safety net: trims to the last whole word at or under `max` chars.
  * Keeps title/description within Shutterstock's limits even if a future
  * category phrase or a 5-way asset mix makes the raw string run long. */

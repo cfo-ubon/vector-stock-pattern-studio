@@ -24,6 +24,8 @@ interface Props {
   onRemove: (id: string) => void;
   onToggleSubmission: (id: string, site: StockSiteId) => void;
   onNoteChange: (id: string, note: string) => void;
+  /** Re-download this item's file bundle (single + 3x3 + SEO zip). */
+  onDownload: (item: SavedItem) => void;
 }
 
 function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: string }) {
@@ -32,19 +34,20 @@ function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: strin
   return <svg viewBox={`0 0 ${tileSize * 2} ${tileSize * 2}`} dangerouslySetInnerHTML={{ __html: markup }} />;
 }
 
-export function SavedPanel({ items, hasCurrent, onSaveCurrent, onLoad, onRemove, onToggleSubmission, onNoteChange }: Props) {
+export function SavedPanel({ items, hasCurrent, onSaveCurrent, onLoad, onRemove, onToggleSubmission, onNoteChange, onDownload }: Props) {
   return (
     <div className="saved-panel">
       <div className="gallery-header">
         <h3>📌 คลังลายที่บันทึก ({items.length})</h3>
         <button type="button" className="btn btn--save" disabled={!hasCurrent} onClick={onSaveCurrent}>
-          💾 บันทึกลายปัจจุบันเข้าคลัง
+          💾 บันทึกเข้าคลัง + ดาวน์โหลดชุดไฟล์
         </button>
       </div>
       {items.length === 0 ? (
         <p className="gallery-empty">
-          กด "บันทึกลายปัจจุบันเข้าคลัง" เพื่อเก็บลายที่จะส่งขายไว้ถาวร พร้อมติ๊กสถานะว่าส่งขายเว็บไหนแล้วบ้าง
-          (ต่างจาก Gallery ที่หมุนเวียนลายใหม่มาแทนที่เรื่อยๆ)
+          กด "บันทึกเข้าคลัง" เพื่อเก็บลายที่จะส่งขายไว้ถาวร — ระบบจะดาวน์โหลดชุดไฟล์ให้อัตโนมัติทันที
+          (zip เดียว: SVG ภาพเดี่ยว + SVG 3×3 ขนาดเต็ม 10000px + ไฟล์ SEO ครบทุกเว็บ)
+          พร้อมติ๊กสถานะว่าส่งขายเว็บไหนแล้วบ้าง
         </p>
       ) : (
         <div className="saved-list">
@@ -82,6 +85,9 @@ export function SavedPanel({ items, hasCurrent, onSaveCurrent, onLoad, onRemove,
                     onChange={(e) => onNoteChange(item.id, e.target.value)}
                   />
                   <div className="saved-actions">
+                    <button type="button" className="link-btn" onClick={() => onDownload(item)}>
+                      ⬇️ ดาวน์โหลดชุดไฟล์
+                    </button>
                     <button type="button" className="link-btn" onClick={() => onLoad(item)}>
                       โหลดกลับมาแก้/ดู SEO
                     </button>
