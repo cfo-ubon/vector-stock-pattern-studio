@@ -95,6 +95,25 @@ excluding motif size, rotation/scale jitter, mirror, radial symmetry, custom
 colors and seed, which multiply it further. See
 `docs/USER_GUIDE.md` § "แอปสร้างลายไม่ซ้ำกันได้กี่แบบ" for the full breakdown.
 
+## Per-site SEO metadata
+
+`metadata/shutterstock.ts` exports `buildSiteMetadata(tileData)`, which
+computes one shared keyword/title/description core and then shapes it into
+upload-form-ready fields per stock site (`STOCK_SITES`: Shutterstock,
+Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
+site's own character caps, keyword counts and category picks. The
+`MetadataPanel` renders these as tabs with per-field copy buttons.
+
+## Saved library with submission tracking
+
+`SavedPanel` (`components/SavedPanel.tsx`) is a persistent library separate
+from the rolling Gallery: `SavedItem` stores the full `TileData`, a derived
+display name, a free-text note, and a `submissions` map keyed by
+`StockSiteId` so the user can tick which sites each pattern has been
+submitted to. Persisted to localStorage (`vsp-saved-v1`, capped at 30
+items); loading an item back restores its params so the SEO panel shows
+that pattern's copy again.
+
 ## Post-generation pattern scale
 
 `GenerateParams.patternScale` (default 1) multiplies the effective motif
