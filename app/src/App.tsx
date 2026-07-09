@@ -11,12 +11,16 @@ import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
 import { Gallery, type GalleryItem } from './components/Gallery';
 import { MetadataPanel } from './components/MetadataPanel';
+import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
+import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
 const GALLERY_LIMIT = 24;
+const SAVED_STORAGE_KEY = 'vsp-saved-v1';
+const SAVED_LIMIT = 30;
 
 function loadGallery(): GalleryItem[] {
   try {
@@ -35,13 +39,32 @@ function saveGallery(items: GalleryItem[]) {
   }
 }
 
+function loadSaved(): SavedItem[] {
+  try {
+    const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as SavedItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistSaved(items: SavedItem[]) {
+  try {
+    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(items.slice(0, SAVED_LIMIT)));
+  } catch {
+    // localStorage full — saved library stays session-only for this item.
+  }
+}
+
 function App() {
   const [params, setParams] = useState<GenerateParams>(defaultParams);
   const [tileData, setTileData] = useState(() => buildTile(defaultParams()));
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
+  const [saved, setSaved] = useState<SavedItem[]>(loadSaved);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
+  useEffect(() => persistSaved(saved), [saved]);
 
   const handleChange = useCallback((patch: Partial<GenerateParams>) => {
     setParams((prev) => ({ ...prev, ...patch }));
@@ -135,6 +158,40 @@ function App() {
     setSelectedId(null);
   }, []);
 
+  // --- Saved library (คลังลายที่บันทึก): long-term keeps with per-site
+  // submission tracking, independent of the rolling Gallery. ---
+  const handleSaveCurrent = useCallback(() => {
+    if (!tileData) return;
+    const item: SavedItem = {
+      id: `${Date.now()}-sv-${Math.random().toString(36).slice(2, 8)}`,
+      tileData,
+      name: filenameParts(tileData).join(' · '),
+      createdAt: Date.now(),
+      note: '',
+      submissions: {},
+    };
+    setSaved((prev) => [item, ...prev].slice(0, SAVED_LIMIT));
+  }, [tileData, filenameParts]);
+
+  const handleLoadSaved = useCallback((item: SavedItem) => {
+    setTileData(item.tileData);
+    setParams(item.tileData.params);
+  }, []);
+
+  const handleRemoveSaved = useCallback((id: string) => {
+    setSaved((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  const handleToggleSubmission = useCallback((id: string, site: StockSiteId) => {
+    setSaved((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, submissions: { ...s.submissions, [site]: !s.submissions[site] } } : s)),
+    );
+  }, []);
+
+  const handleSavedNoteChange = useCallback((id: string, note: string) => {
+    setSaved((prev) => prev.map((s) => (s.id === id ? { ...s, note } : s)));
+  }, []);
+
   const handleAiApply = useCallback(
     (patches: Partial<GenerateParams>[], concepts: string[]) => {
       const items: GalleryItem[] = [];
@@ -187,6 +244,15 @@ function App() {
         <main className="app-main">
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
           <MetadataPanel tileData={tileData} />
+          <SavedPanel
+            items={saved}
+            hasCurrent={!!tileData}
+            onSaveCurrent={handleSaveCurrent}
+            onLoad={handleLoadSaved}
+            onRemove={handleRemoveSaved}
+            onToggleSubmission={handleToggleSubmission}
+            onNoteChange={handleSavedNoteChange}
+          />
           <Gallery
             items={gallery}
             selectedId={selectedId}

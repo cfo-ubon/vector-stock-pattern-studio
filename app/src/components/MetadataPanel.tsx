@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import type { TileData } from '../engine/types';
-import { buildStockMetadata } from '../metadata/shutterstock';
+import { buildSiteMetadata, type StockSiteId } from '../metadata/shutterstock';
 
 interface Props {
   tileData: TileData | null;
 }
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+export function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -31,61 +31,51 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-/** Shutterstock-ready SEO metadata for the current pattern: title,
- * description (<200 chars) and exactly 50 keywords, each with its own
- * copy button so they can be pasted straight into the upload form. */
+/** Per-site SEO metadata for the current pattern: a tab per stock site,
+ * each showing that site's upload-form fields shaped to its own limits
+ * (character caps, keyword counts, categories), every field with its own
+ * copy button. */
 export function MetadataPanel({ tileData }: Props) {
-  const meta = useMemo(() => (tileData ? buildStockMetadata(tileData) : null), [tileData]);
-  if (!meta) return null;
-  const keywordString = meta.keywords.join(', ');
+  const [activeSite, setActiveSite] = useState<StockSiteId>('shutterstock');
+  const sites = useMemo(() => (tileData ? buildSiteMetadata(tileData) : null), [tileData]);
+  if (!sites) return null;
+  const site = sites.find((s) => s.id === activeSite) ?? sites[0];
 
   return (
     <div className="metadata-panel">
       <div className="metadata-header">
-        <h3>SEO สำหรับ Stock (Shutterstock / Adobe Stock)</h3>
+        <h3>SEO สำหรับ Stock — แยกตามเว็บ</h3>
         <span className="metadata-hint">อัปเดตอัตโนมัติตามลายที่แสดงอยู่</span>
       </div>
 
-      <div className="metadata-field">
-        <div className="metadata-field-top">
-          <label>Title <small>({meta.title.length} ตัวอักษร)</small></label>
-          <CopyButton text={meta.title} label=" Title" />
-        </div>
-        <textarea readOnly rows={2} value={meta.title} />
+      <div className="site-tabs" role="tablist">
+        {sites.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            aria-selected={s.id === site.id}
+            className={`site-tab ${s.id === site.id ? 'site-tab--active' : ''}`}
+            onClick={() => setActiveSite(s.id)}
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
 
-      <div className="metadata-field">
-        <div className="metadata-field-top">
-          <label>Description <small>({meta.description.length}/200 ตัวอักษร)</small></label>
-          <CopyButton text={meta.description} label=" Description" />
-        </div>
-        <textarea readOnly rows={3} value={meta.description} />
-      </div>
+      {site.note && <p className="site-note">ℹ️ {site.note}</p>}
 
-      <div className="metadata-field">
-        <div className="metadata-field-top">
-          <label>Keywords <small>({meta.keywords.length}/50 คำ, คั่นด้วย comma)</small></label>
-          <CopyButton text={keywordString} label=" Keywords" />
-        </div>
-        <textarea readOnly rows={5} value={keywordString} />
-      </div>
-
-      <div className="metadata-field">
-        <div className="metadata-field-top">
-          <label>หมวดหมู่ภาพ (เลือกในฟอร์มอัปโหลด)</label>
-          <CopyButton text={meta.categories.shutterstock.join(', ')} label="หมวด" />
-        </div>
-        <div className="category-rows">
-          <div className="category-row">
-            <span className="category-site">Shutterstock (เลือก 2)</span>
-            <span className="category-values">{meta.categories.shutterstock.join(' + ')}</span>
+      {site.fields.map((f) => (
+        <div className="metadata-field" key={`${site.id}-${f.label}`}>
+          <div className="metadata-field-top">
+            <label>
+              {f.label} {f.meta && <small>({f.meta})</small>}
+            </label>
+            <CopyButton text={f.value} label={` ${f.label}`} />
           </div>
-          <div className="category-row">
-            <span className="category-site">Adobe Stock (เลือก 1)</span>
-            <span className="category-values">{meta.categories.adobeStock}</span>
-          </div>
+          <textarea readOnly rows={f.value.length > 160 ? 4 : 2} value={f.value} />
         </div>
-      </div>
+      ))}
     </div>
   );
 }

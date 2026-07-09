@@ -2,24 +2,40 @@ import type { TileData } from '../engine/types';
 import { GENERATORS } from '../generators';
 import { getPalette } from '../palettes/palettes';
 
-// Shutterstock SEO metadata generator. Builds a copy-paste-ready title,
-// description (kept under Shutterstock's 200-character limit) and exactly
-// 50 keywords (Shutterstock's maximum) from the current pattern's
-// category, palette and layout. Keyword pools are ordered
+// Per-site SEO metadata generator. Builds copy-paste-ready upload-form
+// fields tailored to each stock site's own limits and conventions
+// (character caps, keyword counts, category pick counts) from the current
+// pattern's category, palette and layout. Keyword pools are ordered
 // most-important-first because stock search engines weight earlier
 // keywords more heavily.
 
-export interface StockMetadata {
-  title: string;
-  description: string;
-  keywords: string[]; // exactly 50
-  /** Upload-form category suggestions. Shutterstock allows picking up to 2
-   * from its fixed list; Adobe Stock exactly 1 from its 21. */
-  categories: {
-    shutterstock: [string, string];
-    adobeStock: string;
-  };
+export type StockSiteId = 'shutterstock' | 'adobestock' | 'freepik' | 'creativefabrica' | 'creativemarket';
+
+export interface SiteField {
+  /** Form-field label as shown in that site's upload UI. */
+  label: string;
+  value: string;
+  /** Character/word budget note rendered next to the label. */
+  meta?: string;
 }
+
+export interface SiteMetadata {
+  id: StockSiteId;
+  label: string;
+  /** One-line Thai note about this site's quirks (file format etc.). */
+  note?: string;
+  fields: SiteField[];
+}
+
+/** Site list in display order — also the canonical set used by the saved
+ * library's per-site submission tracking. */
+export const STOCK_SITES: Array<{ id: StockSiteId; label: string }> = [
+  { id: 'shutterstock', label: 'Shutterstock' },
+  { id: 'adobestock', label: 'Adobe Stock' },
+  { id: 'freepik', label: 'Freepik' },
+  { id: 'creativefabrica', label: 'Creative Fabrica' },
+  { id: 'creativemarket', label: 'Creative Market' },
+];
 
 // Shutterstock's fixed category list only — these strings must match the
 // upload form's options verbatim. Every seamless pattern's primary category
@@ -157,7 +173,8 @@ const LAYOUT_WORDS: Record<string, string[]> = {
   stripe: ['striped', 'linear repeat', 'banded'],
 };
 
-export function buildStockMetadata(tileData: TileData): StockMetadata {
+/** Everything the per-site builders need, computed once. */
+function computeCore(tileData: TileData) {
   const { categoryId, paletteId, layoutId, customColors, mixCategoryIds } = tileData.params;
   const isMix = !!mixCategoryIds && mixCategoryIds.length >= 2;
   const mixCategories = isMix ? mixCategoryIds.map((id) => CATEGORY_KEYWORDS[id] ?? CATEGORY_KEYWORDS.geometric) : [];
@@ -170,21 +187,30 @@ export function buildStockMetadata(tileData: TileData): StockMetadata {
   const moods = usingCustom ? ['colorful', 'multicolor', 'bright'] : (PALETTE_MOODS[paletteId] ?? ['colorful']);
   // Mix mode can combine up to 5 categories — joining their full phrases
   // ("geometric shapes and botanical leaves and flowers and ... mixed")
-  // would blow past Shutterstock's title/description budgets, so mix uses
-  // short category labels instead of the verbose single-category phrase.
+  // would blow past title/description budgets, so mix uses short category
+  // labels instead of the verbose single-category phrase.
   const phrase = isMix
     ? `${mixCategoryIds.map((id) => (GENERATORS[id]?.label ?? id).toLowerCase()).join(', ')} mixed motifs`
     : category.phrase;
 
-  const title = truncateWords(
+  const titleLong = truncateWords(
     `${paletteLabel} ${generatorLabel} Seamless Vector Pattern — Flat ${capitalize(phrase)} Repeat for Fabric and Wallpaper`,
     200,
   );
+  const titleShort = truncateWords(`${paletteLabel} ${generatorLabel} Seamless Vector Pattern`, 70);
 
   const description = truncateWords(
     `Seamless vector pattern with flat ${phrase} in ${moods[0]} colors. Hand-crafted repeating tile for fabric, textile, wallpaper, wrapping paper, stationery and web backgrounds. Fully editable vector.`,
     200,
   );
+
+  // Longer, marketing-style copy for marketplace sites (Creative Fabrica /
+  // Creative Market) that reward richer product descriptions with no tight
+  // character cap.
+  const marketingDescription =
+    `${titleShort}. This seamless repeating pattern features flat ${phrase} in ${moods[0]} colors and tiles perfectly in every direction with no visible seams. ` +
+    `Perfect for fabric printing, wallpaper, wrapping paper, digital paper, stationery, packaging, apparel, scrapbooking and web backgrounds. ` +
+    `Fully editable vector — every motif is a separate group, so colors and layout are easy to customize in Illustrator, Affinity Designer or Inkscape.`;
 
   // Assemble keywords most-important-first, dedupe, cap at exactly 50. In
   // mix mode, interleave each category's word list (round-robin) instead
@@ -198,12 +224,7 @@ export function buildStockMetadata(tileData: TileData): StockMetadata {
       if (c.words[i]) interleaved.push(c.words[i]);
     }
   }
-  const raw = [
-    ...interleaved,
-    ...moods,
-    ...(LAYOUT_WORDS[layoutId] ?? []),
-    ...UNIVERSAL,
-  ];
+  const raw = [...interleaved, ...moods, ...(LAYOUT_WORDS[layoutId] ?? []), ...UNIVERSAL];
   const seen = new Set<string>();
   const keywords: string[] = [];
   for (const word of raw) {
@@ -214,17 +235,69 @@ export function buildStockMetadata(tileData: TileData): StockMetadata {
     if (keywords.length === 50) break;
   }
 
-  // Category suggestions for the upload forms. Patterns always lead with
-  // Backgrounds/Textures on Shutterstock; the secondary comes from the
-  // (first, in mix mode) subject category. Vector patterns on Adobe Stock
-  // belong under Graphic Resources regardless of subject.
   const secondary = SHUTTERSTOCK_SECONDARY[isMix ? mixCategoryIds[0] : categoryId] ?? 'Abstract';
-  const categories: StockMetadata['categories'] = {
-    shutterstock: ['Backgrounds/Textures', secondary],
-    adobeStock: 'Graphic Resources',
-  };
 
-  return { title, description, keywords, categories };
+  return { titleLong, titleShort, description, marketingDescription, keywords, ssSecondary: secondary };
+}
+
+/** Build upload-form-ready metadata for every supported stock site, each
+ * shaped to that site's own limits and field names. */
+export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
+  const core = computeCore(tileData);
+  const kw = (n: number) => core.keywords.slice(0, n).join(', ');
+
+  return [
+    {
+      id: 'shutterstock',
+      label: 'Shutterstock',
+      note: 'อัปโหลดเป็น EPS (แนบ JPEG preview ชื่อไฟล์เดียวกันได้) — เลือก 2 categories',
+      fields: [
+        { label: 'Title', value: core.titleLong, meta: `${core.titleLong.length}/200 ตัวอักษร` },
+        { label: 'Description', value: core.description, meta: `${core.description.length}/200 ตัวอักษร` },
+        { label: 'Keywords', value: kw(50), meta: `${Math.min(core.keywords.length, 50)}/50 คำ` },
+        { label: 'Categories', value: `Backgrounds/Textures, ${core.ssSecondary}`, meta: 'เลือก 2 หมวด' },
+      ],
+    },
+    {
+      id: 'adobestock',
+      label: 'Adobe Stock',
+      note: 'อัปโหลดเป็น AI หรือ EPS — ไม่มีช่อง description แยก, keyword 10 คำแรกมีน้ำหนักสูงสุด',
+      fields: [
+        { label: 'Title', value: core.titleShort, meta: `${core.titleShort.length}/70 ตัวอักษร (สั้นกระชับดีกว่า)` },
+        { label: 'Keywords', value: kw(49), meta: `${Math.min(core.keywords.length, 49)}/49 คำ` },
+        { label: 'Category', value: 'Graphic Resources', meta: 'เลือก 1 หมวด' },
+      ],
+    },
+    {
+      id: 'freepik',
+      label: 'Freepik',
+      note: 'อัปโหลดเป็น EPS + ต้องแนบ JPG preview คู่เสมอ',
+      fields: [
+        { label: 'Title', value: truncateWords(core.titleLong, 100), meta: `${truncateWords(core.titleLong, 100).length}/100 ตัวอักษร` },
+        { label: 'Keywords / Tags', value: kw(50), meta: `${Math.min(core.keywords.length, 50)}/50 คำ` },
+      ],
+    },
+    {
+      id: 'creativefabrica',
+      label: 'Creative Fabrica',
+      note: 'รับ SVG ตรงจากแอปได้เลย (แนบ EPS/PNG เพิ่มยิ่งดี) — description ยาวได้ ยิ่งละเอียดยิ่งขายดี',
+      fields: [
+        { label: 'Product Name', value: `${core.titleShort} — Digital Paper & Fabric Design`, meta: 'ชื่อสินค้า' },
+        { label: 'Description', value: core.marketingDescription, meta: `${core.marketingDescription.length} ตัวอักษร (ไม่จำกัด)` },
+        { label: 'Tags', value: kw(20), meta: '20 คำแรก (คำสำคัญสุด)' },
+      ],
+    },
+    {
+      id: 'creativemarket',
+      label: 'Creative Market',
+      note: 'จัดเป็นชุดสินค้า (zip รวม SVG + EPS + JPG) — ตั้งราคาเองได้',
+      fields: [
+        { label: 'Product Name', value: `${core.titleShort} — Seamless Digital Pattern`, meta: 'ชื่อสินค้า' },
+        { label: 'Description', value: core.marketingDescription, meta: `${core.marketingDescription.length} ตัวอักษร (ไม่จำกัด)` },
+        { label: 'Tags', value: kw(20), meta: '20 คำแรก (คำสำคัญสุด)' },
+      ],
+    },
+  ];
 }
 
 /** Hard safety net: trims to the last whole word at or under `max` chars.
