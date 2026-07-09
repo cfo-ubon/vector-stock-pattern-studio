@@ -596,6 +596,19 @@ body {
   cursor: not-allowed;
 }
 
+.saved-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.saved-storage-note {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
 .saved-list {
   display: flex;
   flex-direction: column;

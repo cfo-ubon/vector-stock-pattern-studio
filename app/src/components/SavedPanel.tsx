@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { TileData } from '../engine/types';
 import { buildPreviewMarkup } from '../export/previewMarkup';
 import { STOCK_SITES, type StockSiteId } from '../metadata/shutterstock';
@@ -26,6 +26,10 @@ interface Props {
   onNoteChange: (id: string, note: string) => void;
   /** Re-download this item's file bundle (single + 3x3 + SEO zip). */
   onDownload: (item: SavedItem) => void;
+  /** Download the whole library as one zip then clear it automatically. */
+  onMoveAllToDisk: () => void;
+  /** Restore/merge a library from a library-backup.json file. */
+  onImportBackup: (file: File) => void;
 }
 
 function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: string }) {
@@ -34,7 +38,19 @@ function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: strin
   return <svg viewBox={`0 0 ${tileSize * 2} ${tileSize * 2}`} dangerouslySetInnerHTML={{ __html: markup }} />;
 }
 
-export function SavedPanel({ items, hasCurrent, onSaveCurrent, onLoad, onRemove, onToggleSubmission, onNoteChange, onDownload }: Props) {
+export function SavedPanel({
+  items,
+  hasCurrent,
+  onSaveCurrent,
+  onLoad,
+  onRemove,
+  onToggleSubmission,
+  onNoteChange,
+  onDownload,
+  onMoveAllToDisk,
+  onImportBackup,
+}: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="saved-panel">
       <div className="gallery-header">
@@ -42,6 +58,28 @@ export function SavedPanel({ items, hasCurrent, onSaveCurrent, onLoad, onRemove,
         <button type="button" className="btn btn--save" disabled={!hasCurrent} onClick={onSaveCurrent}>
           💾 บันทึกเข้าคลัง + ดาวน์โหลดชุดไฟล์
         </button>
+      </div>
+      <div className="saved-toolbar">
+        <button type="button" className="btn btn--save" disabled={items.length === 0} onClick={onMoveAllToDisk}>
+          📦 ย้ายทั้งคลังลงเครื่อง (ดาวน์โหลดแล้วล้างคลังอัตโนมัติ)
+        </button>
+        <button type="button" className="btn btn--save" onClick={() => fileInputRef.current?.click()}>
+          📥 นำเข้า backup
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onImportBackup(f);
+            e.target.value = '';
+          }}
+        />
+        <span className="saved-storage-note">
+          คลังเก็บใน IndexedDB ของเบราว์เซอร์ — ไม่จำกัดจำนวนลาย (จุได้หลาย GB)
+        </span>
       </div>
       {items.length === 0 ? (
         <p className="gallery-empty">

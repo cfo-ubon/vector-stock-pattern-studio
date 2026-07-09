@@ -4,8 +4,9 @@ import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
-import { buildZip } from './export/zip';
+import { buildZip, type ZipEntry } from './export/zip';
 import { buildSeoTextFile } from './metadata/shutterstock';
+import { loadSavedItems, putSavedItem, bulkPutSavedItems, deleteSavedItem, clearSavedItems } from './storage/savedStore';
 import { GENERATORS } from './generators';
 import { getPalette } from './palettes/palettes';
 import { LAYOUTS } from './layouts';
@@ -21,8 +22,6 @@ import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
 const GALLERY_LIMIT = 24;
-const SAVED_STORAGE_KEY = 'vsp-saved-v1';
-const SAVED_LIMIT = 30;
 
 function loadGallery(): GalleryItem[] {
   try {
@@ -41,32 +40,21 @@ function saveGallery(items: GalleryItem[]) {
   }
 }
 
-function loadSaved(): SavedItem[] {
-  try {
-    const raw = localStorage.getItem(SAVED_STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as SavedItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function persistSaved(items: SavedItem[]) {
-  try {
-    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(items.slice(0, SAVED_LIMIT)));
-  } catch {
-    // localStorage full — saved library stays session-only for this item.
-  }
-}
-
 function App() {
   const [params, setParams] = useState<GenerateParams>(defaultParams);
   const [tileData, setTileData] = useState(() => buildTile(defaultParams()));
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
-  const [saved, setSaved] = useState<SavedItem[]>(loadSaved);
+  const [saved, setSaved] = useState<SavedItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
-  useEffect(() => persistSaved(saved), [saved]);
+  // Saved library lives in IndexedDB (effectively unlimited) — load once on
+  // mount; individual mutations write through per-item in their handlers.
+  useEffect(() => {
+    loadSavedItems()
+      .then(setSaved)
+      .catch(() => {});
+  }, []);
 
   const handleChange = useCallback((patch: Partial<GenerateParams>) => {
     setParams((prev) => ({ ...prev, ...patch }));
@@ -192,7 +180,8 @@ function App() {
       note: '',
       submissions: {},
     };
-    setSaved((prev) => [item, ...prev].slice(0, SAVED_LIMIT));
+    setSaved((prev) => [item, ...prev]);
+    void putSavedItem(item);
     handleDownloadBundle(tileData);
   }, [tileData, filenameParts, handleDownloadBundle]);
 
@@ -203,16 +192,86 @@ function App() {
 
   const handleRemoveSaved = useCallback((id: string) => {
     setSaved((prev) => prev.filter((s) => s.id !== id));
+    void deleteSavedItem(id);
   }, []);
 
-  const handleToggleSubmission = useCallback((id: string, site: StockSiteId) => {
+  /** Update one saved item in state and write it through to IndexedDB. */
+  const updateSavedItem = useCallback((id: string, patch: (s: SavedItem) => SavedItem) => {
     setSaved((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, submissions: { ...s.submissions, [site]: !s.submissions[site] } } : s)),
+      prev.map((s) => {
+        if (s.id !== id) return s;
+        const next = patch(s);
+        queueMicrotask(() => void putSavedItem(next));
+        return next;
+      }),
     );
   }, []);
 
-  const handleSavedNoteChange = useCallback((id: string, note: string) => {
-    setSaved((prev) => prev.map((s) => (s.id === id ? { ...s, note } : s)));
+  const handleToggleSubmission = useCallback(
+    (id: string, site: StockSiteId) => {
+      updateSavedItem(id, (s) => ({ ...s, submissions: { ...s.submissions, [site]: !s.submissions[site] } }));
+    },
+    [updateSavedItem],
+  );
+
+  const handleSavedNoteChange = useCallback(
+    (id: string, note: string) => {
+      updateSavedItem(id, (s) => ({ ...s, note }));
+    },
+    [updateSavedItem],
+  );
+
+  // "ย้ายทั้งคลังลงเครื่อง": one zip with a folder per pattern (single tile
+  // + 3x3 + SEO, all full-size) plus library-backup.json carrying every
+  // item's params/notes/submission states. After the download is handed to
+  // the browser the online-side library is cleared automatically — the
+  // backup json inside the zip can restore everything via นำเข้า backup.
+  const handleMoveLibraryToDisk = useCallback(() => {
+    if (saved.length === 0) return;
+    const ok = window.confirm(
+      `จะดาวน์โหลดทั้งคลัง (${saved.length} ลาย) เป็นไฟล์ zip เดียว แล้วล้างคลังในแอปอัตโนมัติ\n\n` +
+        `ใน zip มีไฟล์ครบทุกลาย (ภาพเดี่ยว + 3×3 + SEO) และไฟล์ library-backup.json ` +
+        `ที่ใช้กู้คลังกลับมาได้ทั้งหมดผ่านปุ่ม "นำเข้า backup" — ดำเนินการเลยหรือไม่?`,
+    );
+    if (!ok) return;
+    const enc = new TextEncoder();
+    const entries: ZipEntry[] = [];
+    saved.forEach((item, i) => {
+      const base = buildExportFilename(filenameParts(item.tileData), item.tileData.params.seed).replace(/\.svg$/, '');
+      const folder = `${String(i + 1).padStart(3, '0')}-${base}`;
+      entries.push(
+        { name: `${folder}/${base}.svg`, data: enc.encode(buildSingleTileSvg(item.tileData)) },
+        { name: `${folder}/${base}-3x3.svg`, data: enc.encode(buildTiledSvg(item.tileData, 3, 3)) },
+        { name: `${folder}/${base}-SEO.txt`, data: enc.encode(buildSeoTextFile(item.tileData)) },
+      );
+    });
+    entries.push({ name: 'library-backup.json', data: enc.encode(JSON.stringify(saved)) });
+    const date = new Date().toISOString().slice(0, 10);
+    downloadBlobFile(`pattern-library-${date}.zip`, buildZip(entries));
+    setSaved([]);
+    void clearSavedItems();
+  }, [saved, filenameParts]);
+
+  // Restore a library (or merge one from another machine) from the
+  // library-backup.json inside a moved-to-disk zip.
+  const handleImportLibrary = useCallback((file: File) => {
+    file
+      .text()
+      .then((text) => {
+        const data = JSON.parse(text) as SavedItem[];
+        const valid = Array.isArray(data) ? data.filter((s) => s && typeof s.id === 'string' && s.tileData?.params) : [];
+        if (valid.length === 0) {
+          window.alert('ไฟล์นี้ไม่ใช่ library-backup.json ที่ถูกต้อง');
+          return;
+        }
+        setSaved((prev) => {
+          const existing = new Set(prev.map((s) => s.id));
+          const merged = [...valid.filter((s) => !existing.has(s.id)), ...prev].sort((a, b) => b.createdAt - a.createdAt);
+          return merged;
+        });
+        void bulkPutSavedItems(valid);
+      })
+      .catch(() => window.alert('อ่านไฟล์ไม่สำเร็จ — ตรวจว่าเลือกไฟล์ library-backup.json'));
   }, []);
 
   const handleAiApply = useCallback(
@@ -276,6 +335,8 @@ function App() {
             onToggleSubmission={handleToggleSubmission}
             onNoteChange={handleSavedNoteChange}
             onDownload={(item) => handleDownloadBundle(item.tileData)}
+            onMoveAllToDisk={handleMoveLibraryToDisk}
+            onImportBackup={handleImportLibrary}
           />
           <Gallery
             items={gallery}

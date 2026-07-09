@@ -119,9 +119,16 @@ recompressed or downscaled.
 from the rolling Gallery: `SavedItem` stores the full `TileData`, a derived
 display name, a free-text note, and a `submissions` map keyed by
 `StockSiteId` so the user can tick which sites each pattern has been
-submitted to. Persisted to localStorage (`vsp-saved-v1`, capped at 30
-items); loading an item back restores its params so the SEO panel shows
-that pattern's copy again.
+submitted to. Persisted to IndexedDB (`storage/savedStore.ts`, uncapped —
+IDB quota runs to gigabytes; legacy localStorage libraries migrate in
+automatically, and the store falls back to localStorage where IDB is
+unavailable); loading an item back restores its params so the SEO panel
+shows that pattern's copy again.
+
+"Move library to disk" builds one zip with a numbered folder per item
+(single + 3×3 + SEO) plus `library-backup.json` (the raw `SavedItem[]`),
+then clears the library — the import button restores/merges a library from
+that json, deduped by item id.
 
 ## Post-generation pattern scale
 
