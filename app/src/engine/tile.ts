@@ -35,12 +35,13 @@ export function buildTile(params: GenerateParams): TileData {
       scaleJitter: params.scaleJitter,
       mirror: params.mirror,
       radialSymmetry: params.radialSymmetry,
+      disableGridRhythm: generator.disableGridRhythm ?? false,
     },
     rng,
   );
 
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
-    const motif = generator.createMotif(rng, colors, params.motifSize);
+    const motif = generator.createMotif(rng, colors, params.motifSize, placement.colorSeed);
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing

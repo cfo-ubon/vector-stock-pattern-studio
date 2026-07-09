@@ -154,6 +154,32 @@ body {
   width: 100%;
 }
 
+.stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.stepper-row input[type='range'] {
+  flex: 1;
+}
+
+.stepper-btn {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .field--inline {
   flex-direction: row;
   align-items: center;

@@ -24,7 +24,7 @@
 
 ## 🎨 ส่วนควบคุม (แผงซ้าย)
 
-### Category — หมวดลวดลาย (11 หมวด)
+### Category — หมวดลวดลาย (15 หมวด)
 
 | หมวด | ลักษณะลาย | เหมาะกับ |
 |---|---|---|
@@ -39,6 +39,20 @@
 | **Cute / Kids** | หน้าสัตว์ (หมี แมว กระต่าย) อุ้งเท้า หัวใจ ดาว | ลายเด็ก, ห้อง nursery |
 | **Seasonal / Holiday** | คริสต์มาส (ต้นสน เกล็ดหิมะ ลูกกวาด) หรือ ฮาโลวีน (ฟักทอง ผี ค้างคาว) — 1 ธีมต่อ 1 ลาย ไม่ปนกัน | ขายตามเทศกาล, กระดาษห่อของขวัญ |
 | **Retro 70s** | สายรุ้ง ดอกเดซี่ พระอาทิตย์ เห็ด เส้นคลื่น สไตล์ groovy | ลายวินเทจ 70s ที่ขายดีต่อเนื่อง |
+| **Plaid & Check** 🆕 | checkerboard, gingham, tartan/plaid, houndstooth, pinstripe, argyle — สุ่มได้ 1 สไตล์ต่อ 1 ลาย | ผ้าสก็อต, เสื้อผ้า, wallpaper คลาสสิก |
+| **Animal Print** 🆕 | ลายเสือดาว ม้าลาย เสือ ยีราฟ วัว — สุ่มได้ 1 ชนิดต่อ 1 ลาย | แฟชั่น, ของตกแต่งบ้าน |
+| **Paisley & Ikat** 🆕 | หยดน้ำเปอร์เซีย (paisley) หรือลายทอ ikat ขอบนุ่ม — สุ่มได้ 1 แนวต่อ 1 ลาย | ลาย boho, ผ้าพันคอ |
+| **Terrazzo** 🆕 | เศษหิน/แก้วกระจายบนพื้นสี เทรนด์มาแรง 2025-2026 | พื้นผิว, ของแต่งบ้านสไตล์โมเดิร์น |
+
+> 🆕 4 หมวดใหม่มาจากการสำรวจ pattern ที่ขายดีจริงบน Adobe Stock, Etsy,
+> Creative Fabrica, Spoonflower และบทความเทรนด์ surface design 2026 — เป็น
+> กลุ่มลายผ้าคลาสสิกที่ขายต่อเนื่องตลอด (evergreen bestseller) ที่แอปยังไม่มี
+> มาก่อน
+
+> ℹ️ หมวดที่ "สุ่มได้ 1 สไตล์ต่อ 1 ลาย" (Plaid & Check, Animal Print,
+> Paisley & Ikat, Seasonal) จะไม่ผสมสไตล์ในลายเดียวกัน (เช่น จะไม่มีลาย
+> ที่ครึ่งนึงเป็นลายเสือดาว ครึ่งนึงเป็นลายม้าลาย) — กด Generate ซ้ำหรือ
+> เปลี่ยน seed เพื่อสุ่มสไตล์ใหม่
 
 ### Layout — รูปแบบการวางลาย (5 แบบ)
 
@@ -57,7 +71,11 @@ Retro Sunset, Midnight Botanical ฯลฯ — สีแรกของทุก
 
 ### Diversity Controls — ตัวปรับความหลากหลาย
 
-- **Density** — ความหนาแน่นของ motif (สูง = แน่น, ต่ำ = โปร่ง)
+- **Density** — ความหนาแน่นของ motif (สูง = แน่น, ต่ำ = โปร่ง) ปรับได้ทีละ
+  **5%** ผ่านปุ่ม **−5% / +5%** ข้างแถบเลื่อน หรือลากแถบเลื่อนเอง (สแนปทีละ 5%
+  เหมือนกัน) — บางหมวด (เช่น Plaid & Check, Terrazzo) จะปรับ density ให้
+  อัตโนมัติเป็นค่าที่เหมาะสมทันทีที่เลือกหมวดนั้น เพราะเป็นลายที่ต้องวาง
+  ชิดกันแทบไม่มีช่องว่างถึงจะดูถูกต้อง (เช่น checkerboard/gingham)
 - **Motif size** — ขนาดชิ้นลาย
 - **Rotation randomness** — สุ่มหมุนแต่ละชิ้น (0° = เป๊ะทุกชิ้น)
 - **Scale jitter** — สุ่มขนาดแต่ละชิ้น (ทำให้ดู hand-made ขึ้น)
@@ -167,12 +185,34 @@ custom เป็น hex เอง** (สีแรก = พื้นหลัง)
 - **ลายเด็ก:** Cute / Kids + Grid หรือ Scatter + Pastel Dream / Candy Shop
 - **โยคะ/สปา:** Mandala + Grid + Lavender Fields / Sage & Terracotta
 - **Minimal สำหรับ branding:** Line Art + Grid + Mono Charcoal / Coastal Neutral
+- **ผ้าสก็อต/gingham คลาสสิก:** Plaid & Check + Grid (density ปรับให้อัตโนมัติ
+  90%) — กด Generate ซ้ำจนได้สไตล์ที่ชอบ (checkerboard/gingham/tartan/
+  houndstooth/pinstripe/argyle จะสุ่มมา 1 อย่างต่อครั้ง)
+- **แฟชั่น/ของแต่งบ้านลายสัตว์:** Animal Print + Random Scatter หรือ Grid +
+  Earth Tone / Terracotta
+- **ผ้าพันคอ boho:** Paisley & Ikat + Half-Drop + Jewel Tones / Lavender Fields
+- **พื้นผิวโมเดิร์นเทรนด์ 2026:** Terrazzo + Random Scatter (density สูง 85%+)
+  + Mono Charcoal / Coastal Neutral
 - สร้างชุดเดียวกันหลาย colorway: ล็อก seed เดิม แล้วเปลี่ยนเฉพาะ palette —
   ได้ collection ลายเดียวกันหลายสี (ผู้ซื้อ stock ชอบ collection)
 
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.5 — 9 ก.ค. 2026
+- 🔍 **สำรวจตลาดจริง**: ค้นคว้าลาย vector ที่ขายดีบน Adobe Stock, Etsy,
+  Creative Fabrica, Spoonflower และเทรนด์ surface design 2026
+- ➕ **4 หมวดใหม่ รวมเป็น 15 หมวด**: Plaid & Check (checkerboard, gingham,
+  tartan, houndstooth, pinstripe, argyle), Animal Print (เสือดาว ม้าลาย
+  เสือ ยีราฟ วัว), Paisley & Ikat, Terrazzo — ครอบคลุมลายผ้าคลาสสิกขายดี
+  ต่อเนื่อง (evergreen bestseller) ที่แอปยังไม่มีมาก่อน
+- 🎯 หมวดใหม่ทุกหมวดล็อก 1 สไตล์ต่อ 1 ลาย (ไม่ผสมลายเสือดาวกับม้าลาย
+  ในลายเดียวกัน) เหมือนกลไกที่ใช้กับ Seasonal อยู่แล้ว
+- ⚙️ **ปรับ Density ได้ทีละ 5%**: เพิ่มปุ่ม −5% / +5% ข้างแถบเลื่อน Density
+  พร้อมปรับแถบเลื่อนให้สแนปทีละ 5% ด้วย
+- 🧵 บางหมวด (Plaid & Check, Terrazzo) ปรับ Density ให้อัตโนมัติเป็นค่าที่
+  เหมาะสมทันทีที่เลือกหมวด เพราะเป็นลายที่ต้องวางชิดกันเกือบสนิทถึงจะดูถูกต้อง
 
 ### v1.4 — 8 ก.ค. 2026
 - 🖼 **Preview เริ่มต้นเป็น 1×1 (ภาพเดี่ยว)** แทน 3×3 — ตรงกับการขายเป็น

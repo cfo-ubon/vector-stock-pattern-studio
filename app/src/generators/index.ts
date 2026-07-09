@@ -10,6 +10,10 @@ import { damaskGenerator } from './damask';
 import { cuteGenerator } from './cute';
 import { seasonalGenerator } from './seasonal';
 import { retroGenerator } from './retro';
+import { plaidGenerator } from './plaid';
+import { animalPrintGenerator } from './animalprint';
+import { paisleyGenerator } from './paisley';
+import { terrazzoGenerator } from './terrazzo';
 
 // Registry of implemented categories. To add a new category, implement the
 // PatternGenerator interface in a new file under /generators and add it
@@ -26,6 +30,10 @@ export const GENERATORS: Record<string, PatternGenerator> = {
   cute: cuteGenerator,
   seasonal: seasonalGenerator,
   retro: retroGenerator,
+  plaid: plaidGenerator,
+  animalprint: animalPrintGenerator,
+  paisley: paisleyGenerator,
+  terrazzo: terrazzoGenerator,
 };
 
 export const GENERATOR_LIST: PatternGenerator[] = Object.values(GENERATORS);

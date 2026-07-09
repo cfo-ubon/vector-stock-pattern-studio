@@ -18,15 +18,19 @@ export const gridLayout: PatternLayout = {
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
     const placements: Placement[] = [];
-    let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const x = (c + 0.5) * cellW;
         const y = (r + 0.5) * cellH;
-        const placement = applyCellJitter(x, y, i++, params, rng);
+        // r+c (not a running counter) as the cell index: gives generators a
+        // true checkerboard-diagonal parity via colorSeed % 2, and makes
+        // the mirror alternation below an actual checkerboard flip too.
+        const placement = applyCellJitter(x, y, r + c, params, rng);
         // Checkerboard large/small rhythm — the classic textile trick that
-        // makes a plain grid read as deliberately designed.
-        if ((r + c) % 2 === 1) placement.scale *= 0.7;
+        // makes a plain grid read as deliberately designed. Field patterns
+        // (checkerboard/gingham/...) opt out: they need every cell exactly
+        // the same size.
+        if (!params.disableGridRhythm && (r + c) % 2 === 1) placement.scale *= 0.7;
         placements.push(placement);
       }
     }
