@@ -6,9 +6,10 @@ import { randomSeed } from './engine/rng';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildSeoTextFile } from './metadata/shutterstock';
+import { buildShutterstockCsv, buildAdobeStockCsv } from './metadata/csv';
 import { loadSavedItems, putSavedItem, bulkPutSavedItems, deleteSavedItem, clearSavedItems } from './storage/savedStore';
 import { GENERATORS } from './generators';
-import { getPalette } from './palettes/palettes';
+import { getPalette, PALETTES } from './palettes/palettes';
 import { LAYOUTS } from './layouts';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
@@ -46,6 +47,7 @@ function App() {
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
   const [saved, setSaved] = useState<SavedItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [checkedGalleryIds, setCheckedGalleryIds] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => saveGallery(gallery), [gallery]);
   // Saved library lives in IndexedDB (effectively unlimited) — load once on
@@ -148,6 +150,44 @@ function App() {
     setSelectedId(null);
   }, []);
 
+  /** Filesystem-safe base name (no extension) for a pattern's files. */
+  const exportBase = useCallback(
+    (data: TileData) => buildExportFilename(filenameParts(data), data.params.seed).replace(/\.svg$/, ''),
+    [filenameParts],
+  );
+
+  // In-app JPEG preview export: rasterize the single-tile SVG to a
+  // 5000x5000 canvas (comfortably above every site's 4MP minimum) — for
+  // sites that want a JPEG paired with the vector (e.g. Freepik), no
+  // external editor needed.
+  const handleExportJpeg = useCallback(() => {
+    const svgBlob = new Blob([buildSingleTileSvg(tileData)], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      const size = 5000;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(
+        (b) => {
+          if (b) downloadBlobFile(`${exportBase(tileData)}.jpg`, b);
+        },
+        'image/jpeg',
+        0.92,
+      );
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  }, [tileData, exportBase]);
+
   // One-click bundle download: single tile + 3x3 (both at the full
   // 10000x10000 export size — the zip stores files byte-for-byte, nothing
   // is downscaled or recompressed) + a plain-text file with every site's
@@ -221,6 +261,77 @@ function App() {
     [updateSavedItem],
   );
 
+  // Gallery multi-select → batch save-to-library (silent: no per-item
+  // download spam; the move-to-disk zip hands over all files at once).
+  const handleToggleGalleryCheck = useCallback((id: string) => {
+    setCheckedGalleryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleSaveCheckedGallery = useCallback(() => {
+    const picked = gallery.filter((g) => checkedGalleryIds.has(g.id));
+    if (picked.length === 0) return;
+    const stamp = Date.now();
+    const items: SavedItem[] = picked.map((g, i) => ({
+      id: `${stamp}-gv${i}-${Math.random().toString(36).slice(2, 6)}`,
+      tileData: g.tileData,
+      name: filenameParts(g.tileData).join(' · '),
+      createdAt: stamp - i,
+      note: '',
+      submissions: {},
+    }));
+    setSaved((prev) => [...items, ...prev]);
+    void bulkPutSavedItems(items);
+    setCheckedGalleryIds(new Set());
+  }, [gallery, checkedGalleryIds, filenameParts]);
+
+  // Colorway collection: rebuild the current pattern (same seed, same
+  // composition) once per palette and save the whole set into the library
+  // in one click. No per-item auto-download here — 18 zips at once would
+  // be download spam; "ย้ายทั้งคลังลงเครื่อง" hands over the whole set as
+  // one file instead.
+  const handleColorwayAll = useCallback(() => {
+    if (!tileData) return;
+    const ok = window.confirm(
+      `จะสร้างลายนี้ (seed เดิม องค์ประกอบเดิม) ครบทุกชุดสี ${PALETTES.length} แบบ แล้วบันทึกเข้าคลังทั้งชุด\n\n` +
+        `ไม่มีการดาวน์โหลดทีละไฟล์ — พอพร้อมค่อยกด "ย้ายทั้งคลังลงเครื่อง" เพื่อรับไฟล์ทั้งหมด (พร้อม CSV) ทีเดียว — ดำเนินการเลยหรือไม่?`,
+    );
+    if (!ok) return;
+    const stamp = Date.now();
+    const items: SavedItem[] = PALETTES.map((p, i) => {
+      const data = buildTile({ ...tileData.params, paletteId: p.id, customColors: undefined });
+      return {
+        id: `${stamp}-cw${i}-${Math.random().toString(36).slice(2, 6)}`,
+        tileData: data,
+        name: filenameParts(data).join(' · '),
+        createdAt: stamp - i, // keep palette order stable in the newest-first list
+        note: '',
+        submissions: {},
+      };
+    });
+    setSaved((prev) => [...items, ...prev]);
+    void bulkPutSavedItems(items);
+  }, [tileData, filenameParts]);
+
+  // Standalone CSV downloads (the same CSVs also ship inside the
+  // move-to-disk zip). Filenames use .eps since that's what actually gets
+  // uploaded to these sites after the Affinity conversion.
+  const handleExportCsv = useCallback(
+    (site: 'shutterstock' | 'adobestock') => {
+      if (saved.length === 0) return;
+      const filenameFor = (item: SavedItem) => `${exportBase(item.tileData)}.eps`;
+      const csv = site === 'shutterstock' ? buildShutterstockCsv(saved, filenameFor) : buildAdobeStockCsv(saved, filenameFor);
+      const date = new Date().toISOString().slice(0, 10);
+      // UTF-8 BOM so Excel opens the CSV correctly.
+      downloadBlobFile(`${site}-metadata-${date}.csv`, new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    },
+    [saved, exportBase],
+  );
+
   // "ย้ายทั้งคลังลงเครื่อง": one zip with a folder per pattern (single tile
   // + 3x3 + SEO, all full-size) plus library-backup.json carrying every
   // item's params/notes/submission states. After the download is handed to
@@ -237,7 +348,7 @@ function App() {
     const enc = new TextEncoder();
     const entries: ZipEntry[] = [];
     saved.forEach((item, i) => {
-      const base = buildExportFilename(filenameParts(item.tileData), item.tileData.params.seed).replace(/\.svg$/, '');
+      const base = exportBase(item.tileData);
       const folder = `${String(i + 1).padStart(3, '0')}-${base}`;
       entries.push(
         { name: `${folder}/${base}.svg`, data: enc.encode(buildSingleTileSvg(item.tileData)) },
@@ -245,12 +356,19 @@ function App() {
         { name: `${folder}/${base}-SEO.txt`, data: enc.encode(buildSeoTextFile(item.tileData)) },
       );
     });
-    entries.push({ name: 'library-backup.json', data: enc.encode(JSON.stringify(saved)) });
+    // Batch-upload metadata CSVs for the two sites that support them, with
+    // filenames matching the .eps each SVG becomes after conversion.
+    const filenameFor = (item: SavedItem) => `${exportBase(item.tileData)}.eps`;
+    entries.push(
+      { name: 'shutterstock-metadata.csv', data: enc.encode(buildShutterstockCsv(saved, filenameFor)) },
+      { name: 'adobestock-metadata.csv', data: enc.encode(buildAdobeStockCsv(saved, filenameFor)) },
+      { name: 'library-backup.json', data: enc.encode(JSON.stringify(saved)) },
+    );
     const date = new Date().toISOString().slice(0, 10);
     downloadBlobFile(`pattern-library-${date}.zip`, buildZip(entries));
     setSaved([]);
     void clearSavedItems();
-  }, [saved, filenameParts]);
+  }, [saved, exportBase]);
 
   // Restore a library (or merge one from another machine) from the
   // library-backup.json inside a moved-to-disk zip.
@@ -320,6 +438,8 @@ function App() {
           onGenerateBatch={handleGenerateBatch}
           onExportSingle={handleExportSingle}
           onExportTiled={handleExportTiled}
+          onExportJpeg={handleExportJpeg}
+          onColorwayAll={handleColorwayAll}
           onReset={handleReset}
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
@@ -337,6 +457,7 @@ function App() {
             onDownload={(item) => handleDownloadBundle(item.tileData)}
             onMoveAllToDisk={handleMoveLibraryToDisk}
             onImportBackup={handleImportLibrary}
+            onExportCsv={handleExportCsv}
           />
           <Gallery
             items={gallery}
@@ -344,6 +465,9 @@ function App() {
             onSelect={handleSelectGalleryItem}
             onRemove={handleRemoveGalleryItem}
             onClear={handleClearGallery}
+            checkedIds={checkedGalleryIds}
+            onToggleCheck={handleToggleGalleryCheck}
+            onSaveChecked={handleSaveCheckedGallery}
           />
         </main>
       </div>

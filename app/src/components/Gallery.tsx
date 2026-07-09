@@ -14,6 +14,10 @@ interface Props {
   onSelect: (item: GalleryItem) => void;
   onRemove: (id: string) => void;
   onClear: () => void;
+  /** Multi-select for batch save-to-library. */
+  checkedIds: ReadonlySet<string>;
+  onToggleCheck: (id: string) => void;
+  onSaveChecked: () => void;
 }
 
 function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: string }) {
@@ -24,42 +28,66 @@ function Thumb({ tileData, instanceId }: { tileData: TileData; instanceId: strin
   );
 }
 
-export function Gallery({ items, selectedId, onSelect, onRemove, onClear }: Props) {
+export function Gallery({ items, selectedId, onSelect, onRemove, onClear, checkedIds, onToggleCheck, onSaveChecked }: Props) {
   return (
     <div className="gallery">
       <div className="gallery-header">
         <h3>Gallery ({items.length})</h3>
-        {items.length > 0 && (
-          <button type="button" className="link-btn" onClick={onClear}>
-            Clear all
-          </button>
-        )}
+        <div className="gallery-header-actions">
+          {checkedIds.size > 0 && (
+            <button type="button" className="btn btn--save" onClick={onSaveChecked}>
+              💾 บันทึกที่ติ๊กเข้าคลัง ({checkedIds.size})
+            </button>
+          )}
+          {items.length > 0 && (
+            <button type="button" className="link-btn" onClick={onClear}>
+              Clear all
+            </button>
+          )}
+        </div>
       </div>
       {items.length === 0 ? (
         <p className="gallery-empty">Generated patterns will be saved here for this session.</p>
       ) : (
-        <div className="gallery-grid">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className={`gallery-thumb ${item.id === selectedId ? 'gallery-thumb--active' : ''}`}
-              onClick={() => onSelect(item)}
-            >
-              <Thumb tileData={item.tileData} instanceId={item.id} />
-              <button
-                type="button"
-                className="gallery-thumb__remove"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(item.id);
-                }}
-                aria-label="Remove from gallery"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
+        <>
+          <p className="gallery-hint">ติ๊กมุมซ้ายบนของหลายๆ ลายเพื่อบันทึกเข้าคลังเป็นชุดเดียว</p>
+          <div className="gallery-grid">
+            {items.map((item) => {
+              const checked = checkedIds.has(item.id);
+              return (
+                <div
+                  key={item.id}
+                  className={`gallery-thumb ${item.id === selectedId ? 'gallery-thumb--active' : ''}`}
+                  onClick={() => onSelect(item)}
+                >
+                  <Thumb tileData={item.tileData} instanceId={item.id} />
+                  <button
+                    type="button"
+                    className={`gallery-thumb__check ${checked ? 'gallery-thumb__check--on' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleCheck(item.id);
+                    }}
+                    aria-label={checked ? 'เอาออกจากที่เลือก' : 'เลือกเพื่อบันทึกเข้าคลัง'}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    type="button"
+                    className="gallery-thumb__remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(item.id);
+                    }}
+                    aria-label="Remove from gallery"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
