@@ -69,6 +69,23 @@ export function MetadataPanel({ tileData }: Props) {
         </div>
         <textarea readOnly rows={5} value={keywordString} />
       </div>
+
+      <div className="metadata-field">
+        <div className="metadata-field-top">
+          <label>หมวดหมู่ภาพ (เลือกในฟอร์มอัปโหลด)</label>
+          <CopyButton text={meta.categories.shutterstock.join(', ')} label="หมวด" />
+        </div>
+        <div className="category-rows">
+          <div className="category-row">
+            <span className="category-site">Shutterstock (เลือก 2)</span>
+            <span className="category-values">{meta.categories.shutterstock.join(' + ')}</span>
+          </div>
+          <div className="category-row">
+            <span className="category-site">Adobe Stock (เลือก 1)</span>
+            <span className="category-values">{meta.categories.adobeStock}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -141,6 +141,15 @@ export interface GenerateParams {
   tileSize: number;
   density: number;
   motifSize: number;
+  /** Post-generation pattern scale (1 = as generated). Multiplies the
+   * effective motif size while the density *value* stays fixed — and since
+   * layout spacing is itself proportional to motif size (see
+   * spacingForDensity), the spacing-to-motif ratio (the visual density
+   * proportion) is preserved automatically: the same composition simply
+   * repeats finer (<1) or bolder (>1) within the fixed export canvas.
+   * Kept separate from motifSize so the slider is absolute, not
+   * compounding, and resets cleanly. */
+  patternScale?: number;
   rotationJitter: number;
   scaleJitter: number;
   mirror: boolean;

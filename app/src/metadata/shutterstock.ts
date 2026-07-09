@@ -13,7 +13,34 @@ export interface StockMetadata {
   title: string;
   description: string;
   keywords: string[]; // exactly 50
+  /** Upload-form category suggestions. Shutterstock allows picking up to 2
+   * from its fixed list; Adobe Stock exactly 1 from its 21. */
+  categories: {
+    shutterstock: [string, string];
+    adobeStock: string;
+  };
 }
+
+// Shutterstock's fixed category list only — these strings must match the
+// upload form's options verbatim. Every seamless pattern's primary category
+// is Backgrounds/Textures; the secondary varies by subject matter.
+const SHUTTERSTOCK_SECONDARY: Record<string, string> = {
+  geometric: 'Abstract',
+  botanical: 'Nature',
+  organic: 'Abstract',
+  tropical: 'Nature',
+  boho: 'Abstract',
+  lineart: 'Abstract',
+  mandala: 'Arts',
+  damask: 'Vintage',
+  cute: 'Animals/Wildlife',
+  seasonal: 'Holidays',
+  retro: 'Vintage',
+  plaid: 'Abstract',
+  animalprint: 'Animals/Wildlife',
+  paisley: 'Arts',
+  terrazzo: 'Abstract',
+};
 
 // Universal keywords that apply to every seamless vector pattern. Long
 // enough to always pad the list to 50 after category/palette words.
@@ -186,7 +213,18 @@ export function buildStockMetadata(tileData: TileData): StockMetadata {
     keywords.push(w);
     if (keywords.length === 50) break;
   }
-  return { title, description, keywords };
+
+  // Category suggestions for the upload forms. Patterns always lead with
+  // Backgrounds/Textures on Shutterstock; the secondary comes from the
+  // (first, in mix mode) subject category. Vector patterns on Adobe Stock
+  // belong under Graphic Resources regardless of subject.
+  const secondary = SHUTTERSTOCK_SECONDARY[isMix ? mixCategoryIds[0] : categoryId] ?? 'Abstract';
+  const categories: StockMetadata['categories'] = {
+    shutterstock: ['Backgrounds/Textures', secondary],
+    adobeStock: 'Graphic Resources',
+  };
+
+  return { title, description, keywords, categories };
 }
 
 /** Hard safety net: trims to the last whole word at or under `max` chars.

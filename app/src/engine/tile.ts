@@ -34,12 +34,16 @@ export function buildTile(params: GenerateParams): TileData {
   const colors = custom.length >= 2 ? custom.slice(0, 6) : resolveColors(getPalette(params.paletteId), params.colorCount);
   const backgroundColor = colors[0];
   const { tileSize } = params;
+  // Post-gen pattern scale: same seed + same density value + scaled motif
+  // size = the identical composition proportion at a finer/bolder repeat,
+  // because every layout's spacing is proportional to motif size.
+  const effectiveMotifSize = params.motifSize * Math.min(4, Math.max(0.2, params.patternScale ?? 1));
   activeGenerators.forEach((g) => g.beginTile?.(rng));
 
   const placements: Placement[] = layout.generate(
     {
       tileSize,
-      motifSize: params.motifSize,
+      motifSize: effectiveMotifSize,
       density: params.density,
       rotationJitter: params.rotationJitter,
       scaleJitter: params.scaleJitter,
@@ -52,7 +56,7 @@ export function buildTile(params: GenerateParams): TileData {
 
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
-    const motif = generator.createMotif(rng, colors, params.motifSize, placement.colorSeed);
+    const motif = generator.createMotif(rng, colors, effectiveMotifSize, placement.colorSeed);
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
