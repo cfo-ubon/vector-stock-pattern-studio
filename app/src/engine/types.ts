@@ -141,6 +141,16 @@ export interface GenerateParams {
   tileSize: number;
   density: number;
   motifSize: number;
+  /** Background filler layer: tiny dots/rings/plus/diamond accents
+   * scattered between the main motifs — the professional surface-design
+   * touch that makes a pattern read as "designed" instead of icons on an
+   * empty canvas. 'subtle' = sparse and low-contrast, 'rich' = denser and
+   * a bit stronger. Undefined = 'none' (backward compatible with saved
+   * patterns from before this option existed). */
+  fillerStyle?: 'none' | 'subtle' | 'rich';
+  /** Flat "sticker" shadow: a solid-color offset silhouette under every
+   * motif (no blur, no transparency — EPS-safe by construction). */
+  flatShadow?: boolean;
   /** Post-generation pattern scale (1 = as generated). Multiplies the
    * effective motif size while the density *value* stays fixed — and since
    * layout spacing is itself proportional to motif size (see

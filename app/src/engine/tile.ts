@@ -1,11 +1,78 @@
-import type { GenerateParams, PatternGenerator, Placement, SvgNode, TileData } from './types';
+import type { GenerateParams, PatternGenerator, Placement, Rng, SvgNode, TileData } from './types';
 import { createRng, rngPick } from './rng';
 import { h, round, computeBoundingRadius } from './svgAst';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
-import { getPalette, resolveColors } from '../palettes/palettes';
+import { poissonDiscPoints } from '../layouts/shared';
+import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
 
 const WRAP_OFFSETS = [-1, 0, 1];
+
+/** Deep-clone a subtree with every visible fill/stroke replaced by one
+ * color — used to draw a motif's flat shadow silhouette. */
+function recolorNode(node: SvgNode, color: string): SvgNode {
+  const attrs = node.attrs ? { ...node.attrs } : undefined;
+  if (attrs) {
+    if (attrs.fill !== undefined && attrs.fill !== 'none') attrs.fill = color;
+    if (attrs.stroke !== undefined && attrs.stroke !== 'none') attrs.stroke = color;
+  }
+  return { ...node, attrs, children: node.children?.map((c) => recolorNode(c, color)) };
+}
+
+/** Background filler layer: tiny dots/rings/plus/diamonds scattered in the
+ * gaps between main motifs, in low-contrast pre-blended colors, with the
+ * same periodic wrap-clone treatment as real motifs so seamlessness holds.
+ * Drawn behind the motif layer. Consumes rng only after all motifs are
+ * built, so enabling/disabling it never changes the main pattern of a
+ * given seed. */
+function buildFillerLayer(
+  style: 'subtle' | 'rich',
+  rng: Rng,
+  colors: string[],
+  tileSize: number,
+): SvgNode {
+  const bg = colors[0];
+  const accents = colors.length > 1 ? colors.slice(1) : colors;
+  const target = Math.round((style === 'subtle' ? 90 : 190) * (tileSize / 1200) ** 2);
+  const minDist = (tileSize / Math.sqrt(Math.max(1, target))) * 0.62;
+  const alpha = style === 'subtle' ? 0.28 : 0.42;
+  const pts = poissonDiscPoints(tileSize, minDist, target, rng);
+  const shapes: SvgNode[] = [];
+  for (const [x, y] of pts) {
+    const color = blendHex(accents[Math.floor(rng() * accents.length)], alpha, bg);
+    const r = tileSize * (0.0045 + rng() * 0.005);
+    const kind = Math.floor(rng() * 4);
+    const rot = Math.floor(rng() * 90);
+    const pad = r * 2.2;
+    for (const oi of WRAP_OFFSETS) {
+      for (const oj of WRAP_OFFSETS) {
+        const wx = x + oi * tileSize;
+        const wy = y + oj * tileSize;
+        if (wx + pad < 0 || wx - pad > tileSize || wy + pad < 0 || wy - pad > tileSize) continue;
+        if (kind === 0) {
+          shapes.push(h('circle', { cx: round(wx), cy: round(wy), r: round(r), fill: color }));
+        } else if (kind === 1) {
+          shapes.push(h('circle', { cx: round(wx), cy: round(wy), r: round(r * 0.9), fill: 'none', stroke: color, 'stroke-width': round(r * 0.55) }));
+        } else if (kind === 2) {
+          shapes.push(
+            h('g', { transform: `translate(${round(wx)} ${round(wy)}) rotate(${rot})` }, [
+              h('rect', { x: round(-r), y: round(-r * 0.3), width: round(r * 2), height: round(r * 0.6), fill: color }),
+              h('rect', { x: round(-r * 0.3), y: round(-r), width: round(r * 0.6), height: round(r * 2), fill: color }),
+            ]),
+          );
+        } else {
+          shapes.push(
+            h('polygon', {
+              points: `${round(wx)},${round(wy - r)} ${round(wx + r)},${round(wy)} ${round(wx)},${round(wy + r)} ${round(wx - r)},${round(wy)}`,
+              fill: color,
+            }),
+          );
+        }
+      }
+    }
+  }
+  return h('g', { id: 'layer-filler' }, shapes);
+}
 
 /** Build one seamless tile as an SvgNode tree, wrapped in a <g id="tile-content">
  * so it can be embedded directly (single-tile export), referenced from a
@@ -54,6 +121,15 @@ export function buildTile(params: GenerateParams): TileData {
     rng,
   );
 
+  // Flat "sticker" shadow setup: a solid tone slightly darker than the
+  // background, offset down-right, drawn in its own layer *under* all
+  // motifs so a shadow never sits on top of a neighboring motif.
+  const useShadow = !!params.flatShadow;
+  const shadowColor = blendHex('#000000', 0.16, backgroundColor);
+  const shadowDx = effectiveMotifSize * 0.07;
+  const shadowDy = effectiveMotifSize * 0.09;
+  const shadowGroups: SvgNode[] = [];
+
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     const motif = generator.createMotif(rng, colors, effectiveMotifSize, placement.colorSeed);
@@ -64,8 +140,12 @@ export function buildTile(params: GenerateParams): TileData {
     // computed straight from the shape's own coordinates can't be wrong in
     // that direction, so take whichever is larger.
     const safeRadius = Math.max(motif.radius, computeBoundingRadius(motif.node));
-    const effectiveRadius = safeRadius * placement.scale;
+    // The shadow copy extends the reach of a placement — include its
+    // offset in the wrap-inclusion test so edge shadows stay seamless too.
+    const effectiveRadius = safeRadius * placement.scale + (useShadow ? Math.hypot(shadowDx, shadowDy) : 0);
+    const shadowNode = useShadow ? recolorNode(motif.node, shadowColor) : null;
     const instances: SvgNode[] = [];
+    const shadowInstances: SvgNode[] = [];
 
     for (const oi of WRAP_OFFSETS) {
       for (const oj of WRAP_OFFSETS) {
@@ -81,27 +161,33 @@ export function buildTile(params: GenerateParams): TileData {
           wy + effectiveRadius >= 0 &&
           wy - effectiveRadius <= tileSize;
         if (!intersects) continue;
-        instances.push(
-          h(
-            'g',
-            {
-              transform: `translate(${round(wx)} ${round(wy)}) rotate(${round(placement.rotationDeg)}) scale(${round(placement.scale)})`,
-            },
-            [motif.node],
-          ),
-        );
+        const placeTransform = (dx: number, dy: number) =>
+          `translate(${round(wx + dx)} ${round(wy + dy)}) rotate(${round(placement.rotationDeg)}) scale(${round(placement.scale)})`;
+        if (shadowNode) {
+          shadowInstances.push(h('g', { transform: placeTransform(shadowDx, shadowDy) }, [shadowNode]));
+        }
+        instances.push(h('g', { transform: placeTransform(0, 0) }, [motif.node]));
       }
     }
 
+    if (shadowInstances.length > 0) shadowGroups.push(h('g', { id: `shadow-${index + 1}` }, shadowInstances));
     return h('g', { id: `motif-${index + 1}` }, instances);
   });
+
+  // Filler goes behind everything except the background; built last so its
+  // rng draws never shift the main pattern for an existing seed.
+  const fillerStyle = params.fillerStyle ?? 'none';
+  const patternLayers: SvgNode[] = [];
+  if (fillerStyle !== 'none') patternLayers.push(buildFillerLayer(fillerStyle, rng, colors, tileSize));
+  if (shadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, shadowGroups));
+  patternLayers.push(...motifGroups);
 
   const content: SvgNode = h('g', { id: 'tile-content' }, [
     h('defs', {}, [
       h('clipPath', { id: 'tile-clip' }, [h('rect', { x: 0, y: 0, width: tileSize, height: tileSize })]),
     ]),
     h('g', { id: 'layer-background' }, [h('rect', { x: 0, y: 0, width: tileSize, height: tileSize, fill: backgroundColor })]),
-    h('g', { id: 'layer-pattern', 'clip-path': 'url(#tile-clip)' }, motifGroups),
+    h('g', { id: 'layer-pattern', 'clip-path': 'url(#tile-clip)' }, patternLayers),
   ]);
 
   return { params, backgroundColor, colors, svg: content };

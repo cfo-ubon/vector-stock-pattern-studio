@@ -33,6 +33,10 @@ export function defaultParams(): GenerateParams {
     density: 0.55,
     motifSize: generator.defaultMotifSize,
     patternScale: 1,
+    // Subtle background filler by default — the small accents between
+    // motifs are what make a pattern read as professionally designed.
+    fillerStyle: 'subtle',
+    flatShadow: false,
     rotationJitter: 15,
     scaleJitter: 0.15,
     mirror: false,
@@ -64,6 +68,8 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     density: 0.35 + rng() * 0.55,
     motifSize: generator.defaultMotifSize * (0.7 + rng() * 0.7),
     patternScale: 1,
+    fillerStyle: rng() < 0.2 ? 'none' : rng() < 0.75 ? 'subtle' : 'rich',
+    flatShadow: rng() < 0.2,
     rotationJitter: Math.floor(rng() * 90),
     scaleJitter: rng() * 0.4,
     mirror: rng() < 0.4,
