@@ -123,6 +123,15 @@ export interface PatternLayout {
 
 export interface GenerateParams {
   categoryId: string;
+  /** Asset-Based Pattern mode: when set with 2+ ids, the engine draws each
+   * individual motif from a randomly-picked generator among these
+   * categories (a fresh pick per placement, not once per tile) instead of
+   * from `categoryId` alone — an eclectic pattern built from a mixed
+   * "asset library" rather than one consistent style. `categoryId` is
+   * still kept in sync (first entry) for display/filename purposes when
+   * this is active. Unset or single-entry means normal single-category
+   * mode. */
+  mixCategoryIds?: string[];
   layoutId: LayoutId;
   paletteId: string;
   /** When set (e.g. from the AI-assist JSON), overrides the palette:

@@ -72,6 +72,22 @@ const CATEGORY_KEYWORDS: Record<string, { phrase: string; words: string[] }> = {
     phrase: 'groovy seventies shapes',
     words: ['retro', 'groovy', 'seventies', '70s', 'vintage', 'hippie', 'rainbow', 'daisy', 'sun', 'mushroom', 'psychedelic', 'flower power', 'sixties', 'wavy', 'funky', 'nostalgia', 'mod', 'boho'],
   },
+  plaid: {
+    phrase: 'plaid and tartan check',
+    words: ['plaid', 'tartan', 'check', 'checkered', 'gingham', 'houndstooth', 'buffalo check', 'flannel', 'woven', 'scottish', 'preppy', 'cozy', 'autumn', 'lumberjack', 'fabric print', 'textile', 'grid check', 'wool'],
+  },
+  animalprint: {
+    phrase: 'animal print texture',
+    words: ['animal print', 'leopard', 'zebra', 'tiger', 'cheetah', 'snake skin', 'giraffe', 'safari', 'wild', 'fur', 'spots', 'stripes', 'fashion', 'exotic', 'jungle', 'wildlife', 'chic', 'trendy'],
+  },
+  paisley: {
+    phrase: 'paisley and ikat motifs',
+    words: ['paisley', 'ikat', 'indian', 'persian', 'boteh', 'teardrop', 'ethnic', 'bohemian', 'ornamental', 'batik', 'oriental', 'intricate', 'traditional', 'textile', 'scarf', 'henna', 'exotic', 'folk'],
+  },
+  terrazzo: {
+    phrase: 'terrazzo chip texture',
+    words: ['terrazzo', 'chip', 'speckled', 'stone', 'confetti', 'marble', 'granite', 'flooring', 'italian', 'aggregate', 'modern', 'contemporary', 'minimalist', 'interior', 'mosaic', 'playful', 'pastel', 'organic shapes'],
+  },
 };
 
 // Short mood words per palette id (first entry doubles as the description's
@@ -103,23 +119,60 @@ const LAYOUT_WORDS: Record<string, string[]> = {
   halfDrop: ['half drop', 'wallpaper repeat'],
   radial: ['medallion', 'circular layout'],
   scatter: ['ditsy', 'scattered', 'tossed'],
+  heroFlow: ['editorial', 'flowing layout', 'statement print'],
+  heroScatter: ['hero print', 'focal point', 'scattered accent'],
+  sCurve: ['s-curve', 'organic flow', 'botanical stripe'],
+  bouquet: ['bouquet', 'clustered', 'floral arrangement'],
+  airy: ['airy', 'light spacing', 'breathable'],
+  toss: ['toss print', 'all-over toss', 'random layout'],
+  densePremium: ['dense', 'packed', 'premium all-over'],
+  gridMinimal: ['minimal grid', 'icon grid', 'evenly spaced'],
+  stripe: ['striped', 'linear repeat', 'banded'],
 };
 
 export function buildStockMetadata(tileData: TileData): StockMetadata {
-  const { categoryId, paletteId, layoutId, customColors } = tileData.params;
+  const { categoryId, paletteId, layoutId, customColors, mixCategoryIds } = tileData.params;
+  const isMix = !!mixCategoryIds && mixCategoryIds.length >= 2;
+  const mixCategories = isMix ? mixCategoryIds.map((id) => CATEGORY_KEYWORDS[id] ?? CATEGORY_KEYWORDS.geometric) : [];
   const category = CATEGORY_KEYWORDS[categoryId] ?? CATEGORY_KEYWORDS.geometric;
-  const generatorLabel = GENERATORS[categoryId]?.label ?? 'Pattern';
+  const generatorLabel = isMix
+    ? `${mixCategoryIds.map((id) => GENERATORS[id]?.label ?? id).join(' + ')} Mix`
+    : (GENERATORS[categoryId]?.label ?? 'Pattern');
   const usingCustom = !!customColors?.length;
   const paletteLabel = usingCustom ? 'Colorful' : getPalette(paletteId).label;
   const moods = usingCustom ? ['colorful', 'multicolor', 'bright'] : (PALETTE_MOODS[paletteId] ?? ['colorful']);
+  // Mix mode can combine up to 5 categories — joining their full phrases
+  // ("geometric shapes and botanical leaves and flowers and ... mixed")
+  // would blow past Shutterstock's title/description budgets, so mix uses
+  // short category labels instead of the verbose single-category phrase.
+  const phrase = isMix
+    ? `${mixCategoryIds.map((id) => (GENERATORS[id]?.label ?? id).toLowerCase()).join(', ')} mixed motifs`
+    : category.phrase;
 
-  const title = `${paletteLabel} ${generatorLabel} Seamless Vector Pattern — Flat ${capitalize(category.phrase)} Repeat for Fabric and Wallpaper`;
+  const title = truncateWords(
+    `${paletteLabel} ${generatorLabel} Seamless Vector Pattern — Flat ${capitalize(phrase)} Repeat for Fabric and Wallpaper`,
+    200,
+  );
 
-  const description = `Seamless vector pattern with flat ${category.phrase} in ${moods[0]} colors. Hand-crafted repeating tile for fabric, textile, wallpaper, wrapping paper, stationery and web backgrounds. Fully editable vector.`;
+  const description = truncateWords(
+    `Seamless vector pattern with flat ${phrase} in ${moods[0]} colors. Hand-crafted repeating tile for fabric, textile, wallpaper, wrapping paper, stationery and web backgrounds. Fully editable vector.`,
+    200,
+  );
 
-  // Assemble keywords most-important-first, dedupe, cap at exactly 50.
+  // Assemble keywords most-important-first, dedupe, cap at exactly 50. In
+  // mix mode, interleave each category's word list (round-robin) instead
+  // of concatenating, so every mixed category gets early, high-weight
+  // keyword slots rather than the first category hogging them all.
+  const categoryWordSource = isMix ? mixCategories : [category];
+  const interleaved: string[] = [];
+  const maxLen = Math.max(...categoryWordSource.map((c) => c.words.length));
+  for (let i = 0; i < maxLen; i++) {
+    for (const c of categoryWordSource) {
+      if (c.words[i]) interleaved.push(c.words[i]);
+    }
+  }
   const raw = [
-    ...category.words,
+    ...interleaved,
     ...moods,
     ...(LAYOUT_WORDS[layoutId] ?? []),
     ...UNIVERSAL,
@@ -134,6 +187,16 @@ export function buildStockMetadata(tileData: TileData): StockMetadata {
     if (keywords.length === 50) break;
   }
   return { title, description, keywords };
+}
+
+/** Hard safety net: trims to the last whole word at or under `max` chars.
+ * Keeps title/description within Shutterstock's limits even if a future
+ * category phrase or a 5-way asset mix makes the raw string run long. */
+function truncateWords(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim();
 }
 
 function capitalize(s: string): string {

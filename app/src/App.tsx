@@ -95,7 +95,10 @@ function App() {
   const filenameParts = useCallback((data: TileData) => {
     const p = data.params;
     const paletteName = p.customColors?.length ? 'custom colors' : getPalette(p.paletteId).label;
-    const categoryName = GENERATORS[p.categoryId]?.label ?? p.categoryId;
+    const categoryName =
+      p.mixCategoryIds && p.mixCategoryIds.length >= 2
+        ? `mix ${p.mixCategoryIds.map((id) => GENERATORS[id]?.label ?? id).join(' x ')}`
+        : (GENERATORS[p.categoryId]?.label ?? p.categoryId);
     const layoutName = LAYOUTS[p.layoutId]?.label ?? p.layoutId;
     return [paletteName, categoryName, layoutName];
   }, []);
@@ -123,7 +126,7 @@ function App() {
       let latest: TileData | null = null;
       const base = defaultParams();
       patches.forEach((patch, i) => {
-        const merged: GenerateParams = { ...base, ...params, customColors: undefined, ...patch };
+        const merged: GenerateParams = { ...base, ...params, customColors: undefined, mixCategoryIds: undefined, ...patch };
         const data = buildTile(merged);
         latest = data;
         items.push({ id: `${Date.now()}-ai${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });

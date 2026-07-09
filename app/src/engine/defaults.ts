@@ -1,8 +1,19 @@
 import type { GenerateParams } from './types';
-import { createRng, randomSeed, rngPick } from './rng';
+import { createRng, randomSeed, rngPick, rngInt } from './rng';
 import { GENERATORS } from '../generators';
 import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
+
+/** Pick `count` distinct random elements from `arr`. */
+function pickDistinct<T>(rng: () => number, arr: readonly T[], count: number): T[] {
+  const pool = [...arr];
+  const picked: T[] = [];
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    const idx = Math.floor(rng() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  return picked;
+}
 
 export function defaultParams(): GenerateParams {
   const generator = GENERATORS.geometric;
@@ -34,9 +45,15 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
   const generators = Object.values(GENERATORS);
   const generator = rngPick(rng, generators);
   const palette = rngPick(rng, PALETTES);
+  // ~25% of the time, exercise Asset-Based Pattern mixing so "Randomize
+  // All" itself samples that part of the (much larger) combined space
+  // instead of only ever landing on single-category patterns.
+  const useMix = rng() < 0.25;
+  const mixCategoryIds = useMix ? pickDistinct(rng, generators, rngInt(rng, 2, 4)).map((g) => g.id) : undefined;
   return {
     ...base,
     categoryId: generator.id,
+    mixCategoryIds,
     layoutId: rngPick(rng, LAYOUT_LIST).id,
     paletteId: palette.id,
     customColors: undefined,

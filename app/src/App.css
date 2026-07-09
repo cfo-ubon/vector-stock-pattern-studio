@@ -92,6 +92,34 @@ body {
   color: var(--text-dim);
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.mix-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mix-hint {
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin: -0.2rem 0 0.5rem;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
