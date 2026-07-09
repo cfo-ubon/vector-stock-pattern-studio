@@ -5,6 +5,7 @@ import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
+import { buildEps } from './export/epsExporter';
 import { buildSeoTextFile } from './metadata/shutterstock';
 import { buildShutterstockCsv, buildAdobeStockCsv } from './metadata/csv';
 import { loadSavedItems, putSavedItem, bulkPutSavedItems, deleteSavedItem, clearSavedItems } from './storage/savedStore';
@@ -188,16 +189,25 @@ function App() {
     img.src = url;
   }, [tileData, exportBase]);
 
+  // Direct EPS export — the format Shutterstock/Adobe Stock/Freepik accept
+  // for vectors, generated in-app (verified pixel-identical to the SVG
+  // under Ghostscript, the same interpreter family stock pipelines use).
+  const handleExportEps = useCallback(() => {
+    const eps = buildEps(tileData);
+    downloadBlobFile(`${exportBase(tileData)}.eps`, new Blob([eps], { type: 'application/postscript' }));
+  }, [tileData, exportBase]);
+
   // One-click bundle download: single tile + 3x3 (both at the full
   // 10000x10000 export size — the zip stores files byte-for-byte, nothing
   // is downscaled or recompressed) + a plain-text file with every site's
-  // SEO fields.
+  // SEO fields + the upload-ready EPS.
   const handleDownloadBundle = useCallback(
     (data: TileData) => {
       const base = buildExportFilename(filenameParts(data), data.params.seed).replace(/\.svg$/, '');
       const enc = new TextEncoder();
       const zip = buildZip([
         { name: `${base}.svg`, data: enc.encode(buildSingleTileSvg(data)) },
+        { name: `${base}.eps`, data: enc.encode(buildEps(data)) },
         { name: `${base}-3x3.svg`, data: enc.encode(buildTiledSvg(data, 3, 3)) },
         { name: `${base}-SEO.txt`, data: enc.encode(buildSeoTextFile(data)) },
       ]);
@@ -352,6 +362,7 @@ function App() {
       const folder = `${String(i + 1).padStart(3, '0')}-${base}`;
       entries.push(
         { name: `${folder}/${base}.svg`, data: enc.encode(buildSingleTileSvg(item.tileData)) },
+        { name: `${folder}/${base}.eps`, data: enc.encode(buildEps(item.tileData)) },
         { name: `${folder}/${base}-3x3.svg`, data: enc.encode(buildTiledSvg(item.tileData, 3, 3)) },
         { name: `${folder}/${base}-SEO.txt`, data: enc.encode(buildSeoTextFile(item.tileData)) },
       );
@@ -438,6 +449,7 @@ function App() {
           onGenerateBatch={handleGenerateBatch}
           onExportSingle={handleExportSingle}
           onExportTiled={handleExportTiled}
+          onExportEps={handleExportEps}
           onExportJpeg={handleExportJpeg}
           onColorwayAll={handleColorwayAll}
           onReset={handleReset}

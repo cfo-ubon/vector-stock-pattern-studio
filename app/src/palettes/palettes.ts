@@ -40,6 +40,19 @@ export function randomPalette(rng: Rng): Palette {
   return rngPick(rng, PALETTES);
 }
 
+/** Alpha-blend `fg` over `bg` at the given alpha, returning a solid hex.
+ * Generators use this instead of SVG `opacity` so every shape in the tile
+ * is a flat opaque color — required for EPS export (PostScript has no
+ * transparency) and generally safer for stock-site vector review. */
+export function blendHex(fg: string, alpha: number, bg: string): string {
+  const p = (hex: string) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  const [fr, fgc, fb] = p(fg);
+  const [br, bgc, bb] = p(bg);
+  const mix = (f: number, b: number) => Math.round(f * alpha + b * (1 - alpha));
+  const hx = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${hx(mix(fr, br))}${hx(mix(fgc, bgc))}${hx(mix(fb, bb))}`;
+}
+
 /** Colors motifs should fill with: everything except the background
  * (colors[0]). Prevents motifs from randomly picking the background color
  * and visually disappearing into the tile. Generators that deliberately

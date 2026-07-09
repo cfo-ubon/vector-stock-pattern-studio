@@ -250,7 +250,7 @@ export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
     {
       id: 'shutterstock',
       label: 'Shutterstock',
-      note: 'อัปโหลดเป็น EPS (แนบ JPEG preview ชื่อไฟล์เดียวกันได้) — เลือก 2 categories',
+      note: 'อัปโหลด EPS จากปุ่ม Export EPS ได้เลย (แนบ JPEG preview ชื่อไฟล์เดียวกันได้) — เลือก 2 categories',
       fields: [
         { label: 'Title', value: core.titleLong, meta: `${core.titleLong.length}/200 ตัวอักษร` },
         { label: 'Description', value: core.description, meta: `${core.description.length}/200 ตัวอักษร` },
@@ -261,7 +261,7 @@ export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
     {
       id: 'adobestock',
       label: 'Adobe Stock',
-      note: 'อัปโหลดเป็น AI หรือ EPS — ไม่มีช่อง description แยก, keyword 10 คำแรกมีน้ำหนักสูงสุด',
+      note: 'อัปโหลด EPS จากปุ่ม Export EPS ได้เลย — ไม่มีช่อง description แยก, keyword 10 คำแรกมีน้ำหนักสูงสุด',
       fields: [
         { label: 'Title', value: core.titleShort, meta: `${core.titleShort.length}/70 ตัวอักษร (สั้นกระชับดีกว่า)` },
         { label: 'Keywords', value: kw(49), meta: `${Math.min(core.keywords.length, 49)}/49 คำ` },
@@ -271,7 +271,7 @@ export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
     {
       id: 'freepik',
       label: 'Freepik',
-      note: 'อัปโหลดเป็น EPS + ต้องแนบ JPG preview คู่เสมอ',
+      note: 'อัปโหลด EPS (ปุ่ม Export EPS) + ต้องแนบ JPG คู่เสมอ (ปุ่ม Export JPEG)',
       fields: [
         { label: 'Title', value: truncateWords(core.titleLong, 100), meta: `${truncateWords(core.titleLong, 100).length}/100 ตัวอักษร` },
         { label: 'Keywords / Tags', value: kw(50), meta: `${Math.min(core.keywords.length, 50)}/50 คำ` },

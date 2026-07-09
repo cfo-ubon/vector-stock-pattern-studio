@@ -86,11 +86,11 @@ export function polygonPoints(cx: number, cy: number, r: number, sides: number, 
 // its own nested transforms, so it's correct regardless of how a motif is
 // built internally.
 
-type Matrix = [number, number, number, number, number, number]; // a b c d e f
+export type Matrix = [number, number, number, number, number, number]; // a b c d e f
 
-const IDENTITY: Matrix = [1, 0, 0, 1, 0, 0];
+export const IDENTITY: Matrix = [1, 0, 0, 1, 0, 0];
 
-function matMul(m1: Matrix, m2: Matrix): Matrix {
+export function matMul(m1: Matrix, m2: Matrix): Matrix {
   const [a1, b1, c1, d1, e1, f1] = m1;
   const [a2, b2, c2, d2, e2, f2] = m2;
   return [
@@ -103,13 +103,13 @@ function matMul(m1: Matrix, m2: Matrix): Matrix {
   ];
 }
 
-function applyMat(m: Matrix, x: number, y: number): [number, number] {
+export function applyMat(m: Matrix, x: number, y: number): [number, number] {
   return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
 }
 
 /** Parse a `transform` attribute string composed of translate/rotate/scale
  * calls (the only functions this codebase ever emits) into one matrix. */
-function parseTransform(str: string): Matrix {
+export function parseTransform(str: string): Matrix {
   let acc = IDENTITY;
   const re = /(translate|rotate|scale)\(([^)]*)\)/g;
   let m: RegExpExecArray | null;

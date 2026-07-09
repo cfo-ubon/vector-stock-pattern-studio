@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round, polygonPoints } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Seasonal / Holiday generator: Christmas and Halloween motif pools.
@@ -138,8 +138,10 @@ const pumpkin: Variant = (rng, colors, size) => {
   return {
     node: h('g', {}, [
       h('rect', { x: round(-r * 0.08), y: round(-r * 0.85), width: round(r * 0.16), height: round(r * 0.3), rx: round(r * 0.05), fill: stem }),
-      h('ellipse', { cx: round(-r * 0.34), cy: 0, rx: round(r * 0.32), ry: round(r * 0.55), fill: body, opacity: 0.9 }),
-      h('ellipse', { cx: round(r * 0.34), cy: 0, rx: round(r * 0.32), ry: round(r * 0.55), fill: body, opacity: 0.9 }),
+      // Side lobes were 90%-transparent for a subtle two-tone pumpkin —
+      // pre-blend against the background instead (EPS-safe).
+      h('ellipse', { cx: round(-r * 0.34), cy: 0, rx: round(r * 0.32), ry: round(r * 0.55), fill: blendHex(body, 0.9, colors[0]) }),
+      h('ellipse', { cx: round(r * 0.34), cy: 0, rx: round(r * 0.32), ry: round(r * 0.55), fill: blendHex(body, 0.9, colors[0]) }),
       h('ellipse', { cx: 0, cy: 0, rx: round(r * 0.38), ry: round(r * 0.6), fill: body }),
     ]),
     radius: r * 0.9,

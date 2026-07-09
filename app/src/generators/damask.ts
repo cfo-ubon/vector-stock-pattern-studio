@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngBool } from '../engine/rng';
 
 // Textile / Damask-inspired generator (flat — no gradients or shading).
@@ -68,8 +68,8 @@ const acanthusSprig: Variant = (rng, colors, size) => {
     half.push(
       h('path', {
         d: `M 0 ${round(y)} C ${round(len * 0.7)} ${round(y - len * 0.1)} ${round(len)} ${round(y - len * 0.55)} ${round(len * 0.55)} ${round(y - len * 0.75)} C ${round(len * 0.75)} ${round(y - len * 0.4)} ${round(len * 0.45)} ${round(y - len * 0.15)} 0 ${round(y - len * 0.12)} Z`,
-        fill: main,
-        opacity: 0.94,
+        // Was 94%-transparent — pre-blend against background (EPS-safe).
+        fill: blendHex(main, 0.94, colors[0]),
       }),
     );
   }
@@ -125,8 +125,8 @@ const fleurOrnament: Variant = (rng, colors, size) => {
     // Side petal curling outward
     h('path', {
       d: `M ${round(r * 0.12)} ${round(r * 0.25)} C ${round(r * 0.6)} ${round(r * 0.1)} ${round(r * 0.75)} ${round(-r * 0.35)} ${round(r * 0.5)} ${round(-r * 0.55)} C ${round(r * 0.6)} ${round(-r * 0.15)} ${round(r * 0.4)} ${round(r * 0.05)} ${round(r * 0.1)} ${round(r * 0.12)} Z`,
-      fill: main,
-      opacity: 0.92,
+      // Was 92%-transparent — pre-blend against background (EPS-safe).
+      fill: blendHex(main, 0.92, colors[0]),
     }),
   ];
   const children = [

@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes
@@ -24,10 +24,10 @@ function leafNode(rng: Rng, colors: string[], length: number, width: number): Re
       y1: round(-length / 2 + length * 0.1),
       x2: 0,
       y2: round(length / 2 - length * 0.1),
-      stroke: veinColor,
+      // Vein sits fully on the leaf — exact pre-blend, no transparency.
+      stroke: blendHex(veinColor, 0.6, fill),
       'stroke-width': round(length * 0.03),
       'stroke-linecap': 'round',
-      opacity: 0.6,
     }),
   ]);
 }
@@ -119,9 +119,9 @@ const simpleTulip: Variant = (rng, colors, size) => {
     children.push(
       h('path', {
         d: `M 0 0 C ${round(petalW / 2)} ${round(-petalH * 0.4)} ${round(petalW / 2)} ${round(-petalH * 0.85)} 0 ${round(-petalH)} C ${round(-petalW / 2)} ${round(-petalH * 0.85)} ${round(-petalW / 2)} ${round(-petalH * 0.4)} 0 0 Z`,
-        fill: petalColor,
+        // Side petals were 90%-transparent — pre-blend against background.
+        fill: dx === 0 ? petalColor : blendHex(petalColor, 0.9, colors[0]),
         transform: `translate(${round(dx)} ${round(r * 0.15)}) rotate(${rot})`,
-        opacity: dx === 0 ? 1 : 0.9,
       }),
     );
   }

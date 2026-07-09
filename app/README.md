@@ -104,6 +104,26 @@ Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
 site's own character caps, keyword counts and category picks. The
 `MetadataPanel` renders these as tabs with per-field copy buttons.
 
+## EPS export
+
+`export/epsExporter.ts` converts the tile's SvgNode tree straight to
+Encapsulated PostScript — the vector format Shutterstock/Adobe Stock/
+Freepik actually accept. Every coordinate (including Bézier control
+points) is flattened through the accumulated SVG transform plus a final
+Y-flip, so the output is plain absolute moveto/lineto/curveto ops; Q
+segments are exactly elevated to cubics and A segments go through the
+standard endpoint→center arc-to-cubic conversion. Strokes map to
+setlinewidth/cap/join with the width scaled by the matrix determinant.
+The whole page is clipped to the artboard (identical to the SVG's
+tile-clip).
+
+This is only possible because the tile is 100% flat opaque color:
+generators never use opacity (pre-blended via `blendHex` in palettes.ts —
+gingham/tartan crossings are drawn as explicit intersection rects),
+gradients, filters, text or rasters. Verified against Ghostscript across
+46 category×layout cases: renders are pixel-identical to Chromium's SVG
+rendering (mean channel diff < 0.8/255).
+
 ## Batch metadata CSVs
 
 `metadata/csv.ts` builds Shutterstock- and Adobe-Stock-format metadata CSVs

@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngBool } from '../engine/rng';
 
 // Mandala / Kaleidoscope generator. Each motif is itself a small mandala:
@@ -22,11 +22,10 @@ function ring(count: number, offsetDeg: number, child: (i: number) => ReturnType
   return out;
 }
 
-function petal(len: number, width: number, dist: number, fill: string, opacity = 1): ReturnType<typeof h> {
+function petal(len: number, width: number, dist: number, fill: string): ReturnType<typeof h> {
   return h('path', {
     d: `M 0 ${round(-dist)} C ${round(width / 2)} ${round(-dist - len * 0.35)} ${round(width / 2)} ${round(-dist - len * 0.75)} 0 ${round(-dist - len)} C ${round(-width / 2)} ${round(-dist - len * 0.75)} ${round(-width / 2)} ${round(-dist - len * 0.35)} 0 ${round(-dist)} Z`,
     fill,
-    ...(opacity < 1 ? { opacity } : {}),
   });
 }
 
@@ -39,7 +38,8 @@ const petalRosette: Variant = (rng, colors, size) => {
   const core = rngPick(rng, accents);
   const children = [
     ...ring(fold, 0, () => petal(r * 0.5, r * 0.3, r * 0.42, outer)),
-    ...ring(fold, 180 / fold, () => petal(r * 0.38, r * 0.24, r * 0.22, inner, 0.95)),
+    // Inner ring was 95%-transparent — pre-blend against background.
+    ...ring(fold, 180 / fold, () => petal(r * 0.38, r * 0.24, r * 0.22, blendHex(inner, 0.95, colors[0]))),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: core }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.07), fill: colors[0] }),
   ];
@@ -93,7 +93,8 @@ const lotusRing: Variant = (rng, colors, size) => {
   const mid = rngPick(rng, accents);
   const children = [
     ...ring(fold, 0, () => petal(r * 0.62, r * 0.42, r * 0.3, outer)),
-    ...ring(fold, 180 / fold, () => petal(r * 0.45, r * 0.3, r * 0.18, mid, 0.92)),
+    // Mid ring was 92%-transparent — pre-blend against background.
+    ...ring(fold, 180 / fold, () => petal(r * 0.45, r * 0.3, r * 0.18, blendHex(mid, 0.92, colors[0]))),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.2), fill: rngPick(rng, accents) }),
   ];
   return { node: h('g', {}, children), radius: r * 1.0 };
