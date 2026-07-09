@@ -104,6 +104,15 @@ Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
 site's own character caps, keyword counts and category picks. The
 `MetadataPanel` renders these as tabs with per-field copy buttons.
 
+## Download bundle
+
+Saving to the library also auto-downloads a zip (re-downloadable per card)
+containing the single-tile SVG, the 3×3 SVG (both at the full 10000×10000
+export size) and a plain-text dump of every site's SEO fields
+(`buildSeoTextFile`). The zip is written by a dependency-free STORE-method
+writer (`export/zip.ts`) — files are stored byte-for-byte, so nothing is
+recompressed or downscaled.
+
 ## Saved library with submission tracking
 
 `SavedPanel` (`components/SavedPanel.tsx`) is a persistent library separate

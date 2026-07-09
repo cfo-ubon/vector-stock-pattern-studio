@@ -3,7 +3,9 @@ import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
-import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, buildExportFilename } from './export/svgExporter';
+import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
+import { buildZip } from './export/zip';
+import { buildSeoTextFile } from './metadata/shutterstock';
 import { GENERATORS } from './generators';
 import { getPalette } from './palettes/palettes';
 import { LAYOUTS } from './layouts';
@@ -158,8 +160,28 @@ function App() {
     setSelectedId(null);
   }, []);
 
+  // One-click bundle download: single tile + 3x3 (both at the full
+  // 10000x10000 export size — the zip stores files byte-for-byte, nothing
+  // is downscaled or recompressed) + a plain-text file with every site's
+  // SEO fields.
+  const handleDownloadBundle = useCallback(
+    (data: TileData) => {
+      const base = buildExportFilename(filenameParts(data), data.params.seed).replace(/\.svg$/, '');
+      const enc = new TextEncoder();
+      const zip = buildZip([
+        { name: `${base}.svg`, data: enc.encode(buildSingleTileSvg(data)) },
+        { name: `${base}-3x3.svg`, data: enc.encode(buildTiledSvg(data, 3, 3)) },
+        { name: `${base}-SEO.txt`, data: enc.encode(buildSeoTextFile(data)) },
+      ]);
+      downloadBlobFile(`${base}-bundle.zip`, zip);
+    },
+    [filenameParts],
+  );
+
   // --- Saved library (คลังลายที่บันทึก): long-term keeps with per-site
-  // submission tracking, independent of the rolling Gallery. ---
+  // submission tracking, independent of the rolling Gallery. Saving also
+  // auto-downloads the full bundle so the files land on the user's machine
+  // the moment they decide a pattern is a keeper. ---
   const handleSaveCurrent = useCallback(() => {
     if (!tileData) return;
     const item: SavedItem = {
@@ -171,7 +193,8 @@ function App() {
       submissions: {},
     };
     setSaved((prev) => [item, ...prev].slice(0, SAVED_LIMIT));
-  }, [tileData, filenameParts]);
+    handleDownloadBundle(tileData);
+  }, [tileData, filenameParts, handleDownloadBundle]);
 
   const handleLoadSaved = useCallback((item: SavedItem) => {
     setTileData(item.tileData);
@@ -252,6 +275,7 @@ function App() {
             onRemove={handleRemoveSaved}
             onToggleSubmission={handleToggleSubmission}
             onNoteChange={handleSavedNoteChange}
+            onDownload={(item) => handleDownloadBundle(item.tileData)}
           />
           <Gallery
             items={gallery}
