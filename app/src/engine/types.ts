@@ -46,12 +46,34 @@ export interface PatternGenerator {
   /** Suggested default motif size (diameter, in tile units) for this
    * category — layouts use this to size their grid/spacing. */
   defaultMotifSize: number;
+  /** Optional density (0..1) the UI switches to when this category is
+   * selected. Most categories look fine at whatever density the user left
+   * the slider at, so they leave this unset — but "field" patterns like
+   * checkerboard/gingham/houndstooth are built as motifs sized to exactly
+   * fill their grid cell, and only read as a proper edge-to-edge check at
+   * high density; at a typical ~50% density they'd show visible gaps. */
+  recommendedDensity?: number;
+  /** Grid/brick/half-drop normally shrink every other cell ~20-30% for a
+   * "large/small" rhythm that makes icon-style categories read as
+   * deliberately designed. Field patterns like checkerboard/gingham need
+   * every cell exactly the same size — the color alternation itself *is*
+   * the pattern, and any size variation just looks like a rendering bug —
+   * so those generators opt out of the rhythm entirely. */
+  disableGridRhythm?: boolean;
   /** Optional per-tile setup called once before the motif loop. Lets a
    * generator make tile-wide decisions (e.g. Seasonal picking "christmas"
    * vs "halloween" so one tile never mixes both) deterministically from
    * the same seeded rng. */
   beginTile?(rng: Rng): void;
-  createMotif(rng: Rng, colors: string[], size: number): Motif;
+  /** `colorSeed` carries the placement's row+col grid position (for grid/
+   * brick/half-drop layouts) or plain sequence index (scatter/radial,
+   * which have no 2D grid). Most generators ignore it and pick colors
+   * randomly per motif — but a few patterns are only recognizable if their
+   * color alternates by *position*, not randomly: checkerboard and gingham
+   * are broken if every square gets an independent random color instead of
+   * strictly alternating. Those generators read `colorSeed % 2` (etc.) to
+   * get that positional alternation; everyone else can ignore the param. */
+  createMotif(rng: Rng, colors: string[], size: number, colorSeed?: number): Motif;
 }
 
 /** Where a motif instance is placed within the tile, before wrap cloning. */
@@ -75,6 +97,8 @@ export interface LayoutParams {
   scaleJitter: number; // 0..1, max random +/- scale fraction
   mirror: boolean;
   radialSymmetry: number; // 1 = off, N = N-fold rotational symmetry
+  /** From the active generator's `disableGridRhythm` — see PatternGenerator. */
+  disableGridRhythm: boolean;
 }
 
 export interface PatternLayout {

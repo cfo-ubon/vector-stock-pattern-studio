@@ -16,15 +16,14 @@ export const halfDropLayout: PatternLayout = {
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
     const placements: Placement[] = [];
-    let i = 0;
     for (let c = 0; c < cols; c++) {
       const offset = c % 2 === 1 ? cellH / 2 : 0;
       for (let r = 0; r < rows; r++) {
         const x = (c + 0.5) * cellW;
         const y = (r + 0.5) * cellH + offset;
-        const placement = applyCellJitter(x, y % params.tileSize, i++, params, rng);
+        const placement = applyCellJitter(x, y % params.tileSize, r + c, params, rng);
         // Dropped columns slightly smaller — the classic wallpaper rhythm.
-        if (c % 2 === 1) placement.scale *= 0.8;
+        if (!params.disableGridRhythm && c % 2 === 1) placement.scale *= 0.8;
         placements.push(placement);
       }
     }

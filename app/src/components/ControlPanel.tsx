@@ -4,6 +4,11 @@ import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 
+// Snap to the nearest 5% step and avoid floating-point noise (0.15000000000000002).
+function round5(v: number): number {
+  return Math.round(v * 20) / 20;
+}
+
 interface Props {
   params: GenerateParams;
   onChange: (patch: Partial<GenerateParams>) => void;
@@ -28,7 +33,13 @@ export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onG
               type="button"
               className={`chip ${params.categoryId === g.id ? 'chip--active' : ''}`}
               title={g.description}
-              onClick={() => onChange({ categoryId: g.id, motifSize: g.defaultMotifSize })}
+              onClick={() =>
+                onChange({
+                  categoryId: g.id,
+                  motifSize: g.defaultMotifSize,
+                  ...(g.recommendedDensity !== undefined ? { density: g.recommendedDensity } : {}),
+                })
+              }
             >
               {g.label}
             </button>
@@ -85,14 +96,34 @@ export function ControlPanel({ params, onChange, onGenerate, onRandomizeAll, onG
         <h3>Diversity controls</h3>
         <label className="field">
           <span>Density: {Math.round(params.density * 100)}%</span>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={params.density}
-            onChange={(e) => onChange({ density: Number(e.target.value) })}
-          />
+          <div className="stepper-row">
+            <button
+              type="button"
+              className="stepper-btn"
+              aria-label="Decrease density by 5%"
+              disabled={params.density <= 0}
+              onClick={() => onChange({ density: Math.max(0, round5(params.density - 0.05)) })}
+            >
+              −5%
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={params.density}
+              onChange={(e) => onChange({ density: Number(e.target.value) })}
+            />
+            <button
+              type="button"
+              className="stepper-btn"
+              aria-label="Increase density by 5%"
+              disabled={params.density >= 1}
+              onClick={() => onChange({ density: Math.min(1, round5(params.density + 0.05)) })}
+            >
+              +5%
+            </button>
+          </div>
         </label>
         <label className="field">
           <span>Motif size: {Math.round(params.motifSize)}</span>

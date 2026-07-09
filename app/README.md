@@ -24,8 +24,14 @@ npm run lint
    tile — grid, brick/offset, half-drop, radial/mandala, or random scatter.
 2. A **generator** (`src/generators/*`) supplies the actual shape for each
    placement — currently Geometric, Botanical/Floral, Abstract Organic,
-   Tropical, Boho/Tribal, Line Art, Mandala, Textile/Damask, and Cute/Kids.
-   Each call returns one randomly-varied motif from that category's pool.
+   Tropical, Boho/Tribal, Line Art, Mandala, Textile/Damask, Cute/Kids,
+   Seasonal/Holiday, Retro 70s, Plaid & Check, Animal Print, Paisley & Ikat,
+   and Terrazzo. Each call returns one randomly-varied motif from that
+   category's pool. A generator can optionally lock its whole tile to one
+   sub-style via `beginTile()` (Seasonal picks christmas-or-halloween once;
+   Plaid/Animal Print/Paisley pick one check style/animal/family once) so a
+   single pattern never mixes visually incompatible motifs — the equivalent
+   of a real fabric never being half-leopard-print, half-zebra-print.
 3. The **engine** (`src/engine/tile.ts`) combines the two: for every
    placement it draws the motif not just once but at every periodic offset
    `(x ± tileSize, y ± tileSize)` that could overlap the tile edge, then
@@ -57,8 +63,24 @@ Implement the `PatternGenerator` interface in a new file under
 `src/generators/` (see `geometric.ts` for the smallest example) and add it
 to the registry in `src/generators/index.ts`. Nothing in the engine,
 layouts, or UI needs to change — the control panel picks up new categories
-automatically. The remaining category from the original brief
-(Seasonal/Holiday) is not implemented yet; this is where to add it.
+automatically.
+
+Two optional generator fields exist specifically for "field" patterns
+(checkerboard, gingham, stripes — a solid grid of touching cells, not
+scattered icons):
+- `recommendedDensity` — the UI switches the density slider to this value
+  when the category is selected, since field patterns look broken with
+  gaps at a typical ~50% density but need ~90%+ to look tight.
+- `disableGridRhythm` — grid/brick/half-drop normally shrink every other
+  cell for visual rhythm; field patterns need every cell exactly the same
+  size instead, since the size variation reads as a rendering glitch when
+  the *color* alternation is the whole point of the pattern.
+
+`createMotif` also receives an optional `colorSeed` (the placement's grid
+row+col for grid/brick/half-drop) so a generator can alternate color by
+true position instead of randomly — required for a checkerboard/gingham to
+actually alternate correctly rather than just picking random per-square
+colors, which looks broken for that specific pattern family.
 
 ## Adding a new layout
 
