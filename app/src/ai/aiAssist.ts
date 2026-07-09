@@ -33,6 +33,8 @@ Reply with ONLY a JSON array (no prose, no markdown code fences). Each element m
 - "scaleJitter": number 0-0.5 (random size variation; 0 = uniform)
 - "mirror": boolean
 - "radialSymmetry": integer 3-12 (only matters for the radial layout)
+- "filler": "none" | "subtle" | "rich" (tiny dot/plus accents scattered between the main motifs — "subtle" usually looks best)
+- "flatShadow": boolean (flat sticker-style offset shadow under every motif)
 - "seed": short random-looking string (letters/numbers)
 
 Design brief: (describe here what kind of patterns you want, e.g. "autumn patterns for gift wrap", or leave blank for your best commercial picks)`;
@@ -103,6 +105,8 @@ export function parseAiJson(text: string): ParsedAiResult {
     if (typeof o.scaleJitter === 'number') patch.scaleJitter = clamp(o.scaleJitter, 0, 0.6);
     if (typeof o.mirror === 'boolean') patch.mirror = o.mirror;
     if (typeof o.radialSymmetry === 'number') patch.radialSymmetry = clamp(Math.round(o.radialSymmetry), 3, 12);
+    if (o.filler === 'none' || o.filler === 'subtle' || o.filler === 'rich') patch.fillerStyle = o.filler;
+    if (typeof o.flatShadow === 'boolean') patch.flatShadow = o.flatShadow;
     patch.seed = typeof o.seed === 'string' && o.seed.trim() ? o.seed.trim().slice(0, 32) : randomSeed();
 
     if (Object.keys(patch).length > 1) {

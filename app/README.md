@@ -104,6 +104,18 @@ Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
 site's own character caps, keyword counts and category picks. The
 `MetadataPanel` renders these as tabs with per-field copy buttons.
 
+## Filler layer & flat shadow
+
+`buildFillerLayer` in `engine/tile.ts` scatters tiny dots/rings/plus/
+diamond accents (poisson-disc placed, periodic wrap-cloned, colors
+pre-blended toward the background) behind the motif layer —
+`GenerateParams.fillerStyle: 'none' | 'subtle' | 'rich'`. It consumes rng
+only after all motifs are built, so toggling it never changes the main
+pattern of a seed. `flatShadow` draws a solid recolored silhouette of
+every motif (via `recolorNode`) offset down-right in a dedicated layer
+under all motifs; the shadow offset is added to each placement's
+effective radius so edge shadows stay seamless.
+
 ## EPS export
 
 `export/epsExporter.ts` converts the tile's SvgNode tree straight to

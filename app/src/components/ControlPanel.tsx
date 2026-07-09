@@ -212,6 +212,31 @@ export function ControlPanel({
           <input type="checkbox" checked={params.mirror} onChange={(e) => onChange({ mirror: e.target.checked })} />
         </label>
         <label className="field">
+          <span>✨ Filler พื้นหลัง (จุด/รายละเอียดแทรกระหว่างลาย)</span>
+          <div className="chip-row">
+            {(
+              [
+                { v: 'none', label: 'ไม่มี' },
+                { v: 'subtle', label: 'บางเบา' },
+                { v: 'rich', label: 'หนาแน่น' },
+              ] as const
+            ).map(({ v, label }) => (
+              <button
+                key={v}
+                type="button"
+                className={`chip ${(params.fillerStyle ?? 'none') === v ? 'chip--active' : ''}`}
+                onClick={() => onChange({ fillerStyle: v })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </label>
+        <label className="field field--inline">
+          <span>🏷 เงาสติกเกอร์ (flat shadow)</span>
+          <input type="checkbox" checked={!!params.flatShadow} onChange={(e) => onChange({ flatShadow: e.target.checked })} />
+        </label>
+        <label className="field">
           <span>Radial symmetry fold: {params.radialSymmetry}</span>
           <input
             type="range"
