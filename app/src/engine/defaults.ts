@@ -1,6 +1,7 @@
 import type { GenerateParams } from './types';
 import { createRng, randomSeed, rngPick } from './rng';
 import { GENERATORS } from '../generators';
+import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 
 export function defaultParams(): GenerateParams {
@@ -32,12 +33,11 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
   const rng = createRng(`${Date.now()}-${Math.random()}`);
   const generators = Object.values(GENERATORS);
   const generator = rngPick(rng, generators);
-  const layouts: GenerateParams['layoutId'][] = ['grid', 'brick', 'radial', 'scatter', 'halfDrop'];
   const palette = rngPick(rng, PALETTES);
   return {
     ...base,
     categoryId: generator.id,
-    layoutId: rngPick(rng, layouts),
+    layoutId: rngPick(rng, LAYOUT_LIST).id,
     paletteId: palette.id,
     customColors: undefined,
     colorCount: 2 + Math.floor(rng() * 5),

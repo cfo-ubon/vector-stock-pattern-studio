@@ -21,7 +21,16 @@ npm run lint
 ## How a pattern is built
 
 1. A **layout** (`src/layouts/*`) decides where motifs go inside one square
-   tile — grid, brick/offset, half-drop, radial/mandala, or random scatter.
+   tile — 14 total: the original grid, brick/offset, half-drop,
+   radial/mandala and random scatter, plus 9 named "composition systems"
+   modeled on real surface-pattern-design arrangements: Hero + Editorial
+   Flow and Hero + Scatter (a few large focal motifs plus smaller fillers —
+   scale hierarchy via `Placement.scale`, not a generator concept), S-Curve
+   Botanical and Bouquet (motifs strung along a serpentine path / gathered
+   into tumbled clusters), Airy Botanical and Dense Premium (density
+   compressed or amplified regardless of the slider, for a deliberately
+   sparse or deliberately rich composition), Toss Pattern, Grid Minimal,
+   and Stripe (banded rows with gaps, not a uniform fill).
 2. A **generator** (`src/generators/*`) supplies the actual shape for each
    placement — currently Geometric, Botanical/Floral, Abstract Organic,
    Tropical, Boho/Tribal, Line Art, Mandala, Textile/Damask, Cute/Kids,
