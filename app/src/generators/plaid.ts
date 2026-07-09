@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngBool } from '../engine/rng';
 
 // Plaid & Check generator: the classic evergreen textile family —
@@ -35,13 +35,17 @@ const ginghamCheck: Variant = (rng, colors, size, colorSeed) => {
   const base = colors[0];
   const band = accents.length >= 2 ? alternate(rng, accents, colorSeed, 2) : accents[0];
   const half = size / 2;
+  // Gingham's signature: band color where a band crosses the base, and a
+  // third darker tone where the two bands cross each other. Computed as
+  // pre-blended solid colors (no SVG opacity) so the tile stays fully
+  // opaque — same look, EPS-safe.
+  const bandOnBase = blendHex(band, 0.55, base);
+  const bandOnBand = blendHex(band, 0.55, bandOnBase);
   const node = h('g', {}, [
     h('rect', { x: round(-half), y: round(-half), width: round(size), height: round(size), fill: base }),
-    // Horizontal + vertical bands at partial opacity: where they cross,
-    // the overlapping alpha stacks into a third, darker tone — the visual
-    // signature of a woven gingham check.
-    h('rect', { x: round(-half), y: round(-half * 0.5), width: round(size), height: round(size * 0.5), fill: band, opacity: 0.55 }),
-    h('rect', { x: round(-half * 0.5), y: round(-half), width: round(size * 0.5), height: round(size), fill: band, opacity: 0.55 }),
+    h('rect', { x: round(-half), y: round(-half * 0.5), width: round(size), height: round(size * 0.5), fill: bandOnBase }),
+    h('rect', { x: round(-half * 0.5), y: round(-half), width: round(size * 0.5), height: round(size), fill: bandOnBase }),
+    h('rect', { x: round(-half * 0.5), y: round(-half * 0.5), width: round(size * 0.5), height: round(size * 0.5), fill: bandOnBand }),
   ]);
   return { node, radius: (size / 2) * Math.SQRT2 };
 };
@@ -57,10 +61,33 @@ const tartanPlaid: Variant = (rng, colors, size, colorSeed) => {
     { pos: half * 0.1, w: size * 0.28 },
     { pos: half * 0.6, w: size * 0.1 },
   ];
+  // Tartan's woven look = every horizontal/vertical stripe pair produces a
+  // distinct blended tone where they cross. All stripes are axis-aligned
+  // rects, so each crossing is an exact intersection rect drawn in the
+  // pre-blended solid color (visually identical to the old stacked-opacity
+  // version, but fully opaque for EPS).
+  const stripeSolid = bandSpecs.map((_, i) => blendHex(bandColors[i % bandColors.length], 0.6, base));
   for (const [i, spec] of bandSpecs.entries()) {
-    const c = bandColors[i % bandColors.length];
-    children.push(h('rect', { x: round(-half), y: round(spec.pos - spec.w / 2), width: round(size), height: round(spec.w), fill: c, opacity: 0.6 }));
-    children.push(h('rect', { x: round(spec.pos - spec.w / 2), y: round(-half), width: round(spec.w), height: round(size), fill: c, opacity: 0.6 }));
+    children.push(h('rect', { x: round(-half), y: round(spec.pos - spec.w / 2), width: round(size), height: round(spec.w), fill: stripeSolid[i] }));
+    children.push(h('rect', { x: round(spec.pos - spec.w / 2), y: round(-half), width: round(spec.w), height: round(size), fill: stripeSolid[i] }));
+  }
+  for (const [i, hSpec] of bandSpecs.entries()) {
+    for (const [j, vSpec] of bandSpecs.entries()) {
+      // Vertical stripe j was drawn after horizontal stripe i when j >= i;
+      // otherwise the horizontal stripe sits on top. Blend accordingly.
+      const topIdx = j >= i ? j : i;
+      const underSolid = j >= i ? stripeSolid[i] : stripeSolid[j];
+      const cross = blendHex(bandColors[topIdx % bandColors.length], 0.6, underSolid);
+      children.push(
+        h('rect', {
+          x: round(vSpec.pos - vSpec.w / 2),
+          y: round(hSpec.pos - hSpec.w / 2),
+          width: round(vSpec.w),
+          height: round(hSpec.w),
+          fill: cross,
+        }),
+      );
+    }
   }
   return { node: h('g', {}, children), radius: (size / 2) * Math.SQRT2 };
 };

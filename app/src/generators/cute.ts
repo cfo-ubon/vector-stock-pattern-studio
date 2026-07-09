@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngRange, rngBool } from '../engine/rng';
 
 // Cute / Kids generator: flat-icon-style animal faces and nursery motifs
@@ -34,12 +34,15 @@ function face(colors: string[], rng: Rng, r: number): { body: string; feature: s
   return { body, feature, cheek };
 }
 
-function eyesAndCheeks(r: number, feature: string, cheek: string): ReturnType<typeof h>[] {
+function eyesAndCheeks(r: number, feature: string, cheek: string, body: string): ReturnType<typeof h>[] {
+  // Cheeks were 55%-transparent cheek color over the face — pre-blend into
+  // a solid tint instead (identical look, no transparency; EPS-safe).
+  const cheekTint = blendHex(cheek, 0.55, body);
   return [
     h('circle', { cx: round(-r * 0.28), cy: round(-r * 0.05), r: round(r * 0.07), fill: feature }),
     h('circle', { cx: round(r * 0.28), cy: round(-r * 0.05), r: round(r * 0.07), fill: feature }),
-    h('circle', { cx: round(-r * 0.45), cy: round(r * 0.18), r: round(r * 0.09), fill: cheek, opacity: 0.55 }),
-    h('circle', { cx: round(r * 0.45), cy: round(r * 0.18), r: round(r * 0.09), fill: cheek, opacity: 0.55 }),
+    h('circle', { cx: round(-r * 0.45), cy: round(r * 0.18), r: round(r * 0.09), fill: cheekTint }),
+    h('circle', { cx: round(r * 0.45), cy: round(r * 0.18), r: round(r * 0.09), fill: cheekTint }),
   ];
 }
 
@@ -50,7 +53,7 @@ const bearFace: Variant = (rng, colors, size) => {
     h('circle', { cx: round(-r * 0.55), cy: round(-r * 0.55), r: round(r * 0.28), fill: body }),
     h('circle', { cx: round(r * 0.55), cy: round(-r * 0.55), r: round(r * 0.28), fill: body }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.78), fill: body }),
-    ...eyesAndCheeks(r, feature, cheek),
+    ...eyesAndCheeks(r, feature, cheek, body),
     h('ellipse', { cx: 0, cy: round(r * 0.18), rx: round(r * 0.11), ry: round(r * 0.08), fill: feature }),
   ];
   // Ears sit off-center at (±0.55r, -0.55r) with their own 0.28r radius, so
@@ -65,7 +68,7 @@ const catFace: Variant = (rng, colors, size) => {
     h('polygon', { points: `${round(-r * 0.72)},${round(-r * 0.3)} ${round(-r * 0.55)},${round(-r * 0.95)} ${round(-r * 0.18)},${round(-r * 0.55)}`, fill: body }),
     h('polygon', { points: `${round(r * 0.72)},${round(-r * 0.3)} ${round(r * 0.55)},${round(-r * 0.95)} ${round(r * 0.18)},${round(-r * 0.55)}`, fill: body }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.72), fill: body }),
-    ...eyesAndCheeks(r, feature, cheek),
+    ...eyesAndCheeks(r, feature, cheek, body),
     h('polygon', { points: `0,${round(r * 0.1)} ${round(r * 0.07)},${round(r * 0.2)} ${round(-r * 0.07)},${round(r * 0.2)}`, fill: feature }),
     // Whiskers
     ...[-1, 1].flatMap((s) =>
@@ -102,7 +105,7 @@ const bunnyFace: Variant = (rng, colors, size) => {
       }),
     ),
     h('circle', { cx: 0, cy: round(r * 0.05), r: round(r * 0.62), fill: body }),
-    ...eyesAndCheeks(r * 0.85, feature, cheek),
+    ...eyesAndCheeks(r * 0.85, feature, cheek, body),
     h('ellipse', { cx: 0, cy: round(r * 0.2), rx: round(r * 0.08), ry: round(r * 0.06), fill: feature }),
   ];
   // Ear ellipse centers are ~0.82r from origin with their own 0.5r radius —

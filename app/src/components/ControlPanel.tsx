@@ -17,6 +17,7 @@ interface Props {
   onGenerateBatch: () => void;
   onExportSingle: () => void;
   onExportTiled: () => void;
+  onExportEps: () => void;
   onExportJpeg: () => void;
   onColorwayAll: () => void;
   onReset: () => void;
@@ -33,6 +34,7 @@ export function ControlPanel({
   onGenerateBatch,
   onExportSingle,
   onExportTiled,
+  onExportEps,
   onExportJpeg,
   onColorwayAll,
   onReset,
@@ -260,6 +262,14 @@ export function ControlPanel({
         </button>
         <button type="button" className="btn btn--export" onClick={onExportTiled}>
           Export 3x3 tiled (.svg)
+        </button>
+        <button
+          type="button"
+          className="btn btn--export"
+          onClick={onExportEps}
+          title="ไฟล์เวคเตอร์ฟอร์แมตที่ Shutterstock / Adobe Stock / Freepik รับ — สร้างจากแอปโดยตรง ไม่ต้องแปลงใน Affinity อีกต่อไป"
+        >
+          Export EPS (.eps) — พร้อมส่งขาย
         </button>
         <button
           type="button"

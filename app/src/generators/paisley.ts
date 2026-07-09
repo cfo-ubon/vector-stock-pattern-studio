@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 // Paisley & Ikat generator: the Persian teardrop (boteh) motif and the
@@ -59,14 +59,20 @@ const ikatDiamond: Variant = (rng, colors, size) => {
   const color = rngPick(rng, accents);
   const layers = 3;
   const children = [];
+  // The feathered ikat edge was stacked transparent layers; pre-blend each
+  // layer against the accumulated color underneath it instead (outermost
+  // layer sits on the background, each inner layer on the previous one) —
+  // same nested-tone look, fully opaque.
+  let acc = colors[0];
+  const layerAlphas = [0.35, 0.6, 0.85];
   for (let i = 0; i < layers; i++) {
     const layerR = r * (1 - i * 0.22);
     const jitterX = rngRange(rng, -r * 0.06, r * 0.06);
+    acc = blendHex(color, layerAlphas[i], acc);
     children.push(
       h('polygon', {
         points: `${round(jitterX)},${round(-layerR)} ${round(layerR + jitterX)},0 ${round(jitterX)},${round(layerR)} ${round(-layerR + jitterX)},0`,
-        fill: color,
-        opacity: round(0.35 + (i / (layers - 1)) * 0.5),
+        fill: acc,
       }),
     );
   }
@@ -79,6 +85,9 @@ const ikatChevron: Variant = (rng, colors, size) => {
   const color = rngPick(rng, accents);
   const layers = 3;
   const children = [];
+  // Chevron strokes never overlap each other (spacing exceeds the stroke
+  // width), so blending each against the background is exact.
+  const chevronAlphas = [0.4, 0.65, 0.9];
   for (let i = 0; i < layers; i++) {
     const off = r * (1 - i * 0.28);
     const jitter = rngRange(rng, -r * 0.05, r * 0.05);
@@ -86,11 +95,10 @@ const ikatChevron: Variant = (rng, colors, size) => {
       h('polyline', {
         points: `${round(-r)},${round(-off + jitter)} 0,${round(off * 0.2 + jitter)} ${round(r)},${round(-off + jitter)}`,
         fill: 'none',
-        stroke: color,
+        stroke: blendHex(color, chevronAlphas[i], colors[0]),
         'stroke-width': round(size * 0.09),
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round',
-        opacity: round(0.4 + (i / (layers - 1)) * 0.5),
       }),
     );
   }

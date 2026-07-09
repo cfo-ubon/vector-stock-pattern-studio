@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round, smoothClosedPath } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange } from '../engine/rng';
 
 // Animal Print generator: leopard rosettes, zebra/tiger stripes, giraffe
@@ -26,7 +26,8 @@ const leopardRosette: Variant = (rng, colors, size) => {
   const ring = rngPick(rng, accents);
   const core = rngPick(rng, accents);
   const outer = irregularBlob(rng, r, 0.45, rngInt(rng, 5, 7));
-  const children = [h('path', { d: smoothClosedPath(outer), fill: ring, opacity: 0.85 })];
+  // Was 85%-transparent ring over the background — pre-blend to solid.
+  const children = [h('path', { d: smoothClosedPath(outer), fill: blendHex(ring, 0.85, colors[0]) })];
   const innerCount = rngInt(rng, 2, 4);
   for (let i = 0; i < innerCount; i++) {
     const angle = rngRange(rng, 0, Math.PI * 2);

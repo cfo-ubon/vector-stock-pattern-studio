@@ -1,6 +1,6 @@
 import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { accentColors } from '../palettes/palettes';
+import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange } from '../engine/rng';
 
 // Tropical generator. Palm fronds, monstera leaves, hibiscus blooms and
@@ -61,9 +61,10 @@ const monsteraLeaf: Variant = (rng, colors, size) => {
       y1: round(-r * 0.9),
       x2: 0,
       y2: round(r * 0.9),
-      stroke: holeColor,
+      // Center vein was 50%-transparent hole color over the leaf —
+      // pre-blend to a solid midtone (EPS-safe).
+      stroke: blendHex(holeColor, 0.5, leafColor),
       'stroke-width': round(size * 0.02),
-      opacity: 0.5,
     }),
   );
   return { node: h('g', {}, children), radius: r * 1.05 };
@@ -81,7 +82,9 @@ const hibiscusBloom: Variant = (rng, colors, size) => {
     const angle = (360 / petals) * i;
     children.push(
       h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-petalLen * 0.42)})` }, [
-        h('ellipse', { cx: 0, cy: 0, rx: round(petalW / 2), ry: round(petalLen / 2), fill: petalColor, opacity: 0.92 }),
+        // Petals were 92%-transparent — pre-blend against the background
+        // (adjacent-petal overlap differs imperceptibly at this alpha).
+        h('ellipse', { cx: 0, cy: 0, rx: round(petalW / 2), ry: round(petalLen / 2), fill: blendHex(petalColor, 0.92, colors[0]) }),
       ]),
     );
   }
@@ -122,7 +125,8 @@ const citrusSlice: Variant = (rng, colors, size) => {
       }),
     );
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.12), fill: rindColor, opacity: 0.5 }));
+  // Center dot sits fully on the flesh circle — exact pre-blend.
+  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.12), fill: blendHex(rindColor, 0.5, fleshColor) }));
   return { node: h('g', {}, children), radius: r * 1.02 };
 };
 
