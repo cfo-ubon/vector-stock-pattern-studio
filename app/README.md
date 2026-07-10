@@ -222,6 +222,36 @@ simply repeat finer (<1) or bolder (>1) within the fixed export canvas.
 The preview toolbar exposes this as a 40–250% slider that rebuilds the
 currently shown tile live without touching the gallery.
 
+## Motif library expansion (Botanical generator, 10 -> 20 variants)
+
+Ten new variants, each carrying genuine seed-driven internal structure
+rather than a recolored/rotated copy of one base shape:
+
+- `peonyFlower` — 3 concentric rings of `peonyPetalPath()` (an
+  intentionally asymmetric-tip petal via a `ruffle` parameter), each
+  ring's petal count/size/rotation-offset independently randomized.
+- `ranunculusRosette` — 5-7 rings of small cupped petals spiraling
+  outward, each ring's petal count increasing and rotated by its own
+  random spiral offset — the tightly-packed rosette look, distinct from
+  peony's looser ruffle.
+- `poppyFlower` — `poppyPetalPath()` samples the petal envelope at 5
+  points with per-sample radius jitter for a crinkled/papery edge, around
+  a dark seed-pod center with radiating star lines (the poppy's
+  signature trait).
+- `anemoneFlower` — smooth (non-crinkled) rounded petals around a dark
+  fuzzy center built from randomly-positioned stamen dots.
+- `daisyFlower` — 12-16 thin petals around a flat disc with a *stippled*
+  texture (randomly scattered dots, not a uniform ring — real stipple).
+- `cosmosFlower` — `cosmosPetalPath()` cuts a small V-notch into each
+  petal tip via two extra `L` points, cosmos's one distinguishing trait
+  among the otherwise-similar radial-petal flowers here.
+- `eucalyptusSprig` / `oliveBranch` / `laurelSprig` / `sageSprig` — four
+  new leaf silhouettes (`roundedLeafPath`, `lanceLeafPath`,
+  `laurelLeafPath`, `sageLeafPath`) spanning round → narrow-lance, each
+  carried in pairs along a stem like `leafyBranch`/`eucalyptusSprig`
+  already did, so the branch-with-paired-leaves construction is reused
+  rather than duplicated per leaf shape.
+
 ## Realistic leaf shapes (Botanical generator)
 
 `generators/botanical.ts` builds leaf silhouettes from two shape
