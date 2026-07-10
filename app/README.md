@@ -237,6 +237,32 @@ base, and a cordate (heart) silhouette with a midrib + two vein pairs.
 `computeBoundingRadius`'s path-command walk covers all of these
 automatically, so no manual radius tuning was needed.
 
+## Nested paisley echoes & ikat fringe (Paisley & Ikat generator)
+
+`generators/paisley.ts` adds one shared helper, `edgeFringe(points, close,
+color, count, len, width)`: for each edge of a point list (closed for a
+polygon, open for a polyline) it computes the outward normal — the edge's
+perpendicular, sign-corrected by checking which side points away from the
+origin (every motif here is centered on it) — and draws `count` short
+radial `<line>` ticks along that edge. This is the frayed-thread fringe
+real ikat weaving leaves at a color-band boundary; applied to only the
+outermost layer of `ikatDiamond`/`ikatChevron`, it reads as woven rather
+than printed. Both variants also jitter each vertex independently now
+(previously one shared offset moved the whole shape), for a hand-dyed,
+non-mechanical edge.
+
+`paisleyTeardrop`/`paisleySwirl` re-stroke their own `paisleyPath()`
+outline at 0.5-0.74 scale as a `fill: none` echo line inside the main
+body — the concentric "paisley within paisley" contour every real boteh
+print carries, free from any extra geometry. `paisleyTeardrop` also nests
+a small filled copy of the same path near the head as a miniature paisley-
+in-paisley curl. The echo color is `blendHex(colors[0], 0.4, body)` —
+blended toward the *background*, not toward the motif's own `detail`
+accent — because `detail` is picked independently from `body` and can
+land on a visually identical accent, which made the echo invisible against
+the fill in testing until this fix (confirmed via a zoomed-in render before
+and after).
+
 ## Ornate lace mandalas (Mandala generator)
 
 `generators/mandala.ts` adds two shared helpers used across all 4 variants:
