@@ -5,6 +5,12 @@ import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS, type HierarchyParams } from '../engine/hierarchy';
 import { ART_DIRECTION_PRESETS, resolveArtDirection } from '../engine/artDirection';
+import type { GenerationMode, CandidateProgress } from '../engine/candidateEngine';
+import { CANDIDATE_COUNTS } from '../engine/candidateEngine';
+import { QUALITY_PRESET_LABELS, type QualityPresetId } from '../engine/scoring';
+
+const QUALITY_MODE_LABELS: Record<GenerationMode, string> = { fast: 'Fast', standard: 'Standard', premium: 'Premium' };
+const QUALITY_PRESET_IDS = Object.keys(QUALITY_PRESET_LABELS) as QualityPresetId[];
 
 // Snap to the nearest 5% step and avoid floating-point noise (0.15000000000000002).
 function round5(v: number): number {
@@ -17,6 +23,13 @@ interface Props {
   onGenerate: () => void;
   onRandomizeAll: () => void;
   onGenerateBatch: () => void;
+  qualityMode: GenerationMode;
+  onQualityModeChange: (mode: GenerationMode) => void;
+  qualityPresetId: QualityPresetId;
+  onQualityPresetChange: (preset: QualityPresetId) => void;
+  onGenerateBest: () => void;
+  onCancelGenerateBest: () => void;
+  candidateProgress: CandidateProgress | null;
   onExportSingle: () => void;
   onExportTiled: () => void;
   onExportEps: () => void;
@@ -46,6 +59,13 @@ export function ControlPanel({
   onGenerate,
   onRandomizeAll,
   onGenerateBatch,
+  qualityMode,
+  onQualityModeChange,
+  qualityPresetId,
+  onQualityPresetChange,
+  onGenerateBest,
+  onCancelGenerateBest,
+  candidateProgress,
   onExportSingle,
   onExportTiled,
   onExportEps,
@@ -420,6 +440,44 @@ export function ControlPanel({
         <button type="button" className="btn" onClick={onGenerateBatch}>
           Generate 9 variations
         </button>
+        <div className="candidate-controls" title="สร้างลายหลายแบบจาก seed เดียวกัน วิเคราะห์คุณภาพจริงจากโครงสร้างภาพ แล้วเลือกลายที่คะแนนสูงสุดมาแสดง">
+          <div className="candidate-controls-row">
+            <label>
+              โหมด
+              <select value={qualityMode} onChange={(e) => onQualityModeChange(e.target.value as GenerationMode)} disabled={!!candidateProgress}>
+                {(Object.keys(QUALITY_MODE_LABELS) as GenerationMode[]).map((m) => (
+                  <option key={m} value={m}>
+                    {QUALITY_MODE_LABELS[m]} ({CANDIDATE_COUNTS[m]})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              เกณฑ์คุณภาพ
+              <select value={qualityPresetId} onChange={(e) => onQualityPresetChange(e.target.value as QualityPresetId)} disabled={!!candidateProgress}>
+                {QUALITY_PRESET_IDS.map((p) => (
+                  <option key={p} value={p}>
+                    {QUALITY_PRESET_LABELS[p]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {candidateProgress ? (
+            <div className="candidate-progress-row">
+              <span>
+                กำลังสร้าง candidate {candidateProgress.completed}/{candidateProgress.total || CANDIDATE_COUNTS[qualityMode]}…
+              </span>
+              <button type="button" className="btn btn--danger" onClick={onCancelGenerateBest}>
+                ยกเลิก
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="btn btn--primary" onClick={onGenerateBest}>
+              ✨ Generate Best
+            </button>
+          )}
+        </div>
         <button
           type="button"
           className="btn"

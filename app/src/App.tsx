@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
+import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
+import type { QualityPresetId } from './engine/scoring';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildEps } from './export/epsExporter';
@@ -50,6 +52,11 @@ function App() {
   const [saved, setSaved] = useState<SavedItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [checkedGalleryIds, setCheckedGalleryIds] = useState<ReadonlySet<string>>(new Set());
+  const [qualityMode, setQualityMode] = useState<GenerationMode>('fast');
+  const [qualityPresetId, setQualityPresetId] = useState<QualityPresetId>('stockClean');
+  const [candidateProgress, setCandidateProgress] = useState<CandidateProgress | null>(null);
+  const [candidateSummary, setCandidateSummary] = useState<{ total: number; valid: number; score: number; preset: QualityPresetId } | null>(null);
+  const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
   // Saved library lives in IndexedDB (effectively unlimited) — load once on
@@ -70,6 +77,7 @@ function App() {
     const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: next, createdAt: Date.now() };
     setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
     setSelectedId(item.id);
+    setCandidateSummary(null);
   }, [params]);
 
   const handleRandomizeAll = useCallback(() => {
@@ -89,7 +97,46 @@ function App() {
     setTileData(latest);
     setParams(latest.params);
     setSelectedId(items[items.length - 1].id);
+    setCandidateSummary(null);
   }, [params, tileData]);
+
+  // Composition Candidate Engine: build a deterministic pool of candidate
+  // tiles from the current seed+settings (same seed+settings+mode always
+  // gives the same pool and therefore the same winner — see
+  // engine/candidateEngine.ts), score each from real geometry, and keep the
+  // highest-scoring non-rejected one. Chunked (one candidate per macrotask)
+  // so a heavy category/layout/density combo — Botanical + Dense Premium at
+  // high density can place 800+ motifs — never freezes the tab for the
+  // whole pool at once.
+  const handleGenerateBest = useCallback(async () => {
+    const token: CancelToken = { cancelled: false };
+    cancelTokenRef.current = token;
+    setCandidateProgress({ completed: 0, total: 0 });
+    setCandidateSummary(null);
+    const candidates = await generateCandidatesChunked(params, qualityMode, qualityPresetId, setCandidateProgress, token);
+    if (token.cancelled || candidates.length === 0) {
+      setCandidateProgress(null);
+      return;
+    }
+    const winner = pickBestCandidate(candidates);
+    setTileData(winner.tileData);
+    setParams(winner.tileData.params);
+    const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: winner.tileData, createdAt: Date.now() };
+    setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
+    setSelectedId(item.id);
+    setCandidateSummary({
+      total: candidates.length,
+      valid: candidates.filter((c) => !c.rejected).length,
+      score: winner.score,
+      preset: qualityPresetId,
+    });
+    setCandidateProgress(null);
+  }, [params, qualityMode, qualityPresetId]);
+
+  const handleCancelGenerateBest = useCallback(() => {
+    if (cancelTokenRef.current) cancelTokenRef.current.cancelled = true;
+    setCandidateProgress(null);
+  }, []);
 
   // Post-gen pattern rescale: rebuild the *currently shown* tile with the
   // same seed and params but a new patternScale. Density (as a proportion)
@@ -110,6 +157,7 @@ function App() {
     setTileData(item.tileData);
     setParams(item.tileData.params);
     setSelectedId(item.id);
+    setCandidateSummary(null);
   }, []);
 
   const handleRemoveGalleryItem = useCallback((id: string) => {
@@ -150,6 +198,7 @@ function App() {
     setParams(fresh);
     setTileData(buildTile(fresh));
     setSelectedId(null);
+    setCandidateSummary(null);
   }, []);
 
   /** Filesystem-safe base name (no extension) for a pattern's files. */
@@ -247,6 +296,7 @@ function App() {
   const handleLoadSaved = useCallback((item: SavedItem) => {
     setTileData(item.tileData);
     setParams(item.tileData.params);
+    setCandidateSummary(null);
   }, []);
 
   const handleRemoveSaved = useCallback((id: string) => {
@@ -456,6 +506,13 @@ function App() {
           onGenerate={handleGenerate}
           onRandomizeAll={handleRandomizeAll}
           onGenerateBatch={handleGenerateBatch}
+          qualityMode={qualityMode}
+          onQualityModeChange={setQualityMode}
+          qualityPresetId={qualityPresetId}
+          onQualityPresetChange={setQualityPresetId}
+          onGenerateBest={handleGenerateBest}
+          onCancelGenerateBest={handleCancelGenerateBest}
+          candidateProgress={candidateProgress}
           onExportSingle={handleExportSingle}
           onExportTiled={handleExportTiled}
           onExportEps={handleExportEps}
@@ -467,7 +524,7 @@ function App() {
         />
         <main className="app-main">
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
-          <QualityPanel tileData={tileData} />
+          <QualityPanel tileData={tileData} candidateSummary={candidateSummary} />
           <Gallery
             items={gallery}
             selectedId={selectedId}
