@@ -101,6 +101,21 @@ export function buildTile(params: GenerateParams): TileData {
   const colors = custom.length >= 2 ? custom.slice(0, 6) : resolveColors(getPalette(params.paletteId), params.colorCount);
   const backgroundColor = colors[0];
   const { tileSize } = params;
+  // Color story: pick 2 dominant accents once per tile; most placements
+  // draw with just those, the rest keep the full palette as accent pops.
+  // Skipped when there are <=2 accents (nothing to curate) and applied
+  // constantly (not per-placement) for "field" generators like Plaid,
+  // whose position-based color alternation needs one stable accent list.
+  const accentsAll = colors.length > 1 ? colors.slice(1) : colors;
+  const useStory = (params.colorStory ?? true) && accentsAll.length > 2;
+  let storyColors = colors;
+  if (useStory) {
+    const i1 = Math.floor(rng() * accentsAll.length);
+    let i2 = Math.floor(rng() * accentsAll.length);
+    if (i2 === i1) i2 = (i2 + 1) % accentsAll.length;
+    storyColors = [colors[0], accentsAll[i1], accentsAll[i2]];
+  }
+  const isFieldPattern = !isMix && (activeGenerators[0].disableGridRhythm ?? false);
   // Post-gen pattern scale: same seed + same density value + scaled motif
   // size = the identical composition proportion at a finer/bolder repeat,
   // because every layout's spacing is proportional to motif size.
@@ -132,7 +147,10 @@ export function buildTile(params: GenerateParams): TileData {
 
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
-    const motif = generator.createMotif(rng, colors, effectiveMotifSize, placement.colorSeed);
+    // Field patterns always get the stable story palette; everything else
+    // leans dominant ~72% of the time with full-palette pops in between.
+    const motifColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
+    const motif = generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed);
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
@@ -178,7 +196,7 @@ export function buildTile(params: GenerateParams): TileData {
   // rng draws never shift the main pattern for an existing seed.
   const fillerStyle = params.fillerStyle ?? 'none';
   const patternLayers: SvgNode[] = [];
-  if (fillerStyle !== 'none') patternLayers.push(buildFillerLayer(fillerStyle, rng, colors, tileSize));
+  if (fillerStyle !== 'none') patternLayers.push(buildFillerLayer(fillerStyle, rng, useStory ? storyColors : colors, tileSize));
   if (shadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, shadowGroups));
   patternLayers.push(...motifGroups);
 

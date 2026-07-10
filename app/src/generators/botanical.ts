@@ -153,7 +153,100 @@ const leafyBranch: Variant = (rng, colors, size) => {
   return { node: h('g', {}, children), radius: half * 1.15 };
 };
 
-const VARIANTS: Variant[] = [singleLeaf, flowerBloom, flowerBud, leafyBranch, fernFrond, simpleTulip];
+/** Two-layer bloom: an outer petal ring, an inner offset petal ring in a
+ * second color, and a detailed center — reads as a "premium" flower next
+ * to the flat single-ring blooms. */
+const layeredBloom: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const outer = rngPick(rng, accents);
+  let inner = rngPick(rng, accents);
+  if (inner === outer && accents.length > 1) inner = accents[(accents.indexOf(outer) + 1) % accents.length];
+  const core = rngPick(rng, accents);
+  const petals = rngInt(rng, 7, 9);
+  const children: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < petals; i++) {
+    children.push(
+      h('g', { transform: `rotate(${round((360 / petals) * i)})` }, [
+        h('ellipse', { cx: 0, cy: round(-r * 0.58), rx: round(r * 0.2), ry: round(r * 0.42), fill: outer }),
+      ]),
+    );
+  }
+  for (let i = 0; i < petals; i++) {
+    children.push(
+      h('g', { transform: `rotate(${round((360 / petals) * i + 180 / petals)})` }, [
+        h('ellipse', { cx: 0, cy: round(-r * 0.34), rx: round(r * 0.13), ry: round(r * 0.27), fill: blendHex(inner, 0.92, colors[0]) }),
+      ]),
+    );
+  }
+  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.17), fill: core }));
+  const dots = 6;
+  for (let i = 0; i < dots; i++) {
+    const a = ((Math.PI * 2) / dots) * i;
+    children.push(h('circle', { cx: round(Math.cos(a) * r * 0.09), cy: round(Math.sin(a) * r * 0.09), r: round(r * 0.028), fill: colors[0] }));
+  }
+  return { node: h('g', { transform: `rotate(${round(rngRange(rng, 0, 45))})` }, children), radius: r * 1.05 };
+};
+
+/** Wildflower sprig: a curved stem carrying a small round flower head,
+ * a pair of leaves and a bud — the loose hand-picked look that sells in
+ * ditsy/meadow patterns. */
+const wildflowerSprig: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const stemColor = rngPick(rng, accents);
+  const headColor = rngPick(rng, accents);
+  const budColor = rngPick(rng, accents);
+  const bend = rngRange(rng, -0.25, 0.25);
+  const children: ReturnType<typeof h>[] = [
+    h('path', {
+      d: `M 0 ${round(r)} Q ${round(r * bend)} ${round(r * 0.1)} ${round(r * bend * 0.6)} ${round(-r * 0.55)}`,
+      fill: 'none',
+      stroke: stemColor,
+      'stroke-width': round(size * 0.04),
+      'stroke-linecap': 'round',
+    }),
+  ];
+  // Flower head: ring of small petal dots around a center
+  const headX = r * bend * 0.6;
+  const headY = -r * 0.62;
+  const petals = 6;
+  for (let i = 0; i < petals; i++) {
+    const a = ((Math.PI * 2) / petals) * i;
+    children.push(
+      h('circle', { cx: round(headX + Math.cos(a) * r * 0.17), cy: round(headY + Math.sin(a) * r * 0.17), r: round(r * 0.11), fill: headColor }),
+    );
+  }
+  children.push(h('circle', { cx: round(headX), cy: round(headY), r: round(r * 0.09), fill: blendHex(stemColor, 0.85, colors[0]) }));
+  // Two leaves on the stem
+  for (const [t, side] of [
+    [0.32, 1],
+    [0.58, -1],
+  ] as const) {
+    const y = r - r * 1.55 * t;
+    const leafLen = size * rngRange(rng, 0.2, 0.28);
+    children.push(
+      h('g', { transform: `translate(${round(r * bend * t)} ${round(y)}) rotate(${round(side * rngRange(rng, 40, 60))})` }, [
+        h('ellipse', { cx: 0, cy: round(-leafLen / 2), rx: round(leafLen * 0.22), ry: round(leafLen / 2), fill: rngPick(rng, accents) }),
+      ]),
+    );
+  }
+  // A bud branching off near the top
+  const budSide = rngRange(rng, 0, 1) < 0.5 ? -1 : 1;
+  children.push(
+    h('path', {
+      d: `M ${round(r * bend * 0.5)} ${round(-r * 0.25)} Q ${round(r * bend * 0.5 + budSide * r * 0.18)} ${round(-r * 0.42)} ${round(r * bend * 0.5 + budSide * r * 0.26)} ${round(-r * 0.5)}`,
+      fill: 'none',
+      stroke: stemColor,
+      'stroke-width': round(size * 0.03),
+      'stroke-linecap': 'round',
+    }),
+    h('ellipse', { cx: round(r * bend * 0.5 + budSide * r * 0.28), cy: round(-r * 0.54), rx: round(r * 0.07), ry: round(r * 0.1), fill: budColor }),
+  );
+  return { node: h('g', {}, children), radius: r * 1.1 };
+};
+
+const VARIANTS: Variant[] = [singleLeaf, flowerBloom, flowerBud, leafyBranch, fernFrond, simpleTulip, layeredBloom, wildflowerSprig];
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',

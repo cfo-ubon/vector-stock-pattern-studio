@@ -139,6 +139,10 @@ export function ControlPanel({
             onChange={(e) => onChange({ colorCount: Number(e.target.value) })}
           />
         </label>
+        <label className="field field--inline" title="แต่ละลายจะมีสีเด่น 2 สีที่ใช้บ่อย ส่วนสีอื่นแซมเป็นจุดเน้น — โทนสีดูตั้งใจแบบนักออกแบบจริง (มีผลเมื่อใช้สี 4 สีขึ้นไป)">
+          <span>🎯 คุมโทนสี (สีเด่น 2 สี)</span>
+          <input type="checkbox" checked={params.colorStory ?? true} onChange={(e) => onChange({ colorStory: e.target.checked })} />
+        </label>
       </section>
 
       <section>

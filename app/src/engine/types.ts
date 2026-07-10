@@ -141,6 +141,11 @@ export interface GenerateParams {
   tileSize: number;
   density: number;
   motifSize: number;
+  /** Color story: instead of every motif picking uniformly from the whole
+   * palette, each tile chooses 2 dominant accents that most motifs use,
+   * with the remaining colors appearing only as occasional pops — the way
+   * designers actually build a coherent colorway. Undefined = on. */
+  colorStory?: boolean;
   /** Background filler layer: tiny dots/rings/plus/diamond accents
    * scattered between the main motifs — the professional surface-design
    * touch that makes a pattern read as "designed" instead of icons on an
