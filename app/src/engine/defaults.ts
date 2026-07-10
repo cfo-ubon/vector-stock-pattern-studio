@@ -4,6 +4,7 @@ import { GENERATORS } from '../generators';
 import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS } from './hierarchy';
+import { DEFAULT_COMPOSITION_INTELLIGENCE } from './compositionIntelligence';
 
 /** Pick `count` distinct random elements from `arr`. */
 function pickDistinct<T>(rng: () => number, arr: readonly T[], count: number): T[] {
@@ -48,6 +49,12 @@ export function defaultParams(): GenerateParams {
     // from before this existed still reproduce identically since the
     // engine only applies this pass when the field is set.
     hierarchy: DEFAULT_HIERARCHY,
+    // Composition Intelligence on by default for every new pattern — same
+    // backward-compat rationale as `hierarchy` above: it's a no-op for any
+    // saved JSON from before this field existed (undefined stays undefined
+    // on import unless explicitly re-saved), so old patterns still
+    // reproduce identically.
+    compositionIntelligence: DEFAULT_COMPOSITION_INTELLIGENCE,
     negativeSpace: 0,
     overlapAmount: 0,
     rotationJitter: 15,
@@ -86,6 +93,7 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     flatHighlight: rng() < 0.3,
     colorStory: rng() < 0.85,
     hierarchy: rngPick(rng, Object.values(HIERARCHY_PRESETS)).value,
+    compositionIntelligence: { balanceStrength: rng() * 0.8, rhythmStrength: rng() * 0.6 },
     negativeSpace: rng() < 0.3 ? rng() * 0.5 : 0,
     overlapAmount: rng() < 0.3 ? rng() * 0.5 : 0,
     artDirection: undefined,

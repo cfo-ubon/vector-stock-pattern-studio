@@ -27,6 +27,13 @@ describe('cloneParams', () => {
     expect(clone.customColors).toBeUndefined();
     expect(clone.mixCategoryIds).toBeUndefined();
   });
+
+  it('deep-clones compositionIntelligence independently of the original', () => {
+    const original = { ...defaultParams(), compositionIntelligence: { balanceStrength: 0.7, rhythmStrength: 0.4 } };
+    const clone = cloneParams(original);
+    expect(clone.compositionIntelligence).toEqual(original.compositionIntelligence);
+    expect(clone.compositionIntelligence).not.toBe(original.compositionIntelligence);
+  });
 });
 
 describe('hashParams', () => {
@@ -66,6 +73,7 @@ describe('normalizeParams', () => {
       radialSymmetry: 0,
       negativeSpace: 5,
       overlapAmount: -5,
+      compositionIntelligence: { balanceStrength: 5, rhythmStrength: -5 },
     };
     const normalized = normalizeParams(bad);
     expect(normalized.colorCount).toBeGreaterThanOrEqual(1);
@@ -76,6 +84,8 @@ describe('normalizeParams', () => {
     expect(normalized.radialSymmetry).toBeGreaterThanOrEqual(1);
     expect(normalized.negativeSpace).toBeLessThanOrEqual(1);
     expect(normalized.overlapAmount).toBeGreaterThanOrEqual(0);
+    expect(normalized.compositionIntelligence!.balanceStrength).toBeLessThanOrEqual(1);
+    expect(normalized.compositionIntelligence!.rhythmStrength).toBeGreaterThanOrEqual(0);
   });
 
   it('handles NaN gracefully by falling back to a sane default', () => {

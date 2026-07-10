@@ -4,6 +4,7 @@ import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS, type HierarchyParams } from '../engine/hierarchy';
+import { DEFAULT_COMPOSITION_INTELLIGENCE, type CompositionIntelligenceParams } from '../engine/compositionIntelligence';
 import { ART_DIRECTION_PRESETS, resolveArtDirection } from '../engine/artDirection';
 import { TREND_PRESETS, resolveTrend } from '../engine/trendEngine';
 import type { GenerationMode, CandidateProgress } from '../engine/candidateEngine';
@@ -454,6 +455,68 @@ export function ControlPanel({
             onChange={(e) => onChange({ overlapAmount: Number(e.target.value) })}
           />
         </label>
+      </details>
+
+      <details className="control-section" open>
+        <summary>
+          <h3>🧭 Composition Intelligence</h3>
+          <label className="field--inline mix-toggle" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={!!params.compositionIntelligence}
+              onChange={(e) => onChange({ compositionIntelligence: e.target.checked ? DEFAULT_COMPOSITION_INTELLIGENCE : undefined })}
+            />
+            <span>เปิดใช้งาน</span>
+          </label>
+        </summary>
+        {params.compositionIntelligence && (
+          <>
+            <p className="mix-hint">
+              วิเคราะห์การกระจายน้ำหนักภาพจริง (quadrant) และระยะห่างระหว่างชิ้นลาย แล้วปรับตำแหน่งชิ้นที่ทำให้ลายเสีย
+              สมดุลหรือมีช่องว่างผิดจังหวะ — ปรับจากเรขาคณิตจริงของ layout เดิม ไม่สุ่มใหม่
+            </p>
+            <label className="field" title="แก้ไขมุมที่ชิ้นลายกระจุกตัวหนักเกินไปในโซนใดโซนหนึ่งของผืนลาย">
+              <span>
+                Balance strength: {Math.round((params.compositionIntelligence as CompositionIntelligenceParams).balanceStrength * 100)}%
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={(params.compositionIntelligence as CompositionIntelligenceParams).balanceStrength}
+                onChange={(e) =>
+                  onChange({
+                    compositionIntelligence: {
+                      ...(params.compositionIntelligence as CompositionIntelligenceParams),
+                      balanceStrength: Number(e.target.value),
+                    },
+                  })
+                }
+              />
+            </label>
+            <label className="field" title="ปรับชิ้นลายที่อยู่โดดเดี่ยวห่างจากเพื่อนบ้านผิดจังหวะให้เข้าจังหวะเดิม">
+              <span>
+                Rhythm strength: {Math.round((params.compositionIntelligence as CompositionIntelligenceParams).rhythmStrength * 100)}%
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={(params.compositionIntelligence as CompositionIntelligenceParams).rhythmStrength}
+                onChange={(e) =>
+                  onChange({
+                    compositionIntelligence: {
+                      ...(params.compositionIntelligence as CompositionIntelligenceParams),
+                      rhythmStrength: Number(e.target.value),
+                    },
+                  })
+                }
+              />
+            </label>
+          </>
+        )}
       </details>
 
       <section>

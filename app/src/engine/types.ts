@@ -205,6 +205,13 @@ export interface GenerateParams {
    * pattern may have started from an Art Direction preset and then had a
    * Trend preset layered on top (or vice versa) before further hand edits. */
   trend?: string;
+  /** Composition Intelligence Engine (see engine/compositionIntelligence.ts):
+   * a deterministic, geometry-only post-process pass that runs after
+   * hierarchy role assignment and corrects severe quadrant-weight imbalance
+   * plus smooths isolated-motif spacing outliers. Undefined = no-op —
+   * identical output to every version before this existed, same
+   * backward-compatibility precedent as `hierarchy`. */
+  compositionIntelligence?: import('./compositionIntelligence').CompositionIntelligenceParams;
   seed: string;
 }
 
