@@ -237,6 +237,31 @@ base, and a cordate (heart) silhouette with a midrib + two vein pairs.
 `computeBoundingRadius`'s path-command walk covers all of these
 automatically, so no manual radius tuning was needed.
 
+## Ornate lace mandalas (Mandala generator)
+
+`generators/mandala.ts` adds two shared helpers used across all 4 variants:
+- `scallopRingPath(bumpCount, baseR, amp)` — samples a circle with radius
+  modulated by `baseR + amp * sin(theta * bumpCount)` densely (72+ points)
+  and joins them with `smoothClosedPath` (the same Catmull-Rom helper the
+  Botanical/Tropical generators use for organic outlines). Rendered with
+  `fill: 'none'` as a thin stroke, it gives the fine wavy lace trim real
+  mandala art uses between petal tiers instead of a plain circle.
+- `spokeTicks(count, r0, r1, color, width)` — a ring of short radial line
+  segments, for the fine tick marks that fill the gap between a dot ring
+  and a border ring instead of leaving it empty.
+
+`petal()` gained an optional `vein` parameter: when passed, it returns a
+`<g>` with the filled petal plus a single centerline stroke (the crease
+real flower petals have) instead of a flat silhouette.
+
+`lotusRing` changed the most: previously one full petal ring plus one
+95%-transparent half-offset ring, it's now a proper **three-tier layered
+lotus** — large outer petals (with vein) → scalloped ring → medium petals
+at a half-fold offset (with vein) → a `fold * 2` ring of small inner
+petals → core. `petalRosette`, `dotMedallion` and `sunMandala` each gained
+a scalloped ring (and `dotMedallion`/`sunMandala` also spoke ticks) between
+existing layers to remove the empty space that read as unfinished.
+
 ## Realistic animal markings (Animal Print generator)
 
 `generators/animalprint.ts` adds a `taperedBlotchPath(rng, spine, widthFn,
