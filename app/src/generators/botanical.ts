@@ -2,6 +2,7 @@ import type { Motif, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
 import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
+import { pinnateVeins } from './shared';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes
 // built from simple bezier paths, ellipses and circles — no gradients or
@@ -57,41 +58,6 @@ function serratedLeafPath(length: number, width: number, rng: Rng): string {
     })
     .join(' L ');
   return `M 0 ${round(-h2)} L ${rightSide} L 0 ${round(h2)} L ${leftSide} Z`;
-}
-
-/** Pinnate venation: one midrib plus branching side-vein pairs — every
- * vein is a solid pre-blended stroke (no SVG opacity), EPS-safe by
- * construction like the rest of the app. */
-function pinnateVeins(length: number, width: number, veinColor: string, fillColor: string): ReturnType<typeof h>[] {
-  const half = length / 2;
-  const stroke = blendHex(veinColor, 0.55, fillColor);
-  const pairs = 3;
-  const veins: ReturnType<typeof h>[] = [
-    h('path', {
-      d: `M 0 ${round(-half * 0.85)} L 0 ${round(half * 0.8)}`,
-      fill: 'none',
-      stroke,
-      'stroke-width': round(length * 0.022),
-      'stroke-linecap': 'round',
-    }),
-  ];
-  for (let i = 1; i <= pairs; i++) {
-    const t = i / (pairs + 1);
-    const y = -half * 0.55 + length * 0.72 * t;
-    const armLen = (width / 2) * (0.72 - 0.12 * i);
-    for (const side of [-1, 1] as const) {
-      veins.push(
-        h('path', {
-          d: `M 0 ${round(y)} Q ${round((side * armLen) / 2)} ${round(y - length * 0.05)} ${round(side * armLen)} ${round(y - length * 0.14)}`,
-          fill: 'none',
-          stroke,
-          'stroke-width': round(length * 0.013),
-          'stroke-linecap': 'round',
-        }),
-      );
-    }
-  }
-  return veins;
 }
 
 function leafNode(rng: Rng, colors: string[], length: number, width: number): ReturnType<typeof h> {
