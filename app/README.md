@@ -114,7 +114,7 @@ uniformly, so no generator changes are needed. Field patterns
 because their position-parity color alternation requires one stable accent
 list. The filler layer follows the story palette for cohesion.
 
-## Filler layer & flat shadow
+## Filler layer, flat shadow & flat highlight
 
 `buildFillerLayer` in `engine/tile.ts` scatters tiny dots/rings/plus/
 diamond accents (poisson-disc placed, periodic wrap-cloned, colors
@@ -125,6 +125,17 @@ pattern of a seed. `flatShadow` draws a solid recolored silhouette of
 every motif (via `recolorNode`) offset down-right in a dedicated layer
 under all motifs; the shadow offset is added to each placement's
 effective radius so edge shadows stay seamless.
+
+`flatHighlight` takes a different approach from the shadow: instead of a
+dedicated layer, a small solid-color ellipse is built once per placement
+and pushed as a sibling of `motif.node` *inside* the same per-instance `g`
+that carries the placement's own translate/rotate/scale — so the shine
+rotates and scales along with its motif automatically, no extra wrap-radius
+bookkeeping needed (it's positioned well within `safeRadius`). The color is
+`blendHex('#ffffff', 0.6, backgroundColor)`, which reliably reads as
+lighter than any accent color since `accentColors()` always excludes the
+background. Because this lives at the engine level rather than inside any
+one generator, it applies uniformly across all 15 categories.
 
 ## EPS export
 

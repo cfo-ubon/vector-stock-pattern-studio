@@ -35,6 +35,7 @@ Reply with ONLY a JSON array (no prose, no markdown code fences). Each element m
 - "radialSymmetry": integer 3-12 (only matters for the radial layout)
 - "filler": "none" | "subtle" | "rich" (tiny dot/plus accents scattered between the main motifs — "subtle" usually looks best)
 - "flatShadow": boolean (flat sticker-style offset shadow under every motif)
+- "flatHighlight": boolean (small flat "shine" ellipse near the upper-left of every motif, glossy-sticker look — pairs well with flatShadow)
 - "colorStory": boolean (true = each pattern leans on 2 dominant colors with the rest as accent pops — usually looks more designed)
 - "seed": short random-looking string (letters/numbers)
 
@@ -108,6 +109,7 @@ export function parseAiJson(text: string): ParsedAiResult {
     if (typeof o.radialSymmetry === 'number') patch.radialSymmetry = clamp(Math.round(o.radialSymmetry), 3, 12);
     if (o.filler === 'none' || o.filler === 'subtle' || o.filler === 'rich') patch.fillerStyle = o.filler;
     if (typeof o.flatShadow === 'boolean') patch.flatShadow = o.flatShadow;
+    if (typeof o.flatHighlight === 'boolean') patch.flatHighlight = o.flatHighlight;
     if (typeof o.colorStory === 'boolean') patch.colorStory = o.colorStory;
     patch.seed = typeof o.seed === 'string' && o.seed.trim() ? o.seed.trim().slice(0, 32) : randomSeed();
 

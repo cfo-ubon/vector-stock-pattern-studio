@@ -145,6 +145,15 @@ export function buildTile(params: GenerateParams): TileData {
   const shadowDy = effectiveMotifSize * 0.09;
   const shadowGroups: SvgNode[] = [];
 
+  // Flat highlight ("shine"): a small solid ellipse baked into each
+  // motif's own local frame (before the placement transform) so it
+  // rotates/scales along with the piece, near the upper-left, mimicking a
+  // glossy sticker light-catch. Lightened from the background — accents
+  // are always more saturated/darker than the background (accentColors
+  // excludes it), so this reliably reads as a lighter patch on top.
+  const useHighlight = !!params.flatHighlight;
+  const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
+
   const motifGroups: SvgNode[] = placements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
@@ -162,6 +171,11 @@ export function buildTile(params: GenerateParams): TileData {
     // offset in the wrap-inclusion test so edge shadows stay seamless too.
     const effectiveRadius = safeRadius * placement.scale + (useShadow ? Math.hypot(shadowDx, shadowDy) : 0);
     const shadowNode = useShadow ? recolorNode(motif.node, shadowColor) : null;
+    const highlightNode = useHighlight
+      ? h('g', { transform: `translate(${round(-safeRadius * 0.3)} ${round(-safeRadius * 0.32)}) rotate(-28)` }, [
+          h('ellipse', { cx: 0, cy: 0, rx: round(safeRadius * 0.3), ry: round(safeRadius * 0.18), fill: highlightColor }),
+        ])
+      : null;
     const instances: SvgNode[] = [];
     const shadowInstances: SvgNode[] = [];
 
@@ -184,7 +198,9 @@ export function buildTile(params: GenerateParams): TileData {
         if (shadowNode) {
           shadowInstances.push(h('g', { transform: placeTransform(shadowDx, shadowDy) }, [shadowNode]));
         }
-        instances.push(h('g', { transform: placeTransform(0, 0) }, [motif.node]));
+        instances.push(
+          h('g', { transform: placeTransform(0, 0) }, highlightNode ? [motif.node, highlightNode] : [motif.node]),
+        );
       }
     }
 
