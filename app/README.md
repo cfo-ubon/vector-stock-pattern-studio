@@ -237,6 +237,36 @@ base, and a cordate (heart) silhouette with a midrib + two vein pairs.
 `computeBoundingRadius`'s path-command walk covers all of these
 automatically, so no manual radius tuning was needed.
 
+## Realistic tropical shapes (Tropical generator)
+
+`generators/tropical.ts` has 5 variants, all rewritten for organic shape
+realism:
+- `palmFrond` (fan palm) — unchanged blade fan, now with a center crease
+  stroke per blade for visual depth.
+- `pinnateFrond` (feather/coconut palm, new) — a curved rachis built from a
+  single quadratic-bezier path; leaflets are placed by evaluating that same
+  quadratic at each `t` (so leaflet position always matches the rachis
+  curve), with length and droop angle both increasing toward the tip.
+- `monsteraLeaf` / `monsteraOutline` — samples 36 points per side (not 4-5)
+  and combines two sine frequencies: a low-frequency `envelope =
+  sin(PI * t)` for the overall leaf silhouette and a higher-frequency
+  `ripple` term for the wavy/scalloped margin. Points are joined with plain
+  `L` segments — dense sampling reads as smooth curves without needing
+  curve math per segment. (An earlier attempt used ~4 point Q-curves plus a
+  string-reversal mirror hack and rendered as a hexagon/kite, not a leaf —
+  confirmed visually via rendered screenshot before the rewrite.)
+  Fenestration holes vary in size/position per hole instead of a fixed
+  grid. Venation uses the shared `pinnateVeins()` helper.
+- `hibiscusBloom` — paddle-shaped petals (`hibiscusPetalPath`) plus a long
+  curved stamen column with a 5-dot anther cluster at the tip, replacing a
+  short center line.
+- `citrusSlice` — added a pith ring layer between rind and flesh, and
+  alternating-tone wedge segments (SVG arc paths) for texture instead of a
+  flat circle with only radial divider lines.
+
+`pinnateVeins()` moved out of `botanical.ts` into `generators/shared.ts` so
+both leaf-bearing generators share one venation implementation.
+
 ## Adding a new pattern category
 
 Implement the `PatternGenerator` interface in a new file under
