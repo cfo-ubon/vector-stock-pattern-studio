@@ -135,6 +135,57 @@ Retro Sunset, Midnight Botanical ฯลฯ — สีแรกของทุก
   "sticker เคลือบเงา" ครบสูตร — เป็นสีทึบล้วนเช่นกัน เข้ากับ EPS 100%
 - **Radial symmetry fold** — จำนวนแฉกสมมาตร (มีผลกับ layout Radial)
 
+### 🎨 Art Direction — ทิศทางงานออกแบบสำเร็จรูป 🆕
+
+เลือก preset สำเร็จรูป 15 แบบ (Editorial Botanical, Luxury Floral, Airy
+Scandinavian, Dense Garden, Vintage Herbarium, Modern Organic, Playful
+Kids, Resort Tropical, Textile Classic, Minimal Geometric, Retro
+Editorial, Premium Wallpaper, Boutique Packaging, Cottage Garden, Dark
+Botanical) — แต่ละ preset ปรับ **category/layout/hierarchy/negative
+space/overlap/filler/สี** ให้พร้อมกันทันทีในคลิกเดียว (บาง preset ยังตั้ง
+palette เฉพาะให้ด้วย เช่น Dark Botanical → Midnight Botanical) หลังเลือก
+แล้วยังปรับค่าย่อยแต่ละตัวต่อเองได้ตามปกติ ทุกค่าที่ preset ตั้งคือค่าจริงที่
+engine ใช้ ไม่ใช่แค่ label — กด **✕ ล้าง preset** เพื่อกลับไปปรับค่าอิสระ
+
+### 🎭 Visual Hierarchy — ลำดับชั้นชิ้นลาย 🆕
+
+เปิดใช้งานเพื่อแบ่งชิ้นลายในหนึ่งลายเป็น **4 ระดับ** อัตโนมัติ:
+**Hero** (ชิ้นเด่นใหญ่) → **Secondary** (ชิ้นรอง) → **Filler** (ชิ้นเติมเต็ม)
+→ **Accent** (จุดเล็กแซม) — ทำงานที่ระดับ engine กลาง จึงใช้ได้กับทุก layout
+โดยอัตโนมัติ (ยกเว้น Bouquet, Hero+Scatter, Hero+Editorial Flow, Dense
+Premium ที่มีระบบจัดลำดับชั้นของตัวเองอยู่แล้ว จึงข้ามการปรับซ้ำเพื่อไม่ให้
+ขนาดชิ้นเด่นถูกขยายซ้อนสองชั้น)
+
+- 7 preset สำเร็จรูป: Hero Focus, Balanced Editorial (ค่าเริ่มต้น), Dense
+  Layered, Airy Premium, Ditsy Floral, All-over Textile, Minimal Repeat
+- ปรับละเอียดเองได้ 8 ค่า: สัดส่วนของแต่ละระดับ (Hero/Secondary/Filler/
+  Accent proportion) และขนาดของแต่ละระดับ (Hero/Secondary/Filler/Accent
+  scale) — ไม่ต้องรวมกันเป็น 100% ระบบ normalize ให้อัตโนมัติ
+- ปิดได้ (ค่าเริ่มต้นของลายใหม่คือ **เปิด** แบบ Balanced Editorial —
+  ลายที่บันทึกไว้ก่อนฟีเจอร์นี้จะยังคงหน้าตาเดิมทุกประการเมื่อเปิดกลับมาดู
+  เพราะไม่มีค่านี้บันทึกไว้ ระบบจึงข้ามการปรับ)
+
+### 📐 Negative Space & Overlap 🆕
+
+ปรับระยะห่างระหว่างชิ้นลายโดยไม่กระทบค่า Density ที่แสดงบนหน้าจอ:
+
+- **Negative space** — เพิ่มพื้นที่ว่างรอบชิ้นลายให้ดูโปร่ง/หรูขึ้น
+- **Overlap amount** — ลดระยะห่างให้ชิ้นลายซ้อนทับกันเป็นธรรมชาติมากขึ้น
+
+ทั้งสองค่าเปิดพร้อมกันได้ (หักล้างกันบางส่วน) ค่าเริ่มต้นทั้งคู่คือ 0%
+(ไม่มีผลต่างจากพฤติกรรมเดิม)
+
+### 📊 Quality Score 🆕
+
+แผงคะแนนใต้ preview คำนวณจาก**โครงสร้างภาพจริง**ของลายที่กำลังแสดง
+(ตำแหน่ง/ขนาด/การหมุนของทุกชิ้นลายที่ export ออกมาจริง) ไม่ใช่ AI หรือการ
+คาดเดา — วัด 6 ด้าน: Composition, Spacing, Hierarchy, Color balance,
+Seamless integrity, Motif diversity แล้วรวมเป็นคะแนนรวม 0-100
+
+> ⚠️ เป็น heuristic ภายในเครื่องเพื่อช่วยเทียบลายที่สร้างขึ้น **ไม่ใช่การ
+> รับประกันว่าจะผ่านการตรวจสอบจริงของเว็บ stock ใดๆ** และไม่ตรวจสอบความซ้ำ
+> กับผลงานอื่นในตลาด (แอปไม่มีฐานข้อมูลค้นภาพทั่วโลก)
+
 ### Seed
 
 รหัสสุ่ม — **ลายเดียวกัน 100% จะกลับมาเมื่อใช้ seed + ค่าปรับเดิมทุกตัว**
@@ -394,6 +445,40 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.23 — 10 ก.ค. 2026 — Composition Intelligence
+- 🎭 **Visual Hierarchy Engine ใหม่**: แบ่งชิ้นลายเป็น 4 ระดับ
+  (hero/secondary/filler/accent) อัตโนมัติ ทำงานที่ระดับ engine กลาง จึงใช้
+  ได้กับทุก layout (ยกเว้น 4 layout ที่มีระบบจัดลำดับชั้นของตัวเองอยู่แล้ว
+  เพื่อไม่ให้ปรับซ้อนสองชั้น) — 7 preset สำเร็จรูป + ปรับละเอียดเองได้ 8 ค่า
+  เปิดเป็นค่าเริ่มต้นสำหรับลายใหม่ (ลายเก่าที่บันทึกไว้ไม่มีค่านี้ จึงยัง
+  แสดงผลเหมือนเดิมทุกประการ)
+- 📐 **Negative Space & Overlap**: สไลเดอร์ใหม่ 2 ตัวปรับระยะห่างชิ้นลายโดย
+  ไม่กระทบค่า Density ที่แสดง
+- 🎨 **Art Direction presets ใหม่ 15 แบบ**: ปุ่มเดียวปรับ
+  category/layout/hierarchy/negative space/overlap/สี พร้อมกัน (Editorial
+  Botanical, Luxury Floral, Airy Scandinavian, Dense Garden, Vintage
+  Herbarium, Modern Organic, Playful Kids, Resort Tropical, Textile
+  Classic, Minimal Geometric, Retro Editorial, Premium Wallpaper, Boutique
+  Packaging, Cottage Garden, Dark Botanical)
+- 📊 **Quality Score**: แผงคะแนนใหม่ใต้ preview วัด 6 ด้านจากโครงสร้างภาพจริง
+  (heuristic ในเครื่อง ไม่ใช่ AI/รับประกัน)
+- 🧩 **JSON schema v2**: AI ช่วยคิดลายรองรับ field ใหม่
+  `artDirection`/`hierarchy`/`negativeSpace`/`overlapAmount` — ยัง import
+  JSON แบบเก่า (ก่อน v1.23) ได้ปกติ 100%
+- 📱 **แผงควบคุมพับ/กางได้ (accordion)**: ทุกหมวดในแผงควบคุมพับเก็บได้แล้ว
+  (native `<details>`, ไม่ใช้ JS เพิ่ม) ลดความยาวหน้าจอบนมือถือ/iPad พร้อม
+  ปรับปุ่ม/chip ให้ขนาดแตะง่ายขึ้น (~44px) และเว้นระยะขอบจอปลอดภัย (safe
+  area) สำหรับ iPhone รุ่นมี notch — **หมายเหตุ**: เดิมทดลองทำแถบปุ่ม
+  Generate/Export แบบ sticky ติดขอบจอด้วย แต่พบบั๊กจริงจากการทดสอบ
+  (แถบปุ่มบัง click ของ element อื่น) จึงถอดออกก่อนส่ง รอปรับปรุงในรอบถัดไป
+- 🧪 **ชุดทดสอบอัตโนมัติใหม่ (vitest)**: 98 test ครอบคลุม seeded RNG
+  reproducibility, hierarchy distribution, JSON backward compatibility, SVG
+  validity (ไม่มี raster/filter ที่ทำ EPS เสีย), และ build สำเร็จของทุก
+  layout × หมวดตัวอย่าง — รันด้วย `npm test` ในโฟลเดอร์ `app`
+- ✅ ทุกฟีเจอร์ใหม่ตรวจแล้วว่ามีผลจริงต่อภาพที่ export (ไม่ใช่แค่ UI) ผ่าน
+  การ build/lint/test อัตโนมัติ + เปิดแอปจริงด้วย Playwright ตรวจทั้ง
+  desktop และมือถือก่อนส่ง
 
 ### v1.22 — 10 ก.ค. 2026
 - 🧵 **หมวด Paisley & Ikat สมจริง/หรูขึ้น**: ปรับปรุงทั้ง 2 แนว —
