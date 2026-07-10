@@ -104,6 +104,16 @@ Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
 site's own character caps, keyword counts and category picks. The
 `MetadataPanel` renders these as tabs with per-field copy buttons.
 
+## Color story
+
+With `GenerateParams.colorStory` (default on, needs >2 accents), the engine
+picks 2 dominant accents once per tile and passes just `[bg, d1, d2]` to
+~72% of placements, the full palette to the rest — generators keep picking
+uniformly, so no generator changes are needed. Field patterns
+(`disableGridRhythm`, e.g. Plaid) get the story palette on every placement
+because their position-parity color alternation requires one stable accent
+list. The filler layer follows the story palette for cohesion.
+
 ## Filler layer & flat shadow
 
 `buildFillerLayer` in `engine/tile.ts` scatters tiny dots/rings/plus/
