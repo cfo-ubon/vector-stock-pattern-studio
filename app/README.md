@@ -605,9 +605,48 @@ Evolution, Auto Improve, SVG Beautifier, Designer Assistant,
 category-specific scoring — see `docs/USER_GUIDE.md`'s v1.26 changelog for
 the full list).
 
+## Trend Intelligence Engine (`engine/trendEngine.ts`, `engine/colorAnalysis.ts`)
+
+Roadmap "Version 60". A rule-based, curated set of named surface-design
+style profiles — explicitly **not** real-time trend scraping (this is a
+static GitHub Pages site with no backend/API and no AI API calls, per the
+project's hard constraints). Architecturally identical to
+`engine/artDirection.ts`'s preset system (`TREND_PRESETS` bundles real,
+already-implemented `GenerateParams` fields — category/layout/palette/
+hierarchy preset/negative space/overlap/density/color story/filler —
+`resolveTrend(id)` turns one into a patch), but adds a capability Art
+Direction doesn't have: **Trend Fit scoring**.
+
+- `engine/colorAnalysis.ts` — `hexToHsl`, and `meanHue`/`circularHueDistance`
+  for hue statistics that wrap correctly at the 0/360 seam (a plain
+  arithmetic mean of e.g. 350° and 10° would wrongly give 180°/green
+  instead of 0°/red). `colorSetStats(colors)` returns the circular mean hue
+  plus mean saturation/lightness across a resolved palette's accent colors
+  (excluding the background).
+- `engine/trendEngine.ts` — each `TrendPreset` carries both its resolved
+  settings *and* a `TrendSignature` (declared hue/saturation/lightness/
+  density/overlap reference ranges). `computeTrendFit(tileData, trendId)`
+  measures the tile's *actual* generated colors and params against that
+  signature and returns 5 sub-scores + an overall 0-100 — real numbers
+  from real geometry/color data, not a static label. Right after applying
+  a trend preset (before any hand-editing) density/overlap fit read 100
+  by construction, since the preset's own density/overlap values are
+  defined to sit inside its own declared range; hand-editing the palette
+  or density afterward changes the fit score for real.
+  - 6 presets: `quietLuxury`, `y2kRevival`, `coastalCalm`,
+    `darkAcademiaBotanical`, `softMaximalism`, `cleanScandiMinimal`.
+- UI: a new "📈 Trend Intelligence" chip row in `ControlPanel.tsx` (same
+  pattern as Art Direction's chip row) and `TrendPanel.tsx`, rendered only
+  when `params.trend` is set, showing the 5 sub-scores with an explicit
+  disclaimer that this is an internal heuristic comparison, not real trend
+  data or a market-popularity guarantee.
+- `GenerateParams.trend?: string` is a new optional field (undefined for
+  every pre-existing saved pattern — fully backward compatible) and is
+  independent of `artDirection`: applying one doesn't clear the other.
+
 ## Testing
 
-`npm test` runs `vitest run` — 156 tests across 11 files:
+`npm test` runs `vitest run` — 174 tests across 13 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -657,6 +696,18 @@ the full list).
   falls back safely if everything were rejected, the chunked async version
   matches the synchronous one exactly and both reports progress and
   respects cancellation.
+- `engine/colorAnalysis.test.ts` — `hexToHsl` correctness for known
+  primaries/grayscale/black/white, `meanHue` circular-wrap correctness
+  (350°/10° averages to 0°, not the naive-mean 180°), `circularHueDistance`
+  symmetry, `colorSetStats` excludes the background color and is
+  deterministic.
+- `engine/trendEngine.test.ts` — `resolveTrend` returns null for an unknown
+  id and a valid buildable patch for every real preset, determinism;
+  `computeTrendFit` returns null for an unknown trend, is deterministic
+  and bounded for every preset, scores a perfect density/overlap match
+  right after applying a preset unmodified, degrades when density is
+  pushed outside the trend's range, and handles a hue-wrapping signature
+  without throwing.
 
 ## Adding a new pattern category
 

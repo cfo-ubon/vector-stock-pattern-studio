@@ -5,6 +5,7 @@ import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS, type HierarchyParams } from '../engine/hierarchy';
 import { ART_DIRECTION_PRESETS, resolveArtDirection } from '../engine/artDirection';
+import { TREND_PRESETS, resolveTrend } from '../engine/trendEngine';
 import type { GenerationMode, CandidateProgress } from '../engine/candidateEngine';
 import { CANDIDATE_COUNTS } from '../engine/candidateEngine';
 import { QUALITY_PRESET_LABELS, type QualityPresetId } from '../engine/scoring';
@@ -122,6 +123,44 @@ export function ControlPanel({
               className={`chip ${params.artDirection === id ? 'chip--active' : ''}`}
               onClick={() => {
                 const patch = resolveArtDirection(id);
+                if (patch) onChange(patch);
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </details>
+
+      <details className="control-section" open>
+        <summary>
+          <h3>📈 Trend Intelligence</h3>
+          {params.trend && (
+            <button
+              type="button"
+              className="chip"
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange({ trend: undefined });
+              }}
+            >
+              ✕ ล้าง trend
+            </button>
+          )}
+        </summary>
+        <p className="mix-hint">
+          เลือกโปรไฟล์สไตล์ที่คัดไว้ล่วงหน้า — ปรับ category/layout/palette/hierarchy/density ให้พร้อมกัน แล้วหลัง Generate
+          จะมีแผง Trend Fit ประเมินว่าสี/ความหนาแน่นที่สร้างจริงตรงกับลักษณะของเทรนด์นั้นแค่ไหน (ไม่ใช่ข้อมูลเทรนด์เรียลไทม์จากอินเทอร์เน็ต)
+        </p>
+        <div className="chip-row">
+          {Object.entries(TREND_PRESETS).map(([id, preset]) => (
+            <button
+              key={id}
+              type="button"
+              className={`chip ${params.trend === id ? 'chip--active' : ''}`}
+              title={preset.description}
+              onClick={() => {
+                const patch = resolveTrend(id);
                 if (patch) onChange(patch);
               }}
             >

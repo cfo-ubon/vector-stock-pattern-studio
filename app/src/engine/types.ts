@@ -199,6 +199,12 @@ export interface GenerateParams {
    * these params doesn't require re-resolving the preset). Undefined when
    * no preset was used or the user has since hand-edited values away from it. */
   artDirection?: string;
+  /** Named Trend Intelligence preset id applied (see engine/trendEngine.ts)
+   * — same round-tripping rationale as `artDirection`. Independent of
+   * `artDirection`: applying one doesn't clear the other, since a saved
+   * pattern may have started from an Art Direction preset and then had a
+   * Trend preset layered on top (or vice versa) before further hand edits. */
+  trend?: string;
   seed: string;
 }
 
