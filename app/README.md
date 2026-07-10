@@ -210,6 +210,22 @@ simply repeat finer (<1) or bolder (>1) within the fixed export canvas.
 The preview toolbar exposes this as a 40–250% slider that rebuilds the
 currently shown tile live without touching the gallery.
 
+## Realistic leaf shapes (Botanical generator)
+
+`generators/botanical.ts` builds leaf silhouettes from two shape
+functions instead of a single symmetric almond: `ovateLeafPath` (pointed
+tip, widest below center, tapered rounded base — four cubic segments) and
+`serratedLeafPath` (samples the same envelope but alternates each
+boundary point in/out for a toothed edge, connected with plain `L`
+segments). `leafNode()` picks between them per motif and pairs either
+with `pinnateVeins()` — one midrib plus branching side-vein pairs, all
+solid pre-blended strokes via `blendHex` (no SVG opacity, so it stays
+EPS-safe). `mapleLeaf` and `heartLeaf` are standalone variants built the
+same way: a 5-lobed palmate silhouette with veins radiating from the
+base, and a cordate (heart) silhouette with a midrib + two vein pairs.
+`computeBoundingRadius`'s path-command walk covers all of these
+automatically, so no manual radius tuning was needed.
+
 ## Adding a new pattern category
 
 Implement the `PatternGenerator` interface in a new file under

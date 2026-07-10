@@ -9,27 +9,96 @@ import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 
 type Variant = (rng: Rng, colors: string[], size: number) => { node: ReturnType<typeof h>; radius: number };
 
-function leafPath(length: number, width: number): string {
+// Realistic leaf silhouettes: a botanically-inspired ovate shape (pointed
+// tip, widest below center, tapered rounded base — the classic leaf
+// outline) and a toothed/serrated variant (birch/elm-like edge), each
+// paired with proper pinnate venation (one midrib + branching side veins)
+// instead of a single straight line — the detail that reads as "a real
+// leaf" rather than a flat almond icon.
+
+/** Pointed-tip ovate leaf: asymmetric taper (fuller below center, tapered
+ * base) built from four cubic segments for a natural curve. */
+function ovateLeafPath(length: number, width: number): string {
+  const h2 = length / 2;
   const w = width / 2;
-  return `M 0 ${round(-length / 2)} C ${round(w)} ${round(-length / 4)} ${round(w)} ${round(length / 4)} 0 ${round(length / 2)} C ${round(-w)} ${round(length / 4)} ${round(-w)} ${round(-length / 4)} 0 ${round(-length / 2)} Z`;
+  const wy = -h2 * 0.12; // widest point sits slightly below center
+  return (
+    `M 0 ${round(-h2)} ` +
+    `C ${round(w * 0.55)} ${round(-h2 * 0.55)} ${round(w)} ${round(wy - w * 0.35)} ${round(w)} ${round(wy)} ` +
+    `C ${round(w)} ${round(wy + w * 0.95)} ${round(w * 0.4)} ${round(h2 * 0.85)} 0 ${round(h2)} ` +
+    `C ${round(-w * 0.4)} ${round(h2 * 0.85)} ${round(-w)} ${round(wy + w * 0.95)} ${round(-w)} ${round(wy)} ` +
+    `C ${round(-w)} ${round(wy - w * 0.35)} ${round(-w * 0.55)} ${round(-h2 * 0.55)} 0 ${round(-h2)} Z`
+  );
+}
+
+/** Toothed leaf edge: samples the same ovate envelope but alternates each
+ * boundary point in/out to cut small teeth, connected with straight
+ * segments (a jagged edge reads correctly even without curves). */
+function serratedLeafPath(length: number, width: number, rng: Rng): string {
+  const h2 = length / 2;
+  const w = width / 2;
+  const teeth = rngInt(rng, 9, 13);
+  const envelope = (t: number) => Math.sin(Math.PI * t) * (1 - 0.15 * Math.cos(Math.PI * t));
+  const pts: string[] = [];
+  for (let i = 1; i < teeth; i++) {
+    const t = i / teeth;
+    const y = -h2 + length * t;
+    const baseR = w * envelope(t);
+    const toothR = baseR * (i % 2 === 0 ? 1 : 0.8);
+    pts.push(`${round(toothR)} ${round(y)}`);
+  }
+  const rightSide = pts.join(' L ');
+  const leftSide = pts
+    .slice()
+    .reverse()
+    .map((p) => {
+      const [x, y] = p.split(' ');
+      return `${round(-Number(x))} ${y}`;
+    })
+    .join(' L ');
+  return `M 0 ${round(-h2)} L ${rightSide} L 0 ${round(h2)} L ${leftSide} Z`;
+}
+
+/** Pinnate venation: one midrib plus branching side-vein pairs — every
+ * vein is a solid pre-blended stroke (no SVG opacity), EPS-safe by
+ * construction like the rest of the app. */
+function pinnateVeins(length: number, width: number, veinColor: string, fillColor: string): ReturnType<typeof h>[] {
+  const half = length / 2;
+  const stroke = blendHex(veinColor, 0.55, fillColor);
+  const pairs = 3;
+  const veins: ReturnType<typeof h>[] = [
+    h('path', {
+      d: `M 0 ${round(-half * 0.85)} L 0 ${round(half * 0.8)}`,
+      fill: 'none',
+      stroke,
+      'stroke-width': round(length * 0.022),
+      'stroke-linecap': 'round',
+    }),
+  ];
+  for (let i = 1; i <= pairs; i++) {
+    const t = i / (pairs + 1);
+    const y = -half * 0.55 + length * 0.72 * t;
+    const armLen = (width / 2) * (0.72 - 0.12 * i);
+    for (const side of [-1, 1] as const) {
+      veins.push(
+        h('path', {
+          d: `M 0 ${round(y)} Q ${round((side * armLen) / 2)} ${round(y - length * 0.05)} ${round(side * armLen)} ${round(y - length * 0.14)}`,
+          fill: 'none',
+          stroke,
+          'stroke-width': round(length * 0.013),
+          'stroke-linecap': 'round',
+        }),
+      );
+    }
+  }
+  return veins;
 }
 
 function leafNode(rng: Rng, colors: string[], length: number, width: number): ReturnType<typeof h> {
   const fill = rngPick(rng, accentColors(colors));
   const veinColor = rngPick(rng, accentColors(colors));
-  return h('g', {}, [
-    h('path', { d: leafPath(length, width), fill }),
-    h('line', {
-      x1: 0,
-      y1: round(-length / 2 + length * 0.1),
-      x2: 0,
-      y2: round(length / 2 - length * 0.1),
-      // Vein sits fully on the leaf — exact pre-blend, no transparency.
-      stroke: blendHex(veinColor, 0.6, fill),
-      'stroke-width': round(length * 0.03),
-      'stroke-linecap': 'round',
-    }),
-  ]);
+  const shape = rngBool(rng) ? ovateLeafPath(length, width) : serratedLeafPath(length, width, rng);
+  return h('g', {}, [h('path', { d: shape, fill }), ...pinnateVeins(length, width, veinColor, fill)]);
 }
 
 const singleLeaf: Variant = (rng, colors, size) => {
@@ -246,7 +315,125 @@ const wildflowerSprig: Variant = (rng, colors, size) => {
   return { node: h('g', {}, children), radius: r * 1.1 };
 };
 
-const VARIANTS: Variant[] = [singleLeaf, flowerBloom, flowerBud, leafyBranch, fernFrond, simpleTulip, layeredBloom, wildflowerSprig];
+/** Five-lobed maple-leaf silhouette: a center lobe, two angled side lobes
+ * and two smaller basal lobes, connected by concave valleys (the notches
+ * between real maple lobes) and closing through a shallow base notch at
+ * the stem — plus palmate veins radiating from that base to every tip. */
+function mapleLeafPath(r: number): string {
+  const tips = [
+    { a: -80, len: r * 0.62 },
+    { a: -42, len: r * 0.88 },
+    { a: 0, len: r * 1.0 },
+    { a: 42, len: r * 0.88 },
+    { a: 80, len: r * 0.62 },
+  ];
+  const pt = (aDeg: number, len: number): [number, number] => {
+    const a = (aDeg * Math.PI) / 180;
+    return [Math.sin(a) * len, -Math.cos(a) * len];
+  };
+  const valley = (a1: number, l1: number, a2: number, l2: number): [number, number] => pt((a1 + a2) / 2, Math.min(l1, l2) * 0.42);
+  const first = pt(tips[0].a, tips[0].len);
+  let d = `M ${round(first[0])} ${round(first[1])} `;
+  for (let i = 0; i < tips.length - 1; i++) {
+    const v = valley(tips[i].a, tips[i].len, tips[i + 1].a, tips[i + 1].len);
+    const next = pt(tips[i + 1].a, tips[i + 1].len);
+    d += `Q ${round(v[0])} ${round(v[1])} ${round(next[0])} ${round(next[1])} `;
+  }
+  const stem: [number, number] = [0, r * 0.78];
+  const lastTip = pt(tips[tips.length - 1].a, tips[tips.length - 1].len);
+  d += `Q ${round(lastTip[0] * 0.55)} ${round(r * 0.9)} ${round(stem[0])} ${round(stem[1])} `;
+  d += `Q ${round(first[0] * 0.55)} ${round(r * 0.9)} ${round(first[0])} ${round(first[1])} Z`;
+  return d;
+}
+
+const mapleLeaf: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const fill = rngPick(rng, accentColors(colors));
+  const veinColor = rngPick(rng, accentColors(colors));
+  const stroke = blendHex(veinColor, 0.5, fill);
+  const tipAngles = [-80, -42, 0, 42, 80];
+  const tipLens = [r * 0.62, r * 0.88, r * 1.0, r * 0.88, r * 0.62];
+  const children: ReturnType<typeof h>[] = [h('path', { d: mapleLeafPath(r), fill })];
+  tipAngles.forEach((a, i) => {
+    const rad = (a * Math.PI) / 180;
+    children.push(
+      h('path', {
+        d: `M 0 ${round(r * 0.7)} L ${round(Math.sin(rad) * tipLens[i])} ${round(-Math.cos(rad) * tipLens[i])}`,
+        fill: 'none',
+        stroke,
+        'stroke-width': round(size * 0.012),
+      }),
+    );
+  });
+  children.push(
+    h('path', {
+      d: `M 0 ${round(r * 0.78)} L 0 ${round(r * 1.05)}`,
+      fill: 'none',
+      stroke: blendHex(veinColor, 0.7, colors[0]),
+      'stroke-width': round(size * 0.03),
+      'stroke-linecap': 'round',
+    }),
+  );
+  return { node: h('g', { transform: `rotate(${round(rngRange(rng, -15, 15))})` }, children), radius: r * 1.2 };
+};
+
+/** Cordate (heart-shaped) leaf — the philodendron/anthurium silhouette:
+ * pointed tip at the stem, two rounded lobes with a top notch, plus a
+ * midrib and two vein pairs branching toward the lobes. */
+function heartLeafPath(r: number): string {
+  return `M 0 ${round(r * 0.95)} C ${round(-r * 1.05)} ${round(r * 0.15)} ${round(-r * 0.65)} ${round(-r * 0.85)} 0 ${round(-r * 0.3)} C ${round(r * 0.65)} ${round(-r * 0.85)} ${round(r * 1.05)} ${round(r * 0.15)} 0 ${round(r * 0.95)} Z`;
+}
+
+const heartLeaf: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const fill = rngPick(rng, accentColors(colors));
+  const veinColor = rngPick(rng, accentColors(colors));
+  const stroke = blendHex(veinColor, 0.5, fill);
+  const children: ReturnType<typeof h>[] = [
+    h('path', { d: heartLeafPath(r), fill }),
+    h('path', {
+      d: `M 0 ${round(-r * 0.22)} L 0 ${round(r * 0.82)}`,
+      fill: 'none',
+      stroke: blendHex(veinColor, 0.55, fill),
+      'stroke-width': round(size * 0.02),
+      'stroke-linecap': 'round',
+    }),
+    h('path', {
+      d: `M 0 ${round(r * 0.95)} L 0 ${round(r * 1.2)}`,
+      fill: 'none',
+      stroke: blendHex(veinColor, 0.7, colors[0]),
+      'stroke-width': round(size * 0.03),
+      'stroke-linecap': 'round',
+    }),
+  ];
+  for (const t of [0.15, 0.45]) {
+    const y = -r * 0.22 + r * 1.04 * t;
+    for (const side of [-1, 1] as const) {
+      children.push(
+        h('path', {
+          d: `M 0 ${round(y)} Q ${round(side * r * 0.22)} ${round(y - r * 0.1)} ${round(side * r * 0.42)} ${round(y - r * 0.22)}`,
+          fill: 'none',
+          stroke,
+          'stroke-width': round(size * 0.012),
+        }),
+      );
+    }
+  }
+  return { node: h('g', {}, children), radius: r * 1.25 };
+};
+
+const VARIANTS: Variant[] = [
+  singleLeaf,
+  flowerBloom,
+  flowerBud,
+  leafyBranch,
+  fernFrond,
+  simpleTulip,
+  layeredBloom,
+  wildflowerSprig,
+  mapleLeaf,
+  heartLeaf,
+];
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
