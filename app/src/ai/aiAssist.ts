@@ -3,6 +3,8 @@ import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
+import { HIERARCHY_PRESETS, type HierarchyParams } from '../engine/hierarchy';
+import { ART_DIRECTION_PRESETS, resolveArtDirection } from '../engine/artDirection';
 
 // "AI assist" without any API calls (keeps the app free and static-host
 // safe): the user copies a prompt describing this app's parameter schema,
@@ -37,6 +39,10 @@ Reply with ONLY a JSON array (no prose, no markdown code fences). Each element m
 - "flatShadow": boolean (flat sticker-style offset shadow under every motif)
 - "flatHighlight": boolean (small flat "shine" ellipse near the upper-left of every motif, glossy-sticker look — pairs well with flatShadow)
 - "colorStory": boolean (true = each pattern leans on 2 dominant colors with the rest as accent pops — usually looks more designed)
+- "artDirection": one of: ${Object.keys(ART_DIRECTION_PRESETS).join(', ')} (optional — a named art-direction preset; sets category/layout/hierarchy/negative space/overlap/color story together. Omit "category"/"layout"/"hierarchy" below if you use this, or include them to override just those fields.)
+- "hierarchy": optional object for manual control instead of "artDirection" — {"heroRatio": 0-0.4, "secondaryRatio": 0.1-0.7, "fillerRatio": 0-0.6, "accentRatio": 0-0.5, "heroScale": 0.8-3, "secondaryScale": 0.5-1.8, "fillerScale": 0.15-0.9, "accentScale": 0.05-0.45} (ratios don't need to sum to 1, they're normalized automatically)
+- "negativeSpace": number 0-1 (0 = default spacing, higher = airier/more breathing room)
+- "overlapAmount": number 0-1 (0 = default spacing, higher = motifs sit closer/overlap more naturally)
 - "seed": short random-looking string (letters/numbers)
 
 Design brief: (describe here what kind of patterns you want, e.g. "autumn patterns for gift wrap", or leave blank for your best commercial picks)`;
@@ -76,7 +82,18 @@ export function parseAiJson(text: string): ParsedAiResult {
   for (const item of items.slice(0, 9)) {
     if (typeof item !== 'object' || item === null) continue;
     const o = item as Record<string, unknown>;
-    const patch: Partial<GenerateParams> = {};
+    let patch: Partial<GenerateParams> = {};
+
+    // Resolve a named Art Direction preset first — it seeds category/
+    // layout/palette/hierarchy/negativeSpace/overlapAmount/colorStory/
+    // filler all at once. Every field parsed below runs afterward and
+    // overwrites the same patch keys when the AI explicitly provided that
+    // field too, so "artDirection + a couple of manual overrides" works
+    // as expected regardless of key order in the source JSON.
+    if (typeof o.artDirection === 'string') {
+      const resolved = resolveArtDirection(o.artDirection);
+      if (resolved) patch = { ...patch, ...resolved };
+    }
 
     if (Array.isArray(o.categories)) {
       const ids = o.categories.filter((c): c is string => typeof c === 'string' && !!GENERATORS[c]);
@@ -111,6 +128,32 @@ export function parseAiJson(text: string): ParsedAiResult {
     if (typeof o.flatShadow === 'boolean') patch.flatShadow = o.flatShadow;
     if (typeof o.flatHighlight === 'boolean') patch.flatHighlight = o.flatHighlight;
     if (typeof o.colorStory === 'boolean') patch.colorStory = o.colorStory;
+
+    // Schema v2 (optional, backward compatible): a manual "hierarchy"
+    // object (as an alternative to — or override of — "artDirection" above)
+    // is validated field-by-field with clamping so a partial/malformed
+    // object still produces a usable (if incomplete->defaulted) result
+    // instead of being dropped entirely.
+    if (typeof o.hierarchy === 'object' && o.hierarchy !== null) {
+      const h = o.hierarchy as Record<string, unknown>;
+      const num = (v: unknown, min: number, max: number, fallback: number) =>
+        typeof v === 'number' && Number.isFinite(v) ? clamp(v, min, max) : fallback;
+      const base = HIERARCHY_PRESETS.balancedEditorial.value;
+      const resolved: HierarchyParams = {
+        heroRatio: num(h.heroRatio, 0, 0.4, base.heroRatio),
+        secondaryRatio: num(h.secondaryRatio, 0.1, 0.7, base.secondaryRatio),
+        fillerRatio: num(h.fillerRatio, 0, 0.6, base.fillerRatio),
+        accentRatio: num(h.accentRatio, 0, 0.5, base.accentRatio),
+        heroScale: num(h.heroScale, 0.8, 3, base.heroScale),
+        secondaryScale: num(h.secondaryScale, 0.5, 1.8, base.secondaryScale),
+        fillerScale: num(h.fillerScale, 0.15, 0.9, base.fillerScale),
+        accentScale: num(h.accentScale, 0.05, 0.45, base.accentScale),
+      };
+      patch.hierarchy = resolved;
+    }
+    if (typeof o.negativeSpace === 'number') patch.negativeSpace = clamp(o.negativeSpace, 0, 1);
+    if (typeof o.overlapAmount === 'number') patch.overlapAmount = clamp(o.overlapAmount, 0, 1);
+
     patch.seed = typeof o.seed === 'string' && o.seed.trim() ? o.seed.trim().slice(0, 32) : randomSeed();
 
     if (Object.keys(patch).length > 1) {

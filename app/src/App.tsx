@@ -14,6 +14,7 @@ import { getPalette, PALETTES } from './palettes/palettes';
 import { LAYOUTS } from './layouts';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
+import { QualityPanel } from './components/QualityPanel';
 import { Gallery, type GalleryItem } from './components/Gallery';
 import { MetadataPanel } from './components/MetadataPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
@@ -466,6 +467,7 @@ function App() {
         />
         <main className="app-main">
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
+          <QualityPanel tileData={tileData} />
           <Gallery
             items={gallery}
             selectedId={selectedId}

@@ -5,6 +5,7 @@ import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
+import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -122,11 +123,20 @@ export function buildTile(params: GenerateParams): TileData {
   const effectiveMotifSize = params.motifSize * Math.min(4, Math.max(0.2, params.patternScale ?? 1));
   activeGenerators.forEach((g) => g.beginTile?.(rng));
 
+  // Negative Space / Overlap: nudge the *density* fed to the layout (every
+  // layout already reads this to compute its own spacing/point-count), in
+  // opposite directions, rather than reaching into each layout's spacing
+  // math individually. Both default to 0, so effectiveDensity ===
+  // params.density exactly when neither is set — zero behavior change for
+  // every pattern saved before these controls existed.
+  const spacingAdjust = (params.overlapAmount ?? 0) - (params.negativeSpace ?? 0);
+  const effectiveDensity = Math.max(0, Math.min(1, params.density + spacingAdjust * 0.4));
+
   const placements: Placement[] = layout.generate(
     {
       tileSize,
       motifSize: effectiveMotifSize,
-      density: params.density,
+      density: effectiveDensity,
       rotationJitter: params.rotationJitter,
       scaleJitter: params.scaleJitter,
       mirror: params.mirror,
@@ -135,6 +145,18 @@ export function buildTile(params: GenerateParams): TileData {
     },
     rng,
   );
+
+  // Visual Hierarchy Engine: a layout-agnostic post-process pass that
+  // assigns hero/secondary/filler/accent roles and scales placements
+  // accordingly — skipped for layouts that already build their own
+  // explicit tiers (see HIERARCHY_EXEMPT_LAYOUTS) to avoid compounding an
+  // already-large hero motif by heroScale a second time. Undefined
+  // params.hierarchy (the default for every pre-existing saved pattern)
+  // means this is a no-op and `placements` passes through unchanged.
+  const roledPlacements =
+    params.hierarchy && !HIERARCHY_EXEMPT_LAYOUTS.has(params.layoutId)
+      ? applyHierarchy(placements, params.hierarchy, rng)
+      : placements;
 
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
@@ -154,7 +176,7 @@ export function buildTile(params: GenerateParams): TileData {
   const useHighlight = !!params.flatHighlight;
   const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
 
-  const motifGroups: SvgNode[] = placements.map((placement, index) => {
+  const motifGroups: SvgNode[] = roledPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.
@@ -205,7 +227,11 @@ export function buildTile(params: GenerateParams): TileData {
     }
 
     if (shadowInstances.length > 0) shadowGroups.push(h('g', { id: `shadow-${index + 1}` }, shadowInstances));
-    return h('g', { id: `motif-${index + 1}` }, instances);
+    // data-role carries the hierarchy tier into the exported SVG (Affinity
+    // Designer shows unknown data-* attributes as harmless metadata, so
+    // this is safe there) — omitted entirely when no role was assigned,
+    // instead of writing a literal "undefined" string.
+    return h('g', { id: `motif-${index + 1}`, ...(placement.role ? { 'data-role': placement.role } : {}) }, instances);
   });
 
   // Filler goes behind everything except the background; built last so its

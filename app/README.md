@@ -16,6 +16,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
+npm test         # vitest run — 98 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -350,6 +351,113 @@ realism:
 
 `pinnateVeins()` moved out of `botanical.ts` into `generators/shared.ts` so
 both leaf-bearing generators share one venation implementation.
+
+## Visual Hierarchy Engine (`engine/hierarchy.ts`)
+
+`applyHierarchy(placements, hierarchy, rng)` is a **layout-agnostic
+post-process pass**: given the `Placement[]` array any layout already
+produced, it deterministically assigns each one a `role`
+(`hero`/`secondary`/`filler`/`accent`) from the seeded rng according to
+`HierarchyParams`'s four ratios (normalized to sum to 1 regardless of what
+the caller passes in), then multiplies that placement's existing `scale`
+by the role's own scale multiplier — composing with whatever scale
+variation the layout itself already produced rather than replacing it.
+
+`tile.ts` calls this once, right after `layout.generate()`, only when
+`params.hierarchy` is set — undefined is a complete no-op, so every
+pattern saved before this existed reproduces pixel-identically. It's also
+skipped for `HIERARCHY_EXEMPT_LAYOUTS` (`bouquet`, `densePremium`,
+`heroFlow`, `heroScatter`) since those already build their own explicit
+hero/secondary/filler tiers internally; applying this pass on top would
+multiply an already-large hero motif by `heroScale` a second time.
+
+The resolved role is written back onto the exported SVG as a `data-role`
+attribute on each `motif-N` group (Affinity Designer shows unknown
+`data-*` attributes as harmless metadata, so this is safe to open there).
+
+`HIERARCHY_PRESETS` ships 7 named bundles (Hero Focus, Balanced Editorial,
+Dense Layered, Airy Premium, Ditsy Floral, All-over Textile, Minimal
+Repeat) — `defaultParams()` uses Balanced Editorial for every new pattern.
+
+## Negative Space & Overlap
+
+`params.negativeSpace` and `params.overlapAmount` (both `0..1`, both
+default `0`) nudge the **`density` value fed into `layout.generate()`** in
+opposite directions — `effectiveDensity = clamp(density + (overlapAmount -
+negativeSpace) * 0.4, 0, 1)` — rather than reaching into each of the 14
+layout files' own spacing math individually. Every layout already reads
+`params.density` to compute its own spacing/point-count, so this is a
+single, layout-agnostic lever. Both default to 0, so `effectiveDensity ===
+density` exactly when neither is set — zero behavior change for every
+pattern saved before these controls existed.
+
+## Quality Score (`engine/qualityScore.ts`)
+
+`computeQualityScore(tileData)` is a deterministic heuristic scorer — no
+machine learning, no external calls — computed by regex-parsing each
+`motif-N` group's `translate(x y) rotate(deg) scale(s)` transform back out
+of the already-generated SVG tree (the "primary" instance among a motif's
+up-to-9 wrap-clone copies is the one whose center falls inside the tile).
+From those `{x, y, rot, scale}` tuples it derives:
+
+- **Spacing** — coefficient of variation of periodic nearest-neighbor
+  distance (lower CV = more evenly spaced).
+- **Composition** — combines coarse 8×8-grid *coverage* (catches
+  accidental big empty holes) with *crowding* (average instances per
+  touched cell — coverage alone saturates near 100% for almost any
+  grid/scatter layout past a couple dozen motifs, since those layouts span
+  the whole tile by construction regardless of density; crowding is what
+  actually distinguishes "100 motifs" from "400 motifs" at the same
+  coverage). Peaks in a lively-but-not-cluttered middle band.
+- **Hierarchy** — coefficient of variation of motif *scale* directly (not
+  `data-role` presence) — a layout-agnostic measure that works whether the
+  size tiers came from the Hierarchy Engine or from a layout's own
+  internal tiering (bouquet, densePremium, ...).
+- **Color balance** — structural proxy from resolved accent count +
+  whether Color Story is on.
+- **Seamless integrity** — always 100: the wrap-clone (9×) plus
+  `computeBoundingRadius` safety net in `tile.ts` guarantees this
+  structurally for every tile this engine produces, so it isn't
+  re-derived from geometry.
+- **Motif diversity** — how many of 12 rotation buckets (30° each) are
+  actually used.
+
+`QualityPanel.tsx` renders these six sub-scores plus a weighted overall
+(0-100) under the preview. This is explicitly **not** a copyright/
+originality checker and doesn't claim to predict real stock-site review
+outcomes — it's a same-engine, same-metric way to compare two generated
+patterns against each other.
+
+## Art Direction presets (`engine/artDirection.ts`)
+
+`ART_DIRECTION_PRESETS` is a lookup table of 15 named bundles (Editorial
+Botanical, Luxury Floral, Airy Scandinavian, ...), each mapping to **only
+real, already-implemented `GenerateParams` fields** — category, layout,
+optionally a palette, a `HIERARCHY_PRESETS` key, negative space, overlap,
+color story, and filler style. `resolveArtDirection(id)` turns one into a
+`Partial<GenerateParams>` patch. No preset introduces a control that
+doesn't map to something the engine actually reads.
+
+## Testing
+
+`npm test` runs `vitest run` — 98 tests across 5 files:
+
+- `engine/rng.test.ts` — seeded reproducibility, range bounds.
+- `engine/hierarchy.test.ts` — role-distribution matches configured
+  ratios over a large sample, scale multipliers apply correctly, ratio
+  normalization.
+- `engine/tile.test.ts` — byte-identical output for the same seed, no
+  raster/filter/mask content (would break EPS export), unique SVG ids,
+  every layout × a sample of categories builds without throwing (with
+  hierarchy/negativeSpace/overlapAmount all set), backward compatibility
+  with a pre-v1.23-shaped params object, `data-role` presence/absence on
+  exempt vs. non-exempt layouts.
+- `engine/qualityScore.test.ts` — determinism, score bounds, seamless
+  integrity is always 100, differently-composed tiles score differently.
+- `ai/aiAssist.test.ts` — old-format JSON still parses (no v2 fields
+  present in the result), markdown-fence tolerance, `artDirection`
+  resolution, manual `hierarchy` object validation/clamping, unknown
+  fields ignored safely, Thai error messages for invalid/empty input.
 
 ## Adding a new pattern category
 

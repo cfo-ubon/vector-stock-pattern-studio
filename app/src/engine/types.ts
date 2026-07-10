@@ -85,6 +85,11 @@ export interface Placement {
   /** Index into the resolved palette colour array used to seed this
    * placement's motif (generators may use more than one internally). */
   colorSeed: number;
+  /** Visual-hierarchy role, set by engine/hierarchy.ts's post-process pass
+   * (or left undefined when no hierarchy is configured / the layout builds
+   * its own tiers — see HIERARCHY_EXEMPT_LAYOUTS). Carried through to the
+   * exported SVG as a `data-role` attribute for Affinity Designer editing. */
+  role?: 'hero' | 'secondary' | 'filler' | 'accent';
 }
 
 export type LayoutId =
@@ -173,6 +178,27 @@ export interface GenerateParams {
   scaleJitter: number;
   mirror: boolean;
   radialSymmetry: number;
+  /** Visual Hierarchy Engine: hero/secondary/filler/accent proportions and
+   * per-role scale multipliers, applied as a layout-agnostic post-process
+   * pass (see engine/hierarchy.ts). Undefined = no hierarchy pass runs —
+   * identical output to every version before this existed, so old saved
+   * patterns/seeds reproduce exactly. */
+  hierarchy?: import('./hierarchy').HierarchyParams;
+  /** Negative Space (0..1): shifts effective layout spacing looser without
+   * changing the density *value* shown to the user — 0 = no change.
+   * Undefined/0 = no change from pre-existing behavior. */
+  negativeSpace?: number;
+  /** Overlap Amount (0..1): shifts effective layout spacing tighter (the
+   * opposite direction from negativeSpace) for a more naturally overlapping
+   * composition — 0 = no change. Undefined/0 = no change from pre-existing
+   * behavior. Applied after negativeSpace in the same spacing-multiplier
+   * pipeline; the two partially offset if both are set. */
+  overlapAmount?: number;
+  /** Named Art Direction preset id applied (informational — the preset's
+   * resolved values are written into the other fields above, so replaying
+   * these params doesn't require re-resolving the preset). Undefined when
+   * no preset was used or the user has since hand-edited values away from it. */
+  artDirection?: string;
   seed: string;
 }
 

@@ -3,6 +3,7 @@ import { createRng, randomSeed, rngPick, rngInt } from './rng';
 import { GENERATORS } from '../generators';
 import { LAYOUT_LIST } from '../layouts';
 import { PALETTES } from '../palettes/palettes';
+import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS } from './hierarchy';
 
 /** Pick `count` distinct random elements from `arr`. */
 function pickDistinct<T>(rng: () => number, arr: readonly T[], count: number): T[] {
@@ -39,6 +40,16 @@ export function defaultParams(): GenerateParams {
     flatShadow: false,
     flatHighlight: false,
     colorStory: true,
+    // Balanced Editorial by default — every new pattern gets an explicit
+    // hero/secondary/filler/accent scale hierarchy instead of every motif
+    // competing at the same visual weight. Skipped automatically for the 4
+    // layouts that already build their own tiers (see
+    // HIERARCHY_EXEMPT_LAYOUTS), and undefined-hierarchy patterns loaded
+    // from before this existed still reproduce identically since the
+    // engine only applies this pass when the field is set.
+    hierarchy: DEFAULT_HIERARCHY,
+    negativeSpace: 0,
+    overlapAmount: 0,
     rotationJitter: 15,
     scaleJitter: 0.15,
     mirror: false,
@@ -74,6 +85,10 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     flatShadow: rng() < 0.2,
     flatHighlight: rng() < 0.3,
     colorStory: rng() < 0.85,
+    hierarchy: rngPick(rng, Object.values(HIERARCHY_PRESETS)).value,
+    negativeSpace: rng() < 0.3 ? rng() * 0.5 : 0,
+    overlapAmount: rng() < 0.3 ? rng() * 0.5 : 0,
+    artDirection: undefined,
     rotationJitter: Math.floor(rng() * 90),
     scaleJitter: rng() * 0.4,
     mirror: rng() < 0.4,

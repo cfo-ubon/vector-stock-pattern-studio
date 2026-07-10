@@ -104,6 +104,48 @@ body {
   margin: 0;
 }
 
+/* control-section (<details>) — real, JS-free accordion. `summary` styles
+   double as both the plain-<h3>-only header (Layout, Palette, ...) and the
+   header-plus-inline-toggle rows (Category's Asset Mix checkbox, Visual
+   Hierarchy's on/off, Art Direction's clear-preset button) — those inline
+   controls call stopPropagation() in the component so clicking them
+   toggles their own state instead of collapsing the section. */
+.control-section {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.control-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  margin-bottom: 0.5rem;
+  min-height: 1.75rem;
+}
+
+.control-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.control-section summary h3 {
+  margin: 0;
+}
+
+.control-section summary::before {
+  content: '▸';
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  margin-right: 0.4rem;
+  transition: transform 0.15s ease;
+}
+
+.control-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
 .mix-toggle {
   display: flex;
   align-items: center;
@@ -409,6 +451,69 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.quality-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quality-overall {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.quality-overall-num {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.quality-overall-label {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.quality-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.quality-row {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr 2rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.quality-row-label {
+  color: var(--text-dim);
+}
+
+.quality-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--panel-alt);
+  overflow: hidden;
+}
+
+.quality-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.quality-row-num {
+  text-align: right;
+  color: var(--text-dim);
 }
 
 .metadata-header {
@@ -833,5 +938,50 @@ body {
   .control-panel {
     border-right: none;
     border-bottom: 1px solid var(--border);
+    /* Bounded height turns this into its own scroll region (instead of the
+       whole page scrolling past a long stacked control list before
+       reaching Generate/Export), which is what makes the sticky action
+       bar below actually stick to something meaningful on a phone. */
+    max-height: 65vh;
+  }
+  /* Real touch targets — Apple/Google's ~44px guideline — instead of the
+     desktop-sized chips/buttons that were previously the only option here. */
+  .control-section summary,
+  .btn,
+  .chip,
+  .stepper-btn,
+  .palette-swatch {
+    min-height: 44px;
+  }
+  .chip-row {
+    gap: 0.4rem;
+  }
+  .actions {
+    border-top: 1px solid var(--border);
+    margin: 0 -1rem -1rem;
+    padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0.85rem 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  .app-header h1 {
+    font-size: 1.05rem;
+  }
+  .app-header p {
+    display: none;
+  }
+  .control-panel {
+    padding: 0.85rem;
+    padding-left: max(0.85rem, env(safe-area-inset-left));
+    padding-right: max(0.85rem, env(safe-area-inset-right));
+  }
+  .app-main {
+    padding-left: max(0.85rem, env(safe-area-inset-left));
+    padding-right: max(0.85rem, env(safe-area-inset-right));
   }
 }
