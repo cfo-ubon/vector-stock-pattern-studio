@@ -252,6 +252,75 @@ rather than a recolored/rotated copy of one base shape:
   already did, so the branch-with-paired-leaves construction is reused
   rather than duplicated per leaf shape.
 
+## Curve Quality Engine & Botanical Growth Engine (`engine/curveEngine.ts`, `generators/growth.ts`)
+
+Motif Quality Upgrade pass: consolidates curve math that used to be
+hand-duplicated per-motif, and replaces "leaves at an independently-random
+angle" placement with real tangent-following growth.
+
+- `engine/curveEngine.ts` — shared, additive curve utilities (does **not**
+  replace `svgAst.smoothClosedPath`, which mandala/organic/animalprint
+  still use unchanged): `smoothPathD()` generalizes it to open paths
+  (needed for stem splines); `buildArcSampler()` densifies a Catmull-Rom
+  spline and answers "position + unit tangent/normal at t=0..1 of arc
+  length"; `tangentToUpAngleDeg()` converts a tangent into the same
+  0deg-is-up rotate() convention the rest of the app uses; `wobbleEnvelope()`
+  is the shared implementation behind "papery crinkled" / "softly wobbled"
+  edges (previously three near-identical hand-rolled copies in
+  `poppyPetalPath`/`sageLeafPath`/`serratedLeafPath` — the first two now
+  use it, `serratedLeafPath` keeps its own straight-line zigzag since real
+  leaf teeth are deliberately sharp); `radialAsymmetry()` gives ring-based
+  flowers a small seeded angle/scale jitter; `validatePoints`/`validatePathD`
+  catch NaN/zero-length-segment bugs (used by tests).
+- `generators/growth.ts` — `generateStem(rng, length, curvature)` builds a
+  gently curved (C or S sway) stem spline instead of a straight line or one
+  hand-tuned `Q` curve; `growLeaves(rng, stem, preset)` samples leaf
+  positions along the stem's real arc length and orients each leaf to the
+  stem's *local tangent* at that point (falling back to the original fixed
+  "fan upward" look when the stem is nearly straight, but genuinely
+  following the curve where it bends) — replacing the old approach of
+  rotating each leaf by an angle picked independently of the stem's shape.
+  `GROWTH_PRESETS` bundles the tuned leaf-count/arrangement/angle/taper
+  values per species (eucalyptus, olive, laurel, sage, fern, leafyBranch) —
+  **these must match each species' original hand-tuned density**; an early
+  version of this preset table used different leaf-count ranges and
+  `arrangement` values than the original code, which produced a visibly
+  denser/overlapping "chain of blobs" look instead of a legible spray —
+  caught via rendered-PNG visual QA, not by tests (tests only check
+  determinism/validity, not "does it look like a plant").
+- `generators/petals.ts` — `organicPetalPath()` is a rounded-tip petal
+  built from `smoothPathD`, replacing the `<ellipse>` petals `flowerBloom`,
+  `layeredBloom`, `ranunculusRosette`, `anemoneFlower` and `daisyFlower`
+  used to draw (previously those families only differed by petal *count*
+  and *scale*, never silhouette). `petalRing()` places a ring of them with
+  `radialAsymmetry()` jitter per petal.
+- `eucalyptusSprig`, `oliveBranch`, `laurelSprig`, `sageSprig`, `fernFrond`,
+  `leafyBranch` in `generators/botanical.ts` were rewritten on top of the
+  growth engine. `wildflowerSprig` keeps its own hand-built head/bud logic
+  but now derives its main stem and leaf angles from `generateStem`/
+  `tangentToUpAngleDeg` too.
+- `bellFlower` — new flower family: a raceme of small drooping bell shapes
+  (foxglove/campanula style) alternating along a growth-engine stem, each
+  connected by a short pedicel stroke. The bell anchor is offset along the
+  stem's local *normal* (not a fixed x-shift), so it stays correctly
+  offset to the side even where the stem curves, instead of sitting on top
+  of the stem and reading as one blob (an early version did exactly that —
+  caught the same way, via rendered PNGs, not tests).
+- SVG grouping: every motif touched this round emits
+  `<g data-part="stem">` / `data-part="leaves"` / `data-part="petals-outer"`
+  / `data-part="petals-inner"` / `data-part="center"` sub-groups instead of
+  one flat `<g>` — select/recolor one anatomical part at a time in
+  Affinity Designer without ungrouping everything first.
+- `BOTANICAL_VARIANTS` is exported from `generators/botanical.ts`
+  specifically so tests/tooling can exercise every named variant directly
+  rather than relying on random seeds happening to hit all 21 of them.
+
+**Not done this round** (descoped, see USER_GUIDE.md v1.25 changelog for
+the full list): a formal typed Motif Anatomy data model, a Motif Family
+Generator UI (hero/secondary/filler/accent regenerate/save/load), a
+separate Motif Quality Analyzer panel, the 8 named Shape Language controls,
+and a debug-overlay mode.
+
 ## Realistic leaf shapes (Botanical generator)
 
 `generators/botanical.ts` builds leaf silhouettes from two shape
@@ -470,7 +539,7 @@ doesn't map to something the engine actually reads.
 
 ## Testing
 
-`npm test` runs `vitest run` — 98 tests across 5 files:
+`npm test` runs `vitest run` — 127 tests across 8 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -488,6 +557,20 @@ doesn't map to something the engine actually reads.
   present in the result), markdown-fence tolerance, `artDirection`
   resolution, manual `hierarchy` object validation/clamping, unknown
   fields ignored safely, Thai error messages for invalid/empty input.
+- `engine/curveEngine.test.ts` — `smoothPathD` open/closed correctness and
+  determinism, `buildArcSampler` places t=0/t=1 at the spline endpoints
+  with a unit tangent everywhere, `tangentToUpAngleDeg` convention,
+  `wobbleEnvelope`/`radialAsymmetry` determinism and bounds,
+  `validatePoints`/`removeDegenerate` catch NaN and zero-length segments.
+- `generators/growth.test.ts` — `generateStem` determinism, valid path (no
+  NaN), spans roughly the requested length, `terminalPoint` matches
+  `sampler.at(1)`; `growLeaves` determinism, leaf count respects each
+  preset's range, only finite placement values, opposite arrangement pairs
+  share the same `t`.
+- `generators/botanical.test.ts` — motif determinism, valid/finite SVG and
+  radius across 60 seeds, node-count ceiling (no runaway path bloat),
+  variant coverage across many seeds, growth-based motifs emit
+  `data-part="stem"`/`"leaves"` groups.
 
 ## Adding a new pattern category
 

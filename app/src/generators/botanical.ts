@@ -3,10 +3,19 @@ import { h, round } from '../engine/svgAst';
 import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 import { pinnateVeins } from './shared';
+import { smoothPathD, wobbleEnvelope, radialAsymmetry, tangentToUpAngleDeg, type Pt } from '../engine/curveEngine';
+import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growth';
+import { organicPetalPath, petalRing } from './petals';
 
-// Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes
-// built from simple bezier paths, ellipses and circles — no gradients or
-// texture, matching the flat-illustration look common in stock florals.
+// Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes —
+// no gradients or texture, matching the flat-illustration look common in
+// stock florals. Stem-bearing motifs (branches, sprigs) are built with the
+// growth engine (generators/growth.ts): a continuously-curved stem spline
+// with leaves placed tangent to the local curve direction, instead of a
+// straight/simple-curve stem with independently-rotated leaves. Ring-based
+// flowers use the shared organic petal builder (generators/petals.ts) and
+// a small seeded asymmetry jitter instead of perfectly even `<ellipse>`
+// rings, so they read as hand-drawn rather than a stamped pattern.
 
 type Variant = (rng: Rng, colors: string[], size: number) => { node: ReturnType<typeof h>; radius: number };
 
@@ -34,7 +43,9 @@ function ovateLeafPath(length: number, width: number): string {
 
 /** Toothed leaf edge: samples the same ovate envelope but alternates each
  * boundary point in/out to cut small teeth, connected with straight
- * segments (a jagged edge reads correctly even without curves). */
+ * segments (a jagged edge reads correctly even without curves — real leaf
+ * teeth are sharp, so this is a deliberate exception to "smooth curves
+ * everywhere"). */
 function serratedLeafPath(length: number, width: number, rng: Rng): string {
   const h2 = length / 2;
   const w = width / 2;
@@ -80,18 +91,21 @@ const flowerBloom: Variant = (rng, colors, size) => {
   const petalColor = rngPick(rng, accentColors(colors));
   const centerColor = rngPick(rng, accentColors(colors));
   const petalLen = r * 0.85;
-  const petalW = petalLen * 0.5;
-  const children = [];
-  for (let i = 0; i < petals; i++) {
-    const angle = (360 / petals) * i;
-    children.push(
-      h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-petalLen / 2)})` }, [
-        h('ellipse', { cx: 0, cy: 0, rx: round(petalW / 2), ry: round(petalLen / 2), fill: petalColor }),
-      ]),
-    );
-  }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor }));
-  return { node: h('g', {}, children), radius: r * 1.05 };
+  const petalNodes = petalRing(rng, {
+    count: petals,
+    distance: 0,
+    length: petalLen,
+    width: petalLen * 0.5,
+    color: petalColor,
+    curvature: 0.55,
+    angleJitter: 5,
+    scaleJitter: 0.07,
+  });
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, petalNodes),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })]),
+  ]);
+  return { node, radius: r * 1.05 };
 };
 
 const flowerBud: Variant = (rng, colors, size) => {
@@ -100,45 +114,51 @@ const flowerBud: Variant = (rng, colors, size) => {
   const budColor = rngPick(rng, accentColors(colors));
   const budPath = `M 0 ${round(-r * 0.75)} C ${round(r * 0.42)} ${round(-r * 0.55)} ${round(r * 0.4)} ${round(r * 0.1)} 0 ${round(r * 0.3)} C ${round(-r * 0.4)} ${round(r * 0.1)} ${round(-r * 0.42)} ${round(-r * 0.55)} 0 ${round(-r * 0.75)} Z`;
   const node = h('g', {}, [
-    h('line', {
-      x1: 0,
-      y1: round(r * 0.2),
-      x2: 0,
-      y2: round(r),
-      stroke: stemColor,
-      'stroke-width': round(size * 0.05),
-      'stroke-linecap': 'round',
-    }),
-    h('path', { d: budPath, fill: budColor }),
+    h('g', { 'data-part': 'stem' }, [
+      h('line', {
+        x1: 0,
+        y1: round(r * 0.2),
+        x2: 0,
+        y2: round(r),
+        stroke: stemColor,
+        'stroke-width': round(size * 0.05),
+        'stroke-linecap': 'round',
+      }),
+    ]),
+    h('g', { 'data-part': 'center' }, [h('path', { d: budPath, fill: budColor })]),
     ...(rngBool(rng)
-      ? [h('g', { transform: `translate(0 ${round(r * 0.55)}) rotate(${round((rngBool(rng) ? 1 : -1) * rngRange(rng, 35, 50))})` }, [leafNode(rng, colors, r * 0.65, r * 0.32)])]
+      ? [
+          h('g', { 'data-part': 'leaves' }, [
+            h('g', { transform: `translate(0 ${round(r * 0.55)}) rotate(${round((rngBool(rng) ? 1 : -1) * rngRange(rng, 35, 50))})` }, [
+              leafNode(rng, colors, r * 0.65, r * 0.32),
+            ]),
+          ]),
+        ]
       : []),
   ]);
   return { node, radius: r * 1.05 };
 };
 
 const fernFrond: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.fern;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
   const leafletColor = rngPick(rng, accentColors(colors));
-  const pairs = rngInt(rng, 4, 6);
-  const children = [
-    h('line', { x1: 0, y1: round(-half), x2: 0, y2: round(half), stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < pairs; i++) {
-    const t = (i + 1) / (pairs + 1);
-    const y = -half + size * t;
-    const leafletLen = size * (0.28 - t * 0.12);
-    for (const side of [-1, 1]) {
-      children.push(
-        h('path', {
-          d: `M 0 ${round(y)} Q ${round(side * leafletLen * 0.7)} ${round(y - leafletLen * 0.15)} ${round(side * leafletLen)} ${round(y)} Q ${round(side * leafletLen * 0.7)} ${round(y + leafletLen * 0.15)} 0 ${round(y)} Z`,
-          fill: leafletColor,
-        }),
-      );
-    }
-  }
-  return { node: h('g', {}, children), radius: half * 1.1 };
+  const leaflets = growLeaves(rng, stem, preset);
+  const leafletPath = (len: number) =>
+    `M 0 0 Q ${round(len * 0.55)} ${round(-len * 0.35)} 0 ${round(-len)} Q ${round(-len * 0.55)} ${round(-len * 0.35)} 0 0 Z`;
+  const leafNodes = leaflets.map((leaf) =>
+    h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)}) scale(${round(leaf.scale)})` }, [
+      h('path', { d: leafletPath(size * 0.17), fill: leafletColor }),
+    ]),
+  );
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.025), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.58 };
 };
 
 const simpleTulip: Variant = (rng, colors, size) => {
@@ -147,11 +167,9 @@ const simpleTulip: Variant = (rng, colors, size) => {
   const petalColor = rngPick(rng, accentColors(colors));
   const petalW = r * 0.4;
   const petalH = r * 0.85;
-  const children = [
-    h('path', { d: `M 0 ${round(r * 0.15)} Q ${round(r * 0.2)} ${round(r * 0.5)} 0 ${round(r)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.045), 'stroke-linecap': 'round' }),
-  ];
+  const petals: ReturnType<typeof h>[] = [];
   for (const [dx, rot] of [[0, 0], [-petalW * 0.75, -18], [petalW * 0.75, 18]] as const) {
-    children.push(
+    petals.push(
       h('path', {
         d: `M 0 0 C ${round(petalW / 2)} ${round(-petalH * 0.4)} ${round(petalW / 2)} ${round(-petalH * 0.85)} 0 ${round(-petalH)} C ${round(-petalW / 2)} ${round(-petalH * 0.85)} ${round(-petalW / 2)} ${round(-petalH * 0.4)} 0 0 Z`,
         // Side petals were 90%-transparent — pre-blend against background.
@@ -160,32 +178,33 @@ const simpleTulip: Variant = (rng, colors, size) => {
       }),
     );
   }
-  return { node: h('g', {}, children), radius: r * 1.1 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: `M 0 ${round(r * 0.15)} Q ${round(r * 0.2)} ${round(r * 0.5)} 0 ${round(r)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.045), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'petals-outer' }, petals),
+  ]);
+  return { node, radius: r * 1.1 };
 };
 
 const leafyBranch: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.leafyBranch;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
-  const leafCount = rngInt(rng, 3, 5);
-  const children = [
-    h('path', { d: `M 0 ${round(-half)} Q ${round(half * 0.15)} 0 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.045), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < leafCount; i++) {
-    const t = (i + 1) / (leafCount + 1);
-    const y = -half + size * t;
-    const side = i % 2 === 0 ? 1 : -1;
-    const leafLen = size * rngRange(rng, 0.32, 0.45);
-    children.push(
-      h(
-        'g',
-        {
-          transform: `translate(0 ${round(y)}) rotate(${round(side * rngRange(rng, 45, 70))})`,
-        },
-        [leafNode(rng, colors, leafLen, leafLen * 0.48)],
-      ),
-    );
-  }
-  return { node: h('g', {}, children), radius: half * 1.15 };
+  const leaves = growLeaves(rng, stem, preset);
+  const leafNodes = leaves.map((leaf) => {
+    const leafLen = size * rngRange(rng, 0.32, 0.45) * leaf.scale;
+    return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+      leafNode(rng, colors, leafLen, leafLen * 0.48),
+    ]);
+  });
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.045), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.58 };
 };
 
 /** Two-layer bloom: an outer petal ring, an inner offset petal ring in a
@@ -199,86 +218,105 @@ const layeredBloom: Variant = (rng, colors, size) => {
   if (inner === outer && accents.length > 1) inner = accents[(accents.indexOf(outer) + 1) % accents.length];
   const core = rngPick(rng, accents);
   const petals = rngInt(rng, 7, 9);
-  const children: ReturnType<typeof h>[] = [];
-  for (let i = 0; i < petals; i++) {
-    children.push(
-      h('g', { transform: `rotate(${round((360 / petals) * i)})` }, [
-        h('ellipse', { cx: 0, cy: round(-r * 0.58), rx: round(r * 0.2), ry: round(r * 0.42), fill: outer }),
-      ]),
-    );
-  }
-  for (let i = 0; i < petals; i++) {
-    children.push(
-      h('g', { transform: `rotate(${round((360 / petals) * i + 180 / petals)})` }, [
-        h('ellipse', { cx: 0, cy: round(-r * 0.34), rx: round(r * 0.13), ry: round(r * 0.27), fill: blendHex(inner, 0.92, colors[0]) }),
-      ]),
-    );
-  }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.17), fill: core }));
+  const outerPetals = petalRing(rng, {
+    count: petals,
+    distance: r * 0.16,
+    length: r * 0.84,
+    width: r * 0.4,
+    color: outer,
+    curvature: 0.5,
+    angleJitter: 4,
+  });
+  const innerPetals = petalRing(rng, {
+    count: petals,
+    distance: r * 0.07,
+    length: r * 0.54,
+    width: r * 0.26,
+    color: blendHex(inner, 0.92, colors[0]),
+    curvature: 0.55,
+    angleJitter: 4,
+    rotationOffset: 180 / petals,
+  });
+  const details: ReturnType<typeof h>[] = [];
   const dots = 6;
   for (let i = 0; i < dots; i++) {
     const a = ((Math.PI * 2) / dots) * i;
-    children.push(h('circle', { cx: round(Math.cos(a) * r * 0.09), cy: round(Math.sin(a) * r * 0.09), r: round(r * 0.028), fill: colors[0] }));
+    details.push(h('circle', { cx: round(Math.cos(a) * r * 0.09), cy: round(Math.sin(a) * r * 0.09), r: round(r * 0.028), fill: colors[0] }));
   }
-  return { node: h('g', { transform: `rotate(${round(rngRange(rng, 0, 45))})` }, children), radius: r * 1.05 };
+  const node = h('g', { transform: `rotate(${round(rngRange(rng, 0, 45))})` }, [
+    h('g', { 'data-part': 'petals-outer' }, outerPetals),
+    h('g', { 'data-part': 'petals-inner' }, innerPetals),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.17), fill: core }), ...details]),
+  ]);
+  return { node, radius: r * 1.05 };
 };
 
-/** Wildflower sprig: a curved stem carrying a small round flower head,
- * a pair of leaves and a bud — the loose hand-picked look that sells in
- * ditsy/meadow patterns. */
+/** Wildflower sprig: a curved stem (growth engine) carrying a small round
+ * flower head at its tip, two tangent-oriented leaves and a bud — the
+ * loose hand-picked look that sells in ditsy/meadow patterns. */
 const wildflowerSprig: Variant = (rng, colors, size) => {
   const r = size / 2;
   const accents = accentColors(colors);
   const stemColor = rngPick(rng, accents);
   const headColor = rngPick(rng, accents);
   const budColor = rngPick(rng, accents);
-  const bend = rngRange(rng, -0.25, 0.25);
-  const children: ReturnType<typeof h>[] = [
-    h('path', {
-      d: `M 0 ${round(r)} Q ${round(r * bend)} ${round(r * 0.1)} ${round(r * bend * 0.6)} ${round(-r * 0.55)}`,
-      fill: 'none',
-      stroke: stemColor,
-      'stroke-width': round(size * 0.04),
-      'stroke-linecap': 'round',
-    }),
-  ];
-  // Flower head: ring of small petal dots around a center
-  const headX = r * bend * 0.6;
-  const headY = -r * 0.62;
+  const stem = generateStem(rng, size * 0.95, rngRange(rng, 0.08, 0.18));
+  const head = terminalPoint(stem);
+  const headPetals: ReturnType<typeof h>[] = [];
   const petals = 6;
   for (let i = 0; i < petals; i++) {
     const a = ((Math.PI * 2) / petals) * i;
-    children.push(
-      h('circle', { cx: round(headX + Math.cos(a) * r * 0.17), cy: round(headY + Math.sin(a) * r * 0.17), r: round(r * 0.11), fill: headColor }),
+    headPetals.push(
+      h('circle', { cx: round(head.x + Math.cos(a) * r * 0.17), cy: round(head.y + Math.sin(a) * r * 0.17), r: round(r * 0.11), fill: headColor }),
     );
   }
-  children.push(h('circle', { cx: round(headX), cy: round(headY), r: round(r * 0.09), fill: blendHex(stemColor, 0.85, colors[0]) }));
-  // Two leaves on the stem
-  for (const [t, side] of [
-    [0.32, 1],
-    [0.58, -1],
-  ] as const) {
-    const y = r - r * 1.55 * t;
+  headPetals.push(h('circle', { cx: round(head.x), cy: round(head.y), r: round(r * 0.09), fill: blendHex(stemColor, 0.85, colors[0]) }));
+
+  const leafNodes: ReturnType<typeof h>[] = [];
+  for (const [t, side] of [[0.35, 1], [0.62, -1]] as const) {
+    const sample = stem.sampler.at(t);
+    const angle = tangentToUpAngleDeg(sample.tangent) - 180 + side * rngRange(rng, 40, 60);
     const leafLen = size * rngRange(rng, 0.2, 0.28);
-    children.push(
-      h('g', { transform: `translate(${round(r * bend * t)} ${round(y)}) rotate(${round(side * rngRange(rng, 40, 60))})` }, [
-        h('ellipse', { cx: 0, cy: round(-leafLen / 2), rx: round(leafLen * 0.22), ry: round(leafLen / 2), fill: rngPick(rng, accents) }),
+    leafNodes.push(
+      h('g', { transform: `translate(${round(sample.point.x)} ${round(sample.point.y)}) rotate(${round(angle)})` }, [
+        h('path', { d: organicPetalPath(leafLen, leafLen * 0.44, 0.35), fill: rngPick(rng, accents) }),
       ]),
     );
   }
-  // A bud branching off near the top
-  const budSide = rngRange(rng, 0, 1) < 0.5 ? -1 : 1;
-  children.push(
+
+  const budSample = stem.sampler.at(0.82);
+  const budSide: 1 | -1 = rngBool(rng) ? -1 : 1;
+  const budAngle = tangentToUpAngleDeg(budSample.tangent) - 180 + budSide * rngRange(rng, 25, 40);
+  const budRad = (budAngle * Math.PI) / 180;
+  const budTipX = budSample.point.x + Math.sin(budRad) * r * 0.28;
+  const budTipY = budSample.point.y - Math.cos(budRad) * r * 0.28;
+  const budNodes = [
     h('path', {
-      d: `M ${round(r * bend * 0.5)} ${round(-r * 0.25)} Q ${round(r * bend * 0.5 + budSide * r * 0.18)} ${round(-r * 0.42)} ${round(r * bend * 0.5 + budSide * r * 0.26)} ${round(-r * 0.5)}`,
+      d: `M ${round(budSample.point.x)} ${round(budSample.point.y)} Q ${round((budSample.point.x + budTipX) / 2)} ${round(budSample.point.y - r * 0.05)} ${round(budTipX)} ${round(budTipY)}`,
       fill: 'none',
       stroke: stemColor,
       'stroke-width': round(size * 0.03),
       'stroke-linecap': 'round',
     }),
-    h('ellipse', { cx: round(r * bend * 0.5 + budSide * r * 0.28), cy: round(-r * 0.54), rx: round(r * 0.07), ry: round(r * 0.1), fill: budColor }),
-  );
-  return { node: h('g', {}, children), radius: r * 1.1 };
+    h('ellipse', {
+      cx: round(budTipX),
+      cy: round(budTipY),
+      rx: round(r * 0.07),
+      ry: round(r * 0.1),
+      fill: budColor,
+      transform: `rotate(${round(budAngle)} ${round(budTipX)} ${round(budTipY)})`,
+    }),
+  ];
+
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.04), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'petals-outer' }, headPetals),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+    h('g', { 'data-part': 'buds' }, budNodes),
+  ]);
+  return { node, radius: r * 1.15 };
 };
 
 /** Five-lobed maple-leaf silhouette: a center lobe, two angled side lobes
@@ -388,11 +426,11 @@ const heartLeaf: Variant = (rng, colors, size) => {
   return { node: h('g', {}, children), radius: r * 1.25 };
 };
 
-// --- Motif library expansion: 6 named flowers + 4 named leaves, each with
-// genuine seed-driven internal variation (petal/ring count, curvature,
-// spiral offset, edge wobble, asymmetry) rather than only recolor/rotate
-// of one base shape — so they read as different species, not palette
-// swaps of the same icon. ---
+// --- Motif library expansion: named flowers + leaves, each with genuine
+// seed-driven internal variation (petal/ring count, curvature, spiral
+// offset, edge wobble, asymmetry) rather than only recolor/rotate of one
+// base shape — so they read as different species, not palette swaps of the
+// same icon. ---
 
 /** Ruffled petal with an asymmetric, slightly uneven tip — the "messy
  * layered" silhouette peonies are known for, as opposed to a clean
@@ -407,34 +445,40 @@ function peonyPetalPath(len: number, width: number, ruffle: number): string {
 }
 
 /** Peony: 3 concentric rings of ruffled petals, each ring's petal count,
- * size and rotation offset drawn fresh from the seed — real layered-bloom
- * fullness instead of `layeredBloom`'s clean two-ring look. */
+ * size, rotation offset and per-petal angle/scale jitter drawn fresh from
+ * the seed — real layered-bloom fullness with controlled asymmetry rather
+ * than a perfectly even radial stamp. */
 const peonyFlower: Variant = (rng, colors, size) => {
   const r = size / 2;
   const accents = accentColors(colors);
   const outer = rngPick(rng, accents);
   const mid = rngPick(rng, accents);
   const core = rngPick(rng, accents);
-  const children: ReturnType<typeof h>[] = [];
   const rings = [
-    { count: rngInt(rng, 8, 10), len: r * rngRange(rng, 0.85, 1.0), width: r * 0.55, color: outer, dist: r * 0.15 },
-    { count: rngInt(rng, 6, 8), len: r * rngRange(rng, 0.6, 0.75), width: r * 0.42, color: blendHex(mid, 0.9, colors[0]), dist: r * 0.1 },
-    { count: rngInt(rng, 5, 6), len: r * rngRange(rng, 0.35, 0.48), width: r * 0.32, color: blendHex(mid, 0.7, outer), dist: r * 0.05 },
+    { count: rngInt(rng, 8, 10), len: r * rngRange(rng, 0.85, 1.0), width: r * 0.55, color: outer, dist: r * 0.15, outerRing: true },
+    { count: rngInt(rng, 6, 8), len: r * rngRange(rng, 0.6, 0.75), width: r * 0.42, color: blendHex(mid, 0.9, colors[0]), dist: r * 0.1, outerRing: false },
+    { count: rngInt(rng, 5, 6), len: r * rngRange(rng, 0.35, 0.48), width: r * 0.32, color: blendHex(mid, 0.7, outer), dist: r * 0.05, outerRing: false },
   ];
+  const outerPetals: ReturnType<typeof h>[] = [];
+  const innerPetals: ReturnType<typeof h>[] = [];
   for (const ring of rings) {
     const offset = rngRange(rng, 0, 360 / ring.count);
     for (let i = 0; i < ring.count; i++) {
-      const angle = (360 / ring.count) * i + offset;
+      const asym = radialAsymmetry(rng, 4, 0.06);
+      const angle = (360 / ring.count) * i + offset + asym.angle;
       const ruffle = rngRange(rng, 0.1, 0.35);
-      children.push(
-        h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-ring.dist)})` }, [
-          h('path', { d: peonyPetalPath(ring.len, ring.width, ruffle), fill: ring.color }),
-        ]),
-      );
+      const petal = h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-ring.dist)})` }, [
+        h('path', { d: peonyPetalPath(ring.len * asym.lengthScale, ring.width * asym.widthScale, ruffle), fill: ring.color }),
+      ]);
+      (ring.outerRing ? outerPetals : innerPetals).push(petal);
     }
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.1), fill: core }));
-  return { node: h('g', {}, children), radius: r * 1.05 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, outerPetals),
+    h('g', { 'data-part': 'petals-inner' }, innerPetals),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.1), fill: core })]),
+  ]);
+  return { node, radius: r * 1.05 };
 };
 
 /** Ranunculus: a tight spiral of small cupped petals — 5-7 rings, each
@@ -447,44 +491,52 @@ const ranunculusRosette: Variant = (rng, colors, size) => {
   const color = rngPick(rng, accents);
   const core = rngPick(rng, accents);
   const ringCount = rngInt(rng, 5, 7);
-  const children: ReturnType<typeof h>[] = [];
+  const outerPetals: ReturnType<typeof h>[] = [];
+  const innerPetals: ReturnType<typeof h>[] = [];
   for (let ring = 0; ring < ringCount; ring++) {
     const t = ringCount > 1 ? ring / (ringCount - 1) : 0;
     const dist = r * (0.08 + t * 0.7);
     const petalLen = r * (0.15 + t * 0.22);
-    const petalW = petalLen * 0.85;
     const count = rngInt(rng, 5, 7) + ring;
     const spiralOffset = ring * rngRange(rng, 15, 25);
     const tone = blendHex(color, 0.5 + t * 0.5, colors[0]);
-    for (let i = 0; i < count; i++) {
-      const angle = (360 / count) * i + spiralOffset;
-      children.push(
-        h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-dist)})` }, [
-          h('ellipse', { cx: 0, cy: round(-petalLen * 0.3), rx: round(petalW / 2), ry: round(petalLen / 2), fill: tone }),
-        ]),
-      );
-    }
+    const ringPetals = petalRing(rng, {
+      count,
+      distance: dist,
+      length: petalLen,
+      width: petalLen * 0.85,
+      color: tone,
+      curvature: 0.75,
+      angleJitter: 4,
+      scaleJitter: 0.06,
+      rotationOffset: spiralOffset,
+    });
+    (t < 0.5 ? outerPetals : innerPetals).push(...ringPetals);
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.06), fill: core }));
-  return { node: h('g', {}, children), radius: r * 0.95 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, outerPetals),
+    h('g', { 'data-part': 'petals-inner' }, innerPetals),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.06), fill: core })]),
+  ]);
+  return { node, radius: r * 0.95 };
 };
 
-/** Papery petal with a soft crinkled edge (small per-sample radius jitter,
- * not a smooth ellipse) — the tissue-paper texture real poppy petals have. */
+/** Papery petal with a soft crinkled edge — a smooth Catmull-Rom curve
+ * through seeded-wobbled sample points (previously a straight-line polygon
+ * through the same samples, which could read as unintentionally jagged at
+ * large export sizes). */
 function poppyPetalPath(rng: Rng, len: number, width: number): string {
   const w = width / 2;
-  const bumps = 5;
-  const pts: Array<[number, number]> = [];
-  for (let i = 1; i <= bumps; i++) {
-    const t = i / bumps;
-    const envelope = Math.sin(Math.PI * t) * w;
-    const jitter = 1 + rngRange(rng, -0.12, 0.12);
-    pts.push([envelope * jitter, -len * t]);
-  }
-  let d = 'M 0 0 ';
-  for (const [x, y] of pts) d += `L ${round(x)} ${round(y)} `;
-  for (let i = pts.length - 2; i >= 0; i--) d += `L ${round(-pts[i][0])} ${round(pts[i][1])} `;
-  return d + 'Z';
+  const samples = 6;
+  const radii = wobbleEnvelope(rng, samples, 0.12, (t) => Math.sin(Math.PI * t) * w);
+  const right: Pt[] = [];
+  for (let i = 1; i <= samples; i++) right.push({ x: radii[i], y: -len * (i / samples) });
+  const left = right
+    .slice(0, -1)
+    .reverse()
+    .map((p) => ({ x: -p.x, y: p.y }));
+  const points: Pt[] = [{ x: 0, y: 0 }, ...right, ...left];
+  return smoothPathD(points, { closed: true, tension: 7 });
 }
 
 /** Poppy: 4-6 crinkled petals around the iconic dark seed-pod center with
@@ -496,29 +548,34 @@ const poppyFlower: Variant = (rng, colors, size) => {
   const petalColor = rngPick(rng, accents);
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 4, 6);
-  const children: ReturnType<typeof h>[] = [];
+  const petalNodes: ReturnType<typeof h>[] = [];
   for (let i = 0; i < petals; i++) {
     const angle = (360 / petals) * i + rngRange(rng, -8, 8);
-    children.push(
+    petalNodes.push(
       h('g', { transform: `rotate(${round(angle)})` }, [
         h('path', { d: poppyPetalPath(rng, r * rngRange(rng, 0.75, 0.95), r * rngRange(rng, 0.65, 0.85)), fill: petalColor }),
       ]),
     );
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: blendHex('#000000', 0.55, centerColor) }));
+  const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: blendHex('#000000', 0.55, centerColor) })];
   const rays = rngInt(rng, 8, 10);
   for (let i = 0; i < rays; i++) {
     const a = ((360 / rays) * i * Math.PI) / 180;
-    children.push(
+    centerNodes.push(
       h('line', { x1: 0, y1: 0, x2: round(Math.cos(a) * r * 0.14), y2: round(Math.sin(a) * r * 0.14), stroke: colors[0], 'stroke-width': round(size * 0.012) }),
     );
   }
-  return { node: h('g', {}, children), radius: r * 1.0 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, petalNodes),
+    h('g', { 'data-part': 'center' }, centerNodes),
+  ]);
+  return { node, radius: r * 1.0 };
 };
 
-/** Anemone: rounder, smoother petals than poppy (no crinkle) around a
- * distinctive fuzzy dark center — a ring of tiny stamen dots at randomized
- * distance/angle around a dark core, the anemone's signature trait. */
+/** Anemone: rounder, smoother petals than poppy (organic curve, no
+ * crinkle) around a distinctive fuzzy dark center — a ring of tiny stamen
+ * dots at randomized distance/angle around a dark core, the anemone's
+ * signature trait. */
 const anemoneFlower: Variant = (rng, colors, size) => {
   const r = size / 2;
   const accents = accentColors(colors);
@@ -526,28 +583,33 @@ const anemoneFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 6, 8);
   const petalLen = r * rngRange(rng, 0.7, 0.85);
-  const children: ReturnType<typeof h>[] = [];
-  for (let i = 0; i < petals; i++) {
-    const angle = (360 / petals) * i;
-    children.push(
-      h('g', { transform: `rotate(${round(angle)})` }, [
-        h('ellipse', { cx: 0, cy: round(-petalLen / 2), rx: round(petalLen * 0.32), ry: round(petalLen / 2), fill: petalColor }),
-      ]),
-    );
-  }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.14), fill: blendHex('#1a1006', 0.6, centerColor) }));
+  const petalNodes = petalRing(rng, {
+    count: petals,
+    distance: 0,
+    length: petalLen,
+    width: petalLen * 0.64,
+    color: petalColor,
+    curvature: 0.65,
+    angleJitter: 5,
+    scaleJitter: 0.07,
+  });
+  const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.14), fill: blendHex('#1a1006', 0.6, centerColor) })];
   const stamens = rngInt(rng, 10, 14);
   for (let i = 0; i < stamens; i++) {
     const a = ((360 / stamens) * i * Math.PI) / 180;
     const dist = r * rngRange(rng, 0.16, 0.2);
-    children.push(h('circle', { cx: round(Math.cos(a) * dist), cy: round(Math.sin(a) * dist), r: round(r * 0.02), fill: colors[0] }));
+    centerNodes.push(h('circle', { cx: round(Math.cos(a) * dist), cy: round(Math.sin(a) * dist), r: round(r * 0.02), fill: colors[0] }));
   }
-  return { node: h('g', {}, children), radius: r * 0.95 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, petalNodes),
+    h('g', { 'data-part': 'center' }, centerNodes),
+  ]);
+  return { node, radius: r * 0.95 };
 };
 
-/** Daisy: many thin radiating petals around a flat stippled disc center —
- * the stipple (randomly scattered tiny dots, not a uniform ring) is the
- * texture real daisy/sunflower centers have. */
+/** Daisy: many thin radiating organic-curve petals around a flat stippled
+ * disc center — the stipple (randomly scattered tiny dots, not a uniform
+ * ring) is the texture real daisy/sunflower centers have. */
 const daisyFlower: Variant = (rng, colors, size) => {
   const r = size / 2;
   const accents = accentColors(colors);
@@ -555,24 +617,28 @@ const daisyFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 12, 16);
   const petalLen = r * 0.9;
-  const petalW = petalLen * 0.16;
-  const children: ReturnType<typeof h>[] = [];
-  for (let i = 0; i < petals; i++) {
-    const angle = (360 / petals) * i;
-    children.push(
-      h('g', { transform: `rotate(${round(angle)})` }, [
-        h('ellipse', { cx: 0, cy: round(-petalLen / 2 - r * 0.12), rx: round(petalW / 2), ry: round(petalLen / 2), fill: petalColor }),
-      ]),
-    );
-  }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor }));
+  const petalNodes = petalRing(rng, {
+    count: petals,
+    distance: r * 0.12,
+    length: petalLen,
+    width: petalLen * 0.22,
+    color: petalColor,
+    curvature: 0.2,
+    angleJitter: 3,
+    scaleJitter: 0.05,
+  });
+  const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })];
   const dots = rngInt(rng, 10, 14);
   for (let i = 0; i < dots; i++) {
     const a = rngRange(rng, 0, Math.PI * 2);
     const dist = rngRange(rng, 0, r * 0.18);
-    children.push(h('circle', { cx: round(Math.cos(a) * dist), cy: round(Math.sin(a) * dist), r: round(r * 0.02), fill: blendHex(colors[0], 0.4, centerColor) }));
+    centerNodes.push(h('circle', { cx: round(Math.cos(a) * dist), cy: round(Math.sin(a) * dist), r: round(r * 0.02), fill: blendHex(colors[0], 0.4, centerColor) }));
   }
-  return { node: h('g', {}, children), radius: r * 1.02 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, petalNodes),
+    h('g', { 'data-part': 'center' }, centerNodes),
+  ]);
+  return { node, radius: r * 1.02 };
 };
 
 /** Petal with a small V-notch cut into the tip — cosmos's signature trait
@@ -595,16 +661,81 @@ const cosmosFlower: Variant = (rng, colors, size) => {
   const petalLen = r * rngRange(rng, 0.75, 0.9);
   const petalW = petalLen * 0.55;
   const notch = petalW * 0.1;
-  const children: ReturnType<typeof h>[] = [];
+  const petalNodes: ReturnType<typeof h>[] = [];
   for (let i = 0; i < petals; i++) {
-    children.push(
-      h('g', { transform: `rotate(${round((360 / petals) * i)})` }, [
-        h('path', { d: cosmosPetalPath(petalLen, petalW, notch), fill: petalColor }),
+    const asym = radialAsymmetry(rng, 4, 0.05);
+    petalNodes.push(
+      h('g', { transform: `rotate(${round((360 / petals) * i + asym.angle)})` }, [
+        h('path', { d: cosmosPetalPath(petalLen * asym.lengthScale, petalW * asym.widthScale, notch), fill: petalColor }),
       ]),
     );
   }
-  children.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.13), fill: centerColor }));
-  return { node: h('g', {}, children), radius: r * 1.0 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, petalNodes),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.13), fill: centerColor })]),
+  ]);
+  return { node, radius: r * 1.0 };
+};
+
+/** Bell flower: a raceme of small drooping bell-shaped blooms alternating
+ * along a growth-engine stem — the tubular hanging silhouette (foxglove /
+ * campanula style) that's structurally distinct from every radial-petal
+ * flower above. */
+function bellPath(len: number, width: number): string {
+  const w = width / 2;
+  return (
+    `M ${round(-w)} 0 ` +
+    `C ${round(-w)} ${round(len * 0.55)} ${round(-w * 0.6)} ${round(len)} 0 ${round(len)} ` +
+    `C ${round(w * 0.6)} ${round(len)} ${round(w)} ${round(len * 0.55)} ${round(w)} 0 ` +
+    `C ${round(w * 0.5)} ${round(-len * 0.12)} ${round(-w * 0.5)} ${round(-len * 0.12)} ${round(-w)} 0 Z`
+  );
+}
+
+const bellFlower: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const stem = generateStem(rng, size * 0.9, rngRange(rng, 0.05, 0.12));
+  const stemColor = rngPick(rng, accentColors(colors));
+  const bellColor = rngPick(rng, accentColors(colors));
+  const count = rngInt(rng, 3, 5);
+  const offset = size * 0.12;
+  const bells: ReturnType<typeof h>[] = [];
+  const pedicels: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < count; i++) {
+    const t = 0.18 + 0.72 * (count > 1 ? i / (count - 1) : 0.5);
+    const sample = stem.sampler.at(t);
+    const side: 1 | -1 = i % 2 === 0 ? 1 : -1;
+    const scale = 1 - t * 0.3;
+    const bellLen = size * 0.17 * scale;
+    const bellW = bellLen * 0.6;
+    const asym = radialAsymmetry(rng, 8, 0.1);
+    // Offset each bell off the stem along its local normal (not a fixed
+    // x-shift) so it hangs clearly beside the stem — and stays correctly
+    // offset even where the stem curves — instead of sitting on top of it.
+    const anchorX = sample.point.x + sample.normal.x * side * offset;
+    const anchorY = sample.point.y + sample.normal.y * side * offset;
+    pedicels.push(
+      h('path', {
+        d: `M ${round(sample.point.x)} ${round(sample.point.y)} L ${round(anchorX)} ${round(anchorY)}`,
+        fill: 'none',
+        stroke: stemColor,
+        'stroke-width': round(size * 0.012),
+        'stroke-linecap': 'round',
+      }),
+    );
+    bells.push(
+      h('g', { transform: `translate(${round(anchorX)} ${round(anchorY)}) rotate(${round(14 * side + asym.angle)})` }, [
+        h('path', { d: bellPath(bellLen * asym.lengthScale, bellW * asym.widthScale), fill: bellColor }),
+      ]),
+    );
+  }
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.025), 'stroke-linecap': 'round' }),
+      ...pedicels,
+    ]),
+    h('g', { 'data-part': 'petals-outer' }, bells),
+  ]);
+  return { node, radius: r * 1.1 };
 };
 
 /** Rounded (near-circular) leaf — eucalyptus's distinctive juvenile-leaf
@@ -616,24 +747,23 @@ function roundedLeafPath(length: number, width: number): string {
 }
 
 const eucalyptusSprig: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.eucalyptus;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
-  const leafCount = rngInt(rng, 3, 5);
-  const children: ReturnType<typeof h>[] = [
-    h('path', { d: `M 0 ${round(-half)} L 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.035), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < leafCount; i++) {
-    const t = (i + 0.5) / leafCount;
-    const y = -half + size * t;
-    const side = i % 2 === 0 ? 1 : -1;
-    const leafLen = size * rngRange(rng, 0.3, 0.4);
-    children.push(
-      h('g', { transform: `translate(0 ${round(y)}) rotate(${round(side * rngRange(rng, 55, 75))})` }, [
-        h('path', { d: roundedLeafPath(leafLen, leafLen * 0.62), fill: rngPick(rng, accentColors(colors)) }),
-      ]),
-    );
-  }
-  return { node: h('g', {}, children), radius: half * 1.15 };
+  const leaves = growLeaves(rng, stem, preset);
+  const leafNodes = leaves.map((leaf) => {
+    const leafLen = size * rngRange(rng, 0.3, 0.4) * leaf.scale;
+    return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+      h('path', { d: roundedLeafPath(leafLen, leafLen * 0.62), fill: rngPick(rng, accentColors(colors)) }),
+    ]);
+  });
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.035), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.6 };
 };
 
 /** Long narrow lance-shaped leaf — olive's characteristic silhouette,
@@ -648,24 +778,23 @@ function lanceLeafPath(length: number, width: number): string {
 }
 
 const oliveBranch: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.olive;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
-  const leafCount = rngInt(rng, 4, 6);
-  const children: ReturnType<typeof h>[] = [
-    h('path', { d: `M 0 ${round(-half)} Q ${round(half * 0.1)} 0 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < leafCount; i++) {
-    const t = (i + 0.5) / leafCount;
-    const y = -half + size * t;
-    const side = i % 2 === 0 ? 1 : -1;
-    const leafLen = size * rngRange(rng, 0.28, 0.38);
-    children.push(
-      h('g', { transform: `translate(0 ${round(y)}) rotate(${round(side * rngRange(rng, 35, 55))})` }, [
-        h('path', { d: lanceLeafPath(leafLen, leafLen * 0.28), fill: rngPick(rng, accentColors(colors)) }),
-      ]),
-    );
-  }
-  return { node: h('g', {}, children), radius: half * 1.15 };
+  const leaves = growLeaves(rng, stem, preset);
+  const leafNodes = leaves.map((leaf) => {
+    const leafLen = size * rngRange(rng, 0.28, 0.38) * leaf.scale;
+    return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+      h('path', { d: lanceLeafPath(leafLen, leafLen * 0.28), fill: rngPick(rng, accentColors(colors)) }),
+    ]);
+  });
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.6 };
 };
 
 /** Elongated oval, pointed at both ends — laurel's silhouette, always
@@ -678,68 +807,68 @@ function laurelLeafPath(length: number, width: number): string {
 }
 
 const laurelSprig: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.laurel;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
-  const pairCount = rngInt(rng, 3, 4);
-  const children: ReturnType<typeof h>[] = [
-    h('path', { d: `M 0 ${round(-half)} L 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < pairCount; i++) {
-    const t = (i + 0.5) / pairCount;
-    const y = -half + size * t;
-    const leafLen = size * rngRange(rng, 0.3, 0.4);
+  const leaves = growLeaves(rng, stem, preset);
+  const leafNodes: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < leaves.length; i += 2) {
     const color = rngPick(rng, accentColors(colors));
-    for (const side of [-1, 1] as const) {
-      children.push(
-        h('g', { transform: `translate(0 ${round(y)}) rotate(${round(side * rngRange(rng, 50, 65))})` }, [
+    for (const leaf of leaves.slice(i, i + 2)) {
+      const leafLen = size * rngRange(rng, 0.3, 0.4) * leaf.scale;
+      leafNodes.push(
+        h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
           h('path', { d: laurelLeafPath(leafLen, leafLen * 0.36), fill: color }),
         ]),
       );
     }
   }
-  return { node: h('g', {}, children), radius: half * 1.1 };
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.03), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.58 };
 };
 
-/** Rounded leaf with a gently wobbled edge (per-sample radius jitter,
- * dense enough to read as soft/fuzzy rather than serrated) — sage's
- * velvety-textured look. */
+/** Rounded leaf with a gently wobbled edge, built as a smooth Catmull-Rom
+ * curve through seeded-wobbled sample points (previously straight-line
+ * segments) — sage's velvety-textured look without unintended sharp
+ * corners. */
 function sageLeafPath(length: number, width: number, rng: Rng): string {
   const h2 = length / 2;
   const w = width / 2;
-  const bumps = 6;
-  const pts: Array<[number, number]> = [];
-  for (let i = 0; i <= bumps; i++) {
-    const t = i / bumps;
-    const y = -h2 + length * t;
-    const envelope = Math.sin(Math.PI * t) * w;
-    const wobble = 1 + rngRange(rng, -0.08, 0.08);
-    pts.push([envelope * wobble, y]);
-  }
-  let d = `M 0 ${round(-h2)} `;
-  for (const [x, y] of pts) d += `L ${round(x)} ${round(y)} `;
-  for (let i = pts.length - 1; i >= 0; i--) d += `L ${round(-pts[i][0])} ${round(pts[i][1])} `;
-  return d + 'Z';
+  const samples = 6;
+  const radii = wobbleEnvelope(rng, samples, 0.08, (t) => Math.sin(Math.PI * t) * w);
+  const right: Pt[] = [];
+  for (let i = 0; i <= samples; i++) right.push({ x: radii[i], y: -h2 + length * (i / samples) });
+  const left = right
+    .slice(1, -1)
+    .reverse()
+    .map((p) => ({ x: -p.x, y: p.y }));
+  const points: Pt[] = [...right, ...left];
+  return smoothPathD(points, { closed: true, tension: 6 });
 }
 
 const sageSprig: Variant = (rng, colors, size) => {
-  const half = size / 2;
+  const preset = GROWTH_PRESETS.sage;
+  const stem = generateStem(rng, size, preset.curvature);
   const stemColor = rngPick(rng, accentColors(colors));
-  const leafCount = rngInt(rng, 3, 5);
-  const children: ReturnType<typeof h>[] = [
-    h('path', { d: `M 0 ${round(-half)} L 0 ${round(half)}`, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.035), 'stroke-linecap': 'round' }),
-  ];
-  for (let i = 0; i < leafCount; i++) {
-    const t = (i + 0.5) / leafCount;
-    const y = -half + size * t;
-    const side = i % 2 === 0 ? 1 : -1;
-    const leafLen = size * rngRange(rng, 0.32, 0.42);
-    children.push(
-      h('g', { transform: `translate(0 ${round(y)}) rotate(${round(side * rngRange(rng, 50, 70))})` }, [
-        h('path', { d: sageLeafPath(leafLen, leafLen * 0.46, rng), fill: rngPick(rng, accentColors(colors)) }),
-      ]),
-    );
-  }
-  return { node: h('g', {}, children), radius: half * 1.15 };
+  const leaves = growLeaves(rng, stem, preset);
+  const leafNodes = leaves.map((leaf) => {
+    const leafLen = size * rngRange(rng, 0.32, 0.42) * leaf.scale;
+    return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+      h('path', { d: sageLeafPath(leafLen, leafLen * 0.46, rng), fill: rngPick(rng, accentColors(colors)) }),
+    ]);
+  });
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.035), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+  ]);
+  return { node, radius: size * 0.6 };
 };
 
 const VARIANTS: Variant[] = [
@@ -763,13 +892,19 @@ const VARIANTS: Variant[] = [
   oliveBranch,
   laurelSprig,
   sageSprig,
+  bellFlower,
 ];
+
+/** Exposed for tests/tooling that need to exercise every named variant
+ * directly (e.g. "does every variant render without error") rather than
+ * relying on random seeds happening to hit all of them. */
+export const BOTANICAL_VARIANTS = VARIANTS;
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
   label: 'Botanical / Floral',
   description:
-    'Flat minimal leaves, blooms, buds and leafy branches — 20 variants including peony, ranunculus, poppy, anemone, daisy, cosmos, eucalyptus, olive, laurel and sage.',
+    'Flat minimal leaves, blooms, buds and leafy branches — 21 variants including peony, ranunculus, poppy, anemone, daisy, cosmos, bell flower, eucalyptus, olive, laurel and sage, built on a shared curve-quality and botanical-growth engine.',
   defaultMotifSize: 70,
   createMotif(rng: Rng, colors: string[], size: number): Motif {
     const variant = rngPick(rng, VARIANTS);
