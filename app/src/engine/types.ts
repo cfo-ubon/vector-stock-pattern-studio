@@ -156,6 +156,10 @@ export interface GenerateParams {
   /** Flat "sticker" shadow: a solid-color offset silhouette under every
    * motif (no blur, no transparency — EPS-safe by construction). */
   flatShadow?: boolean;
+  /** Flat highlight ("shine"): a small solid-color ellipse baked into
+   * every motif's own local frame near its upper-left, mimicking a soft
+   * glossy-sticker light catch. No blur/transparency — EPS-safe. */
+  flatHighlight?: boolean;
   /** Post-generation pattern scale (1 = as generated). Multiplies the
    * effective motif size while the density *value* stays fixed — and since
    * layout spacing is itself proportional to motif size (see

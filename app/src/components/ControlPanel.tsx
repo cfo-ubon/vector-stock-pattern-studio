@@ -242,6 +242,10 @@ export function ControlPanel({
           <span>🏷 เงาสติกเกอร์ (flat shadow)</span>
           <input type="checkbox" checked={!!params.flatShadow} onChange={(e) => onChange({ flatShadow: e.target.checked })} />
         </label>
+        <label className="field field--inline" title="วงรีสว่างเทียมมุมบน-ซ้ายของทุกชิ้นลาย เหมือนแสงสะท้อนบนสติกเกอร์เคลือบเงา — เข้ากันดีกับเงาสติกเกอร์ด้านบน">
+          <span>✨ ไฮไลต์เงา (shine)</span>
+          <input type="checkbox" checked={!!params.flatHighlight} onChange={(e) => onChange({ flatHighlight: e.target.checked })} />
+        </label>
         <label className="field">
           <span>Radial symmetry fold: {params.radialSymmetry}</span>
           <input

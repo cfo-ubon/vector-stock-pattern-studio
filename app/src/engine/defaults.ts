@@ -37,6 +37,7 @@ export function defaultParams(): GenerateParams {
     // motifs are what make a pattern read as professionally designed.
     fillerStyle: 'subtle',
     flatShadow: false,
+    flatHighlight: false,
     colorStory: true,
     rotationJitter: 15,
     scaleJitter: 0.15,
@@ -71,6 +72,7 @@ export function randomizedParams(base: GenerateParams): GenerateParams {
     patternScale: 1,
     fillerStyle: rng() < 0.2 ? 'none' : rng() < 0.75 ? 'subtle' : 'rich',
     flatShadow: rng() < 0.2,
+    flatHighlight: rng() < 0.3,
     colorStory: rng() < 0.85,
     rotationJitter: Math.floor(rng() * 90),
     scaleJitter: rng() * 0.4,
