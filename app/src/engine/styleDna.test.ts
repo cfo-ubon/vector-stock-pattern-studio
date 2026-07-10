@@ -1,0 +1,190 @@
+import { describe, it, expect } from 'vitest';
+import { defaultParams } from './defaults';
+import { buildTile } from './tile';
+import { serialize } from './svgAst';
+import { PALETTES } from '../palettes/palettes';
+import {
+  STYLE_DNA_PRESETS,
+  STYLE_DNA_LIST,
+  resolveStyleDna,
+  computeStyleDrift,
+  resetToStyleDna,
+  isStyleDnaCompatible,
+  exportStyleDnaJson,
+  importStyleDnaJson,
+  deriveStyleDnaFromParams,
+  duplicateStyleDna,
+  STYLE_DNA_SCHEMA_VERSION,
+  type StyleDna,
+} from './styleDna';
+
+const PALETTE_IDS = new Set(PALETTES.map((p) => p.id));
+
+describe('Style DNA: loading', () => {
+  it('at least 15 built-in presets are registered', () => {
+    expect(STYLE_DNA_LIST.length).toBeGreaterThanOrEqual(15);
+  });
+
+  it('every preset resolves to a buildable tile without throwing', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'style-load-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'style-load-check' })).not.toThrow();
+    }
+  });
+
+  it('every preset is internally compatible with the currently-registered engine tables', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect(isStyleDnaCompatible(dna, { paletteIds: PALETTE_IDS })).toBe(true);
+    }
+  });
+
+  it('resolving the same style + seed twice is fully deterministic', () => {
+    const dna = STYLE_DNA_PRESETS.editorialBotanical;
+    const a = resolveStyleDna(dna, 'determinism-check');
+    const b = resolveStyleDna(dna, 'determinism-check');
+    expect(a).toEqual(b);
+  });
+
+  it('a different seed can pick a different family member for a multi-entry style (not fixed to the first entry)', () => {
+    const dna = STYLE_DNA_PRESETS.modernTropical; // 2 layouts, 2 palettes
+    const seen = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      const patch = resolveStyleDna(dna, `variety-${i}`);
+      seen.add(`${patch.layoutId}::${patch.paletteId}`);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('applying a style writes styleDnaId onto the resolved params for round-tripping', () => {
+    const dna = STYLE_DNA_PRESETS.darkBotanical;
+    const patch = resolveStyleDna(dna, 'roundtrip-check');
+    expect(patch.styleDnaId).toBe('darkBotanical');
+  });
+
+  it('changing style visibly changes the generated SVG (not cosmetic-only)', () => {
+    const a = resolveStyleDna(STYLE_DNA_PRESETS.minimalBotanical, 'visible-diff');
+    const b = resolveStyleDna(STYLE_DNA_PRESETS.luxuryWallpaper, 'visible-diff');
+    const svgA = serialize(buildTile({ ...defaultParams(), ...a, seed: 'visible-diff' }).svg);
+    const svgB = serialize(buildTile({ ...defaultParams(), ...b, seed: 'visible-diff' }).svg);
+    expect(svgA).not.toBe(svgB);
+  });
+});
+
+describe('Style DNA: migration / backward compatibility', () => {
+  it('a params object with no styleDnaId (pre-v1.30 shape) still builds fine', () => {
+    const legacy = { ...defaultParams(), seed: 'style-migration' };
+    delete (legacy as { styleDnaId?: string }).styleDnaId;
+    expect(() => buildTile(legacy)).not.toThrow();
+  });
+
+  it('computeStyleDrift does not throw on a pre-v1.30-shaped params object', () => {
+    const legacy = { ...defaultParams(), seed: 'style-migration-drift' };
+    delete (legacy as { styleDnaId?: string }).styleDnaId;
+    expect(() => computeStyleDrift(legacy, STYLE_DNA_PRESETS.editorialBotanical)).not.toThrow();
+  });
+});
+
+describe('Style DNA: overrides / drift', () => {
+  it('reports no drift immediately after applying a style', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic;
+    const patch = resolveStyleDna(dna, 'no-drift-check');
+    const params = { ...defaultParams(), ...patch, seed: 'no-drift-check' };
+    expect(computeStyleDrift(params, dna)).toEqual([]);
+  });
+
+  it('reports drift on exactly the fields the user hand-edited', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic;
+    const patch = resolveStyleDna(dna, 'drift-check');
+    const edited = { ...defaultParams(), ...patch, seed: 'drift-check', density: 0.9, negativeSpace: 0.05 };
+    const drift = computeStyleDrift(edited, dna);
+    const fields = drift.map((d) => d.field).sort();
+    expect(fields).toEqual(['density', 'negativeSpace']);
+  });
+});
+
+describe('Style DNA: reset', () => {
+  it('"Reset to Style" discards hand-edits and matches a fresh resolve exactly', () => {
+    const dna = STYLE_DNA_PRESETS.kidsPlayful;
+    const reset = resetToStyleDna(dna, 'reset-check');
+    const fresh = resolveStyleDna(dna, 'reset-check');
+    expect(reset).toEqual(fresh);
+  });
+});
+
+describe('Style DNA: export / import', () => {
+  it('exports valid JSON carrying the schema version and full style data', () => {
+    const json = exportStyleDnaJson(STYLE_DNA_PRESETS.bohoFloral);
+    const parsed = JSON.parse(json);
+    expect(parsed.schemaVersion).toBe(STYLE_DNA_SCHEMA_VERSION);
+    expect(parsed.style.id).toBe('bohoFloral');
+  });
+
+  it('imports a valid exported style and marks it custom', () => {
+    const json = exportStyleDnaJson(STYLE_DNA_PRESETS.retroOrganic);
+    const imported = importStyleDnaJson(json, { paletteIds: PALETTE_IDS });
+    expect(imported).not.toBeNull();
+    expect(imported!.id).toBe('retroOrganic');
+    expect(imported!.custom).toBe(true);
+  });
+
+  it('round-trips a style through export -> import to an equivalent resolver output', () => {
+    const original = STYLE_DNA_PRESETS.premiumTextile;
+    const imported = importStyleDnaJson(exportStyleDnaJson(original), { paletteIds: PALETTE_IDS })!;
+    const originalPatch = resolveStyleDna(original, 'roundtrip-resolve');
+    const importedPatch = resolveStyleDna(imported, 'roundtrip-resolve');
+    expect(importedPatch).toEqual(originalPatch);
+  });
+
+  it('returns null for malformed JSON instead of throwing', () => {
+    expect(importStyleDnaJson('{not valid json', { paletteIds: PALETTE_IDS })).toBeNull();
+  });
+
+  it('returns null for a style missing required fields', () => {
+    expect(importStyleDnaJson(JSON.stringify({ style: { id: 'x' } }), { paletteIds: PALETTE_IDS })).toBeNull();
+  });
+});
+
+describe('Style DNA: create / duplicate custom styles', () => {
+  it('deriveStyleDnaFromParams captures the current settings as a new, compatible custom style', () => {
+    const patch = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'derive-check');
+    const params = { ...defaultParams(), ...patch, seed: 'derive-check' };
+    const derived = deriveStyleDnaFromParams(params, 'My Custom Style');
+    expect(derived.custom).toBe(true);
+    expect(derived.label).toBe('My Custom Style');
+    expect(derived.id).not.toBe('luxuryFloral');
+    expect(isStyleDnaCompatible(derived, { paletteIds: PALETTE_IDS })).toBe(true);
+  });
+
+  it('deriving from params twice produces two distinct ids', () => {
+    const params = { ...defaultParams(), seed: 'derive-unique' };
+    const a = deriveStyleDnaFromParams(params, 'A');
+    const b = deriveStyleDnaFromParams(params, 'B');
+    expect(a.id).not.toBe(b.id);
+  });
+
+  it('duplicateStyleDna copies a built-in preset into an independent custom style', () => {
+    const dup = duplicateStyleDna(STYLE_DNA_PRESETS.editorialBotanical, 'Editorial Botanical (copy)');
+    expect(dup.custom).toBe(true);
+    expect(dup.id).not.toBe('editorialBotanical');
+    expect(dup.label).toBe('Editorial Botanical (copy)');
+    expect(dup.categories).toEqual(STYLE_DNA_PRESETS.editorialBotanical.categories);
+    expect(isStyleDnaCompatible(dup, { paletteIds: PALETTE_IDS })).toBe(true);
+  });
+});
+
+describe('Style DNA: compatibility', () => {
+  it('rejects a style referencing a category id that does not exist', () => {
+    const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, categories: ['not-a-real-category'] };
+    expect(isStyleDnaCompatible(bad, { paletteIds: PALETTE_IDS })).toBe(false);
+  });
+
+  it('rejects a style referencing a palette id that does not exist', () => {
+    const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, paletteIds: ['not-a-real-palette'] };
+    expect(isStyleDnaCompatible(bad, { paletteIds: PALETTE_IDS })).toBe(false);
+  });
+
+  it('rejects a style with an empty categories/layouts/palettes list', () => {
+    const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, categories: [] };
+    expect(isStyleDnaCompatible(bad, { paletteIds: PALETTE_IDS })).toBe(false);
+  });
+});

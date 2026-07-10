@@ -162,6 +162,11 @@ body {
   margin: -0.2rem 0 0.5rem;
 }
 
+.style-dna-drift {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;

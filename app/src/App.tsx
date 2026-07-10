@@ -5,6 +5,8 @@ import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
 import type { QualityPresetId } from './engine/scoring';
+import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
+import { loadCustomStyles } from './storage/styleDnaStore';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildEps } from './export/epsExporter';
@@ -85,11 +87,21 @@ function App() {
     setParams((prev) => randomizedParams(prev));
   }, []);
 
+  // Collection Generator (the "Generate 9 variations" batch flow): when a
+  // Style DNA is active, every variant re-resolves that *same* style from a
+  // fresh random seed instead of fully randomizing category/layout/palette/
+  // hierarchy/etc. per item — so the 9 patterns explore that style's own
+  // family of looks and genuinely read as one collection, rather than 9
+  // unrelated random patterns. No style active = unchanged prior behavior.
   const handleGenerateBatch = useCallback(() => {
+    const activeDna = params.styleDnaId
+      ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+      : undefined;
     const items: GalleryItem[] = [];
     let latest = tileData;
     for (let i = 0; i < 9; i++) {
-      const variantParams = { ...randomizedParams(params), seed: randomSeed() };
+      const seed = randomSeed();
+      const variantParams = activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed };
       const data = buildTile(variantParams);
       latest = data;
       items.push({ id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });

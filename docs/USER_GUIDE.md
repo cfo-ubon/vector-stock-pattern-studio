@@ -24,6 +24,60 @@
 
 ## 🎨 ส่วนควบคุม (แผงซ้าย)
 
+### 🧬 Style DNA — ตัวตนงานออกแบบสำเร็จรูป 🆕
+
+แทนที่จะปรับ category/layout/palette/density/hierarchy/negative space/
+overlap/composition intelligence ทีละอย่าง **Style DNA** รวมทุกอย่างเป็น
+"ตัวตน" เดียวที่กดเลือกได้ในคลิกเดียว — มี 15 สไตล์สำเร็จรูป:
+
+Editorial Botanical, Luxury Floral, Scandinavian Organic, Minimal Botanical,
+Vintage Herbarium, Dark Botanical, Modern Tropical, Boutique Packaging,
+Luxury Wallpaper, Premium Textile, Kids Playful, Retro Organic, Organic
+Abstract, Boho Floral, Soft Watercolor Inspired (Vector only — ไม่มี raster/
+texture จริง ใช้พื้นที่ว่าง+สีเบลนด์นุ่มๆ แบบ vector ล้วนให้ความรู้สึกคล้าย
+สีน้ำ)
+
+แต่ละ Style DNA กำหนดจริง (ไม่ใช่แค่ label): หมวดที่เลือกได้, layout ที่
+เลือกได้, ชุดสีที่เลือกได้, hierarchy profile (hero/secondary/filler/accent
+ratio), density, negative space, overlap mode/amount, flow profile (ผลต่อ
+การหมุนสุ่ม), rhythm profile (ผลต่อ Composition Intelligence), cluster
+style/density (ผลต่อ Composition Intelligence's balance), motif complexity
+(ผลต่อขนาด/การหมุนสุ่ม+จำนวนสี), color strategy, background strategy (ผลต่อ
+ลาย filler), SVG depth mode (เงา/ไฮไลต์), และขนาด/สเกล export ที่แนะนำ — ทุก
+ค่าเชื่อมกับ engine จริงที่มีอยู่แล้ว เปลี่ยน Style เปลี่ยนภาพจริงเสมอ
+
+- **seed เดียวกัน + Style เดียวกัน = ผลลัพธ์เดิมเสมอ** (deterministic 100%
+  ไม่มีการสุ่มแบบ `Math.random`) แต่เปลี่ยน seed แล้วยังอยู่ใน Style เดิมได้
+  ระบบจะสำรวจตัวเลือกอื่นภายในสไตล์เดียวกัน (เช่น layout/ชุดสีอื่นที่ style
+  นั้นรองรับ)
+- ปรับค่าย่อยต่อเองได้หลังเลือก Style — ระบบจะโชว์ **"ปรับต่างจาก Style กี่
+  จุด"** พร้อมชื่อฟิลด์ที่เปลี่ยน และมีปุ่ม **↺ Reset to Style** ให้กลับไปค่า
+  เดิมของสไตล์นั้นทันที
+- **Style DNA Manager**: ➕ สร้าง Style ใหม่จากค่าปัจจุบัน, 🧬 ทำสำเนา, ✏️
+  เปลี่ยนชื่อ (เฉพาะ Style ที่สร้างเอง), 🗑 ลบ (เฉพาะ Style ที่สร้างเอง — 15
+  สไตล์สำเร็จรูปลบไม่ได้), ★ ตั้งเป็นโปรด (แสดงก่อนในรายการ), 📤 Export เป็น
+  ไฟล์ JSON, 📥 Import JSON กลับเข้ามา — Style ที่สร้าง/นำเข้าเองบันทึกถาวรใน
+  เบราว์เซอร์ (localStorage)
+- **Candidate Engine เข้าใจ Style DNA**: ตอนกด "Generate Best"/"Generate Best
+  of 12" ถ้า Style ที่ใช้มีหลายตัวเลือก (เช่น 2 layout) และผู้ใช้ยังไม่ได้
+  ปรับ layout ออกจากค่าเริ่มต้นของสไตล์ แต่ละ candidate จะสำรวจตัวเลือกที่
+  ต่างกันภายในสไตล์เดียวกันจริง (ไม่ใช่แค่ seed ต่างแต่ layout/ชุดสีเดิม) —
+  ถ้าปรับ layout เองแล้ว ค่านั้นจะถูกยึดไว้ทุก candidate ตามที่ตั้งใจ
+- **Generate 9 variations เข้าใจ Style DNA**: ถ้าเปิด Style DNA อยู่ ลายทั้ง 9
+  จะสำรวจภายในสไตล์เดียวกัน (คนละ seed แต่คง "ตัวตน" เดิม) แทนที่จะสุ่มทุก
+  อย่างอิสระแบบเดิม — ผลลัพธ์คือ 9 ลายที่ดูเป็น "คอลเลกชันเดียวกัน" จริง
+- SVG ที่ export จะฝัง Style DNA id/ชื่อ/เวอร์ชันไว้เป็น metadata
+  (`data-style-dna-id`, `data-style-dna-name`, `data-style-dna-version`) —
+  Affinity Designer และโปรแกรมอื่นแสดงเป็น attribute ที่ไม่รบกวนการแก้ไข
+
+> ℹ️ **ขอบเขตรอบนี้**: Style DNA ยังไม่เชื่อมกับ Cluster Engine, Pattern
+> Evolution, หรือ Designer Assistant แบบเต็มรูปแบบ เพราะ 3 ระบบนี้ยังไม่ถูก
+> สร้างจริงตามลำดับ roadmap (อยู่ที่ Phase 3/6/8) — ฟิลด์ `clusterStyle`/
+> `clusterDensity` ในตอนนี้ประมาณผลจริงผ่าน Composition Intelligence's
+> balance strength + overlap amount (มีผลจริงต่อภาพ ไม่ใช่แค่ label เฉยๆ)
+> ส่วน `botanicalGrowthPreset` เก็บไว้เป็นข้อมูล (ยังไม่ผลต่อการเลือกทรงใบ/
+> ดอกจริง — รอ Phase 4 Botanical Geometry)
+
 ### Category — หมวดลวดลาย (15 หมวด)
 
 | หมวด | ลักษณะลาย | เหมาะกับ |
@@ -533,6 +587,53 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.30 — 10 ก.ค. 2026 — Style DNA Engine
+- 🧬 **Style DNA Engine ใหม่** (`engine/styleDna.ts`): เปลี่ยนแอปจาก
+  "ปรับพารามิเตอร์ทีละตัว" เป็น "เลือกตัวตนงานออกแบบ" — 15 สไตล์สำเร็จรูป
+  (Editorial Botanical, Luxury Floral, Scandinavian Organic, Minimal
+  Botanical, Vintage Herbarium, Dark Botanical, Modern Tropical, Boutique
+  Packaging, Luxury Wallpaper, Premium Textile, Kids Playful, Retro Organic,
+  Organic Abstract, Boho Floral, Soft Watercolor Inspired) เก็บเป็นข้อมูล
+  โครงสร้างล้วน (ไม่มี if-else ต่อชื่อสไตล์เลย) resolve ผ่านฟังก์ชันเดียว
+  `resolveStyleDna` — สถาปัตยกรรมเดียวกับ `artDirection.ts`/`trendEngine.ts`
+  เดิม แต่ครอบคลุมฟิลด์มากกว่ามาก: หมวด/layout/ชุดสีที่ต้องการ,
+  hierarchy profile, density, negative space, overlap mode/amount, flow
+  profile, rhythm profile, cluster style/density, motif complexity,
+  botanical growth preset (reserved), color strategy, background strategy,
+  SVG depth mode, export recommendation — ทุกฟิลด์ (ยกเว้น 2 ฟิลด์ที่ประกาศ
+  ชัดเจนว่า reserved) map ไปยัง engine parameter จริงที่มีอยู่แล้ว
+  เปลี่ยนแล้วภาพเปลี่ยนจริงเสมอ (ทดสอบแล้วว่าไม่ใช่ cosmetic-only)
+- 🧭 **Style DNA Manager**: สร้าง Style ใหม่จากค่าปัจจุบัน, ทำสำเนา,
+  เปลี่ยนชื่อ, ลบ (เฉพาะ Style ที่สร้างเอง), ตั้งเป็นโปรด, Export/Import
+  เป็นไฟล์ JSON — Style ที่สร้าง/นำเข้าเองบันทึกถาวรใน localStorage
+  (`storage/styleDnaStore.ts`)
+- 🔗 **เชื่อมกับ engine จริงที่มีอยู่**: Candidate Engine (แต่ละ candidate
+  สำรวจตัวเลือกต่างกันภายในสไตล์เดียวกันเมื่อผู้ใช้ยังไม่ได้ปรับเอง),
+  Hierarchy Engine + Composition Intelligence Engine (รับค่าจาก Style DNA
+  โดยตรง), Generate 9 variations (คงสไตล์เดิมไว้ทั้ง 9 ลาย แทนที่จะสุ่มอิสระ
+  ทุกอย่าง — "รู้สึกเป็นคอลเลกชันเดียวกัน")
+- 📦 **SVG metadata**: ฝัง Style DNA id/ชื่อ/เวอร์ชัน (`data-style-dna-*`)
+  ไว้ในกลุ่ม SVG หลัก
+- ✅ **ขอบเขตที่ตัดสินใจไว้ชัดเจน** (ยืนยันกับผู้ใช้ก่อนเริ่ม): Cluster
+  Engine (Phase 3), Pattern Evolution (Phase 6), และ Designer Assistant
+  แบบเต็มรูปแบบ (Phase 8) ยังไม่ถูกสร้างจริงในโรดแมป จึงยังไม่ผูก integration
+  แบบเต็มกับ 3 ระบบนี้ — `clusterStyle`/`clusterDensity` ประมาณผลจริงผ่าน
+  lever ที่มีอยู่แล้ว (Composition Intelligence balance strength + overlap
+  amount) ส่วน `botanicalGrowthPreset` เก็บเป็นข้อมูล reserved (ยังไม่ผลต่อ
+  การเลือกทรงใบ/ดอกจริง จนกว่าจะถึง Phase 4)
+- 🧪 **เทสต์ใหม่ 26+ รายการ** ครอบคลุม: style loading (ทุกสไตล์ build ได้
+  จริง เข้ากันได้กับตาราง engine ปัจจุบัน), migration (params เก่าไม่มี
+  `styleDnaId` ยัง build ได้), overrides/drift (ตรวจจับฟิลด์ที่ปรับเอง),
+  reset (`resetToStyleDna`), export/import JSON (round-trip + ปฏิเสธไฟล์
+  เสีย/ไม่เข้ากัน), compatibility (`isStyleDnaCompatible`), Candidate Engine
+  integration (สำรวจตัวเลือกจริง + เคารพการปรับเองของผู้ใช้), SVG metadata
+  — รวมเป็น **246 test ทั้งโปรเจกต์** (จากเดิม 217)
+- ✅ **ตรวจสอบจริงก่อนส่ง**: เปิดแอปจริงด้วย Playwright ทั้ง desktop และ
+  มือถือ ทดสอบ Manager ครบทุกปุ่ม (สร้าง/ทำสำเนา/เปลี่ยนชื่อ/ลบ/โปรด/
+  export/import) ไม่มี console error, ตรวจ SVG metadata ฝังจริง
+- ✅ **ยังไม่ทำรอบนี้**: Cluster Engine/Pattern Evolution/Designer Assistant
+  แบบเต็มรูปแบบ (ตามที่ตกลงกับผู้ใช้ก่อนเริ่ม), Phase 3-15 อื่นๆ ในโรดแมป
 
 ### v1.29 — 10 ก.ค. 2026 — Composition Intelligence Engine (Roadmap Phase 2)
 - 🔍 **Audit รอบนี้พบว่า**: Phase 1 (Design Intelligence Engine — Candidate

@@ -5,6 +5,7 @@ import { PALETTES } from '../palettes/palettes';
 import { randomSeed } from '../engine/rng';
 import { DEFAULT_HIERARCHY, HIERARCHY_PRESETS, type HierarchyParams } from '../engine/hierarchy';
 import { DEFAULT_COMPOSITION_INTELLIGENCE, type CompositionIntelligenceParams } from '../engine/compositionIntelligence';
+import { StyleDnaPanel } from './StyleDnaPanel';
 import { ART_DIRECTION_PRESETS, resolveArtDirection } from '../engine/artDirection';
 import { TREND_PRESETS, resolveTrend } from '../engine/trendEngine';
 import type { GenerationMode, CandidateProgress } from '../engine/candidateEngine';
@@ -98,6 +99,8 @@ export function ControlPanel({
 
   return (
     <div className="control-panel">
+      <StyleDnaPanel params={params} onChange={onChange} />
+
       <details className="control-section" open>
         <summary>
           <h3>🎨 Art Direction</h3>
