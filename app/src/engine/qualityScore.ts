@@ -1,10 +1,17 @@
-import type { SvgNode, TileData } from './types';
+import type { TileData } from './types';
+import { extractInstances, periodicDist } from './svgGeometry';
 
 // Deterministic heuristic quality scoring — no machine learning, no
 // external calls. Every number below is computed straight from the actual
 // generated SVG geometry (motif centers/rotations parsed back out of the
 // `translate(...) rotate(...)` transforms tile.ts already writes), so the
 // score changes when and only when the visible pattern changes.
+//
+// Instance parsing (extractInstances/periodicDist) lives in
+// engine/svgGeometry.ts and is shared with the broader Composition Scoring
+// Engine (engine/scoring.ts) used by the Candidate Engine — this module
+// keeps its own narrower six-number public shape for backward compatibility
+// with QualityPanel.tsx and existing saved/gallery expectations.
 
 export interface QualityScoreResult {
   composition: number;
@@ -16,49 +23,10 @@ export interface QualityScoreResult {
   overall: number;
 }
 
-interface MotifInstance {
-  x: number;
-  y: number;
-  rot: number;
-  scale: number;
-}
-
-/** Each `motif-N` group holds up to 9 wrap-clone instances (see tile.ts);
- * the "primary" one — whose center actually falls inside the tile — is
- * the one that represents this motif's real position for scoring. */
-function extractPrimaryInstance(motifGroup: SvgNode, tileSize: number): MotifInstance | null {
-  const candidates: MotifInstance[] = [];
-  for (const inst of motifGroup.children ?? []) {
-    const t = String(inst.attrs?.transform ?? '');
-    const m = t.match(/translate\(([-\d.]+)\s+([-\d.]+)\)\s*rotate\(([-\d.]+)\)\s*scale\(([-\d.]+)\)/);
-    if (m) candidates.push({ x: parseFloat(m[1]), y: parseFloat(m[2]), rot: parseFloat(m[3]), scale: parseFloat(m[4]) });
-  }
-  if (candidates.length === 0) return null;
-  const inRange = candidates.find((c) => c.x >= -0.01 && c.x <= tileSize + 0.01 && c.y >= -0.01 && c.y <= tileSize + 0.01);
-  return inRange ?? candidates[0];
-}
-
-function periodicDist(a: { x: number; y: number }, b: { x: number; y: number }, tileSize: number): number {
-  let best = Infinity;
-  for (let dx = -1; dx <= 1; dx++) {
-    for (let dy = -1; dy <= 1; dy++) {
-      const ddx = a.x - (b.x + dx * tileSize);
-      const ddy = a.y - (b.y + dy * tileSize);
-      const d = Math.hypot(ddx, ddy);
-      if (d < best) best = d;
-    }
-  }
-  return best;
-}
-
 export function computeQualityScore(tileData: TileData): QualityScoreResult {
-  const { svg, colors, params } = tileData;
+  const { colors, params } = tileData;
   const tileSize = params.tileSize;
-  const patternLayer = (svg.children ?? []).find((c) => c.attrs?.id === 'layer-pattern');
-  const motifGroups = (patternLayer?.children ?? []).filter(
-    (c) => typeof c.attrs?.id === 'string' && (c.attrs!.id as string).startsWith('motif-'),
-  );
-  const instances = motifGroups.map((g) => extractPrimaryInstance(g, tileSize)).filter((x): x is MotifInstance => x !== null);
+  const instances = extractInstances(tileData);
 
   // Spacing: coefficient of variation of nearest-neighbor distance (lower =
   // more evenly spaced). Wrapped via periodicDist so edge neighbors count.

@@ -186,6 +186,44 @@ Seamless integrity, Motif diversity แล้วรวมเป็นคะแ�
 > รับประกันว่าจะผ่านการตรวจสอบจริงของเว็บ stock ใดๆ** และไม่ตรวจสอบความซ้ำ
 > กับผลงานอื่นในตลาด (แอปไม่มีฐานข้อมูลค้นภาพทั่วโลก)
 
+### ✨ Generate Best — สร้างหลายแบบแล้วเลือกที่ดีที่สุด 🆕
+
+ปุ่ม Generate ปกติสร้างลาย 1 แบบจาก seed แล้วแสดงผลทันที ส่วน **Generate
+Best** เปลี่ยนวิธีทำงานเป็น:
+
+1. สร้างลายผู้สมัคร (candidate) หลายแบบจาก **seed เดียวกัน** — แต่ละแบบ
+   ได้ seed ย่อยที่คำนวณแบบ deterministic จาก seed หลัก (ไม่ได้สุ่มด้วย
+   `Math.random`) ดังนั้น seed + ค่าปรับ + โหมด + เกณฑ์คุณภาพชุดเดิม จะได้
+   ผู้ชนะคนเดิมเสมอ
+2. วิเคราะห์แต่ละ candidate จาก**โครงสร้างภาพจริง** — ตำแหน่ง/ขนาด/การหมุน
+   ของทุกชิ้นลาย ความสมดุลซ้าย-ขวา-บน-ล่าง ความหนาแน่นเฉลี่ยแต่ละโซน
+   ความหลากหลายของขนาด/การหมุน ความคมชัดของสี และสุขภาพ SVG (ไม่มีพิกัด
+   ผิดพลาด, ไม่มี ID ซ้ำ, จำนวน node ไม่เกินเกณฑ์)
+3. คัดออก (reject) candidate ที่มีปัญหาโครงสร้างจริง เช่น ลายว่างเปล่า,
+   พิกัดเสีย, ID ซ้ำ, จำนวน node เกินเกณฑ์ความปลอดภัย
+4. เลือก candidate ที่คะแนนรวมสูงสุด (ตามน้ำหนักของเกณฑ์คุณภาพที่เลือก) มา
+   แสดงและบันทึกลง Gallery
+
+**โหมด** (จำนวน candidate ที่สร้าง): Fast (4) / Standard (8) / Premium (12)
+— หมวดที่มีชิ้นลายเยอะมาก (เช่น Botanical + Dense Premium ที่ความหนาแน่นสูง
+อาจมีหลายร้อยชิ้นต่อลาย) จะใช้เวลานานขึ้นตามจำนวน candidate ระบบจะสร้างทีละ
+แบบและแสดงความคืบหน้า "กำลังสร้าง candidate n/N" พร้อมปุ่มยกเลิกได้ตลอด
+
+**เกณฑ์คุณภาพ** (น้ำหนักของแต่ละมาตรวัดต่างกัน ตามลักษณะงาน):
+- **Stock Clean** — เน้นสุขภาพ SVG ทางเทคนิค + ความสมดุล + overlap พอดี
+- **Textile Premium** — เน้นระยะห่างสม่ำเสมอ + ความหลากหลายของการหมุน + ความสมดุลตรงขอบ
+- **Editorial Botanical** — เน้นลำดับชั้น (hierarchy) + จุดศูนย์ถ่วงภาพ + ความสมดุล
+- **Dense Luxury** — เน้น overlap แบบควบคุมได้ + ความหนาแน่นเต็มพื้นที่
+
+ตัวเลขคะแนนที่โชว์ในกล่องสรุป ("เลือกจาก N candidate...") เป็นคะแนนตามเกณฑ์
+คุณภาพที่เลือก — **คนละชุดมาตรวัดกับ Quality Score มาตรฐาน 6 ด้านด้านล่าง**
+(Quality Score เดิมยังใช้ 6 มาตรวัดเดิมไม่เปลี่ยน เพื่อไม่ให้ตัวเลขที่เคย
+บันทึก/เทียบไว้เปลี่ยนความหมาย) ตัวเลขทั้งสองชุดจึงต่างกันได้ตามปกติ
+
+> ⚠️ ข้อจำกัดที่ทราบ: ระบบยังไม่ทราบว่า motif สองชิ้นที่อยู่ติดกัน "เป็น
+> ทรงเดียวกัน" จริงหรือไม่ (generator ไม่ได้บันทึกว่าเลือก variant ไหน) จึง
+> ใช้มุมหมุน+role เป็นตัวประมาณแทน — ยังไม่ใช่การตรวจซ้ำของรูปทรงจริง
+
 ### Seed
 
 รหัสสุ่ม — **ลายเดียวกัน 100% จะกลับมาเมื่อใช้ seed + ค่าปรับเดิมทุกตัว**
@@ -445,6 +483,51 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.26 — 10 ก.ค. 2026 — Design Intelligence Milestone 1: Candidate + Scoring Engine
+- ✨ **Generate Best ใหม่**: เปลี่ยนจาก "สร้าง 1 แบบแล้วแสดงเลย" เป็น
+  "สร้างหลาย candidate จาก seed เดียวกัน → วิเคราะห์คุณภาพจริงจากโครงสร้าง
+  ภาพ → คัดออกแบบที่มีปัญหา → เลือกแบบคะแนนสูงสุดมาแสดง" — ดูรายละเอียด
+  ในหัวข้อ "Generate Best" ด้านบน
+- 🧮 **Composition Scoring Engine ใหม่** (`engine/scoring.ts`): 17 มาตรวัด
+  คำนวณจริงจากตำแหน่ง/ขนาด/การหมุนของทุกชิ้นลาย ไม่มีตัวใดเป็นค่าสุ่ม —
+  composition, spacing, quadrant/horizontal/vertical balance, visual
+  center offset, occupancy ratio, density variance, hierarchy, scale/
+  rotation diversity, color balance, palette contrast (คำนวณจาก relative
+  luminance จริงของสีในชุดสี), overlap quality, edge density, adjacency
+  repetition, seamless integrity, SVG technical health
+- 🎯 **เกณฑ์คุณภาพ 4 แบบ** (Stock Clean / Textile Premium / Editorial
+  Botanical / Dense Luxury) — แต่ละแบบให้น้ำหนักมาตรวัดต่างกันตามลักษณะงาน
+  จริง ไม่ใช่แค่ชื่อ preset ที่ไม่มีผลอะไร
+- 🚫 **กฎคัดออกอัตโนมัติ**: ลายว่างเปล่า, พิกัดเสีย (NaN/Infinity), มี
+  `<image>` แบบ raster, อ้างอิงไฟล์ภายนอก, ID ซ้ำ, จำนวน node เกินเกณฑ์
+  ความปลอดภัย — ตรวจจากไฟล์ SVG จริงที่จะ export ไม่ใช่การเดา
+  - **หมายเหตุ**: ในทางปฏิบัติ generator/engine ของแอปสร้าง SVG ที่ผ่านเกณฑ์
+    เหล่านี้เกือบทุกครั้งอยู่แล้ว (ไม่เคยฝัง raster/external resource ตั้งแต่
+    ต้น) กฎเหล่านี้จึงทำหน้าที่เป็น safety net ป้องกันการถดถอยในอนาคต
+    มากกว่าจะคัดออกบ่อยๆ ในการใช้งานทั่วไป
+- 🧵 **Shared geometry module ใหม่** (`engine/svgGeometry.ts`): รวม logic
+  แกะตำแหน่ง/มุม/สเกลของชิ้นลายจากไฟล์ SVG จริง ที่เดิมมีอยู่เฉพาะใน
+  `qualityScore.ts` ให้ใช้ร่วมกันระหว่าง Quality Score เดิมและ Composition
+  Scoring Engine ใหม่ — ไม่มี logic ซ้ำสองชุด
+- ⚡ **ไม่บล็อก UI ระหว่างสร้าง**: บางหมวด/layout ที่มีชิ้นลายเยอะมาก (เช่น
+  Botanical + Dense Premium ที่ความหนาแน่นสูงอาจมี 800+ ชิ้นต่อลาย) ใช้เวลา
+  สร้างต่อ candidate นานกว่าปกติ — ระบบสร้างทีละ candidate สลับกับคืน
+  control ให้เบราว์เซอร์ พร้อมแสดงความคืบหน้าและปุ่มยกเลิก
+- ✅ ตรวจสอบแล้ว: unit test ใหม่ 40 เคส (รวม 156 เคสทั้งหมดผ่าน) ครอบคลุม
+  ความ deterministic ของ candidate pool, ขอบเขตคะแนนทุกมาตรวัด, กฎคัดออก,
+  การยกเลิกกลางคัน — ตรวจ EPS/seamless ของ candidate ที่ชนะแล้วตรงกับ SVG
+  แทบเป๊ะ (mean diff 0.45) และ 3×3 seamless ไม่มีรอยต่อ — เปิดแอปจริงทดสอบ
+  Generate Best ทั้งโหมดปกติและโหมดที่ต้องยกเลิกกลางคัน ไม่มี console error
+- ⚠️ **ยังไม่ทำรอบนี้** (ตามสเปก Design Intelligence Engine เต็มรูปแบบ ซึ่ง
+  เป็นงานหลายเดือน — ทำเฉพาะ Milestone 1 ตามที่ระบุให้เริ่มก่อน): Visual
+  Weight Solver, Flow Engine, Rhythm Engine, Edge Composition Engine
+  (Milestone 2), Cluster เป็น object จริง, Asset DNA, Shape Grammar
+  (Milestone 3), Botanical Growth Logic แบบเต็มระบบ, Motif Family
+  Generator, Motif Uniqueness checker (Milestone 4), Pattern Evolution,
+  Auto Improve, SVG Beautifier (Milestone 5), Quality Intelligence แบบเต็ม,
+  Designer Assistant, category-specific scoring/grammar (Milestone 6) —
+  ทั้งหมดนี้เป็นแผนงานรอบถัดไป โปรดดูรายละเอียดในรายงานที่ส่งพร้อมเวอร์ชันนี้
 
 ### v1.25 — 10 ก.ค. 2026 — Motif Quality Upgrade (Curve & Growth Engine)
 - 🧵 **Curve Quality Engine ใหม่** (`engine/curveEngine.ts`): ชุดฟังก์ชันเส้นโค้งกลาง

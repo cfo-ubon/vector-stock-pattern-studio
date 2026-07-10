@@ -537,9 +537,77 @@ color story, and filler style. `resolveArtDirection(id)` turns one into a
 `Partial<GenerateParams>` patch. No preset introduces a control that
 doesn't map to something the engine actually reads.
 
+## Composition Candidate Engine & Scoring Engine (`engine/candidateEngine.ts`, `engine/scoring.ts`, `engine/svgGeometry.ts`)
+
+Design Intelligence Milestone 1: replaces "generate once -> render" with
+"generate a candidate pool -> score from real geometry -> reject invalid ->
+rank -> render the winner" for the new **Generate Best** button. The plain
+single-shot `buildTile` path (Generate / Generate 9 Variations) is
+untouched — this is an additive, opt-in pipeline.
+
+- `engine/svgGeometry.ts` — `extractInstances(tileData)` parses motif
+  position/rotation/scale (and `data-role` when the Hierarchy Engine set
+  one) back out of the actual generated SVG's `translate/rotate/scale`
+  transforms. `periodicDist` and `gridCoverage` are the shared spatial
+  primitives every metric below builds on. This code previously lived only
+  inside `qualityScore.ts`; it's factored out here so the new, much wider
+  scoring engine doesn't duplicate it — `qualityScore.ts` now imports from
+  here too, with zero change to its own six-number output (verified by the
+  existing `qualityScore.test.ts` still passing unchanged).
+- `engine/scoring.ts` — `computeMetrics(tileData)` returns 17 metrics
+  (composition, spacing, quadrant/horizontal/vertical balance, visual
+  center offset, occupancy ratio, density variance, hierarchy, scale/
+  rotation diversity, color balance, palette contrast — real relative-
+  luminance range across the actual palette colors, not a placeholder —
+  overlap quality, edge density, adjacency repetition, seamless integrity,
+  SVG technical health), each 0-100 and derived purely from
+  `extractInstances`/`tileData.colors`/the serialized SVG string.
+  `computeOverallScore(metrics, presetId)` weights them per
+  `QUALITY_PRESET_WEIGHTS` (`stockClean` / `textilePremium` /
+  `editorialBotanical` / `denseLuxury`) and returns soft `penaltyReasons`
+  for any weighted metric scoring below 50.
+  - **Known limitation**: `adjacencyRepetition` approximates "does the same
+    motif keep sitting next to itself" using the rotation-bucket + role
+    signals actually available on a `Placement` — `Placement` doesn't
+    track which internal shape *variant* a generator drew (e.g. which of
+    Botanical's 21 variants), so this can't detect literal shape
+    repetition, only a rotation/role proxy. Documented in the source
+    rather than silently overclaiming.
+- `engine/candidateEngine.ts` — `deriveSeed(baseSeed, purpose, index)`
+  produces deterministic sub-seeds (`${baseSeed}::${purpose}::${index}`,
+  hashed the same way any seed string is via `createRng`'s cyrb53 hash) —
+  no `Math.random` anywhere in this pipeline, so seed + settings + mode +
+  quality preset always produces the same candidate pool and therefore the
+  same winner. `generateCandidates`/`pickBestCandidate` are synchronous
+  (used by tests); `generateCandidatesChunked` is the async, cancellable,
+  one-candidate-per-macrotask version the UI actually uses, since a heavy
+  category/layout/density combination (Botanical + Dense Premium at high
+  density can place 800+ motifs, each running the growth engine's arc
+  sampling) measured ~0.5-1.5s *per candidate* — synchronous generation of
+  a 12-candidate Premium pool would otherwise freeze the tab for several
+  seconds. Hard-reject rules run per candidate: empty pattern, NaN/Infinity
+  coordinates, a raster `<image>` element, an external resource reference,
+  duplicate motif ids, node count over an 8000-node safety budget — all
+  checked against the actual serialized SVG, not guessed.
+- UI: `ControlPanel.tsx` adds a Quality Mode (Fast=4/Standard=8/Premium=12)
+  and Quality Preset selector plus the **Generate Best** button (shows
+  "กำลังสร้าง candidate n/N…" with a Cancel button while running);
+  `QualityPanel.tsx` shows a one-line summary ("selected from N candidates,
+  M passed") when the currently-shown tile came from Generate Best,
+  explicitly distinguishing its preset-weighted score from the unrelated,
+  unchanged six-metric Quality Score below it (the two are intentionally
+  different scoring systems measuring different things, not a bug).
+
+**Not done this round** (Milestones 2-6 of the full Design Intelligence
+Engine spec — Visual Weight Solver, Flow/Rhythm Engines, real Cluster
+objects, Asset DNA, Shape Grammar, Motif Family Generator, Pattern
+Evolution, Auto Improve, SVG Beautifier, Designer Assistant,
+category-specific scoring — see `docs/USER_GUIDE.md`'s v1.26 changelog for
+the full list).
+
 ## Testing
 
-`npm test` runs `vitest run` — 127 tests across 8 files:
+`npm test` runs `vitest run` — 156 tests across 11 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -571,6 +639,24 @@ doesn't map to something the engine actually reads.
   radius across 60 seeds, node-count ceiling (no runaway path bloat),
   variant coverage across many seeds, growth-based motifs emit
   `data-part="stem"`/`"leaves"` groups.
+- `engine/svgGeometry.test.ts` — `extractInstances` determinism and finite
+  values, `data-role` carried through when the Hierarchy Engine set one,
+  `periodicDist` wrap-around correctness and symmetry, `gridCoverage`
+  occupancy math, `countNodes`.
+- `engine/scoring.test.ts` — `computeMetrics` determinism and 0-100 bounds
+  for all 17 metrics, `svgHealth`/`seamlessIntegrity` are 100 for a normal
+  tile, `paletteContrast` genuinely responds to the actual colors used,
+  differently-composed tiles score differently, `computeOverallScore`
+  determinism/bounds/penalty-reason generation across every quality
+  preset, every preset's weight keys exist on `CompositionMetrics`.
+- `engine/candidateEngine.test.ts` — `deriveSeed` determinism, candidate
+  pool size matches each mode, full-pipeline determinism (same seed +
+  settings + mode + preset -> identical pool and winner), every candidate
+  has a valid score or documented rejection reasons, different base seeds
+  produce different pools, `pickBestCandidate` picks the true max and
+  falls back safely if everything were rejected, the chunked async version
+  matches the synchronous one exactly and both reports progress and
+  respects cancellation.
 
 ## Adding a new pattern category
 
