@@ -157,16 +157,15 @@ function App() {
     [filenameParts],
   );
 
-  // In-app JPEG preview export: rasterize the single-tile SVG to a
-  // 5000x5000 canvas (comfortably above every site's 4MP minimum) — for
-  // sites that want a JPEG paired with the vector (e.g. Freepik), no
-  // external editor needed.
-  const handleExportJpeg = useCallback(() => {
-    const svgBlob = new Blob([buildSingleTileSvg(tileData)], { type: 'image/svg+xml;charset=utf-8' });
+  // In-app JPEG export: rasterize an SVG string to a size x size canvas and
+  // download it as JPEG. Shared by the single-tile and 3x3 exports below —
+  // no external editor needed for sites that want a JPEG paired with the
+  // vector (e.g. Freepik).
+  const rasterizeSvgToJpeg = useCallback((svgString: string, size: number, filename: string) => {
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
     const img = new Image();
     img.onload = () => {
-      const size = 5000;
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
@@ -179,7 +178,7 @@ function App() {
       URL.revokeObjectURL(url);
       canvas.toBlob(
         (b) => {
-          if (b) downloadBlobFile(`${exportBase(tileData)}.jpg`, b);
+          if (b) downloadBlobFile(filename, b);
         },
         'image/jpeg',
         0.92,
@@ -187,7 +186,17 @@ function App() {
     };
     img.onerror = () => URL.revokeObjectURL(url);
     img.src = url;
-  }, [tileData, exportBase]);
+  }, []);
+
+  const handleExportJpeg = useCallback(() => {
+    rasterizeSvgToJpeg(buildSingleTileSvg(tileData), 5000, `${exportBase(tileData)}.jpg`);
+  }, [tileData, exportBase, rasterizeSvgToJpeg]);
+
+  // 3x3 tiled JPEG preview at 3000x3000 — a ready-to-upload seamless-check
+  // preview image for sites that want a JPEG paired with the vector.
+  const handleExportJpeg3x3 = useCallback(() => {
+    rasterizeSvgToJpeg(buildTiledSvg(tileData, 3, 3), 3000, `${exportBase(tileData)}-3x3.jpg`);
+  }, [tileData, exportBase, rasterizeSvgToJpeg]);
 
   // Direct EPS export — the format Shutterstock/Adobe Stock/Freepik accept
   // for vectors, generated in-app (verified pixel-identical to the SVG
@@ -197,10 +206,9 @@ function App() {
     downloadBlobFile(`${exportBase(tileData)}.eps`, new Blob([eps], { type: 'application/postscript' }));
   }, [tileData, exportBase]);
 
-  // One-click bundle download: single tile + 3x3 (both at the full
-  // 10000x10000 export size — the zip stores files byte-for-byte, nothing
-  // is downscaled or recompressed) + a plain-text file with every site's
-  // SEO fields + the upload-ready EPS.
+  // One-click bundle download: single tile (3000x3000) + 3x3 SVG (the zip
+  // stores files byte-for-byte, nothing is downscaled or recompressed) +
+  // a plain-text file with every site's SEO fields + the upload-ready EPS.
   const handleDownloadBundle = useCallback(
     (data: TileData) => {
       const base = buildExportFilename(filenameParts(data), data.params.seed).replace(/\.svg$/, '');
@@ -451,12 +459,23 @@ function App() {
           onExportTiled={handleExportTiled}
           onExportEps={handleExportEps}
           onExportJpeg={handleExportJpeg}
+          onExportJpeg3x3={handleExportJpeg3x3}
           onColorwayAll={handleColorwayAll}
           onReset={handleReset}
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
+          <Gallery
+            items={gallery}
+            selectedId={selectedId}
+            onSelect={handleSelectGalleryItem}
+            onRemove={handleRemoveGalleryItem}
+            onClear={handleClearGallery}
+            checkedIds={checkedGalleryIds}
+            onToggleCheck={handleToggleGalleryCheck}
+            onSaveChecked={handleSaveCheckedGallery}
+          />
           <MetadataPanel tileData={tileData} />
           <SavedPanel
             items={saved}
@@ -470,16 +489,6 @@ function App() {
             onMoveAllToDisk={handleMoveLibraryToDisk}
             onImportBackup={handleImportLibrary}
             onExportCsv={handleExportCsv}
-          />
-          <Gallery
-            items={gallery}
-            selectedId={selectedId}
-            onSelect={handleSelectGalleryItem}
-            onRemove={handleRemoveGalleryItem}
-            onClear={handleClearGallery}
-            checkedIds={checkedGalleryIds}
-            onToggleCheck={handleToggleGalleryCheck}
-            onSaveChecked={handleSaveCheckedGallery}
           />
         </main>
       </div>

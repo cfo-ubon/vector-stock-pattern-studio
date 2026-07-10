@@ -19,6 +19,7 @@ interface Props {
   onExportTiled: () => void;
   onExportEps: () => void;
   onExportJpeg: () => void;
+  onExportJpeg3x3: () => void;
   onColorwayAll: () => void;
   onReset: () => void;
   aiPanel?: React.ReactNode;
@@ -36,6 +37,7 @@ export function ControlPanel({
   onExportTiled,
   onExportEps,
   onExportJpeg,
+  onExportJpeg3x3,
   onColorwayAll,
   onReset,
   aiPanel,
@@ -287,7 +289,7 @@ export function ControlPanel({
           🎨 Colorway ทุกชุดสี → คลัง
         </button>
         <button type="button" className="btn btn--export" onClick={onExportSingle}>
-          Export single tile (.svg)
+          Export single tile (.svg, 3000px)
         </button>
         <button type="button" className="btn btn--export" onClick={onExportTiled}>
           Export 3x3 tiled (.svg)
@@ -296,9 +298,9 @@ export function ControlPanel({
           type="button"
           className="btn btn--export"
           onClick={onExportEps}
-          title="ไฟล์เวคเตอร์ฟอร์แมตที่ Shutterstock / Adobe Stock / Freepik รับ — สร้างจากแอปโดยตรง ไม่ต้องแปลงใน Affinity อีกต่อไป"
+          title="ไฟล์เวคเตอร์ฟอร์แมตที่ Shutterstock / Adobe Stock / Freepik รับ — สร้างจากแอปโดยตรง ไม่ต้องแปลงใน Affinity อีกต่อไป (ขนาด artboard 3000×3000 px)"
         >
-          Export EPS (.eps) — พร้อมส่งขาย
+          Export EPS (.eps, 3000px) — พร้อมส่งขาย
         </button>
         <button
           type="button"
@@ -307,6 +309,14 @@ export function ControlPanel({
           title="สร้างไฟล์ JPEG จากลายปัจจุบันในเบราว์เซอร์ ไว้ใช้เป็น preview คู่ EPS (เช่น Freepik)"
         >
           Export JPEG preview (5000px)
+        </button>
+        <button
+          type="button"
+          className="btn btn--export"
+          onClick={onExportJpeg3x3}
+          title="สร้างไฟล์ JPEG แบบต่อ 3×3 จากลายปัจจุบัน ไว้เช็ค seamless หรือใช้เป็น preview"
+        >
+          Export JPEG 3×3 preview (3000px)
         </button>
         <button type="button" className="btn btn--danger" onClick={onReset}>
           ↩ รีเซ็ตเป็นค่าเริ่มต้น

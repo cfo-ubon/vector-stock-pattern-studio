@@ -1,5 +1,6 @@
 import type { SvgNode, TileData } from '../engine/types';
 import { type Matrix, IDENTITY, matMul, applyMat, parseTransform } from '../engine/svgAst';
+import { SINGLE_EXPORT_PIXEL_SIZE } from './svgExporter';
 
 // EPS (Encapsulated PostScript) exporter — the upload format Shutterstock,
 // Adobe Stock and Freepik actually accept for vectors. Instead of driving
@@ -365,26 +366,32 @@ function walk(node: SvgNode, parentM: Matrix, parentStyle: Style, out: string[])
   node.children?.forEach((c) => walk(c, m, style, out));
 }
 
-/** Build a complete EPS document for one seamless tile. The artboard is
- * `tileSize` PostScript points square; the whole drawing is clipped to it
- * exactly like the SVG's tile-clip. */
+/** Build a complete EPS document for one seamless tile, scaled up to a
+ * `SINGLE_EXPORT_PIXEL_SIZE`-square artboard (matching the SVG export's
+ * document size) — the file's own coordinate system is the tile's
+ * `tileSize`, so this is a lossless uniform scale, same as the SVG's
+ * width/height-vs-viewBox trick. The whole drawing is clipped to the
+ * artboard exactly like the SVG's tile-clip. */
 export function buildEps(tileData: TileData): string {
-  const size = tileData.params.tileSize;
+  const tileSize = tileData.params.tileSize;
+  const target = SINGLE_EXPORT_PIXEL_SIZE;
+  const scale = target / tileSize;
   const out: string[] = [];
   out.push('%!PS-Adobe-3.0 EPSF-3.0');
-  out.push(`%%BoundingBox: 0 0 ${Math.ceil(size)} ${Math.ceil(size)}`);
-  out.push(`%%HiResBoundingBox: 0 0 ${fmt(size)} ${fmt(size)}`);
+  out.push(`%%BoundingBox: 0 0 ${Math.ceil(target)} ${Math.ceil(target)}`);
+  out.push(`%%HiResBoundingBox: 0 0 ${fmt(target)} ${fmt(target)}`);
   out.push('%%Pages: 1');
   out.push('%%LanguageLevel: 2');
   out.push('%%EndComments');
   out.push('%%Page: 1 1');
   out.push('gsave');
-  out.push(`newpath 0 0 moveto ${fmt(size)} 0 lineto ${fmt(size)} ${fmt(size)} lineto 0 ${fmt(size)} lineto closepath clip newpath`);
-  // SVG y-axis points down, PostScript up — flatten the flip into every
-  // coordinate via the root matrix instead of scaling the CTM (keeps the
-  // emitted numbers plain and interpreter-friendly).
-  const flip: Matrix = [1, 0, 0, -1, 0, size];
-  walk(tileData.svg, matMul(flip, IDENTITY), {}, out);
+  out.push(`newpath 0 0 moveto ${fmt(target)} 0 lineto ${fmt(target)} ${fmt(target)} lineto 0 ${fmt(target)} lineto closepath clip newpath`);
+  // SVG y-axis points down, PostScript up, and the tile's own coordinate
+  // system needs scaling up to the target artboard size — flatten both
+  // into one root matrix instead of scaling the CTM (keeps the emitted
+  // numbers plain and interpreter-friendly).
+  const flipAndScale: Matrix = [scale, 0, 0, -scale, 0, target];
+  walk(tileData.svg, matMul(flipAndScale, IDENTITY), {}, out);
   out.push('grestore');
   out.push('showpage');
   out.push('%%EOF');
