@@ -22,12 +22,14 @@ export interface CompositionMetrics {
   visualCenterOffset: number;
   occupancyRatio: number;
   densityVariance: number;
+  largestEmptyRegion: number;
   hierarchy: number;
   scaleDiversity: number;
   rotationDiversity: number;
   colorBalance: number;
   paletteContrast: number;
   overlapQuality: number;
+  heroSeparation: number;
   edgeDensity: number;
   adjacencyRepetition: number;
   seamlessIntegrity: number;
@@ -72,15 +74,30 @@ function computeComposition(instances: MotifInstance[], tileSize: number): { com
   return { composition: clamp01to100(composition), occupancyRatio: clamp01to100(occupancyRatio * 100), densityVariance };
 }
 
-function computeSpacing(instances: MotifInstance[], tileSize: number): number {
-  if (instances.length <= 1) return 100;
-  const nn = instances.map((c, i) => {
+/** Nearest-neighbor distance *and* which instance was nearest, for every
+ * instance — the shared O(n^2) computation `computeSpacing`,
+ * `computeOverlapQuality`, `computeAdjacencyRepetition` and
+ * `computeHeroSeparation` all need, factored out so it's computed once per
+ * `computeMetrics` call instead of four times. */
+function findNearest(instances: MotifInstance[], tileSize: number): Array<{ distance: number; other: MotifInstance | null }> {
+  return instances.map((c, i) => {
     let best = Infinity;
+    let nearest: MotifInstance | null = null;
     instances.forEach((o, j) => {
-      if (i !== j) best = Math.min(best, periodicDist(c, o, tileSize));
+      if (i === j) return;
+      const d = periodicDist(c, o, tileSize);
+      if (d < best) {
+        best = d;
+        nearest = o;
+      }
     });
-    return best;
+    return { distance: best, other: nearest };
   });
+}
+
+function computeSpacing(nearest: Array<{ distance: number }>): number {
+  if (nearest.length <= 1) return 100;
+  const nn = nearest.map((n) => n.distance);
   const mean = nn.reduce((a, b) => a + b, 0) / nn.length;
   const variance = nn.reduce((a, b) => a + (b - mean) ** 2, 0) / nn.length;
   const cv = mean > 0 ? Math.sqrt(variance) / mean : 0;
@@ -155,17 +172,11 @@ function computeColorBalanceAndContrast(colors: string[], colorStory: boolean | 
   return { colorBalance, paletteContrast };
 }
 
-function computeOverlapQuality(instances: MotifInstance[], tileSize: number, motifSize: number): number {
+function computeOverlapQuality(instances: MotifInstance[], nearest: Array<{ distance: number }>, motifSize: number): number {
   if (instances.length <= 1) return 100;
   const meanScale = instances.reduce((a, c) => a + c.scale, 0) / instances.length;
   const footprint = motifSize * meanScale;
-  const nn = instances.map((c, i) => {
-    let best = Infinity;
-    instances.forEach((o, j) => {
-      if (i !== j) best = Math.min(best, periodicDist(c, o, tileSize));
-    });
-    return best;
-  });
+  const nn = nearest.map((n) => n.distance);
   const meanNn = nn.reduce((a, b) => a + b, 0) / nn.length;
   if (meanNn <= 0) return 0;
   const crowding = footprint / meanNn; // ~0 = far apart, >1 = heavy overlap
@@ -212,22 +223,12 @@ function computeEdgeDensity(instances: MotifInstance[], tileSize: number): numbe
  * variant a generator drew, so this can't detect true shape repetition
  * (e.g. two poppies next to each other look the same regardless of
  * rotation bucket); it's a real, honest proxy, not the literal metric. */
-function computeAdjacencyRepetition(instances: MotifInstance[], tileSize: number): number {
+function computeAdjacencyRepetition(instances: MotifInstance[], nearest: Array<{ other: MotifInstance | null }>): number {
   if (instances.length <= 1) return 100;
   let repeats = 0;
   instances.forEach((c, i) => {
-    let bestDist = Infinity;
-    let nearest: MotifInstance | null = null;
-    instances.forEach((o, j) => {
-      if (i === j) return;
-      const d = periodicDist(c, o, tileSize);
-      if (d < bestDist) {
-        bestDist = d;
-        nearest = o;
-      }
-    });
-    if (nearest) {
-      const n = nearest as MotifInstance;
+    const n = nearest[i].other;
+    if (n) {
       const bucketA = Math.floor((((c.rot % 360) + 360) % 360) / 30);
       const bucketB = Math.floor((((n.rot % 360) + 360) % 360) / 30);
       if (bucketA === bucketB && c.role === n.role) repeats++;
@@ -235,6 +236,64 @@ function computeAdjacencyRepetition(instances: MotifInstance[], tileSize: number
   });
   const repetitionFraction = repeats / instances.length;
   return clamp01to100(100 - repetitionFraction * 100);
+}
+
+/** Largest contiguous empty region on the coarse occupancy grid, found via
+ * a periodic (edge-wrapping, matching the tile's own seamless wrap) flood
+ * fill. Some negative space is desirable — this only penalizes once a
+ * *single* empty region gets large relative to the whole tile (an
+ * accidental hole), not "any empty space at all". */
+function computeLargestEmptyRegion(instances: MotifInstance[], tileSize: number): number {
+  const { gridN, counts } = gridCoverage(instances, tileSize, 8);
+  const totalCells = gridN * gridN;
+  const visited = new Array(totalCells).fill(false);
+  let maxRegion = 0;
+  for (let start = 0; start < totalCells; start++) {
+    if (visited[start] || counts[start] > 0) continue;
+    let size = 0;
+    const queue = [start];
+    visited[start] = true;
+    while (queue.length > 0) {
+      const idx = queue.pop()!;
+      size++;
+      const gx = idx % gridN;
+      const gy = Math.floor(idx / gridN);
+      const neighbors = [
+        gy * gridN + ((gx + 1) % gridN),
+        gy * gridN + ((gx - 1 + gridN) % gridN),
+        ((gy + 1) % gridN) * gridN + gx,
+        ((gy - 1 + gridN) % gridN) * gridN + gx,
+      ];
+      for (const n of neighbors) {
+        if (!visited[n] && counts[n] === 0) {
+          visited[n] = true;
+          queue.push(n);
+        }
+      }
+    }
+    maxRegion = Math.max(maxRegion, size);
+  }
+  const fraction = maxRegion / totalCells;
+  const idealMax = 0.35;
+  return clamp01to100(fraction <= idealMax ? 100 : 100 - (fraction - idealMax) * 220);
+}
+
+/** How well-separated the hero-role motifs are from each other, relative
+ * to the pattern's own typical spacing — heroes clumped much closer
+ * together than everything else reads as an accidental pileup rather than
+ * deliberate emphasis. Neutral (100) when there are 0-1 hero instances
+ * (nothing to separate) — most layouts/hierarchy configs never assign a
+ * hero role at all, so this doesn't penalize patterns that don't use one. */
+function computeHeroSeparation(instances: MotifInstance[], tileSize: number, overallNearest: Array<{ distance: number }>): number {
+  const heroes = instances.filter((i) => i.role === 'hero');
+  if (heroes.length <= 1) return 100;
+  const heroNn = findNearest(heroes, tileSize).map((n) => n.distance);
+  const meanHeroNn = heroNn.reduce((a, b) => a + b, 0) / heroNn.length;
+  const finiteOverall = overallNearest.map((n) => n.distance).filter((d) => Number.isFinite(d));
+  const overallMeanNn = finiteOverall.length > 0 ? finiteOverall.reduce((a, b) => a + b, 0) / finiteOverall.length : meanHeroNn;
+  if (overallMeanNn <= 0) return 100;
+  const ratio = meanHeroNn / overallMeanNn;
+  return ratio >= 1 ? 100 : clamp01to100(ratio * 100);
 }
 
 function computeSvgHealth(tileData: TileData, instances: MotifInstance[]): number {
@@ -256,16 +315,20 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
   const tileSize = params.tileSize;
   const instances = extractInstances(tileData);
 
+  const nearest = findNearest(instances, tileSize);
+
   const { composition, occupancyRatio, densityVariance } = computeComposition(instances, tileSize);
-  const spacing = computeSpacing(instances, tileSize);
+  const spacing = computeSpacing(nearest);
   const { quadrantBalance, horizontalBalance, verticalBalance } = computeBalance(instances, tileSize);
   const visualCenterOffset = computeVisualCenterOffset(instances, tileSize);
+  const largestEmptyRegion = computeLargestEmptyRegion(instances, tileSize);
   const { hierarchy, scaleDiversity } = computeHierarchyAndScaleDiversity(instances);
   const rotationDiversity = computeRotationDiversity(instances);
   const { colorBalance, paletteContrast } = computeColorBalanceAndContrast(colors, params.colorStory);
-  const overlapQuality = computeOverlapQuality(instances, tileSize, params.motifSize);
+  const overlapQuality = computeOverlapQuality(instances, nearest, params.motifSize);
+  const heroSeparation = computeHeroSeparation(instances, tileSize, nearest);
   const edgeDensity = computeEdgeDensity(instances, tileSize);
-  const adjacencyRepetition = computeAdjacencyRepetition(instances, tileSize);
+  const adjacencyRepetition = computeAdjacencyRepetition(instances, nearest);
   const svgHealth = computeSvgHealth(tileData, instances);
 
   return {
@@ -277,12 +340,14 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
     visualCenterOffset: Math.round(visualCenterOffset),
     occupancyRatio: Math.round(occupancyRatio),
     densityVariance: Math.round(densityVariance),
+    largestEmptyRegion: Math.round(largestEmptyRegion),
     hierarchy: Math.round(hierarchy),
     scaleDiversity: Math.round(scaleDiversity),
     rotationDiversity: Math.round(rotationDiversity),
     colorBalance: Math.round(colorBalance),
     paletteContrast: Math.round(paletteContrast),
     overlapQuality: Math.round(overlapQuality),
+    heroSeparation: Math.round(heroSeparation),
     edgeDensity: Math.round(edgeDensity),
     adjacencyRepetition: Math.round(adjacencyRepetition),
     seamlessIntegrity: 100, // structural guarantee — see engine/qualityScore.ts
@@ -304,45 +369,51 @@ export const QUALITY_PRESET_LABELS: Record<QualityPresetId, string> = {
  * actually used, so this stays correct even as metrics are added. */
 export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyof CompositionMetrics, number>>> = {
   stockClean: {
-    svgHealth: 0.22,
-    composition: 0.14,
-    spacing: 0.12,
-    quadrantBalance: 0.12,
+    svgHealth: 0.2,
+    composition: 0.13,
+    spacing: 0.11,
+    quadrantBalance: 0.11,
     colorBalance: 0.1,
     overlapQuality: 0.1,
     hierarchy: 0.08,
     rotationDiversity: 0.06,
     edgeDensity: 0.06,
+    largestEmptyRegion: 0.05,
   },
   textilePremium: {
-    spacing: 0.18,
-    seamlessIntegrity: 0.14,
-    rotationDiversity: 0.14,
-    edgeDensity: 0.12,
-    composition: 0.12,
-    overlapQuality: 0.1,
-    colorBalance: 0.1,
-    svgHealth: 0.1,
+    spacing: 0.16,
+    seamlessIntegrity: 0.13,
+    rotationDiversity: 0.13,
+    edgeDensity: 0.11,
+    composition: 0.11,
+    overlapQuality: 0.09,
+    colorBalance: 0.09,
+    svgHealth: 0.09,
+    largestEmptyRegion: 0.09,
   },
   editorialBotanical: {
-    hierarchy: 0.16,
-    visualCenterOffset: 0.14,
-    quadrantBalance: 0.14,
-    composition: 0.14,
-    overlapQuality: 0.12,
-    colorBalance: 0.1,
-    rotationDiversity: 0.1,
-    svgHealth: 0.1,
+    hierarchy: 0.14,
+    visualCenterOffset: 0.12,
+    quadrantBalance: 0.12,
+    composition: 0.12,
+    overlapQuality: 0.1,
+    heroSeparation: 0.1,
+    colorBalance: 0.09,
+    rotationDiversity: 0.09,
+    svgHealth: 0.09,
+    largestEmptyRegion: 0.03,
   },
   denseLuxury: {
-    overlapQuality: 0.18,
-    occupancyRatio: 0.16,
-    hierarchy: 0.14,
-    composition: 0.14,
-    colorBalance: 0.12,
-    quadrantBalance: 0.1,
+    overlapQuality: 0.16,
+    occupancyRatio: 0.14,
+    hierarchy: 0.12,
+    composition: 0.12,
+    colorBalance: 0.11,
+    quadrantBalance: 0.09,
+    heroSeparation: 0.09,
     svgHealth: 0.08,
-    spacing: 0.08,
+    spacing: 0.07,
+    largestEmptyRegion: 0.02,
   },
 };
 
@@ -360,21 +431,74 @@ const METRIC_LABELS: Partial<Record<keyof CompositionMetrics, string>> = {
   visualCenterOffset: 'visual center offset',
   occupancyRatio: 'tile occupancy',
   densityVariance: 'local density variance',
+  largestEmptyRegion: 'largest empty region',
   hierarchy: 'visual hierarchy clarity',
   scaleDiversity: 'scale diversity',
   rotationDiversity: 'rotation diversity',
   colorBalance: 'color-role balance',
   paletteContrast: 'palette contrast',
   overlapQuality: 'overlap quality',
+  heroSeparation: 'hero separation',
   edgeDensity: 'edge density balance',
   adjacencyRepetition: 'adjacent-motif repetition',
   svgHealth: 'SVG technical health',
 };
 
-/** Weighted overall score for one quality preset, plus soft-penalty
- * reasons for any weighted metric that scored below 50 — real, geometry-
- * derived findings usable by a future Designer Assistant, not placeholder
- * text. */
+export interface SoftPenaltyRule {
+  id: string;
+  label: string;
+  points: number;
+  check: (m: CompositionMetrics) => boolean;
+}
+
+/** Named soft-penalty rules (Phase 4's examples): each is a concrete,
+ * checkable condition on real metric values that subtracts fixed points
+ * from the final score — distinct from the ordinary weighted-average
+ * contribution above (a mediocre-but-not-alarming metric already pulls
+ * the weighted average down a little; these rules additionally flag and
+ * deduct for specific conditions severe enough to name outright). A
+ * candidate can trigger any number of these and still not be hard-
+ * rejected — soft penalties reduce rank, they never remove a candidate
+ * from consideration the way engine/candidateEngine.ts's hard-reject
+ * rules do. */
+export const SOFT_PENALTY_RULES: SoftPenaltyRule[] = [
+  { id: 'quadrantImbalance', label: 'quadrant imbalance is severe', points: 8, check: (m) => m.quadrantBalance < 40 },
+  { id: 'largeEmptyHole', label: 'a large empty region breaks up the composition', points: 10, check: (m) => m.largestEmptyRegion < 40 },
+  { id: 'heroClustering', label: 'hero motifs sit too close together', points: 8, check: (m) => m.heroSeparation < 40 },
+  { id: 'adjacentRepetition', label: 'the same motif repeats in adjacent positions too often', points: 6, check: (m) => m.adjacencyRepetition < 40 },
+  { id: 'edgeImbalance', label: 'edge density is noticeably unbalanced against the interior', points: 5, check: (m) => m.edgeDensity < 40 },
+  { id: 'lowPaletteContrast', label: 'palette contrast is muddy', points: 5, check: (m) => m.paletteContrast < 25 },
+];
+
+export interface SoftPenaltyResult {
+  score: number;
+  penalties: Array<{ label: string; points: number }>;
+}
+
+/** Apply every triggered soft-penalty rule's deduction to `baseScore`.
+ * Pure and deterministic — same metrics always trigger the same rules for
+ * the same total deduction. */
+export function applySoftPenalties(metrics: CompositionMetrics, baseScore: number): SoftPenaltyResult {
+  const penalties: Array<{ label: string; points: number }> = [];
+  let deduction = 0;
+  for (const rule of SOFT_PENALTY_RULES) {
+    if (rule.check(metrics)) {
+      penalties.push({ label: rule.label, points: rule.points });
+      deduction += rule.points;
+    }
+  }
+  return { score: clamp01to100(baseScore - deduction), penalties };
+}
+
+/** Weighted overall score for one quality preset. Two layers of feedback
+ * feed into the final score: (1) the ordinary weighted average of every
+ * metric the preset cares about (a middling metric already pulls the
+ * average down somewhat) and (2) named soft-penalty rules (see
+ * SOFT_PENALTY_RULES) that subtract additional fixed points for specific,
+ * severe conditions. `penaltyReasons` combines both: metrics that scored
+ * below 50 in the weighted set (informational), and triggered soft-
+ * penalty deductions (with their point cost) — real, geometry-derived
+ * findings usable by a future Designer Assistant, not placeholder text. */
 export function computeOverallScore(metrics: CompositionMetrics, presetId: QualityPresetId): ScoreResult {
   const weights = QUALITY_PRESET_WEIGHTS[presetId];
   let weightedSum = 0;
@@ -387,6 +511,8 @@ export function computeOverallScore(metrics: CompositionMetrics, presetId: Quali
     weightTotal += weight;
     if (value < 50) penaltyReasons.push(`${METRIC_LABELS[key] ?? key} is low (${Math.round(value)}/100)`);
   }
-  const score = weightTotal > 0 ? weightedSum / weightTotal : 0;
-  return { score: Math.round(clamp01to100(score)), penaltyReasons };
+  const baseScore = weightTotal > 0 ? weightedSum / weightTotal : 0;
+  const { score, penalties } = applySoftPenalties(metrics, baseScore);
+  for (const p of penalties) penaltyReasons.push(`${p.label} (soft penalty -${p.points})`);
+  return { score: Math.round(score), penaltyReasons };
 }

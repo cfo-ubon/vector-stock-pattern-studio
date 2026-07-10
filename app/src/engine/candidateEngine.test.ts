@@ -1,13 +1,33 @@
 import { describe, it, expect } from 'vitest';
 import { defaultParams } from './defaults';
+import { buildTile } from './tile';
+import { computeMetrics, computeOverallScore } from './scoring';
 import {
   generateCandidates,
   generateCandidatesChunked,
   pickBestCandidate,
   deriveSeed,
+  rejectExactDuplicates,
   CANDIDATE_COUNTS,
+  type Candidate,
   type GenerationMode,
 } from './candidateEngine';
+
+function makeCandidate(id: string, svg: object, rejected = false): Candidate {
+  const tile = buildTile({ ...defaultParams(), seed: id });
+  const metrics = computeMetrics(tile);
+  const { score } = computeOverallScore(metrics, 'stockClean');
+  return {
+    candidateId: id,
+    derivedSeed: id,
+    tileData: { ...tile, svg: svg as typeof tile.svg },
+    metrics,
+    score: rejected ? -1 : score,
+    rejected,
+    rejectionReasons: [],
+    penaltyReasons: [],
+  };
+}
 
 const MODES: GenerationMode[] = ['fast', 'standard', 'premium'];
 
@@ -59,6 +79,38 @@ describe('generateCandidates', () => {
   it('never hard-rejects a normal default-params tile (no NaN/raster/empty)', () => {
     const candidates = generateCandidates({ ...defaultParams(), seed: 'candidate-no-reject' }, 'fast', 'stockClean');
     expect(candidates.every((c) => !c.rejected)).toBe(true);
+  });
+});
+
+describe('rejectExactDuplicates', () => {
+  it('hard-rejects a later candidate whose rendered SVG is byte-identical to an earlier one', () => {
+    const svgA = { tag: 'g' as const, children: [{ tag: 'circle' as const, attrs: { cx: 1, cy: 2, r: 3 } }] };
+    const svgB = { tag: 'g' as const, children: [{ tag: 'circle' as const, attrs: { cx: 1, cy: 2, r: 3 } }] }; // structurally identical
+    const svgC = { tag: 'g' as const, children: [{ tag: 'circle' as const, attrs: { cx: 9, cy: 9, r: 9 } }] }; // different
+    const candidates = [makeCandidate('a', svgA), makeCandidate('b', svgB), makeCandidate('c', svgC)];
+    rejectExactDuplicates(candidates);
+    expect(candidates[0].rejected).toBe(false);
+    expect(candidates[1].rejected).toBe(true);
+    expect(candidates[1].rejectionReasons.some((r) => r.includes('identical rendered output'))).toBe(true);
+    expect(candidates[2].rejected).toBe(false);
+  });
+
+  it('does not compare against a candidate already rejected for another reason', () => {
+    const svg = { tag: 'g' as const, children: [] };
+    const candidates = [makeCandidate('a', svg, true), makeCandidate('b', svg, false)];
+    rejectExactDuplicates(candidates);
+    // 'b' should NOT be rejected merely for matching an already-rejected 'a'.
+    expect(candidates[1].rejected).toBe(false);
+  });
+
+  it('never hard-rejects a small pool of visually distinct real candidates as false-positive duplicates', () => {
+    // Regression guard for the bug this rule originally had (comparing
+    // aggregate metric scores instead of rendered output caused false
+    // positives — same settings naturally score similarly without being
+    // visually identical).
+    const candidates = generateCandidates({ ...defaultParams(), seed: 'no-false-duplicate' }, 'standard', 'stockClean');
+    const duplicateRejections = candidates.filter((c) => c.rejectionReasons.some((r) => r.includes('identical rendered output')));
+    expect(duplicateRejections.length).toBe(0);
   });
 });
 
