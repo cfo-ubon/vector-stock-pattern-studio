@@ -7,6 +7,7 @@ import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
 import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
 import { applyCompositionIntelligence } from './compositionIntelligence';
+import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -253,7 +254,22 @@ export function buildTile(params: GenerateParams): TileData {
   if (shadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, shadowGroups));
   patternLayers.push(...motifGroups);
 
-  const content: SvgNode = h('g', { id: 'tile-content' }, [
+  // Style DNA metadata: Affinity Designer and every SVG viewer show unknown
+  // data-* attributes as harmless metadata (same convention already used for
+  // per-motif data-role) — the built-in preset's label is looked up here
+  // since engine/styleDna.ts is a pure static data module already several
+  // layers down this file's own import graph (no browser/localStorage
+  // coupling introduced). A custom (user-created) style id that isn't in the
+  // built-in table falls back to embedding the id itself as the name.
+  const styleDnaMeta: Record<string, string> = params.styleDnaId
+    ? {
+        'data-style-dna-id': params.styleDnaId,
+        'data-style-dna-name': STYLE_DNA_PRESETS[params.styleDnaId]?.label ?? params.styleDnaId,
+        'data-style-dna-version': String(STYLE_DNA_SCHEMA_VERSION),
+      }
+    : {};
+
+  const content: SvgNode = h('g', { id: 'tile-content', ...styleDnaMeta }, [
     h('defs', {}, [
       h('clipPath', { id: 'tile-clip' }, [h('rect', { x: 0, y: 0, width: tileSize, height: tileSize })]),
     ]),

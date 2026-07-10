@@ -3,6 +3,7 @@ import { buildTile } from './tile';
 import { serialize } from './svgAst';
 import { extractInstances, countNodes } from './svgGeometry';
 import { computeMetrics, computeOverallScore, type CompositionMetrics, type QualityPresetId } from './scoring';
+import { STYLE_DNA_PRESETS, resolveStyleDna } from './styleDna';
 
 // Composition Candidate Engine — replaces the old "generate once -> render"
 // pipeline for the new "Generate Best" flow: build a deterministic pool of
@@ -103,9 +104,36 @@ export interface CandidatePoolResult {
   qualityPreset: QualityPresetId;
 }
 
+/** When a built-in Style DNA is active *and the user hasn't hand-overridden
+ * a given field away from it* (custom styles are stored client-side in
+ * localStorage and aren't visible to this pure engine module — see
+ * engine/styleDna.ts's module note), each candidate re-resolves that field
+ * from a derived per-candidate seed instead of reusing the same fixed
+ * value for the whole pool. This makes the Candidate Engine genuinely
+ * style-aware: candidates explore different family members within the
+ * style's own identity (e.g. a style with 2 preferred layouts might show
+ * candidates from both), while any field the user *has* pinned away from
+ * the style's default is left completely alone. */
+function styleAwareCandidatePatch(baseParams: GenerateParams, derivedSeed: string): Partial<GenerateParams> {
+  const styleDna = baseParams.styleDnaId ? STYLE_DNA_PRESETS[baseParams.styleDnaId] : undefined;
+  if (!styleDna) return {};
+  const basePatch = resolveStyleDna(styleDna, baseParams.seed);
+  const userKeptCategory = baseParams.categoryId === basePatch.categoryId;
+  const userKeptLayout = baseParams.layoutId === basePatch.layoutId;
+  const userKeptPalette = baseParams.paletteId === basePatch.paletteId;
+  if (!userKeptCategory && !userKeptLayout && !userKeptPalette) return {};
+  const perCandidate = resolveStyleDna(styleDna, derivedSeed);
+  return {
+    ...(userKeptCategory ? { categoryId: perCandidate.categoryId, motifSize: perCandidate.motifSize } : {}),
+    ...(userKeptLayout ? { layoutId: perCandidate.layoutId } : {}),
+    ...(userKeptPalette ? { paletteId: perCandidate.paletteId } : {}),
+  };
+}
+
 function buildOneCandidate(baseParams: GenerateParams, qualityPreset: QualityPresetId, index: number): Candidate {
   const derivedSeed = deriveSeed(baseParams.seed, 'candidate', index);
-  const tileData = buildTile({ ...baseParams, seed: derivedSeed });
+  const stylePatch = styleAwareCandidatePatch(baseParams, derivedSeed);
+  const tileData = buildTile({ ...baseParams, ...stylePatch, seed: derivedSeed });
   const { rejected, reasons } = applyHardRejectRules(tileData);
   const metrics = computeMetrics(tileData);
   const { score, penaltyReasons } = computeOverallScore(metrics, qualityPreset);

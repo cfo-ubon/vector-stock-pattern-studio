@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import type { GenerateParams } from './types';
 import { defaultParams } from './defaults';
 import { buildTile } from './tile';
 import { computeMetrics, computeOverallScore } from './scoring';
+import { STYLE_DNA_PRESETS, resolveStyleDna } from './styleDna';
 import {
   generateCandidates,
   generateCandidatesChunked,
@@ -111,6 +113,40 @@ describe('rejectExactDuplicates', () => {
     const candidates = generateCandidates({ ...defaultParams(), seed: 'no-false-duplicate' }, 'standard', 'stockClean');
     const duplicateRejections = candidates.filter((c) => c.rejectionReasons.some((r) => r.includes('identical rendered output')));
     expect(duplicateRejections.length).toBe(0);
+  });
+});
+
+describe('generateCandidates: Style DNA integration', () => {
+  it('explores different family members (layout/palette) across the pool when a multi-option style is active and untouched', () => {
+    const dna = STYLE_DNA_PRESETS.modernTropical; // 2 layouts, 2 palettes
+    const base = { ...defaultParams(), ...resolveStyleDna(dna, 'style-candidate-variety'), seed: 'style-candidate-variety' };
+    const candidates = generateCandidates(base, 'standard', 'stockClean');
+    const combos = new Set(candidates.map((c) => `${c.tileData.params.layoutId}::${c.tileData.params.paletteId}`));
+    expect(combos.size).toBeGreaterThan(1);
+  });
+
+  it('respects a user override: a hand-picked layout stays pinned across every candidate', () => {
+    const dna = STYLE_DNA_PRESETS.modernTropical;
+    const resolved = resolveStyleDna(dna, 'style-candidate-pinned');
+    // Hand-override the layout away from whatever the style itself picked.
+    const overriddenLayout: GenerateParams['layoutId'] = resolved.layoutId === 'toss' ? 'heroScatter' : 'toss';
+    const base = { ...defaultParams(), ...resolved, layoutId: overriddenLayout, seed: 'style-candidate-pinned' };
+    const candidates = generateCandidates(base, 'standard', 'stockClean');
+    expect(candidates.every((c) => c.tileData.params.layoutId === overriddenLayout)).toBe(true);
+  });
+
+  it('is still fully deterministic with a Style DNA active', () => {
+    // 'fast' mode (4 candidates, not 'standard's 8) — luxuryFloral resolves
+    // to the bouquet layout + intricate botanical motifs, which is one of
+    // the heavier combinations in the engine (~0.3-0.5s/candidate); keeping
+    // this determinism check at 'fast' avoids flaking against the default
+    // per-test timeout when the full suite runs under load.
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const base = { ...defaultParams(), ...resolveStyleDna(dna, 'style-candidate-det'), seed: 'style-candidate-det' };
+    const a = generateCandidates(base, 'fast', 'stockClean');
+    const b = generateCandidates(base, 'fast', 'stockClean');
+    expect(a.map((c) => c.tileData.params.layoutId)).toEqual(b.map((c) => c.tileData.params.layoutId));
+    expect(a.map((c) => c.score)).toEqual(b.map((c) => c.score));
   });
 });
 

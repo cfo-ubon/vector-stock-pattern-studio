@@ -212,6 +212,12 @@ export interface GenerateParams {
    * identical output to every version before this existed, same
    * backward-compatibility precedent as `hierarchy`. */
   compositionIntelligence?: import('./compositionIntelligence').CompositionIntelligenceParams;
+  /** Named Style DNA preset id applied (see engine/styleDna.ts) — same
+   * round-tripping rationale as `artDirection`/`trend`: the preset's
+   * resolved values are written into the other fields above, so replaying
+   * these params doesn't require re-resolving the style. Undefined for
+   * every pattern created before Style DNA existed. */
+  styleDnaId?: string;
   seed: string;
 }
 

@@ -157,3 +157,23 @@ describe('buildTile: Composition Intelligence Engine', () => {
     }
   });
 });
+
+describe('buildTile: Style DNA metadata', () => {
+  it('embeds no style-dna attributes when styleDnaId is unset (backward compatible)', () => {
+    const svg = serialize(buildTile({ ...defaultParams(), seed: 'style-meta-none' }).svg);
+    expect(svg).not.toMatch(/data-style-dna/);
+  });
+
+  it('embeds id/name/version attributes on the root tile-content group when styleDnaId is set', () => {
+    const svg = serialize(buildTile({ ...defaultParams(), styleDnaId: 'darkBotanical', seed: 'style-meta-1' }).svg);
+    expect(svg).toMatch(/data-style-dna-id="darkBotanical"/);
+    expect(svg).toMatch(/data-style-dna-name="Dark Botanical"/);
+    expect(svg).toMatch(/data-style-dna-version="1"/);
+  });
+
+  it('falls back to the id itself as the name for an unknown/custom style id', () => {
+    const svg = serialize(buildTile({ ...defaultParams(), styleDnaId: 'myCustomStyle', seed: 'style-meta-2' }).svg);
+    expect(svg).toMatch(/data-style-dna-id="myCustomStyle"/);
+    expect(svg).toMatch(/data-style-dna-name="myCustomStyle"/);
+  });
+});

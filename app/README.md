@@ -747,9 +747,105 @@ never affects seed determinism upstream or downstream.
   `quadrantBalance` score from 71 to 98/100 in a constructed scatter-layout
   scenario — screenshots and metrics captured during development.
 
+## Style DNA Engine (`engine/styleDna.ts`, `storage/styleDnaStore.ts`, `components/StyleDnaPanel.tsx`)
+
+Turns "category + layout + palette + density + hierarchy + flow + overlap +
+cluster" — a dozen separate manual choices — into one choice: a named design
+identity. Same architectural pattern `artDirection.ts`/`trendEngine.ts`
+already established (plain structured-data presets, one generic resolver
+function, no if-else branching over style names), extended with a much
+richer field set and a first-class Manager.
+
+- `StyleDna` interface: `categories`/`layouts`/`paletteIds` (preferred
+  lists, first = default), `hierarchyPreset` (references the existing
+  `HIERARCHY_PRESETS` table rather than duplicating 8 numbers per style),
+  `density`/`negativeSpace`/`overlapMode`+`overlapAmount`, `flowProfile`/
+  `rhythmProfile` (feed `rotationJitter` and Composition Intelligence's
+  `rhythmStrength`), `clusterStyle`+`clusterDensity` (approximate today via
+  Composition Intelligence's `balanceStrength` + `overlapAmount` — see scope
+  note below), `motifComplexity` (feeds `scaleJitter`/`rotationJitter`/
+  `colorCount`), `botanicalGrowthPreset` (reserved, see scope note),
+  `colorStrategy` (feeds `colorStory`/`colorCount`), `backgroundStrategy`
+  (feeds `fillerStyle`), `svgDepthMode` (feeds `flatShadow`/`flatHighlight`),
+  `exportRecommendation` (`tileSize`/`patternScale`/`recommendedSites` —
+  reuses `StockSiteId` from `metadata/shutterstock.ts`).
+- **15 built-in presets** (`STYLE_DNA_PRESETS`): editorialBotanical,
+  luxuryFloral, scandinavianOrganic, minimalBotanical, vintageHerbarium,
+  darkBotanical, modernTropical, boutiquePackaging, luxuryWallpaper,
+  premiumTextile, kidsPlayful, retroOrganic, organicAbstract, bohoFloral,
+  softWatercolorInspired.
+- `resolveStyleDna(dna, seed)`: turns a style into the concrete
+  `GenerateParams` patch. When a style lists more than one preferred
+  category/layout/palette, which one is picked is derived from
+  `createRng('styledna::<id>::<field>::<seed>')` (the same cyrb53-hash
+  family every other seed in this engine uses — never `Math.random`), so a
+  given seed + style always resolves identically, but a different seed can
+  explore other family members.
+- `computeStyleDrift(params, dna)`: diffs the current params against a
+  fresh `resolveStyleDna` call for the same seed, field by field — powers
+  the "differs from style defaults" readout. `resetToStyleDna` re-resolves
+  from scratch, discarding hand-edits.
+- `deriveStyleDnaFromParams(params, label)` / `duplicateStyleDna(dna, label)`:
+  reverse-map the *current* settings into a new custom style ("Create
+  Style") via `nearestKeyByValue` — a generic nearest-match lookup over the
+  same tables `resolveStyleDna` uses, not a chain of hardcoded numeric-range
+  if/else. Intentionally lossy (Style DNA is a higher-level abstraction by
+  design, not a pixel-exact snapshot).
+- `exportStyleDnaJson`/`importStyleDnaJson`: JSON round-trip with a
+  `schemaVersion` (`STYLE_DNA_SCHEMA_VERSION`); import validates required
+  fields and calls `isStyleDnaCompatible` (every referenced category/
+  palette/hierarchy-preset id must exist in the currently-registered engine
+  tables) before accepting, returning `null` (not throwing) for malformed
+  or incompatible input.
+- **Style DNA Manager** (`components/StyleDnaPanel.tsx` +
+  `storage/styleDnaStore.ts`): create/duplicate/rename/delete-custom/
+  favorite/export/import, rendered as the first section in
+  `ControlPanel.tsx`. Custom styles and favorites persist in `localStorage`
+  (not IndexedDB like `storage/savedStore.ts` — a Style DNA is a small
+  plain-JSON config object, nowhere near the size of a saved SVG pattern).
+- **Candidate Engine integration** (`candidateEngine.ts`'s
+  `styleAwareCandidatePatch`): when a *built-in* style is active and the
+  user hasn't hand-overridden category/layout/palette away from what the
+  style itself resolved, each candidate re-resolves that field from its own
+  derived seed instead of reusing one fixed value for the whole pool —
+  candidates genuinely explore different family members within the style's
+  identity. Any field the user *has* pinned away from the style is left
+  completely alone. (Custom styles live in `localStorage` and aren't visible
+  to this pure engine module, so this only applies to built-ins today.)
+- **Collection Generator integration** (`App.tsx`'s `handleGenerateBatch`,
+  the existing "Generate 9 variations" flow): when a style is active, every
+  variant re-resolves that *same* style from a fresh random seed instead of
+  calling `randomizedParams` (which would randomize category/layout/palette/
+  hierarchy/etc. independently per item) — the 9 patterns explore one
+  style's family and read as a real collection. No style active = unchanged
+  prior behavior.
+- **SVG metadata**: `tile.ts` embeds `data-style-dna-id`/`data-style-dna-name`/
+  `data-style-dna-version` on the root `tile-content` group when
+  `params.styleDnaId` is set (same convention as the existing per-motif
+  `data-role` attribute — harmless to Affinity Designer and any SVG viewer).
+  The name is looked up from the built-in `STYLE_DNA_PRESETS` table; a
+  custom style id not found there falls back to embedding the id itself.
+- `GenerateParams.styleDnaId?: string` is a new optional field, undefined
+  for every pattern created before Style DNA existed — same round-tripping
+  precedent as `artDirection`/`trend`.
+- **Scope, agreed with the project owner before starting**: the roadmap's
+  Cluster Engine (Phase 3), Pattern Evolution (Phase 6), and a dedicated
+  Designer Assistant (Phase 8) don't exist yet, and the project's own rule
+  is to never build ahead of the current phase. `clusterStyle`/
+  `clusterDensity` are therefore approximated today through real, already-
+  implemented levers (Composition Intelligence's `balanceStrength` +
+  `overlapAmount`) rather than a true clustering placement algorithm, and
+  `botanicalGrowthPreset` is stored/round-tripped as a reserved,
+  informational field — wiring it to which botanical shape variant gets
+  drawn would require a new hook into `generators/botanical.ts`'s internal
+  variant selection that belongs to Phase 4 (Botanical Geometry). Every
+  other field maps to a real engine parameter and visibly changes the
+  generated SVG (verified directly: `STYLE_DNA_LIST` fixture test asserts
+  two different styles produce different serialized SVG for the same seed).
+
 ## Testing
 
-`npm test` runs `vitest run` — 217 tests across 15 files:
+`npm test` runs `vitest run` — 246 tests across 16 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -849,6 +945,30 @@ never affects seed determinism upstream or downstream.
 - `engine/designModel.test.ts` (extended) — `cloneParams` deep-clones the
   new `compositionIntelligence` field independently of the original;
   `normalizeParams` clamps its `balanceStrength`/`rhythmStrength` to [0, 1].
+- `engine/styleDna.test.ts` — style loading (≥15 built-in presets, every one
+  buildable and internally compatible, deterministic resolution, a multi-
+  option style picks different family members across seeds, styleDnaId
+  round-trips, changing style visibly changes the serialized SVG);
+  migration (a pre-v1.30-shaped params object still builds and
+  `computeStyleDrift` doesn't throw on it); overrides/drift (no drift right
+  after applying a style, drift reported on exactly the hand-edited fields);
+  reset (`resetToStyleDna` matches a fresh resolve exactly); export/import
+  (valid JSON with schema version, round-trips to an equivalent resolver
+  output, marks imports custom, returns `null` for malformed/incomplete
+  JSON); compatibility (`isStyleDnaCompatible` rejects an unknown category/
+  palette id or an empty preferred list); create/duplicate (
+  `deriveStyleDnaFromParams` produces a compatible custom style with a
+  fresh id, `duplicateStyleDna` copies a built-in into an independent
+  custom style).
+- `engine/candidateEngine.test.ts` (extended) — Style DNA integration:
+  candidates explore different family members (layout/palette) across the
+  pool when a multi-option style is active and untouched, a hand-picked
+  override stays pinned across every candidate, and the pool stays fully
+  deterministic with a style active.
+- `engine/tile.test.ts` (extended) — Style DNA SVG metadata: no
+  `data-style-dna-*` attributes when `styleDnaId` is unset (backward
+  compatible), id/name/version embedded correctly when it's set, and an
+  unknown/custom style id falls back to embedding the id itself as the name.
 
 ## Adding a new pattern category
 
@@ -897,8 +1017,12 @@ src/
   export/
     svgExporter.ts    single-tile / pre-tiled SVG string builders + download
     previewMarkup.ts  <pattern>-based markup for on-screen preview/thumbnails
+  storage/
+    savedStore.ts       IndexedDB-backed saved pattern library (localStorage fallback)
+    styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   components/
     ControlPanel.tsx
+    StyleDnaPanel.tsx
     PreviewCanvas.tsx
     Gallery.tsx
 ```
