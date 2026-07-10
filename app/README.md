@@ -158,18 +158,29 @@ toolbar and included automatically in the move-to-disk zip.
 
 "Colorway ทุกชุดสี → คลัง" rebuilds the current pattern once per palette
 (same seed/composition) and bulk-saves the set to the library without
-per-item downloads. "Export JPEG preview (5000px)" rasterizes the
-single-tile SVG onto a canvas in the browser and downloads a JPEG — for
-sites that require a JPEG paired with the vector.
+per-item downloads. "Export JPEG preview (5000px)" and "Export JPEG 3×3
+preview (3000px)" share `rasterizeSvgToJpeg`, which rasterizes an SVG
+string onto a canvas in the browser and downloads a JPEG — for sites that
+require a JPEG paired with the vector.
+
+## Export sizes
+
+`SINGLE_EXPORT_PIXEL_SIZE` (`export/svgExporter.ts`) = 3000 — the
+document size for the single-tile SVG and EPS exports (both scale the
+tile's own `tileSize` coordinate system up losslessly, same trick as
+SVG's width/height-vs-viewBox). `TILED_EXPORT_PIXEL_SIZE` = 10000 — the
+3×3 SVG export's document size. The 3×3 JPEG export rasterizes at 3000.
+`epsExporter.ts`'s root matrix combines the SVG Y-flip with this scale
+factor in one step (`matrixScale` picks the scale back up automatically
+for stroke widths).
 
 ## Download bundle
 
 Saving to the library also auto-downloads a zip (re-downloadable per card)
-containing the single-tile SVG, the 3×3 SVG (both at the full 10000×10000
-export size) and a plain-text dump of every site's SEO fields
-(`buildSeoTextFile`). The zip is written by a dependency-free STORE-method
-writer (`export/zip.ts`) — files are stored byte-for-byte, so nothing is
-recompressed or downscaled.
+containing the single-tile SVG + EPS (3000×3000), the 3×3 SVG (10000×10000)
+and a plain-text dump of every site's SEO fields (`buildSeoTextFile`). The
+zip is written by a dependency-free STORE-method writer (`export/zip.ts`)
+— files are stored byte-for-byte, so nothing is recompressed or downscaled.
 
 ## Saved library with submission tracking
 

@@ -7,11 +7,16 @@ const SVG_NS_ATTRS = {
   version: '1.1',
 } as const;
 
-/** Exported artboard size in px. The viewBox stays at the tile's own
- * coordinate system (SVG scales losslessly), but width/height control the
- * document size an editor like Affinity Designer opens the file at —
- * 10000x10000 px comfortably exceeds every stock site's minimum. */
-export const EXPORT_PIXEL_SIZE = 10000;
+/** Exported artboard size in px for the single-tile SVG/EPS — the file
+ * handed straight to a stock site's "seamless pattern" upload. The
+ * viewBox stays at the tile's own coordinate system (SVG scales
+ * losslessly), width/height just control the document size an editor
+ * opens the file at. 3000x3000 clears every stock site's minimum while
+ * keeping file size reasonable. */
+export const SINGLE_EXPORT_PIXEL_SIZE = 3000;
+
+/** Artboard size for the pre-tiled 3x3 SVG export. */
+export const TILED_EXPORT_PIXEL_SIZE = 10000;
 
 export function collectIds(node: SvgNode, ids: Set<string>) {
   if (node.attrs?.id) ids.add(String(node.attrs.id));
@@ -62,8 +67,8 @@ export function buildSingleTileSvg(tileData: TileData): string {
     'svg',
     {
       ...SVG_NS_ATTRS,
-      width: EXPORT_PIXEL_SIZE,
-      height: EXPORT_PIXEL_SIZE,
+      width: SINGLE_EXPORT_PIXEL_SIZE,
+      height: SINGLE_EXPORT_PIXEL_SIZE,
       viewBox: `0 0 ${round(tileSize)} ${round(tileSize)}`,
     },
     [tileData.svg],
@@ -91,8 +96,8 @@ export function buildTiledSvg(tileData: TileData, cols = 3, rows = 3): string {
     'svg',
     {
       ...SVG_NS_ATTRS,
-      width: EXPORT_PIXEL_SIZE,
-      height: EXPORT_PIXEL_SIZE,
+      width: TILED_EXPORT_PIXEL_SIZE,
+      height: TILED_EXPORT_PIXEL_SIZE,
       viewBox: `0 0 ${round(tileSize * cols)} ${round(tileSize * rows)}`,
     },
     [h('g', { id: 'pattern-tiled' }, copies)],
