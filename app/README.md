@@ -237,6 +237,39 @@ base, and a cordate (heart) silhouette with a midrib + two vein pairs.
 `computeBoundingRadius`'s path-command walk covers all of these
 automatically, so no manual radius tuning was needed.
 
+## Realistic animal markings (Animal Print generator)
+
+`generators/animalprint.ts` adds a `taperedBlotchPath(rng, spine, widthFn,
+samples, edgeJitter)` helper: it samples a spine curve, offsets each sample
+perpendicular to the local tangent (finite-difference estimate) by a width
+envelope, and closes the two offset rails into one path. `widthFn(t)` is
+typically `maxWidth * sin(PI * t) ** power` so the shape pinches to a point
+at both ends — `power` around 0.5 gives zebra's rounder taper, ~1.3 gives
+tiger's sharper one. `edgeJitter` perturbs each rail sample independently
+for a slightly ragged, fur-like edge instead of a perfectly smooth offset.
+
+- `leopardRosette` — the ring is 5-7 `taperedBlotchPath` segments placed
+  **tangentially** around a circle: for each segment's angle `theta`, the
+  tangent unit vector `(-sin theta, cos theta)` is the spine's long axis and
+  the radial unit vector is the bulge direction, all computed directly in
+  absolute coordinates (no nested `rotate`/`translate` transforms — an
+  earlier attempt composed three chained transforms to align each segment
+  and got the axis wrong, so segments pointed radially outward and rendered
+  as flower petals instead of a ring; confirmed via rendered screenshot
+  before the fix). A segment is skipped at random for the broken-ring look
+  real rosettes have. Dark inner blotches keep the original
+  `irregularBlob` + `smoothClosedPath` approach.
+- `zebraStripe` / `tigerStripe` — spine is a sine-wave curve
+  (`sin(t * PI * cycles)`), rendered via `taperedBlotchPath` instead of a
+  constant-width `stroke` with round caps, so both taper to points instead
+  of ending in a rounded blob.
+- `giraffePatch` — switched from `smoothClosedPath` (Catmull-Rom curves) to
+  a new `polygonPath()` that joins the same jittered radial points with
+  plain `L` segments — real reticulated giraffe markings are angular
+  "cracked mud" cells, not soft blobs.
+- `cowPatch` — 50% chance of a second, smaller `irregularBlob` overlapping
+  the main one, for the asymmetric clustered look of real Holstein patches.
+
 ## Realistic tropical shapes (Tropical generator)
 
 `generators/tropical.ts` has 5 variants, all rewritten for organic shape
