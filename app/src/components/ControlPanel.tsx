@@ -29,6 +29,7 @@ interface Props {
   qualityPresetId: QualityPresetId;
   onQualityPresetChange: (preset: QualityPresetId) => void;
   onGenerateBest: () => void;
+  onGenerateBestOf12: () => void;
   onCancelGenerateBest: () => void;
   candidateProgress: CandidateProgress | null;
   onExportSingle: () => void;
@@ -65,6 +66,7 @@ export function ControlPanel({
   qualityPresetId,
   onQualityPresetChange,
   onGenerateBest,
+  onGenerateBestOf12,
   onCancelGenerateBest,
   candidateProgress,
   onExportSingle,
@@ -512,9 +514,19 @@ export function ControlPanel({
               </button>
             </div>
           ) : (
-            <button type="button" className="btn btn--primary" onClick={onGenerateBest}>
-              ✨ Generate Best
-            </button>
+            <>
+              <button type="button" className="btn btn--primary" onClick={() => onGenerateBest()}>
+                ✨ Generate Best ({QUALITY_MODE_LABELS[qualityMode]})
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={onGenerateBestOf12}
+                title="สร้าง 12 candidate จาก seed เดียวกัน วิเคราะห์คุณภาพจริง แล้วเลือกคะแนนสูงสุด — ไม่ขึ้นกับตัวเลือกโหมดด้านบน"
+              >
+                🏆 Generate Best of 12
+              </button>
+            </>
           )}
         </div>
         <button

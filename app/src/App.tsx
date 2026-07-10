@@ -109,12 +109,13 @@ function App() {
   // so a heavy category/layout/density combo — Botanical + Dense Premium at
   // high density can place 800+ motifs — never freezes the tab for the
   // whole pool at once.
-  const handleGenerateBest = useCallback(async () => {
+  const handleGenerateBest = useCallback(async (modeOverride?: GenerationMode) => {
+    const mode = modeOverride ?? qualityMode;
     const token: CancelToken = { cancelled: false };
     cancelTokenRef.current = token;
     setCandidateProgress({ completed: 0, total: 0 });
     setCandidateSummary(null);
-    const candidates = await generateCandidatesChunked(params, qualityMode, qualityPresetId, setCandidateProgress, token);
+    const candidates = await generateCandidatesChunked(params, mode, qualityPresetId, setCandidateProgress, token);
     if (token.cancelled || candidates.length === 0) {
       setCandidateProgress(null);
       return;
@@ -133,6 +134,13 @@ function App() {
     });
     setCandidateProgress(null);
   }, [params, qualityMode, qualityPresetId]);
+
+  // Direct "Generate Best of 12" shortcut — always runs the 12-candidate
+  // (Premium) pool regardless of whatever the mode dropdown is currently
+  // set to, without changing that dropdown's own selection.
+  const handleGenerateBestOf12 = useCallback(() => {
+    void handleGenerateBest('premium');
+  }, [handleGenerateBest]);
 
   const handleCancelGenerateBest = useCallback(() => {
     if (cancelTokenRef.current) cancelTokenRef.current.cancelled = true;
@@ -512,6 +520,7 @@ function App() {
           qualityPresetId={qualityPresetId}
           onQualityPresetChange={setQualityPresetId}
           onGenerateBest={handleGenerateBest}
+          onGenerateBestOf12={handleGenerateBestOf12}
           onCancelGenerateBest={handleCancelGenerateBest}
           candidateProgress={candidateProgress}
           onExportSingle={handleExportSingle}

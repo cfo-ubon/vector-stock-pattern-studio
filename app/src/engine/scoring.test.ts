@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildTile } from './tile';
 import { defaultParams } from './defaults';
-import { computeMetrics, computeOverallScore, QUALITY_PRESET_WEIGHTS, type QualityPresetId } from './scoring';
+import { computeMetrics, computeOverallScore, applySoftPenalties, SOFT_PENALTY_RULES, QUALITY_PRESET_WEIGHTS, type QualityPresetId, type CompositionMetrics } from './scoring';
 
 const PRESETS = Object.keys(QUALITY_PRESET_WEIGHTS) as QualityPresetId[];
 
@@ -43,6 +43,59 @@ describe('computeMetrics', () => {
     const dense = computeMetrics(buildTile({ ...base, density: 0.9 }));
     expect(sparse.composition).not.toBe(dense.composition);
   });
+
+  it('largestEmptyRegion detects a genuinely large hole (sparse large-motif scatter)', () => {
+    // Grid layout saturates the coarse occupancy grid at almost any
+    // density (motifs are distributed across the whole tile by
+    // construction), so it never shows a real hole regardless of density —
+    // scatter with a large motif size and very low density is what
+    // actually produces a big contiguous empty region to detect.
+    const base = { ...defaultParams(), categoryId: 'geometric', layoutId: 'scatter' as const, motifSize: 200, hierarchy: undefined };
+    const sparse = computeMetrics(buildTile({ ...base, density: 0.02, seed: 'empty-region-sparse' }));
+    const dense = computeMetrics(buildTile({ ...base, density: 0.9, seed: 'empty-region-dense' }));
+    expect(sparse.largestEmptyRegion).toBeLessThan(dense.largestEmptyRegion);
+  });
+
+  it('heroSeparation is neutral (100) when there are 0 or 1 hero-role instances', () => {
+    // Default hierarchy on a grid layout assigns hero/secondary/filler/accent
+    // roles, but with hierarchy disabled entirely there is no hero role at
+    // all, so separation has nothing to measure.
+    const tile = buildTile({ ...defaultParams(), hierarchy: undefined, seed: 'hero-sep-none' });
+    expect(computeMetrics(tile).heroSeparation).toBe(100);
+  });
+});
+
+describe('applySoftPenalties', () => {
+  const base = computeMetrics(buildTile({ ...defaultParams(), seed: 'soft-penalty-base' }));
+
+  it('deducts nothing when no rule is triggered', () => {
+    const healthy: CompositionMetrics = { ...base, quadrantBalance: 90, largestEmptyRegion: 90, heroSeparation: 90, adjacencyRepetition: 90, edgeDensity: 90, paletteContrast: 90 };
+    const { score, penalties } = applySoftPenalties(healthy, 80);
+    expect(penalties.length).toBe(0);
+    expect(score).toBe(80);
+  });
+
+  it('deducts real points for each triggered rule, stacking multiple', () => {
+    const bad: CompositionMetrics = { ...base, quadrantBalance: 10, largestEmptyRegion: 10, heroSeparation: 90, adjacencyRepetition: 90, edgeDensity: 90, paletteContrast: 90 };
+    const { score, penalties } = applySoftPenalties(bad, 80);
+    expect(penalties.length).toBe(2);
+    const expectedDeduction = penalties.reduce((a, p) => a + p.points, 0);
+    expect(score).toBe(80 - expectedDeduction);
+  });
+
+  it('never drops the score below 0', () => {
+    const worst: CompositionMetrics = { ...base, quadrantBalance: 0, largestEmptyRegion: 0, heroSeparation: 0, adjacencyRepetition: 0, edgeDensity: 0, paletteContrast: 0 };
+    const { score } = applySoftPenalties(worst, 5);
+    expect(score).toBe(0);
+  });
+
+  it('every rule is deterministic and checks a real metric field', () => {
+    for (const rule of SOFT_PENALTY_RULES) {
+      expect(rule.check(base)).toBe(rule.check(base));
+      expect(typeof rule.points).toBe('number');
+      expect(rule.points).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('computeOverallScore', () => {
@@ -73,5 +126,13 @@ describe('computeOverallScore', () => {
         expect(Object.prototype.hasOwnProperty.call(metrics, key)).toBe(true);
       }
     }
+  });
+
+  it('applies soft-penalty deductions on top of the weighted average, and reports them', () => {
+    const triggering = { ...metrics, quadrantBalance: 5, largestEmptyRegion: 5 };
+    const { score: penalizedScore, penaltyReasons } = computeOverallScore(triggering, 'stockClean');
+    const { score: cleanScore } = computeOverallScore({ ...metrics, quadrantBalance: 100, largestEmptyRegion: 100 }, 'stockClean');
+    expect(penalizedScore).toBeLessThan(cleanScore);
+    expect(penaltyReasons.some((r) => r.includes('soft penalty'))).toBe(true);
   });
 });

@@ -64,6 +64,38 @@ function applyHardRejectRules(tileData: TileData): HardRejectResult {
   return { rejected: reasons.length > 0, reasons };
 }
 
+/** Hard-reject a candidate whose rendered SVG is byte-for-byte identical to
+ * an earlier, still-valid candidate in the same pool (the original spec's
+ * "candidate ซ้ำกันมากเกินไป" rule) — a diverse pool is only useful if the
+ * candidates actually differ.
+ *
+ * This deliberately compares the *rendered output*, not the aggregate
+ * CompositionMetrics scores: an earlier version of this check compared
+ * metrics instead and had to be reverted — candidates drawn from the same
+ * base settings (same category/layout/density, only a different derived
+ * seed) naturally cluster tightly in metric-score space simply because
+ * consistent settings produce consistently-scored results, which isn't
+ * duplication at all. Exact-output comparison has no such false-positive
+ * risk: two candidates only match here if they are visually and
+ * structurally identical. In this engine's architecture (independent
+ * derived seeds, no mutation/crossover) that's expected to be rare —
+ * this exists as a real, tested safety net rather than something intended
+ * to fire often. */
+export function rejectExactDuplicates(candidates: Candidate[]): void {
+  const seen: string[] = [];
+  for (let i = 0; i < candidates.length; i++) {
+    if (candidates[i].rejected) continue;
+    const svgStr = serialize(candidates[i].tileData.svg);
+    const dupIndex = seen.findIndex((s, j) => s === svgStr && !candidates[j].rejected);
+    if (dupIndex !== -1) {
+      candidates[i].rejected = true;
+      candidates[i].score = -1;
+      candidates[i].rejectionReasons = [...candidates[i].rejectionReasons, `identical rendered output to ${candidates[dupIndex].candidateId}`];
+    }
+    seen[i] = svgStr;
+  }
+}
+
 export interface CandidatePoolResult {
   candidates: Candidate[];
   winner: Candidate;
@@ -107,6 +139,7 @@ export function generateCandidates(baseParams: GenerateParams, mode: GenerationM
   for (let i = 0; i < count; i++) {
     candidates.push(buildOneCandidate(baseParams, qualityPreset, i));
   }
+  rejectExactDuplicates(candidates);
   return candidates;
 }
 
@@ -139,6 +172,7 @@ export async function generateCandidatesChunked(
     onProgress?.({ completed: candidates.length, total: count });
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
+  rejectExactDuplicates(candidates);
   return candidates;
 }
 

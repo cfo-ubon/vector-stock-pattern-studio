@@ -554,18 +554,40 @@ untouched — this is an additive, opt-in pipeline.
   scoring engine doesn't duplicate it — `qualityScore.ts` now imports from
   here too, with zero change to its own six-number output (verified by the
   existing `qualityScore.test.ts` still passing unchanged).
-- `engine/scoring.ts` — `computeMetrics(tileData)` returns 17 metrics
+- `engine/scoring.ts` — `computeMetrics(tileData)` returns 19 metrics
   (composition, spacing, quadrant/horizontal/vertical balance, visual
-  center offset, occupancy ratio, density variance, hierarchy, scale/
-  rotation diversity, color balance, palette contrast — real relative-
-  luminance range across the actual palette colors, not a placeholder —
-  overlap quality, edge density, adjacency repetition, seamless integrity,
-  SVG technical health), each 0-100 and derived purely from
-  `extractInstances`/`tileData.colors`/the serialized SVG string.
-  `computeOverallScore(metrics, presetId)` weights them per
-  `QUALITY_PRESET_WEIGHTS` (`stockClean` / `textilePremium` /
-  `editorialBotanical` / `denseLuxury`) and returns soft `penaltyReasons`
-  for any weighted metric scoring below 50.
+  center offset, occupancy ratio, density variance, **largest empty
+  region**, hierarchy, scale/rotation diversity, color balance, palette
+  contrast — real relative-luminance range across the actual palette
+  colors, not a placeholder — overlap quality, **hero separation**, edge
+  density, adjacency repetition, seamless integrity, SVG technical
+  health), each 0-100 and derived purely from `extractInstances`/
+  `tileData.colors`/the serialized SVG string. `findNearest` computes the
+  nearest-neighbor distance/instance for every motif *once* per
+  `computeMetrics` call and is shared by spacing, overlap quality,
+  adjacency repetition and hero separation (previously each of those ran
+  its own duplicate O(n^2) pass).
+  - `largestEmptyRegion` — a periodic (tile-wrap-aware) flood fill over the
+    coarse occupancy grid finds the single largest contiguous empty
+    region; only penalizes once it gets large relative to the tile (some
+    negative space is desirable). Grid-based layouts saturate this near
+    100 at almost any density (motifs are distributed across the whole
+    tile by construction) — a real difference only shows up with a
+    scatter-style layout at low density and a large motif size, which the
+    test suite uses deliberately.
+  - `heroSeparation` — compares the mean nearest-neighbor distance among
+    hero-role instances against the pattern's overall typical spacing;
+    neutral (100) when there are 0-1 hero instances.
+  - `computeOverallScore(metrics, presetId)` weights the metrics per
+    `QUALITY_PRESET_WEIGHTS` (`stockClean` / `textilePremium` /
+    `editorialBotanical` / `denseLuxury`), then applies
+    `applySoftPenalties` — named, fixed-point-deduction rules
+    (`SOFT_PENALTY_RULES`: severe quadrant imbalance, a large empty hole,
+    hero clustering, adjacent-motif repetition, edge imbalance, muddy
+    palette contrast) distinct from the ordinary weighted average. A
+    candidate can trigger any number of these and still not be hard-
+    rejected — soft penalties reduce rank, they never remove a candidate
+    from consideration.
   - **Known limitation**: `adjacencyRepetition` approximates "does the same
     motif keep sitting next to itself" using the rotation-bucket + role
     signals actually available on a `Placement` — `Placement` doesn't
@@ -588,10 +610,37 @@ untouched — this is an additive, opt-in pipeline.
   seconds. Hard-reject rules run per candidate: empty pattern, NaN/Infinity
   coordinates, a raster `<image>` element, an external resource reference,
   duplicate motif ids, node count over an 8000-node safety budget — all
-  checked against the actual serialized SVG, not guessed.
+  checked against the actual serialized SVG, not guessed. A final
+  pool-wide pass (`rejectExactDuplicates`) additionally hard-rejects any
+  candidate whose *rendered SVG string* is byte-identical to an earlier,
+  still-valid one in the same pool.
+  - **Bug caught and fixed during this work**: an earlier version compared
+    candidates' aggregate `CompositionMetrics` (a coarse RMS distance)
+    instead of rendered output to detect duplicates. That produced false
+    positives — candidates drawn from the same base settings naturally
+    score similarly (consistent settings -> consistent scores), which
+    isn't duplication at all; it hard-rejected 3 of 4 candidates from a
+    perfectly normal default-params pool. Caught by the existing
+    regression test, fixed by switching to exact rendered-SVG comparison
+    (zero false-positive risk since it only matches truly identical
+    output), and a new regression test (`never hard-rejects a small pool
+    of visually distinct real candidates as false-positive duplicates`)
+    guards against reintroducing it.
+- `engine/designModel.ts` — the Shared Design Model utilities beyond
+  `GenerateParams` itself: `cloneParams` (a safe, field-by-field deep
+  clone — not a JSON round-trip, which would silently drop `undefined`
+  optional fields), `hashParams` (a deterministic settings hash via
+  canonical, sorted-key JSON serialization — key insertion order and
+  explicit-`undefined`-vs-absent keys never change the hash, both
+  verified by tests), and `normalizeParams` (defensive numeric clamping
+  for every field — protects paths that bypass the UI's own range-input
+  validation, like a hand-edited JSON import, against NaN/negative/absurd
+  values).
 - UI: `ControlPanel.tsx` adds a Quality Mode (Fast=4/Standard=8/Premium=12)
-  and Quality Preset selector plus the **Generate Best** button (shows
-  "กำลังสร้าง candidate n/N…" with a Cancel button while running);
+  and Quality Preset selector, the **Generate Best** button (shows
+  "กำลังสร้าง candidate n/N…" with a Cancel button while running), and a
+  dedicated **🏆 Generate Best of 12** shortcut that always runs the
+  12-candidate pool regardless of the mode dropdown's current selection;
   `QualityPanel.tsx` shows a one-line summary ("selected from N candidates,
   M passed") when the currently-shown tile came from Generate Best,
   explicitly distinguishing its preset-weighted score from the unrelated,
@@ -599,11 +648,11 @@ untouched — this is an additive, opt-in pipeline.
   different scoring systems measuring different things, not a bug).
 
 **Not done this round** (Milestones 2-6 of the full Design Intelligence
-Engine spec — Visual Weight Solver, Flow/Rhythm Engines, real Cluster
-objects, Asset DNA, Shape Grammar, Motif Family Generator, Pattern
-Evolution, Auto Improve, SVG Beautifier, Designer Assistant,
-category-specific scoring — see `docs/USER_GUIDE.md`'s v1.26 changelog for
-the full list).
+Engine spec, explicitly out of scope per this round's instructions — Visual
+Weight Solver, Flow/Rhythm Engines, real Cluster objects, Asset DNA, Shape
+Grammar, Motif Family Generator, Pattern Evolution, Auto Improve, SVG
+Beautifier, Designer Assistant, category-specific scoring — see
+`docs/USER_GUIDE.md`'s v1.28 changelog for the full list).
 
 ## Trend Intelligence Engine (`engine/trendEngine.ts`, `engine/colorAnalysis.ts`)
 
@@ -646,7 +695,7 @@ Direction doesn't have: **Trend Fit scoring**.
 
 ## Testing
 
-`npm test` runs `vitest run` — 174 tests across 13 files:
+`npm test` runs `vitest run` — 194 tests across 14 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -708,6 +757,26 @@ Direction doesn't have: **Trend Fit scoring**.
   right after applying a preset unmodified, degrades when density is
   pushed outside the trend's range, and handles a hue-wrapping signature
   without throwing.
+- `engine/designModel.test.ts` — `cloneParams` deep-equal-but-independent
+  copies (mutating a clone never touches the original), preserves
+  `undefined` optional fields as `undefined` rather than dropping them;
+  `hashParams` determinism, changes on any field change, independent of
+  object key insertion order; `normalizeParams` clamps out-of-range/NaN
+  values, leaves already-valid params byte-identical, never mutates its
+  input.
+- `engine/scoring.test.ts` (extended) — `largestEmptyRegion` and
+  `heroSeparation` determinism/bounds and real differentiation on
+  constructed scenarios that actually produce a large hole / hero role;
+  `applySoftPenalties` deducts nothing when no rule triggers, deducts and
+  stacks real point values when rules do, never drops below 0, every rule
+  is deterministic; `computeOverallScore` applies soft-penalty deductions
+  on top of the weighted average end-to-end.
+- `engine/candidateEngine.test.ts` (extended) — `rejectExactDuplicates`
+  hard-rejects a later candidate with byte-identical rendered SVG to an
+  earlier one, does not compare against a candidate already rejected for
+  another reason, and — the regression guard for the RMS-distance false-
+  positive bug described above — never hard-rejects a real, diverse
+  candidate pool as duplicates.
 
 ## Adding a new pattern category
 
