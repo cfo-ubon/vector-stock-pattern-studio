@@ -109,3 +109,51 @@ describe('buildTile: Hierarchy Engine', () => {
     expect(svg).not.toMatch(/data-role/);
   });
 });
+
+describe('buildTile: Composition Intelligence Engine', () => {
+  it('a params object with no compositionIntelligence field (pre-v1.29 shape) still builds', () => {
+    const legacy = { ...defaultParams(), seed: 'ci-legacy-1' };
+    delete (legacy as Partial<GenerateParams>).compositionIntelligence;
+    expect(() => buildTile(legacy)).not.toThrow();
+  });
+
+  it('undefined compositionIntelligence produces identical output to the field being entirely absent', () => {
+    const withField = { ...defaultParams(), compositionIntelligence: undefined, seed: 'ci-legacy-2' };
+    const withoutField = { ...defaultParams(), seed: 'ci-legacy-2' } as Partial<GenerateParams>;
+    delete withoutField.compositionIntelligence;
+    expect(serialize(buildTile(withField).svg)).toBe(serialize(buildTile(withoutField as GenerateParams).svg));
+  });
+
+  it('actually changes the generated geometry for at least one real scenario (not a silent no-op when enabled)', () => {
+    let foundDifference = false;
+    for (let i = 0; i < 20 && !foundDifference; i++) {
+      const base: GenerateParams = { ...defaultParams(), layoutId: 'scatter', density: 0.15, motifSize: 150, seed: `ci-diff-${i}` };
+      const off = serialize(buildTile({ ...base, compositionIntelligence: undefined }).svg);
+      const on = serialize(buildTile({ ...base, compositionIntelligence: { balanceStrength: 1, rhythmStrength: 1 } }).svg);
+      if (off !== on) foundDifference = true;
+    }
+    expect(foundDifference).toBe(true);
+  });
+
+  it('same seed + settings with the feature on reproduce byte-identical output (determinism preserved)', () => {
+    const params: GenerateParams = { ...defaultParams(), compositionIntelligence: { balanceStrength: 0.8, rhythmStrength: 0.5 }, seed: 'ci-determinism' };
+    expect(serialize(buildTile(params).svg)).toBe(serialize(buildTile(params).svg));
+  });
+
+  it('never produces NaN/Infinity or duplicate ids across several layouts with the feature at full strength', () => {
+    const layoutIds: GenerateParams['layoutId'][] = ['grid', 'scatter', 'halfDrop', 'sCurve', 'toss'];
+    for (const layoutId of layoutIds) {
+      const svg = serialize(
+        buildTile({
+          ...defaultParams(),
+          layoutId,
+          compositionIntelligence: { balanceStrength: 1, rhythmStrength: 1 },
+          seed: `ci-robust-${layoutId}`,
+        }).svg,
+      );
+      expect(svg).not.toMatch(/NaN|Infinity/);
+      const ids = [...svg.matchAll(/id="([^"]+)"/g)].map((m) => m[1]);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+});

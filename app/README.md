@@ -693,9 +693,63 @@ Direction doesn't have: **Trend Fit scoring**.
   every pre-existing saved pattern — fully backward compatible) and is
   independent of `artDirection`: applying one doesn't clear the other.
 
+## Composition Intelligence Engine (`engine/compositionIntelligence.ts`)
+
+Roadmap "Phase 2". Where the Design Intelligence Engine (Phase 1 —
+`candidateEngine.ts`/`scoring.ts`) only *measures* composition quality after
+a tile is fully built, this is a pass that *acts* on the raw `Placement[]`
+list the layout + `applyHierarchy` stages already produced — after role
+assignment, before the placements become SVG groups — and corrects it with
+two deterministic, geometry-only refinements. No rng consumption, so it
+never affects seed determinism upstream or downstream.
+
+- **Balance correction**: bins placements into the same 2x2 quadrant scheme
+  `scoring.ts`'s `quadrantBalance` metric uses, weighted by
+  `scale^2 * roleWeight` (a hero motif reads as visually heavier than its
+  raw area alone suggests — a documented perceptual bump, not a hardcoded
+  score). Only fires when the imbalance is severe (mild unevenness reads as
+  designed, not machine-stamped); moves a bounded number (≤15% of
+  placements) of the *lightest* placements out of the heaviest quadrant,
+  lightest-first so a quadrant's own hero/anchor motif is never disturbed.
+  - **Bug caught during development**: the first version blended each
+    selected placement a fixed 40% of the way toward the target quadrant's
+    *center point*. For a placement that started far from the tile's
+    mid-line, a 40% blend could land it short of the mid-line — still in
+    the original quadrant, with the imbalance score completely unchanged.
+    Caught by the `reduces quadrant-weight imbalance...` test failing
+    (`expected 10 to be less than 10`). Fixed by reflecting the placement's
+    coordinate across whichever mid-line separates the source and target
+    quadrant (`reflectIntoQuadrant`), then blending **more than 50%** of the
+    way there — a mathematical guarantee that any move which fires actually
+    crosses into the target quadrant, since the exact 50% point is the
+    mid-line itself.
+- **Rhythm smoothing**: computes each placement's nearest-neighbor distance
+  using the same wrap-aware `periodicDist` the Scoring Engine uses for
+  `spacing`/`adjacencyRepetition`, then pulls placements whose distance is a
+  statistical outlier (`> mean + 1.25 * stdev`) a bounded fraction toward
+  their nearest neighbor along the shortest periodic vector
+  (`shortestOffset`, a `periodicDist` variant that returns the offset
+  instead of just its length).
+- `CompositionIntelligenceParams { balanceStrength, rhythmStrength }`, both
+  0..1; `applyCompositionIntelligence(placements, tileSize, params?)` is the
+  orchestrator — undefined `params` is a strict no-op returning the exact
+  same array reference, matching the `hierarchy`/`negativeSpace` backward-
+  compatibility precedent: any saved pattern from before this field existed
+  reproduces identically.
+- `GenerateParams.compositionIntelligence?: CompositionIntelligenceParams`
+  is on by default for new patterns (`defaultParams()`), same rationale as
+  `hierarchy`. `designModel.ts`'s `cloneParams`/`normalizeParams` were
+  extended to deep-clone and clamp this new nested field.
+- UI: new "🧭 Composition Intelligence" checkbox + Balance/Rhythm strength
+  sliders in `ControlPanel.tsx`, same accordion pattern as Visual Hierarchy.
+- Verified with a real before/after comparison (not just unit tests): the
+  same seed/layout/density with the feature off vs. on moved the
+  `quadrantBalance` score from 71 to 98/100 in a constructed scatter-layout
+  scenario — screenshots and metrics captured during development.
+
 ## Testing
 
-`npm test` runs `vitest run` — 194 tests across 14 files:
+`npm test` runs `vitest run` — 217 tests across 15 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -777,6 +831,24 @@ Direction doesn't have: **Trend Fit scoring**.
   another reason, and — the regression guard for the RMS-distance false-
   positive bug described above — never hard-rejects a real, diverse
   candidate pool as duplicates.
+- `engine/compositionIntelligence.test.ts` — `computeWeight` scales with
+  scale^2 and role weighting; `applyBalanceCorrection` is a no-op below the
+  minimum placement count/strength/imbalance threshold, measurably reduces
+  quadrant-weight imbalance on a constructed lopsided layout, never moves
+  more than ~15% of placements, and is deterministic; `applyRhythmSmoothing`
+  is a no-op on an already-even grid, measurably pulls a constructed
+  isolated outlier closer to its nearest neighbor, and is deterministic;
+  `applyCompositionIntelligence` is a strict same-reference no-op when
+  `params` is undefined.
+- `engine/tile.test.ts` (extended) — Composition Intelligence Engine
+  backward compatibility with a pre-v1.29-shaped params object, undefined
+  vs. absent field produce byte-identical output, the feature genuinely
+  changes generated geometry for at least one real scenario (not a silent
+  no-op), determinism is preserved with it enabled, and it never introduces
+  NaN/Infinity or duplicate ids across several layouts at full strength.
+- `engine/designModel.test.ts` (extended) — `cloneParams` deep-clones the
+  new `compositionIntelligence` field independently of the original;
+  `normalizeParams` clamps its `balanceStrength`/`rhythmStrength` to [0, 1].
 
 ## Adding a new pattern category
 

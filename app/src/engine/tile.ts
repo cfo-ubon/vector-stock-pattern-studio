@@ -6,6 +6,7 @@ import { LAYOUTS } from '../layouts';
 import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
 import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
+import { applyCompositionIntelligence } from './compositionIntelligence';
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -158,6 +159,16 @@ export function buildTile(params: GenerateParams): TileData {
       ? applyHierarchy(placements, params.hierarchy, rng)
       : placements;
 
+  // Composition Intelligence Engine: a deterministic geometry-only pass
+  // that corrects severe quadrant-weight imbalance and smooths isolated
+  // spacing outliers left by the layout+hierarchy stages above. No rng
+  // consumption, so it never affects seed determinism upstream or
+  // downstream; undefined params is a strict no-op (see
+  // engine/compositionIntelligence.ts).
+  const refinedPlacements = params.compositionIntelligence
+    ? applyCompositionIntelligence(roledPlacements, tileSize, params.compositionIntelligence)
+    : roledPlacements;
+
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
   // motifs so a shadow never sits on top of a neighboring motif.
@@ -176,7 +187,7 @@ export function buildTile(params: GenerateParams): TileData {
   const useHighlight = !!params.flatHighlight;
   const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
 
-  const motifGroups: SvgNode[] = roledPlacements.map((placement, index) => {
+  const motifGroups: SvgNode[] = refinedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.

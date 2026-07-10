@@ -8,8 +8,9 @@ import type { GenerateParams } from './types';
 // re-statement of every UI slider's exact min/max, which the native
 // <input type="range"> elements already enforce for normal interaction).
 
-/** Safe deep clone: GenerateParams is a flat object with one nested
- * `hierarchy` record and a couple of string arrays — a targeted per-field
+/** Safe deep clone: GenerateParams is a flat object with a couple of nested
+ * records (`hierarchy`, `compositionIntelligence`) and a couple of string
+ * arrays — a targeted per-field
  * clone (rather than JSON round-tripping, which silently drops `undefined`
  * fields and would make "not set" indistinguishable from "explicitly
  * absent" for optional fields like `customColors`). */
@@ -19,6 +20,7 @@ export function cloneParams(params: GenerateParams): GenerateParams {
     mixCategoryIds: params.mixCategoryIds ? [...params.mixCategoryIds] : undefined,
     customColors: params.customColors ? [...params.customColors] : undefined,
     hierarchy: params.hierarchy ? { ...params.hierarchy } : undefined,
+    compositionIntelligence: params.compositionIntelligence ? { ...params.compositionIntelligence } : undefined,
   };
 }
 
@@ -98,5 +100,11 @@ export function normalizeParams(params: GenerateParams): GenerateParams {
   if (next.patternScale !== undefined) next.patternScale = clampNum(next.patternScale, 0.2, 4, 1);
   if (next.negativeSpace !== undefined) next.negativeSpace = clampNum(next.negativeSpace, 0, 1, 0);
   if (next.overlapAmount !== undefined) next.overlapAmount = clampNum(next.overlapAmount, 0, 1, 0);
+  if (next.compositionIntelligence) {
+    next.compositionIntelligence = {
+      balanceStrength: clampNum(next.compositionIntelligence.balanceStrength, 0, 1, 0.5),
+      rhythmStrength: clampNum(next.compositionIntelligence.rhythmStrength, 0, 1, 0.35),
+    };
+  }
   return next;
 }
