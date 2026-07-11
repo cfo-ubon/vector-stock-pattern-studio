@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 590 tests across 40 files:
+`npm test` runs `vitest run` — 608 tests across 42 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1770,7 +1770,9 @@ project mutation already uses).
   `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
   `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`,
   `trend/designSpecSeo.test.ts`, `trend/designSpecPackage.test.ts`,
-  `trend/promptTemplates.test.ts` — see "Trend Intelligence Studio" below.
+  `trend/promptTemplates.test.ts`, `trend/designSpecQuality.test.ts`,
+  `trend/designSpecCollection.test.ts` — see "Trend Intelligence Studio"
+  below.
 
 ## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
 
@@ -2070,6 +2072,9 @@ UI wiring, no new generation logic.
   every text/JSON file comes from the DOM-free `buildDesignSpecPackageTextFiles`.
 - **Prompt Preview**: a platform chip row drives `buildPrompt` for a live,
   copyable prompt per platform.
+- **"🎯 Run Quality Loop"** (in the Composition Diagram card) and
+  **"🏭 Generate Collection จาก Design Spec"** — see their own sections
+  below (`trend/designSpecQuality.ts`, `trend/designSpecCollection.ts`).
 - **Navigation**: `App.tsx`'s `view` state gained a third mode,
   `'trendStudio'` (alongside the existing `'editor'`/`'dashboard'`), opened
   via a new "🧠 Trend Intelligence Studio" button in `ProjectBar.tsx`
@@ -2083,8 +2088,77 @@ UI wiring, no new generation logic.
   pattern; switching marketplace/prompt-platform chips updates the SEO/
   prompt preview live; "ใช้ค่านี้ในหน้าสร้างลาย" correctly returns to the
   editor with the Design Spec's category/layout/palette actually applied
-  (visible in the Control Panel's own selection state); zero console
-  errors throughout the whole flow.
+  (visible in the Control Panel's own selection state); "Run Quality Loop"
+  produces a real 10-metric report and correctly replaces the previewed
+  tile with the winning candidate; "Generate Collection จาก Design Spec"
+  produces a real downloaded zip and attributes it to the active project;
+  zero console errors throughout the whole flow.
+
+### Design Quality auto-improve loop (`trend/designSpecQuality.ts`)
+
+Section 12's "Run automatic quality analysis... if quality is below
+threshold: Improve automatically, Re-evaluate, Repeat." Reuses the
+*existing* `engine/candidateEngine.ts`'s `generateBest` (the same pool-
+generate-then-pick-the-highest-scoring-candidate pipeline the main
+editor's own "Generate Best" quality mode already uses) and
+`engine/scoring.ts`'s real `CompositionMetrics` — no second scoring
+implementation. "Improve automatically" means exactly what this app's
+existing Candidate Engine already means: generate a fresh deterministic
+candidate pool from a new derived seed (`deriveSeed`, reused) and keep
+whichever round scored higher, up to a bounded `maxRounds` (default 3,
+never unbounded).
+
+`runDesignSpecQualityLoop(spec, seed, mode?, maxRounds?)` builds a
+`DesignSpecQualityReport` covering all 10 of Section 12's named metrics —
+resolved against the real `CompositionMetrics` wherever an exact match
+exists (Composition, Hierarchy, "Repeat Quality" = `seamlessIntegrity`,
+"SVG Health" = `svgHealth`, "Balance" = the 3 balance metrics averaged,
+"Negative Space" = `largestEmptyRegion`, a real *measured* proxy — not the
+spec's own *input* `negativeSpace` number) and a clearly-labeled averaged
+proxy for the 3 that have no single existing metric (Flow, Rhythm, Motif
+Diversity) plus Commercial Readiness — then checks it against the spec's
+own `qualityTargets` (the 4 fields Phase 1 deliberately named to line up
+with this exact wiring). `checkDesignSpecQuality` reports which specific
+targets weren't met. `qualityPresetForDesignSpec` maps the spec's
+`composition` style onto a real `QualityPresetId` for `generateBest`'s
+scoring weights.
+
+UI: the Trend Studio's "🎯 Run Quality Loop" button (in the Composition
+Diagram card) runs the loop against the currently-shown seed and replaces
+the previewed tile with the winning round's real generated output,
+alongside the full 10-metric report and any shortfalls — the same
+pattern applied elsewhere in this app of never special-casing or hiding a
+real quality signal.
+
+### Collection Generator (`trend/designSpecCollection.ts`)
+
+Section 11's "Generate Hero Pattern, Secondary Pattern, Mini Pattern,
+Stripe, Border, Corner, Spot Motifs. All assets share Style DNA, Palette,
+Motif Family, Collection Identity." Reuses the *existing, unmodified*
+`collection/collectionGenerator.ts`'s `generateCollection` for every
+asset (no duplicated asset-building logic) — Style DNA/Palette/Motif
+Family sharing across every asset is already guaranteed by that
+function's own existing consistency mechanism (`verifyConsistency`),
+untouched here. `generateCollection` gained one small additive parameter,
+`collectionNameOverride?: string` (defaults to the pre-existing generic
+"{family} collection — {categoryId}" name when omitted, so every other
+caller is unaffected) — the "Collection Identity" this section asks for
+is the Design Specification's own market-driven name
+(`designSpecSeo.ts`'s `buildDesignSpecCollectionName`) instead of that
+generic default. `resolveDesignSpecStyleDna` resolves the spec's
+`styleDnaId` into a real `StyleDna` (built-in presets by default; a
+caller with access to `storage/styleDnaStore.ts`, i.e. the UI layer, can
+pass a resolved custom style in — this pure engine module never reads
+localStorage itself, same "custom styles aren't visible to pure engine
+code" precedent `engine/candidateEngine.ts` already documents).
+
+UI: the Trend Studio's "🏭 Generate Collection จาก Design Spec" button
+(`App.tsx`'s `handleGenerateCollectionFromDesignSpec`) mirrors the main
+editor's existing `handleGenerateCollection` exactly — build, download
+the zip, attribute it to the active project (creating a fresh one on the
+spot in the pathological case where none is active) — just driven by a
+Design Specification + seed through `buildCollectionFromDesignSpec`
+instead of the main editor's own `params`.
 
 ## Adding a new pattern category
 
@@ -2167,6 +2241,8 @@ src/
     designSpecSeo.ts         SEO Engine: market-driven Title/Description/Keywords/Filename
     designSpecPackage.ts     Marketplace Package text/JSON files, driven by a Design Spec
     promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
+    designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
+    designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx

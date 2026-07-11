@@ -753,6 +753,29 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 — กดปุ่ม **"✍️ ใช้ค่านี้ในหน้าสร้างลาย"** เพื่อนำค่านี้ไปใช้ต่อในหน้าสร้างลายหลัก
 ทันที (ปรับต่อ/กด Generate Best ต่อได้ตามปกติ)
 
+### 🎯 Run Quality Loop — ตรวจสอบ+ปรับคุณภาพอัตโนมัติ
+
+กดปุ่ม **"🎯 Run Quality Loop"** ข้างปุ่มสุ่ม seed เพื่อให้ระบบสร้างลายหลายแบบ
+จาก Design Spec เดียวกันแล้วเลือกตัวที่คะแนนสูงสุด (ใช้กลไกเดียวกับปุ่ม
+"Generate Best" ในหน้าสร้างลายหลัก ไม่มีการคำนวณคะแนนซ้ำ) — ถ้ายังไม่ผ่าน
+เกณฑ์ที่กำหนดไว้ใน Design Spec ระบบจะลองรอบใหม่ด้วย seed ใหม่ (สูงสุด 3
+รอบ) แล้วเก็บรอบที่ดีที่สุดไว้ ผลลัพธ์แสดงเป็นตาราง 10 ตัวชี้วัด (Composition,
+Hierarchy, Flow, Rhythm, Balance, Negative Space, Repeat Quality, SVG
+Health, Motif Diversity, Commercial Readiness) พร้อมตัวบอกผ่าน/ไม่ผ่านและ
+รายการที่ยังไม่ถึงเกณฑ์ — ลายที่แสดงในพรีวิวจะเปลี่ยนเป็นลายที่ผ่านการคัดแล้ว
+ทันที กดปุ่ม "ใช้ค่านี้ในหน้าสร้างลาย" ต่อได้เหมือนเดิม
+
+### 🏭 Collection Generator — สร้างคอลเลกชันเต็มจาก Design Spec
+
+กดปุ่ม **"🏭 Generate Collection จาก Design Spec"** เพื่อสร้างคอลเลกชัน
+เชิงพาณิชย์เต็มชุด (Hero/Secondary/Blender/Mini/Stripe Pattern, Border,
+Corner, Spot Motif Sheet) จาก Design Spec นี้โดยตรง — ทุกชิ้นใช้ Style
+DNA/Palette/Motif Family เดียวกันโดยอัตโนมัติ (กลไกตรวจสอบความสอดคล้อง
+เดียวกับ Collection Studio ปกติ) ชื่อคอลเลกชัน (Collection Identity) จะเป็น
+ชื่อที่มาจากคำค้นหลัก+ธีม Trend Pack แทนชื่ออัตโนมัติทั่วไป ดาวน์โหลด zip
+และบันทึกเข้าโปรเจกต์ที่เปิดอยู่ให้ทันทีเหมือนปุ่ม "Generate Collection" ใน
+หน้าสร้างลายหลักทุกประการ
+
 ### SEO + Prompt Preview
 
 เลือกแท็บ Marketplace เพื่อดู Title/Description/Keywords/Filename/
@@ -855,10 +878,19 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
   (ChatGPT, Claude, Gemini แบบขอไอเดีย + Adobe Firefly, Midjourney,
   Stable Diffusion, FLUX แบบ prompt สร้างภาพอ้างอิง พร้อม flag จริงของ
   Midjourney)
-- 🧪 **เทสต์ใหม่ 106 รายการ** ครอบคลุมทุกชั้น (Keyword Mapping, Trend
+- 🎯 **Run Quality Loop**: ตรวจสอบคุณภาพลายอัตโนมัติ 10 ตัวชี้วัด
+  (Composition, Hierarchy, Flow, Rhythm, Balance, Negative Space, Repeat
+  Quality, SVG Health, Motif Diversity, Commercial Readiness) แล้วลองสร้าง
+  ใหม่อัตโนมัติถ้ายังไม่ผ่านเกณฑ์ (สูงสุด 3 รอบ ใช้กลไกเดียวกับ Generate Best)
+- 🏭 **Collection Generator จาก Design Spec**: สร้างคอลเลกชันเต็มชุด
+  (Hero/Secondary/Blender/Mini/Stripe/Border/Corner/Spot Motif Sheet)
+  ตรงจาก Design Spec เลย ชื่อคอลเลกชันเป็นชื่อการตลาดจริงจากคำค้น+Trend
+  Pack บันทึกเข้าโปรเจกต์อัตโนมัติเหมือนปุ่มสร้างคอลเลกชันปกติ
+- 🧪 **เทสต์ใหม่ 124 รายการ** ครอบคลุมทุกชั้น (Keyword Mapping, Trend
   Analysis, Design Specification, SVG/SEO Engine adapter, Marketplace
-  Package, Prompt Generation, JSON Validation) รวมทั้งหมด 590 เทสต์
-  ผ่านทั้งหมด — ตรวจ UI จริงผ่าน Playwright ด้วย ไม่มี console error
+  Package, Prompt Generation, Quality Loop, Collection Generator, JSON
+  Validation) รวมทั้งหมด 608 เทสต์ผ่านทั้งหมด — ตรวจ UI จริงผ่าน Playwright
+  ด้วย ไม่มี console error
 
 ### v1.35 — 11 ก.ค. 2026 — Marketplace Profile System
 - 🏪 **Marketplace Profile System ใหม่**: เลิกใช้โปรไฟล์ SEO เดียวกันทุกเว็บ

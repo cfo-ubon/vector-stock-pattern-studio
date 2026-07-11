@@ -198,7 +198,7 @@ export function buildCollectionPreview(
   return { svg: h('g', { id: 'collection-preview' }, cells), width, height };
 }
 
-export function generateCollection(baseParams: GenerateParams, styleDna?: StyleDna): GeneratedCollection {
+export function generateCollection(baseParams: GenerateParams, styleDna?: StyleDna, collectionNameOverride?: string): GeneratedCollection {
   const baseSeed = baseParams.seed;
   const collectionId = `collection-${baseSeed}`;
 
@@ -352,7 +352,7 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
   const manifest: CollectionManifest = {
     schemaVersion: COLLECTION_SCHEMA_VERSION,
     collectionId,
-    collectionName: `${familyForCategory(baseParams.categoryId)} collection — ${baseParams.categoryId}`,
+    collectionName: collectionNameOverride ?? `${familyForCategory(baseParams.categoryId)} collection — ${baseParams.categoryId}`,
     createdAt: Date.now(),
     styleDnaId: baseParams.styleDnaId,
     seed: baseSeed,

@@ -51,6 +51,7 @@ import { TrendStudioPanel } from './components/TrendStudioPanel';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
+import { buildCollectionFromDesignSpec } from './trend/designSpecCollection';
 import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
 import './App.css';
@@ -491,6 +492,38 @@ function App() {
     [rasterizeSvgToPngBlob],
   );
 
+  /** Trend Intelligence Studio's Collection Generator (Section 11) — same
+   * shape as `handleGenerateCollection` below (build -> download zip ->
+   * attribute to the active project, creating a fresh one if somehow none
+   * is active), just driven by a Design Specification + seed through
+   * `buildCollectionFromDesignSpec` instead of the main editor's own
+   * `params`. */
+  const handleGenerateCollectionFromDesignSpec = useCallback(
+    async (spec: DesignSpecification, seed: string) => {
+      setCollectionStatus('building');
+      try {
+        const activeDna = spec.styleDnaId
+          ? (STYLE_DNA_PRESETS[spec.styleDnaId] ?? loadCustomStyles().find((s) => s.id === spec.styleDnaId))
+          : undefined;
+        const collection: GeneratedCollection = buildCollectionFromDesignSpec(spec, seed, activeDna);
+        await buildAndDownloadCollectionZip(collection);
+        let projectId = activeProjectId;
+        if (!projectId) {
+          const fresh = createProject('โปรเจกต์ใหม่');
+          setProjects((prev) => [fresh, ...prev]);
+          void putProject(fresh);
+          setActiveProjectId(fresh.id);
+          projectId = fresh.id;
+        }
+        updateProject(projectId, (p) => addCollectionToProject(p, collection));
+        setCollectionStatus('done');
+      } catch {
+        setCollectionStatus('idle');
+      }
+    },
+    [activeProjectId, updateProject, buildAndDownloadCollectionZip],
+  );
+
   const handleGenerateCollection = useCallback(async () => {
     setCollectionStatus('building');
     try {
@@ -871,6 +904,8 @@ function App() {
         <TrendStudioPanel
           onApplyToEditor={handleApplyDesignSpecToEditor}
           onDownloadPackage={handleDownloadDesignSpecPackage}
+          onGenerateCollection={handleGenerateCollectionFromDesignSpec}
+          collectionStatus={collectionStatus}
           onClose={() => setView('editor')}
         />
       ) : view === 'dashboard' ? (

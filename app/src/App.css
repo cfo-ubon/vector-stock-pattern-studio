@@ -1851,3 +1851,32 @@ body {
 .json-tree-value {
   color: var(--text);
 }
+
+.trend-studio-quality-report {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trend-studio-quality-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.4rem;
+}
+
+.trend-studio-quality-metric {
+  background: var(--panel-alt);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+}
+
+.trend-studio-quality-metric span {
+  color: var(--text-dim);
+  text-transform: capitalize;
+}

@@ -13,10 +13,13 @@ import { buildDesignSpecSeo } from '../trend/designSpecSeo';
 import { PROMPT_PLATFORM_LIST, buildPrompt, type PromptPlatformId } from '../trend/promptTemplates';
 import { TREND_PACK_LIST } from '../trend/trendPacks';
 import { parseDesignSpecificationJson, validateDesignSpecification, isDesignSpecificationValid, type ValidationIssue } from '../trend/designSpecValidation';
+import { runDesignSpecQualityLoop, type DesignSpecQualityLoopResult } from '../trend/designSpecQuality';
 
 interface Props {
   onApplyToEditor: (params: GenerateParams) => void;
   onDownloadPackage: (spec: DesignSpecification, seed: string, marketplaceId: MarketplaceId) => void;
+  onGenerateCollection: (spec: DesignSpecification, seed: string) => void;
+  collectionStatus: 'idle' | 'building' | 'done';
   onClose: () => void;
 }
 
@@ -88,7 +91,7 @@ function JsonTreeNode({ label, value, depth }: { label: string; value: unknown; 
  * directly from the same spec object. Every generator this page calls
  * lives in `trend/` and is already independently unit-tested — this
  * component is purely the UI wiring. */
-export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onClose }: Props) {
+export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onGenerateCollection, collectionStatus, onClose }: Props) {
   const [bundle, setBundle] = useState<KeywordBundle>(defaultBundle());
   const [secondaryKeywordsText, setSecondaryKeywordsText] = useState(defaultBundle().secondaryKeywords.join(', '));
   const [trendPackId, setTrendPackId] = useState<string | undefined>(undefined);
@@ -104,23 +107,42 @@ export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onClose }
   const [seed, setSeed] = useState<string>(() => newSeed('trend'));
   const [previewMarketplace, setPreviewMarketplace] = useState<MarketplaceId>('shutterstock');
   const [promptPlatform, setPromptPlatform] = useState<PromptPlatformId>('midjourney');
+  const [qualityResult, setQualityResult] = useState<DesignSpecQualityLoopResult | null>(null);
+  const [qualityRunning, setQualityRunning] = useState(false);
 
   function pushSpec(next: DesignSpecification) {
     setHistory((h) => [...h.slice(0, historyIndex + 1), next]);
     setHistoryIndex((i) => i + 1);
     setJsonText(JSON.stringify(next, null, 2));
     setJsonError(null);
+    setQualityResult(null);
   }
 
   function handleGenerateSpec() {
     const nextSeed = newSeed('trend');
     setSeed(nextSeed);
+    setQualityResult(null);
     const next = buildDesignSpecification({
       keywordBundle: { ...bundle, secondaryKeywords: secondaryKeywordsText.split(',').map((k) => k.trim()).filter(Boolean) },
       trendPackId,
       createdAt: Date.now(),
     });
     pushSpec(next);
+  }
+
+  function handleRunQualityLoop() {
+    if (!spec) return;
+    setQualityRunning(true);
+    // Synchronous (engine/candidateEngine.ts's non-chunked generateBest,
+    // 'fast' mode = 4 candidates/round) — fine for a manual "check quality"
+    // action; a chunked/cancellable version (mirroring the main editor's
+    // "Generate Best" quality mode) would be a future enhancement if this
+    // becomes slow for heavy categories.
+    setTimeout(() => {
+      const result = runDesignSpecQualityLoop(spec, seed, 'fast');
+      setQualityResult(result);
+      setQualityRunning(false);
+    }, 0);
   }
 
   function handleApplyJson() {
@@ -137,6 +159,7 @@ export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onClose }
     setHistoryIndex((i) => i - 1);
     setJsonText(JSON.stringify(history[historyIndex - 1], null, 2));
     setJsonError(null);
+    setQualityResult(null);
   }
 
   function handleRedo() {
@@ -144,11 +167,16 @@ export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onClose }
     setHistoryIndex((i) => i + 1);
     setJsonText(JSON.stringify(history[historyIndex + 1], null, 2));
     setJsonError(null);
+    setQualityResult(null);
   }
 
   const validationIssues: ValidationIssue[] = useMemo(() => (spec ? validateDesignSpecification(spec) : []), [spec]);
 
-  const tile = useMemo(() => (spec ? buildTileFromDesignSpec(spec, seed) : null), [spec, seed]);
+  const plainTile = useMemo(() => (spec ? buildTileFromDesignSpec(spec, seed) : null), [spec, seed]);
+  // Once a quality loop has run, its winning candidate (whichever round
+  // scored highest) replaces the plain single-shot tile in every preview —
+  // real generated output, not a mockup, same as `plainTile`.
+  const tile = qualityResult ? qualityResult.pool.winner.tileData : plainTile;
   const tileSvgHtml = useMemo(() => (tile ? buildSingleTileSvg(tile).replace(/^<\?xml[^>]*\?>\s*/, '') : ''), [tile]);
 
   const seo = useMemo(() => (spec && tile ? buildDesignSpecSeo(spec, tile, previewMarketplace) : null), [spec, tile, previewMarketplace]);
@@ -361,16 +389,66 @@ export function TrendStudioPanel({ onApplyToEditor, onDownloadPackage, onClose }
             <div className="collection-asset-preview">
               <div className="collection-asset-preview-header">
                 <strong>Composition Diagram (ลายจริงที่สร้างจาก Design Spec นี้)</strong>
-                <button type="button" className="btn" onClick={() => setSeed(newSeed('trend'))}>
-                  🎲 สุ่ม seed ใหม่
-                </button>
+                <div className="trend-studio-actions">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      setSeed(newSeed('trend'));
+                      setQualityResult(null);
+                    }}
+                  >
+                    🎲 สุ่ม seed ใหม่
+                  </button>
+                  <button type="button" className="btn" onClick={handleRunQualityLoop} disabled={qualityRunning}>
+                    {qualityRunning ? '⏳ กำลังตรวจ...' : '🎯 Run Quality Loop'}
+                  </button>
+                </div>
               </div>
               <div className="collection-asset-svg" dangerouslySetInnerHTML={{ __html: tileSvgHtml }} />
               <button type="button" className="btn btn--primary" onClick={() => onApplyToEditor(buildGenerateParamsFromDesignSpec(spec, seed))}>
                 ✍️ ใช้ค่านี้ในหน้าสร้างลาย
               </button>
+
+              {qualityResult && (
+                <div className="trend-studio-quality-report">
+                  <div
+                    className={`marketplace-ready-indicator marketplace-ready-indicator--${qualityResult.check.meetsTargets ? 'ready' : 'issues'}`}
+                  >
+                    {qualityResult.check.meetsTargets
+                      ? `✅ ผ่านเกณฑ์คุณภาพ (${qualityResult.roundsUsed}/${qualityResult.maxRounds} รอบ)`
+                      : `⚠️ ยังไม่ผ่านเกณฑ์หลังลอง ${qualityResult.roundsUsed}/${qualityResult.maxRounds} รอบ — ใช้รอบที่คะแนนสูงสุด`}
+                  </div>
+                  <div className="trend-studio-quality-grid">
+                    {Object.entries(qualityResult.check.report).map(([key, value]) => (
+                      <div key={key} className="trend-studio-quality-metric">
+                        <span>{key}</span>
+                        <strong>{value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                  {qualityResult.check.shortfalls.length > 0 && (
+                    <ul className="marketplace-issues">
+                      {qualityResult.check.shortfalls.map((s, i) => (
+                        <li key={i} className="marketplace-issue marketplace-issue--warning">
+                          ⚠️ {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
           )}
+
+          <h3>🏭 Collection Generator</h3>
+          <p className="metadata-hint">
+            สร้างคอลเลกชันเต็ม (Hero/Secondary/Blender/Mini/Stripe/Border/Corner/Spot Motif Sheet) จาก Design Spec นี้ — ทุกชิ้นใช้ Style
+            DNA/Palette/Motif Family เดียวกันโดยอัตโนมัติ บันทึกเข้าโปรเจกต์ที่เปิดอยู่ให้ทันที
+          </p>
+          <button type="button" className="btn btn--primary" onClick={() => onGenerateCollection(spec, seed)} disabled={collectionStatus === 'building'}>
+            {collectionStatus === 'building' ? '🏭 กำลังสร้างคอลเลกชัน...' : '🏭 Generate Collection จาก Design Spec'}
+          </button>
 
           <h3>📊 SEO Preview</h3>
           <div className="marketplace-chips">
