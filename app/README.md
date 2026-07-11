@@ -2007,6 +2007,85 @@ the same graceful-degradation convention `filenameEngine.ts`'s
 `resolveFilenameTemplate` uses. `buildPrompt`/`buildAllPrompts` resolve
 one platform / every platform in one call.
 
+### UI — the Trend Intelligence Studio page (`components/TrendStudioPanel.tsx`)
+
+The first UI for this whole milestone, closing the loop Sections 1/6/13
+asked for: every generator above (`buildDesignSpecification`,
+`buildTileFromDesignSpec`, `buildDesignSpecSeo`, `buildPrompt`,
+`buildDesignSpecPackageTextFiles`) already existed and was independently
+unit-tested before this component was written — the component is purely
+UI wiring, no new generation logic.
+
+- **Section 1/2 — Keyword Bundle form**: every `KeywordBundle` field as a
+  real input (Primary/Secondary Keywords, Marketplace, Season, Audience,
+  Commercial Category, Pattern Type, Style DNA — "let the system choose"
+  is a real option, not a forced pick — Palette Direction, Difficulty,
+  Collection Size).
+- **Section 3 — Trend Pack picker**: a chip row (`TREND_PACK_LIST` +
+  "✨ Auto-match", which leaves `trendPackId` unset so
+  `designIntelligence.ts`'s own season/pattern-type auto-match resolves it
+  — the exact same function the pure-logic layer already tests).
+- **"🧠 Generate Design Specification"** calls `buildDesignSpecification`
+  directly and pushes the result onto a local undo/redo history stack
+  (`history: DesignSpecification[]` + `historyIndex`).
+- **Section 6 — JSON Editor**: a **Code View** (a controlled `<textarea>`
+  synced to `JSON.stringify(spec, null, 2)`, with an "✅ Apply Edits"
+  button that runs the edited text through the existing
+  `parseDesignSpecificationJson` — a shape-invalid edit shows the real
+  Thai error message inline instead of silently discarding the edit) and
+  a **Tree View** (`JsonTreeNode`, a small recursive read-only renderer
+  over the actual spec object — no separate schema description to drift
+  out of sync). **Validation**/**Schema Check**: `validateDesignSpecification`'s
+  real issues rendered live, with a Ready/Issues indicator matching the
+  same visual language the Marketplace Profile Selector already
+  established. **Undo/Redo**: plain history-stack navigation, re-syncing
+  the Code View's textarea on each step.
+- **Section 13 — Live Preview**: Trend Summary (theme/mood/composition/
+  density/negative space), Moodboard (`colorRoles` swatches), Palette
+  (`palette.colors` swatches), Motif Preview (hero/secondary category
+  labels + resolved Style DNA label) — all read directly off the spec, no
+  separate preview-only computation.
+- **Real SVG generation**: `buildTileFromDesignSpec(spec, seed)` renders
+  the actual pattern inline (`buildSingleTileSvg`, same
+  `dangerouslySetInnerHTML` pattern `ProjectPanel.tsx`'s Asset Browser
+  already uses) — this is a real generated tile, not a mockup, and reuses
+  the exact same underlying `buildTile` the main editor's own "Generate"
+  button calls (so it's also subject to the same existing safety-net UI —
+  a Design Spec that lands on a known-heavy category/layout combination
+  shows up as ❌ in the Submission Checklist after being applied, exactly
+  as it would for any other pattern; this page doesn't special-case or
+  hide that, it's the same real quality signal every other pattern gets).
+  **"✍️ ใช้ค่านี้ในหน้าสร้างลาย"** applies `buildGenerateParamsFromDesignSpec`'s
+  result straight to the main editor's `params`/`tileData` (same
+  `setTileData`+`setParams` pairing `handleRescale` already uses) and
+  switches back to the editor view — the actual "Review & Edit" handoff
+  into the app's one real generation surface.
+- **SEO Preview / Marketplace Package**: a marketplace chip row drives
+  `buildDesignSpecSeo` for a live Title/Description/Keywords/Filename/
+  Collection Name/Asset Name preview with copy buttons and a real
+  Ready/Issues indicator (`validateMarketplaceSeo`, unmodified); "📦
+  ดาวน์โหลด Marketplace Package" is wired in `App.tsx`
+  (`handleDownloadDesignSpecPackage`) the same way every other zip export
+  in this app is — PNG rasterization is DOM-dependent and lives there,
+  every text/JSON file comes from the DOM-free `buildDesignSpecPackageTextFiles`.
+- **Prompt Preview**: a platform chip row drives `buildPrompt` for a live,
+  copyable prompt per platform.
+- **Navigation**: `App.tsx`'s `view` state gained a third mode,
+  `'trendStudio'` (alongside the existing `'editor'`/`'dashboard'`), opened
+  via a new "🧠 Trend Intelligence Studio" button in `ProjectBar.tsx`
+  (next to the existing "📊 Project Dashboard" button) — same top-level
+  view-switch convention the Project Dashboard already established.
+- Verified live via Playwright against the real dev server: filling the
+  form and generating a spec renders a real, correct Design Specification
+  JSON; switching Trend Pack chips changes the resolved theme/mood/
+  palette/Style DNA; Tree View and Code View both render correctly and
+  toggle cleanly; the Composition Diagram shows a genuinely rendered
+  pattern; switching marketplace/prompt-platform chips updates the SEO/
+  prompt preview live; "ใช้ค่านี้ในหน้าสร้างลาย" correctly returns to the
+  editor with the Design Spec's category/layout/palette actually applied
+  (visible in the Control Panel's own selection state); zero console
+  errors throughout the whole flow.
+
 ## Adding a new pattern category
 
 Implement the `PatternGenerator` interface in a new file under
@@ -2077,11 +2156,23 @@ src/
     marketplaceSeo.ts       generates one marketplace's Title/Description/Keywords/Filename
     marketplaceValidation.ts validates generated SEO against a marketplace's own rules
     exportPackage.ts        builds a marketplace's Export Package text/JSON files
+  trend/
+    designSpecTypes.ts      Design Specification JSON schema + Keyword Bundle types
+    keywordMap.ts            keyword -> engine signal config (palette/motif/Style DNA/mood hints)
+    keywordBundle.ts         merges a Keyword Bundle's signals (+ combo rules) into ranked hints
+    trendPacks.ts            Trend Library: quarterly market packs + JSON import/export
+    designIntelligence.ts    assembles one Design Specification from a Keyword Bundle + Trend Pack
+    designSpecValidation.ts  Design Spec JSON parsing + semantic validation/schema-check
+    designSpecToParams.ts    SVG Engine adapter: Design Spec -> GenerateParams -> buildTile
+    designSpecSeo.ts         SEO Engine: market-driven Title/Description/Keywords/Filename
+    designSpecPackage.ts     Marketplace Package text/JSON files, driven by a Design Spec
+    promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
     MarketplaceProfileSelector.tsx
+    TrendStudioPanel.tsx
     ProjectBar.tsx
     ProjectDashboard.tsx
     ProjectPanel.tsx

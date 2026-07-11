@@ -1705,3 +1705,149 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+/* Trend Intelligence Studio */
+
+.trend-studio {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.trend-studio h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.trend-studio h3 {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.trend-studio-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.7rem;
+}
+
+.trend-studio-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.trend-studio-form input,
+.trend-studio-form select {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+}
+
+.trend-pack-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.trend-studio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trend-studio-json-editor {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.76rem;
+  font-family: 'SF Mono', Consolas, monospace;
+  resize: vertical;
+  width: 100%;
+}
+
+.trend-studio-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.6rem;
+}
+
+.trend-studio-preview-card {
+  background: var(--panel-alt);
+  border-radius: 10px;
+  padding: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.trend-studio-preview-card strong {
+  font-size: 0.82rem;
+}
+
+.trend-studio-preview-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.76rem;
+}
+
+.trend-studio-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.trend-studio-swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.json-tree {
+  background: var(--panel-alt);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.76rem;
+  font-family: 'SF Mono', Consolas, monospace;
+  max-height: 26rem;
+  overflow: auto;
+}
+
+.json-tree-toggle {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0.1rem 0;
+  text-align: left;
+}
+
+.json-tree-leaf {
+  padding: 0.1rem 0;
+  color: var(--text-dim);
+}
+
+.json-tree-key {
+  color: var(--accent);
+}
+
+.json-tree-value {
+  color: var(--text);
+}
