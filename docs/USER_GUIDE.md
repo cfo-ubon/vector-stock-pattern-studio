@@ -403,10 +403,57 @@ custom เป็น hex เอง** (สีแรก = พื้นหลัง)
 
 ---
 
-## 📝 แผง SEO สำหรับ Stock — แยกตามเว็บ (5 เว็บ)
+## 📝 Stock Submission Center 🆕
 
-อยู่ใต้ Preview — สร้างให้อัตโนมัติตามลายที่แสดงอยู่ เปลี่ยนลายเมื่อไหร่
-ข้อความอัปเดตตามทันที **กดแท็บเลือกเว็บที่จะส่งขาย** แล้วได้ข้อความที่
+อยู่ใต้ Preview — ยกระดับจากแผง SEO เดิมให้เป็นศูนย์รวมเตรียมส่งขายครบวงจร
+สร้างให้อัตโนมัติตามลายที่แสดงอยู่ เปลี่ยนลายเมื่อไหร่ข้อมูลอัปเดตตามทันที
+
+### 🔗 Contributor Portal
+
+ปุ่มลัดไปหน้าส่งขายของแต่ละเว็บ (เปิดแท็บใหม่เสมอ ไม่ทับหน้าแอป):
+**Adobe Stock, Shutterstock, Freepik, Creative Fabrica, Creative Market**
+
+- Adobe Stock กับ Shutterstock ใช้ URL พอร์ทัลผู้ส่งขายที่มั่นคง/เป็นที่รู้จัก
+  มานาน (`contributor.stock.adobe.com`, `submit.shutterstock.com`)
+- Freepik / Creative Fabrica / Creative Market ยังไม่ยืนยัน URL หน้าอัปโหลดที่
+  แม่นยำ 100% (ใช้หน้า "สมัครเป็นผู้ขาย" ทั่วไปแทน) — ปุ่มจะมีสัญลักษณ์ ⚠️ กำกับ
+  ถ้า URL ไม่ตรง แก้ไขได้ที่ไฟล์เดียว `metadata/contributorLinks.ts`
+
+### ✅ Submission Checklist
+
+รายการตรวจสอบ 11 ข้อก่อนส่งขายจริง แต่ละข้อสถานะ **✅ พร้อม / ⚠️ ควรตรวจสอบ /
+❌ ยังไม่พร้อม** คำนวณจากข้อมูลจริงทั้งหมด (ไม่ใช่ label ตายตัว):
+
+SVG Generated, Preview Generated, Metadata Ready, Title Ready, Description
+Ready, Keywords Ready, Filename Ready, Collection Ready (เช็คว่าเคยกด
+Generate Collection สำหรับลายนี้แล้วหรือยัง), ZIP Ready, SVG Valid (ใช้กฎ
+ตรวจสอบเดียวกับ Candidate Engine), Originality Checklist (เช็คว่าลายนี้ตั้งค่า
+ซ้ำกับลายที่เคยบันทึกเข้าคลังไว้แล้วหรือไม่ — ตรวจได้เฉพาะภายในคลังของคุณเอง
+ไม่ใช่ฐานข้อมูลตลาดทั้งหมด)
+
+### 📊 SEO Analyzer
+
+คะแนนรวม 0-100 พร้อมตัวเลขจริง 7 ตัว: Keyword Count, Duplicate Keywords,
+Title Length, Description Length, Filename Length, Commercial Tags,
+Keyword Coverage — คำนวณจาก metadata ที่สร้างจริง ไม่ใช่ค่าคงที่
+
+### 🏬 Stock Readiness
+
+การ์ดแยกตามเว็บทั้ง 5 เว็บ แต่ละใบแสดงสถานะ **พร้อมส่ง / ควรตรวจสอบ / มีปัญหา**
+พร้อมรายการปัญหาและคำแนะนำจริงที่คำนวณจากขีดจำกัดของเว็บนั้นๆ (ความยาว
+title, จำนวนคำค้น ฯลฯ)
+
+### 🧭 คำแนะนำจากการตรวจสอบ
+
+สรุปคำแนะนำที่คำนวณจริงจากผล Checklist/SEO Analyzer/Stock Readiness
+ทั้งหมด (เช่น "เพิ่มคำค้นให้ครอบคลุมมากขึ้น", "Title บางเว็บยาวเกิน") —
+แสดงเฉพาะเมื่อมีจุดที่ควรแก้จริง
+
+---
+
+### แท็บรายเว็บ (ของเดิม ยังอยู่ด้านล่าง Stock Submission Center)
+
+**กดแท็บเลือกเว็บที่จะส่งขาย** แล้วได้ข้อความที่
 ปรับตามกติกาของเว็บนั้นๆ เป๊ะๆ พร้อมปุ่มคัดลอกทุกช่อง:
 
 | แท็บ | ช่องที่ได้ | ปรับตามกติกา |
@@ -620,6 +667,39 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.32 — 11 ก.ค. 2026 — Stock Submission Center
+- 📝 **ยกระดับแผง SEO เป็น Stock Submission Center เต็มรูปแบบ**:
+  - 🔗 **Contributor Portal**: ปุ่มลัดไปหน้าส่งขาย 5 เว็บ เปิดแท็บใหม่เสมอ
+    เก็บ URL ไว้ที่เดียว (`metadata/contributorLinks.ts`) เพิ่มเว็บใหม่ทำได้
+    ง่าย — Adobe Stock/Shutterstock ใช้ URL ที่มั่นใจว่าถูกต้อง ส่วน
+    Freepik/Creative Fabrica/Creative Market ใช้หน้าทั่วไปกำกับ ⚠️
+    (ยืนยันกับผู้ใช้แล้วว่าใช้แนวทางนี้ก่อนเริ่ม เพราะไม่มั่นใจ URL อัปโหลด
+    ที่แม่นยำของ 3 เว็บนี้)
+  - ✅ **Submission Checklist 11 ข้อ**: สถานะ ✅พร้อม/⚠️ควรตรวจสอบ/❌ยังไม่พร้อม
+    คำนวณจากข้อมูลจริงทั้งหมด — ใช้กฎตรวจสอบ SVG เดียวกับ Candidate Engine,
+    เช็คไฟล์ซ้ำกับคลังที่บันทึกไว้จริง (ไม่ใช่ label ตายตัว)
+  - 📊 **SEO Analyzer**: คะแนนรวม + ตัวเลขจริง 7 ตัว (จำนวนคำค้น, คำค้นซ้ำ,
+    ความยาว title/description/ชื่อไฟล์, commercial tags, keyword coverage)
+  - 🏬 **Stock Readiness**: การ์ดแยกตามเว็บ 5 เว็บ พร้อมปัญหา/คำแนะนำจริง
+    ตามขีดจำกัดของแต่ละเว็บ
+  - 🧭 **คำแนะนำอัตโนมัติ**: สรุปจากผลตรวจสอบทั้งหมดจริง — ทำหน้าที่แทน
+    Designer Assistant ในขอบเขตที่ทำได้วันนี้ (แนวทางเดียวกับที่ใช้ใน Style
+    DNA และ Asset Factory รอบก่อน)
+- 🐛 **แก้บั๊กที่พบระหว่างพัฒนา**: `collectionStatus` เดิมเป็น flag ทั่วไป
+  ไม่เคยรีเซ็ตเมื่อเปลี่ยนลาย ทำให้ "Collection Ready" ค้างสถานะ "เสร็จแล้ว"
+  จากลายเก่าที่ไม่เกี่ยวข้อง — แก้โดยเพิ่ม state ใหม่ที่ผูกกับ seed ของลาย
+  ปัจจุบันโดยตรง
+- 🧹 **ลดโค้ดซ้ำ**: ดึงฟังก์ชันสร้างชื่อไฟล์ (`filenameParts`) ที่เคยอยู่ใน
+  `App.tsx` อย่างเดียวออกมาเป็น `buildFilenameParts` ใน
+  `export/svgExporter.ts` ให้ Stock Submission Center เรียกใช้ชื่อไฟล์จริง
+  ตัวเดียวกับที่แอป export จริง ไม่ใช่คำนวณซ้ำแยกกัน
+- 🧪 **เทสต์ใหม่ 19 รายการ** ครอบคลุม checklist ครบ 11 ข้อ, SEO analyzer,
+  stock readiness, คำแนะนำอัตโนมัติ — รวมเป็น **304 test ทั้งโปรเจกต์**
+  (จากเดิม 285)
+- ✅ **ตรวจสอบผลจริงก่อนส่ง**: เปิดแอปจริงด้วย Playwright ทั้ง desktop และ
+  มือถือ คลิกปุ่ม Contributor Portal จริง (ยืนยันเปิดแท็บใหม่จริง), ตรวจ
+  checklist/analyzer/readiness cards แสดงผลถูกต้อง ไม่มี console error
 
 ### v1.31 — 11 ก.ค. 2026 — Professional Asset Factory Engine (PAF)
 - 🏭 **Generate Collection ใหม่**: ปุ่มเดียวสร้างชุด asset เชิงพาณิชย์ครบ 16
