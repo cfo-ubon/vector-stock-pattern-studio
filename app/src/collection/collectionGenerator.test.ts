@@ -4,9 +4,9 @@ import { STYLE_DNA_PRESETS, resolveStyleDna } from '../engine/styleDna';
 import { generateCollection, verifyConsistency, COLLECTION_SCHEMA_VERSION, type AssetType } from './collectionGenerator';
 
 const EXPECTED_ASSET_TYPES: AssetType[] = [
-  'heroPattern', 'secondaryPattern', 'coordinatePattern', 'miniPattern', 'stripePattern',
-  'borderPattern', 'cornerPattern', 'spotMotifSheet', 'singleMotifLibrary',
-  'backgroundElements', 'decorativeIcons', 'metadata', 'seoPackage',
+  'heroPattern', 'secondaryPattern', 'blenderPattern', 'miniPattern', 'stripePattern',
+  'borderPattern', 'cornerPattern', 'spotMotifSheet', 'decorativeElementsSheet',
+  'collectionPreview', 'metadata', 'seoPackage',
 ];
 
 describe('generateCollection: Collection', () => {
@@ -168,8 +168,26 @@ describe('generateCollection: Metadata / SEO Package', () => {
     const seoAsset = assets.find((a) => a.type === 'seoPackage')!;
     const data = seoAsset.data as { shutterstockCsv: string; adobeStockCsv: string };
     const shutterstockRows = data.shutterstockCsv.trim().split('\r\n');
-    // header + 5 pattern-type assets (hero/secondary/coordinate/mini/stripe)
+    // header + 5 pattern-type assets (hero/secondary/blender/mini/stripe)
     expect(shutterstockRows.length).toBe(6);
     expect(data.adobeStockCsv.length).toBeGreaterThan(0);
+  });
+});
+
+describe('generateCollection: Collection Preview', () => {
+  it('produces exactly one collectionPreview asset with a non-trivial SVG document', () => {
+    const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-preview' });
+    const previewAssets = assets.filter((a) => a.type === 'collectionPreview');
+    expect(previewAssets.length).toBe(1);
+    expect(previewAssets[0].svg).toContain('<svg');
+    expect(previewAssets[0].width).toBeGreaterThan(0);
+    expect(previewAssets[0].height).toBeGreaterThan(0);
+  });
+
+  it('the preview composite has no duplicate ids (each source tile is properly namespaced)', () => {
+    const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-preview-ids' });
+    const svg = assets.find((a) => a.type === 'collectionPreview')!.svg!;
+    const ids = [...svg.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

@@ -843,17 +843,30 @@ richer field set and a first-class Manager.
   generated SVG (verified directly: `STYLE_DNA_LIST` fixture test asserts
   two different styles produce different serialized SVG for the same seed).
 
-## Professional Asset Factory Engine (`engine/motifFactory.ts`, `engine/borderCornerAssets.ts`, `collection/collectionGenerator.ts`)
+## Collection Studio Engine (`engine/motifFactory.ts`, `engine/borderCornerAssets.ts`, `collection/collectionGenerator.ts`, `collection/collectionScore.ts`, `components/CollectionWorkspace.tsx`)
 
-Turns the app from a single-pattern generator into a commercial asset
-factory: one click on "🏭 Generate Collection" turns the current design
-concept (params + active Style DNA) into a full package — 5 pattern
-variants, border + corner assets, 4 motif sheets, a PNG preview, per-site
-metadata + SEO CSVs, and a Collection Manifest — all zipped together. The
-whole content-generation pipeline is DOM-free and unit-testable the same
-way every other engine module is; only PNG rasterization and the final
-`buildZip`/download call live in `App.tsx`, exactly like every other raster
-export in this app.
+Turns the app from a single-pattern generator into a commercial collection
+studio: one click on "🏭 Generate Collection" turns the current design
+concept (params + active Style DNA) into a full 10-asset collection —
+5 pattern variants, border + corner assets, 2 motif sheets, a Collection
+Preview composite, a PNG preview, per-site metadata + SEO CSVs, and a
+Collection Manifest — all zipped together, *and* opens an in-app Collection
+Workspace to browse/switch between every asset and see a real Collection
+Score without opening the zip. The whole content-generation pipeline is
+DOM-free and unit-testable the same way every other engine module is; only
+PNG rasterization and the final `buildZip`/download call live in `App.tsx`,
+exactly like every other raster export in this app.
+
+v1.33 restructured this in place from what shipped in v1.31 as the
+"Professional Asset Factory Engine" (PAF): same underlying idea, renamed/
+consolidated to a leaner 10-asset shape (`coordinatePattern` → 
+`blenderPattern`; `backgroundElements` + `decorativeIcons` +
+`singleMotifLibrary` consolidated into one `decorativeElementsSheet`; new
+`collectionPreview` asset), plus the first-ever in-app browsing UI and a
+real 5-dimension Collection Score — v1.31 only ever auto-downloaded a zip,
+nothing was browsable in-app and there was no scoring beyond a binary
+`consistency.consistent` flag. `COLLECTION_SCHEMA_VERSION` bumped 1 → 2
+since the asset-type rename is a breaking change to the manifest shape.
 
 ### Motif Factory (`engine/motifFactory.ts`)
 
@@ -890,10 +903,9 @@ tile placement and keeps the result as a tagged, inspectable `FactoryMotif`:
   `baseSeed` via `createRng` (never `Math.random`).
 - `buildMotifSheet(motifs, opts)` — lays a motif set out in a simple
   reference grid, transparent background, each motif in its own identified
-  group; the shared layout behind Spot Motif Sheet, Single Motif Library,
-  Background Elements, and Decorative Icons (they differ only in which
-  motif set/cell size feeds this one function, not in duplicated layout
-  code).
+  group; the shared layout behind Spot Motif Sheet and Decorative Elements
+  Sheet (they differ only in which motif set/cell size feeds this one
+  function, not in duplicated layout code).
 
 ### Border & Corner assets (`engine/borderCornerAssets.ts`)
 
@@ -923,23 +935,43 @@ corner unit doesn't repeat at all).
 ### Collection Generator (`collection/collectionGenerator.ts`)
 
 `generateCollection(baseParams, styleDna?)` orchestrates all of the above
-into one `GeneratedCollection`:
+into one `GeneratedCollection` (`{ manifest, assets, motifs, patternParams }`
+— `patternParams` is the resolved params behind each of the 5 pattern
+assets, kept alongside the manifest so `collectionScore.ts` can score
+without re-deriving anything):
 
 - **5 pattern-type assets** — Hero (base params as-is), Secondary (an
   alternate layout — from the active Style DNA's own family if one is set,
   else the next real layout in the registry — plus `denseLayered`
-  hierarchy), Coordinate (`scatter` layout, lower density, more negative
-  space, `minimalRepeat` hierarchy — an open "blender" print), Mini (half
-  tile size, smaller motifs, higher density — a ditsy-scale repeat),
-  Stripe (`layoutId: 'stripe'`, already a real existing layout). All 5 are
-  ordinary `buildTile` calls sharing `categoryId`/`paletteId`/`styleDnaId`,
-  each with its own deterministic seed via `candidateEngine.ts`'s existing
-  `deriveSeed` (reused, not reimplemented).
+  hierarchy), Blender (`scatter` layout, lower density, more negative
+  space, `minimalRepeat` hierarchy — an open coordinate/blender print),
+  Mini (half tile size, smaller motifs, higher density — a ditsy-scale
+  repeat), Stripe (`layoutId: 'stripe'`, already a real existing layout).
+  All 5 are ordinary `buildTile` calls sharing
+  `categoryId`/`paletteId`/`styleDnaId`, each with its own deterministic
+  seed via `candidateEngine.ts`'s existing `deriveSeed` (reused, not
+  reimplemented). ("Coordinate Pattern" was renamed to "Blender Pattern" in
+  v1.33 to match the Collection Studio spec's naming — same generation
+  logic, no behavior change.)
 - **Border (4 edges) + Corner (4 corners)** — built from a shared Motif
   Factory set via `borderCornerAssets.ts`.
-- **4 motif sheets** — Spot Motif Sheet, Single Motif Library, Background
-  Elements, Decorative Icons — each a `generateMotifSet` + `buildMotifSheet`
-  pair with different role/count/size.
+- **2 motif sheets** — Spot Motif Sheet (12 hero-role motifs) and
+  Decorative Elements Sheet (16 accent-role motifs) — each a
+  `generateMotifSet` + `buildMotifSheet` pair. (v1.33 consolidated v1.31's
+  three separate sheets — Single Motif Library, Background Elements,
+  Decorative Icons — into this one Decorative Elements Sheet, matching the
+  Collection Studio spec's leaner 10-asset structure.)
+- **Collection Preview** (`buildCollectionPreview`, new in v1.33) — a
+  composite grid of scaled-down, non-destructive thumbnails of the other 9
+  assets (5 pattern tiles + 1 representative border edge + 1 representative
+  corner + both sheets), each namespaced via `export/svgExporter.ts`'s
+  `namespaceIds` before being placed in its cell (patterns reuse fixed ids
+  like `tile-clip` per `tile.ts`, which would collide once several tiles
+  share one document). Deliberately has no embedded SVG `<text>` labels —
+  the `SvgNode`/`SvgTag` model has no text-content node type today and
+  extending it was judged out of scope for this asset; labels are plain
+  HTML in `CollectionWorkspace.tsx` instead, the same way Gallery/other
+  panels already label thumbnails outside the SVG itself.
 - **Metadata + SEO Package** — 100% reuse of the existing per-site
   metadata builders: `buildSiteMetadata`/`buildSeoTextFile`
   (`metadata/shutterstock.ts`) for the hero pattern, and
@@ -947,7 +979,8 @@ into one `GeneratedCollection`:
   all 5 pattern-type assets (via lightweight `SavedItem`-shaped wrapper
   objects, the same public shape those functions already consume for the
   saved library).
-- **Collection Manifest** (`CollectionManifest`, `COLLECTION_SCHEMA_VERSION`) —
+- **Collection Manifest** (`CollectionManifest`, `COLLECTION_SCHEMA_VERSION`,
+  bumped 1 → 2 in v1.33 for the asset-type rename/restructure) —
   `collectionId`/`collectionName`/`createdAt`/`styleDnaId`/`seed`/`palette`/
   `motifFamily`, every asset's id/type/label/filename/motifIds, every
   Motif Factory motif's id/family/role/category/complexity/tags, an
@@ -965,20 +998,75 @@ into one `GeneratedCollection`:
   scoped its own not-yet-built-engine dependencies: a real, useful check
   built now, not a placeholder waiting on the still-nonexistent Phase 8
   Designer Assistant engine.
-- **`App.tsx`'s `handleGenerateCollection`** adds the one DOM-dependent
-  step the pure `collection/` module can't do itself — rasterizing the
-  hero pattern to a PNG preview via a new Promise-based
-  `rasterizeSvgToPngBlob` (same `<canvas>` technique as the existing
-  JPEG export, just returning a Blob instead of calling
+- **`App.tsx`'s `handleGenerateCollection`/`buildAndDownloadCollectionZip`**
+  adds the one DOM-dependent step the pure `collection/` module can't do
+  itself — rasterizing the hero pattern to a PNG preview via a
+  Promise-based `rasterizeSvgToPngBlob` (same `<canvas>` technique as the
+  existing JPEG export, just returning a Blob instead of calling
   `downloadBlobFile` directly) — then zips everything with
   `export/zip.ts`'s existing `buildZip` into `svg/patterns/`,
-  `svg/border/`, `svg/corner/`, `svg/sheets/`, `metadata/`, `preview/`,
-  plus `manifest.json` at the root.
-- Verified end-to-end via Playwright against the real dev server: applied
-  a Style DNA, clicked "Generate Collection", downloaded the real zip, and
-  inspected its contents directly (21 files, correct folder structure,
-  `manifest.json` parses with `consistency.consistent: true`, the PNG
-  preview is a real valid 2000x2000 RGBA PNG, no NaN/Infinity in any SVG),
+  `svg/border/`, `svg/corner/`, `svg/spot/`, `svg/sheets/`, `svg/preview/`,
+  `metadata/`, `preview/`, plus `Collection.json` (renamed from
+  `manifest.json` in v1.33) at the root. The zip-building step is now its
+  own reusable `useCallback` so `CollectionWorkspace`'s "Export ZIP" button
+  can re-trigger it without regenerating the collection.
+
+### Collection Score (`collection/collectionScore.ts`)
+
+`computeCollectionScore(collection)` — 5 dimensions (0-100 each) + an
+overall average + a real `issues` list, all computed from the collection's
+own already-generated data, no placeholder numbers:
+
+- **Style/Palette/Motif Consistency** — `majorityFraction` (fraction of the
+  5 pattern assets' `styleDnaId`/`paletteId`/`categoryId` matching the most
+  common value) instead of a binary flag, so e.g. 4/5 patterns agreeing
+  scores 80, not 0.
+- **Flow Consistency** — same `majorityFraction` technique over
+  `[rotationJitter, scaleJitter, mirror, radialSymmetry, overlapAmount]`.
+  These flow-governing fields are deliberately inherited unchanged from
+  `baseParams` for every pattern asset (only layout/density/hierarchy vary
+  per asset type), so a drop below 100 here is a genuine structural signal
+  that something accidentally diverged one of these shared identity
+  fields — not a fabricated metric.
+- **Commercial Readiness** — averages two real fractions: (a) the fraction
+  of SVG-based assets that pass `engine/candidateEngine.ts`'s new exported
+  `checkSvgStringValidity(svgStr)` (NaN/Infinity, raster `<image>`,
+  external href — extracted from `applyHardRejectRules` so Collection Score
+  runs the exact same structural checks the Candidate Engine already uses,
+  applied to non-`TileData` assets like border/corner/sheet/preview that
+  can't run `extractInstances`), and (b) completeness — whether all 10
+  `REQUIRED_ASSET_TYPES` are present.
+- Directly unit-tested: a clean collection scores 100 on every dimension;
+  fully deterministic for the same params; a simulated palette drift is
+  genuinely caught and lowers `paletteConsistency` (regression guard); a
+  missing required asset type or a corrupted SVG genuinely lowers
+  `commercialReadiness`.
+
+### Collection Workspace (`components/CollectionWorkspace.tsx`)
+
+The in-app "Collection tab" — previously (v1.31) clicking "Generate
+Collection" only auto-downloaded a zip with nothing browsable in-app; this
+adds the browsing/scoring layer on top without changing that one-click
+download behavior. Renders whenever `App.tsx`'s `generatedCollection` state
+is populated: a Collection Score readout (reusing the same
+`quality-overall`/`quality-bar`/`scoreColor` convention as `QualityPanel`),
+a button per asset to switch the preview (raw SVG injected via
+`dangerouslySetInnerHTML` after stripping the XML declaration — the same
+pattern `PreviewCanvas` already established for rendering generated SVG
+markup — or a `<pre>`-formatted JSON view for the `metadata`/`seoPackage`
+assets), a per-asset download button (`downloadSvgFile`/`downloadBlobFile`,
+reused directly from `export/svgExporter.ts`), and an "Export ZIP" button
+that re-triggers `buildAndDownloadCollectionZip` without regenerating.
+
+- Verified end-to-end via Playwright against the real dev server: clicked
+  "Generate Collection", confirmed the real zip downloaded (20 files,
+  correct folder structure including the new `svg/spot/`/`svg/preview/`
+  folders, `Collection.json` parses with `schemaVersion: 2` and
+  `consistency.consistent: true`), confirmed the Collection Workspace
+  rendered with a 100/100 Collection Score, clicked through all 18 asset
+  buttons (5 patterns + 4 border + 4 corner + 2 sheets + preview + metadata
+  + seoPackage) and confirmed each renders its own SVG/JSON, re-clicked
+  "Export ZIP" and confirmed a second zip downloads without regenerating,
   zero console errors.
 
 ## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
@@ -1065,7 +1153,7 @@ to stock sites — not just generating copy-paste metadata (which
 
 ## Testing
 
-`npm test` runs `vitest run` — 304 tests across 20 files:
+`npm test` runs `vitest run` — 313 tests across 21 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1221,7 +1309,16 @@ to stock sites — not just generating copy-paste metadata (which
   the flattened asset->motif pairs; the manifest schema version, unique
   filenames, and seed/palette fields; the metadata asset carries all 5
   stock sites' fields, and the SEO Package asset's CSVs cover all 5
-  pattern-type assets.
+  pattern-type assets; exactly one `collectionPreview` asset with a
+  non-trivial SVG document, and its composite has no duplicate ids (every
+  namespaced source tile stays unique within the one document).
+- `collection/collectionScore.test.ts` — a normal collection scores 100 on
+  every dimension; carrying an active Style DNA still scores 100; fully
+  deterministic for the same params; a simulated palette drift genuinely
+  lowers `paletteConsistency` and surfaces in `issues` (regression guard); a
+  missing required asset type or a corrupted SVG genuinely lowers
+  `commercialReadiness`; `REQUIRED_ASSET_TYPES` is exactly the 10 core
+  creative types.
 - `metadata/submissionCenter.test.ts` — `buildSubmissionChecklist` returns
   exactly the 11 required items with real non-empty labels/statuses/
   details; SVG Generated/Preview Generated/SVG Valid are ready for a
@@ -1291,7 +1388,8 @@ src/
     savedStore.ts       IndexedDB-backed saved pattern library (localStorage fallback)
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   collection/
-    collectionGenerator.ts   Professional Asset Factory: builds a full Collection (assets + manifest)
+    collectionGenerator.ts   Collection Studio Engine: builds a full Collection (assets + manifest)
+    collectionScore.ts       5-dimension Collection Score (consistency + commercial readiness)
   metadata/
     shutterstock.ts        per-site SEO metadata (title/description/keywords)
     contributorLinks.ts     Contributor Portal config: one entry per stock site
@@ -1300,6 +1398,7 @@ src/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
+    CollectionWorkspace.tsx
     PreviewCanvas.tsx
     Gallery.tsx
 ```

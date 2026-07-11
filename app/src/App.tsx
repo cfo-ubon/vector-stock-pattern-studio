@@ -7,7 +7,7 @@ import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
-import { generateCollection } from './collection/collectionGenerator';
+import { generateCollection, type GeneratedCollection } from './collection/collectionGenerator';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename, buildFilenameParts } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildEps } from './export/epsExporter';
@@ -21,6 +21,7 @@ import { QualityPanel } from './components/QualityPanel';
 import { TrendPanel } from './components/TrendPanel';
 import { Gallery, type GalleryItem } from './components/Gallery';
 import { StockSubmissionCenter } from './components/StockSubmissionCenter';
+import { CollectionWorkspace } from './components/CollectionWorkspace';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
 import type { StockSiteId } from './metadata/shutterstock';
@@ -47,6 +48,16 @@ function saveGallery(items: GalleryItem[]) {
   }
 }
 
+// Collection Studio Engine — which zip folder each asset type's SVG lands
+// in (Collection Export spec: Hero/Secondary/Blender/Mini/Stripe under
+// patterns/, Border/Corner under their own folders, Spot/Decorative under
+// sheets/, Preview under preview/).
+const ASSET_FOLDER: Record<string, string> = {
+  heroPattern: 'patterns', secondaryPattern: 'patterns', blenderPattern: 'patterns', miniPattern: 'patterns', stripePattern: 'patterns',
+  borderPattern: 'border', cornerPattern: 'corner',
+  spotMotifSheet: 'spot', decorativeElementsSheet: 'sheets', collectionPreview: 'preview',
+};
+
 function App() {
   const [params, setParams] = useState<GenerateParams>(defaultParams);
   const [tileData, setTileData] = useState(() => buildTile(defaultParams()));
@@ -66,6 +77,13 @@ function App() {
   // reads as "not ready" again after switching to a different pattern
   // instead of staying stuck on "done" from an unrelated earlier one.
   const [collectionGeneratedForSeed, setCollectionGeneratedForSeed] = useState<string | null>(null);
+  // Full generated collection (Collection Studio Engine, v1.33) — kept in
+  // state so it's browsable in-app via CollectionWorkspace, not just an
+  // auto-downloaded zip. Stays populated across pattern edits until the
+  // next successful "Generate Collection" so the workspace can still be
+  // reviewed/re-exported; collectionGeneratedForSeed above is what the
+  // Stock Submission Center checks for *current-pattern* readiness.
+  const [generatedCollection, setGeneratedCollection] = useState<GeneratedCollection | null>(null);
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -325,48 +343,47 @@ function App() {
     });
   }, []);
 
-  // Professional Asset Factory Engine — Collection Generator: one click
-  // turns the current design concept (params + active Style DNA) into a
-  // full commercial asset package. engine/collection/collectionGenerator.ts
-  // builds every SVG-based asset + the manifest synchronously (pure, no
-  // DOM); this handler adds the one DOM-dependent piece the pure engine
-  // layer deliberately can't do itself (PNG rasterization) and zips
-  // everything into folders alongside manifest.json.
+  const buildAndDownloadCollectionZip = useCallback(async (collection: GeneratedCollection) => {
+    const { manifest, assets } = collection;
+    const enc = new TextEncoder();
+    const files: ZipEntry[] = [];
+
+    for (const asset of assets) {
+      if (asset.svg) {
+        const folder = ASSET_FOLDER[asset.type] ?? 'sheets';
+        files.push({ name: `svg/${folder}/${asset.filename}`, data: enc.encode(asset.svg) });
+      } else if (asset.data) {
+        files.push({ name: `metadata/${asset.filename}`, data: enc.encode(JSON.stringify(asset.data, null, 2)) });
+      }
+    }
+
+    const heroAsset = assets.find((a) => a.id === 'hero');
+    if (heroAsset?.svg) {
+      const png = await rasterizeSvgToPngBlob(heroAsset.svg, 2000);
+      if (png) files.push({ name: `preview/${manifest.collectionId}-hero-preview.png`, data: new Uint8Array(await png.arrayBuffer()) });
+    }
+
+    files.push({ name: 'Collection.json', data: enc.encode(JSON.stringify(manifest, null, 2)) });
+
+    const zip = buildZip(files);
+    downloadBlobFile(`${manifest.collectionId}.zip`, zip);
+  }, [rasterizeSvgToPngBlob]);
+
   const handleGenerateCollection = useCallback(async () => {
     setCollectionStatus('building');
     try {
       const activeDna = params.styleDnaId
         ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
         : undefined;
-      const { manifest, assets } = generateCollection(params, activeDna);
-      const enc = new TextEncoder();
-      const files: ZipEntry[] = [];
-
-      for (const asset of assets) {
-        if (asset.svg) {
-          const folder = asset.type === 'borderPattern' ? 'border' : asset.type === 'cornerPattern' ? 'corner' : ['heroPattern', 'secondaryPattern', 'coordinatePattern', 'miniPattern', 'stripePattern'].includes(asset.type) ? 'patterns' : 'sheets';
-          files.push({ name: `svg/${folder}/${asset.filename}`, data: enc.encode(asset.svg) });
-        } else if (asset.data) {
-          files.push({ name: `metadata/${asset.filename}`, data: enc.encode(JSON.stringify(asset.data, null, 2)) });
-        }
-      }
-
-      const heroAsset = assets.find((a) => a.id === 'hero');
-      if (heroAsset?.svg) {
-        const png = await rasterizeSvgToPngBlob(heroAsset.svg, 2000);
-        if (png) files.push({ name: `preview/${manifest.collectionId}-hero-preview.png`, data: new Uint8Array(await png.arrayBuffer()) });
-      }
-
-      files.push({ name: 'manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2)) });
-
-      const zip = buildZip(files);
-      downloadBlobFile(`${manifest.collectionId}.zip`, zip);
+      const collection = generateCollection(params, activeDna);
+      setGeneratedCollection(collection);
+      await buildAndDownloadCollectionZip(collection);
       setCollectionStatus('done');
       setCollectionGeneratedForSeed(params.seed);
     } catch {
       setCollectionStatus('idle');
     }
-  }, [params, rasterizeSvgToPngBlob]);
+  }, [params, buildAndDownloadCollectionZip]);
 
   // --- Saved library (คลังลายที่บันทึก): long-term keeps with per-site
   // submission tracking, independent of the rolling Gallery. Saving also
@@ -632,6 +649,12 @@ function App() {
             checkedIds={checkedGalleryIds}
             onToggleCheck={handleToggleGalleryCheck}
             onSaveChecked={handleSaveCheckedGallery}
+          />
+          <CollectionWorkspace
+            collection={generatedCollection}
+            building={collectionStatus === 'building'}
+            onGenerate={handleGenerateCollection}
+            onExportZip={() => generatedCollection && void buildAndDownloadCollectionZip(generatedCollection)}
           />
           <StockSubmissionCenter tileData={tileData} saved={saved} collectionGeneratedForSeed={collectionGeneratedForSeed} />
           <SavedPanel
