@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 484 tests across 31 files:
+`npm test` runs `vitest run` — 534 tests across 36 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1766,6 +1766,117 @@ project mutation already uses).
   `metadata.json`'s embedded validation result; `buildMarketplacePackageTextFiles`
   is confirmed to be a thin wrapper that delegates to
   `buildPackageTextFilesFromSeo` with a freshly generated SEO.
+- `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
+  `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
+  `trend/designSpecValidation.test.ts` — see "Trend Intelligence Studio"
+  below.
+
+## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
+
+Phase 1 of a larger, explicitly phased milestone (agreed with the user via
+`AskUserQuestion` given its size — 16 sections in the original brief). This
+phase builds only the foundation everything else depends on: the **Design
+Specification JSON** schema and the pure, DOM-free logic that assembles one
+from a **Keyword Bundle** + an optional **Trend Pack**. No UI yet (no new
+page, no JSON editor) and no wiring into the SVG/SEO/export engines yet —
+those are later phases, once this schema is proven stable and tested.
+
+Distinct from the pre-existing `engine/trendEngine.ts` (v1.27, unchanged):
+that module is a single-pattern "style preset" resolved straight into
+`GenerateParams` for one tile, still used by the Control Panel's Trend
+Intelligence section. A **Trend Pack** here operates one level up, at the
+keyword-bundle/collection level, and never touches `GenerateParams`
+directly — it's one of several inputs `designIntelligence.ts` merges into
+a `DesignSpecification`.
+
+### Design Specification schema (`trend/designSpecTypes.ts`)
+
+`DesignSpecification` — `schemaVersion`, `project`, `collection`,
+`marketplace`, `trend`, `keywordBundle`, `styleDnaId`, `palette`,
+`colorRoles`, `composition`, `repeatType`, `density`, `hierarchy`, `flow`,
+`rhythm`, `negativeSpace`, `heroMotifs`/`secondaryMotifs`/`fillers`,
+`background`, `svgHints`, `seoHints`, `exportHints`, `qualityTargets` —
+exactly the Section 5 field list. Every field re-uses a real existing
+engine type instead of inventing a parallel one specifically so a later
+"SVG Engine consumes the Design Specification directly, no duplicated
+logic" phase is a mechanical mapping, not a redesign:
+`repeatType` is `LayoutId` unchanged, `hierarchy` is `HierarchyParams`
+unchanged, `flow`/`rhythm` are engine/styleDna.ts's `FlowProfile`/
+`RhythmProfile` enums (that module's `FLOW_ROTATION_JITTER`/
+`RHYTHM_STRENGTH` tables were exported, not duplicated, so resolving them
+into numbers reuses the exact values Style DNA already uses),
+`negativeSpace` is the same `GenerateParams.negativeSpace`, and every
+`svgHints` field maps 1:1 onto a remaining `GenerateParams` field.
+`colorRoles` (named background/primary/secondary/accent roles) is a new,
+small concept — deliberately distinct from `engine/motifFactory.ts`'s
+unrelated `colorRoles` field (that one is a per-motif "which colors did
+this motif actually use" audit list; this one is a palette-level role
+assignment for moodboard/SEO copy) — always derived from the *actually
+resolved* palette's own colors, so `colorRoles` values are guaranteed to
+be a subset of `palette.colors` (asserted by tests).
+
+### Keyword Bundle + relationship resolution (`trend/keywordMap.ts`, `trend/keywordBundle.ts`)
+
+`KEYWORD_MAP` (Section 14's "no hardcoded data" config) maps individual
+keyword tokens (matched case-insensitively, multi-word keys like "muted
+green" checked before falling back to single words) to palette/motif/
+Style DNA/composition/mood hints, each with a relative weight. Section 2's
+explicit requirement — "understand the relationship between keywords
+instead of treating them independently" — is `COMBO_RULES`: a curated set
+of token-pair rules (e.g. Luxury + Botanical -> `luxuryFloral` + editorial
+composition, overriding what either keyword alone would suggest) applied
+*in addition to* the individual signals, not instead of them.
+`resolveKeywordBundle(bundle)` merges every keyword in a `KeywordBundle`
+(primary weighted 2x over secondary, on top of each token's own
+`KEYWORD_MAP` weight), applies matching combo bonuses, and returns every
+hint category ranked by aggregated score — deterministic, pure, no
+randomness.
+
+### Trend Library (`trend/trendPacks.ts`)
+
+`TREND_PACKS` — 4 real, grounded quarterly packs for 2026 (Q1 Quiet Luxury
+Botanical, Q2 Modern Tropical Editorial, Q3 Vintage Herbarium, Q4 Dark
+Academia Maximalist), each with every Section 3 field (theme, mood,
+commercial uses, palette direction, popular motifs, suggested layouts,
+negative space, composition style, Style DNA id, color roles, pattern
+types, collection recommendations) — every category/layout/Style-DNA id
+referenced is real and verified by tests, every `colorRoles` hex is lifted
+directly from a real `palettes/palettes.ts` entry, not invented.
+`exportTrendPackJson`/`importTrendPackJson` provide the "editable,
+import/export as JSON" requirement (same structural-validation-only, Thai-
+error-message convention `project/projectJson.ts` established).
+
+### Design Intelligence (`trend/designIntelligence.ts`)
+
+`buildDesignSpecification({ keywordBundle, trendPackId?, ... })` is the
+Section 5 core — Market Research -> Keyword Bundle -> Trend Analysis ->
+Design Intelligence -> Design Specification JSON. `resolveTrendPack`
+either honors an explicit `trendPackId` (returning `null` if it doesn't
+exist — never silently falling back) or auto-matches by season, then
+pattern type. Every other field resolves through a clear, tested priority
+order — e.g. `styleDnaId`: an explicit `keywordBundle.styleDnaId` always
+wins, then the top keyword-derived Style DNA signal, then the matched
+Trend Pack's own `styleDnaId`, then a sensible default — so a strong
+keyword signal (e.g. "Luxury Botanical") can outrank a Trend Pack's
+generic default, while a Trend Pack still supplies sensible values when
+keywords alone don't produce a strong signal. `composition` (a
+Section 3-style descriptive label) resolves to a real `HIERARCHY_PRESETS`
+key via `COMPOSITION_STYLE_TO_HIERARCHY`, and `density` comes from the
+Keyword Bundle's `difficulty` input (`simple`/`moderate`/`complex` ->
+distinct density values).
+
+### Schema Check / Validation (`trend/designSpecValidation.ts`)
+
+Two layers, matching Section 6's "Validation" + "Schema Check" JSON Editor
+requirements (the editor UI itself is a later phase): `parseDesignSpecificationJson`
+rejects a document that isn't even shaped like a `DesignSpecification`
+(missing required top-level keys) on import; `validateDesignSpecification`
+accepts an already shape-valid spec and reports *semantic* problems —
+every id referenced (category, layout, palette, Style DNA, marketplace)
+checked against the real registry it should exist in, every 0..1-ranged
+number range-checked, `colorRoles` checked against the actual palette —
+as `error`/`warning`-severity `ValidationIssue[]`, so a future JSON Editor
+can highlight problems without hard-blocking editing.
 
 ## Adding a new pattern category
 

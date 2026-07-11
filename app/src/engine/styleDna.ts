@@ -82,11 +82,15 @@ export interface StyleDna {
   exportRecommendation: StyleDnaExportRecommendation;
 }
 
-const FLOW_ROTATION_JITTER: Record<FlowProfile, number> = { calm: 8, directional: 15, dynamic: 30 };
+// Exported (not just module-private) so other modules that resolve a
+// FlowProfile/RhythmProfile into a concrete number — e.g. trend/
+// designIntelligence.ts's Design Specification builder — reuse these same
+// values instead of maintaining a second copy that could drift.
+export const FLOW_ROTATION_JITTER: Record<FlowProfile, number> = { calm: 8, directional: 15, dynamic: 30 };
 const COMPLEXITY_SCALE_JITTER: Record<MotifComplexity, number> = { simple: 0.08, moderate: 0.15, intricate: 0.25 };
 const COMPLEXITY_ROTATION_BUMP: Record<MotifComplexity, number> = { simple: 0, moderate: 4, intricate: 10 };
 const COMPLEXITY_COLOR_COUNT: Record<MotifComplexity, number> = { simple: 3, moderate: 4, intricate: 5 };
-const RHYTHM_STRENGTH: Record<RhythmProfile, number> = { regular: 0.15, organic: 0.4, syncopated: 0.6 };
+export const RHYTHM_STRENGTH: Record<RhythmProfile, number> = { regular: 0.15, organic: 0.4, syncopated: 0.6 };
 const CLUSTER_BALANCE_STRENGTH: Record<ClusterStyle, number> = { none: 0.6, loose: 0.5, tight: 0.25, bouquet: 0.2 };
 const COLOR_STRATEGY_STORY: Record<ColorStrategy, boolean> = {
   dominantDuo: true,
