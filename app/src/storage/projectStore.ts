@@ -1,4 +1,5 @@
 import type { Project } from '../project/projectTypes';
+import { normalizeProject } from '../project/projectManager';
 import { openDb, idbAvailable, requestAsPromise, lsLoad, lsStore, PROJECTS_STORE } from './db';
 
 // IndexedDB-backed store for Projects — same DB/quota story as
@@ -16,10 +17,10 @@ export async function loadProjects(): Promise<Project[]> {
   } catch {
     // storage manager unavailable — non-fatal
   }
-  if (!idbAvailable()) return lsLoad<Project>(LEGACY_LS_KEY).sort((a, b) => b.updatedAt - a.updatedAt);
+  if (!idbAvailable()) return lsLoad<Project>(LEGACY_LS_KEY).sort((a, b) => b.updatedAt - a.updatedAt).map(normalizeProject);
   const db = await openDb();
   const items = await requestAsPromise(tx(db, 'readonly').getAll() as IDBRequest<Project[]>);
-  return items.sort((a, b) => b.updatedAt - a.updatedAt);
+  return items.sort((a, b) => b.updatedAt - a.updatedAt).map(normalizeProject);
 }
 
 export async function putProject(project: Project): Promise<void> {

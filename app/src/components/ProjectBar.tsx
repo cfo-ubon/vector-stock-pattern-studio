@@ -43,7 +43,7 @@ export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOp
         📊 Project Dashboard
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenTrendStudio}>
-        🧠 Trend Intelligence Studio
+        🧭 Design Workbench
       </button>
     </div>
   );

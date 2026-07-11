@@ -47,7 +47,7 @@ import { ProjectDashboard } from './components/ProjectDashboard';
 import { ProjectPanel } from './components/ProjectPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
-import { TrendStudioPanel } from './components/TrendStudioPanel';
+import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -901,11 +901,13 @@ function App() {
         onOpenTrendStudio={() => setView('trendStudio')}
       />
       {view === 'trendStudio' ? (
-        <TrendStudioPanel
+        <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
           onDownloadPackage={handleDownloadDesignSpecPackage}
           onGenerateCollection={handleGenerateCollectionFromDesignSpec}
           collectionStatus={collectionStatus}
+          activeProject={projects.find((p) => p.id === activeProjectId) ?? null}
+          onSaveProject={(updated) => updateProject(updated.id, () => updated)}
           onClose={() => setView('editor')}
         />
       ) : view === 'dashboard' ? (

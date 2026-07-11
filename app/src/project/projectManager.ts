@@ -2,7 +2,15 @@ import type { AssetSeoOverride, GeneratedCollection } from '../collection/collec
 import type { StockSiteId } from '../metadata/shutterstock';
 import type { MarketplaceId } from '../metadata/marketplaceProfiles';
 import type { SavedItem } from '../components/SavedPanel';
-import type { Project, ProjectCollectionEntry, ProjectExportHistoryEntry, ProjectMoodboardItem, UploadStatus } from './projectTypes';
+import type {
+  Project,
+  ProjectCollectionEntry,
+  ProjectDesignSpecEntry,
+  ProjectExportHistoryEntry,
+  ProjectMoodboardItem,
+  UploadStatus,
+} from './projectTypes';
+import type { DesignSpecification } from '../trend/designSpecTypes';
 
 // Project Manager — pure, DOM-free functions for every Project Manager
 // action (Create/Open/Duplicate/Rename/Archive/Delete/Favorite is "Open"
@@ -32,7 +40,19 @@ export function createProject(name: string): Project {
     savedItemIds: [],
     collections: [],
     exportHistory: [],
+    designSpecs: [],
   };
+}
+
+/** Fills in fields added to `Project` after the record could already have
+ * been persisted (currently just `designSpecs`, added for the Design
+ * Workbench) with their empty default — every loader (`storage/
+ * projectStore.ts`'s `loadProjects`, `project/projectJson.ts`'s import)
+ * runs records through this before they reach app state, so the rest of
+ * the codebase can treat every field as always-present per the `Project`
+ * type instead of re-checking for `undefined` at every call site. */
+export function normalizeProject(project: Project): Project {
+  return { ...project, designSpecs: project.designSpecs ?? [] };
 }
 
 export function duplicateProject(project: Project): Project {
@@ -51,6 +71,7 @@ export function duplicateProject(project: Project): Project {
     collections: project.collections.map((c) => ({ ...c, uploadStatus: { ...c.uploadStatus } })),
     exportHistory: project.exportHistory.map((h) => ({ ...h })),
     savedItemIds: [...project.savedItemIds],
+    designSpecs: project.designSpecs.map((e) => ({ ...e, versions: e.versions.map((v) => ({ ...v })) })),
   };
 }
 
@@ -208,6 +229,65 @@ export function addSavedItemToProject(project: Project, savedItemId: string): Pr
 
 export function removeSavedItemFromProject(project: Project, savedItemId: string): Project {
   return { ...project, savedItemIds: project.savedItemIds.filter((id) => id !== savedItemId), updatedAt: Date.now() };
+}
+
+/** Creates a new Design Spec entry (Design Workbench Section 7) inside the
+ * project, seeded with one version. */
+export function addDesignSpecToProject(project: Project, name: string, spec: DesignSpecification, note?: string): Project {
+  const now = Date.now();
+  const entry: ProjectDesignSpecEntry = {
+    id: newId('designspec'),
+    name,
+    createdAt: now,
+    updatedAt: now,
+    versions: [{ id: newId('dsver'), savedAt: now, note, spec }],
+  };
+  return { ...project, designSpecs: [...project.designSpecs, entry], updatedAt: now };
+}
+
+/** Appends a new version to an existing Design Spec entry — the entry's
+ * full edit history stays intact (Section 6/7's "Snapshot" + "Maintain
+ * version history"), nothing is overwritten in place. */
+export function addDesignSpecVersion(project: Project, entryId: string, spec: DesignSpecification, note?: string): Project {
+  const now = Date.now();
+  return {
+    ...project,
+    designSpecs: project.designSpecs.map((entry) =>
+      entry.id === entryId
+        ? { ...entry, updatedAt: now, versions: [...entry.versions, { id: newId('dsver'), savedAt: now, note, spec }] }
+        : entry,
+    ),
+    updatedAt: now,
+  };
+}
+
+export function renameDesignSpecEntry(project: Project, entryId: string, name: string): Project {
+  const now = Date.now();
+  return {
+    ...project,
+    designSpecs: project.designSpecs.map((entry) => (entry.id === entryId ? { ...entry, name, updatedAt: now } : entry)),
+    updatedAt: now,
+  };
+}
+
+export function removeDesignSpecFromProject(project: Project, entryId: string): Project {
+  return { ...project, designSpecs: project.designSpecs.filter((entry) => entry.id !== entryId), updatedAt: Date.now() };
+}
+
+/** Removes one version from an entry's history. Refuses to remove an
+ * entry's last remaining version (use `removeDesignSpecFromProject`
+ * instead) so an entry can never end up with an empty `versions` array. */
+export function removeDesignSpecVersion(project: Project, entryId: string, versionId: string): Project {
+  const now = Date.now();
+  return {
+    ...project,
+    designSpecs: project.designSpecs.map((entry) =>
+      entry.id === entryId && entry.versions.length > 1
+        ? { ...entry, updatedAt: now, versions: entry.versions.filter((v) => v.id !== versionId) }
+        : entry,
+    ),
+    updatedAt: now,
+  };
 }
 
 /** Default name for the auto-created project that adopts pre-existing

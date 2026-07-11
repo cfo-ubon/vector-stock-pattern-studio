@@ -1483,7 +1483,14 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 608 tests across 42 files:
+`npm test` runs `vitest run` — 794 tests (jsdom environment, component
+tests use React Testing Library) across 64 files. The list below predates
+the Design Intelligence Core and Design Workbench milestones and covers
+the original engine/metadata/trend suites in detail; see
+[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md) and
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md) for what their own test
+suites (`schemas/validators/services` and `workbench/` +
+`components/workbench/`, respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2018,7 +2025,17 @@ the same graceful-degradation convention `filenameEngine.ts`'s
 `resolveFilenameTemplate` uses. `buildPrompt`/`buildAllPrompts` resolve
 one platform / every platform in one call.
 
-### UI — the Trend Intelligence Studio page (`components/TrendStudioPanel.tsx`)
+### UI — the original Trend Intelligence Studio page (superseded by the Design Workbench)
+
+> **Superseded**: this single-file panel (`components/TrendStudioPanel.tsx`)
+> was replaced by the modular Design Workbench
+> (`components/workbench/DesignWorkbench.tsx` + its subcomponents — see
+> [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md)) and the file has been
+> deleted. Every generator this section describes (`buildDesignSpecification`,
+> `buildTileFromDesignSpec`, `buildDesignSpecSeo`, `buildPrompt`,
+> `buildDesignSpecPackageTextFiles`) is unchanged and still what the new UI
+> calls — this section is kept as a historical record of how the feature
+> originally shipped, not a description of the current UI.
 
 The first UI for this whole milestone, closing the loop Sections 1/6/13
 asked for: every generator above (`buildDesignSpecification`,
@@ -2257,18 +2274,32 @@ src/
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
     MarketplaceProfileSelector.tsx
-    TrendStudioPanel.tsx
     ProjectBar.tsx
     ProjectDashboard.tsx
     ProjectPanel.tsx
     PreviewCanvas.tsx
     Gallery.tsx
+    workbench/             Design Workbench — see DESIGN_WORKBENCH.md
+      DesignWorkbench.tsx
+      TrendStudioForm.tsx
+      DesignSpecPanel.tsx
+      JsonTreeView.tsx
+      PropertyInspector.tsx
+      ValidationPanel.tsx
+      LivePreviewPanel.tsx
+      HistoryPanel.tsx
+      FavoritesPanel.tsx
+      ImportExportBar.tsx
+      workbench.css
 ```
 
-### Design Intelligence Core (parallel data layer, not yet wired in)
+### Design Intelligence Core (data + validation layer, consumed by the Design Workbench)
 
 See [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md) for the
-full architecture/schema/developer-guide writeup. Folder summary:
+full architecture/schema/developer-guide writeup and
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md) for how the Design
+Workbench UI consumes it (via `services/*` and `validators/*`). Folder
+summary:
 
 ```
 src/
@@ -2282,4 +2313,6 @@ src/
   validators/           JSON Schema validation engine + schema registry +
                          relationship/marketplace-compatibility validator
   services/              Query/lookup layer + Keyword Bundle Engine
+  workbench/              Design Workbench's pure logic layer — see
+                          DESIGN_WORKBENCH.md
 ```

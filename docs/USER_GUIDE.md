@@ -717,77 +717,103 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 
 ---
 
-## 🧠 Trend Intelligence Studio — สร้างลายจากคำค้นตลาดจริง 🆕
+## 🧭 Design Workbench — ศูนย์กลางสร้าง/แก้/ตรวจ/บันทึก Design Specification 🆕
 
-หน้าใหม่ เปิดจากปุ่ม **"🧠 Trend Intelligence Studio"** ข้าง Project Dashboard
-ด้านบนของแอป — ออกแบบมาให้เริ่มจาก "ตลาดต้องการอะไร" แทนที่จะเริ่มจากปรับ
-สไลเดอร์เอง: กรอกคำค้น → เลือก Marketplace/Trend Pack → ระบบประกอบ
-**Design Specification JSON** (ต้นแบบเดียวที่ทุกอย่างข้างล่างนี้อ่านต่อ — Title,
-ลายจริง, ชื่อไฟล์, prompt ล้วนมาจาก JSON ก้อนเดียวกัน ไม่ใช่คำนวณแยกกันคนละที่)
+เปิดจากปุ่ม **"🧭 Design Workbench"** ข้าง Project Dashboard ด้านบนของแอป
+(เดิมชื่อ "Trend Intelligence Studio" — อัปเกรดเป็นเวิร์กสเปซมืออาชีพเต็มรูปแบบ
+ในเวอร์ชันนี้) ออกแบบให้เริ่มจาก "ตลาดต้องการอะไร" แล้วให้แก้/ตรวจสอบ/ดู
+ตัวอย่าง/บันทึก/ส่งออก **Design Specification JSON** ได้ทั้งหมดโดย
+**ไม่ต้องแก้ JSON ด้วยมือเลยก็ได้** (แม้จะยังแก้ JSON ตรงๆ ได้ถ้าต้องการ) —
+ทุกอย่างในหน้านี้อ่าน/เขียนต้นแบบ JSON ก้อนเดียวกัน (Title, ลายจริง, ชื่อไฟล์,
+prompt ล้วนมาจากก้อนเดียวกัน) แบ่งเป็น 3 คอลัมน์:
 
-### วิธีใช้
+**คอลัมน์ซ้าย** — 🧠 Trend Studio (ฟอร์มกรอกข้อมูลตลาด) +
+แท็บ ⭐ Favorites / 📂 Import-Export / 💾 Project
+**คอลัมน์กลาง** — Design Specification Panel (พื้นที่หลัก)
+**คอลัมน์ขวา** — แท็บ ⚙️ Properties / ✅ Validation / 🖼 Live Preview / 🕘 History
 
-1. กรอก **Primary Keyword** (คำหลัก เช่น "Luxury Botanical") และ
-   **Secondary Keywords** (คำรอง คั่นด้วยจุลภาค) — ระบบเข้าใจ
-   **ความสัมพันธ์ระหว่างคำ** ไม่ใช่แค่แปลทีละคำ เช่น "Luxury" + "Botanical"
-   ด้วยกันจะได้สไตล์ "ดอกไม้หรูแบบบรรณาธิการ" ที่ต่างจากใส่แค่คำใดคำหนึ่ง
-2. เลือก **Marketplace, Season, Audience, Commercial Category, Pattern Type,
-   Style DNA** (เว้นว่างให้ระบบเลือกจากคำค้นได้), **Palette Direction,
-   Difficulty, Collection Size**
-3. เลือก **Trend Pack** — แพ็กเทรนด์รายไตรมาส 2026 Q1-Q4 (แต่ละแพ็กมีธีม/
-   อารมณ์/ทิศทางสี/layout ที่แนะนำของตัวเอง) หรือกด **"✨ Auto-match"** ให้
-   ระบบเลือกให้ตามฤดูกาล/ประเภทลายที่กรอกไว้
-4. กด **"🧠 Generate Design Specification"** — ได้ JSON ก้อนเดียวที่รวม
-   ทุกอย่าง (สไตล์, พาเลต, composition, motif, SEO, export) พร้อมดูได้ทั้งแบบ
-   **Code View** (แก้ JSON ตรงๆ แล้วกด "✅ Apply Edits") และ **Tree View**
-   (ดูโครงสร้างแบบต้นไม้ กดขยาย/ย่อได้) มีปุ่ม **↶ Undo / ↷ Redo** และแถบ
-   บอกว่า JSON ที่แก้ไขยัง valid อยู่ไหม (ตรวจ id หมวดลาย/layout/palette/
-   Style DNA/marketplace จริงทุกตัว)
+รองรับ **โหมดสว่าง/มืด** (ปุ่ม ☀️/🌙 มุมขวาบน จำค่าไว้ให้อัตโนมัติ) และย่อเป็น
+คอลัมน์เดียวอัตโนมัติเมื่อหน้าจอแคบ (มือถือ/แท็บเล็ต)
 
-### Live Preview ก่อนสร้างจริง
+### 🧠 Trend Studio — กรอกข้อมูลตลาด
 
-หลังกด Generate จะเห็นทันที: **Trend Summary** (ธีม/อารมณ์/composition),
-**Moodboard** (สีตามบทบาท background/primary/secondary/accent),
-**Palette** เต็มชุด, **Motif Preview** (หมวดลาย hero/secondary + Style DNA
-ที่ใช้), และ **ลายจริงที่ render จาก Design Spec นี้เลย** (ไม่ใช่ภาพตัวอย่าง)
-— กดปุ่ม **"✍️ ใช้ค่านี้ในหน้าสร้างลาย"** เพื่อนำค่านี้ไปใช้ต่อในหน้าสร้างลายหลัก
-ทันที (ปรับต่อ/กด Generate Best ต่อได้ตามปกติ)
+กรอก **Primary Keyword / Secondary Keywords** (ระบบเข้าใจ
+**ความสัมพันธ์ระหว่างคำ** ไม่ใช่แค่แปลทีละคำ), เลือก **Marketplace, Season,
+Audience, Style DNA, Commercial Category, Pattern Type, Palette
+Direction, Difficulty, Collection Size** แล้วเลือก **Trend Pack** รายไตรมาส
+(หรือ **"✨ Auto-match"** ให้ระบบเลือกให้) จากนั้นกด
+**"🧠 Generate Design Specification"** เพื่อสร้าง JSON ก้อนแรก
 
-### 🎯 Run Quality Loop — ตรวจสอบ+ปรับคุณภาพอัตโนมัติ
+### 📋 Design Specification Panel — 3 มุมมอง + ค้นหา + ย่อ/ขยาย
 
-กดปุ่ม **"🎯 Run Quality Loop"** ข้างปุ่มสุ่ม seed เพื่อให้ระบบสร้างลายหลายแบบ
-จาก Design Spec เดียวกันแล้วเลือกตัวที่คะแนนสูงสุด (ใช้กลไกเดียวกับปุ่ม
-"Generate Best" ในหน้าสร้างลายหลัก ไม่มีการคำนวณคะแนนซ้ำ) — ถ้ายังไม่ผ่าน
-เกณฑ์ที่กำหนดไว้ใน Design Spec ระบบจะลองรอบใหม่ด้วย seed ใหม่ (สูงสุด 3
-รอบ) แล้วเก็บรอบที่ดีที่สุดไว้ ผลลัพธ์แสดงเป็นตาราง 10 ตัวชี้วัด (Composition,
-Hierarchy, Flow, Rhythm, Balance, Negative Space, Repeat Quality, SVG
-Health, Motif Diversity, Commercial Readiness) พร้อมตัวบอกผ่าน/ไม่ผ่านและ
-รายการที่ยังไม่ถึงเกณฑ์ — ลายที่แสดงในพรีวิวจะเปลี่ยนเป็นลายที่ผ่านการคัดแล้ว
-ทันที กดปุ่ม "ใช้ค่านี้ในหน้าสร้างลาย" ต่อได้เหมือนเดิม
+- **🌳 Tree View** — โครงสร้างต้นไม้ กดขยาย/ย่อทีละจุดได้ หรือกด
+  **"Expand all" / "Collapse all"** ทั้งก้อน มีช่อง **ค้นหา** ที่ไฮไลต์คำที่ตรง
+  และขยายกิ่งที่มีคำนั้นให้อัตโนมัติ แต่ละแถวมีปุ่ม **"⋮"** สำหรับ
+  **คัดลอก path / คัดลอกค่า** (คลิกขวาก็ได้เหมือนกัน)
+- **📝 Code View** — แก้ JSON ดิบตรงๆ ได้ กด **"✅ Apply Edits"** เพื่อตรวจ
+  และนำเข้า (ถ้า JSON ผิดรูปแบบจะแจ้ง error ทันที ไม่กระทบก้อนเดิม)
+- **🔍 Inspector View** — สรุปอ่านง่ายแบ่งหมวด (Project, Trend &
+  Marketplace, Style, Composition, Motifs, Quality Targets)
 
-### 🏭 Collection Generator — สร้างคอลเลกชันเต็มจาก Design Spec
+### ⚙️ Property Inspector — แก้ค่าได้โดยไม่แตะ JSON
 
-กดปุ่ม **"🏭 Generate Collection จาก Design Spec"** เพื่อสร้างคอลเลกชัน
-เชิงพาณิชย์เต็มชุด (Hero/Secondary/Blender/Mini/Stripe Pattern, Border,
-Corner, Spot Motif Sheet) จาก Design Spec นี้โดยตรง — ทุกชิ้นใช้ Style
-DNA/Palette/Motif Family เดียวกันโดยอัตโนมัติ (กลไกตรวจสอบความสอดคล้อง
-เดียวกับ Collection Studio ปกติ) ชื่อคอลเลกชัน (Collection Identity) จะเป็น
-ชื่อที่มาจากคำค้นหลัก+ธีม Trend Pack แทนชื่ออัตโนมัติทั่วไป ดาวน์โหลด zip
-และบันทึกเข้าโปรเจกต์ที่เปิดอยู่ให้ทันทีเหมือนปุ่ม "Generate Collection" ใน
-หน้าสร้างลายหลักทุกประการ
+แท็บ "⚙️ Properties" ในคอลัมน์ขวา แก้ได้ทุกช่อง: **Palette** (เปลี่ยนแล้ว
+Color Roles/พื้นหลังปรับตามอัตโนมัติ), **Style DNA, Pattern (repeat type),
+Composition, Density** (แถบเลื่อน), **Hero Motifs / Secondary Motifs /
+Fillers** (เพิ่ม/ลบหมวดลายเป็นชิป — ระบบกรองให้เห็นเฉพาะหมวดที่อนุญาต
+บทบาทนั้นจริง), **Quality Targets** (4 ค่า 0-100), **Marketplace** (เปลี่ยนแล้ว
+นามสกุลไฟล์ส่งออกปรับตามอัตโนมัติ) — ทุกการแก้ไขอัปเดต JSON ทันทีและ
+เข้า History ให้ Undo ได้เสมอ
 
-### SEO + Prompt Preview
+### ✅ Validation Panel — ตรวจสอบครบวงจร
 
-เลือกแท็บ Marketplace เพื่อดู Title/Description/Keywords/Filename/
-Collection Name/Asset Name ที่ผสมคำค้นหลักเข้าไปจริง (ไม่ใช่ข้อความทั่วไป
-ตามหมวดลายอย่างเดียว) พร้อมตัวบอกสถานะพร้อมส่งและปุ่ม
-**"📦 ดาวน์โหลด Marketplace Package"** ของเว็บนั้นทันที
+แท็บ "✅ Validation" แสดงผลตรวจแยกหมวด: **JSON Validation** (โครงสร้าง
+ตรง schema ไหม), **Relationships** (id ที่อ้างถึงมีจริงไหม, ค่าที่ใช้เข้ากันได้กับ
+Composition ที่เลือกไหม), **Marketplace Compatibility** (พร้อมส่งเว็บที่เลือก
+ไหม), **Semantic Checks** (ตรวจตาม engine เดิม), **Missing Values**
+(ช่องว่างที่ไม่ควรว่าง), **Duplicate Values** (คำ/หมวดลายซ้ำ), และ
+**Suggestions** (ข้อเสนอแนะ เช่น "ยังไม่ได้ผูก Trend Pack") — อัปเดตทันทีทุก
+ครั้งที่แก้ค่า ไม่ต้องกดตรวจเอง
 
-เลือกแท็บแพลตฟอร์ม AI (ChatGPT, Claude, Gemini, Adobe Firefly, Midjourney,
-Stable Diffusion, FLUX) เพื่อดู prompt ที่สร้างจาก Design Spec — 3 แพลตฟอร์ม
-แรกเป็น prompt ขอไอเดีย/คำโฆษณาเพิ่มเติม (เพราะไม่ใช่เครื่องมือสร้างภาพ) ส่วน
-4 แพลตฟอร์มหลังเป็น prompt สร้างภาพอ้างอิง/มู้ดบอร์ดจริง (Midjourney มี flag
-`--tile --ar 1:1` ติดมาให้ด้วย) — มีปุ่มคัดลอกพร้อมใช้ทุกช่อง
+### 🖼 Live Preview — 8 แท็บ อัปเดตสด
+
+แท็บ "🖼 Live Preview": **Trend Summary, Palette, Composition** (ลายจริงที่
+render จาก Design Spec นี้เลย ไม่ใช่ภาพตัวอย่าง — มีปุ่มสุ่ม seed ใหม่, ปุ่ม
+**"🎯 Run Quality Loop"** ให้ระบบลองหลายรอบแล้วเลือกคะแนนสูงสุด, ปุ่ม
+**"✍️ Use in Editor"** เอาไปแก้ต่อในหน้าสร้างลายหลัก), **Motifs** (หมวดลาย
+hero/secondary/filler ที่ใช้จริง), **SEO** (Title/Keywords ต่อ Marketplace),
+**Filename** (พร้อมปุ่ม **"📦 Download Marketplace Package"**), **Prompt**
+(7 แพลตฟอร์ม AI พร้อมคัดลอก), **Collection** (รายการชิ้นที่จะได้ถ้ากด
+Generate Collection พร้อมปุ่มกดสร้างจริง)
+
+### 🕘 History — Undo/Redo/Snapshot/Compare/Restore
+
+แท็บ "🕘 History": ปุ่ม **↶ Undo / ↷ Redo** ปกติ บวก **Snapshot** (ตั้งชื่อ
+บันทึกจุดสำคัญไว้กี่จุดก็ได้ ไม่ถูกลบตอน Undo/Redo), **Restore** (ดึง Snapshot
+กลับมาใช้ — เป็นการแก้แบบหนึ่งจึงกด Undo ย้อนออกจาก Restore ได้เหมือนกัน),
+และ **Compare versions** (เลือก Snapshot 2 จุดมาเทียบ เห็นทุกช่องที่ต่างกัน)
+
+### ⭐ Favorites
+
+แท็บ "⭐ Favorites" ในคอลัมน์ซ้าย ปักดาว **Trend Pack, Style DNA, Palette,
+Marketplace Profile** ที่ใช้บ่อยไว้ดูง่าย และบันทึก **Motif Collection**
+(ชุด Hero/Secondary/Filler ที่จัดไว้แล้ว) กด "💾 Save current motifs as
+collection" เพื่อบันทึกชุดปัจจุบัน แล้วกด "Apply" จาก spec ไหนก็ได้ภายหลัง
+
+### 📂 Import / Export
+
+แท็บ "📂 Import/Export": **นำเข้า/ส่งออก Design Specification JSON** และ
+**นำเข้า/ส่งออก Trend Pack JSON** เป็นไฟล์ได้ตรงๆ (นำเข้า Trend Pack แล้ว
+ระบบจะผูกธีม/อารมณ์/Style DNA/Composition/Color Roles ของแพ็กนั้นเข้ากับ
+Design Spec ที่เปิดอยู่ทันที)
+
+### 💾 บันทึกเข้าโปรเจกต์ + ประวัติเวอร์ชัน
+
+แท็บ "💾 Project" ในคอลัมน์ซ้าย (ต้องเปิดโปรเจกต์ไว้ก่อน) — ตั้งชื่อแล้วกด
+**"💾 Save as New"** เพื่อบันทึก Design Spec เป็นรายการใหม่ในโปรเจกต์, หรือ
+เลือกรายการเดิมแล้วกด **"+ Add Version"** เพื่อบันทึกเป็นเวอร์ชันใหม่ (ไม่ทับ
+เวอร์ชันเก่า — ดูประวัติทุกเวอร์ชันได้) กด "Load latest" เพื่อดึงเวอร์ชันล่าสุด
+ของรายการใดก็ได้กลับมาแก้ต่อ
 
 > ℹ️ ลายที่ Design Spec สร้างยังผ่านการตรวจสอบเดียวกับลายทั่วไป (เช่น
 > Submission Checklist ในหน้าสร้างลายหลัก) — ถ้า Trend Pack/หมวดลายที่เลือก
@@ -851,6 +877,33 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.37 — 11 ก.ค. 2026 — Design Workbench
+- 🧭 **อัปเกรด Trend Intelligence Studio เป็น Design Workbench**: เวิร์กสเปซ
+  หลักแบบมืออาชีพ 3 คอลัมน์ สำหรับสร้าง/ทบทวน/แก้/ตรวจสอบ/ดูตัวอย่าง/
+  บันทึก/ส่งออก Design Specification โดยไม่ต้องแก้ JSON ด้วยมือ
+- 📋 **Design Specification Panel**: เพิ่มมุมมอง **🔍 Inspector View** (สรุป
+  อ่านง่าย) นอกจาก Tree/Code เดิม พร้อม **ช่องค้นหา** (ไฮไลต์+ขยายกิ่งอัตโนมัติ)
+  และปุ่ม **Expand all / Collapse all**
+- ⚙️ **Property Inspector ใหม่**: แก้ Palette, Style DNA, Pattern, Composition,
+  Density, Hero/Secondary/Filler Motifs, Quality Targets, Marketplace ได้
+  ตรงๆ ผ่านฟอร์ม ไม่ต้องพิมพ์ JSON
+- ✅ **Validation Panel ใหม่**: แยกผลตรวจเป็นหมวด (JSON Validation,
+  Relationships, Marketplace Compatibility, Semantic Checks, Missing
+  Values, Duplicate Values, Suggestions) อัปเดตทันทีทุกครั้งที่แก้ค่า —
+  ต่อยอดจาก Design Intelligence Core Validation Engine ที่วางฐานไว้ก่อนหน้า
+- 🕘 **History ใหม่**: เพิ่ม **Snapshot** (ตั้งชื่อบันทึกจุดสำคัญ),
+  **Restore**, และ **Compare versions** (เทียบ Snapshot 2 จุด) นอกจาก
+  Undo/Redo เดิม
+- ⭐ **Favorites ใหม่**: ปักดาว Trend Pack/Style DNA/Palette/Marketplace
+  Profile และบันทึก **Motif Collection** ของตัวเองไว้ใช้ซ้ำ
+- 📂 **Import/Export ใหม่**: นำเข้า/ส่งออก Design Specification และ
+  Trend Pack เป็นไฟล์ JSON ได้ตรงๆ
+- 💾 **บันทึกเข้าโปรเจกต์แบบมีประวัติเวอร์ชัน**: Design Spec หนึ่งรายการเก็บ
+  ได้หลายเวอร์ชัน ไม่ทับของเดิม ดึงเวอร์ชันไหนกลับมาแก้ต่อได้ทุกเมื่อ
+- 🌗 **โหมดสว่าง/มืด**: สลับได้ในหน้า Design Workbench จำค่าไว้ให้อัตโนมัติ
+- ⌨️ ปรับปรุงการเข้าถึง: คีย์บอร์ดนำทางได้ทุกปุ่ม, ป้ายกำกับอ่านออกเสียงชัดเจน,
+  ปรับ layout อัตโนมัติเมื่อหน้าจอแคบ
 
 ### v1.36 — 11 ก.ค. 2026 — Trend Intelligence Studio
 - 🧠 **หน้าใหม่ Trend Intelligence Studio**: เริ่มออกแบบจาก "ตลาดต้องการ
