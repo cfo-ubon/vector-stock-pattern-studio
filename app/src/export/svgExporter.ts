@@ -58,22 +58,27 @@ export function namespaceIds(node: SvgNode, suffix: string): SvgNode {
   return remapIds(node, idMap);
 }
 
+/** Wraps arbitrary SvgNode content in a standalone `<svg>` document with the
+ * standard XML header/namespace attrs — the shared primitive every export
+ * builder in this file (and the Collection asset builders in
+ * collection/collectionGenerator.ts, which produce raw SvgNode content
+ * rather than a full TileData) uses instead of hand-rolling the same root
+ * wrapper repeatedly. */
+export function buildSvgDocument(content: SvgNode, width: number, height: number, viewBoxWidth = width, viewBoxHeight = height): string {
+  const root = h(
+    'svg',
+    { ...SVG_NS_ATTRS, width: round(width), height: round(height), viewBox: `0 0 ${round(viewBoxWidth)} ${round(viewBoxHeight)}` },
+    [content],
+  );
+  return `${XML_HEADER}\n${serialize(root)}\n`;
+}
+
 /** Single-tile export: one editable tile, viewBox matches the tile size
  * exactly. This is the file to hand to a stock site's "seamless pattern"
  * requirement, or to open in Affinity Designer for further editing. */
 export function buildSingleTileSvg(tileData: TileData): string {
   const { tileSize } = tileData.params;
-  const root = h(
-    'svg',
-    {
-      ...SVG_NS_ATTRS,
-      width: SINGLE_EXPORT_PIXEL_SIZE,
-      height: SINGLE_EXPORT_PIXEL_SIZE,
-      viewBox: `0 0 ${round(tileSize)} ${round(tileSize)}`,
-    },
-    [tileData.svg],
-  );
-  return `${XML_HEADER}\n${serialize(root)}\n`;
+  return buildSvgDocument(tileData.svg, SINGLE_EXPORT_PIXEL_SIZE, SINGLE_EXPORT_PIXEL_SIZE, tileSize, tileSize);
 }
 
 /** Pre-tiled export: `cols` x `rows` literal, fully-editable copies of the

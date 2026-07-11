@@ -212,10 +212,18 @@ function circleSamplePoints(cx: number, cy: number, rx: number, ry: number, coun
   return pts;
 }
 
-/** True geometric bounding radius (max distance from the origin, in the
- * root motif's own coordinate space) of everything this node tree draws,
- * accounting for every nested transform and for stroke width. */
-export function computeBoundingRadius(node: SvgNode, parentMatrix: Matrix = IDENTITY): number {
+interface WorldPoint {
+  x: number;
+  y: number;
+  pad: number;
+}
+
+/** Walks the node tree applying every nested transform, and returns every
+ * "extremal" point (already in the root's own coordinate space) each
+ * shape's geometry contributes, plus a per-point pad (stroke half-width +
+ * arc radius, where relevant) — the single shared point-extraction pass
+ * both `computeBoundingRadius` and `computeBoundingBox` fold differently. */
+function collectWorldPoints(node: SvgNode, parentMatrix: Matrix = IDENTITY): WorldPoint[] {
   const ownMatrix = node.attrs?.transform ? parseTransform(String(node.attrs.transform)) : IDENTITY;
   const combined = matMul(parentMatrix, ownMatrix);
   const strokePad = node.attrs?.['stroke-width'] ? num(node.attrs['stroke-width']) / 2 : 0;
@@ -266,17 +274,56 @@ export function computeBoundingRadius(node: SvgNode, parentMatrix: Matrix = IDEN
       break;
   }
 
-  let maxDist = 0;
-  for (const p of localPoints) {
+  const worldPoints: WorldPoint[] = localPoints.map((p) => {
     const [x, y] = applyMat(combined, p.x, p.y);
-    const d = Math.hypot(x, y) + p.pad + strokePad;
-    if (d > maxDist) maxDist = d;
-  }
+    return { x, y, pad: p.pad + strokePad };
+  });
 
   for (const child of node.children ?? []) {
-    const d = computeBoundingRadius(child, combined);
-    if (d > maxDist) maxDist = d;
+    worldPoints.push(...collectWorldPoints(child, combined));
   }
 
+  return worldPoints;
+}
+
+/** True geometric bounding radius (max distance from the origin, in the
+ * root motif's own coordinate space) of everything this node tree draws,
+ * accounting for every nested transform and for stroke width. */
+export function computeBoundingRadius(node: SvgNode, parentMatrix: Matrix = IDENTITY): number {
+  let maxDist = 0;
+  for (const p of collectWorldPoints(node, parentMatrix)) {
+    const d = Math.hypot(p.x, p.y) + p.pad;
+    if (d > maxDist) maxDist = d;
+  }
   return maxDist;
+}
+
+export interface BoundingBox {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  width: number;
+  height: number;
+}
+
+/** Axis-aligned bounding box (in the root motif's own coordinate space) of
+ * everything this node tree draws — same transform/stroke-aware point set
+ * `computeBoundingRadius` uses, folded into a box instead of a radius.
+ * Falls back to a 1x1 box centered on the origin for an empty/degenerate
+ * tree so callers never divide by a zero-size box. */
+export function computeBoundingBox(node: SvgNode, parentMatrix: Matrix = IDENTITY): BoundingBox {
+  const points = collectWorldPoints(node, parentMatrix);
+  if (points.length === 0) return { minX: -0.5, minY: -0.5, maxX: 0.5, maxY: 0.5, width: 1, height: 1 };
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const p of points) {
+    if (p.x - p.pad < minX) minX = p.x - p.pad;
+    if (p.x + p.pad > maxX) maxX = p.x + p.pad;
+    if (p.y - p.pad < minY) minY = p.y - p.pad;
+    if (p.y + p.pad > maxY) maxY = p.y + p.pad;
+  }
+  return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
 }

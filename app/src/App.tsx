@@ -7,6 +7,7 @@ import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
+import { generateCollection } from './collection/collectionGenerator';
 import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildEps } from './export/epsExporter';
@@ -59,6 +60,7 @@ function App() {
   const [qualityPresetId, setQualityPresetId] = useState<QualityPresetId>('stockClean');
   const [candidateProgress, setCandidateProgress] = useState<CandidateProgress | null>(null);
   const [candidateSummary, setCandidateSummary] = useState<{ total: number; valid: number; score: number; preset: QualityPresetId } | null>(null);
+  const [collectionStatus, setCollectionStatus] = useState<'idle' | 'building' | 'done'>('idle');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -294,6 +296,80 @@ function App() {
     },
     [filenameParts],
   );
+
+  // Rasterizes an SVG string to a PNG Blob via an offscreen <canvas> —
+  // same technique as rasterizeSvgToJpeg above, but Promise-based (instead
+  // of taking a downloadBlobFile-calling callback) so the Collection
+  // Generator can `await` it and bundle the result straight into a zip
+  // rather than triggering its own separate download.
+  const rasterizeSvgToPngBlob = useCallback((svgString: string, size: number): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          resolve(null);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((b) => resolve(b), 'image/png');
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      img.src = url;
+    });
+  }, []);
+
+  // Professional Asset Factory Engine — Collection Generator: one click
+  // turns the current design concept (params + active Style DNA) into a
+  // full commercial asset package. engine/collection/collectionGenerator.ts
+  // builds every SVG-based asset + the manifest synchronously (pure, no
+  // DOM); this handler adds the one DOM-dependent piece the pure engine
+  // layer deliberately can't do itself (PNG rasterization) and zips
+  // everything into folders alongside manifest.json.
+  const handleGenerateCollection = useCallback(async () => {
+    setCollectionStatus('building');
+    try {
+      const activeDna = params.styleDnaId
+        ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+        : undefined;
+      const { manifest, assets } = generateCollection(params, activeDna);
+      const enc = new TextEncoder();
+      const files: ZipEntry[] = [];
+
+      for (const asset of assets) {
+        if (asset.svg) {
+          const folder = asset.type === 'borderPattern' ? 'border' : asset.type === 'cornerPattern' ? 'corner' : ['heroPattern', 'secondaryPattern', 'coordinatePattern', 'miniPattern', 'stripePattern'].includes(asset.type) ? 'patterns' : 'sheets';
+          files.push({ name: `svg/${folder}/${asset.filename}`, data: enc.encode(asset.svg) });
+        } else if (asset.data) {
+          files.push({ name: `metadata/${asset.filename}`, data: enc.encode(JSON.stringify(asset.data, null, 2)) });
+        }
+      }
+
+      const heroAsset = assets.find((a) => a.id === 'hero');
+      if (heroAsset?.svg) {
+        const png = await rasterizeSvgToPngBlob(heroAsset.svg, 2000);
+        if (png) files.push({ name: `preview/${manifest.collectionId}-hero-preview.png`, data: new Uint8Array(await png.arrayBuffer()) });
+      }
+
+      files.push({ name: 'manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2)) });
+
+      const zip = buildZip(files);
+      downloadBlobFile(`${manifest.collectionId}.zip`, zip);
+      setCollectionStatus('done');
+    } catch {
+      setCollectionStatus('idle');
+    }
+  }, [params, rasterizeSvgToPngBlob]);
 
   // --- Saved library (คลังลายที่บันทึก): long-term keeps with per-site
   // submission tracking, independent of the rolling Gallery. Saving also
@@ -542,6 +618,8 @@ function App() {
           onExportJpeg3x3={handleExportJpeg3x3}
           onColorwayAll={handleColorwayAll}
           onReset={handleReset}
+          onGenerateCollection={handleGenerateCollection}
+          collectionStatus={collectionStatus}
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
