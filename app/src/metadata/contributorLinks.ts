@@ -26,4 +26,9 @@ export const CONTRIBUTOR_LINKS: ContributorLink[] = [
   { id: 'freepik', label: 'Freepik Contributor', url: 'https://www.freepik.com/contributor', verified: false },
   { id: 'creativefabrica', label: 'Creative Fabrica Contributor', url: 'https://www.creativefabrica.com/sell-on-creative-fabrica/', verified: false },
   { id: 'creativemarket', label: 'Creative Market Contributor', url: 'https://creativemarket.com/sell', verified: false },
+  // Future-ready per the Marketplace Profile System spec — a real seller
+  // landing page exists at etsy.com/sell, but the exact "open shop" deep
+  // link has changed over the years, so this stays unverified like the
+  // other three general landing pages above until confirmed.
+  { id: 'etsy', label: 'Etsy Seller', url: 'https://www.etsy.com/sell', verified: false },
 ];

@@ -1,5 +1,6 @@
-import type { GeneratedCollection } from '../collection/collectionGenerator';
+import type { AssetSeoOverride, GeneratedCollection } from '../collection/collectionGenerator';
 import type { StockSiteId } from '../metadata/shutterstock';
+import type { MarketplaceId } from '../metadata/marketplaceProfiles';
 import type { SavedItem } from '../components/SavedPanel';
 import type { Project, ProjectCollectionEntry, ProjectExportHistoryEntry, ProjectMoodboardItem, UploadStatus } from './projectTypes';
 
@@ -132,6 +133,69 @@ export function setCollectionUploadStatus(
     ...project,
     collections: project.collections.map((c) =>
       c.id === collectionEntryId ? { ...c, uploadStatus: { ...c.uploadStatus, [site]: status } } : c,
+    ),
+    updatedAt: Date.now(),
+  };
+}
+
+/** Maps a Project/Collection/Asset to its per-marketplace SEO override —
+ * the "Project > Collection > Asset > SEO > {marketplace}" storage tree the
+ * Marketplace Profile System spec asks for. Immutable-update, same
+ * convention as `setCollectionUploadStatus`: only the targeted asset's
+ * `seo` map gains/replaces the one marketplace entry, everything else in
+ * the (possibly large) collection tree is reused by reference. */
+export function setAssetSeoOverride(
+  project: Project,
+  collectionEntryId: string,
+  assetId: string,
+  marketplaceId: MarketplaceId,
+  override: AssetSeoOverride,
+): Project {
+  return {
+    ...project,
+    collections: project.collections.map((c) =>
+      c.id !== collectionEntryId
+        ? c
+        : {
+            ...c,
+            collection: {
+              ...c.collection,
+              assets: c.collection.assets.map((a) =>
+                a.id === assetId ? { ...a, seo: { ...a.seo, [marketplaceId]: override } } : a,
+              ),
+            },
+          },
+    ),
+    updatedAt: Date.now(),
+  };
+}
+
+/** Removes one marketplace's saved override from an asset (reverting that
+ * marketplace back to "use the generated default"). Leaves other
+ * marketplaces' overrides on the same asset untouched. */
+export function clearAssetSeoOverride(
+  project: Project,
+  collectionEntryId: string,
+  assetId: string,
+  marketplaceId: MarketplaceId,
+): Project {
+  return {
+    ...project,
+    collections: project.collections.map((c) =>
+      c.id !== collectionEntryId
+        ? c
+        : {
+            ...c,
+            collection: {
+              ...c.collection,
+              assets: c.collection.assets.map((a) => {
+                if (a.id !== assetId || !a.seo) return a;
+                const seo = { ...a.seo };
+                delete seo[marketplaceId];
+                return { ...a, seo };
+              }),
+            },
+          },
     ),
     updatedAt: Date.now(),
   };

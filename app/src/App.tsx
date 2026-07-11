@@ -23,12 +23,18 @@ import {
   toggleArchive,
   addCollectionToProject,
   setCollectionUploadStatus,
+  setAssetSeoOverride,
+  clearAssetSeoOverride,
   addSavedItemToProject,
   removeSavedItemFromProject,
   migrateLegacyDataIntoProject,
 } from './project/projectManager';
 import { exportProjectJson, importProjectJson } from './project/projectJson';
 import type { Project, UploadStatus } from './project/projectTypes';
+import type { AssetSeoOverride } from './collection/collectionGenerator';
+import { buildPackageTextFilesFromSeo } from './metadata/exportPackage';
+import type { MarketplaceSeo } from './metadata/marketplaceSeo';
+import type { MarketplaceId } from './metadata/marketplaceProfiles';
 import { PALETTES } from './palettes/palettes';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
@@ -424,6 +430,30 @@ function App() {
     downloadBlobFile(`${manifest.collectionId}.zip`, zip);
   }, [rasterizeSvgToPngBlob]);
 
+  // Marketplace Profile System — one Export Package per marketplace: the
+  // pattern SVG + a rasterized PNG preview (the one DOM-dependent piece,
+  // same as every other raster export in this app) + the marketplace's own
+  // title/description/keywords/filename/metadata.json text files
+  // (metadata/exportPackage.ts, pure/DOM-free). Takes the already-resolved
+  // `MarketplaceSeo` from the caller (Marketplace Profile Selector or a
+  // Stock Readiness card) instead of regenerating it, so any user edits in
+  // the selector are preserved in the downloaded package.
+  const handleDownloadMarketplacePackage = useCallback(
+    async (marketplaceId: MarketplaceId, seo: MarketplaceSeo) => {
+      if (!tileData) return;
+      const enc = new TextEncoder();
+      const files: ZipEntry[] = [{ name: 'pattern.svg', data: enc.encode(buildSingleTileSvg(tileData)) }];
+      const png = await rasterizeSvgToPngBlob(buildSingleTileSvg(tileData), 2000);
+      if (png) files.push({ name: 'preview.png', data: new Uint8Array(await png.arrayBuffer()) });
+      for (const f of buildPackageTextFilesFromSeo(tileData, marketplaceId, seo)) {
+        files.push({ name: f.name, data: enc.encode(f.content) });
+      }
+      const zip = buildZip(files);
+      downloadBlobFile(`${marketplaceId}-export-package.zip`, zip);
+    },
+    [tileData, rasterizeSvgToPngBlob],
+  );
+
   const handleGenerateCollection = useCallback(async () => {
     setCollectionStatus('building');
     try {
@@ -464,6 +494,22 @@ function App() {
     (collectionEntryId: string, site: StockSiteId, status: UploadStatus) => {
       if (!activeProjectId) return;
       updateProject(activeProjectId, (p) => setCollectionUploadStatus(p, collectionEntryId, site, status));
+    },
+    [activeProjectId, updateProject],
+  );
+
+  const handleSetAssetSeoOverride = useCallback(
+    (collectionEntryId: string, assetId: string, marketplaceId: MarketplaceId, override: AssetSeoOverride) => {
+      if (!activeProjectId) return;
+      updateProject(activeProjectId, (p) => setAssetSeoOverride(p, collectionEntryId, assetId, marketplaceId, override));
+    },
+    [activeProjectId, updateProject],
+  );
+
+  const handleClearAssetSeoOverride = useCallback(
+    (collectionEntryId: string, assetId: string, marketplaceId: MarketplaceId) => {
+      if (!activeProjectId) return;
+      updateProject(activeProjectId, (p) => clearAssetSeoOverride(p, collectionEntryId, assetId, marketplaceId));
     },
     [activeProjectId, updateProject],
   );
@@ -844,8 +890,15 @@ function App() {
             building={collectionStatus === 'building'}
             onExportCollectionZip={handleExportCollectionZip}
             onSetUploadStatus={handleSetUploadStatus}
+            onSetAssetSeoOverride={handleSetAssetSeoOverride}
+            onClearAssetSeoOverride={handleClearAssetSeoOverride}
           />
-          <StockSubmissionCenter tileData={tileData} saved={saved} collectionGeneratedForSeed={collectionGeneratedForSeed} />
+          <StockSubmissionCenter
+            tileData={tileData}
+            saved={saved}
+            collectionGeneratedForSeed={collectionGeneratedForSeed}
+            onDownloadPackage={handleDownloadMarketplacePackage}
+          />
           <SavedPanel
             items={saved}
             hasCurrent={!!tileData}

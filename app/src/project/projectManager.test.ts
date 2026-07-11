@@ -10,6 +10,8 @@ import {
   addCollectionToProject,
   removeCollectionFromProject,
   setCollectionUploadStatus,
+  setAssetSeoOverride,
+  clearAssetSeoOverride,
   addSavedItemToProject,
   removeSavedItemFromProject,
   migrateLegacyDataIntoProject,
@@ -101,6 +103,88 @@ describe('projectManager: Collections', () => {
     const updated2 = setCollectionUploadStatus(updated, entryId, 'shutterstock', 'rejected');
     expect(updated2.collections[0].uploadStatus.adobestock).toBe('uploaded');
     expect(updated2.collections[0].uploadStatus.shutterstock).toBe('rejected');
+  });
+});
+
+describe('projectManager: Asset SEO storage (Project > Collection > Asset > SEO > {marketplace})', () => {
+  function makeProjectWithCollection() {
+    const p = createProject('A');
+    const collection = generateCollection({ ...defaultParams(), seed: 'project-mgr-seo' });
+    return { project: addCollectionToProject(p, collection), collection };
+  }
+
+  it('saves a marketplace override on the targeted asset only, without mutating the input project', () => {
+    const { project, collection } = makeProjectWithCollection();
+    const entryId = collection.manifest.collectionId;
+    const assetId = collection.assets[0].id;
+    const otherAssetId = collection.assets[1].id;
+
+    const override = { title: 'Custom Adobe Stock Title', keywords: ['a', 'b'] };
+    const updated = setAssetSeoOverride(project, entryId, assetId, 'adobestock', override);
+
+    expect(project.collections[0].collection.assets[0].seo).toBeUndefined();
+
+    const updatedAsset = updated.collections[0].collection.assets.find((a) => a.id === assetId)!;
+    expect(updatedAsset.seo?.adobestock).toEqual(override);
+
+    const otherAsset = updated.collections[0].collection.assets.find((a) => a.id === otherAssetId)!;
+    expect(otherAsset.seo).toBeUndefined();
+  });
+
+  it('lets the same asset carry independent overrides for different marketplaces', () => {
+    const { project, collection } = makeProjectWithCollection();
+    const entryId = collection.manifest.collectionId;
+    const assetId = collection.assets[0].id;
+
+    let p = setAssetSeoOverride(project, entryId, assetId, 'shutterstock', { title: 'Shutterstock Title' });
+    p = setAssetSeoOverride(p, entryId, assetId, 'etsy', { title: 'Etsy Title' });
+
+    const asset = p.collections[0].collection.assets.find((a) => a.id === assetId)!;
+    expect(asset.seo?.shutterstock?.title).toBe('Shutterstock Title');
+    expect(asset.seo?.etsy?.title).toBe('Etsy Title');
+  });
+
+  it('overwrites a marketplace override when set again for the same asset', () => {
+    const { project, collection } = makeProjectWithCollection();
+    const entryId = collection.manifest.collectionId;
+    const assetId = collection.assets[0].id;
+
+    let p = setAssetSeoOverride(project, entryId, assetId, 'freepik', { title: 'First' });
+    p = setAssetSeoOverride(p, entryId, assetId, 'freepik', { title: 'Second' });
+
+    const asset = p.collections[0].collection.assets.find((a) => a.id === assetId)!;
+    expect(asset.seo?.freepik?.title).toBe('Second');
+  });
+
+  it('clearAssetSeoOverride removes only the targeted marketplace, leaving others intact', () => {
+    const { project, collection } = makeProjectWithCollection();
+    const entryId = collection.manifest.collectionId;
+    const assetId = collection.assets[0].id;
+
+    let p = setAssetSeoOverride(project, entryId, assetId, 'shutterstock', { title: 'S' });
+    p = setAssetSeoOverride(p, entryId, assetId, 'etsy', { title: 'E' });
+    p = clearAssetSeoOverride(p, entryId, assetId, 'shutterstock');
+
+    const asset = p.collections[0].collection.assets.find((a) => a.id === assetId)!;
+    expect(asset.seo?.shutterstock).toBeUndefined();
+    expect(asset.seo?.etsy?.title).toBe('E');
+  });
+
+  it('clearAssetSeoOverride on an asset with no seo store yet is a safe no-op', () => {
+    const { project, collection } = makeProjectWithCollection();
+    const entryId = collection.manifest.collectionId;
+    const assetId = collection.assets[0].id;
+
+    const p = clearAssetSeoOverride(project, entryId, assetId, 'shutterstock');
+    const asset = p.collections[0].collection.assets.find((a) => a.id === assetId)!;
+    expect(asset.seo).toBeUndefined();
+  });
+
+  it('backward compatibility: assets from freshly generated collections have no seo field until an override is saved', () => {
+    const { collection } = makeProjectWithCollection();
+    for (const asset of collection.assets) {
+      expect(asset.seo).toBeUndefined();
+    }
   });
 });
 

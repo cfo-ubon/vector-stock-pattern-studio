@@ -411,13 +411,16 @@ custom เป็น hex เอง** (สีแรก = พื้นหลัง)
 ### 🔗 Contributor Portal
 
 ปุ่มลัดไปหน้าส่งขายของแต่ละเว็บ (เปิดแท็บใหม่เสมอ ไม่ทับหน้าแอป):
-**Adobe Stock, Shutterstock, Freepik, Creative Fabrica, Creative Market**
+**Adobe Stock, Shutterstock, Freepik, Creative Fabrica, Creative Market, Etsy** 🆕
 
 - Adobe Stock กับ Shutterstock ใช้ URL พอร์ทัลผู้ส่งขายที่มั่นคง/เป็นที่รู้จัก
   มานาน (`contributor.stock.adobe.com`, `submit.shutterstock.com`)
-- Freepik / Creative Fabrica / Creative Market ยังไม่ยืนยัน URL หน้าอัปโหลดที่
+- Freepik / Creative Fabrica / Creative Market / Etsy ยังไม่ยืนยัน URL หน้าอัปโหลดที่
   แม่นยำ 100% (ใช้หน้า "สมัครเป็นผู้ขาย" ทั่วไปแทน) — ปุ่มจะมีสัญลักษณ์ ⚠️ กำกับ
   ถ้า URL ไม่ตรง แก้ไขได้ที่ไฟล์เดียว `metadata/contributorLinks.ts`
+- Etsy เป็น "future-ready": Etsy ขายเป็นสินค้าสำเร็จรูป (ของพิมพ์/สินค้า) ไม่ใช่
+  ไฟล์เวคเตอร์ดิบเหมือน 5 เว็บที่เหลือ — ระบบสร้างข้อมูล SEO ให้ครบตามกติกาจริง
+  ของ Etsy แล้ว แต่จะมีสัญลักษณ์ 🔜 กำกับไว้เสมอ
 
 ### ✅ Submission Checklist
 
@@ -439,15 +442,47 @@ Keyword Coverage — คำนวณจาก metadata ที่สร้าง�
 
 ### 🏬 Stock Readiness
 
-การ์ดแยกตามเว็บทั้ง 5 เว็บ แต่ละใบแสดงสถานะ **พร้อมส่ง / ควรตรวจสอบ / มีปัญหา**
-พร้อมรายการปัญหาและคำแนะนำจริงที่คำนวณจากขีดจำกัดของเว็บนั้นๆ (ความยาว
-title, จำนวนคำค้น ฯลฯ)
+การ์ดแยกตามเว็บทั้ง 6 เว็บ (รวม Etsy) แต่ละใบแสดงสถานะ **พร้อมส่ง / ควรตรวจสอบ /
+มีปัญหา** พร้อมรายการปัญหาและคำแนะนำจริงที่คำนวณจากขีดจำกัดของเว็บนั้นๆ (ความยาว
+title, จำนวนคำค้น ฯลฯ) — แต่ละการ์ดมีบรรทัดสถานะ **SEO** (สร้างแล้วหรือยัง) กับ
+**Validation** (ผ่านกฎของ Marketplace Profile หรือไม่) และปุ่ม **📦 Download
+Package** สำหรับดาวน์โหลด Export Package ของเว็บนั้นทันที 🆕
 
 ### 🧭 คำแนะนำจากการตรวจสอบ
 
 สรุปคำแนะนำที่คำนวณจริงจากผล Checklist/SEO Analyzer/Stock Readiness
 ทั้งหมด (เช่น "เพิ่มคำค้นให้ครอบคลุมมากขึ้น", "Title บางเว็บยาวเกิน") —
 แสดงเฉพาะเมื่อมีจุดที่ควรแก้จริง
+
+---
+
+## 🏪 Marketplace Profile — สร้าง SEO + Export Package เฉพาะแต่ละเว็บ 🆕
+
+อยู่ต่อจาก Stock Submission Center — แก้ปัญหา "ใช้โปรไฟล์ SEO เดียวกันทุกเว็บ"
+เพราะแต่ละเว็บมีกติกาต่างกันจริง (ความยาว Title, จำนวนคำค้น, นามสกุลไฟล์ ฯลฯ)
+ระบบนี้จึงมี **โปรไฟล์แยกเฉพาะของแต่ละเว็บ** เก็บไว้ในไฟล์ตั้งค่าเดียว
+(`metadata/marketplaceProfiles.ts`) เพิ่มเว็บใหม่ในอนาคตทำได้โดยไม่ต้องแก้โค้ดส่วนอื่น
+
+**วิธีใช้**: กดปุ่มเลือกเว็บ (Shutterstock / Adobe Stock / Freepik / Creative
+Fabrica / Creative Market / Etsy 🔜) ระบบจะสร้างให้ทันที:
+
+- **Title / Description / Keywords (หรือ Tags)** — ตามขีดจำกัดจริงของเว็บนั้น
+  พร้อมตัวนับตัวอักษร/จำนวนคำเทียบกับลิมิต แก้ไขเองในช่องได้เลย (แก้แล้วจะไม่
+  หายเวลาเปลี่ยนเว็บอื่นแล้วย้อนกลับมา จนกว่าจะเปลี่ยนลายหรือรีเฟรชหน้า)
+- **Filename** — ชื่อไฟล์ตามรูปแบบของเว็บนั้น (นามสกุล `.eps` สำหรับ
+  Shutterstock/Adobe Stock/Freepik, `.svg` สำหรับ Creative Fabrica/Creative
+  Market/Etsy) ปรับแม่แบบชื่อไฟล์เองได้ในช่อง "แม่แบบชื่อไฟล์เอง" เช่น
+  `{category}-{seed}`
+- **ตัวบอกสถานะพร้อมส่ง** — ✅ พร้อมส่ง หรือ ⚠️ พร้อมรายการปัญหา (Title สั้น/ยาว
+  เกิน, คำค้นซ้ำ, คำค้นเกินจำนวน, ชื่อไฟล์ไม่ถูกรูปแบบ ฯลฯ)
+- **📦 ดาวน์โหลด Export Package** — ได้ไฟล์ zip ของเว็บนั้นเว็บเดียว ประกอบด้วย
+  `pattern.svg`, `preview.png`, `title.txt`, `description.txt` (เฉพาะเว็บที่มี),
+  `keywords.txt`, `filename.txt`, `metadata.json` — พร้อมส่งเข้าเว็บนั้นทันที
+  ไม่ต้องแยกไฟล์เอง
+
+> Etsy เป็น future-ready: สร้างข้อมูลจริงให้ครบ (Title ≤140 ตัวอักษร, Tags
+> สูงสุด 13 คำ คำละไม่เกิน 20 ตัวอักษร, ไฟล์ `.svg`) แต่ยังไม่ยืนยัน URL หน้า
+> ลงขายที่แม่นยำ จึงมีสัญลักษณ์ 🔜 กำกับเสมอ
 
 ---
 
@@ -463,6 +498,7 @@ title, จำนวนคำค้น ฯลฯ)
 | **Freepik** | Title, Keywords/Tags | Title ≤100 ตัวอักษร, Tags ≤50 คำ |
 | **Creative Fabrica** | Product Name, Description, Tags | ชื่อแบบสินค้า, คำอธิบายยาวสไตล์การตลาด, Tags 20 คำ |
 | **Creative Market** | Product Name, Description, Tags | เหมือน CF แต่ปรับชื่อให้ต่าง |
+| **Etsy** 🆕 | Title, Description, Tags | Title ≤140 ตัวอักษร, Tags สูงสุด 13 คำ (คำละไม่เกิน 20 ตัวอักษร) — future-ready |
 
 แต่ละแท็บมีโน้ตกำกับว่าเว็บนั้นรับไฟล์ฟอร์แมตไหน (เช่น Shutterstock/Adobe
 ต้อง EPS, Freepik ต้องแนบ JPG คู่, Creative Fabrica รับ SVG ตรง)
@@ -612,10 +648,20 @@ Export JSON · Archive/เลิก Archive · ลบ · ⭐ Favorite** — ม�
   Project นี้ (ไม่หายไปเมื่อรีเฟรชหน้าเหมือนเวอร์ชันก่อน) คลิกเพื่อสลับดู
 - **🧩 Asset Browser + Collection Score** — ของ Collection ที่เลือก (ดู
   รายละเอียดหัวข้อถัดไป)
+- **🏪 Asset SEO Editor** 🆕 — อยู่ใต้ preview ของชิ้นงานที่เลือกใน Asset
+  Browser คือที่เก็บจริงของ "Project > Collection > Asset > SEO >
+  {marketplace}": เลือกเว็บ (Shutterstock/Adobe Stock/Freepik/Creative
+  Fabrica/Creative Market/Etsy) แล้วแก้ไข Title/Description/Keywords/
+  Filename **แยกเฉพาะชิ้นงานนั้น** — บันทึกถาวรในโปรเจกต์ (ไม่หายเมื่อสลับดู
+  ชิ้นงานอื่นแล้วย้อนกลับมา หรือรีเฟรชหน้า) ชิ้นงานหลัก 5 แบบ (Hero/
+  Secondary/Blender/Mini/Stripe) มีปุ่ม **✨ Auto-fill จากที่ระบบสร้าง** ให้
+  ดึงค่าที่ระบบสร้างอัตโนมัติมาเริ่มแก้ต่อได้ทันที ส่วนชิ้นงานอื่น
+  (Border/Corner/Sheet/Preview ฯลฯ) กรอกเองได้เลยเพราะไม่มีลายต้นแบบให้ดึง
+  มีปุ่ม **↺ ล้างค่าที่แก้ไข** ไว้ย้อนกลับด้วย
 - **📝 Metadata Browser** — Title/Description/Keywords/Filename/SEO Score
   ของลาย Hero ในแต่ละเว็บ ดูได้โดยไม่ต้องเปิด Stock Submission Center
 - **🏬 Upload Tracker** — ติดตามสถานะส่งขายต่อเว็บ (Adobe/Shutterstock/
-  Freepik/Creative Fabrica/Creative Market) ต่อ Collection แบบ 4 สถานะ:
+  Freepik/Creative Fabrica/Creative Market/Etsy) ต่อ Collection แบบ 4 สถานะ:
   ⏳ Pending / ✅ Ready / 📤 Uploaded / ❌ Rejected — บันทึกถาวรในโปรเจกต์
 - **🕓 Export History** — ประวัติทุกครั้งที่สร้าง Collection ในโปรเจกต์นี้
   (วันที่, schema version, ชื่อ Collection)
@@ -727,6 +773,36 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.35 — 11 ก.ค. 2026 — Marketplace Profile System
+- 🏪 **Marketplace Profile System ใหม่**: เลิกใช้โปรไฟล์ SEO เดียวกันทุกเว็บ
+  — ตอนนี้แต่ละเว็บ (Shutterstock, Adobe Stock, Freepik, Creative Fabrica,
+  Creative Market, **Etsy** 🆕) มีกติกาของตัวเอง (ความยาว Title/Description,
+  จำนวนคำค้น, รูปแบบชื่อไฟล์, หมวดหมู่) เก็บไว้ในไฟล์ตั้งค่าเดียว
+  (`metadata/marketplaceProfiles.ts`) เพิ่มเว็บใหม่ในอนาคตได้โดยไม่ต้องแก้
+  โค้ดส่วนอื่น
+- 🆕 **แผง Marketplace Profile ใหม่** (ใต้ Stock Submission Center): กดเลือก
+  เว็บแล้วระบบสร้าง Title/Description/Keywords/Filename ให้ทันทีตามกติกาของ
+  เว็บนั้น แก้ไขเองในช่องได้ พร้อมตัวบอกสถานะพร้อมส่ง (✅/⚠️) และรายการปัญหา
+  จริง (Title สั้น/ยาวเกิน, คำค้นซ้ำ/เกินจำนวน, ชื่อไฟล์ผิดรูปแบบ ฯลฯ)
+- 📦 **Export Package เฉพาะเว็บ**: ปุ่ม "ดาวน์โหลด Export Package" ให้ zip
+  ของเว็บนั้นเว็บเดียว (`pattern.svg`, `preview.png`, `title.txt`,
+  `description.txt`, `keywords.txt`, `filename.txt`, `metadata.json`) —
+  ปรากฏทั้งในแผง Marketplace Profile และในการ์ด Stock Readiness แต่ละเว็บ
+- 🗂 **SEO แยกเก็บต่อชิ้นงานในโปรเจกต์**: Project Panel เพิ่ม **Asset SEO
+  Editor** — แก้ไข Title/Description/Keywords/Filename แยกเฉพาะแต่ละเว็บ
+  **ต่อชิ้นงาน** ในคอลเลกชัน (ไม่ใช่แค่ลาย Hero ทั้งคอลเลกชัน) บันทึกถาวรใน
+  โปรเจกต์ ("Project > Collection > Asset > SEO > เว็บ") ชิ้นงานหลัก 5 แบบมี
+  ปุ่ม Auto-fill ดึงค่าที่ระบบสร้างมาเริ่มแก้ต่อได้ทันที
+- 🌐 **Etsy เพิ่มเป็นเว็บที่ 6**: future-ready — สร้างข้อมูลจริงให้ครบ (Title
+  ≤140 ตัวอักษร, Tags สูงสุด 13 คำ คำละไม่เกิน 20 ตัวอักษร, ไฟล์ `.svg`) แต่
+  ยังไม่ยืนยัน URL หน้าลงขายที่แม่นยำ จึงมีสัญลักษณ์ 🔜 กำกับเสมอ — ปรากฏใน
+  Contributor Portal, Stock Readiness, Upload Tracker และแท็บ Metadata ด้วย
+- 🧪 **เทสต์ใหม่ 51 รายการ** ครอบคลุม: เลือก Marketplace, สร้างชื่อไฟล์,
+  สร้าง SEO, สร้าง Export Package (รวมกรณีที่ผู้ใช้แก้ไขค่าเองแล้วต้องไม่ถูก
+  สร้างทับ), Validation, ที่เก็บ SEO ต่อชิ้นงาน, และ backward compatibility
+  (ตัวเลขเดิมของ 5 เว็บก่อนหน้ายังเหมือนเดิมทุกตัว) — รวมทั้งหมด 484 เทสต์
+  ผ่านทั้งหมด
 
 ### v1.34 — 11 ก.ค. 2026 — Project Studio Engine
 - 📁 **Project System ใหม่**: เปลี่ยนแอปจาก Pattern Generator เป็น

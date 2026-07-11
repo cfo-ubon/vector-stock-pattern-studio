@@ -101,9 +101,12 @@ colors and seed, which multiply it further. See
 `metadata/shutterstock.ts` exports `buildSiteMetadata(tileData)`, which
 computes one shared keyword/title/description core and then shapes it into
 upload-form-ready fields per stock site (`STOCK_SITES`: Shutterstock,
-Adobe Stock, Freepik, Creative Fabrica, Creative Market) — each with that
-site's own character caps, keyword counts and category picks. The
-`MetadataPanel` renders these as tabs with per-field copy buttons.
+Adobe Stock, Freepik, Creative Fabrica, Creative Market, Etsy) — each with
+that site's own character caps, keyword counts and category picks. The
+`MetadataPanel` renders these as tabs with per-field copy buttons. The
+Marketplace Profile System (see its own section below) builds on this same
+copy with per-marketplace *rules* — filename templates, validation,
+export packages, and a place to persist manual overrides per asset.
 
 ## Color story
 
@@ -387,6 +390,60 @@ at a half-fold offset (with vein) → a `fold * 2` ring of small inner
 petals → core. `petalRosette`, `dotMedallion` and `sunMandala` each gained
 a scalloped ring (and `dotMedallion`/`sunMandala` also spoke ticks) between
 existing layers to remove the empty space that read as unfinished.
+
+### SVG node-count optimization (Project Phoenix — Quality First milestone)
+
+`engine/svgStructuralAudit.test.ts` (see Testing below) surfaced a real,
+reproducible finding: `mandala` is the heaviest per-motif generator in the
+app (~76 nodes/motif on average) — running it through the `radial` layout's
+own placement math (13 sub-motifs per medallion cell: 2 rings x
+`radialSymmetry`-fold + 1 center) at default density produced 36,340 total
+nodes, 4.5x over the Candidate Engine's `HARD_NODE_BUDGET=8000`. Traced the
+weight to `mandala.ts`'s `ring()` helper: every single-point child (a dot,
+a spoke tick, a ray triangle) was wrapped in its own
+`<g transform="rotate(...)">`, doubling that child's node cost for no
+visual reason — rotating one point (or a small fixed set of points) around
+the origin is arithmetic, not something that needs an SVG transform.
+
+Added three helpers that bake each ring item's rotation directly into its
+own coordinates instead:
+- `circleRing(count, offsetDeg, radius, attrs)` — `cx/cy` computed via
+  `(radius * sin(angle), -radius * cos(angle))` per item, no wrapping `<g>`.
+- `polygonRing(count, offsetDeg, points, attrs)` — rotates every local
+  point of a small fixed shape (e.g. a sun-ray triangle) the same way.
+- `spokeTicks` rewritten to compute each tick's rotated endpoints directly
+  instead of routing through `ring()`.
+- `ring()` itself also got smarter for its remaining callers (petal rings,
+  which still need per-item `<g>`s since paths carry real curve geometry
+  that can't be trivially re-pointed): when a ring item is already a plain
+  `<g>` with no transform of its own (a veined petal's `<g>{path,
+  veinPath}}`), the rotation is merged directly into that existing `<g>`
+  instead of adding a second wrapping one.
+
+Every replacement was verified **mathematically identical** to the
+`<g transform="rotate(...)">` approach it replaced — `engine/svgAst.ts`'s
+own `parseTransform`/`applyMat` were used to compute what the old approach
+would have produced for a spread of radii and angles, and compared against
+the new baked coordinates (`toBeCloseTo` within rounding) — not just
+eyeballed. Also verified visually via a live Playwright render of
+`mandala` + `radial` at default settings: identical composition, same
+density and richness, zero regression.
+
+Net effect: mandala's average per-motif node count dropped from ~76 to
+~47.5 (~38%), with pixel-identical output. `mandala + radial` at default
+density dropped from 36,340 to ~25,700 nodes — a real, measured
+improvement, but **still over the 8000 hard-reject budget** by a wide
+margin. The remaining gap is architectural, not an SVG-optimization
+problem: `radial`'s own 13-motifs-per-medallion placement math (used by
+every category, not just mandala) is what actually explains the node
+count at this layout — closing it the rest of the way means either
+reducing that placement count for detail-heavy generators specifically, or
+giving `spacingForDensity` a per-generator complexity factor, both real
+composition/architecture decisions intentionally left as a recommendation
+rather than decided unilaterally in this pass (see `svgStructuralAudit
+.test.ts`'s node-budget-headroom suite, which tracks the current numbers
+as a loud `console.warn` plus a generous sanity ceiling that would catch a
+true regression).
 
 ## Realistic animal markings (Animal Print generator)
 
@@ -1285,9 +1342,139 @@ itself, since the shape is what's actually checked).
   against the real UI, returning to the editor keeps the Project Panel
   intact — zero console errors throughout.
 
+## Marketplace Profile System (`metadata/marketplaceProfiles.ts`, `metadata/filenameEngine.ts`, `metadata/marketplaceSeo.ts`, `metadata/marketplaceValidation.ts`, `metadata/exportPackage.ts`, `components/MarketplaceProfileSelector.tsx`)
+
+v1.9's `metadata/shutterstock.ts` already generated per-site *copy*
+(title/description/keywords text); this milestone adds the layer that spec
+asked for explicitly: no single generic SEO profile — each marketplace has
+its own **rules** (title/description/keyword limits, filename template,
+category mapping, which files belong in its export package) driving a
+one-click, marketplace-specific Title/Description/Keywords/Filename/Export
+Package, plus validation against those rules and a place to persist manual
+overrides per asset.
+
+### Config layer (`metadata/marketplaceProfiles.ts`)
+
+`MarketplaceId` (= `shutterstock.ts`'s existing `StockSiteId`, now widened
+to 6 values — see below) indexes `MARKETPLACE_PROFILES: Record<MarketplaceId,
+MarketplaceProfile>`, one object per marketplace with `titleRules`,
+`descriptionRules`, `keywordRules` (`termLabel: 'keywords' | 'tags'`,
+optional `maxKeywordLength`), `filenameRules` (template + max length +
+`svg`/`eps` extension), `defaultCategory`, `exportPackageFiles`, and the
+`contributorUrl`/`contributorUrlVerified` pulled straight from
+`contributorLinks.ts` (single source of truth, not duplicated). Adding a
+7th marketplace is one new object in this file — nothing else changes,
+satisfying the spec's "profiles must be easy to extend, not hardcoded."
+**Etsy** is added as the 6th, explicitly `future: true` (Etsy sells
+finished physical/digital *products*, not raw vector files the way the
+other 5 sites do — the UI marks it 🔜 and shows a hint) but with its real
+platform limits used (140-char title, 13 tags max at 20 chars each,
+`.svg` extension) rather than guessed values.
+
+### Filename Engine (`metadata/filenameEngine.ts`)
+
+`resolveFilenameTemplate(template, params, marketplaceId)` fills a
+`{palette}-{category}-{layout}-seamless-pattern-{seed}`-style template (the
+default, but every profile can override it) from the tile's real params;
+`buildMarketplaceFilenameBase` truncates at the last hyphen if the result
+would exceed the profile's `maxLength` (never mid-word); `dedupeFilename`
+appends `-2`, `-3`, … against a `Set` of already-used names — "avoid
+duplicate filenames" from the spec, usable wherever a batch of assets is
+being named. `customTemplate` threads through every layer above it so
+"allow user customization" is real, not aspirational.
+
+### SEO generator (`metadata/marketplaceSeo.ts`)
+
+`generateMarketplaceSeo(tileData, marketplaceId, customFilenameTemplate?)`
+returns one flat `MarketplaceSeo` (`title`/`description`/`keywords`/
+`filename`) — reshapes `buildSiteMetadata`'s existing per-site fields
+(still the single source of title/description/keyword *text*, unchanged)
+and attaches the Filename Engine's output, the one piece
+`buildSiteMetadata` never had. `generateAllMarketplaceSeo` returns the same
+for every marketplace in one call.
+
+### Validation (`metadata/marketplaceValidation.ts`)
+
+`validateMarketplaceSeo(seo, profile)` checks exactly the spec's warning
+list — title too short/long, duplicate keywords, missing/too-many
+keywords, a keyword over a marketplace's own length cap (Etsy), missing
+description where required, invalid/too-long filename (`^[a-z0-9-]+\.(svg|eps)$`)
+— and returns `ValidationIssue[]` (`error` | `warning`). `isMarketplaceReady`
+collapses that to a single ready/not-ready boolean (only `error`-severity
+issues block readiness; warnings don't).
+
+### Export Package (`metadata/exportPackage.ts`)
+
+`buildMarketplacePackageTextFiles(tileData, marketplaceId, customFilenameTemplate?)`
+generates fresh SEO and returns the spec's file set (`title.txt`,
+`description.txt` when the marketplace actually has one,
+`keywords.txt`, `filename.txt`, `metadata.json` — SVG and the rasterized
+PNG preview are added one layer up in `App.tsx`, same pattern as every
+other zip export in this app). It delegates to
+`buildPackageTextFilesFromSeo(tileData, marketplaceId, seo)`, which takes
+an *already-resolved* `MarketplaceSeo` instead of regenerating one — used
+by every UI call site that might carry user edits (the Marketplace Profile
+Selector, the Asset SEO Editor below), so clicking "Download Package"
+never silently discards a manual title/description/keyword edit made
+seconds earlier.
+
+### SEO Storage — "Project > Collection > Asset > SEO > {marketplace}" (`collection/collectionGenerator.ts`, `project/projectManager.ts`)
+
+Per the spec's storage example, each `CollectionAsset` gained an optional
+`seo?: AssetSeoStore` field (`AssetSeoStore = Partial<Record<MarketplaceId,
+AssetSeoOverride>>`, `AssetSeoOverride = {title?, description?, keywords?,
+filename?}`) — additive and backward-compatible, so a collection generated
+before this milestone simply has no `seo` field on any asset and every
+reader treats a missing marketplace entry as "use the generated default."
+`projectManager.ts` gained `setAssetSeoOverride`/`clearAssetSeoOverride`,
+pure immutable-update functions in the same style as the existing
+`setCollectionUploadStatus`, reached through `App.tsx`'s
+`handleSetAssetSeoOverride`/`handleClearAssetSeoOverride` (which persist
+through the same `updateProject`/`putProject` IndexedDB path every other
+project mutation already uses).
+
+### UI
+
+- **Marketplace Profile Selector** (`components/MarketplaceProfileSelector.tsx`,
+  rendered in `StockSubmissionCenter.tsx` above the existing
+  `MetadataPanel`): 6 marketplace chips (Etsy shows 🔜); selecting one
+  instantly regenerates Title/Description (only shown where the profile
+  actually has one)/Keywords/Filename with per-field character/count
+  budgets shown against that marketplace's own limits; every field is
+  editable (edits are local overrides layered on the generated defaults,
+  reset when switching marketplace or pattern — a one-off touch-up before
+  download, not a saved record, consistent with the rest of this page); a
+  custom filename template input; a Ready/Issues indicator and a full list
+  of validation messages; a "📦 ดาวน์โหลด Export Package" button.
+- **Stock Readiness cards** (existing `StockSubmissionCenter.tsx` section)
+  gained an SEO/Validation status line and a "📦 Download Package" action
+  per marketplace, next to the existing Contributor Link button.
+- **Asset SEO Editor** (new sub-component inside `components/ProjectPanel.tsx`,
+  under the Asset Browser's selected-asset preview): the actual UI for the
+  "Project > Collection > Asset > SEO > {marketplace}" storage tree — per
+  asset, per marketplace, manual Title/Description/Keywords/Filename
+  fields backed by `setAssetSeoOverride`/`clearAssetSeoOverride`. The 5
+  pattern-type assets (Hero/Secondary/Blender/Mini/Stripe) additionally get
+  an "✨ Auto-fill จากที่ระบบสร้าง" shortcut that pulls from
+  `generateMarketplaceSeo` for that asset's own resolved params; every
+  other asset type (border/corner/sheets/preview/metadata/seoPackage) is
+  manual-entry-only, since there's no underlying pattern to generate SEO
+  copy from. A "↺ ล้างค่าที่แก้ไข" button clears the override back to the
+  generated default (or back to empty, for manual-only assets).
+- Verified live via Playwright against the real dev server: switching
+  marketplace chips regenerates every field correctly (Etsy's 140-char
+  title / 13-tag / `.svg` limits, `.eps` for Shutterstock/Adobe/Freepik,
+  `.svg` for Creative Fabrica/Creative Market), Ready indicator reflects
+  real validation state, generating a real Collection and opening its
+  Project Panel shows the Asset SEO Editor for every asset, editing a
+  non-pattern asset's title (Border Pattern) persists across switching to
+  a different asset and back, Auto-fill on a pattern asset (Hero Pattern)
+  pulls the real generated title and Clear correctly reverts to it, zero
+  console errors throughout.
+
 ## Testing
 
-`npm test` runs `vitest run` — 418 tests across 26 files:
+`npm test` runs `vitest run` — 484 tests across 31 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1443,18 +1630,22 @@ itself, since the shape is what's actually checked).
   (tile.ts's wrap-clone technique nests the *same* motif `SvgNode` object by
   reference into up to 9 sibling `<g>` copies, so an internal id would be
   duplicated verbatim across every copy); output is byte-identical for the
-  same seed+params. A separate node-budget-headroom suite runs `botanical`
-  (the heaviest shipped generator) across every layout against a generous
-  40000-node sanity ceiling (catches a true runaway/regression) and
-  `console.warn`s — without failing the suite — for any combo that exceeds
-  the *production* `HARD_NODE_BUDGET`: at the time this suite was written,
-  `botanical` + `radial` (19149 nodes), `+ heroScatter` (9358), and
-  `+ densePremium` (9604) all exceed it at default density, meaning
-  `generateCandidates`/`generateBest` could hard-reject every candidate for
-  those specific combos — a real, reproducible finding, tracked here rather
-  than "fixed" by touching layout/generator spacing math (which would
-  change visual output for existing saved seeds); left as a recommendation
-  for a future milestone, not remediated in this one.
+  same seed+params. A node-budget-headroom suite runs `mandala` (the
+  heaviest shipped generator) and `botanical` across every layout against a
+  generous 40000-node sanity ceiling (catches a true runaway/regression)
+  and `console.warn`s — without failing the suite — for any combo that
+  exceeds the *production* `HARD_NODE_BUDGET`: `mandala` + `radial`
+  (~25700 nodes after the Project Phoenix optimization to `mandala.ts`,
+  see above — was 36340 before it), `+ heroScatter` (~10450),
+  `+ densePremium` (~10820), `botanical` + `radial` (~19400),
+  `+ heroScatter` (~8600), `+ densePremium` (~9400) all still exceed it at
+  default density — a real, reproducible finding whose root cause is
+  `radial`'s own placement math (13 sub-motifs/medallion), tracked here
+  rather than fully closed by further touching layout/generator math (a
+  real composition/architecture decision, left as a recommendation). A
+  separate regression-guard test locks in `mandala`'s optimized ~47.5
+  average per-motif node count (was ~76) so a future change can't silently
+  reintroduce the old per-ring-item `<g transform="rotate(...)">` pattern.
 - `collection/collectionGenerator.test.ts` — every required asset type is
   present at least once, exactly 4 border + 4 corner assets, full
   determinism (excluding the real-wall-clock `createdAt`), a different seed
@@ -1508,7 +1699,14 @@ itself, since the shape is what's actually checked).
   `setCollectionUploadStatus` updates one site without disturbing others;
   saved-item id references dedupe on add and remove cleanly;
   `migrateLegacyDataIntoProject` references every pre-existing saved item
-  id (and handles an empty library).
+  id (and handles an empty library); `setAssetSeoOverride` saves a
+  marketplace override on the targeted asset only, without mutating the
+  input project, and different marketplaces on the same asset stay
+  independent; re-setting the same marketplace overwrites it;
+  `clearAssetSeoOverride` removes only the targeted marketplace (leaving
+  others intact) and is a safe no-op on an asset with no `seo` store yet;
+  backward compatibility — a freshly generated collection's assets all
+  start with `seo: undefined`.
 - `project/projectStats.test.ts` — `listProjectAssets` is empty for a
   collection-less project and flattens every asset across every collection,
   tagged with its own collection; `computeProjectStats` reports
@@ -1530,6 +1728,44 @@ itself, since the shape is what's actually checked).
   version and a real `exportedAt` timestamp; rejects invalid JSON,
   well-formed-but-wrong-shape JSON, and a project object missing required
   array fields.
+- `metadata/marketplaceProfiles.test.ts` — all 6 marketplaces present and
+  match `STOCK_SITES`; only Etsy is `future`; every profile has complete
+  title/description/keyword/filename rules and a category mapping;
+  contributor URLs match `contributorLinks.ts` and unverified ones are
+  flagged consistently; Etsy's 13-tag/20-char-each rule is present;
+  backward compatibility — the 5 pre-existing marketplaces' numbers are
+  byte-identical to what `submissionCenter.ts` used before this milestone.
+- `metadata/filenameEngine.test.ts` — filename generation for every
+  marketplace, correct `.svg`/`.eps` extension per profile, determinism,
+  varies with seed, truncates at a hyphen (never mid-word) when over a
+  profile's max length, template resolution (including an unrecognized
+  placeholder left as-is), a custom template overrides the default, and
+  `dedupeFilename` appends `-2`/`-3` and handles a no-extension filename.
+- `metadata/marketplaceSeo.test.ts` — every marketplace produces non-empty
+  fields where its profile expects them, description presence correctly
+  differentiates by marketplace, Etsy's tag-count/length limits are
+  respected, generation is deterministic, `generateAllMarketplaceSeo`
+  covers every marketplace, and a custom filename template doesn't leak
+  into other marketplaces' results.
+- `metadata/marketplaceValidation.test.ts` — a healthy SEO object produces
+  zero issues; every individual validation code (title too short/long,
+  description missing, keywords missing/too many, duplicate keywords, a
+  keyword over Etsy's length cap, invalid/too-long filename) triggers on a
+  constructed input designed to hit it; `isMarketplaceReady` is true with
+  only warnings and false with any error.
+- `metadata/exportPackage.test.ts` — every marketplace's package contains
+  at minimum `title.txt`/`keywords.txt`/`filename.txt`/`metadata.json`;
+  `description.txt` is present only where the marketplace actually has
+  one; `metadata.json` is valid JSON carrying the real generated SEO and
+  validation result; content matches what the SEO generator/Filename
+  Engine would produce; fully deterministic; respects a custom filename
+  template; `buildPackageTextFilesFromSeo` uses a caller-supplied
+  `MarketplaceSeo` verbatim (hand-edited title/description/keywords/
+  filename that deliberately differ from what generation would produce)
+  instead of silently regenerating and discarding it, including inside
+  `metadata.json`'s embedded validation result; `buildMarketplacePackageTextFiles`
+  is confirmed to be a thin wrapper that delegates to
+  `buildPackageTextFilesFromSeo` with a freshly generated SEO.
 
 ## Adding a new pattern category
 
@@ -1593,13 +1829,19 @@ src/
     designerAssistant.ts   project-wide Designer Assistant review
     projectJson.ts         Project JSON export/import
   metadata/
-    shutterstock.ts        per-site SEO metadata (title/description/keywords)
+    shutterstock.ts         per-site SEO metadata (title/description/keywords)
     contributorLinks.ts     Contributor Portal config: one entry per stock site
     submissionCenter.ts     submission checklist + SEO analyzer + stock readiness
+    marketplaceProfiles.ts  Marketplace Profile System: per-marketplace rules config
+    filenameEngine.ts       marketplace-specific filename templates + dedupe
+    marketplaceSeo.ts       generates one marketplace's Title/Description/Keywords/Filename
+    marketplaceValidation.ts validates generated SEO against a marketplace's own rules
+    exportPackage.ts        builds a marketplace's Export Package text/JSON files
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
+    MarketplaceProfileSelector.tsx
     ProjectBar.tsx
     ProjectDashboard.tsx
     ProjectPanel.tsx

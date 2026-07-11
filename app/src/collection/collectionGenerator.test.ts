@@ -156,11 +156,11 @@ describe('generateCollection: Collection Manifest', () => {
 });
 
 describe('generateCollection: Metadata / SEO Package', () => {
-  it('metadata asset carries per-site SEO fields for all 5 stock sites', () => {
+  it('metadata asset carries per-site SEO fields for all 6 marketplaces (incl. Etsy)', () => {
     const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-metadata' });
     const metaAsset = assets.find((a) => a.type === 'metadata')!;
     const data = metaAsset.data as { siteMetadata: Array<{ id: string }> };
-    expect(data.siteMetadata.length).toBe(5);
+    expect(data.siteMetadata.length).toBe(6);
   });
 
   it('SEO Package asset carries real Shutterstock + Adobe Stock CSV text covering all 5 pattern assets', () => {

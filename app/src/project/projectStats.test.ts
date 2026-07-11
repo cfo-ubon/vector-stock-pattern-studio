@@ -49,7 +49,7 @@ describe('projectStats: computeProjectStats', () => {
     p = setCollectionUploadStatus(p, entryId, 'adobestock', 'uploaded');
     expect(computeProjectStats(p).uploadStatus).toBe('inProgress');
 
-    for (const site of ['shutterstock', 'freepik', 'creativefabrica', 'creativemarket'] as const) {
+    for (const site of ['shutterstock', 'freepik', 'creativefabrica', 'creativemarket', 'etsy'] as const) {
       p = setCollectionUploadStatus(p, entryId, site, 'ready');
     }
     expect(computeProjectStats(p).uploadStatus).toBe('allReady');
