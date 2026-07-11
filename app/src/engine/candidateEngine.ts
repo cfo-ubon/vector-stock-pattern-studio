@@ -46,6 +46,24 @@ export interface HardRejectResult {
   reasons: string[];
 }
 
+export interface SvgStringValidity {
+  valid: boolean;
+  issues: string[];
+}
+
+/** The subset of applyHardRejectRules' checks that only need the serialized
+ * SVG string, with no TileData/instance dependency — extracted so Collection
+ * Studio's non-tile assets (border/corner strips, motif sheets, the
+ * Collection Preview composite) can run the same real structural checks the
+ * Candidate Engine uses, instead of a separate ad-hoc check. */
+export function checkSvgStringValidity(svgStr: string): SvgStringValidity {
+  const issues: string[] = [];
+  if (/NaN|Infinity/.test(svgStr)) issues.push('invalid geometry (NaN/Infinity coordinate)');
+  if (/<image[\s/>]/.test(svgStr)) issues.push('raster <image> element present');
+  if (/(?:xlink:href|href)\s*=\s*"(?!#)[^"]/.test(svgStr)) issues.push('external resource reference present');
+  return { valid: issues.length === 0, issues };
+}
+
 /** Exported so other features (e.g. the Stock Submission Center's "SVG
  * Valid" checklist item) can run the exact same structural validity check
  * directly on the current tile instead of re-deriving a whole candidate
@@ -56,9 +74,7 @@ export function applyHardRejectRules(tileData: TileData): HardRejectResult {
   if (instances.length === 0) reasons.push('empty pattern — no motifs placed');
 
   const svgStr = serialize(tileData.svg);
-  if (/NaN|Infinity/.test(svgStr)) reasons.push('invalid geometry (NaN/Infinity coordinate)');
-  if (/<image[\s/>]/.test(svgStr)) reasons.push('raster <image> element present');
-  if (/(?:xlink:href|href)\s*=\s*"(?!#)[^"]/.test(svgStr)) reasons.push('external resource reference present');
+  reasons.push(...checkSvgStringValidity(svgStr).issues);
 
   const ids = instances.map((i) => i.index);
   if (new Set(ids).size !== ids.length) reasons.push('duplicate motif ids');
