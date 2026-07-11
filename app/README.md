@@ -388,6 +388,60 @@ petals → core. `petalRosette`, `dotMedallion` and `sunMandala` each gained
 a scalloped ring (and `dotMedallion`/`sunMandala` also spoke ticks) between
 existing layers to remove the empty space that read as unfinished.
 
+### SVG node-count optimization (Project Phoenix — Quality First milestone)
+
+`engine/svgStructuralAudit.test.ts` (see Testing below) surfaced a real,
+reproducible finding: `mandala` is the heaviest per-motif generator in the
+app (~76 nodes/motif on average) — running it through the `radial` layout's
+own placement math (13 sub-motifs per medallion cell: 2 rings x
+`radialSymmetry`-fold + 1 center) at default density produced 36,340 total
+nodes, 4.5x over the Candidate Engine's `HARD_NODE_BUDGET=8000`. Traced the
+weight to `mandala.ts`'s `ring()` helper: every single-point child (a dot,
+a spoke tick, a ray triangle) was wrapped in its own
+`<g transform="rotate(...)">`, doubling that child's node cost for no
+visual reason — rotating one point (or a small fixed set of points) around
+the origin is arithmetic, not something that needs an SVG transform.
+
+Added three helpers that bake each ring item's rotation directly into its
+own coordinates instead:
+- `circleRing(count, offsetDeg, radius, attrs)` — `cx/cy` computed via
+  `(radius * sin(angle), -radius * cos(angle))` per item, no wrapping `<g>`.
+- `polygonRing(count, offsetDeg, points, attrs)` — rotates every local
+  point of a small fixed shape (e.g. a sun-ray triangle) the same way.
+- `spokeTicks` rewritten to compute each tick's rotated endpoints directly
+  instead of routing through `ring()`.
+- `ring()` itself also got smarter for its remaining callers (petal rings,
+  which still need per-item `<g>`s since paths carry real curve geometry
+  that can't be trivially re-pointed): when a ring item is already a plain
+  `<g>` with no transform of its own (a veined petal's `<g>{path,
+  veinPath}}`), the rotation is merged directly into that existing `<g>`
+  instead of adding a second wrapping one.
+
+Every replacement was verified **mathematically identical** to the
+`<g transform="rotate(...)">` approach it replaced — `engine/svgAst.ts`'s
+own `parseTransform`/`applyMat` were used to compute what the old approach
+would have produced for a spread of radii and angles, and compared against
+the new baked coordinates (`toBeCloseTo` within rounding) — not just
+eyeballed. Also verified visually via a live Playwright render of
+`mandala` + `radial` at default settings: identical composition, same
+density and richness, zero regression.
+
+Net effect: mandala's average per-motif node count dropped from ~76 to
+~47.5 (~38%), with pixel-identical output. `mandala + radial` at default
+density dropped from 36,340 to ~25,700 nodes — a real, measured
+improvement, but **still over the 8000 hard-reject budget** by a wide
+margin. The remaining gap is architectural, not an SVG-optimization
+problem: `radial`'s own 13-motifs-per-medallion placement math (used by
+every category, not just mandala) is what actually explains the node
+count at this layout — closing it the rest of the way means either
+reducing that placement count for detail-heavy generators specifically, or
+giving `spacingForDensity` a per-generator complexity factor, both real
+composition/architecture decisions intentionally left as a recommendation
+rather than decided unilaterally in this pass (see `svgStructuralAudit
+.test.ts`'s node-budget-headroom suite, which tracks the current numbers
+as a loud `console.warn` plus a generous sanity ceiling that would catch a
+true regression).
+
 ## Realistic animal markings (Animal Print generator)
 
 `generators/animalprint.ts` adds a `taperedBlotchPath(rng, spine, widthFn,
@@ -1287,7 +1341,7 @@ itself, since the shape is what's actually checked).
 
 ## Testing
 
-`npm test` runs `vitest run` — 418 tests across 26 files:
+`npm test` runs `vitest run` — 433 tests across 26 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1443,18 +1497,22 @@ itself, since the shape is what's actually checked).
   (tile.ts's wrap-clone technique nests the *same* motif `SvgNode` object by
   reference into up to 9 sibling `<g>` copies, so an internal id would be
   duplicated verbatim across every copy); output is byte-identical for the
-  same seed+params. A separate node-budget-headroom suite runs `botanical`
-  (the heaviest shipped generator) across every layout against a generous
-  40000-node sanity ceiling (catches a true runaway/regression) and
-  `console.warn`s — without failing the suite — for any combo that exceeds
-  the *production* `HARD_NODE_BUDGET`: at the time this suite was written,
-  `botanical` + `radial` (19149 nodes), `+ heroScatter` (9358), and
-  `+ densePremium` (9604) all exceed it at default density, meaning
-  `generateCandidates`/`generateBest` could hard-reject every candidate for
-  those specific combos — a real, reproducible finding, tracked here rather
-  than "fixed" by touching layout/generator spacing math (which would
-  change visual output for existing saved seeds); left as a recommendation
-  for a future milestone, not remediated in this one.
+  same seed+params. A node-budget-headroom suite runs `mandala` (the
+  heaviest shipped generator) and `botanical` across every layout against a
+  generous 40000-node sanity ceiling (catches a true runaway/regression)
+  and `console.warn`s — without failing the suite — for any combo that
+  exceeds the *production* `HARD_NODE_BUDGET`: `mandala` + `radial`
+  (~25700 nodes after the Project Phoenix optimization to `mandala.ts`,
+  see above — was 36340 before it), `+ heroScatter` (~10450),
+  `+ densePremium` (~10820), `botanical` + `radial` (~19400),
+  `+ heroScatter` (~8600), `+ densePremium` (~9400) all still exceed it at
+  default density — a real, reproducible finding whose root cause is
+  `radial`'s own placement math (13 sub-motifs/medallion), tracked here
+  rather than fully closed by further touching layout/generator math (a
+  real composition/architecture decision, left as a recommendation). A
+  separate regression-guard test locks in `mandala`'s optimized ~47.5
+  average per-motif node count (was ~76) so a future change can't silently
+  reintroduce the old per-ring-item `<g transform="rotate(...)">` pattern.
 - `collection/collectionGenerator.test.ts` — every required asset type is
   present at least once, exactly 4 border + 4 corner assets, full
   determinism (excluding the real-wall-clock `createdAt`), a different seed

@@ -4,6 +4,7 @@ import { buildTile } from './tile';
 import { serialize } from './svgAst';
 import { countNodes } from './svgGeometry';
 import { applyHardRejectRules } from './candidateEngine';
+import { createRng } from './rng';
 import { GENERATORS } from '../generators';
 import { LAYOUT_LIST } from '../layouts';
 
@@ -83,33 +84,64 @@ describe('SVG structural audit — every layout', () => {
   }
 });
 
-describe('SVG structural audit — node-budget headroom (botanical x every layout)', () => {
-  // botanical is the heaviest-per-motif shipped generator (realistic
-  // curve-based petals/leaves from the Growth Engine, see
-  // generators/growth.ts) — the worst case for the Candidate Engine's
+describe('SVG structural audit — node-budget headroom (heaviest generators x every layout)', () => {
+  // mandala (the heaviest per-motif shipped generator, ~47 nodes/motif on
+  // average after the Project Phoenix optimization below — was ~76 before
+  // it) and botanical (realistic curve-based petals/leaves from the Growth
+  // Engine) are the worst cases for the Candidate Engine's
   // HARD_NODE_BUDGET=8000 hard-reject rule. A combo landing over budget
   // here doesn't throw or produce invalid SVG (still passes the "every
   // registered category" suite above at each category's *own* defaults) —
   // it means `generateCandidates`/`generateBest` would hard-reject every
   // candidate for that specific category+layout+default-density combo,
   // silently falling back to serving the least-bad rejected tile instead of
-  // a real pass. Tracked here as a known, reproducible finding (not
-  // "fixed" by touching layout/generator math, which would change visual
-  // output for existing seeds) — flagged loudly via console.warn so it
-  // stays visible, asserted only against a generous sanity ceiling that
-  // would catch a true runaway/regression.
+  // a real pass. `radial` is the worst offender: its own layout math places
+  // 13 sub-motifs per medallion cell (2 rings x radialSymmetry-fold + 1
+  // center), which multiplies with per-motif complexity fast. Tracked here
+  // as a known, reproducible finding (not fully "fixed" — a complete fix
+  // means either reducing radial's own per-medallion placement count or
+  // giving spacingForDensity a per-generator complexity factor, both real
+  // design decisions beyond a pure SVG-optimization pass) — flagged loudly
+  // via console.warn so it stays visible, asserted only against a generous
+  // sanity ceiling that would catch a true runaway/regression.
   const SANITY_CEILING = 40000;
-  for (const layout of LAYOUT_LIST) {
-    it(`${layout.id}: botanical stays under the sanity ceiling and reports real headroom`, () => {
-      const tileData = buildTile(paramsFor('botanical', { layoutId: layout.id, seed: `audit-budget-${layout.id}` }));
-      const nodeCount = countNodes(tileData.svg);
-      if (nodeCount > HARD_NODE_BUDGET) {
-        // eslint-disable-next-line no-console
-        console.warn(`[svg-audit] botanical + ${layout.id} at default density: ${nodeCount} nodes, exceeds HARD_NODE_BUDGET=${HARD_NODE_BUDGET}`);
-      }
-      expect(nodeCount, `${layout.id} node count`).toBeLessThan(SANITY_CEILING);
-    });
+  for (const categoryId of ['mandala', 'botanical']) {
+    for (const layout of LAYOUT_LIST) {
+      it(`${layout.id}: ${categoryId} stays under the sanity ceiling and reports real headroom`, () => {
+        const tileData = buildTile(paramsFor(categoryId, { layoutId: layout.id, seed: `audit-budget-${categoryId}-${layout.id}` }));
+        const nodeCount = countNodes(tileData.svg);
+        if (nodeCount > HARD_NODE_BUDGET) {
+          // eslint-disable-next-line no-console
+          console.warn(`[svg-audit] ${categoryId} + ${layout.id} at default density: ${nodeCount} nodes, exceeds HARD_NODE_BUDGET=${HARD_NODE_BUDGET}`);
+        }
+        expect(nodeCount, `${layout.id} node count`).toBeLessThan(SANITY_CEILING);
+      });
+    }
   }
+});
+
+describe('SVG structural audit — mandala node-count regression guard (Project Phoenix)', () => {
+  // Locks in the Project Phoenix optimization to generators/mandala.ts:
+  // circleRing/polygonRing/spokeTicks now bake each ring item's rotation
+  // directly into its own coordinates (pure arithmetic, verified
+  // mathematically identical to the old per-item `<g transform="rotate">`
+  // wrapper it replaced) instead of paying one extra `<g>` node per ring
+  // item — average per-motif node count dropped from ~76 to ~47 with zero
+  // pixel difference. This test fails loudly if a future change silently
+  // reintroduces the old per-item wrapper pattern.
+  it('average per-motif node count across many seeds stays well under the old baseline', () => {
+    const gen = GENERATORS.mandala;
+    const colors = ['#fdf6ec', '#b8a4d4', '#8fd0e0', '#f4a6c6', '#e8c07d'];
+    let total = 0;
+    const samples = 24;
+    for (let i = 0; i < samples; i++) {
+      const rng = createRng(`mandala-node-regression-${i}`);
+      const motif = gen.createMotif(rng, colors, gen.defaultMotifSize, i);
+      total += countNodes(motif.node);
+    }
+    const average = total / samples;
+    expect(average, `mandala average per-motif node count regressed (was ~47.5 after optimization, ~76 before)`).toBeLessThan(60);
+  });
 });
 
 describe('SVG structural audit — grouping (Affinity Designer editability)', () => {

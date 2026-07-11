@@ -13,11 +13,51 @@ import { rngPick, rngInt, rngBool } from '../engine/rng';
 type Variant = (rng: Rng, colors: string[], size: number) => { node: ReturnType<typeof h>; radius: number };
 
 /** Ring of identical children rotated around the origin — the basic
- * building block of every mandala variant. */
+ * building block of every mandala variant. When a child is itself a plain
+ * `<g>` with no transform of its own (e.g. a veined petal's `<g>{path,
+ * veinPath}`), the rotation is merged directly into it instead of adding a
+ * second wrapping `<g>` — same rendered pixels, one fewer node per item. */
 function ring(count: number, offsetDeg: number, child: (i: number) => ReturnType<typeof h>): ReturnType<typeof h>[] {
-  const out = [];
+  const out: ReturnType<typeof h>[] = [];
   for (let i = 0; i < count; i++) {
-    out.push(h('g', { transform: `rotate(${round(offsetDeg + (360 / count) * i)})` }, [child(i)]));
+    const transform = `rotate(${round(offsetDeg + (360 / count) * i)})`;
+    const node = child(i);
+    if (node.tag === 'g' && !node.attrs?.transform) {
+      out.push({ ...node, attrs: { ...node.attrs, transform } });
+    } else {
+      out.push(h('g', { transform }, [node]));
+    }
+  }
+  return out;
+}
+
+/** Ring of same-radius circles evenly spaced by angle — computes each
+ * circle's rotated (cx, cy) directly via trig instead of wrapping every
+ * circle in its own `<g transform="rotate(...)">` the way `ring()` would:
+ * rotating a single point around the origin is arithmetic, not a
+ * transform-worthy operation, so this halves the node cost of every dot
+ * ring with pixel-identical output. */
+function circleRing(count: number, offsetDeg: number, radius: number, attrs: Record<string, string | number>): ReturnType<typeof h>[] {
+  const out: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = ((offsetDeg + (360 / count) * i) * Math.PI) / 180;
+    out.push(h('circle', { cx: round(radius * Math.sin(angle)), cy: round(-radius * Math.cos(angle)), ...attrs }));
+  }
+  return out;
+}
+
+/** Ring of identical polygons rotated around the origin — like `circleRing`
+ * but for multi-point shapes (e.g. sun-ray triangles): rotates every local
+ * point by each ring angle directly instead of wrapping each copy in its
+ * own `<g transform="rotate(...)">`. */
+function polygonRing(count: number, offsetDeg: number, points: Array<[number, number]>, attrs: Record<string, string | number>): ReturnType<typeof h>[] {
+  const out: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = ((offsetDeg + (360 / count) * i) * Math.PI) / 180;
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
+    const rotated = points.map(([x, y]) => `${round(x * c - y * s)},${round(x * s + y * c)}`).join(' ');
+    out.push(h('polygon', { points: rotated, ...attrs }));
   }
   return out;
 }
@@ -38,11 +78,28 @@ function scallopRingPath(bumpCount: number, baseR: number, amp: number): string 
 
 /** Fine radial tick marks between two radii — the short spokes real
  * mandala medallions use to fill the gap between a dot ring and a border
- * ring instead of leaving it empty. */
+ * ring instead of leaving it empty. Coordinates computed directly (same
+ * technique as `circleRing`) instead of one `<g transform="rotate(...)">`
+ * per tick. */
 function spokeTicks(count: number, r0: number, r1: number, color: string, width: number): ReturnType<typeof h>[] {
-  return ring(count, 0, () =>
-    h('line', { x1: 0, y1: round(-r0), x2: 0, y2: round(-r1), stroke: color, 'stroke-width': round(width), 'stroke-linecap': 'round' }),
-  );
+  const out: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = ((360 / count) * i * Math.PI) / 180;
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
+    out.push(
+      h('line', {
+        x1: round(r0 * s),
+        y1: round(-r0 * c),
+        x2: round(r1 * s),
+        y2: round(-r1 * c),
+        stroke: color,
+        'stroke-width': round(width),
+        'stroke-linecap': 'round',
+      }),
+    );
+  }
+  return out;
 }
 
 /** A petal, optionally with a single centerline vein stroke (the crease
@@ -78,7 +135,7 @@ const petalRosette: Variant = (rng, colors, size) => {
     h('path', { d: scallopRingPath(fold, r * 0.32, r * 0.035), fill: 'none', stroke: blendHex(inner, 0.6, colors[0]), 'stroke-width': round(size * 0.009) }),
     // Inner ring was 95%-transparent — pre-blend against background.
     ...ring(fold, 180 / fold, () => petal(r * 0.38, r * 0.24, r * 0.22, blendHex(inner, 0.95, colors[0]))),
-    ...ring(fold, 0, () => h('circle', { cx: 0, cy: round(-r * 0.14), r: round(r * 0.028), fill: core })),
+    ...circleRing(fold, 0, r * 0.14, { r: round(r * 0.028), fill: core }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: core }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.07), fill: colors[0] }),
   ];
@@ -95,11 +152,11 @@ const dotMedallion: Variant = (rng, colors, size) => {
   const children = [
     h('path', { d: scallopRingPath(fold, r * 0.72, r * 0.03), fill: 'none', stroke: blendHex(ringColor, 0.6, colors[0]), 'stroke-width': round(size * 0.008) }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.55), fill: 'none', stroke: ringColor, 'stroke-width': round(size * 0.04) }),
-    ...ring(fold, 0, () => h('circle', { cx: 0, cy: round(-r * 0.8), r: round(r * 0.09), fill: dotColor })),
+    ...circleRing(fold, 0, r * 0.8, { r: round(r * 0.09), fill: dotColor }),
     ...spokeTicks(fold, r * 0.6, r * 0.68, blendHex(ringColor, 0.4, colors[0]), size * 0.01),
-    ...ring(fold, 180 / fold, () => h('circle', { cx: 0, cy: round(-r * 0.55), r: round(r * 0.05), fill: ringColor })),
+    ...circleRing(fold, 180 / fold, r * 0.55, { r: round(r * 0.05), fill: ringColor }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.28), fill: coreColor }),
-    ...ring(6, 0, () => h('circle', { cx: 0, cy: round(-r * 0.16), r: round(r * 0.045), fill: colors[0] })),
+    ...circleRing(6, 0, r * 0.16, { r: round(r * 0.045), fill: colors[0] }),
   ];
   return { node: h('g', {}, children), radius: r * 0.95 };
 };
@@ -111,17 +168,12 @@ const sunMandala: Variant = (rng, colors, size) => {
   const rayColor = rngPick(rng, accents);
   const diskColor = rngPick(rng, accents);
   const children = [
-    ...ring(fold, 0, () =>
-      h('polygon', {
-        points: `0,${round(-r * 0.55)} ${round(r * 0.06)},${round(-r * 0.9)} ${round(-r * 0.06)},${round(-r * 0.9)}`,
-        fill: rayColor,
-      }),
-    ),
-    ...ring(fold, 180 / fold, () => h('circle', { cx: 0, cy: round(-r * 0.58), r: round(r * 0.025), fill: blendHex(rayColor, 0.5, colors[0]) })),
+    ...polygonRing(fold, 0, [[0, -r * 0.55], [r * 0.06, -r * 0.9], [-r * 0.06, -r * 0.9]], { fill: rayColor }),
+    ...circleRing(fold, 180 / fold, r * 0.58, { r: round(r * 0.025), fill: blendHex(rayColor, 0.5, colors[0]) }),
     h('circle', { cx: 0, cy: 0, r: round(r * 0.48), fill: diskColor }),
     h('path', { d: scallopRingPath(fold, r * 0.36, r * 0.03), fill: 'none', stroke: colors[0], 'stroke-width': round(size * 0.018) }),
     ...(rngBool(rng)
-      ? ring(8, 0, () => h('circle', { cx: 0, cy: round(-r * 0.2), r: round(r * 0.04), fill: colors[0] }))
+      ? circleRing(8, 0, r * 0.2, { r: round(r * 0.04), fill: colors[0] })
       : [h('circle', { cx: 0, cy: 0, r: round(r * 0.1), fill: rayColor })]),
   ];
   return { node: h('g', {}, children), radius: r * 0.95 };
