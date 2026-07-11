@@ -1287,7 +1287,7 @@ itself, since the shape is what's actually checked).
 
 ## Testing
 
-`npm test` runs `vitest run` — 342 tests across 25 files:
+`npm test` runs `vitest run` — 418 tests across 26 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1427,6 +1427,34 @@ itself, since the shape is what's actually checked).
   `buildCornerUnit` is always a square `band x band` unit, is deterministic,
   never emits NaN/Infinity for any of the 4 corners, and the 3 mirrored
   corners genuinely differ in structure from the un-mirrored top-left base.
+- `engine/svgStructuralAudit.test.ts` (Quality First / SVG structural audit
+  milestone) — every one of the 15 registered categories, built with its
+  *own* `defaultMotifSize` (matching how `ControlPanel`'s category-switch
+  handler actually pairs the two), passes the same `applyHardRejectRules`
+  the Candidate Engine runs in production; every coordinate in the
+  serialized output stays within 3 decimal places (`svgAst.ts`'s `round()`
+  discipline, scanned directly on the real serialized string — not
+  asserted, checked); default-density node count for every category stays
+  under the 8000 hard-reject budget; every registered layout produces
+  structurally valid output with the `geometric` generator (isolates layout
+  *mechanics* from per-generator node-count headroom, which the next suite
+  covers separately); every motif placement is wrapped in its own unique,
+  non-empty top-level group; no generator ever emits an internal element id
+  (tile.ts's wrap-clone technique nests the *same* motif `SvgNode` object by
+  reference into up to 9 sibling `<g>` copies, so an internal id would be
+  duplicated verbatim across every copy); output is byte-identical for the
+  same seed+params. A separate node-budget-headroom suite runs `botanical`
+  (the heaviest shipped generator) across every layout against a generous
+  40000-node sanity ceiling (catches a true runaway/regression) and
+  `console.warn`s — without failing the suite — for any combo that exceeds
+  the *production* `HARD_NODE_BUDGET`: at the time this suite was written,
+  `botanical` + `radial` (19149 nodes), `+ heroScatter` (9358), and
+  `+ densePremium` (9604) all exceed it at default density, meaning
+  `generateCandidates`/`generateBest` could hard-reject every candidate for
+  those specific combos — a real, reproducible finding, tracked here rather
+  than "fixed" by touching layout/generator spacing math (which would
+  change visual output for existing saved seeds); left as a recommendation
+  for a future milestone, not remediated in this one.
 - `collection/collectionGenerator.test.ts` — every required asset type is
   present at least once, exactly 4 border + 4 corner assets, full
   determinism (excluding the real-wall-clock `createdAt`), a different seed
