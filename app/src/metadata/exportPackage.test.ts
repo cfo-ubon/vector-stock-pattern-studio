@@ -56,7 +56,13 @@ describe('exportPackage: package generation', () => {
     const tileData = makeTileData('pkg-det');
     const a = buildMarketplacePackageTextFiles(tileData, 'etsy');
     const b = buildMarketplacePackageTextFiles(tileData, 'etsy');
-    expect(a).toEqual(b);
+    // metadata.json's `generatedAt` is a real wall-clock timestamp (each
+    // call does its own `new Date()`) — allowed to differ by a millisecond
+    // between two independent calls, same normalization the delegation
+    // test below already applies for the same reason.
+    const strip = (files: typeof a) =>
+      files.map((f) => (f.name === 'metadata.json' ? { ...f, content: JSON.stringify({ ...JSON.parse(f.content), generatedAt: null }) } : f));
+    expect(strip(a)).toEqual(strip(b));
   });
 
   it('respects a custom filename template', () => {

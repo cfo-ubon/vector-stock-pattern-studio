@@ -29,6 +29,7 @@ export const heroScatterLayout: PatternLayout = {
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
         scale: Math.max(0.5, 1.5 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
+        role: 'hero',
       });
     }
     for (const [x, y] of fillerPoints) {
@@ -38,6 +39,7 @@ export const heroScatterLayout: PatternLayout = {
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
         scale: Math.max(0.25, rngRange(rng, 0.35, 0.55) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
+        role: 'filler',
       });
     }
     return placements;

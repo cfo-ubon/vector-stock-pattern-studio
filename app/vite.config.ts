@@ -22,5 +22,16 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/testSetup.ts'],
+    // Project Phoenix V2's Cluster Composition Engine places more motifs
+    // per tile than the old independent-scatter layouts did (by design —
+    // richer clusters instead of isolated points, see
+    // engine/clusterEngine.ts), and the Quality Inspector computes 5 more
+    // real metrics per candidate — both genuinely increase per-tile
+    // generation cost. A handful of tests that build several full
+    // collections or multi-round candidate pools in one `it()` were
+    // already close to vitest's 5000ms default before this milestone (see
+    // their own per-test 15000ms overrides); this raises the *default* so
+    // future tests in the same category don't need one added by hand too.
+    testTimeout: 15000,
   },
 })

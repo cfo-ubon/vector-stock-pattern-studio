@@ -117,14 +117,25 @@ describe('runDesignSpecQualityLoop', () => {
     expect(result.check.meetsTargets).toBe(true);
   });
 
-  it('is fully deterministic for the same spec + seed + mode + maxRounds', () => {
-    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
-    const a = runDesignSpecQualityLoop(spec, 'seed-loop-det', 'fast', 2);
-    const b = runDesignSpecQualityLoop(spec, 'seed-loop-det', 'fast', 2);
-    expect(a.check).toEqual(b.check);
-    expect(a.roundsUsed).toBe(b.roundsUsed);
-    expect(a.pool.winner.tileData).toEqual(b.pool.winner.tileData);
-  });
+  it(
+    'is fully deterministic for the same spec + seed + mode + maxRounds',
+    () => {
+      // Up to 2 full candidate-pool rounds x 2 independent loop calls —
+      // the same "some category/layout combos take real time" headroom
+      // trend/designSpecCollection.test.ts's sibling tests already
+      // document (Cluster Composition Engine layouts place more motifs
+      // per tile than the old independent scatter did, by design — see
+      // engine/clusterEngine.ts — and Project Phoenix V2's Quality
+      // Inspector adds 5 more real metrics computed per candidate).
+      const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+      const a = runDesignSpecQualityLoop(spec, 'seed-loop-det', 'fast', 2);
+      const b = runDesignSpecQualityLoop(spec, 'seed-loop-det', 'fast', 2);
+      expect(a.check).toEqual(b.check);
+      expect(a.roundsUsed).toBe(b.roundsUsed);
+      expect(a.pool.winner.tileData).toEqual(b.pool.winner.tileData);
+    },
+    15000,
+  );
 
   it('keeps the higher-scoring round when multiple rounds run without meeting targets', () => {
     const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });

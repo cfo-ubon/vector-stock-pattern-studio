@@ -8,6 +8,7 @@ import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
 import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
 import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
+import { applyHeroDetailOverlay } from './heroComplexity';
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -201,10 +202,18 @@ export function buildTile(params: GenerateParams): TileData {
     // computed straight from the shape's own coordinates can't be wrong in
     // that direction, so take whichever is larger.
     const safeRadius = Math.max(motif.radius, computeBoundingRadius(motif.node));
+    // Hero Motif Complexity (Project Phoenix V2, Section 3): hero/secondary
+    // placements get a real, bounded detail overlay (inner ring, texture
+    // lines, decorative dots, nested contour) layered onto the generator's
+    // own shape — filler/accent/unroled placements pass through unchanged.
+    // Every overlay primitive stays within `safeRadius`, computed above
+    // from the *undetailed* shape, so the wrap-inclusion bound below still
+    // holds without needing to re-measure after the overlay is added.
+    const detailedNode = applyHeroDetailOverlay(motif.node, { role: placement.role, radius: safeRadius, colors: motifColors }, rng);
     // The shadow copy extends the reach of a placement — include its
     // offset in the wrap-inclusion test so edge shadows stay seamless too.
     const effectiveRadius = safeRadius * placement.scale + (useShadow ? Math.hypot(shadowDx, shadowDy) : 0);
-    const shadowNode = useShadow ? recolorNode(motif.node, shadowColor) : null;
+    const shadowNode = useShadow ? recolorNode(detailedNode, shadowColor) : null;
     const highlightNode = useHighlight
       ? h('g', { transform: `translate(${round(-safeRadius * 0.3)} ${round(-safeRadius * 0.32)}) rotate(-28)` }, [
           h('ellipse', { cx: 0, cy: 0, rx: round(safeRadius * 0.3), ry: round(safeRadius * 0.18), fill: highlightColor }),
@@ -233,7 +242,7 @@ export function buildTile(params: GenerateParams): TileData {
           shadowInstances.push(h('g', { transform: placeTransform(shadowDx, shadowDy) }, [shadowNode]));
         }
         instances.push(
-          h('g', { transform: placeTransform(0, 0) }, highlightNode ? [motif.node, highlightNode] : [motif.node]),
+          h('g', { transform: placeTransform(0, 0) }, highlightNode ? [detailedNode, highlightNode] : [detailedNode]),
         );
       }
     }

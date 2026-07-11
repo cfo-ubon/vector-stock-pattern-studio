@@ -89,10 +89,19 @@ describe('buildCollectionFromDesignSpec', () => {
     15000,
   );
 
-  it('a different seed produces a genuinely different collection id', () => {
-    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q1', createdAt: 1000 });
-    const a = buildCollectionFromDesignSpec(spec, 'seed-collection-a');
-    const b = buildCollectionFromDesignSpec(spec, 'seed-collection-b');
-    expect(a.manifest.collectionId).not.toBe(b.manifest.collectionId);
-  });
+  it(
+    'a different seed produces a genuinely different collection id',
+    () => {
+      // Two full collection builds in one test — same "some category/layout
+      // combos take several seconds for a full collection" headroom the
+      // determinism test above already documents (Cluster Composition
+      // Engine layouts place more motifs per tile than the old independent
+      // scatter did, by design — see engine/clusterEngine.ts).
+      const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q1', createdAt: 1000 });
+      const a = buildCollectionFromDesignSpec(spec, 'seed-collection-a');
+      const b = buildCollectionFromDesignSpec(spec, 'seed-collection-b');
+      expect(a.manifest.collectionId).not.toBe(b.manifest.collectionId);
+    },
+    15000,
+  );
 });

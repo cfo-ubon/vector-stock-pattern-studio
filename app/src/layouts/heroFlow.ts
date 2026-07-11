@@ -38,6 +38,7 @@ export const heroFlowLayout: PatternLayout = {
         rotationDeg: jitter(rng, flowSlopeDeg(t), params.rotationJitter * 0.4 + 5),
         scale: Math.max(0.6, 1.6 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
+        role: 'hero',
       });
     }
 
@@ -52,6 +53,7 @@ export const heroFlowLayout: PatternLayout = {
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
         scale: Math.max(0.4, rngRange(rng, 0.75, 1.0) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
+        role: 'secondary',
       });
     }
 
@@ -67,6 +69,7 @@ export const heroFlowLayout: PatternLayout = {
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
         scale: Math.max(0.25, rngRange(rng, 0.3, 0.5) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
+        role: 'filler',
       });
     }
 

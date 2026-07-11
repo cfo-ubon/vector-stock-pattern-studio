@@ -16,6 +16,14 @@ export interface MotifInstance {
    * shape/variant identity (generators don't expose which internal variant
    * they drew), just "the Nth placement", used for id-uniqueness checks. */
   index: number;
+  /** Node count of a single wrap-clone copy's own subtree (Project Phoenix
+   * V2, Section 8) — real, structural detail measurement used by
+   * `scoring.ts`'s `heroDetailRatio`. Deliberately counts *one* copy's
+   * children, not the whole `motif-N` group (which repeats the identical
+   * subtree up to 9 times for wrap-cloning) — counting the whole group
+   * would just measure "how many tile-edge copies this placement needed",
+   * not the motif's own complexity. */
+  nodeCount: number;
 }
 
 export function findPatternLayer(svg: SvgNode): SvgNode | undefined {
@@ -43,7 +51,9 @@ function extractPrimaryInstance(motifGroup: SvgNode, tileSize: number, index: nu
   const inRange = candidates.find((c) => c.x >= -0.01 && c.x <= tileSize + 0.01 && c.y >= -0.01 && c.y <= tileSize + 0.01);
   const chosen = inRange ?? candidates[0];
   const role = motifGroup.attrs?.['data-role'] as MotifInstance['role'] | undefined;
-  return { ...chosen, role, index };
+  const firstCopy = (motifGroup.children ?? [])[0];
+  const nodeCount = firstCopy ? countNodes(firstCopy) : 0;
+  return { ...chosen, role, index, nodeCount };
 }
 
 export function extractInstances(tileData: TileData): MotifInstance[] {

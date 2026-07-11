@@ -18,10 +18,10 @@ export const densePremiumLayout: PatternLayout = {
     const placements: Placement[] = [];
     let colorSeed = 0;
 
-    const tiers = [
-      { spacingMul: 1.7, scale: 1.15, opacityScale: 1 },
-      { spacingMul: 1.05, scale: 0.72, opacityScale: 1 },
-      { spacingMul: 0.65, scale: 0.4, opacityScale: 1 },
+    const tiers: Array<{ spacingMul: number; scale: number; role: 'hero' | 'secondary' | 'filler' }> = [
+      { spacingMul: 1.7, scale: 1.15, role: 'hero' },
+      { spacingMul: 1.05, scale: 0.72, role: 'secondary' },
+      { spacingMul: 0.65, scale: 0.4, role: 'filler' },
     ];
 
     for (const tier of tiers) {
@@ -35,6 +35,7 @@ export const densePremiumLayout: PatternLayout = {
           rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
           scale: Math.max(0.25, tier.scale * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
           colorSeed: colorSeed++,
+          role: tier.role,
         });
       }
     }

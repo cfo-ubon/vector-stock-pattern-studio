@@ -25,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 901 tests, see "Testing" below
+npm test         # vitest run — 961 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -784,6 +784,47 @@ collectionGenerator.ts` serializes its own asset SVGs on a separate path
 that doesn't currently route through the exporter — a Phase 4 item, not a
 regression, since Collection assets didn't go through any optimizer before
 this phase either).
+
+## Cluster Composition Engine — Project Phoenix V2 (`engine/clusterEngine.ts`, `engine/heroComplexity.ts`, extends `layouts/scatter.ts` + `layouts/toss.ts` + `layouts/bouquet.ts` + `engine/scoring.ts`)
+
+Replaces "scatter individual motifs independently" — literally true of
+`scatter.ts`'s pre-Phoenix implementation, and a gap `engine/styleDna.ts`'s
+own module comment already named ("the roadmap's Cluster Engine... [does]
+not exist yet") — with a real Cluster Composition Engine. Full
+architecture, all 8 named archetypes, the Hero Motif Complexity detail
+overlay, and the 12-penalty Quality Inspector are documented in
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md);
+summary:
+
+- **`engine/clusterEngine.ts`** — `generateCluster` builds one hero +
+  an archetype-shaped ring of secondary/filler/accent members (Bouquet,
+  Radial, Cascade, Editorial, Organic Scatter, S-Curve, Diagonal,
+  Asymmetric), with ~30% of members deliberately pulled into a real
+  overlap band and both angle and radius jittered so spacing is never
+  equal. `evaluateCluster` scores real cohesion (isolation + mechanical-
+  uniformity penalties); `buildClusterPlacements` retries a cluster up to
+  3 times against that score before accepting the best attempt. `scatter.ts`
+  and `toss.ts` now route through it (same `PatternLayout` id/label/
+  interface — no UI change); `bouquet.ts` was unified onto the same shared
+  engine instead of keeping its own bespoke duplicate.
+- **`engine/heroComplexity.ts`** — a generator-agnostic detail overlay
+  (inner ring, texture lines, nested contour) applied universally from one
+  integration point in `tile.ts`, scaled by hierarchy role (hero 100%,
+  secondary 55%, filler/accent 0%) — real, measurable extra node geometry
+  on hero motifs, tuned to stay within the Candidate Engine's node budget
+  even for the heaviest layout/category combinations.
+- **Bug fix**: `heroFlow`/`heroScatter`/`densePremium`/`bouquet` build
+  their own hero/secondary/filler tiers internally but never wrote
+  `Placement.role` onto the result — every hero those layouts produced was
+  silently untagged in the exported SVG. Fixed for all four.
+- **`engine/scoring.ts`** gained 5 new real metrics (`heroDetailRatio`,
+  `isolationScore`, `clusterCohesion`, `gridAppearanceScore`,
+  `spacingUniformity`) and the brief's 12 named `SOFT_PENALTY_RULES` at
+  their exact point values (Zero Motif Overlap -20, Hero Insufficient
+  Detail -15, Equal Spacing Detected -15, Too Many Isolated Objects -10,
+  Weak Hierarchy -15, Low Cluster Cohesion -15, Repeated Motif Orientation
+  -10, Grid Appearance -20, Visual Dead Zones -10, Monotonous Scale -10,
+  Low Motif Diversity -10, Mechanical Composition -20).
 
 ## Trend Intelligence Engine (`engine/trendEngine.ts`, `engine/colorAnalysis.ts`)
 
@@ -1619,20 +1660,22 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 901 tests (jsdom environment, component
-tests use React Testing Library) across 69 files. The list below predates
+`npm test` runs `vitest run` — 961 tests (jsdom environment, component
+tests use React Testing Library) across 71 files. The list below predates
 the Design Intelligence Core, Design Workbench, SVG Intelligence Engine
-Phase 3, and Commercial Collection Engine Phase 4 milestones and covers the
-original engine/metadata/trend suites in detail; see
-[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+Phase 3, Commercial Collection Engine Phase 4, and Project Phoenix V2
+milestones and covers the original engine/metadata/trend suites in detail;
+see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
-[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md), and
-[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md) for what their own test
-suites (`schemas/validators/services`, `workbench/` +
+[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md), and
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md) for
+what their own test suites (`schemas/validators/services`, `workbench/` +
 `components/workbench/`, `engine/svgOptimizer.test.ts` +
-`engine/scoring.test.ts` + `engine/styleDna.test.ts`, and
+`engine/scoring.test.ts` + `engine/styleDna.test.ts`,
 `palettes/colorTransform.test.ts` + `collection/colorStory.test.ts` +
-`collection/productTargets.test.ts` + `trend/collectionPlan.test.ts`
+`collection/productTargets.test.ts` + `trend/collectionPlan.test.ts`, and
+`engine/clusterEngine.test.ts` + `engine/heroComplexity.test.ts`
 respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
@@ -2371,6 +2414,8 @@ src/
     tile.ts         combines layout + generator + wrap/clip into one tile
     defaults.ts     default & randomized GenerateParams
     svgOptimizer.ts SVG Intelligence Engine Phase 3: lossless node-count optimizer (runs at export)
+    clusterEngine.ts Project Phoenix V2: Cluster Composition Engine (8 archetypes, generate/evaluate/place/connect)
+    heroComplexity.ts Project Phoenix V2: generator-agnostic hero-motif detail overlay
   generators/       one file per pattern category
   layouts/          one file per placement strategy
   palettes/         flat-design color palettes

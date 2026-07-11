@@ -98,15 +98,19 @@ describe('buildTile: Hierarchy Engine', () => {
     expect(svg).toMatch(/data-role="(hero|secondary|filler|accent)"/);
   });
 
-  it('does not apply the hierarchy pass on exempt layouts (bouquet already builds its own tiers)', () => {
-    const params: GenerateParams = {
-      ...defaultParams(),
-      layoutId: 'bouquet',
-      hierarchy: HIERARCHY_PRESETS.heroFocus.value,
-      seed: 'hier-role-2',
-    };
+  it('bouquet (Cluster Engine-backed) tags its own real hero/secondary/filler/accent roles', () => {
+    const params: GenerateParams = { ...defaultParams(), layoutId: 'bouquet', seed: 'hier-role-2' };
     const svg = serialize(buildTile(params).svg);
-    expect(svg).not.toMatch(/data-role/);
+    expect(svg).toMatch(/data-role="hero"/);
+    expect(svg).toMatch(/data-role="(secondary|filler|accent)"/);
+  });
+
+  it('does not apply the generic hierarchy pass on exempt layouts (bouquet already builds its own tiers via the Cluster Engine) — a hierarchy preset has zero effect on its output', () => {
+    const withoutHierarchy = serialize(buildTile({ ...defaultParams(), layoutId: 'bouquet', seed: 'hier-role-exempt' }).svg);
+    const withHierarchy = serialize(
+      buildTile({ ...defaultParams(), layoutId: 'bouquet', hierarchy: HIERARCHY_PRESETS.heroFocus.value, seed: 'hier-role-exempt' }).svg,
+    );
+    expect(withHierarchy).toBe(withoutHierarchy);
   });
 });
 

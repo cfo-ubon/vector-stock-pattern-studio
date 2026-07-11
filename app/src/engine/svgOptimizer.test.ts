@@ -148,6 +148,13 @@ describe('svgOptimizer: on real generated output', () => {
     const instancesBefore = extractInstances(tileData);
     const { tileData: optimized } = optimizeTileData(tileData);
     const instancesAfter = extractInstances(optimized);
-    expect(instancesAfter).toEqual(instancesBefore);
+    // Position/rotation/scale/role parsing is unaffected by optimization —
+    // `nodeCount` (Project Phoenix V2) is deliberately excluded from this
+    // comparison: collapsing redundant wrapper `<g>`s is exactly what the
+    // optimizer does, so a *lower* nodeCount after optimization is the
+    // expected, correct outcome, not a regression.
+    const strip = (instances: typeof instancesBefore) => instances.map(({ nodeCount: _nodeCount, ...rest }) => rest);
+    expect(strip(instancesAfter)).toEqual(strip(instancesBefore));
+    expect(instancesAfter.every((inst, i) => inst.nodeCount <= instancesBefore[i].nodeCount)).toBe(true);
   });
 });

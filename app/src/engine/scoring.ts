@@ -59,6 +59,24 @@ export interface CompositionMetrics {
    * averages *all* border cells, diluting this specific hot spot). See
    * `computeCornerContinuity`. */
   cornerContinuity: number;
+  /** Project Phoenix V2 (Section 8): average node-count of hero-role
+   * instances vs. filler/accent baseline — is "hero" actually more
+   * detailed, not just bigger? See `computeHeroDetailRatio`. */
+  heroDetailRatio: number;
+  /** Real "floating object" detection: fraction of instances with no
+   * neighbor anywhere near the pattern's own typical spacing. See
+   * `computeIsolationScore`. */
+  isolationScore: number;
+  /** How much real supporting company hero instances keep nearby. See
+   * `computeClusterCohesion`. */
+  clusterCohesion: number;
+  /** Real grid-detection from nearest-neighbor direction angles (axis-
+   * aligned vs. not). See `computeGridAppearanceScore`. */
+  gridAppearanceScore: number;
+  /** How far nearest-neighbor spacing is from suspiciously uniform — the
+   * specific "equal spacing" signal, distinct from `spacing`'s gentler
+   * evenness curve. See `computeSpacingUniformity`. */
+  spacingUniformity: number;
 }
 
 function clamp01to100(n: number): number {
@@ -460,6 +478,107 @@ function computeCornerContinuity(instances: MotifInstance[], tileSize: number): 
   return clamp01to100(100 - Math.abs(ratio - 1) * 70);
 }
 
+// Project Phoenix V2 (Section 8, "Quality Inspection") — five more real,
+// measurable metrics, added specifically to back the harsher, design-aware
+// penalty vocabulary Section 8 names. Every one of these follows the same
+// polarity every other metric in this file already uses: higher is always
+// better (100 = no problem detected), never a raw fraction where "more" is
+// ambiguous.
+
+/** Average node-count of hero-role instances vs. filler/accent-role
+ * instances (real geometry — `MotifInstance.nodeCount`, see
+ * `svgGeometry.ts`) — whether "hero" actually means more internal detail,
+ * not just a bigger scale number. Neutral (100) when there's nothing to
+ * compare (no heroes, or no filler/accent baseline to compare against). */
+function computeHeroDetailRatio(instances: MotifInstance[]): number {
+  const heroes = instances.filter((i) => i.role === 'hero');
+  const baseline = instances.filter((i) => i.role === 'filler' || i.role === 'accent');
+  if (heroes.length === 0 || baseline.length === 0) return 100;
+  const avgHero = heroes.reduce((a, c) => a + c.nodeCount, 0) / heroes.length;
+  const avgBaseline = baseline.reduce((a, c) => a + c.nodeCount, 0) / baseline.length;
+  if (avgBaseline <= 0) return avgHero > 0 ? 100 : 50;
+  const ratio = avgHero / avgBaseline; // 1.0 = hero has literally the same detail as filler (no boost)
+  return clamp01to100(40 + (ratio - 1) * 60);
+}
+
+/** Fraction of instances with no real neighbor nearby (nearest-neighbor
+ * distance far beyond the pattern's own typical spacing) — real "floating
+ * object" detection, distinct from `spacing`'s plain coefficient-of-
+ * variation (a pattern can have consistent-*ish* spacing overall while
+ * still containing a handful of genuinely isolated outliers). */
+function computeIsolationScore(instances: MotifInstance[], nearest: Array<{ distance: number }>): number {
+  if (instances.length <= 1) return 100;
+  const distances = nearest.map((n) => n.distance).filter((d) => Number.isFinite(d));
+  if (distances.length === 0) return 100;
+  const mean = distances.reduce((a, b) => a + b, 0) / distances.length;
+  if (mean <= 0) return 100;
+  const isolatedCount = distances.filter((d) => d > mean * 2.2).length;
+  const fraction = isolatedCount / instances.length;
+  return clamp01to100(100 - fraction * 200);
+}
+
+/** How much real supporting company each hero instance keeps nearby — the
+ * geometric definition of "cluster cohesion" this engine can measure
+ * without an explicit cluster id on every placement (only
+ * engine/clusterEngine.ts-built layouts carry one internally; this works
+ * from any tile's real instance positions/roles instead, so it applies
+ * uniformly). Neutral (100) when there are no heroes to evaluate around. */
+function computeClusterCohesion(instances: MotifInstance[], tileSize: number): number {
+  const heroes = instances.filter((i) => i.role === 'hero');
+  if (heroes.length === 0) return 100;
+  const support = instances.filter((i) => i.role === 'secondary' || i.role === 'filler' || i.role === 'accent');
+  if (support.length === 0) return 50;
+  const avgSpacing = tileSize / Math.sqrt(Math.max(1, instances.length));
+  const clusterRadius = avgSpacing * 2.2;
+  const supportCounts = heroes.map((hero) => support.filter((s) => periodicDist(hero, s, tileSize) <= clusterRadius).length);
+  const avgSupport = supportCounts.reduce((a, b) => a + b, 0) / supportCounts.length;
+  return clamp01to100((avgSupport / 3) * 100);
+}
+
+/** Real grid-detection: for every instance, the direction to its nearest
+ * neighbor either points close to an axis (0/90/180/270 degrees — the
+ * telltale sign of row/column alignment) or it doesn't. A high fraction of
+ * axis-aligned nearest-neighbor directions is what an actual grid
+ * arrangement looks like geometrically, regardless of which layout
+ * produced it — distinct from `edgeDensity` (border-vs-interior balance)
+ * and `spacing` (distance variance only, no direction). */
+function computeGridAppearanceScore(instances: MotifInstance[], nearest: Array<{ other: MotifInstance | null }>, tileSize: number): number {
+  if (instances.length <= 2) return 100;
+  let axisAligned = 0;
+  let counted = 0;
+  instances.forEach((inst, i) => {
+    const other = nearest[i].other;
+    if (!other) return;
+    const offset = periodicOffset(inst, other, tileSize);
+    const dist = Math.hypot(offset.dx, offset.dy);
+    if (dist <= 0) return;
+    counted++;
+    const angleMod90 = ((Math.atan2(offset.dy, offset.dx) * 180) / Math.PI + 360) % 90;
+    const distFromAxis = Math.min(angleMod90, 90 - angleMod90);
+    if (distFromAxis < 8) axisAligned++;
+  });
+  if (counted === 0) return 100;
+  const fraction = axisAligned / counted;
+  return clamp01to100(100 - fraction * 120);
+}
+
+/** How far nearest-neighbor spacing is from suspiciously uniform — the
+ * specific "equal spacing detected" signal Section 8 names, distinct from
+ * `spacing` (which already folds distance-variance into a general
+ * "evenness" score at a gentler curve) and from `rhythmRegularity` (which
+ * *rewards* some periodicity — a real design rhythm has structure, this
+ * metric only flags the extreme, mechanical case of nearly-identical
+ * distances everywhere). */
+function computeSpacingUniformity(nearest: Array<{ distance: number }>): number {
+  const distances = nearest.map((n) => n.distance).filter((d) => Number.isFinite(d) && d > 0);
+  if (distances.length < 3) return 100;
+  const mean = distances.reduce((a, b) => a + b, 0) / distances.length;
+  if (mean <= 0) return 100;
+  const variance = distances.reduce((a, d) => a + (d - mean) ** 2, 0) / distances.length;
+  const coeffVar = Math.sqrt(variance) / mean;
+  return clamp01to100((coeffVar / 0.35) * 100);
+}
+
 function computeSvgHealth(tileData: TileData, instances: MotifInstance[]): number {
   let score = 100;
   const svgStr = serialize(tileData.svg);
@@ -498,6 +617,11 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
   const rhythmRegularity = computeRhythmRegularity(nearest);
   const motifShapeDiversity = computeMotifShapeDiversity(extractMotifShapeSignatures(tileData));
   const cornerContinuity = computeCornerContinuity(instances, tileSize);
+  const heroDetailRatio = computeHeroDetailRatio(instances);
+  const isolationScore = computeIsolationScore(instances, nearest);
+  const clusterCohesion = computeClusterCohesion(instances, tileSize);
+  const gridAppearanceScore = computeGridAppearanceScore(instances, nearest, tileSize);
+  const spacingUniformity = computeSpacingUniformity(nearest);
 
   return {
     composition: Math.round(composition),
@@ -524,6 +648,11 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
     rhythmRegularity: Math.round(rhythmRegularity),
     motifShapeDiversity: Math.round(motifShapeDiversity),
     cornerContinuity: Math.round(cornerContinuity),
+    heroDetailRatio: Math.round(heroDetailRatio),
+    isolationScore: Math.round(isolationScore),
+    clusterCohesion: Math.round(clusterCohesion),
+    gridAppearanceScore: Math.round(gridAppearanceScore),
+    spacingUniformity: Math.round(spacingUniformity),
   };
 }
 
@@ -557,6 +686,13 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     motifShapeDiversity: 0.06,
     flowCoherence: 0.04,
     rhythmRegularity: 0.04,
+    // Project Phoenix V2: real design-aware measurements, not proxies —
+    // see each metric's own doc comment on CompositionMetrics.
+    gridAppearanceScore: 0.08,
+    spacingUniformity: 0.05,
+    isolationScore: 0.05,
+    heroDetailRatio: 0.04,
+    clusterCohesion: 0.04,
   },
   textilePremium: {
     spacing: 0.16,
@@ -573,6 +709,11 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     cornerContinuity: 0.1,
     motifShapeDiversity: 0.08,
     flowCoherence: 0.05,
+    spacingUniformity: 0.07,
+    gridAppearanceScore: 0.05,
+    clusterCohesion: 0.05,
+    heroDetailRatio: 0.03,
+    isolationScore: 0.03,
   },
   editorialBotanical: {
     hierarchy: 0.14,
@@ -590,6 +731,11 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     cornerContinuity: 0.07,
     motifShapeDiversity: 0.06,
     rhythmRegularity: 0.04,
+    heroDetailRatio: 0.08,
+    clusterCohesion: 0.07,
+    isolationScore: 0.04,
+    gridAppearanceScore: 0.03,
+    spacingUniformity: 0.03,
   },
   denseLuxury: {
     overlapQuality: 0.16,
@@ -606,6 +752,11 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     motifShapeDiversity: 0.08,
     rhythmRegularity: 0.05,
     flowCoherence: 0.04,
+    clusterCohesion: 0.08,
+    heroDetailRatio: 0.06,
+    gridAppearanceScore: 0.04,
+    isolationScore: 0.03,
+    spacingUniformity: 0.03,
   },
 };
 
@@ -638,6 +789,11 @@ const METRIC_LABELS: Partial<Record<keyof CompositionMetrics, string>> = {
   rhythmRegularity: 'spacing rhythm regularity',
   motifShapeDiversity: 'motif shape diversity',
   cornerContinuity: 'tile-corner junction balance',
+  heroDetailRatio: 'hero motif internal detail',
+  isolationScore: 'isolated-object presence',
+  clusterCohesion: 'cluster cohesion',
+  gridAppearanceScore: 'grid-like appearance',
+  spacingUniformity: 'spacing uniformity',
 };
 
 export interface SoftPenaltyRule {
@@ -647,25 +803,50 @@ export interface SoftPenaltyRule {
   check: (m: CompositionMetrics) => boolean;
 }
 
-/** Named soft-penalty rules (Phase 4's examples): each is a concrete,
- * checkable condition on real metric values that subtracts fixed points
- * from the final score — distinct from the ordinary weighted-average
- * contribution above (a mediocre-but-not-alarming metric already pulls
- * the weighted average down a little; these rules additionally flag and
- * deduct for specific conditions severe enough to name outright). A
- * candidate can trigger any number of these and still not be hard-
- * rejected — soft penalties reduce rank, they never remove a candidate
- * from consideration the way engine/candidateEngine.ts's hard-reject
- * rules do. */
+/** Named soft-penalty rules: each is a concrete, checkable condition on
+ * real metric values that subtracts fixed points from the final score —
+ * distinct from the ordinary weighted-average contribution above (a
+ * mediocre-but-not-alarming metric already pulls the weighted average
+ * down a little; these rules additionally flag and deduct for specific
+ * conditions severe enough to name outright). A candidate can trigger any
+ * number of these and still not be hard-rejected — soft penalties reduce
+ * rank, they never remove a candidate from consideration the way
+ * engine/candidateEngine.ts's hard-reject rules do.
+ *
+ * Project Phoenix V2 (Section 8, "Quality Inspection — Current scoring is
+ * too optimistic... Replace purely geometric scoring with design-aware
+ * evaluation") adds the 10 new rules below at the brief's own exact point
+ * values, all derived from real geometry (never an arbitrary number). Two
+ * of the brief's 12 named penalties were already covered by pre-existing
+ * rules at matching or updated point values rather than duplicated:
+ * "Visual dead zones -10" is `largeEmptyHole` (already -10, same
+ * `largestEmptyRegion` metric); "Low motif diversity -10" is
+ * `repetitiveMotifShapes`, whose point value was bumped 6 -> 10 to match
+ * the brief exactly. */
 export const SOFT_PENALTY_RULES: SoftPenaltyRule[] = [
   { id: 'quadrantImbalance', label: 'quadrant imbalance is severe', points: 8, check: (m) => m.quadrantBalance < 40 },
-  { id: 'largeEmptyHole', label: 'a large empty region breaks up the composition', points: 10, check: (m) => m.largestEmptyRegion < 40 },
+  { id: 'largeEmptyHole', label: 'a large empty region breaks up the composition (visual dead zone)', points: 10, check: (m) => m.largestEmptyRegion < 40 },
   { id: 'heroClustering', label: 'hero motifs sit too close together', points: 8, check: (m) => m.heroSeparation < 40 },
   { id: 'adjacentRepetition', label: 'the same motif repeats in adjacent positions too often', points: 6, check: (m) => m.adjacencyRepetition < 40 },
   { id: 'edgeImbalance', label: 'edge density is noticeably unbalanced against the interior', points: 5, check: (m) => m.edgeDensity < 40 },
   { id: 'lowPaletteContrast', label: 'palette contrast is muddy', points: 5, check: (m) => m.paletteContrast < 25 },
   { id: 'cornerDeadZone', label: 'the tile-corner junction is noticeably empty or crowded when repeated', points: 8, check: (m) => m.cornerContinuity < 40 },
-  { id: 'repetitiveMotifShapes', label: 'too few distinct motif shapes for the number of instances placed', points: 6, check: (m) => m.motifShapeDiversity < 25 },
+  { id: 'repetitiveMotifShapes', label: 'too few distinct motif shapes for the number of instances placed (low motif diversity)', points: 10, check: (m) => m.motifShapeDiversity < 25 },
+  { id: 'zeroMotifOverlap', label: 'motifs never overlap at all — reads as isolated stickers, not a composed pattern', points: 20, check: (m) => m.overlapQuality <= 25 },
+  { id: 'heroInsufficientDetail', label: 'hero motifs are not meaningfully more detailed than filler motifs', points: 15, check: (m) => m.heroDetailRatio < 45 },
+  { id: 'equalSpacingDetected', label: 'nearest-neighbor spacing is suspiciously uniform (mechanical, not organic)', points: 15, check: (m) => m.spacingUniformity < 35 },
+  { id: 'tooManyIsolatedObjects', label: 'too many motifs sit far from any neighbor (isolated floating objects)', points: 10, check: (m) => m.isolationScore < 50 },
+  { id: 'weakHierarchy', label: 'hero/secondary/filler/accent tiers are not clearly differentiated', points: 15, check: (m) => m.hierarchy < 40 },
+  { id: 'lowClusterCohesion', label: 'hero motifs have little real supporting company nearby (low cluster cohesion)', points: 15, check: (m) => m.clusterCohesion < 40 },
+  { id: 'repeatedMotifOrientation', label: 'motif rotation barely varies across the pattern', points: 10, check: (m) => m.rotationDiversity < 30 },
+  { id: 'gridAppearance', label: 'nearest-neighbor directions concentrate on the axes — reads as a grid', points: 20, check: (m) => m.gridAppearanceScore < 40 },
+  { id: 'monotonousScale', label: 'motif scale barely varies across the pattern', points: 10, check: (m) => m.scaleDiversity < 30 },
+  {
+    id: 'mechanicalComposition',
+    label: 'multiple independent signals (grid-like spacing, uniform gaps, uniform rotation) agree the composition reads as mechanical',
+    points: 20,
+    check: (m) => m.gridAppearanceScore < 40 && m.spacingUniformity < 35 && m.rotationDiversity < 30,
+  },
 ];
 
 export interface SoftPenaltyResult {

@@ -30,6 +30,30 @@ describe('extractInstances', () => {
     const roles = new Set(instances.map((i) => i.role).filter(Boolean));
     expect(roles.size).toBeGreaterThan(0);
   });
+
+  it('carries a real, positive nodeCount for every instance (Project Phoenix V2, Section 8)', () => {
+    const tile = buildTile({ ...defaultParams(), seed: 'geometry-nodecount' });
+    for (const inst of extractInstances(tile)) {
+      expect(inst.nodeCount).toBeGreaterThan(0);
+    }
+  });
+
+  it('nodeCount reflects one wrap-clone copy\'s own subtree, not the whole motif-N group', () => {
+    const tile = h('g', { id: 'tile-content' }, [
+      h('g', { id: 'layer-pattern' }, [
+        h('g', { id: 'motif-1' }, [
+          h('g', { transform: 'translate(10 10) rotate(0) scale(1)' }, [h('circle', { cx: 0, cy: 0, r: 5 })]),
+          h('g', { transform: 'translate(1010 10) rotate(0) scale(1)' }, [h('circle', { cx: 0, cy: 0, r: 5 })]),
+          h('g', { transform: 'translate(-990 10) rotate(0) scale(1)' }, [h('circle', { cx: 0, cy: 0, r: 5 })]),
+        ]),
+      ]),
+    ]);
+    const tileData = { params: defaultParams(), backgroundColor: '#fff', colors: ['#fff'], svg: tile };
+    const [inst] = extractInstances(tileData);
+    // One wrap-copy's own subtree: <g transform=...><circle/></g> = 2 nodes,
+    // not 3x that for the 3 wrap-clone copies present in the group.
+    expect(inst.nodeCount).toBe(2);
+  });
 });
 
 describe('periodicDist', () => {
