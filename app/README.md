@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 484 tests across 31 files:
+`npm test` runs `vitest run` — 608 tests across 42 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1766,6 +1766,399 @@ project mutation already uses).
   `metadata.json`'s embedded validation result; `buildMarketplacePackageTextFiles`
   is confirmed to be a thin wrapper that delegates to
   `buildPackageTextFilesFromSeo` with a freshly generated SEO.
+- `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
+  `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
+  `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`,
+  `trend/designSpecSeo.test.ts`, `trend/designSpecPackage.test.ts`,
+  `trend/promptTemplates.test.ts`, `trend/designSpecQuality.test.ts`,
+  `trend/designSpecCollection.test.ts` — see "Trend Intelligence Studio"
+  below.
+
+## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
+
+Phase 1 of a larger, explicitly phased milestone (agreed with the user via
+`AskUserQuestion` given its size — 16 sections in the original brief). This
+phase builds only the foundation everything else depends on: the **Design
+Specification JSON** schema and the pure, DOM-free logic that assembles one
+from a **Keyword Bundle** + an optional **Trend Pack**. No UI yet (no new
+page, no JSON editor) and no wiring into the SVG/SEO/export engines yet —
+those are later phases, once this schema is proven stable and tested.
+
+Distinct from the pre-existing `engine/trendEngine.ts` (v1.27, unchanged):
+that module is a single-pattern "style preset" resolved straight into
+`GenerateParams` for one tile, still used by the Control Panel's Trend
+Intelligence section. A **Trend Pack** here operates one level up, at the
+keyword-bundle/collection level, and never touches `GenerateParams`
+directly — it's one of several inputs `designIntelligence.ts` merges into
+a `DesignSpecification`.
+
+### Design Specification schema (`trend/designSpecTypes.ts`)
+
+`DesignSpecification` — `schemaVersion`, `project`, `collection`,
+`marketplace`, `trend`, `keywordBundle`, `styleDnaId`, `palette`,
+`colorRoles`, `composition`, `repeatType`, `density`, `hierarchy`, `flow`,
+`rhythm`, `negativeSpace`, `heroMotifs`/`secondaryMotifs`/`fillers`,
+`background`, `svgHints`, `seoHints`, `exportHints`, `qualityTargets` —
+exactly the Section 5 field list. Every field re-uses a real existing
+engine type instead of inventing a parallel one specifically so a later
+"SVG Engine consumes the Design Specification directly, no duplicated
+logic" phase is a mechanical mapping, not a redesign:
+`repeatType` is `LayoutId` unchanged, `hierarchy` is `HierarchyParams`
+unchanged, `flow`/`rhythm` are engine/styleDna.ts's `FlowProfile`/
+`RhythmProfile` enums (that module's `FLOW_ROTATION_JITTER`/
+`RHYTHM_STRENGTH` tables were exported, not duplicated, so resolving them
+into numbers reuses the exact values Style DNA already uses),
+`negativeSpace` is the same `GenerateParams.negativeSpace`, and every
+`svgHints` field maps 1:1 onto a remaining `GenerateParams` field.
+`colorRoles` (named background/primary/secondary/accent roles) is a new,
+small concept — deliberately distinct from `engine/motifFactory.ts`'s
+unrelated `colorRoles` field (that one is a per-motif "which colors did
+this motif actually use" audit list; this one is a palette-level role
+assignment for moodboard/SEO copy) — always derived from the *actually
+resolved* palette's own colors, so `colorRoles` values are guaranteed to
+be a subset of `palette.colors` (asserted by tests).
+
+### Keyword Bundle + relationship resolution (`trend/keywordMap.ts`, `trend/keywordBundle.ts`)
+
+`KEYWORD_MAP` (Section 14's "no hardcoded data" config) maps individual
+keyword tokens (matched case-insensitively, multi-word keys like "muted
+green" checked before falling back to single words) to palette/motif/
+Style DNA/composition/mood hints, each with a relative weight. Section 2's
+explicit requirement — "understand the relationship between keywords
+instead of treating them independently" — is `COMBO_RULES`: a curated set
+of token-pair rules (e.g. Luxury + Botanical -> `luxuryFloral` + editorial
+composition, overriding what either keyword alone would suggest) applied
+*in addition to* the individual signals, not instead of them.
+`resolveKeywordBundle(bundle)` merges every keyword in a `KeywordBundle`
+(primary weighted 2x over secondary, on top of each token's own
+`KEYWORD_MAP` weight), applies matching combo bonuses, and returns every
+hint category ranked by aggregated score — deterministic, pure, no
+randomness.
+
+### Trend Library (`trend/trendPacks.ts`)
+
+`TREND_PACKS` — 4 real, grounded quarterly packs for 2026 (Q1 Quiet Luxury
+Botanical, Q2 Modern Tropical Editorial, Q3 Vintage Herbarium, Q4 Dark
+Academia Maximalist), each with every Section 3 field (theme, mood,
+commercial uses, palette direction, popular motifs, suggested layouts,
+negative space, composition style, Style DNA id, color roles, pattern
+types, collection recommendations) — every category/layout/Style-DNA id
+referenced is real and verified by tests, every `colorRoles` hex is lifted
+directly from a real `palettes/palettes.ts` entry, not invented.
+`exportTrendPackJson`/`importTrendPackJson` provide the "editable,
+import/export as JSON" requirement (same structural-validation-only, Thai-
+error-message convention `project/projectJson.ts` established).
+
+### Design Intelligence (`trend/designIntelligence.ts`)
+
+`buildDesignSpecification({ keywordBundle, trendPackId?, ... })` is the
+Section 5 core — Market Research -> Keyword Bundle -> Trend Analysis ->
+Design Intelligence -> Design Specification JSON. `resolveTrendPack`
+either honors an explicit `trendPackId` (returning `null` if it doesn't
+exist — never silently falling back) or auto-matches by season, then
+pattern type. Every other field resolves through a clear, tested priority
+order — e.g. `styleDnaId`: an explicit `keywordBundle.styleDnaId` always
+wins, then the top keyword-derived Style DNA signal, then the matched
+Trend Pack's own `styleDnaId`, then a sensible default — so a strong
+keyword signal (e.g. "Luxury Botanical") can outrank a Trend Pack's
+generic default, while a Trend Pack still supplies sensible values when
+keywords alone don't produce a strong signal. `composition` (a
+Section 3-style descriptive label) resolves to a real `HIERARCHY_PRESETS`
+key via `COMPOSITION_STYLE_TO_HIERARCHY`, and `density` comes from the
+Keyword Bundle's `difficulty` input (`simple`/`moderate`/`complex` ->
+distinct density values).
+
+### Schema Check / Validation (`trend/designSpecValidation.ts`)
+
+Two layers, matching Section 6's "Validation" + "Schema Check" JSON Editor
+requirements (the editor UI itself is a later phase): `parseDesignSpecificationJson`
+rejects a document that isn't even shaped like a `DesignSpecification`
+(missing required top-level keys) on import; `validateDesignSpecification`
+accepts an already shape-valid spec and reports *semantic* problems —
+every id referenced (category, layout, palette, Style DNA, marketplace)
+checked against the real registry it should exist in, every 0..1-ranged
+number range-checked, `colorRoles` checked against the actual palette —
+as `error`/`warning`-severity `ValidationIssue[]`, so a future JSON Editor
+can highlight problems without hard-blocking editing.
+
+### SVG Engine adapter — "no duplicated logic" (`trend/designSpecToParams.ts`)
+
+Section 8's explicit requirement ("The SVG generator must consume the
+Design Specification directly. No duplicated logic.") — the first
+downstream consumer wired to the Phase 1 schema. `buildGenerateParamsFromDesignSpec(spec, seed)`
+maps every `GenerateParams` field straight off the spec (mostly the exact
+same value under the exact same name, by design from Phase 1) and
+`buildTileFromDesignSpec(spec, seed)` hands that straight to the existing,
+completely unmodified `buildTile` — no generation logic re-implemented
+here, only the mapping. `seed` is a separate argument (not read from the
+spec) so one Design Specification can deterministically generate many
+distinct collection assets via distinct derived seeds, the same convention
+`collectionGenerator.ts` already uses for Hero/Secondary/Blender/Mini/
+Stripe. Verified for every one of the 4 Trend Packs: builds a valid,
+non-empty tile without throwing, is deterministic for the same spec+seed,
+and two different Trend Packs (with no keyword-derived signal pinning the
+palette/Style DNA) genuinely produce different generated output — proof
+the mapping isn't a no-op.
+
+### SEO Engine — market-driven Title/Description/Keywords/Filename/Collection Name/Asset Name (`trend/designSpecSeo.ts`)
+
+Section 9's requirement, layered on top of the *already-existing* v1.35
+Marketplace Profile System rather than duplicating it: metadata/
+marketplaceSeo.ts's `generateMarketplaceSeo` (itself built on
+`buildSiteMetadata`, still the single source of truth for the base per-
+site copy) stays exactly as-is; this module's whole job is blending the
+Design Specification's own `seoHints` (the Keyword Bundle's primary/
+secondary keywords, commercial category, audience, season) into that
+generated copy, so the result reflects real market keywords instead of
+only generic category text.
+
+- `blendKeywordIntoTitle(baseTitle, primaryKeyword, maxLength)` — front-
+  loads the primary keyword (marketplaces weight earlier words more
+  heavily, the same fact `metadata/submissionCenter.ts`'s own UI copy
+  documents) unless it's already naturally present in the generated
+  title; truncates only the *generated* portion at a word boundary to
+  respect the marketplace's `titleRules.maxLength` — the keyword itself
+  is never the part that gets cut.
+- `blendKeywordsIntoList(baseKeywords, bundleKeywords, maxCount, maxKeywordLength?)`
+  — puts every Keyword Bundle term at the front of the keyword list,
+  case-insensitively deduped against the generated list, trimmed to the
+  marketplace's own count/length limits (Etsy's 20-char tag cap included).
+- `buildDesignSpecCollectionName`/`buildDesignSpecAssetName` — the
+  Section 9 "Collection Name"/"Asset Name" outputs, both keyword-led
+  human-readable display names (distinct from the Filename Engine's
+  slugified, extension-bearing output below).
+- `buildDesignSpecSeo(spec, tileData, marketplaceId, assetLabel?, customFilenameTemplate?)`
+  assembles the complete package for one marketplace — title/description/
+  keywords blended as above, plus a filename built from a new default
+  template, `{keyword}-{palette}-{category}-seamless-pattern-{seed}`
+  (leading with the keyword; the plain Marketplace Profile System's own
+  default template has no keyword placeholder at all, which would defeat
+  the point of a *market-driven* filename). `buildAllDesignSpecSeo`
+  covers every marketplace in one call — Section 4/9's "store SEO
+  independently for every marketplace," mirroring
+  `generateAllMarketplaceSeo`. The result is a strict superset of
+  `MarketplaceSeo` (`collectionName`/`assetName` added), so it passes
+  straight through the *existing, unmodified* `validateMarketplaceSeo`/
+  `isMarketplaceReady` — verified for every one of the 6 marketplaces.
+- `metadata/filenameEngine.ts`'s `resolveFilenameTemplate`/
+  `buildMarketplaceFilenameBase`/`buildMarketplaceFilename` gained an
+  additive, optional `extra?: Record<string, string>` parameter (the
+  `{keyword}` placeholder's actual resolution mechanism) — fully backward
+  compatible, verified by a dedicated test that omitting it behaves
+  exactly as before. `metadata/shutterstock.ts`'s private `truncateWords`
+  helper was exported (no behavior change) so this module reuses the
+  exact same word-boundary truncation instead of a second copy.
+
+### Marketplace Package (`trend/designSpecPackage.ts`)
+
+Section 10's "For every marketplace generate SVG, PNG Preview, SEO,
+Filename, Metadata, Manifest, ZIP" — reuses the *existing, unmodified*
+`metadata/exportPackage.ts`'s `buildPackageTextFilesFromSeo` for the
+standard title/description/keywords/filename/metadata.json set (fed the
+Design-Spec-driven `DesignSpecSeo` from `designSpecSeo.ts`, which is a
+strict superset of the `MarketplaceSeo` shape that function already
+expects — no new package-building logic needed there at all) and adds the
+one file this flow specifically needs on top: **`manifest.json`** — the
+schema version, a real ISO timestamp, the seed used, the marketplace id,
+the Project id/name, the matched Trend Pack (or `null`), the full Keyword
+Bundle summary, the resolved Collection Name/Asset Name, and the complete
+list of files the finished package will contain (including `pattern.svg`/
+`preview.png`, which are added one layer up — see below — so the manifest
+accurately documents the *actual* zip contents even though this module
+never touches the SVG/PNG itself). `buildAllDesignSpecPackageTextFiles`
+covers every marketplace in one call, mirroring `designSpecSeo.ts`'s
+`buildAllDesignSpecSeo`.
+
+SVG generation, PNG rasterization, and ZIP assembly stay exactly where
+every other export in this app already puts them — one layer up, in
+`App.tsx` — since this module (like every other engine-layer module) is
+deliberately kept DOM-free and unit-testable; wiring an actual "Download
+Package" button for this Design-Spec-driven flow is a later phase once
+the Trend Studio UI exists to trigger it from.
+
+### Prompt Factory (`trend/promptTemplates.ts`)
+
+Section 7's "Generate prompts from the Design Specification. Support
+ChatGPT, Claude, Gemini, Adobe Firefly, Midjourney, Stable Diffusion,
+FLUX. Prompt templates must be stored externally. Do not hardcode
+prompts." `PROMPT_TEMPLATES` is the one config object every template
+lives in (never inlined in a UI component) — same "one editable config,
+not scattered magic strings" convention `marketplaceProfiles.ts`/
+`trendPacks.ts`/`keywordMap.ts` already established for this app's
+no-server-backend architecture, with the same JSON export/import escape
+hatch `trendPacks.ts` provides (`exportPromptTemplateJson`/
+`importPromptTemplateJson`) so a user can hand-tune a platform's wording
+without touching source code.
+
+Two platform kinds, since they serve genuinely different purposes for a
+surface-pattern designer: **conversational** (ChatGPT/Claude/Gemini) asks
+the LLM for creative brainstorming help — additional motif ideas, a
+refined title, marketing copy — since none of the three generate images.
+**imageGeneration** (Adobe Firefly/Midjourney/Stable Diffusion/FLUX) is an
+actual txt2img prompt for moodboard/reference art (none of these tools
+produce an editable seamless *vector* pattern directly — that's still
+this app's own SVG Engine); Midjourney's prompt additionally carries its
+real `--tile --ar 1:1 --v 6` generation flags as a `suffix`, since seamless
+tiling is an actual Midjourney parameter worth setting correctly.
+`resolvePromptTemplate(template, spec)` fills every `{placeholder}`
+(`primaryKeyword`, `secondaryKeywords`, `mood`, `theme`, `styleDna`,
+`patternType`, `composition`, `colorList`, `season`, `audience`,
+`commercialCategory`, `marketplace`) from a real `DesignSpecification` —
+an unrecognized placeholder is left as literal text rather than throwing,
+the same graceful-degradation convention `filenameEngine.ts`'s
+`resolveFilenameTemplate` uses. `buildPrompt`/`buildAllPrompts` resolve
+one platform / every platform in one call.
+
+### UI — the Trend Intelligence Studio page (`components/TrendStudioPanel.tsx`)
+
+The first UI for this whole milestone, closing the loop Sections 1/6/13
+asked for: every generator above (`buildDesignSpecification`,
+`buildTileFromDesignSpec`, `buildDesignSpecSeo`, `buildPrompt`,
+`buildDesignSpecPackageTextFiles`) already existed and was independently
+unit-tested before this component was written — the component is purely
+UI wiring, no new generation logic.
+
+- **Section 1/2 — Keyword Bundle form**: every `KeywordBundle` field as a
+  real input (Primary/Secondary Keywords, Marketplace, Season, Audience,
+  Commercial Category, Pattern Type, Style DNA — "let the system choose"
+  is a real option, not a forced pick — Palette Direction, Difficulty,
+  Collection Size).
+- **Section 3 — Trend Pack picker**: a chip row (`TREND_PACK_LIST` +
+  "✨ Auto-match", which leaves `trendPackId` unset so
+  `designIntelligence.ts`'s own season/pattern-type auto-match resolves it
+  — the exact same function the pure-logic layer already tests).
+- **"🧠 Generate Design Specification"** calls `buildDesignSpecification`
+  directly and pushes the result onto a local undo/redo history stack
+  (`history: DesignSpecification[]` + `historyIndex`).
+- **Section 6 — JSON Editor**: a **Code View** (a controlled `<textarea>`
+  synced to `JSON.stringify(spec, null, 2)`, with an "✅ Apply Edits"
+  button that runs the edited text through the existing
+  `parseDesignSpecificationJson` — a shape-invalid edit shows the real
+  Thai error message inline instead of silently discarding the edit) and
+  a **Tree View** (`JsonTreeNode`, a small recursive read-only renderer
+  over the actual spec object — no separate schema description to drift
+  out of sync). **Validation**/**Schema Check**: `validateDesignSpecification`'s
+  real issues rendered live, with a Ready/Issues indicator matching the
+  same visual language the Marketplace Profile Selector already
+  established. **Undo/Redo**: plain history-stack navigation, re-syncing
+  the Code View's textarea on each step.
+- **Section 13 — Live Preview**: Trend Summary (theme/mood/composition/
+  density/negative space), Moodboard (`colorRoles` swatches), Palette
+  (`palette.colors` swatches), Motif Preview (hero/secondary category
+  labels + resolved Style DNA label) — all read directly off the spec, no
+  separate preview-only computation.
+- **Real SVG generation**: `buildTileFromDesignSpec(spec, seed)` renders
+  the actual pattern inline (`buildSingleTileSvg`, same
+  `dangerouslySetInnerHTML` pattern `ProjectPanel.tsx`'s Asset Browser
+  already uses) — this is a real generated tile, not a mockup, and reuses
+  the exact same underlying `buildTile` the main editor's own "Generate"
+  button calls (so it's also subject to the same existing safety-net UI —
+  a Design Spec that lands on a known-heavy category/layout combination
+  shows up as ❌ in the Submission Checklist after being applied, exactly
+  as it would for any other pattern; this page doesn't special-case or
+  hide that, it's the same real quality signal every other pattern gets).
+  **"✍️ ใช้ค่านี้ในหน้าสร้างลาย"** applies `buildGenerateParamsFromDesignSpec`'s
+  result straight to the main editor's `params`/`tileData` (same
+  `setTileData`+`setParams` pairing `handleRescale` already uses) and
+  switches back to the editor view — the actual "Review & Edit" handoff
+  into the app's one real generation surface.
+- **SEO Preview / Marketplace Package**: a marketplace chip row drives
+  `buildDesignSpecSeo` for a live Title/Description/Keywords/Filename/
+  Collection Name/Asset Name preview with copy buttons and a real
+  Ready/Issues indicator (`validateMarketplaceSeo`, unmodified); "📦
+  ดาวน์โหลด Marketplace Package" is wired in `App.tsx`
+  (`handleDownloadDesignSpecPackage`) the same way every other zip export
+  in this app is — PNG rasterization is DOM-dependent and lives there,
+  every text/JSON file comes from the DOM-free `buildDesignSpecPackageTextFiles`.
+- **Prompt Preview**: a platform chip row drives `buildPrompt` for a live,
+  copyable prompt per platform.
+- **"🎯 Run Quality Loop"** (in the Composition Diagram card) and
+  **"🏭 Generate Collection จาก Design Spec"** — see their own sections
+  below (`trend/designSpecQuality.ts`, `trend/designSpecCollection.ts`).
+- **Navigation**: `App.tsx`'s `view` state gained a third mode,
+  `'trendStudio'` (alongside the existing `'editor'`/`'dashboard'`), opened
+  via a new "🧠 Trend Intelligence Studio" button in `ProjectBar.tsx`
+  (next to the existing "📊 Project Dashboard" button) — same top-level
+  view-switch convention the Project Dashboard already established.
+- Verified live via Playwright against the real dev server: filling the
+  form and generating a spec renders a real, correct Design Specification
+  JSON; switching Trend Pack chips changes the resolved theme/mood/
+  palette/Style DNA; Tree View and Code View both render correctly and
+  toggle cleanly; the Composition Diagram shows a genuinely rendered
+  pattern; switching marketplace/prompt-platform chips updates the SEO/
+  prompt preview live; "ใช้ค่านี้ในหน้าสร้างลาย" correctly returns to the
+  editor with the Design Spec's category/layout/palette actually applied
+  (visible in the Control Panel's own selection state); "Run Quality Loop"
+  produces a real 10-metric report and correctly replaces the previewed
+  tile with the winning candidate; "Generate Collection จาก Design Spec"
+  produces a real downloaded zip and attributes it to the active project;
+  zero console errors throughout the whole flow.
+
+### Design Quality auto-improve loop (`trend/designSpecQuality.ts`)
+
+Section 12's "Run automatic quality analysis... if quality is below
+threshold: Improve automatically, Re-evaluate, Repeat." Reuses the
+*existing* `engine/candidateEngine.ts`'s `generateBest` (the same pool-
+generate-then-pick-the-highest-scoring-candidate pipeline the main
+editor's own "Generate Best" quality mode already uses) and
+`engine/scoring.ts`'s real `CompositionMetrics` — no second scoring
+implementation. "Improve automatically" means exactly what this app's
+existing Candidate Engine already means: generate a fresh deterministic
+candidate pool from a new derived seed (`deriveSeed`, reused) and keep
+whichever round scored higher, up to a bounded `maxRounds` (default 3,
+never unbounded).
+
+`runDesignSpecQualityLoop(spec, seed, mode?, maxRounds?)` builds a
+`DesignSpecQualityReport` covering all 10 of Section 12's named metrics —
+resolved against the real `CompositionMetrics` wherever an exact match
+exists (Composition, Hierarchy, "Repeat Quality" = `seamlessIntegrity`,
+"SVG Health" = `svgHealth`, "Balance" = the 3 balance metrics averaged,
+"Negative Space" = `largestEmptyRegion`, a real *measured* proxy — not the
+spec's own *input* `negativeSpace` number) and a clearly-labeled averaged
+proxy for the 3 that have no single existing metric (Flow, Rhythm, Motif
+Diversity) plus Commercial Readiness — then checks it against the spec's
+own `qualityTargets` (the 4 fields Phase 1 deliberately named to line up
+with this exact wiring). `checkDesignSpecQuality` reports which specific
+targets weren't met. `qualityPresetForDesignSpec` maps the spec's
+`composition` style onto a real `QualityPresetId` for `generateBest`'s
+scoring weights.
+
+UI: the Trend Studio's "🎯 Run Quality Loop" button (in the Composition
+Diagram card) runs the loop against the currently-shown seed and replaces
+the previewed tile with the winning round's real generated output,
+alongside the full 10-metric report and any shortfalls — the same
+pattern applied elsewhere in this app of never special-casing or hiding a
+real quality signal.
+
+### Collection Generator (`trend/designSpecCollection.ts`)
+
+Section 11's "Generate Hero Pattern, Secondary Pattern, Mini Pattern,
+Stripe, Border, Corner, Spot Motifs. All assets share Style DNA, Palette,
+Motif Family, Collection Identity." Reuses the *existing, unmodified*
+`collection/collectionGenerator.ts`'s `generateCollection` for every
+asset (no duplicated asset-building logic) — Style DNA/Palette/Motif
+Family sharing across every asset is already guaranteed by that
+function's own existing consistency mechanism (`verifyConsistency`),
+untouched here. `generateCollection` gained one small additive parameter,
+`collectionNameOverride?: string` (defaults to the pre-existing generic
+"{family} collection — {categoryId}" name when omitted, so every other
+caller is unaffected) — the "Collection Identity" this section asks for
+is the Design Specification's own market-driven name
+(`designSpecSeo.ts`'s `buildDesignSpecCollectionName`) instead of that
+generic default. `resolveDesignSpecStyleDna` resolves the spec's
+`styleDnaId` into a real `StyleDna` (built-in presets by default; a
+caller with access to `storage/styleDnaStore.ts`, i.e. the UI layer, can
+pass a resolved custom style in — this pure engine module never reads
+localStorage itself, same "custom styles aren't visible to pure engine
+code" precedent `engine/candidateEngine.ts` already documents).
+
+UI: the Trend Studio's "🏭 Generate Collection จาก Design Spec" button
+(`App.tsx`'s `handleGenerateCollectionFromDesignSpec`) mirrors the main
+editor's existing `handleGenerateCollection` exactly — build, download
+the zip, attribute it to the active project (creating a fresh one on the
+spot in the pathological case where none is active) — just driven by a
+Design Specification + seed through `buildCollectionFromDesignSpec`
+instead of the main editor's own `params`.
 
 ## Adding a new pattern category
 
@@ -1837,11 +2230,25 @@ src/
     marketplaceSeo.ts       generates one marketplace's Title/Description/Keywords/Filename
     marketplaceValidation.ts validates generated SEO against a marketplace's own rules
     exportPackage.ts        builds a marketplace's Export Package text/JSON files
+  trend/
+    designSpecTypes.ts      Design Specification JSON schema + Keyword Bundle types
+    keywordMap.ts            keyword -> engine signal config (palette/motif/Style DNA/mood hints)
+    keywordBundle.ts         merges a Keyword Bundle's signals (+ combo rules) into ranked hints
+    trendPacks.ts            Trend Library: quarterly market packs + JSON import/export
+    designIntelligence.ts    assembles one Design Specification from a Keyword Bundle + Trend Pack
+    designSpecValidation.ts  Design Spec JSON parsing + semantic validation/schema-check
+    designSpecToParams.ts    SVG Engine adapter: Design Spec -> GenerateParams -> buildTile
+    designSpecSeo.ts         SEO Engine: market-driven Title/Description/Keywords/Filename
+    designSpecPackage.ts     Marketplace Package text/JSON files, driven by a Design Spec
+    promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
+    designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
+    designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
     MarketplaceProfileSelector.tsx
+    TrendStudioPanel.tsx
     ProjectBar.tsx
     ProjectDashboard.tsx
     ProjectPanel.tsx

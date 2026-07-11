@@ -6,6 +6,7 @@ interface Props {
   onSwitch: (id: string) => void;
   onCreate: () => void;
   onOpenDashboard: () => void;
+  onOpenTrendStudio: () => void;
 }
 
 /** Active-Project bar — persistent header strip (chosen over a Figma/Canva-
@@ -14,7 +15,7 @@ interface Props {
  * collection/export is attributed to whichever project is active here.
  * "📂 Projects" opens the full Project Dashboard (Project Manager) to
  * create/open/duplicate/rename/archive/delete/favorite. */
-export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOpenDashboard }: Props) {
+export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOpenDashboard, onOpenTrendStudio }: Props) {
   const visible = projects.filter((p) => !p.archived);
   const active = projects.find((p) => p.id === activeProjectId);
 
@@ -40,6 +41,9 @@ export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOp
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenDashboard}>
         📊 Project Dashboard
+      </button>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenTrendStudio}>
+        🧠 Trend Intelligence Studio
       </button>
     </div>
   );

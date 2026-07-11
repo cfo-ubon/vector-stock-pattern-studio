@@ -17,14 +17,23 @@ function slugify(s: string): string {
 }
 
 /** Resolves a filename template's placeholders — {palette} {category}
- * {layout} {seed} {site} — against one pattern's real params. Every
- * placeholder is optional; an unrecognized one is left as literal text
- * (never throws), so a hand-edited custom template with a typo just
- * produces a slightly odd filename instead of breaking export. */
-export function resolveFilenameTemplate(template: string, params: GenerateParams, marketplaceId: string): string {
+ * {layout} {seed} {site}, plus whatever extra placeholders `extra` adds
+ * (e.g. trend/designSpecSeo.ts's `{keyword}`) — against one pattern's real
+ * params. Every placeholder is optional; an unrecognized one is left as
+ * literal text (never throws), so a hand-edited custom template with a
+ * typo just produces a slightly odd filename instead of breaking export.
+ * `extra` values are used as-is (callers are expected to have already
+ * slugified them) and never override the built-in placeholder names. */
+export function resolveFilenameTemplate(
+  template: string,
+  params: GenerateParams,
+  marketplaceId: string,
+  extra?: Record<string, string>,
+): string {
   const [paletteName, categoryName, layoutName] = buildFilenameParts(params);
   const safeSeed = slugify(params.seed) || 'seed';
   const replacements: Record<string, string> = {
+    ...extra,
     palette: slugify(paletteName),
     category: slugify(categoryName),
     layout: slugify(layoutName),
@@ -45,8 +54,9 @@ export function buildMarketplaceFilenameBase(
   params: GenerateParams,
   profile: MarketplaceProfile,
   customTemplate?: string,
+  extra?: Record<string, string>,
 ): string {
-  const resolved = resolveFilenameTemplate(customTemplate ?? profile.filenameRules.template, params, profile.id);
+  const resolved = resolveFilenameTemplate(customTemplate ?? profile.filenameRules.template, params, profile.id, extra);
   const { maxLength } = profile.filenameRules;
   if (resolved.length <= maxLength) return resolved;
   const cut = resolved.slice(0, maxLength);
@@ -58,8 +68,9 @@ export function buildMarketplaceFilename(
   params: GenerateParams,
   profile: MarketplaceProfile,
   customTemplate?: string,
+  extra?: Record<string, string>,
 ): string {
-  return `${buildMarketplaceFilenameBase(params, profile, customTemplate)}.${profile.filenameRules.extension}`;
+  return `${buildMarketplaceFilenameBase(params, profile, customTemplate, extra)}.${profile.filenameRules.extension}`;
 }
 
 /** Avoids duplicate filenames within one export batch (e.g. a Collection's

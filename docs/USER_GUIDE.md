@@ -717,6 +717,84 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 
 ---
 
+## 🧠 Trend Intelligence Studio — สร้างลายจากคำค้นตลาดจริง 🆕
+
+หน้าใหม่ เปิดจากปุ่ม **"🧠 Trend Intelligence Studio"** ข้าง Project Dashboard
+ด้านบนของแอป — ออกแบบมาให้เริ่มจาก "ตลาดต้องการอะไร" แทนที่จะเริ่มจากปรับ
+สไลเดอร์เอง: กรอกคำค้น → เลือก Marketplace/Trend Pack → ระบบประกอบ
+**Design Specification JSON** (ต้นแบบเดียวที่ทุกอย่างข้างล่างนี้อ่านต่อ — Title,
+ลายจริง, ชื่อไฟล์, prompt ล้วนมาจาก JSON ก้อนเดียวกัน ไม่ใช่คำนวณแยกกันคนละที่)
+
+### วิธีใช้
+
+1. กรอก **Primary Keyword** (คำหลัก เช่น "Luxury Botanical") และ
+   **Secondary Keywords** (คำรอง คั่นด้วยจุลภาค) — ระบบเข้าใจ
+   **ความสัมพันธ์ระหว่างคำ** ไม่ใช่แค่แปลทีละคำ เช่น "Luxury" + "Botanical"
+   ด้วยกันจะได้สไตล์ "ดอกไม้หรูแบบบรรณาธิการ" ที่ต่างจากใส่แค่คำใดคำหนึ่ง
+2. เลือก **Marketplace, Season, Audience, Commercial Category, Pattern Type,
+   Style DNA** (เว้นว่างให้ระบบเลือกจากคำค้นได้), **Palette Direction,
+   Difficulty, Collection Size**
+3. เลือก **Trend Pack** — แพ็กเทรนด์รายไตรมาส 2026 Q1-Q4 (แต่ละแพ็กมีธีม/
+   อารมณ์/ทิศทางสี/layout ที่แนะนำของตัวเอง) หรือกด **"✨ Auto-match"** ให้
+   ระบบเลือกให้ตามฤดูกาล/ประเภทลายที่กรอกไว้
+4. กด **"🧠 Generate Design Specification"** — ได้ JSON ก้อนเดียวที่รวม
+   ทุกอย่าง (สไตล์, พาเลต, composition, motif, SEO, export) พร้อมดูได้ทั้งแบบ
+   **Code View** (แก้ JSON ตรงๆ แล้วกด "✅ Apply Edits") และ **Tree View**
+   (ดูโครงสร้างแบบต้นไม้ กดขยาย/ย่อได้) มีปุ่ม **↶ Undo / ↷ Redo** และแถบ
+   บอกว่า JSON ที่แก้ไขยัง valid อยู่ไหม (ตรวจ id หมวดลาย/layout/palette/
+   Style DNA/marketplace จริงทุกตัว)
+
+### Live Preview ก่อนสร้างจริง
+
+หลังกด Generate จะเห็นทันที: **Trend Summary** (ธีม/อารมณ์/composition),
+**Moodboard** (สีตามบทบาท background/primary/secondary/accent),
+**Palette** เต็มชุด, **Motif Preview** (หมวดลาย hero/secondary + Style DNA
+ที่ใช้), และ **ลายจริงที่ render จาก Design Spec นี้เลย** (ไม่ใช่ภาพตัวอย่าง)
+— กดปุ่ม **"✍️ ใช้ค่านี้ในหน้าสร้างลาย"** เพื่อนำค่านี้ไปใช้ต่อในหน้าสร้างลายหลัก
+ทันที (ปรับต่อ/กด Generate Best ต่อได้ตามปกติ)
+
+### 🎯 Run Quality Loop — ตรวจสอบ+ปรับคุณภาพอัตโนมัติ
+
+กดปุ่ม **"🎯 Run Quality Loop"** ข้างปุ่มสุ่ม seed เพื่อให้ระบบสร้างลายหลายแบบ
+จาก Design Spec เดียวกันแล้วเลือกตัวที่คะแนนสูงสุด (ใช้กลไกเดียวกับปุ่ม
+"Generate Best" ในหน้าสร้างลายหลัก ไม่มีการคำนวณคะแนนซ้ำ) — ถ้ายังไม่ผ่าน
+เกณฑ์ที่กำหนดไว้ใน Design Spec ระบบจะลองรอบใหม่ด้วย seed ใหม่ (สูงสุด 3
+รอบ) แล้วเก็บรอบที่ดีที่สุดไว้ ผลลัพธ์แสดงเป็นตาราง 10 ตัวชี้วัด (Composition,
+Hierarchy, Flow, Rhythm, Balance, Negative Space, Repeat Quality, SVG
+Health, Motif Diversity, Commercial Readiness) พร้อมตัวบอกผ่าน/ไม่ผ่านและ
+รายการที่ยังไม่ถึงเกณฑ์ — ลายที่แสดงในพรีวิวจะเปลี่ยนเป็นลายที่ผ่านการคัดแล้ว
+ทันที กดปุ่ม "ใช้ค่านี้ในหน้าสร้างลาย" ต่อได้เหมือนเดิม
+
+### 🏭 Collection Generator — สร้างคอลเลกชันเต็มจาก Design Spec
+
+กดปุ่ม **"🏭 Generate Collection จาก Design Spec"** เพื่อสร้างคอลเลกชัน
+เชิงพาณิชย์เต็มชุด (Hero/Secondary/Blender/Mini/Stripe Pattern, Border,
+Corner, Spot Motif Sheet) จาก Design Spec นี้โดยตรง — ทุกชิ้นใช้ Style
+DNA/Palette/Motif Family เดียวกันโดยอัตโนมัติ (กลไกตรวจสอบความสอดคล้อง
+เดียวกับ Collection Studio ปกติ) ชื่อคอลเลกชัน (Collection Identity) จะเป็น
+ชื่อที่มาจากคำค้นหลัก+ธีม Trend Pack แทนชื่ออัตโนมัติทั่วไป ดาวน์โหลด zip
+และบันทึกเข้าโปรเจกต์ที่เปิดอยู่ให้ทันทีเหมือนปุ่ม "Generate Collection" ใน
+หน้าสร้างลายหลักทุกประการ
+
+### SEO + Prompt Preview
+
+เลือกแท็บ Marketplace เพื่อดู Title/Description/Keywords/Filename/
+Collection Name/Asset Name ที่ผสมคำค้นหลักเข้าไปจริง (ไม่ใช่ข้อความทั่วไป
+ตามหมวดลายอย่างเดียว) พร้อมตัวบอกสถานะพร้อมส่งและปุ่ม
+**"📦 ดาวน์โหลด Marketplace Package"** ของเว็บนั้นทันที
+
+เลือกแท็บแพลตฟอร์ม AI (ChatGPT, Claude, Gemini, Adobe Firefly, Midjourney,
+Stable Diffusion, FLUX) เพื่อดู prompt ที่สร้างจาก Design Spec — 3 แพลตฟอร์ม
+แรกเป็น prompt ขอไอเดีย/คำโฆษณาเพิ่มเติม (เพราะไม่ใช่เครื่องมือสร้างภาพ) ส่วน
+4 แพลตฟอร์มหลังเป็น prompt สร้างภาพอ้างอิง/มู้ดบอร์ดจริง (Midjourney มี flag
+`--tile --ar 1:1` ติดมาให้ด้วย) — มีปุ่มคัดลอกพร้อมใช้ทุกช่อง
+
+> ℹ️ ลายที่ Design Spec สร้างยังผ่านการตรวจสอบเดียวกับลายทั่วไป (เช่น
+> Submission Checklist ในหน้าสร้างลายหลัก) — ถ้า Trend Pack/หมวดลายที่เลือก
+> ทำให้ node เยอะเกินไป ระบบจะแจ้งเตือนเหมือนลายที่สร้างเองทุกประการ
+
+---
+
 ## 🧮 แอปสร้างลายไม่ซ้ำกันได้กี่แบบ?
 
 **มากกว่า 130 ล้านแบบ** — นับเฉพาะค่าปรับหลักที่มองเห็นผลต่างชัดเจน (ยังไม่รวม
@@ -773,6 +851,46 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.36 — 11 ก.ค. 2026 — Trend Intelligence Studio
+- 🧠 **หน้าใหม่ Trend Intelligence Studio**: เริ่มออกแบบจาก "ตลาดต้องการ
+  อะไร" — กรอก Keyword Bundle (คำหลัก+คำรอง, marketplace, season,
+  audience, commercial category, pattern type, Style DNA, palette
+  direction, difficulty, collection size) → เลือก/ให้ระบบ auto-match
+  Trend Pack รายไตรมาส 2026 Q1-Q4 → ระบบประกอบ **Design Specification
+  JSON** ก้อนเดียวที่ทุกอย่างข้างล่างอ่านต่อ (ลายจริง, SEO, ชื่อไฟล์, prompt
+  ไม่ได้คำนวณแยกกันคนละที่)
+- 🔗 **เข้าใจความสัมพันธ์ระหว่างคำค้น ไม่ใช่แปลทีละคำ**: เช่น "Luxury" +
+  "Botanical" ด้วยกันให้ผลต่างจากใส่คำใดคำหนึ่งเดี่ยวๆ (มีกฎ combo คู่คำที่
+  คัดสรรไว้ในระบบ)
+- 📝 **JSON Editor**: ดู Design Specification แบบ **Code View** (แก้ตรงๆ
+  แล้วกด Apply) หรือ **Tree View** (ต้นไม้ กดขยาย/ย่อ) พร้อม **Undo/Redo**
+  และ Validation ที่ตรวจ id หมวดลาย/layout/palette/Style DNA/marketplace
+  จริงทุกตัว
+- 🖼 **Live Preview**: Trend Summary, Moodboard, Palette, Motif Preview,
+  และ**ลายจริงที่ render จาก Design Spec นั้นเลย** (ไม่ใช่ภาพตัวอย่าง) พร้อม
+  ปุ่ม "ใช้ค่านี้ในหน้าสร้างลาย" ส่งต่อเข้าหน้าสร้างลายหลักได้ทันที
+- 📊 **SEO ที่ผสมคำค้นตลาดจริง**: Title/Keywords/Filename ขึ้นต้นด้วยคำหลัก
+  จริง ไม่ใช่ข้อความทั่วไปตามหมวดลายอย่างเดียว ต่อยอดจากระบบ Marketplace
+  Profile เดิม (v1.35) ครบทั้ง 6 เว็บ พร้อมปุ่มดาวน์โหลด Marketplace Package
+  ที่มี manifest.json บันทึกที่มา (Project/Trend Pack/Keyword Bundle) ด้วย
+- 🤖 **Prompt Factory**: สร้าง prompt จาก Design Spec ให้ทั้ง 7 แพลตฟอร์ม
+  (ChatGPT, Claude, Gemini แบบขอไอเดีย + Adobe Firefly, Midjourney,
+  Stable Diffusion, FLUX แบบ prompt สร้างภาพอ้างอิง พร้อม flag จริงของ
+  Midjourney)
+- 🎯 **Run Quality Loop**: ตรวจสอบคุณภาพลายอัตโนมัติ 10 ตัวชี้วัด
+  (Composition, Hierarchy, Flow, Rhythm, Balance, Negative Space, Repeat
+  Quality, SVG Health, Motif Diversity, Commercial Readiness) แล้วลองสร้าง
+  ใหม่อัตโนมัติถ้ายังไม่ผ่านเกณฑ์ (สูงสุด 3 รอบ ใช้กลไกเดียวกับ Generate Best)
+- 🏭 **Collection Generator จาก Design Spec**: สร้างคอลเลกชันเต็มชุด
+  (Hero/Secondary/Blender/Mini/Stripe/Border/Corner/Spot Motif Sheet)
+  ตรงจาก Design Spec เลย ชื่อคอลเลกชันเป็นชื่อการตลาดจริงจากคำค้น+Trend
+  Pack บันทึกเข้าโปรเจกต์อัตโนมัติเหมือนปุ่มสร้างคอลเลกชันปกติ
+- 🧪 **เทสต์ใหม่ 124 รายการ** ครอบคลุมทุกชั้น (Keyword Mapping, Trend
+  Analysis, Design Specification, SVG/SEO Engine adapter, Marketplace
+  Package, Prompt Generation, Quality Loop, Collection Generator, JSON
+  Validation) รวมทั้งหมด 608 เทสต์ผ่านทั้งหมด — ตรวจ UI จริงผ่าน Playwright
+  ด้วย ไม่มี console error
 
 ### v1.35 — 11 ก.ค. 2026 — Marketplace Profile System
 - 🏪 **Marketplace Profile System ใหม่**: เลิกใช้โปรไฟล์ SEO เดียวกันทุกเว็บ

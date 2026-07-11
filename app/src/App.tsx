@@ -47,6 +47,11 @@ import { ProjectDashboard } from './components/ProjectDashboard';
 import { ProjectPanel } from './components/ProjectPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
+import { TrendStudioPanel } from './components/TrendStudioPanel';
+import type { DesignSpecification } from './trend/designSpecTypes';
+import { buildTileFromDesignSpec } from './trend/designSpecToParams';
+import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
+import { buildCollectionFromDesignSpec } from './trend/designSpecCollection';
 import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
 import './App.css';
@@ -111,7 +116,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -452,6 +457,71 @@ function App() {
       downloadBlobFile(`${marketplaceId}-export-package.zip`, zip);
     },
     [tileData, rasterizeSvgToPngBlob],
+  );
+
+  /** Trend Intelligence Studio: applies a generated Design Specification's
+   * resolved GenerateParams straight to the main editor (same
+   * setTileData+setParams pairing handleRescale already uses) and returns
+   * to the editor view — the "Review & Edit" step feeding back into the
+   * app's one real pattern-generation surface instead of a second,
+   * parallel renderer. */
+  const handleApplyDesignSpecToEditor = useCallback((next: GenerateParams) => {
+    setTileData(buildTile(next));
+    setParams(next);
+    setView('editor');
+  }, []);
+
+  /** Trend Intelligence Studio's Marketplace Package download — same zip-
+   * assembly shape as `handleDownloadMarketplacePackage` above (SVG + PNG
+   * preview rasterized here, DOM-dependent; every text/JSON file comes
+   * from the DOM-free trend/designSpecPackage.ts), just driven by a
+   * Design Specification + seed instead of the currently-shown tile. */
+  const handleDownloadDesignSpecPackage = useCallback(
+    async (spec: DesignSpecification, seed: string, marketplaceId: MarketplaceId) => {
+      const tile = buildTileFromDesignSpec(spec, seed);
+      const enc = new TextEncoder();
+      const files: ZipEntry[] = [{ name: 'pattern.svg', data: enc.encode(buildSingleTileSvg(tile)) }];
+      const png = await rasterizeSvgToPngBlob(buildSingleTileSvg(tile), 2000);
+      if (png) files.push({ name: 'preview.png', data: new Uint8Array(await png.arrayBuffer()) });
+      for (const f of buildDesignSpecPackageTextFiles(spec, tile, marketplaceId, seed)) {
+        files.push({ name: f.name, data: enc.encode(f.content) });
+      }
+      const zip = buildZip(files);
+      downloadBlobFile(`${marketplaceId}-${spec.seoHints.primaryKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-package.zip`, zip);
+    },
+    [rasterizeSvgToPngBlob],
+  );
+
+  /** Trend Intelligence Studio's Collection Generator (Section 11) — same
+   * shape as `handleGenerateCollection` below (build -> download zip ->
+   * attribute to the active project, creating a fresh one if somehow none
+   * is active), just driven by a Design Specification + seed through
+   * `buildCollectionFromDesignSpec` instead of the main editor's own
+   * `params`. */
+  const handleGenerateCollectionFromDesignSpec = useCallback(
+    async (spec: DesignSpecification, seed: string) => {
+      setCollectionStatus('building');
+      try {
+        const activeDna = spec.styleDnaId
+          ? (STYLE_DNA_PRESETS[spec.styleDnaId] ?? loadCustomStyles().find((s) => s.id === spec.styleDnaId))
+          : undefined;
+        const collection: GeneratedCollection = buildCollectionFromDesignSpec(spec, seed, activeDna);
+        await buildAndDownloadCollectionZip(collection);
+        let projectId = activeProjectId;
+        if (!projectId) {
+          const fresh = createProject('โปรเจกต์ใหม่');
+          setProjects((prev) => [fresh, ...prev]);
+          void putProject(fresh);
+          setActiveProjectId(fresh.id);
+          projectId = fresh.id;
+        }
+        updateProject(projectId, (p) => addCollectionToProject(p, collection));
+        setCollectionStatus('done');
+      } catch {
+        setCollectionStatus('idle');
+      }
+    },
+    [activeProjectId, updateProject, buildAndDownloadCollectionZip],
   );
 
   const handleGenerateCollection = useCallback(async () => {
@@ -828,8 +898,17 @@ function App() {
         onSwitch={handleSwitchProject}
         onCreate={handleCreateProject}
         onOpenDashboard={() => setView('dashboard')}
+        onOpenTrendStudio={() => setView('trendStudio')}
       />
-      {view === 'dashboard' ? (
+      {view === 'trendStudio' ? (
+        <TrendStudioPanel
+          onApplyToEditor={handleApplyDesignSpecToEditor}
+          onDownloadPackage={handleDownloadDesignSpecPackage}
+          onGenerateCollection={handleGenerateCollectionFromDesignSpec}
+          collectionStatus={collectionStatus}
+          onClose={() => setView('editor')}
+        />
+      ) : view === 'dashboard' ? (
         <ProjectDashboard
           projects={projects}
           activeProjectId={activeProjectId}

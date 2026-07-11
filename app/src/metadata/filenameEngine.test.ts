@@ -81,4 +81,31 @@ describe('filenameEngine: filename generation', () => {
       expect(dedupeFilename('filename', used)).toBe('filename-2');
     });
   });
+
+  describe('extra placeholders (e.g. trend/designSpecSeo.ts\'s {keyword})', () => {
+    it('resolves an extra placeholder passed via the extra argument', () => {
+      const params = { ...defaultParams(), seed: 'file-extra' };
+      const resolved = resolveFilenameTemplate('{keyword}-{category}-{seed}', params, 'shutterstock', { keyword: 'luxury-botanical' });
+      expect(resolved.startsWith('luxury-botanical-')).toBe(true);
+    });
+
+    it('is backward compatible: omitting extra behaves exactly as before', () => {
+      const params = { ...defaultParams(), seed: 'file-no-extra' };
+      const withoutExtra = resolveFilenameTemplate('{palette}-{category}-{seed}', params, 'shutterstock');
+      const withEmptyExtra = resolveFilenameTemplate('{palette}-{category}-{seed}', params, 'shutterstock', {});
+      expect(withoutExtra).toBe(withEmptyExtra);
+    });
+
+    it('extra never overrides a built-in placeholder name', () => {
+      const params = { ...defaultParams(), categoryId: 'botanical', seed: 'file-override-guard' };
+      const resolved = resolveFilenameTemplate('{category}', params, 'shutterstock', { category: 'should-not-win' });
+      expect(resolved).not.toBe('should-not-win');
+    });
+
+    it('buildMarketplaceFilename threads extra through to the resolved filename', () => {
+      const params = { ...defaultParams(), seed: 'file-extra-full' };
+      const filename = buildMarketplaceFilename(params, MARKETPLACE_PROFILES.shutterstock, '{keyword}-{seed}', { keyword: 'kids-tropical' });
+      expect(filename.startsWith('kids-tropical-')).toBe(true);
+    });
+  });
 });
