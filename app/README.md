@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 566 tests across 38 files:
+`npm test` runs `vitest run` — 573 tests across 39 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1769,7 +1769,8 @@ project mutation already uses).
 - `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
   `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
   `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`,
-  `trend/designSpecSeo.test.ts` — see "Trend Intelligence Studio" below.
+  `trend/designSpecSeo.test.ts`, `trend/designSpecPackage.test.ts` — see
+  "Trend Intelligence Studio" below.
 
 ## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
 
@@ -1945,6 +1946,33 @@ only generic category text.
   exactly as before. `metadata/shutterstock.ts`'s private `truncateWords`
   helper was exported (no behavior change) so this module reuses the
   exact same word-boundary truncation instead of a second copy.
+
+### Marketplace Package (`trend/designSpecPackage.ts`)
+
+Section 10's "For every marketplace generate SVG, PNG Preview, SEO,
+Filename, Metadata, Manifest, ZIP" — reuses the *existing, unmodified*
+`metadata/exportPackage.ts`'s `buildPackageTextFilesFromSeo` for the
+standard title/description/keywords/filename/metadata.json set (fed the
+Design-Spec-driven `DesignSpecSeo` from `designSpecSeo.ts`, which is a
+strict superset of the `MarketplaceSeo` shape that function already
+expects — no new package-building logic needed there at all) and adds the
+one file this flow specifically needs on top: **`manifest.json`** — the
+schema version, a real ISO timestamp, the seed used, the marketplace id,
+the Project id/name, the matched Trend Pack (or `null`), the full Keyword
+Bundle summary, the resolved Collection Name/Asset Name, and the complete
+list of files the finished package will contain (including `pattern.svg`/
+`preview.png`, which are added one layer up — see below — so the manifest
+accurately documents the *actual* zip contents even though this module
+never touches the SVG/PNG itself). `buildAllDesignSpecPackageTextFiles`
+covers every marketplace in one call, mirroring `designSpecSeo.ts`'s
+`buildAllDesignSpecSeo`.
+
+SVG generation, PNG rasterization, and ZIP assembly stay exactly where
+every other export in this app already puts them — one layer up, in
+`App.tsx` — since this module (like every other engine-layer module) is
+deliberately kept DOM-free and unit-testable; wiring an actual "Download
+Package" button for this Design-Spec-driven flow is a later phase once
+the Trend Studio UI exists to trigger it from.
 
 ## Adding a new pattern category
 
