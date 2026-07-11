@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 542 tests across 37 files:
+`npm test` runs `vitest run` — 566 tests across 38 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1768,8 +1768,8 @@ project mutation already uses).
   `buildPackageTextFilesFromSeo` with a freshly generated SEO.
 - `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
   `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
-  `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`
-  — see "Trend Intelligence Studio" below.
+  `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`,
+  `trend/designSpecSeo.test.ts` — see "Trend Intelligence Studio" below.
 
 ## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
 
@@ -1896,6 +1896,55 @@ non-empty tile without throwing, is deterministic for the same spec+seed,
 and two different Trend Packs (with no keyword-derived signal pinning the
 palette/Style DNA) genuinely produce different generated output — proof
 the mapping isn't a no-op.
+
+### SEO Engine — market-driven Title/Description/Keywords/Filename/Collection Name/Asset Name (`trend/designSpecSeo.ts`)
+
+Section 9's requirement, layered on top of the *already-existing* v1.35
+Marketplace Profile System rather than duplicating it: metadata/
+marketplaceSeo.ts's `generateMarketplaceSeo` (itself built on
+`buildSiteMetadata`, still the single source of truth for the base per-
+site copy) stays exactly as-is; this module's whole job is blending the
+Design Specification's own `seoHints` (the Keyword Bundle's primary/
+secondary keywords, commercial category, audience, season) into that
+generated copy, so the result reflects real market keywords instead of
+only generic category text.
+
+- `blendKeywordIntoTitle(baseTitle, primaryKeyword, maxLength)` — front-
+  loads the primary keyword (marketplaces weight earlier words more
+  heavily, the same fact `metadata/submissionCenter.ts`'s own UI copy
+  documents) unless it's already naturally present in the generated
+  title; truncates only the *generated* portion at a word boundary to
+  respect the marketplace's `titleRules.maxLength` — the keyword itself
+  is never the part that gets cut.
+- `blendKeywordsIntoList(baseKeywords, bundleKeywords, maxCount, maxKeywordLength?)`
+  — puts every Keyword Bundle term at the front of the keyword list,
+  case-insensitively deduped against the generated list, trimmed to the
+  marketplace's own count/length limits (Etsy's 20-char tag cap included).
+- `buildDesignSpecCollectionName`/`buildDesignSpecAssetName` — the
+  Section 9 "Collection Name"/"Asset Name" outputs, both keyword-led
+  human-readable display names (distinct from the Filename Engine's
+  slugified, extension-bearing output below).
+- `buildDesignSpecSeo(spec, tileData, marketplaceId, assetLabel?, customFilenameTemplate?)`
+  assembles the complete package for one marketplace — title/description/
+  keywords blended as above, plus a filename built from a new default
+  template, `{keyword}-{palette}-{category}-seamless-pattern-{seed}`
+  (leading with the keyword; the plain Marketplace Profile System's own
+  default template has no keyword placeholder at all, which would defeat
+  the point of a *market-driven* filename). `buildAllDesignSpecSeo`
+  covers every marketplace in one call — Section 4/9's "store SEO
+  independently for every marketplace," mirroring
+  `generateAllMarketplaceSeo`. The result is a strict superset of
+  `MarketplaceSeo` (`collectionName`/`assetName` added), so it passes
+  straight through the *existing, unmodified* `validateMarketplaceSeo`/
+  `isMarketplaceReady` — verified for every one of the 6 marketplaces.
+- `metadata/filenameEngine.ts`'s `resolveFilenameTemplate`/
+  `buildMarketplaceFilenameBase`/`buildMarketplaceFilename` gained an
+  additive, optional `extra?: Record<string, string>` parameter (the
+  `{keyword}` placeholder's actual resolution mechanism) — fully backward
+  compatible, verified by a dedicated test that omitting it behaves
+  exactly as before. `metadata/shutterstock.ts`'s private `truncateWords`
+  helper was exported (no behavior change) so this module reuses the
+  exact same word-boundary truncation instead of a second copy.
 
 ## Adding a new pattern category
 

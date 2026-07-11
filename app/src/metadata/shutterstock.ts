@@ -347,8 +347,11 @@ export function buildSeoTextFile(tileData: TileData): string {
 
 /** Hard safety net: trims to the last whole word at or under `max` chars.
  * Keeps title/description within Shutterstock's limits even if a future
- * category phrase or a 5-way asset mix makes the raw string run long. */
-function truncateWords(s: string, max: number): string {
+ * category phrase or a 5-way asset mix makes the raw string run long.
+ * Exported (not just module-private) so other modules — e.g.
+ * trend/designSpecSeo.ts's keyword-blended titles — reuse this exact
+ * function instead of a second copy that could drift. */
+export function truncateWords(s: string, max: number): string {
   if (s.length <= max) return s;
   const cut = s.slice(0, max);
   const lastSpace = cut.lastIndexOf(' ');
