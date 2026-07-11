@@ -556,7 +556,7 @@ export function ControlPanel({
           className="btn btn--save"
           onClick={onGenerateCollection}
           disabled={collectionStatus === 'building'}
-          title="สร้างชุด asset เชิงพาณิชย์ครบชุดจากตัวตนเดียวกัน (Style DNA/หมวด/ชุดสีเดียวกันทั้งหมด): Hero/Secondary/Coordinate/Mini/Stripe pattern, Border 4 ด้าน, Corner 4 มุม, Spot Motif Sheet, Single Motif Library, Background Elements, Decorative Icons, PNG preview, metadata + SEO package, และ manifest.json — ดาวน์โหลดเป็น zip เดียว"
+          title="สร้างคอลเลกชันเชิงพาณิชย์ครบชุดจากตัวตนเดียวกัน (Style DNA/หมวด/ชุดสีเดียวกันทั้งหมด): Hero/Secondary/Blender/Mini/Stripe pattern, Border 4 ด้าน, Corner 4 มุม, Spot Motif Sheet, Decorative Elements Sheet, Collection Preview, PNG preview, metadata + SEO package, และ Collection.json — ดาวน์โหลดเป็น zip เดียว และบันทึกเข้าโปรเจกต์ที่เปิดอยู่อัตโนมัติ"
         >
           {collectionStatus === 'building' ? '🏭 กำลังสร้างคอลเลกชัน…' : collectionStatus === 'done' ? '✅ สร้างคอลเลกชันอีกครั้ง' : '🏭 Generate Collection (ZIP)'}
         </button>

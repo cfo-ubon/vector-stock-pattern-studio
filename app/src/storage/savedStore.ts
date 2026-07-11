@@ -1,4 +1,5 @@
 import type { SavedItem } from '../components/SavedPanel';
+import { openDb, idbAvailable, requestAsPromise, lsLoad, lsStore, SAVED_STORE } from './db';
 
 // IndexedDB-backed store for the saved library. localStorage caps out
 // around 5MB — a few dozen dense patterns — while IndexedDB quota is
@@ -7,60 +8,10 @@ import type { SavedItem } from '../components/SavedPanel';
 // automatically where IndexedDB isn't available (e.g. some file:// setups
 // with the offline single-file build).
 
-const DB_NAME = 'vsp-db';
-const STORE = 'saved';
 const LEGACY_LS_KEY = 'vsp-saved-v1';
 
-let dbPromise: Promise<IDBDatabase> | null = null;
-
-function openDb(): Promise<IDBDatabase> {
-  if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = () => {
-        if (!req.result.objectStoreNames.contains(STORE)) {
-          req.result.createObjectStore(STORE, { keyPath: 'id' });
-        }
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-  return dbPromise;
-}
-
 function tx(db: IDBDatabase, mode: IDBTransactionMode): IDBObjectStore {
-  return db.transaction(STORE, mode).objectStore(STORE);
-}
-
-function requestAsPromise<T>(req: IDBRequest<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-function idbAvailable(): boolean {
-  return typeof indexedDB !== 'undefined';
-}
-
-// --- localStorage fallback (only used when IndexedDB is unavailable) ---
-
-function lsLoad(): SavedItem[] {
-  try {
-    const raw = localStorage.getItem(LEGACY_LS_KEY);
-    return raw ? (JSON.parse(raw) as SavedItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function lsStore(items: SavedItem[]) {
-  try {
-    localStorage.setItem(LEGACY_LS_KEY, JSON.stringify(items));
-  } catch {
-    // quota exceeded — nothing else we can do in fallback mode
-  }
+  return db.transaction(SAVED_STORE, mode).objectStore(SAVED_STORE);
 }
 
 // --- public API ---
@@ -74,10 +25,10 @@ export async function loadSavedItems(): Promise<SavedItem[]> {
   } catch {
     // storage manager unavailable — non-fatal
   }
-  if (!idbAvailable()) return lsLoad().sort((a, b) => b.createdAt - a.createdAt);
+  if (!idbAvailable()) return lsLoad<SavedItem>(LEGACY_LS_KEY).sort((a, b) => b.createdAt - a.createdAt);
   const db = await openDb();
   // Migrate legacy localStorage items (pre-v1.11) into IndexedDB once.
-  const legacy = lsLoad();
+  const legacy = lsLoad<SavedItem>(LEGACY_LS_KEY);
   if (legacy.length > 0) {
     await bulkPutSavedItems(legacy);
     try {
@@ -92,8 +43,8 @@ export async function loadSavedItems(): Promise<SavedItem[]> {
 
 export async function putSavedItem(item: SavedItem): Promise<void> {
   if (!idbAvailable()) {
-    const items = lsLoad().filter((s) => s.id !== item.id);
-    lsStore([item, ...items]);
+    const items = lsLoad<SavedItem>(LEGACY_LS_KEY).filter((s) => s.id !== item.id);
+    lsStore(LEGACY_LS_KEY, [item, ...items]);
     return;
   }
   const db = await openDb();
@@ -103,15 +54,15 @@ export async function putSavedItem(item: SavedItem): Promise<void> {
 export async function bulkPutSavedItems(items: SavedItem[]): Promise<void> {
   if (items.length === 0) return;
   if (!idbAvailable()) {
-    const existing = lsLoad();
+    const existing = lsLoad<SavedItem>(LEGACY_LS_KEY);
     const ids = new Set(items.map((i) => i.id));
-    lsStore([...items, ...existing.filter((s) => !ids.has(s.id))]);
+    lsStore(LEGACY_LS_KEY, [...items, ...existing.filter((s) => !ids.has(s.id))]);
     return;
   }
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
-    const t = db.transaction(STORE, 'readwrite');
-    const store = t.objectStore(STORE);
+    const t = db.transaction(SAVED_STORE, 'readwrite');
+    const store = t.objectStore(SAVED_STORE);
     items.forEach((i) => store.put(i));
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
@@ -120,7 +71,7 @@ export async function bulkPutSavedItems(items: SavedItem[]): Promise<void> {
 
 export async function deleteSavedItem(id: string): Promise<void> {
   if (!idbAvailable()) {
-    lsStore(lsLoad().filter((s) => s.id !== id));
+    lsStore(LEGACY_LS_KEY, lsLoad<SavedItem>(LEGACY_LS_KEY).filter((s) => s.id !== id));
     return;
   }
   const db = await openDb();
@@ -129,7 +80,7 @@ export async function deleteSavedItem(id: string): Promise<void> {
 
 export async function clearSavedItems(): Promise<void> {
   if (!idbAvailable()) {
-    lsStore([]);
+    lsStore(LEGACY_LS_KEY, []);
     return;
   }
   const db = await openDb();

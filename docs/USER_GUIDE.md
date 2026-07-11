@@ -578,13 +578,58 @@ title, จำนวนคำค้น ฯลฯ)
 
 ---
 
-## 🗂️ Collection Studio — สร้าง+เปิดดู+ให้คะแนนคอลเลกชันเชิงพาณิชย์ในแอป 🆕
+## 📁 Project Studio — ทุกอย่างอยู่ในโปรเจกต์เดียว 🆕
+
+แอปนี้เปลี่ยนจาก "สร้างลายทีละแผ่น" เป็น **Commercial Design Workspace** —
+Concept, Moodboard, Style DNA, Collections, Assets, Metadata/SEO,
+ประวัติ Export, สถานะอัปโหลด และโน้ต ทุกอย่างของงานหนึ่งชิ้นเก็บรวมกันไว้ใน
+**Project** เดียว ไม่กระจัดกระจาย
+
+### Active-Project bar
+แถบด้านบนสุดของแอป (ใต้หัวข้อ "Vector Stock Pattern Studio") แสดง Project
+ที่กำลังใช้งานอยู่ตลอดเวลา — หน้าสร้างลายยังเป็นหน้าเริ่มต้นเหมือนเดิมทุก
+ประการ **ไม่ต้องเปิด Project ก่อนถึงจะสร้างลายได้** (ต่างจากแอปแบบ Figma/
+Canva ที่บังคับเปิดโปรเจกต์ก่อนเสมอ) แต่ทุกครั้งที่บันทึกลายเข้าคลัง หรือกด
+Generate Collection ผลลัพธ์จะถูกผูกกับ Project ที่เปิดอยู่ในแถบนี้โดย
+อัตโนมัติ — สลับ Project ได้จาก dropdown, กด **"+ โปรเจกต์ใหม่"** เพื่อสร้าง
+Project เปล่า, หรือกด **"📊 Project Dashboard"** เพื่อเปิดหน้าจัดการเต็มรูปแบบ
+
+> ℹ️ ผู้ใช้เดิมที่เคยมีคลังลายก่อนเวอร์ชันนี้: ระบบจะสร้าง Project ชื่อ
+> "คลังลายเดิม (ก่อนมี Project)" ให้อัตโนมัติในการเปิดแอปครั้งแรกหลังอัปเดต
+> และผูกลายเดิมทุกชิ้นเข้า Project นี้ให้ทันที — ไม่มีอะไรหายหรือถูกลบ
+
+### Project Dashboard (Project Manager)
+หน้าเต็มจอแสดง Project ทั้งหมดเป็นการ์ด แต่ละใบมี thumbnail (ลาย Hero ล่าสุด),
+สถิติจริง (จำนวน Collections/Assets/SVG, สถานะ Metadata, สถานะ Export,
+สถานะ Upload รวม) และปุ่มจัดการครบ: **เปิด · ทำสำเนา · เปลี่ยนชื่อ ·
+Export JSON · Archive/เลิก Archive · ลบ · ⭐ Favorite** — มีปุ่ม
+**"📥 นำเข้า Project JSON"** สำหรับกู้คืน/ย้าย Project จากไฟล์ backup ด้วย
+
+### Project Panel (ในหน้าสร้างลาย)
+เมื่อมี Project ที่เปิดใช้งานอยู่ จะเห็นแผง **🗂️ [ชื่อ Project]** ในหน้าสร้าง
+ลาย ประกอบด้วย:
+- **📦 Collection Browser** — รายชื่อทุก Collection ที่เคยสร้างไว้ใน
+  Project นี้ (ไม่หายไปเมื่อรีเฟรชหน้าเหมือนเวอร์ชันก่อน) คลิกเพื่อสลับดู
+- **🧩 Asset Browser + Collection Score** — ของ Collection ที่เลือก (ดู
+  รายละเอียดหัวข้อถัดไป)
+- **📝 Metadata Browser** — Title/Description/Keywords/Filename/SEO Score
+  ของลาย Hero ในแต่ละเว็บ ดูได้โดยไม่ต้องเปิด Stock Submission Center
+- **🏬 Upload Tracker** — ติดตามสถานะส่งขายต่อเว็บ (Adobe/Shutterstock/
+  Freepik/Creative Fabrica/Creative Market) ต่อ Collection แบบ 4 สถานะ:
+  ⏳ Pending / ✅ Ready / 📤 Uploaded / ❌ Rejected — บันทึกถาวรในโปรเจกต์
+- **🕓 Export History** — ประวัติทุกครั้งที่สร้าง Collection ในโปรเจกต์นี้
+  (วันที่, schema version, ชื่อ Collection)
+- **🧭 Designer Assistant** — ตรวจสอบทั้งโปรเจกต์จริง: คะแนนเฉลี่ยทุก
+  Collection, Style DNA ไม่ตรงกันระหว่าง Collection ในโปรเจกต์เดียวกันไหม,
+  แนะนำให้เติม Concept/Moodboard ถ้ายังว่าง
+
+### Collection Browser: สร้าง+เปิดดู+ให้คะแนนคอลเลกชันเชิงพาณิชย์
 
 ปุ่ม **"🏭 Generate Collection (ZIP)"** ในแผงควบคุม (ถัดจาก "Generate 9
 variations") ยังคงสร้าง+ดาวน์โหลด zip อัตโนมัติเหมือนเดิม แต่ตอนนี้ยัง
-**เปิดแผง Collection Studio** ขึ้นมาให้ด้วย — เปิดดู/สลับดูชิ้นงานแต่ละชิ้น
-ในแอปได้ทันทีโดยไม่ต้องแตก zip ก่อน จากตัวตนงานออกแบบเดียว (การตั้งค่า
-ปัจจุบัน + Style DNA ถ้าเปิดใช้งานอยู่) ได้คอลเลกชัน 10 ชิ้นงานหลัก:
+**บันทึก Collection เข้า Project ที่เปิดอยู่** ให้ด้วย — เปิดดู/สลับดูชิ้นงาน
+แต่ละชิ้นในแอปได้ทันทีโดยไม่ต้องแตก zip ก่อน จากตัวตนงานออกแบบเดียว
+(การตั้งค่าปัจจุบัน + Style DNA ถ้าเปิดใช้งานอยู่) ได้คอลเลกชัน 10 ชิ้นงานหลัก:
 
 | กลุ่ม | ชิ้นงาน | รายละเอียด |
 |---|---|---|
@@ -599,7 +644,7 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 | **Collection.json** | ข้อมูลคอลเลกชันแบบมีโครงสร้าง | ชื่อคอลเลกชัน, seed, ชุดสี, Style DNA, รายชื่อ asset ทั้งหมด, รายชื่อชิ้นลายทั้งหมดพร้อม id/family/role/ความซับซ้อน, ความสัมพันธ์ asset↔ชิ้นลาย, และผลตรวจสอบความสอดคล้อง |
 
 ### 📊 Collection Score
-แผง Collection Studio แสดงคะแนน 5 มิติ (0-100 แต่ละมิติ + คะแนนรวม)
+แผง Project Panel แสดงคะแนน 5 มิติ (0-100 แต่ละมิติ + คะแนนรวม)
 คำนวณจากข้อมูลจริงของคอลเลกชันที่เพิ่งสร้าง ไม่ใช่ค่าคงที่:
 - **Style Consistency** — Style DNA ตรงกันทุกลายหลักไหม
 - **Palette Consistency** — ชุดสีตรงกันทุกลายหลักไหม
@@ -615,7 +660,7 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 (ตรวจข้อมูลจริง ไม่ใช่แค่ label)
 
 ### สลับดูชิ้นงาน + Export ซ้ำ
-คลิกปุ่มชื่อชิ้นงานในแผง Collection Studio เพื่อสลับดู SVG/JSON ของชิ้นงาน
+คลิกปุ่มชื่อชิ้นงานในแผง Project Panel เพื่อสลับดู SVG/JSON ของชิ้นงาน
 นั้นแบบเต็มในแอปทันที มีปุ่ม **"⬇️ ดาวน์โหลดชิ้นนี้"** แยกดาวน์โหลดทีละไฟล์
 และปุ่ม **"📦 Export ZIP ทั้งคอลเลกชัน"** เพื่อดาวน์โหลด zip ทั้งชุดซ้ำได้โดย
 ไม่ต้องสร้างคอลเลกชันใหม่
@@ -682,6 +727,55 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.34 — 11 ก.ค. 2026 — Project Studio Engine
+- 📁 **Project System ใหม่**: เปลี่ยนแอปจาก Pattern Generator เป็น
+  Commercial Design Workspace — ทุกอย่าง (Concept, Moodboard, Style DNA,
+  Collections, Assets, Metadata/SEO, Export History, Upload Status, Notes)
+  เก็บรวมอยู่ใน Project เดียว บันทึกถาวรใน IndexedDB (ไม่หายเมื่อรีเฟรช
+  เหมือน Collection Studio เวอร์ชันก่อนที่เป็นแค่ state ชั่วคราว)
+- 🧭 **Active-Project bar (เลือกแทน Dashboard-first แบบ Figma/Canva)**:
+  หน้าสร้างลายยังเป็นหน้าเริ่มต้นเหมือนเดิมทุกประการ ไม่บังคับเปิด Project
+  ก่อน — แถบด้านบนแสดง/สลับ Project ที่ใช้งานอยู่แทน ทุกการบันทึก/สร้าง
+  Collection ผูกกับ Project ที่เปิดอยู่โดยอัตโนมัติ (ยืนยันกับผู้ใช้แล้วว่า
+  เลือกแนวทางนี้แทน Dashboard-first เพราะกระทบ flow เดิมของผู้ใช้น้อยกว่า
+  มาก แต่ยังตรงตาม acceptance criteria "ทุกอย่างต้องอยู่ใน Project" จริง)
+- 📊 **Project Dashboard (Project Manager)**: หน้าเต็มจอแสดงทุก Project
+  เป็นการ์ด พร้อม thumbnail + สถิติจริง (Collections/Assets/SVG
+  count/สถานะ Metadata/Export/Upload) + Create/Open/Duplicate/Rename/
+  Archive/Delete/Favorite ครบทุกฟังก์ชัน
+- 🗂️ **Project Panel**: แผงใหม่ในหน้าสร้างลาย รวม **Collection Browser**
+  (ทุก Collection ในโปรเจกต์ ไม่หายเมื่อรีเฟรช — ต่อยอดจาก Collection
+  Studio v1.33), **Asset Browser + Collection Score** เดิม,
+  **Metadata Browser** ใหม่ (Title/Description/Keywords/Filename/SEO
+  Score ต่อเว็บ), **Upload Tracker** ใหม่ (4 สถานะ: Pending/Ready/
+  Uploaded/Rejected ต่อเว็บต่อ Collection บันทึกถาวร), **Export History**
+  ใหม่ (วันที่/schema version/ชื่อ Collection ทุกครั้งที่สร้าง), และ
+  **Designer Assistant** ระดับโปรเจกต์ใหม่ (ตรวจ Style DNA ไม่ตรงกันข้าม
+  Collection, แนะนำเติม Concept/Moodboard, คะแนนเฉลี่ยทุก Collection)
+- 💾 **Project JSON**: export/import Project ทั้งก้อนเป็นไฟล์ JSON เดียว —
+  กู้คืน/ย้าย Project ระหว่างเครื่องได้ ไม่กระทบคลังลายเดิม
+- 🔄 **Migration อัตโนมัติ**: ผู้ใช้เดิมที่มีคลังลายอยู่ก่อนเวอร์ชันนี้จะได้
+  Project "คลังลายเดิม (ก่อนมี Project)" สร้างให้อัตโนมัติในการเปิดแอปครั้ง
+  แรก ผูกลายเดิมทุกชิ้นเข้าไปให้ทันที ไม่มีอะไรหายหรือถูกลบ
+- 🧹 **ปรับโครงสร้าง IndexedDB**: ดึง logic เปิด/ใช้ฐานข้อมูลที่เคยอยู่ใน
+  `storage/savedStore.ts` อย่างเดียวออกมาเป็น `storage/db.ts` ที่ใช้ร่วมกัน
+  (bump DB version 1 → 2 เพิ่ม object store `projects` โดยไม่กระทบคลัง
+  ลายเดิมที่มีอยู่แล้วเลย) — คลังลายเดิม (`storage/savedStore.ts`) ยังทำงาน
+  เหมือนเดิมทุกประการ ไม่มีการเปลี่ยนรูปแบบข้อมูล
+- 🧪 **เทสต์ใหม่ 29 รายการ** ครอบคลุม Project CRUD (create/duplicate/
+  rename/archive/favorite), Collections (add/remove/upload status),
+  Saved item references, Legacy migration, Project stats (Asset Browser
+  aggregation, Dashboard stats ทุกสถานะ), Designer Assistant (project
+  review, regression guard สำหรับ Style DNA mismatch), Project JSON
+  (export/import round-trip, invalid-file rejection) — รวมเป็น **342 test
+  ทั้งโปรเจกต์** (จากเดิม 313)
+- ✅ **ตรวจสอบผลจริงก่อนส่ง**: เปิดแอปจริงด้วย Playwright ยืนยัน
+  auto-migration สร้าง Project แรกอัตโนมัติจริง, กด Generate Collection
+  แล้ว Collection ถูกบันทึกเข้า Project จริง (ไม่หายเมื่อสลับหน้า),
+  Metadata Browser/Upload Tracker/Export History แสดงข้อมูลจริงถูกต้อง,
+  เปิด Project Dashboard สร้าง/ทำสำเนา/archive/export JSON ได้จริงครบ
+  ทุกปุ่ม ไม่มี console error
 
 ### v1.33 — 11 ก.ค. 2026 — Collection Studio Engine
 - 🗂️ **Collection Studio Workspace ใหม่**: เดิม (v1.31) กด "Generate
