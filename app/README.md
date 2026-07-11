@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 573 tests across 39 files:
+`npm test` runs `vitest run` — 590 tests across 40 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1769,8 +1769,8 @@ project mutation already uses).
 - `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
   `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
   `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`,
-  `trend/designSpecSeo.test.ts`, `trend/designSpecPackage.test.ts` — see
-  "Trend Intelligence Studio" below.
+  `trend/designSpecSeo.test.ts`, `trend/designSpecPackage.test.ts`,
+  `trend/promptTemplates.test.ts` — see "Trend Intelligence Studio" below.
 
 ## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
 
@@ -1973,6 +1973,39 @@ every other export in this app already puts them — one layer up, in
 deliberately kept DOM-free and unit-testable; wiring an actual "Download
 Package" button for this Design-Spec-driven flow is a later phase once
 the Trend Studio UI exists to trigger it from.
+
+### Prompt Factory (`trend/promptTemplates.ts`)
+
+Section 7's "Generate prompts from the Design Specification. Support
+ChatGPT, Claude, Gemini, Adobe Firefly, Midjourney, Stable Diffusion,
+FLUX. Prompt templates must be stored externally. Do not hardcode
+prompts." `PROMPT_TEMPLATES` is the one config object every template
+lives in (never inlined in a UI component) — same "one editable config,
+not scattered magic strings" convention `marketplaceProfiles.ts`/
+`trendPacks.ts`/`keywordMap.ts` already established for this app's
+no-server-backend architecture, with the same JSON export/import escape
+hatch `trendPacks.ts` provides (`exportPromptTemplateJson`/
+`importPromptTemplateJson`) so a user can hand-tune a platform's wording
+without touching source code.
+
+Two platform kinds, since they serve genuinely different purposes for a
+surface-pattern designer: **conversational** (ChatGPT/Claude/Gemini) asks
+the LLM for creative brainstorming help — additional motif ideas, a
+refined title, marketing copy — since none of the three generate images.
+**imageGeneration** (Adobe Firefly/Midjourney/Stable Diffusion/FLUX) is an
+actual txt2img prompt for moodboard/reference art (none of these tools
+produce an editable seamless *vector* pattern directly — that's still
+this app's own SVG Engine); Midjourney's prompt additionally carries its
+real `--tile --ar 1:1 --v 6` generation flags as a `suffix`, since seamless
+tiling is an actual Midjourney parameter worth setting correctly.
+`resolvePromptTemplate(template, spec)` fills every `{placeholder}`
+(`primaryKeyword`, `secondaryKeywords`, `mood`, `theme`, `styleDna`,
+`patternType`, `composition`, `colorList`, `season`, `audience`,
+`commercialCategory`, `marketplace`) from a real `DesignSpecification` —
+an unrecognized placeholder is left as literal text rather than throwing,
+the same graceful-degradation convention `filenameEngine.ts`'s
+`resolveFilenameTemplate` uses. `buildPrompt`/`buildAllPrompts` resolve
+one platform / every platform in one call.
 
 ## Adding a new pattern category
 
