@@ -1,0 +1,13 @@
+{
+  "id": "adobestock",
+  "label": "Adobe Stock",
+  "future": false,
+  "contributorUrl": "https://contributor.stock.adobe.com/",
+  "contributorUrlVerified": true,
+  "titleRules": { "minLength": 20, "maxLength": 70 },
+  "descriptionRules": { "required": false, "minLength": 0, "maxLength": 0 },
+  "keywordRules": { "minCount": 7, "maxCount": 49, "termLabel": "keywords" },
+  "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "eps" },
+  "defaultCategory": "Graphic Resources",
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "keywords.txt", "filename.txt", "metadata.json"]
+}

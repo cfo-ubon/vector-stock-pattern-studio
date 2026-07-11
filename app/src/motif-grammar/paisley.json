@@ -1,0 +1,13 @@
+{
+  "id": "paisley",
+  "label": "Paisley & Ikat",
+  "family": "decorative",
+  "defaultMotifSize": 75,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "maximalist", "editorial"],
+  "rules": []
+}

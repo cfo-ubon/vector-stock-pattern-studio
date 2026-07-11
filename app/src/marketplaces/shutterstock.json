@@ -1,0 +1,13 @@
+{
+  "id": "shutterstock",
+  "label": "Shutterstock",
+  "future": false,
+  "contributorUrl": "https://submit.shutterstock.com/",
+  "contributorUrlVerified": true,
+  "titleRules": { "minLength": 20, "maxLength": 200 },
+  "descriptionRules": { "required": true, "minLength": 20, "maxLength": 200 },
+  "keywordRules": { "minCount": 7, "maxCount": 50, "termLabel": "keywords" },
+  "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "eps" },
+  "defaultCategory": "Backgrounds/Textures",
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"]
+}

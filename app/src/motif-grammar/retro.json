@@ -1,0 +1,13 @@
+{
+  "id": "retro",
+  "label": "Retro 70s",
+  "family": "decorative",
+  "defaultMotifSize": 70,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["balanced", "editorial"],
+  "rules": []
+}

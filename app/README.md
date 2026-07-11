@@ -9,6 +9,15 @@ This app lives alongside the original static-site prototype in the repo
 root (`/index.html`, `/js`, `/css`); the two are independent and this one
 does not replace it.
 
+A parallel, data-first foundation (JSON Schemas, editable trend/marketplace/
+style-DNA/pattern-grammar/motif-grammar/color-role data, a validation
+engine, and a query/service layer — not yet wired into this app's UI or SVG
+generation) lives under `src/schemas/`, `src/trend-packs/`,
+`src/marketplaces/`, `src/style-dna/`, `src/pattern-grammar/`,
+`src/motif-grammar/`, `src/color-roles/`, `src/validators/`, and
+`src/services/`. See [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md)
+for its architecture, schema reference, and developer guide.
+
 ## Run it
 
 ```bash
@@ -2254,4 +2263,23 @@ src/
     ProjectPanel.tsx
     PreviewCanvas.tsx
     Gallery.tsx
+```
+
+### Design Intelligence Core (parallel data layer, not yet wired in)
+
+See [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md) for the
+full architecture/schema/developer-guide writeup. Folder summary:
+
+```
+src/
+  schemas/            10 JSON Schema (draft-07 subset) documents
+  trend-packs/         Trend Pack data (JSON) + index.ts loader
+  marketplaces/         Marketplace Profile data (JSON) + index.ts loader
+  style-dna/            Style DNA data (JSON) + index.ts loader
+  pattern-grammar/      Pattern Grammar Library (JSON, new) + index.ts loader
+  motif-grammar/        Motif Grammar Library (JSON, new) + index.ts loader
+  color-roles/          Color Role System + palette mirror (JSON, new) + index.ts loader
+  validators/           JSON Schema validation engine + schema registry +
+                         relationship/marketplace-compatibility validator
+  services/              Query/lookup layer + Keyword Bundle Engine
 ```

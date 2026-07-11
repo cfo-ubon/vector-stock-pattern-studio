@@ -1,0 +1,22 @@
+{
+  "id": "boutiquePackaging",
+  "label": "Boutique Packaging",
+  "description": "Clean stripe/grid geometry sized for small-scale packaging and labels.",
+  "categories": ["geometric", "damask"],
+  "layouts": ["stripe", "gridMinimal"],
+  "hierarchyPreset": "allOverTextile",
+  "density": 0.5,
+  "negativeSpace": 0.1,
+  "overlapMode": "none",
+  "overlapAmount": 0,
+  "flowProfile": "calm",
+  "rhythmProfile": "regular",
+  "clusterStyle": "none",
+  "clusterDensity": 0.15,
+  "motifComplexity": "moderate",
+  "colorStrategy": "dominantDuo",
+  "paletteIds": ["blush-gold", "mono-charcoal"],
+  "backgroundStrategy": "neutralPaper",
+  "svgDepthMode": "flat",
+  "exportRecommendation": { "tileSize": 1200, "patternScale": 1, "recommendedSites": ["creativemarket", "creativefabrica"] }
+}

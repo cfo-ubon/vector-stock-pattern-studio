@@ -1,0 +1,13 @@
+{
+  "id": "creativefabrica",
+  "label": "Creative Fabrica",
+  "future": false,
+  "contributorUrl": "https://www.creativefabrica.com/sell-on-creative-fabrica/",
+  "contributorUrlVerified": false,
+  "titleRules": { "minLength": 10, "maxLength": 150 },
+  "descriptionRules": { "required": true, "minLength": 40, "maxLength": 5000, "practicalCeiling": true },
+  "keywordRules": { "minCount": 5, "maxCount": 20, "termLabel": "tags" },
+  "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "svg" },
+  "defaultCategory": "Digital Paper & Fabric Design",
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "qualityTarget.schema.json",
+  "title": "QualityTarget",
+  "description": "Minimum quality thresholds a generated design must clear. Mirrors app/src/trend/designSpecTypes.ts's DesignQualityTargets TypeScript type — field names line up with real engine/scoring.ts CompositionMetrics wherever an exact match exists (see trend/designSpecQuality.ts), so wiring a validator/quality-loop against this schema is a lookup, not a redesign.",
+  "type": "object",
+  "required": ["minOverallScore", "minSeamlessIntegrity", "minMotifDiversity", "minCommercialReadiness"],
+  "additionalProperties": false,
+  "properties": {
+    "minOverallScore": { "type": "number", "minimum": 0, "maximum": 100 },
+    "minSeamlessIntegrity": { "type": "number", "minimum": 0, "maximum": 100 },
+    "minMotifDiversity": { "type": "number", "minimum": 0, "maximum": 100 },
+    "minCommercialReadiness": { "type": "number", "minimum": 0, "maximum": 100 }
+  }
+}

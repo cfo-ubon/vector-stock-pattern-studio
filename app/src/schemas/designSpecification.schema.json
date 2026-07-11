@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "designSpecification.schema.json",
+  "title": "DesignSpecification",
+  "description": "The single source of truth every downstream generator (SVG/SEO/Prompt/Export) reads from. Mirrors app/src/trend/designSpecTypes.ts's TypeScript type of the same name — this file is the externally-editable, tool-validatable contract for that shape.",
+  "type": "object",
+  "required": [
+    "schemaVersion", "project", "collection", "marketplace", "trend", "keywordBundle",
+    "styleDnaId", "palette", "colorRoles", "composition", "repeatType", "density",
+    "hierarchy", "flow", "rhythm", "negativeSpace", "heroMotifs", "secondaryMotifs",
+    "fillers", "background", "svgHints", "seoHints", "exportHints", "qualityTargets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "createdAt"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "required": ["size", "assetTypes"],
+      "additionalProperties": false,
+      "properties": {
+        "size": { "type": "integer", "minimum": 1 },
+        "assetTypes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["heroPattern", "secondaryPattern", "blenderPattern", "miniPattern", "stripePattern", "borderPattern", "cornerPattern", "spotMotifSheet"]
+          }
+        }
+      }
+    },
+    "marketplace": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "enum": ["shutterstock", "adobestock", "freepik", "creativefabrica", "creativemarket", "etsy"] }
+      }
+    },
+    "trend": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["trendPackId", "theme", "mood"],
+          "additionalProperties": false,
+          "properties": {
+            "trendPackId": { "type": "string", "minLength": 1 },
+            "theme": { "type": "string", "minLength": 1 },
+            "mood": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "keywordBundle": { "$ref": "keywordBundle.schema.json" },
+    "styleDnaId": { "type": "string", "minLength": 1 },
+    "palette": {
+      "type": "object",
+      "required": ["id", "colors"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "colors": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } }
+      }
+    },
+    "colorRoles": {
+      "type": "object",
+      "required": ["background", "primary", "secondary", "accent"],
+      "additionalProperties": false,
+      "properties": {
+        "background": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "primary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "composition": { "type": "string", "enum": ["airy", "balanced", "dense", "editorial", "maximalist", "minimal"] },
+    "repeatType": {
+      "type": "string",
+      "enum": ["grid", "brick", "radial", "scatter", "halfDrop", "heroFlow", "heroScatter", "sCurve", "bouquet", "airy", "toss", "densePremium", "gridMinimal", "stripe"]
+    },
+    "density": { "type": "number", "minimum": 0, "maximum": 1 },
+    "hierarchy": {
+      "type": "object",
+      "required": ["heroRatio", "secondaryRatio", "fillerRatio", "accentRatio", "heroScale", "secondaryScale", "fillerScale", "accentScale"],
+      "additionalProperties": false,
+      "properties": {
+        "heroRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "secondaryRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "fillerRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "accentRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "heroScale": { "type": "number", "minimum": 0 },
+        "secondaryScale": { "type": "number", "minimum": 0 },
+        "fillerScale": { "type": "number", "minimum": 0 },
+        "accentScale": { "type": "number", "minimum": 0 }
+      }
+    },
+    "flow": { "type": "string", "enum": ["calm", "directional", "dynamic"] },
+    "rhythm": { "type": "string", "enum": ["regular", "organic", "syncopated"] },
+    "negativeSpace": { "type": "number", "minimum": 0, "maximum": 1 },
+    "heroMotifs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/motifRef" } },
+    "secondaryMotifs": { "type": "array", "items": { "$ref": "#/definitions/motifRef" } },
+    "fillers": { "type": "array", "items": { "$ref": "#/definitions/motifRef" } },
+    "background": {
+      "type": "object",
+      "required": ["color"],
+      "additionalProperties": false,
+      "properties": { "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } }
+    },
+    "svgHints": {
+      "type": "object",
+      "required": ["motifSize", "rotationJitter", "scaleJitter", "mirror", "radialSymmetry", "colorStory", "fillerStyle", "flatShadow", "flatHighlight", "patternScale"],
+      "additionalProperties": false,
+      "properties": {
+        "motifSize": { "type": "number", "minimum": 1 },
+        "rotationJitter": { "type": "number", "minimum": 0 },
+        "scaleJitter": { "type": "number", "minimum": 0 },
+        "mirror": { "type": "boolean" },
+        "radialSymmetry": { "type": "integer", "minimum": 1 },
+        "colorStory": { "type": "boolean" },
+        "fillerStyle": { "type": "string", "enum": ["none", "subtle", "rich"] },
+        "flatShadow": { "type": "boolean" },
+        "flatHighlight": { "type": "boolean" },
+        "patternScale": { "type": "number", "minimum": 0 }
+      }
+    },
+    "seoHints": {
+      "type": "object",
+      "required": ["primaryKeyword", "secondaryKeywords", "commercialCategory", "audience", "season"],
+      "additionalProperties": false,
+      "properties": {
+        "primaryKeyword": { "type": "string", "minLength": 1 },
+        "secondaryKeywords": { "type": "array", "items": { "type": "string" } },
+        "commercialCategory": { "type": "string" },
+        "audience": { "type": "string" },
+        "season": { "type": "string", "enum": ["spring", "summer", "autumn", "winter", "yearRound"] }
+      }
+    },
+    "exportHints": {
+      "type": "object",
+      "required": ["tileSize", "collectionSize", "assetTypes", "exportFormats"],
+      "additionalProperties": false,
+      "properties": {
+        "tileSize": { "type": "integer", "minimum": 1 },
+        "collectionSize": { "type": "integer", "minimum": 1 },
+        "assetTypes": { "type": "array", "items": { "type": "string" } },
+        "exportFormats": { "type": "array", "minItems": 1, "items": { "type": "string", "enum": ["svg", "eps"] } }
+      }
+    },
+    "qualityTargets": { "$ref": "qualityTarget.schema.json" }
+  },
+  "definitions": {
+    "motifRef": {
+      "type": "object",
+      "required": ["categoryId", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "categoryId": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "enum": ["hero", "secondary", "filler", "accent"] },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "retroOrganic",
+  "label": "Retro Organic",
+  "description": "Sun-bleached retro palette flowing through soft organic silhouettes.",
+  "categories": ["retro", "organic"],
+  "layouts": ["heroFlow", "scatter"],
+  "hierarchyPreset": "balancedEditorial",
+  "density": 0.5,
+  "negativeSpace": 0.15,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.1,
+  "flowProfile": "dynamic",
+  "rhythmProfile": "organic",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.35,
+  "motifComplexity": "moderate",
+  "colorStrategy": "highContrast",
+  "paletteIds": ["retro-sunset", "autumn-harvest"],
+  "backgroundStrategy": "neutralPaper",
+  "svgDepthMode": "soft",
+  "exportRecommendation": { "tileSize": 1400, "patternScale": 1, "recommendedSites": ["shutterstock", "adobestock"] }
+}

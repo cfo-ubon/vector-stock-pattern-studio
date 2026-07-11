@@ -1,0 +1,17 @@
+{
+  "id": "plaid",
+  "label": "Plaid & Check",
+  "family": "background",
+  "defaultMotifSize": 100,
+  "recommendedDensity": 0.9,
+  "complexityLevels": ["simple", "moderate"],
+  "roles": ["filler", "accent"],
+  "rotationAllowed": false,
+  "mirrorAllowed": true,
+  "disableGridRhythm": true,
+  "compatiblePatternGrammars": ["minimal", "balanced"],
+  "rules": [
+    { "id": "plaid-no-hero-role", "description": "Plaid is a field pattern — every cell is uniform, so a 'hero' role assignment has no visual effect and should be avoided.", "severity": "warning" },
+    { "id": "plaid-density-floor", "description": "Plaid needs high density (recommendedDensity 0.9) to read as edge-to-edge check — a low density value leaves visible gaps between cells.", "severity": "error" }
+  ]
+}

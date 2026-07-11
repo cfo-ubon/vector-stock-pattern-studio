@@ -1,0 +1,13 @@
+{
+  "id": "damask",
+  "label": "Textile / Damask",
+  "family": "decorative",
+  "defaultMotifSize": 80,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "maximalist", "editorial"],
+  "rules": []
+}

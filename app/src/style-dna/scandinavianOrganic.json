@@ -1,0 +1,22 @@
+{
+  "id": "scandinavianOrganic",
+  "label": "Scandinavian Organic",
+  "description": "Airy, restrained organic shapes with a muted coastal-neutral palette.",
+  "categories": ["organic", "botanical"],
+  "layouts": ["airy", "scatter"],
+  "hierarchyPreset": "airyPremium",
+  "density": 0.32,
+  "negativeSpace": 0.5,
+  "overlapMode": "none",
+  "overlapAmount": 0,
+  "flowProfile": "calm",
+  "rhythmProfile": "regular",
+  "clusterStyle": "none",
+  "clusterDensity": 0.1,
+  "motifComplexity": "simple",
+  "colorStrategy": "monochromeAccent",
+  "paletteIds": ["coastal-neutral", "monochrome-blue"],
+  "backgroundStrategy": "minimalLight",
+  "svgDepthMode": "flat",
+  "exportRecommendation": { "tileSize": 1200, "patternScale": 1, "recommendedSites": ["adobestock", "freepik"] }
+}

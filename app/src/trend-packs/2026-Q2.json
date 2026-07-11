@@ -1,0 +1,20 @@
+{
+  "id": "2026-Q2",
+  "label": "2026 Q2 — Modern Tropical Editorial",
+  "season": "summer",
+  "theme": "Modern Tropical Editorial",
+  "mood": "lush, vibrant, exotic",
+  "commercialUses": ["textile", "wallpaper", "apparel"],
+  "paletteDirection": "citrus",
+  "popularMotifs": ["tropical", "botanical"],
+  "suggestedLayouts": ["heroFlow", "scatter"],
+  "negativeSpace": 0.15,
+  "compositionStyle": "editorial",
+  "styleDnaId": "modernTropical",
+  "colorRoles": { "background": "#FFFDF5", "primary": "#FF8C42", "secondary": "#FFD166", "accent": "#06A77D" },
+  "patternTypes": ["tropical", "botanical"],
+  "collectionRecommendations": {
+    "size": 8,
+    "assetTypes": ["heroPattern", "secondaryPattern", "miniPattern", "stripePattern", "borderPattern", "cornerPattern", "spotMotifSheet"]
+  }
+}

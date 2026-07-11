@@ -1,0 +1,20 @@
+{
+  "id": "2026-Q4",
+  "label": "2026 Q4 — Dark Academia Maximalist",
+  "season": "winter",
+  "theme": "Dark Academia Maximalist",
+  "mood": "moody, dramatic, ornate",
+  "commercialUses": ["wallpaper", "giftWrap", "packaging"],
+  "paletteDirection": "midnight botanical",
+  "popularMotifs": ["botanical", "mandala", "damask"],
+  "suggestedLayouts": ["densePremium", "bouquet"],
+  "negativeSpace": 0.1,
+  "compositionStyle": "maximalist",
+  "styleDnaId": "darkBotanical",
+  "colorRoles": { "background": "#EDE9DD", "primary": "#4A6B57", "secondary": "#8FA68E", "accent": "#1C2E2A" },
+  "patternTypes": ["botanical", "mandala", "damask"],
+  "collectionRecommendations": {
+    "size": 8,
+    "assetTypes": ["heroPattern", "secondaryPattern", "miniPattern", "stripePattern", "borderPattern", "cornerPattern", "spotMotifSheet"]
+  }
+}
