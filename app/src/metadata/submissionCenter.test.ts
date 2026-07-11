@@ -132,12 +132,12 @@ describe('analyzeSeo', () => {
 });
 
 describe('computeStockReadiness', () => {
-  it('returns exactly 5 cards, one per stock site', () => {
+  it('returns exactly 6 cards, one per marketplace (incl. Etsy)', () => {
     const tileData = makeTileData('readiness-count');
     const checklist = buildSubmissionChecklist(tileData, { collectionGeneratedForSeed: null, saved: [] });
     const readiness = computeStockReadiness(tileData, checklist);
-    expect(readiness.length).toBe(5);
-    expect(new Set(readiness.map((r) => r.siteId)).size).toBe(5);
+    expect(readiness.length).toBe(6);
+    expect(new Set(readiness.map((r) => r.siteId)).size).toBe(6);
   });
 
   it('a healthy pattern with a valid checklist is ready with no issues on every site', () => {

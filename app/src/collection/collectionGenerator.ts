@@ -12,6 +12,7 @@ import { buildSiteMetadata, buildSeoTextFile, type SiteMetadata } from '../metad
 import { buildShutterstockCsv, buildAdobeStockCsv } from '../metadata/csv';
 import type { SavedItem } from '../components/SavedPanel';
 import { resolveStyleDna, type StyleDna } from '../engine/styleDna';
+import type { MarketplaceId } from '../metadata/marketplaceProfiles';
 
 // Collection Studio Engine — v1.33 in-place evolution of the Professional
 // Asset Factory Engine (v1.31, "PAF"). Same underlying idea (one Style DNA
@@ -45,6 +46,26 @@ export type AssetType =
   | 'metadata'
   | 'seoPackage';
 
+/** One marketplace's manually-edited SEO fields for a single asset —
+ * intentionally separate from metadata/marketplaceSeo.ts's generated
+ * `MarketplaceSeo` (which is always derived fresh from a TileData): this is
+ * the *persisted override* layered on top, per the Marketplace Profile
+ * System's "Project > Collection > Asset > SEO > {marketplace}" storage
+ * requirement. Any field left undefined falls back to the generated
+ * default wherever this is read. */
+export interface AssetSeoOverride {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  filename?: string;
+}
+
+/** Per-marketplace SEO overrides for one asset. Optional/additive so
+ * collections generated before this existed simply have no `seo` field —
+ * every reader treats a missing marketplace entry as "use the generated
+ * default", never as an error. */
+export type AssetSeoStore = Partial<Record<MarketplaceId, AssetSeoOverride>>;
+
 export interface CollectionAsset {
   id: string;
   type: AssetType;
@@ -59,6 +80,10 @@ export interface CollectionAsset {
   motifIds: string[];
   width?: number;
   height?: number;
+  /** Per-marketplace SEO overrides for this specific asset (see
+   * `AssetSeoStore`). Absent on assets that have never had an override
+   * saved. */
+  seo?: AssetSeoStore;
 }
 
 export interface ManifestMotif {

@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Project, ProjectCollectionEntry } from '../project/projectTypes';
 import type { UploadStatus } from '../project/projectTypes';
-import type { CollectionAsset } from '../collection/collectionGenerator';
+import type { AssetSeoOverride, CollectionAsset } from '../collection/collectionGenerator';
 import { computeCollectionScore } from '../collection/collectionScore';
 import { reviewProject } from '../project/designerAssistant';
 import { buildTile } from '../engine/tile';
+import type { GenerateParams } from '../engine/types';
 import { buildSiteMetadata, STOCK_SITES, type StockSiteId } from '../metadata/shutterstock';
 import { analyzeSeo } from '../metadata/submissionCenter';
 import { downloadSvgFile, downloadBlobFile, buildExportFilename, buildFilenameParts } from '../export/svgExporter';
 import { scoreColor } from './scoreColor';
+import { MARKETPLACE_LIST, type MarketplaceId } from '../metadata/marketplaceProfiles';
+import { generateMarketplaceSeo } from '../metadata/marketplaceSeo';
+import { validateMarketplaceSeo, isMarketplaceReady } from '../metadata/marketplaceValidation';
 
 interface Props {
   project: Project | null;
@@ -18,6 +22,12 @@ interface Props {
   building: boolean;
   onExportCollectionZip: (collectionEntryId: string) => void;
   onSetUploadStatus: (collectionEntryId: string, site: StockSiteId, status: UploadStatus) => void;
+  /** Saves/clears one marketplace's SEO override on one asset — the
+   * "Project > Collection > Asset > SEO > {marketplace}" storage tree.
+   * Lives in App.tsx since it goes through the same updateProject/
+   * putProject persistence path as every other project mutation. */
+  onSetAssetSeoOverride: (collectionEntryId: string, assetId: string, marketplaceId: MarketplaceId, override: AssetSeoOverride) => void;
+  onClearAssetSeoOverride: (collectionEntryId: string, assetId: string, marketplaceId: MarketplaceId) => void;
 }
 
 const SCORE_ROWS: Array<{ key: keyof ReturnType<typeof computeCollectionScore>; label: string }> = [
@@ -48,6 +58,116 @@ function downloadAsset(asset: CollectionAsset) {
   }
 }
 
+/** Maps the 5 pattern-type asset ids to their index in `patternParams`
+ * (fixed Hero/Secondary/Blender/Mini/Stripe order — see
+ * collectionGenerator.ts's `generateCollection`) so the editor can offer
+ * "auto-fill from generated" for those assets specifically; every other
+ * asset type (border/corner/sheets/preview/metadata/seoPackage) has no
+ * underlying pattern to auto-generate from and is manual-entry-only. */
+const PATTERN_ASSET_INDEX: Record<string, number> = { hero: 0, secondary: 1, blender: 2, mini: 3, stripe: 4 };
+
+/** Per-asset, per-marketplace SEO override editor — the "Project >
+ * Collection > Asset > SEO > {marketplace}" storage tree the Marketplace
+ * Profile System spec asks for. Manual-entry by default (every asset type
+ * can carry its own title/description/keywords/filename per marketplace);
+ * the 5 pattern-type assets additionally get an "auto-fill" shortcut that
+ * pulls from the same generator the Marketplace Profile Selector uses. */
+function AssetSeoEditor({
+  asset,
+  patternParams,
+  onSet,
+  onClear,
+}: {
+  asset: CollectionAsset;
+  patternParams: GenerateParams[];
+  onSet: (marketplaceId: MarketplaceId, override: AssetSeoOverride) => void;
+  onClear: (marketplaceId: MarketplaceId) => void;
+}) {
+  const [marketplaceId, setMarketplaceId] = useState<MarketplaceId>('shutterstock');
+  const profile = MARKETPLACE_LIST.find((p) => p.id === marketplaceId)!;
+  const override = asset.seo?.[marketplaceId];
+  const patternIndex = PATTERN_ASSET_INDEX[asset.id];
+
+  const generated = useMemo(() => {
+    if (patternIndex === undefined) return null;
+    return generateMarketplaceSeo(buildTile(patternParams[patternIndex]), marketplaceId);
+  }, [patternIndex, patternParams, marketplaceId]);
+
+  const seo = useMemo(
+    () => ({
+      title: override?.title ?? generated?.title ?? '',
+      description: override?.description ?? generated?.description ?? '',
+      keywords: override?.keywords ?? generated?.keywords ?? [],
+      filename: override?.filename ?? generated?.filename ?? asset.filename,
+    }),
+    [override, generated, asset.filename],
+  );
+
+  const issues = useMemo(
+    () => validateMarketplaceSeo({ marketplaceId, ...seo }, profile),
+    [marketplaceId, seo, profile],
+  );
+  const ready = isMarketplaceReady(issues);
+
+  return (
+    <div className="asset-seo-editor">
+      <h5>🏪 SEO ต่อ Marketplace (บันทึกแยกในตัวชิ้นงานนี้)</h5>
+      <div className="marketplace-chips">
+        {MARKETPLACE_LIST.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`marketplace-chip${p.id === marketplaceId ? ' active' : ''}`}
+            onClick={() => setMarketplaceId(p.id)}
+          >
+            {p.label}
+            {p.future && ' 🔜'}
+          </button>
+        ))}
+      </div>
+      <div className="asset-seo-fields">
+        <label>
+          Title
+          <textarea rows={2} value={seo.title} onChange={(e) => onSet(marketplaceId, { ...override, title: e.target.value })} />
+        </label>
+        {(profile.descriptionRules.required || seo.description) && (
+          <label>
+            Description
+            <textarea rows={3} value={seo.description} onChange={(e) => onSet(marketplaceId, { ...override, description: e.target.value })} />
+          </label>
+        )}
+        <label>
+          {profile.keywordRules.termLabel === 'tags' ? 'Tags' : 'Keywords'}
+          <textarea
+            rows={2}
+            value={seo.keywords.join(', ')}
+            onChange={(e) => onSet(marketplaceId, { ...override, keywords: e.target.value.split(',').map((k) => k.trim()).filter(Boolean) })}
+          />
+        </label>
+        <label>
+          Filename
+          <input type="text" value={seo.filename} onChange={(e) => onSet(marketplaceId, { ...override, filename: e.target.value })} />
+        </label>
+      </div>
+      <div className="asset-seo-actions">
+        {generated && (
+          <button type="button" className="btn" onClick={() => onSet(marketplaceId, { title: generated.title, description: generated.description, keywords: generated.keywords, filename: generated.filename })}>
+            ✨ Auto-fill จากที่ระบบสร้าง
+          </button>
+        )}
+        {override && (
+          <button type="button" className="btn" onClick={() => onClear(marketplaceId)}>
+            ↺ ล้างค่าที่แก้ไข
+          </button>
+        )}
+      </div>
+      <div className={`marketplace-ready-indicator marketplace-ready-indicator--${ready ? 'ready' : 'issues'}`}>
+        {ready ? '✅ พร้อมส่ง (Ready)' : `⚠️ มี ${issues.filter((i) => i.severity === 'error').length} ปัญหาที่ต้องแก้ก่อนส่ง`}
+      </div>
+    </div>
+  );
+}
+
 /** Collection Browser (list every Collection saved to the active Project)
  * + Asset Browser (browse the selected Collection's own assets, reusing
  * v1.33's CollectionWorkspace asset-switcher UI) + Metadata Browser +
@@ -56,10 +176,14 @@ function CollectionAndAssetBrowser({
   entry,
   onExportZip,
   onSetUploadStatus,
+  onSetAssetSeoOverride,
+  onClearAssetSeoOverride,
 }: {
   entry: ProjectCollectionEntry;
   onExportZip: () => void;
   onSetUploadStatus: (site: StockSiteId, status: UploadStatus) => void;
+  onSetAssetSeoOverride: (assetId: string, marketplaceId: MarketplaceId, override: AssetSeoOverride) => void;
+  onClearAssetSeoOverride: (assetId: string, marketplaceId: MarketplaceId) => void;
 }) {
   const { collection } = entry;
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(collection.assets[0]?.id ?? null);
@@ -137,6 +261,13 @@ function CollectionAndAssetBrowser({
           ) : (
             <pre className="collection-asset-json">{JSON.stringify(selectedAsset.data, null, 2)}</pre>
           )}
+          <AssetSeoEditor
+            key={selectedAsset.id}
+            asset={selectedAsset}
+            patternParams={collection.patternParams}
+            onSet={(marketplaceId, override) => onSetAssetSeoOverride(selectedAsset.id, marketplaceId, override)}
+            onClear={(marketplaceId) => onClearAssetSeoOverride(selectedAsset.id, marketplaceId)}
+          />
         </div>
       )}
 
@@ -187,7 +318,7 @@ function CollectionAndAssetBrowser({
  * review. Evolves v1.33's CollectionWorkspace (which only ever showed one
  * ephemeral, non-persisted collection) into a project-scoped, persistent
  * multi-collection workspace. */
-export function ProjectPanel({ project, building, onExportCollectionZip, onSetUploadStatus }: Props) {
+export function ProjectPanel({ project, building, onExportCollectionZip, onSetUploadStatus, onSetAssetSeoOverride, onClearAssetSeoOverride }: Props) {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -247,6 +378,8 @@ export function ProjectPanel({ project, building, onExportCollectionZip, onSetUp
           entry={selectedEntry}
           onExportZip={() => onExportCollectionZip(selectedEntry.id)}
           onSetUploadStatus={(site, status) => onSetUploadStatus(selectedEntry.id, site, status)}
+          onSetAssetSeoOverride={(assetId, marketplaceId, override) => onSetAssetSeoOverride(selectedEntry.id, assetId, marketplaceId, override)}
+          onClearAssetSeoOverride={(assetId, marketplaceId) => onClearAssetSeoOverride(selectedEntry.id, assetId, marketplaceId)}
         />
       )}
 

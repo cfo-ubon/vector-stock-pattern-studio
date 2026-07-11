@@ -1532,3 +1532,176 @@ body {
   flex-direction: column;
   gap: 0.3rem;
 }
+
+/* Marketplace Profile System — selector, per-marketplace fields,
+   validation feedback, and the per-asset SEO editor inside Project Panel. */
+
+.marketplace-selector {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.marketplace-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.marketplace-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.marketplace-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.marketplace-future-hint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+.marketplace-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.marketplace-filename-input {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+.marketplace-filename-template {
+  background: var(--panel-alt);
+  border: 1px dashed var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.marketplace-ready-indicator {
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.marketplace-ready-indicator--ready {
+  background: rgba(95, 191, 127, 0.15);
+  color: #5fbf7f;
+}
+
+.marketplace-ready-indicator--issues {
+  background: rgba(224, 113, 90, 0.15);
+  color: #e0715a;
+}
+
+.marketplace-issues {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.marketplace-issue {
+  color: var(--text-dim);
+}
+
+.marketplace-issue--error {
+  color: #e0715a;
+}
+
+.marketplace-issue--warning {
+  color: #e0b84a;
+}
+
+.readiness-card-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.readiness-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.asset-seo-editor {
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.asset-seo-editor h5 {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.asset-seo-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.asset-seo-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.asset-seo-fields textarea,
+.asset-seo-fields input {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
+}
+
+.asset-seo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

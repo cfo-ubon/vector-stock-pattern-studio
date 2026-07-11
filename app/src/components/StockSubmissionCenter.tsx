@@ -2,8 +2,12 @@ import { useMemo } from 'react';
 import type { TileData } from '../engine/types';
 import type { SavedItem } from './SavedPanel';
 import { MetadataPanel } from './MetadataPanel';
+import { MarketplaceProfileSelector } from './MarketplaceProfileSelector';
 import { scoreColor } from './scoreColor';
 import { CONTRIBUTOR_LINKS } from '../metadata/contributorLinks';
+import { generateMarketplaceSeo, type MarketplaceSeo } from '../metadata/marketplaceSeo';
+import { validateMarketplaceSeo, isMarketplaceReady } from '../metadata/marketplaceValidation';
+import { MARKETPLACE_PROFILES, type MarketplaceId } from '../metadata/marketplaceProfiles';
 import {
   buildSubmissionChecklist,
   analyzeSeo,
@@ -20,6 +24,11 @@ interface Props {
    * "Collection Ready" reflects *this* pattern, not a stale flag left over
    * from a previous one. */
   collectionGeneratedForSeed: string | null;
+  /** Assembles + downloads one marketplace's Export Package zip (SVG +
+   * PNG preview + title/description/keywords/filename.txt + metadata.json)
+   * — lives in App.tsx since PNG rasterization is DOM-dependent, same
+   * pattern as every other raster/zip export in this app. */
+  onDownloadPackage: (marketplaceId: MarketplaceId, seo: MarketplaceSeo) => void;
 }
 
 const STATUS_ICON: Record<ChecklistStatus, string> = { ready: '✅', warning: '⚠️', missing: '❌' };
@@ -33,7 +42,7 @@ const READINESS_LABEL_TH: Record<'ready' | 'needsReview' | 'issues', string> = {
  * metadata/collection state (metadata/submissionCenter.ts), never a static
  * label. MetadataPanel itself is unchanged and rendered as-is at the
  * bottom — nothing about its own per-site field editing is duplicated. */
-export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForSeed }: Props) {
+export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForSeed, onDownloadPackage }: Props) {
   const checklist = useMemo(
     () => (tileData ? buildSubmissionChecklist(tileData, { collectionGeneratedForSeed, saved }) : null),
     [tileData, collectionGeneratedForSeed, saved],
@@ -44,6 +53,15 @@ export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForS
     () => (checklist && seo && readiness ? buildSubmissionRecommendations(checklist, seo, readiness) : []),
     [checklist, seo, readiness],
   );
+  // Per-marketplace SEO + validation, used by the readiness cards' new
+  // "Download Package"/Validation Status — computed once here (not inside
+  // the render loop) so every card reuses the same generated result.
+  const marketplaceSeoById = useMemo(() => {
+    if (!tileData) return null;
+    const map = new Map<MarketplaceId, MarketplaceSeo>();
+    for (const profile of Object.values(MARKETPLACE_PROFILES)) map.set(profile.id, generateMarketplaceSeo(tileData, profile.id));
+    return map;
+  }, [tileData]);
 
   return (
     <div className="submission-center">
@@ -120,33 +138,54 @@ export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForS
         </section>
       )}
 
-      {tileData && readiness && (
+      {tileData && readiness && marketplaceSeoById && (
         <section className="stock-readiness">
           <h3>🏬 Stock Readiness</h3>
           <div className="readiness-cards">
-            {readiness.map((card) => (
-              <div key={card.siteId} className={`readiness-card readiness-card--${card.status}`}>
-                <div className="readiness-card-header">
-                  <span>{READINESS_ICON[card.status]}</span>
-                  <strong>{card.label}</strong>
-                  <span className="readiness-status-label">{READINESS_LABEL_TH[card.status]}</span>
+            {readiness.map((card) => {
+              const marketplaceSeo = marketplaceSeoById.get(card.siteId)!;
+              const profile = MARKETPLACE_PROFILES[card.siteId];
+              const validationIssues = validateMarketplaceSeo(marketplaceSeo, profile);
+              const validationReady = isMarketplaceReady(validationIssues);
+              const contributor = CONTRIBUTOR_LINKS.find((l) => l.id === card.siteId);
+              return (
+                <div key={card.siteId} className={`readiness-card readiness-card--${card.status}`}>
+                  <div className="readiness-card-header">
+                    <span>{READINESS_ICON[card.status]}</span>
+                    <strong>{card.label}</strong>
+                    <span className="readiness-status-label">{READINESS_LABEL_TH[card.status]}</span>
+                  </div>
+                  <div className="readiness-card-statuses">
+                    <span>📊 SEO: {marketplaceSeo.title ? '✅ สร้างแล้ว' : '❌ ยังไม่มี'}</span>
+                    <span>{validationReady ? '✅ Validation ผ่าน' : `⚠️ Validation มี ${validationIssues.filter((i) => i.severity === 'error').length} ปัญหา`}</span>
+                  </div>
+                  {card.issues.length > 0 && (
+                    <ul className="readiness-issues">
+                      {card.issues.map((issue, i) => (
+                        <li key={i}>{issue}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {card.recommendations.length > 0 && (
+                    <ul className="readiness-recommendations">
+                      {card.recommendations.map((rec, i) => (
+                        <li key={i}>💡 {rec}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="readiness-card-actions">
+                    {contributor && (
+                      <a href={contributor.url} target="_blank" rel="noopener noreferrer" className="link-btn">
+                        🔗 Contributor Link
+                      </a>
+                    )}
+                    <button type="button" className="link-btn" onClick={() => onDownloadPackage(card.siteId, marketplaceSeo)}>
+                      📦 Download Package
+                    </button>
+                  </div>
                 </div>
-                {card.issues.length > 0 && (
-                  <ul className="readiness-issues">
-                    {card.issues.map((issue, i) => (
-                      <li key={i}>{issue}</li>
-                    ))}
-                  </ul>
-                )}
-                {card.recommendations.length > 0 && (
-                  <ul className="readiness-recommendations">
-                    {card.recommendations.map((rec, i) => (
-                      <li key={i}>💡 {rec}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -161,6 +200,8 @@ export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForS
           </ul>
         </section>
       )}
+
+      <MarketplaceProfileSelector tileData={tileData} onDownloadPackage={onDownloadPackage} />
 
       <MetadataPanel tileData={tileData} />
     </div>

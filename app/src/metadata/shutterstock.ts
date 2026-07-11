@@ -9,7 +9,7 @@ import { getPalette } from '../palettes/palettes';
 // most-important-first because stock search engines weight earlier
 // keywords more heavily.
 
-export type StockSiteId = 'shutterstock' | 'adobestock' | 'freepik' | 'creativefabrica' | 'creativemarket';
+export type StockSiteId = 'shutterstock' | 'adobestock' | 'freepik' | 'creativefabrica' | 'creativemarket' | 'etsy';
 
 export interface SiteField {
   /** Form-field label as shown in that site's upload UI. */
@@ -35,6 +35,13 @@ export const STOCK_SITES: Array<{ id: StockSiteId; label: string }> = [
   { id: 'freepik', label: 'Freepik' },
   { id: 'creativefabrica', label: 'Creative Fabrica' },
   { id: 'creativemarket', label: 'Creative Market' },
+  // "Future-ready" per the Marketplace Profile System spec: a real,
+  // fully-generating profile (not a stub), just flagged `future: true` in
+  // marketplaceProfiles.ts since Etsy is a marketplace, not a print-on-
+  // demand stock site — sellers typically list finished products (fabric,
+  // wallpaper, digital paper) rather than raw vector files, so it's kept
+  // one step behind "verified, ready to submit today" until confirmed.
+  { id: 'etsy', label: 'Etsy' },
 ];
 
 // Shutterstock's fixed category list only — these strings must match the
@@ -245,6 +252,11 @@ function computeCore(tileData: TileData) {
 export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
   const core = computeCore(tileData);
   const kw = (n: number) => core.keywords.slice(0, n).join(', ');
+  // Etsy calls them "tags", not "keywords", and each tag has its own
+  // 20-character cap (unlike every other site here, which only caps the
+  // total *count*) — filter before taking the first N instead of just
+  // slicing, so a long keyword never silently produces an over-limit tag.
+  const etsyTags = core.keywords.filter((k) => k.length <= 20).slice(0, 13).join(', ');
 
   return [
     {
@@ -295,6 +307,17 @@ export function buildSiteMetadata(tileData: TileData): SiteMetadata[] {
         { label: 'Product Name', value: `${core.titleShort} — Seamless Digital Pattern`, meta: 'ชื่อสินค้า' },
         { label: 'Description', value: core.marketingDescription, meta: `${core.marketingDescription.length} ตัวอักษร (ไม่จำกัด)` },
         { label: 'Tags', value: kw(20), meta: '20 คำแรก (คำสำคัญสุด)' },
+      ],
+    },
+    {
+      id: 'etsy',
+      label: 'Etsy',
+      note:
+        'Future-ready: Etsy ขายเป็น "สินค้าสำเร็จรูป" (ผ้าพิมพ์ลาย, digital paper, wallpaper) ไม่ใช่ไฟล์ vector ดิบ — แนบ SVG/PNG preview เป็นภาพสินค้าและ mockup ประกอบเอง ยังไม่ยืนยัน URL หน้าลงขายที่แม่นยำ (ดู Contributor Portal)',
+      fields: [
+        { label: 'Title', value: truncateWords(core.titleLong, 140), meta: `${truncateWords(core.titleLong, 140).length}/140 ตัวอักษร` },
+        { label: 'Description', value: core.marketingDescription, meta: `${core.marketingDescription.length} ตัวอักษร (ไม่จำกัดจริงจัง)` },
+        { label: 'Tags', value: etsyTags, meta: `${etsyTags.split(', ').filter(Boolean).length}/13 tags (แต่ละ tag ไม่เกิน 20 ตัวอักษร)` },
       ],
     },
   ];

@@ -3,6 +3,7 @@ import { buildSiteMetadata, STOCK_SITES, type StockSiteId, type SiteMetadata } f
 import { buildExportFilename, buildFilenameParts } from '../export/svgExporter';
 import { applyHardRejectRules } from '../engine/candidateEngine';
 import { hashParams } from '../engine/designModel';
+import { MARKETPLACE_PROFILES } from './marketplaceProfiles';
 import type { SavedItem } from '../components/SavedPanel';
 
 // Stock Submission Center — extends the existing per-site SEO metadata
@@ -23,20 +24,22 @@ export interface ChecklistItem {
   detail: string;
 }
 
-/** Per-site field-length/keyword-count ceilings. shutterstock/adobestock/
- * freepik values are the site's own documented upload-form limits (already
- * implicitly encoded as the `meta` strings in shutterstock.ts — restated
- * here as structured numbers instead of display text). creativefabrica/
- * creativemarket have no publicly documented hard cap on their "Product
- * Name" field, so those two use a generous, clearly-labeled *practical*
- * ceiling for readability rather than a claimed platform limit. */
-const SITE_LIMITS: Record<StockSiteId, { titleMax: number; titleIsPracticalCeiling?: boolean; keywordsMax: number }> = {
-  shutterstock: { titleMax: 200, keywordsMax: 50 },
-  adobestock: { titleMax: 70, keywordsMax: 49 },
-  freepik: { titleMax: 100, keywordsMax: 50 },
-  creativefabrica: { titleMax: 150, titleIsPracticalCeiling: true, keywordsMax: 20 },
-  creativemarket: { titleMax: 150, titleIsPracticalCeiling: true, keywordsMax: 20 },
-};
+/** Per-site field-length/keyword-count ceilings — derived from
+ * metadata/marketplaceProfiles.ts (the Marketplace Profile System's single
+ * source of validation rules) instead of a second, independently
+ * maintained table. shutterstock/adobestock/freepik values are the site's
+ * own documented upload-form limits; creativefabrica/creativemarket/etsy
+ * have no publicly documented hard cap on their "Product Name"/"Title"
+ * field (etsy's *title* is a real 140-char platform limit, but its
+ * description is not), so those use a generous, clearly-labeled
+ * *practical* ceiling for readability rather than a claimed platform
+ * limit — see each profile's `titleRules`/`descriptionRules`. */
+const SITE_LIMITS: Record<StockSiteId, { titleMax: number; titleIsPracticalCeiling?: boolean; keywordsMax: number }> = Object.fromEntries(
+  Object.values(MARKETPLACE_PROFILES).map((p) => [
+    p.id,
+    { titleMax: p.titleRules.maxLength, titleIsPracticalCeiling: p.id === 'creativefabrica' || p.id === 'creativemarket', keywordsMax: p.keywordRules.maxCount },
+  ]),
+) as Record<StockSiteId, { titleMax: number; titleIsPracticalCeiling?: boolean; keywordsMax: number }>;
 
 const RECOMMENDED_FILENAME_MAX = 100;
 
