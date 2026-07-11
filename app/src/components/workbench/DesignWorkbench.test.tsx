@@ -21,6 +21,8 @@ function renderWorkbench(props: Partial<React.ComponentProps<typeof DesignWorkbe
       onClose={noop}
       activeProject={null}
       onSaveProject={noop}
+      allProjects={[]}
+      onSwitchProject={noop}
       {...props}
     />,
   );
@@ -50,7 +52,7 @@ describe('DesignWorkbench: review, edit, validate (integration)', () => {
     const { container } = renderWorkbench();
     fireEvent.click(screen.getByRole('button', { name: '🧠 Generate Design Specification' }));
 
-    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Properties' }));
+    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Inspector' }));
     // "Composition" is only a Property Inspector field (no Trend Studio Form field shares
     // its label), but scope to the right sidebar anyway for consistency/robustness.
     const rightSidebar = within(container.querySelector('.workbench-sidebar-right') as HTMLElement);
@@ -96,7 +98,7 @@ describe('DesignWorkbench: undo/redo', () => {
     renderWorkbench();
     fireEvent.click(screen.getByRole('button', { name: '🧠 Generate Design Specification' }));
 
-    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Properties' }));
+    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Inspector' }));
     const densitySlider = screen.getByRole('slider');
     const originalDensity = (densitySlider as HTMLInputElement).value;
     fireEvent.change(densitySlider, { target: { value: '0.9' } });
@@ -105,7 +107,7 @@ describe('DesignWorkbench: undo/redo', () => {
     fireEvent.click(screen.getByRole('tab', { name: '🕘 History' }));
     fireEvent.click(screen.getByRole('button', { name: '↶ Undo' }));
 
-    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Properties' }));
+    fireEvent.click(screen.getByRole('tab', { name: '⚙️ Inspector' }));
     expect((screen.getByRole('slider') as HTMLInputElement).value).toBe(originalDensity);
   });
 });
@@ -137,7 +139,8 @@ describe('DesignWorkbench: theme toggle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
     const after = root.getAttribute('data-theme');
     expect(after).not.toBe(before);
-    expect(localStorage.getItem('vsp-workbench-theme')).toBe(after);
+    const stored = JSON.parse(localStorage.getItem('vsp-workbench-settings')!);
+    expect(stored.theme).toBe(after);
   });
 });
 

@@ -4,6 +4,7 @@ import { buildDesignSpecification } from '../../trend/designIntelligence';
 import type { KeywordBundle } from '../../trend/designSpecTypes';
 import { PropertyInspector } from './PropertyInspector';
 import { getPalette } from '../../services/colorRoleService';
+import { HIERARCHY_PRESETS } from '../../engine/hierarchy';
 
 function makeBundle(overrides: Partial<KeywordBundle> = {}): KeywordBundle {
   return {
@@ -95,5 +96,58 @@ describe('PropertyInspector', () => {
 
     fireEvent.change(screen.getByLabelText('Overall score'), { target: { value: '150' } });
     expect(onUpdateSpec.mock.calls[0][0].qualityTargets.minOverallScore).toBe(100);
+  });
+});
+
+describe('PropertyInspector: Hierarchy (Phase 6, Section 3)', () => {
+  it('picking a Hierarchy preset updates spec.hierarchy to that preset\'s real value', () => {
+    const spec = makeSpec();
+    const onUpdateSpec = vi.fn();
+    render(<PropertyInspector spec={spec} onUpdateSpec={onUpdateSpec} />);
+
+    fireEvent.change(screen.getByLabelText('Hierarchy'), { target: { value: 'denseLayered' } });
+    expect(onUpdateSpec.mock.calls[0][0].hierarchy).toEqual(HIERARCHY_PRESETS.denseLayered.value);
+  });
+
+  it('shows a "— custom —" option when the current hierarchy matches no preset', () => {
+    const spec = { ...makeSpec(), hierarchy: { heroRatio: 0.11, secondaryRatio: 0.11, fillerRatio: 0.11, accentRatio: 0.11, heroScale: 1, secondaryScale: 1, fillerScale: 1, accentScale: 1 } };
+    render(<PropertyInspector spec={spec} onUpdateSpec={vi.fn()} />);
+    const select = screen.getByLabelText('Hierarchy') as HTMLSelectElement;
+    expect(select.value).toBe('');
+    expect(within(select).getByText('— custom —')).toBeInTheDocument();
+  });
+});
+
+describe('PropertyInspector: Flow and Rhythm (Phase 6, Section 3)', () => {
+  it('changing Flow updates spec.flow', () => {
+    const spec = makeSpec();
+    const onUpdateSpec = vi.fn();
+    render(<PropertyInspector spec={spec} onUpdateSpec={onUpdateSpec} />);
+
+    fireEvent.change(screen.getByLabelText('Flow'), { target: { value: 'dynamic' } });
+    expect(onUpdateSpec.mock.calls[0][0].flow).toBe('dynamic');
+  });
+
+  it('changing Rhythm updates spec.rhythm', () => {
+    const spec = makeSpec();
+    const onUpdateSpec = vi.fn();
+    render(<PropertyInspector spec={spec} onUpdateSpec={onUpdateSpec} />);
+
+    fireEvent.change(screen.getByLabelText('Rhythm'), { target: { value: 'syncopated' } });
+    expect(onUpdateSpec.mock.calls[0][0].rhythm).toBe('syncopated');
+  });
+});
+
+describe('PropertyInspector: Cluster Archetypes info (Phase 6, Section 3)', () => {
+  it('shows the real, read-only cluster archetype pool for a cluster-aware layout (scatter)', () => {
+    const spec = { ...makeSpec(), repeatType: 'scatter' as const };
+    render(<PropertyInspector spec={spec} onUpdateSpec={vi.fn()} />);
+    expect(screen.getByText(/organicScatter, bouquet, asymmetric/)).toBeInTheDocument();
+  });
+
+  it('shows nothing for a layout with no Cluster Composition Engine archetypes (grid)', () => {
+    const spec = { ...makeSpec(), repeatType: 'grid' as const };
+    render(<PropertyInspector spec={spec} onUpdateSpec={vi.fn()} />);
+    expect(screen.queryByText(/Cluster archetypes in play/)).not.toBeInTheDocument();
   });
 });

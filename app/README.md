@@ -1746,14 +1746,63 @@ algorithms, JSON schemas, and test coverage in
   Contributor Portal link), no SVG Engine changes, no new marketplaces
   beyond the existing 6.
 
+## Design Workbench — Phase 6 (dockable multi-panel workspace, `components/workbench/*`, `workbench/workspaceSettings.ts`, `workbench/globalSearch.ts`)
+
+Restructures the Phase 3 Design Workbench shell into a dockable
+multi-panel workspace and integrates every engine built in the
+intervening phases (Trend Library, Marketplace Intelligence, Collection
+Engine, Prompt Factory, Cluster Composition/Overlap Engine) into one
+place. Full architecture and scope decisions in
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md)'s Phase 6 addendum;
+summary:
+
+- **Resizable, hideable panels** — real pointer-drag sidebar resize
+  (`ResizeHandle.tsx`) and per-panel hide/restore
+  (`PanelVisibilityBar.tsx`) across 11 dockable panels, backed by one
+  serializable `WorkspaceSettings` object, persisted and
+  exportable/importable as JSON.
+- **Project Explorer** (`ProjectExplorer.tsx`, new) — browses Projects →
+  Collections/Assets, Trend Packs, and Marketplace Profiles in one tree,
+  with real HTML5 drag-and-drop to apply a Trend Pack to the current
+  spec.
+- **Marketplace Panel** (`MarketplacePanel.tsx`, new) — the first UI
+  consumer of Phase 5's Readiness Score and SEO Hint engines, both
+  previously unused by any component: Readiness Score, Validation, SEO
+  Hints, Filename Hints, Submission Checklist, Contributor Links.
+- **Quality Panel** (`QualityPanel.tsx`, new) — all 6 named quality
+  dimensions including a new `overlap` field (a real 1:1 read of the
+  Overlap Engine's `overlapQuality`) plus a new rule-based
+  `buildQualityRecommendations` engine turning weak dimensions into
+  actionable advice.
+- **Prompt Panel** (`PromptPanel.tsx`, new) — the existing Prompt Factory
+  promoted out of Live Preview into its own dockable panel; no new prompt
+  logic.
+- **Design Inspector** gains Hierarchy/Flow/Rhythm controls and a
+  read-only Cluster Archetype info line (no fabricated editable control
+  for data the engine doesn't expose as a spec field).
+- **Live Preview** gains a Pattern Repeat tab (real 3×3 tiled SVG
+  seamlessness check).
+- **Global Search** (`globalSearch.ts` + `GlobalSearchBar.tsx`, new) —
+  searches Projects, Collections, Motifs, Trend Packs, and Marketplace
+  Profiles from their existing registries/state.
+- **Import/Export** gains Workspace Settings export/import, Collection
+  Specification export, and Marketplace Profile export/validate-import.
+- **Performance**: the four Phase-6-only panels are `React.lazy`-loaded;
+  Project Explorer paginates its Projects/Trend Packs lists.
+- **Deliberately not built this phase**: no floating/rearrangeable
+  docking system (scoped to resizable + hide/restore instead), no
+  editable Cluster Settings control, no live registration of an imported
+  Marketplace Profile (validate-and-inspect only — the profile registry
+  is a static build-time array).
+
 ## Testing
 
-`npm test` runs `vitest run` — 1047 tests (jsdom environment, component
-tests use React Testing Library) across 75 files. The list below predates
-the Design Intelligence Core, Design Workbench, SVG Intelligence Engine
-Phase 3, Commercial Collection Engine Phase 4 (+ 4b), Project Phoenix V2,
-and Marketplace Intelligence Engine Phase 5 milestones and covers the
-original engine/metadata/trend suites in detail; see
+`npm test` runs `vitest run` — 1132 tests (jsdom environment, component
+tests use React Testing Library) across 86 files. The list below predates
+the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
+Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
+Project Phoenix V2, and Marketplace Intelligence Engine Phase 5 milestones
+and covers the original engine/metadata/trend suites in detail; see
 [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
@@ -2579,6 +2628,13 @@ src/
       HistoryPanel.tsx
       FavoritesPanel.tsx
       ImportExportBar.tsx
+      ResizeHandle.tsx       Phase 6: real pointer-drag sidebar resize
+      PanelVisibilityBar.tsx Phase 6: panel hide/restore chips
+      GlobalSearchBar.tsx    Phase 6: Section 9 Global Search UI
+      ProjectExplorer.tsx    Phase 6: Section 2 Project Explorer panel
+      MarketplacePanel.tsx   Phase 6: Section 5 Marketplace Panel
+      PromptPanel.tsx        Phase 6: Section 6 Prompt Panel
+      QualityPanel.tsx       Phase 6: Section 7 Quality Panel
       workbench.css
 ```
 

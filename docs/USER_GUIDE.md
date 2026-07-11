@@ -720,20 +720,37 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 ## 🧭 Design Workbench — ศูนย์กลางสร้าง/แก้/ตรวจ/บันทึก Design Specification 🆕
 
 เปิดจากปุ่ม **"🧭 Design Workbench"** ข้าง Project Dashboard ด้านบนของแอป
-(เดิมชื่อ "Trend Intelligence Studio" — อัปเกรดเป็นเวิร์กสเปซมืออาชีพเต็มรูปแบบ
-ในเวอร์ชันนี้) ออกแบบให้เริ่มจาก "ตลาดต้องการอะไร" แล้วให้แก้/ตรวจสอบ/ดู
+ออกแบบให้เริ่มจาก "ตลาดต้องการอะไร" แล้วให้แก้/ตรวจสอบ/ดู
 ตัวอย่าง/บันทึก/ส่งออก **Design Specification JSON** ได้ทั้งหมดโดย
 **ไม่ต้องแก้ JSON ด้วยมือเลยก็ได้** (แม้จะยังแก้ JSON ตรงๆ ได้ถ้าต้องการ) —
 ทุกอย่างในหน้านี้อ่าน/เขียนต้นแบบ JSON ก้อนเดียวกัน (Title, ลายจริง, ชื่อไฟล์,
-prompt ล้วนมาจากก้อนเดียวกัน) แบ่งเป็น 3 คอลัมน์:
+prompt ล้วนมาจากก้อนเดียวกัน)
+
+เวอร์ชันนี้ (Phase 6) อัปเกรดเป็นเวิร์กสเปซแบบหลายแผงที่**ปรับขนาดและ
+ซ่อน/แสดงได้เอง**: มีแถบค้นหา 🔎 ด้านบน (ค้นทั้ง Project, Collection, Motif,
+Trend Pack, Marketplace Profile ในช่องเดียว) และแถบชิปสำหรับซ่อน/เรียกคืน
+แผงทั้ง 11 แผงกลับมา — ลากขอบซ้าย/ขวาของแผงด้วยเมาส์ (หรือกดปุ่มลูกศรตอน
+โฟกัสที่ขอบ) เพื่อปรับความกว้างได้ตามใจ ระบบจำค่าที่ปรับไว้ให้อัตโนมัติ
+(export/import เป็นไฟล์ Workspace Settings ได้ในแท็บ Import/Export)
 
 **คอลัมน์ซ้าย** — 🧠 Trend Studio (ฟอร์มกรอกข้อมูลตลาด) +
-แท็บ ⭐ Favorites / 📂 Import-Export / 💾 Project
+แท็บ 🗂 Explorer 🆕 / ⭐ Favorites / 📂 Import-Export / 💾 Project
 **คอลัมน์กลาง** — Design Specification Panel (พื้นที่หลัก)
-**คอลัมน์ขวา** — แท็บ ⚙️ Properties / ✅ Validation / 🖼 Live Preview / 🕘 History
+**คอลัมน์ขวา** — แท็บ ⚙️ Inspector / 🏬 Marketplace 🆕 / 🤖 Prompt 🆕 /
+🎯 Quality 🆕 / ✅ Validation / 🖼 Live Preview / 🕘 History
 
 รองรับ **โหมดสว่าง/มืด** (ปุ่ม ☀️/🌙 มุมขวาบน จำค่าไว้ให้อัตโนมัติ) และย่อเป็น
-คอลัมน์เดียวอัตโนมัติเมื่อหน้าจอแคบ (มือถือ/แท็บเล็ต)
+คอลัมน์เดียวอัตโนมัติเมื่อหน้าจอแคบ (มือถือ/แท็บเล็ต — บนจอแคบขอบลาก
+ปรับขนาดจะซ่อนไปเอง)
+
+### 🗂 Project Explorer — เรียกดูทุกอย่างในที่เดียว 🆕
+
+แท็บ "🗂 Explorer" ในคอลัมน์ซ้าย: รายการ **Projects** (คลิกเพื่อสลับโปรเจกต์ที่
+เปิดอยู่), เลือกโปรเจกต์แล้วดู **Collections + Assets** ที่สร้างไว้แล้วในนั้น,
+รายการ **Trend Packs** ทั้งหมด (มี ★ บอกว่าอันไหนปักดาวไว้ — **ลากชิป Trend
+Pack ไปวางที่กล่อง "🎯 Drag a Trend Pack here" ด้านบนเพื่อผูกเข้ากับ Design
+Spec ที่เปิดอยู่ทันที** ไม่ต้องเปิด Import/Export), และรายการ **Marketplace
+Profiles** ทั้ง 6 เว็บ
 
 ### 🧠 Trend Studio — กรอกข้อมูลตลาด
 
@@ -755,15 +772,20 @@ Direction, Difficulty, Collection Size** แล้วเลือก **Trend Pac
 - **🔍 Inspector View** — สรุปอ่านง่ายแบ่งหมวด (Project, Trend &
   Marketplace, Style, Composition, Motifs, Quality Targets)
 
-### ⚙️ Property Inspector — แก้ค่าได้โดยไม่แตะ JSON
+### ⚙️ Design Inspector — แก้ค่าได้โดยไม่แตะ JSON
 
-แท็บ "⚙️ Properties" ในคอลัมน์ขวา แก้ได้ทุกช่อง: **Palette** (เปลี่ยนแล้ว
+แท็บ "⚙️ Inspector" ในคอลัมน์ขวา แก้ได้ทุกช่อง: **Palette** (เปลี่ยนแล้ว
 Color Roles/พื้นหลังปรับตามอัตโนมัติ), **Style DNA, Pattern (repeat type),
-Composition, Density** (แถบเลื่อน), **Hero Motifs / Secondary Motifs /
-Fillers** (เพิ่ม/ลบหมวดลายเป็นชิป — ระบบกรองให้เห็นเฉพาะหมวดที่อนุญาต
-บทบาทนั้นจริง), **Quality Targets** (4 ค่า 0-100), **Marketplace** (เปลี่ยนแล้ว
-นามสกุลไฟล์ส่งออกปรับตามอัตโนมัติ) — ทุกการแก้ไขอัปเดต JSON ทันทีและ
-เข้า History ให้ Undo ได้เสมอ
+Composition, Hierarchy 🆕** (เลือกพรีเซ็ตองค์ประกอบสำเร็จรูป เช่น Hero
+Focus/Dense Layered/Airy Premium — ถ้าค่าปัจจุบันไม่ตรงกับพรีเซ็ตไหนเลยจะ
+ขึ้น "— custom —"), **Flow 🆕** (calm/directional/dynamic), **Rhythm 🆕**
+(regular/organic/syncopated), **Density** (แถบเลื่อน — บาง Pattern จะมี
+บรรทัดข้อมูล **"Cluster archetypes in play"** ให้ดูเฉยๆ ว่าลายกลุ่มแบบไหนถูก
+สุ่มใช้อยู่เบื้องหลัง ยังไม่ใช่ช่องแก้ได้เพราะเอนจินยังไม่มีช่องเก็บค่านี้จริง),
+**Hero Motifs / Secondary Motifs / Fillers** (เพิ่ม/ลบหมวดลายเป็นชิป —
+ระบบกรองให้เห็นเฉพาะหมวดที่อนุญาตบทบาทนั้นจริง), **Quality Targets**
+(4 ค่า 0-100), **Marketplace** (เปลี่ยนแล้วนามสกุลไฟล์ส่งออกปรับตาม
+อัตโนมัติ) — ทุกการแก้ไขอัปเดต JSON ทันทีและเข้า History ให้ Undo ได้เสมอ
 
 ### ✅ Validation Panel — ตรวจสอบครบวงจร
 
@@ -779,12 +801,14 @@ Composition ที่เลือกไหม), **Marketplace Compatibility** (�
 
 แท็บ "🖼 Live Preview": **Trend Summary, Palette, Composition** (ลายจริงที่
 render จาก Design Spec นี้เลย ไม่ใช่ภาพตัวอย่าง — มีปุ่มสุ่ม seed ใหม่, ปุ่ม
-**"🎯 Run Quality Loop"** ให้ระบบลองหลายรอบแล้วเลือกคะแนนสูงสุด, ปุ่ม
-**"✍️ Use in Editor"** เอาไปแก้ต่อในหน้าสร้างลายหลัก), **Motifs** (หมวดลาย
+**"🎯 Run Quality Loop"** ให้ระบบลองหลายรอบแล้วเลือกคะแนนสูงสุด (คะแนน
+เต็มดูละเอียดกว่านี้ได้ที่แท็บ 🎯 Quality), ปุ่ม **"✍️ Use in Editor"** เอาไปแก้ต่อ
+ในหน้าสร้างลายหลัก), **Pattern Repeat 🆕** (ลายเดียวกัน tile ซ้ำ 3×3 จริง —
+ใช้เช็คว่าขอบต่อกันสนิทไหมก่อนส่งขาย), **Motifs** (หมวดลาย
 hero/secondary/filler ที่ใช้จริง), **SEO** (Title/Keywords ต่อ Marketplace),
-**Filename** (พร้อมปุ่ม **"📦 Download Marketplace Package"**), **Prompt**
-(7 แพลตฟอร์ม AI พร้อมคัดลอก), **Collection** (รายการชิ้นที่จะได้ถ้ากด
-Generate Collection พร้อมปุ่มกดสร้างจริง)
+**Filename** (พร้อมปุ่ม **"📦 Download Marketplace Package"**), **Collection**
+(รายการชิ้นที่จะได้ถ้ากด Generate Collection พร้อมปุ่มกดสร้างจริง) —
+แท็บ Prompt ย้ายไปเป็นแผงแยกต่างหาก (🤖 Prompt ในคอลัมน์ขวา) แล้ว
 
 ### 🕘 History — Undo/Redo/Snapshot/Compare/Restore
 
@@ -792,6 +816,32 @@ Generate Collection พร้อมปุ่มกดสร้างจริง
 บันทึกจุดสำคัญไว้กี่จุดก็ได้ ไม่ถูกลบตอน Undo/Redo), **Restore** (ดึง Snapshot
 กลับมาใช้ — เป็นการแก้แบบหนึ่งจึงกด Undo ย้อนออกจาก Restore ได้เหมือนกัน),
 และ **Compare versions** (เลือก Snapshot 2 จุดมาเทียบ เห็นทุกช่องที่ต่างกัน)
+
+### 🏬 Marketplace Panel — ความพร้อมส่งขายแบบละเอียด 🆕
+
+แท็บ "🏬 Marketplace" ในคอลัมน์ขวา: เลือกเว็บเป้าหมายแล้วดู
+**Readiness Score** (คะแนนรวม + 5 มิติย่อย: SEO/Filename/Metadata/
+Compatibility/Commercial), **Validation** (รายการปัญหาที่ต้องแก้ก่อนส่งขาย),
+**SEO Hints** (ช่วงความยาว Title/Keywords ที่เว็บนี้ต้องการ + คำแนะนำหมวด/
+ชื่อคอลเลกชัน + คำคีย์เวิร์ดที่เป็นไปได้), **Filename Hints**, **Submission
+Checklist**, และ **Contributor Links** (ลิงก์ไปหน้า Portal/Submission/
+Analytics/Help/Guidelines/Support ของเว็บนั้น)
+
+### 🤖 Prompt Panel — สร้าง Prompt จาก Design Spec 🆕
+
+แท็บ "🤖 Prompt" ในคอลัมน์ขวา (ย้ายมาจากแท็บ Prompt เดิมใน Live Preview):
+เลือกแพลตฟอร์ม AI ได้ 7 แบบ (Claude, ChatGPT, Gemini, Adobe Firefly,
+Midjourney, Stable Diffusion, FLUX) ระบบสร้าง prompt จาก Design Spec ที่
+เปิดอยู่ให้ทันที พร้อมปุ่มคัดลอก
+
+### 🎯 Quality Panel — คะแนนคุณภาพครบ 6 มิติ + คำแนะนำ 🆕
+
+แท็บ "🎯 Quality" ในคอลัมน์ขวา: กด **"🎯 Run Quality Loop"** เพื่อดูคะแนน
+**Composition, Hierarchy, Overlap 🆕, Negative Space, Rhythm, Commercial
+Readiness** (Overlap เป็นคะแนนใหม่ วัดว่าลายซ้อนทับกันจนดูเป็นก้อนเดียว
+หรือแยกกันเป็นสติกเกอร์) และมิติอื่นๆ ที่พับซ่อนไว้ (Flow/Balance/Repeat
+Quality/SVG Health/Motif Diversity) ถ้ามีมิติไหนคะแนนต่ำกว่า 60 ระบบจะขึ้น
+**คำแนะนำที่ทำตามได้จริง** ในหัวข้อ "Recommendations" ให้ทันที
 
 ### ⭐ Favorites
 
@@ -802,10 +852,15 @@ collection" เพื่อบันทึกชุดปัจจุบัน �
 
 ### 📂 Import / Export
 
-แท็บ "📂 Import/Export": **นำเข้า/ส่งออก Design Specification JSON** และ
-**นำเข้า/ส่งออก Trend Pack JSON** เป็นไฟล์ได้ตรงๆ (นำเข้า Trend Pack แล้ว
-ระบบจะผูกธีม/อารมณ์/Style DNA/Composition/Color Roles ของแพ็กนั้นเข้ากับ
-Design Spec ที่เปิดอยู่ทันที)
+แท็บ "📂 Import/Export": **นำเข้า/ส่งออก Design Specification JSON**,
+**นำเข้า/ส่งออก Trend Pack JSON**, **ส่งออก Collection Specification
+JSON 🆕** (สร้างคอลเลกชันจริงจาก spec/seed ปัจจุบันแล้วส่งออกเป็นไฟล์),
+**นำเข้า/ส่งออก Marketplace Profile 🆕** (นำเข้าไฟล์เพื่อ**ตรวจสอบ**ว่าตรง
+schema ไหมเท่านั้น ยังไม่สามารถใช้แทนที่ 6 เว็บที่ระบบมีอยู่แล้วได้จริงใน
+เซสชันนี้), และ **นำเข้า/ส่งออก Workspace Settings 🆕** (ธีม/ความกว้างแผง/
+แผงที่ซ่อนไว้ — เอาไปใช้เครื่องอื่นหรือแชร์การจัดวางให้เพื่อนร่วมทีมได้)
+(นำเข้า Trend Pack แล้วระบบจะผูกธีม/อารมณ์/Style DNA/Composition/
+Color Roles ของแพ็กนั้นเข้ากับ Design Spec ที่เปิดอยู่ทันที)
 
 ### 💾 บันทึกเข้าโปรเจกต์ + ประวัติเวอร์ชัน
 
@@ -877,6 +932,37 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.43 — 11 ก.ค. 2026 — Design Workbench Phase 6 (เวิร์กสเปซหลายแผงปรับแต่งได้)
+- 🧭 **Design Workbench กลายเป็นศูนย์กลางจริง**: รวมทุกเอนจินที่มีอยู่แล้ว
+  (Trend Library, Marketplace Intelligence, Collection Engine, Prompt
+  Factory, Overlap Engine) เข้ามาไว้ในหน้าเดียว ไม่ต้องสลับหน้าไปมาอีกต่อไป
+- 🧩 **แผงปรับขนาด + ซ่อน/แสดงได้จริง**: ลากขอบแผงซ้าย/ขวาด้วยเมาส์หรือ
+  คีย์บอร์ดเพื่อปรับความกว้าง และมีแถบชิปซ่อน/เรียกคืนแผงทั้ง 11 แผง — ระบบ
+  จำค่าที่ปรับไว้อัตโนมัติ ส่งออก/นำเข้าเป็นไฟล์ Workspace Settings ได้ด้วย
+- 🗂 **Project Explorer ใหม่**: ดู Projects/Collections/Assets/Trend Packs/
+  Marketplace Profiles ในที่เดียว ลากชิป Trend Pack ไปวางเพื่อผูกเข้ากับ
+  Design Spec ที่เปิดอยู่ได้ทันที (ลาก-วางจริงครั้งแรกในแอปนี้)
+- 🏬 **Marketplace Panel ใหม่**: Readiness Score, Validation, SEO Hints,
+  Filename Hints, Submission Checklist, Contributor Links — ทั้งหมดต่อ
+  Design Spec ที่เปิดอยู่ ไม่ต้องสร้างคอลเลกชันก่อนถึงจะเห็น
+- 🎯 **Quality Panel ใหม่ + คะแนน Overlap ใหม่**: คะแนนคุณภาพครบ 6 มิติที่
+  ตั้งชื่อไว้ (เพิ่ม Overlap — วัดว่าลายซ้อนทับกันเป็นก้อนเดียวหรือแยกเป็น
+  สติกเกอร์) พร้อม**คำแนะนำที่ทำตามได้จริง**เมื่อมิติไหนคะแนนต่ำกว่า 60
+- 🤖 **Prompt Panel แยกเป็นแผงของตัวเอง**: ย้ายออกจาก Live Preview เพื่อให้
+  เปิดดูได้โดยไม่ต้องสลับแท็บ Composition ไปมา
+- ⚙️ **Design Inspector เพิ่ม Hierarchy/Flow/Rhythm**: เลือกพรีเซ็ต
+  Hierarchy สำเร็จรูปได้ (Hero Focus/Dense Layered/ฯลฯ) และดูข้อมูล Cluster
+  Archetype ที่ใช้อยู่เบื้องหลัง (ยังเป็นแค่ข้อมูลอ่านอย่างเดียว)
+- 🔁 **Live Preview เพิ่มแท็บ Pattern Repeat**: ดูลายเดียวกัน tile ซ้ำ 3×3
+  จริง เพื่อเช็คว่าขอบต่อกันสนิทก่อนส่งขาย
+- 🔎 **Global Search ใหม่**: ค้นหา Projects, Collections, Motifs, Trend
+  Packs, Marketplace Profiles จากช่องเดียวบนสุดของหน้า
+- 📂 **Import/Export เพิ่ม 3 อย่าง**: ส่งออก Collection Specification JSON,
+  นำเข้า/ส่งออก Marketplace Profile (นำเข้าเป็นการตรวจสอบเท่านั้น ยังไม่ใช้
+  แทนที่ 6 เว็บที่มีอยู่ได้จริงในเซสชันนี้), นำเข้า/ส่งออก Workspace Settings
+- ⚡ **โหลดไวขึ้น**: 4 แผงใหม่ (Explorer/Marketplace/Prompt/Quality) โหลด
+  เฉพาะตอนเปิดแท็บนั้นจริงๆ (code splitting) ไม่รวมอยู่ในการโหลดหน้าแรก
 
 ### v1.42 — 11 ก.ค. 2026 — Marketplace Intelligence Engine Phase 5 (ยกระดับข้อมูลตลาดเบื้องหลัง)
 - 🗂 **โปรไฟล์ตลาดทุกเว็บย้ายไปเป็นไฟล์ JSON จริงที่แก้ไขได้** — ไม่มีข้อมูลกฎ

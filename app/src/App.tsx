@@ -909,6 +909,8 @@ function App() {
           activeProject={projects.find((p) => p.id === activeProjectId) ?? null}
           onSaveProject={(updated) => updateProject(updated.id, () => updated)}
           onClose={() => setView('editor')}
+          allProjects={projects}
+          onSwitchProject={handleSwitchProject}
         />
       ) : view === 'dashboard' ? (
         <ProjectDashboard

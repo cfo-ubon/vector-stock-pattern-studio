@@ -4,6 +4,7 @@ import {
   qualityPresetForDesignSpec,
   checkDesignSpecQuality,
   runDesignSpecQualityLoop,
+  buildQualityRecommendations,
   type DesignSpecQualityReport,
 } from './designSpecQuality';
 import { STYLE_DNA_PRESETS, computeStyleDnaConsistency } from '../engine/styleDna';
@@ -37,6 +38,7 @@ function fakeReport(overrides: Partial<DesignSpecQualityReport> = {}): DesignSpe
     repeatQuality: 100,
     svgHealth: 100,
     motifDiversity: 90,
+    overlap: 90,
     commercialReadiness: 90,
     ...overrides,
   };
@@ -194,5 +196,37 @@ describe('runDesignSpecQualityLoop: report is wired to real CompositionMetrics (
     expect(result.check.report.hierarchy).toBe(m.hierarchy);
     expect(result.check.report.svgHealth).toBe(m.svgHealth);
     expect(result.check.report.negativeSpace).toBe(m.largestEmptyRegion);
+  });
+
+  it('overlap (Design Workbench Phase 6) is an exact 1:1 read of overlapQuality', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-overlap', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.overlap).toBe(m.overlapQuality);
+  });
+});
+
+describe('buildQualityRecommendations (Design Workbench Phase 6, Section 7)', () => {
+  it('a healthy report produces zero recommendations', () => {
+    expect(buildQualityRecommendations(fakeReport())).toEqual([]);
+  });
+
+  it('a weak dimension produces exactly one real, actionable recommendation naming that dimension', () => {
+    const recs = buildQualityRecommendations(fakeReport({ overlap: 20 }));
+    expect(recs.length).toBe(1);
+    expect(recs[0]).toContain('Overlap');
+  });
+
+  it('multiple weak dimensions each produce their own recommendation', () => {
+    const recs = buildQualityRecommendations(fakeReport({ hierarchy: 10, negativeSpace: 15, commercialReadiness: 5 }));
+    expect(recs.length).toBe(3);
+    expect(recs.some((r) => r.includes('Hierarchy'))).toBe(true);
+    expect(recs.some((r) => r.includes('Negative Space'))).toBe(true);
+    expect(recs.some((r) => r.includes('Commercial Readiness'))).toBe(true);
+  });
+
+  it('is deterministic for the same report', () => {
+    const report = fakeReport({ flow: 30 });
+    expect(buildQualityRecommendations(report)).toEqual(buildQualityRecommendations(report));
   });
 });

@@ -6,19 +6,33 @@ import { listPatternGrammars } from '../../services/patternGrammarService';
 import { listMotifGrammars, isRoleAllowed } from '../../services/motifGrammarService';
 import { listMarketplaces, getMarketplace } from '../../services/marketplaceService';
 import { LAYOUT_LIST } from '../../layouts';
+import { HIERARCHY_PRESETS, type HierarchyParams } from '../../engine/hierarchy';
+import type { FlowProfile, RhythmProfile } from '../../engine/styleDna';
+import type { ClusterArchetype } from '../../engine/clusterEngine';
 import type { LayoutId } from '../../engine/types';
 import type { MarketplaceId } from '../../metadata/marketplaceProfiles';
 
 // Design Workbench Section 3 ("Property Inspector") — every field listed
 // in the brief (Palette, Style DNA, Pattern, Composition, Density, Hero/
-// Secondary/Filler Motifs, Quality Targets, Marketplace) as a structured
-// edit control. Every option list comes from the Design Intelligence
-// Core's services (`services/*Service.ts`, built for exactly this purpose)
-// or the existing engine's own layout registry — this component computes
-// nothing about design correctness itself; it only builds a patched
-// `DesignSpecification` and hands it to `onUpdateSpec`. The Validation
-// Panel (Section 4), not this component, is what tells the designer
-// whether a combination is actually valid.
+// Secondary/Filler Motifs, Quality Targets, Marketplace, and — Phase 6 —
+// Hierarchy and Flow/Rhythm) as a structured edit control. Every option
+// list comes from the Design Intelligence Core's services
+// (`services/*Service.ts`, built for exactly this purpose) or the existing
+// engine's own registries — this component computes nothing about design
+// correctness itself; it only builds a patched `DesignSpecification` and
+// hands it to `onUpdateSpec`. The Validation Panel (Section 4), not this
+// component, is what tells the designer whether a combination is actually
+// valid.
+//
+// Honest scope note on "Cluster Settings" (Section 3 also names this):
+// no `DesignSpecification`/`GenerateParams` field controls which Cluster
+// Composition Engine archetype a layout draws from — `engine/clusterEngine.ts`'s
+// `pickArchetypePool` chooses deterministically from the RNG inside
+// `scatter`/`toss`/`bouquet`'s own layout code, not from a spec field, so
+// there is nothing to edit here yet. `LAYOUT_CLUSTER_ARCHETYPES` below
+// surfaces the real, read-only candidate pool for the selected Pattern so
+// a designer can at least see which archetypes are in play — genuine data,
+// not an editable control pretending to exist.
 
 interface Props {
   spec: DesignSpecification;
@@ -30,6 +44,24 @@ const STYLE_DNA_OPTIONS = listStyleDna();
 const PATTERN_GRAMMAR_OPTIONS = listPatternGrammars();
 const MOTIF_GRAMMAR_OPTIONS = listMotifGrammars();
 const MARKETPLACE_OPTIONS = listMarketplaces();
+const HIERARCHY_PRESET_LIST = Object.entries(HIERARCHY_PRESETS).map(([id, preset]) => ({ id, ...preset }));
+const FLOW_OPTIONS: FlowProfile[] = ['calm', 'directional', 'dynamic'];
+const RHYTHM_OPTIONS: RhythmProfile[] = ['regular', 'organic', 'syncopated'];
+
+/** Real candidate pools each cluster-aware layout draws from — ported 1:1
+ * from each layout's own source (`layouts/scatter.ts`, `layouts/toss.ts`,
+ * `layouts/bouquet.ts`), not invented. Layouts absent here don't route
+ * through the Cluster Composition Engine at all. */
+const LAYOUT_CLUSTER_ARCHETYPES: Partial<Record<LayoutId, ClusterArchetype[]>> = {
+  scatter: ['organicScatter', 'bouquet', 'asymmetric'],
+  toss: ['diagonal', 'cascade', 'sCurve'],
+  bouquet: ['bouquet'],
+};
+
+function hierarchyPresetIdFor(hierarchy: HierarchyParams): string | null {
+  const match = HIERARCHY_PRESET_LIST.find((p) => JSON.stringify(p.value) === JSON.stringify(hierarchy));
+  return match?.id ?? null;
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -162,12 +194,54 @@ export function PropertyInspector({ spec, onUpdateSpec }: Props) {
           ))}
         </select>
       </Field>
+      {LAYOUT_CLUSTER_ARCHETYPES[spec.repeatType] && (
+        <p className="metadata-hint">
+          Cluster archetypes in play (informational — not yet a tunable field): <strong>{LAYOUT_CLUSTER_ARCHETYPES[spec.repeatType]!.join(', ')}</strong>
+        </p>
+      )}
 
       <Field label="Composition">
         <select value={spec.composition} onChange={(e) => update({ composition: e.target.value as DesignSpecification['composition'] })}>
           {PATTERN_GRAMMAR_OPTIONS.map((g) => (
             <option key={g.id} value={g.id}>
               {g.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Hierarchy">
+        <select
+          value={hierarchyPresetIdFor(spec.hierarchy) ?? ''}
+          onChange={(e) => {
+            const preset = HIERARCHY_PRESETS[e.target.value];
+            if (preset) update({ hierarchy: preset.value });
+          }}
+        >
+          {hierarchyPresetIdFor(spec.hierarchy) === null && <option value="">— custom —</option>}
+          {HIERARCHY_PRESET_LIST.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Flow">
+        <select value={spec.flow} onChange={(e) => update({ flow: e.target.value as FlowProfile })}>
+          {FLOW_OPTIONS.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="Rhythm">
+        <select value={spec.rhythm} onChange={(e) => update({ rhythm: e.target.value as RhythmProfile })}>
+          {RHYTHM_OPTIONS.map((r) => (
+            <option key={r} value={r}>
+              {r}
             </option>
           ))}
         </select>

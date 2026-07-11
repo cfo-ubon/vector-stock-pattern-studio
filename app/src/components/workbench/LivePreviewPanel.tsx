@@ -2,33 +2,38 @@ import { useMemo, useState } from 'react';
 import type { DesignSpecification } from '../../trend/designSpecTypes';
 import { buildGenerateParamsFromDesignSpec, buildTileFromDesignSpec } from '../../trend/designSpecToParams';
 import { buildDesignSpecSeo } from '../../trend/designSpecSeo';
-import { PROMPT_PLATFORM_LIST, buildPrompt, type PromptPlatformId } from '../../trend/promptTemplates';
 import { validateMarketplaceSeo, isMarketplaceReady } from '../../metadata/marketplaceValidation';
 import { MARKETPLACE_PROFILES, type MarketplaceId } from '../../metadata/marketplaceProfiles';
-import { buildSingleTileSvg } from '../../export/svgExporter';
+import { buildSingleTileSvg, buildTiledSvg } from '../../export/svgExporter';
 import { CopyButton } from '../MetadataPanel';
 import { getMotifGrammar } from '../../services/motifGrammarService';
 import type { GenerateParams } from '../../engine/types';
 import type { DesignSpecQualityLoopResult } from '../../trend/designSpecQuality';
 
-// Design Workbench Section 5 ("Live Preview") — every sub-preview reads
+// Design Workbench Section 4 ("Live Preview") — every sub-preview reads
 // directly from `spec` (a `useMemo` per tab keyed on `spec`/`seed`/
-// selected marketplace/platform, so switching tabs never recomputes stale
-// data and every edit is reflected the instant the memo key changes). The
-// SVG shown in "Composition Diagram" is the *real* output of
-// `trend/designSpecToParams.ts`'s `buildTileFromDesignSpec` — the same
-// SVG Engine adapter the rest of the app already uses — not a mockup.
+// selected marketplace, so switching tabs never recomputes stale data and
+// every edit is reflected the instant the memo key changes). The SVG shown
+// in "Composition Diagram"/"Pattern Repeat" is the *real* output of
+// `trend/designSpecToParams.ts`'s `buildTileFromDesignSpec` — the same SVG
+// Engine adapter the rest of the app already uses — not a mockup. The
+// Prompt tab that used to live here was promoted to its own standalone
+// `PromptPanel.tsx` in Phase 6, matching the brief's "Prompt Panel" as a
+// separate dockable panel; Quality Indicators' full picture (all 6 named
+// dimensions + recommendations) now lives in `QualityPanel.tsx` — the
+// inline summary in the "Composition" tab below stays as an immediate,
+// no-extra-click glance right after running the loop.
 
-type PreviewTab = 'trend' | 'palette' | 'composition' | 'motifs' | 'seo' | 'filename' | 'prompt' | 'collection';
+type PreviewTab = 'trend' | 'palette' | 'composition' | 'repeat' | 'motifs' | 'seo' | 'filename' | 'collection';
 
 const TABS: Array<{ id: PreviewTab; label: string }> = [
   { id: 'trend', label: '📈 Trend Summary' },
   { id: 'palette', label: '🎨 Palette' },
   { id: 'composition', label: '🖼 Composition' },
+  { id: 'repeat', label: '🔁 Pattern Repeat' },
   { id: 'motifs', label: '🌿 Motifs' },
   { id: 'seo', label: '📊 SEO' },
   { id: 'filename', label: '🏷 Filename' },
-  { id: 'prompt', label: '🤖 Prompt' },
   { id: 'collection', label: '🏭 Collection' },
 ];
 
@@ -70,14 +75,13 @@ export function LivePreviewPanel({
 }: Props) {
   const [tab, setTab] = useState<PreviewTab>('trend');
   const [marketplaceId, setMarketplaceId] = useState(spec.marketplace.id);
-  const [promptPlatform, setPromptPlatform] = useState<PromptPlatformId>('midjourney');
 
   const plainTile = useMemo(() => buildTileFromDesignSpec(spec, seed), [spec, seed]);
   const tile = qualityResult ? qualityResult.pool.winner.tileData : plainTile;
   const tileSvgHtml = useMemo(() => buildSingleTileSvg(tile).replace(/^<\?xml[^>]*\?>\s*/, ''), [tile]);
+  const tiledSvgHtml = useMemo(() => (tab === 'repeat' ? buildTiledSvg(tile, 3, 3).replace(/^<\?xml[^>]*\?>\s*/, '') : ''), [tile, tab]);
   const seo = useMemo(() => buildDesignSpecSeo(spec, tile, marketplaceId), [spec, tile, marketplaceId]);
   const seoIssues = useMemo(() => validateMarketplaceSeo(seo, MARKETPLACE_PROFILES[marketplaceId]), [seo, marketplaceId]);
-  const prompt = useMemo(() => buildPrompt(spec, promptPlatform), [spec, promptPlatform]);
 
   return (
     <div className="workbench-live-preview">
@@ -151,8 +155,16 @@ export function LivePreviewPanel({
                   </div>
                 ))}
               </div>
+              <p className="metadata-hint">Full scoring, all 6 named dimensions, and recommendations live in the Quality Panel.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'repeat' && (
+        <div className="collection-asset-preview">
+          <strong>Pattern Repeat — 3×3 tiled, real SVG Engine output (seamlessness check)</strong>
+          <div className="collection-asset-svg" dangerouslySetInnerHTML={{ __html: tiledSvgHtml }} />
         </div>
       )}
 
@@ -223,25 +235,6 @@ export function LivePreviewPanel({
           <button type="button" className="btn btn--primary" onClick={() => onDownloadPackage(marketplaceId)}>
             📦 Download Marketplace Package ({MARKETPLACE_PROFILES[marketplaceId].label})
           </button>
-        </div>
-      )}
-
-      {tab === 'prompt' && (
-        <div>
-          <div className="marketplace-chips">
-            {PROMPT_PLATFORM_LIST.map((p) => (
-              <button key={p.id} type="button" className={`marketplace-chip${p.id === promptPlatform ? ' active' : ''}`} onClick={() => setPromptPlatform(p.id)}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <div className="metadata-field">
-            <div className="metadata-field-top">
-              <label>{PROMPT_PLATFORM_LIST.find((p) => p.id === promptPlatform)?.label} Prompt</label>
-              <CopyButton text={prompt} label=" Prompt" />
-            </div>
-            <textarea rows={5} readOnly value={prompt} />
-          </div>
         </div>
       )}
 
