@@ -4,8 +4,8 @@ import { STYLE_DNA_PRESETS, resolveStyleDna } from '../engine/styleDna';
 import { generateCollection, verifyConsistency, COLLECTION_SCHEMA_VERSION, type AssetType } from './collectionGenerator';
 
 const EXPECTED_ASSET_TYPES: AssetType[] = [
-  'heroPattern', 'secondaryPattern', 'blenderPattern', 'miniPattern', 'stripePattern',
-  'borderPattern', 'cornerPattern', 'spotMotifSheet', 'decorativeElementsSheet',
+  'heroPattern', 'secondaryPattern', 'blenderPattern', 'miniPattern', 'stripePattern', 'backgroundTexture',
+  'borderPattern', 'cornerPattern', 'spotMotifSheet', 'individualMotif', 'decorativeElementsSheet',
   'collectionPreview', 'metadata', 'seoPackage',
 ];
 
@@ -171,6 +171,114 @@ describe('generateCollection: Metadata / SEO Package', () => {
     // header + 5 pattern-type assets (hero/secondary/blender/mini/stripe)
     expect(shutterstockRows.length).toBe(6);
     expect(data.adobeStockCsv.length).toBeGreaterThan(0);
+  });
+});
+
+describe('generateCollection: Background Texture & Individual Motifs (Commercial Collection Engine Phase 4, Section 2)', () => {
+  it('produces exactly one backgroundTexture asset with a valid, non-trivial SVG document', () => {
+    const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-bg-texture' });
+    const bgAssets = assets.filter((a) => a.type === 'backgroundTexture');
+    expect(bgAssets.length).toBe(1);
+    expect(bgAssets[0].svg).toContain('<svg');
+  });
+
+  it('produces exactly 6 individualMotif assets, each referencing exactly one real motif id', () => {
+    const { assets, motifs } = generateCollection({ ...defaultParams(), seed: 'collection-individual-motifs' });
+    const individualAssets = assets.filter((a) => a.type === 'individualMotif');
+    expect(individualAssets.length).toBe(6);
+    const motifIds = new Set(motifs.map((m) => m.id));
+    for (const asset of individualAssets) {
+      expect(asset.motifIds.length).toBe(1);
+      expect(motifIds.has(asset.motifIds[0])).toBe(true);
+      expect(asset.svg).toContain('<svg');
+    }
+  });
+
+  it('every individualMotif filename is unique', () => {
+    const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-individual-filenames' });
+    const filenames = assets.filter((a) => a.type === 'individualMotif').map((a) => a.filename);
+    expect(new Set(filenames).size).toBe(filenames.length);
+  });
+
+  it('the background texture is a real, independent buildTile output — not a copy of the hero pattern', () => {
+    const { assets } = generateCollection({ ...defaultParams(), seed: 'collection-bg-distinct' });
+    const hero = assets.find((a) => a.type === 'heroPattern')!.svg!;
+    const bg = assets.find((a) => a.type === 'backgroundTexture')!.svg!;
+    expect(bg).not.toBe(hero);
+  });
+});
+
+describe('generateCollection: Layout Variation (Section 5)', () => {
+  it('every pattern-type asset (hero/secondary/blender/mini/stripe/backgroundTexture) gets a distinct layout', () => {
+    const { patternTiles } = generateCollection({ ...defaultParams(), seed: 'collection-layout-diversity' });
+    const layouts = patternTiles.map((t) => t.params.layoutId);
+    expect(new Set(layouts).size).toBe(layouts.length);
+  });
+
+  it('layout diversity holds across a sample of built-in Style DNA presets too', () => {
+    const sample = [STYLE_DNA_PRESETS.editorialBotanical, STYLE_DNA_PRESETS.luxuryWallpaper, STYLE_DNA_PRESETS.kidsPlayful];
+    for (const dna of sample) {
+      const params = { ...defaultParams(), ...resolveStyleDna(dna, 'collection-layout-dna-sweep') };
+      const { patternTiles } = generateCollection(params, dna);
+      const layouts = patternTiles.map((t) => t.params.layoutId);
+      expect(new Set(layouts).size).toBe(layouts.length);
+    }
+  });
+
+  it('mini pattern no longer silently inherits the hero pattern layout', () => {
+    const { patternParams } = generateCollection({ ...defaultParams(), layoutId: 'grid', seed: 'collection-mini-layout' });
+    const [hero, , , mini] = patternParams;
+    expect(mini.layoutId).not.toBe(hero.layoutId);
+  });
+
+  it('is deterministic — the same seed always allocates the same set of layouts', () => {
+    const params = { ...defaultParams(), seed: 'collection-layout-det' };
+    const a = generateCollection(params).patternTiles.map((t) => t.params.layoutId);
+    const b = generateCollection(params).patternTiles.map((t) => t.params.layoutId);
+    expect(a).toEqual(b);
+  });
+});
+
+describe('generateCollection: patternTiles (additive field, Section 9/10 support)', () => {
+  it('exposes 6 pattern tiles: the same 5 patternParams covers, plus Background Texture', () => {
+    const { patternParams, patternTiles } = generateCollection({ ...defaultParams(), seed: 'collection-pattern-tiles' });
+    expect(patternTiles.length).toBe(6);
+    expect(patternTiles.slice(0, 5).map((t) => t.params)).toEqual(patternParams);
+  });
+
+  it('does not change patternParams length/order (components/ProjectPanel.tsx depends on this)', () => {
+    const { patternParams } = generateCollection({ ...defaultParams(), seed: 'collection-pattern-params-shape' });
+    expect(patternParams.length).toBe(5);
+  });
+});
+
+describe('generateCollection: Motif Consistency (Section 4)', () => {
+  it('verifyConsistency flags a real motif-family disagreement across factory motifs — regression guard', () => {
+    const base = defaultParams();
+    const consistentMotifs = [
+      { category: 'botanical' },
+      { category: 'botanical' },
+    ] as Parameters<typeof verifyConsistency>[1];
+    expect(verifyConsistency([base], consistentMotifs).consistent).toBe(true);
+
+    const mismatchedMotifs = [
+      { category: 'botanical' },
+      { category: 'geometric' },
+    ] as Parameters<typeof verifyConsistency>[1];
+    const result = verifyConsistency([base], mismatchedMotifs);
+    expect(result.consistent).toBe(false);
+    expect(result.issues.some((i) => i.includes('factory-generated motifs'))).toBe(true);
+  });
+
+  it('verifyConsistency without a motifs argument still works exactly as before (backward compatible)', () => {
+    const base = defaultParams();
+    expect(verifyConsistency([base, base]).consistent).toBe(true);
+  });
+
+  it('a real generated collection has zero motif-family disagreement across its own factory motifs', () => {
+    const { manifest } = generateCollection({ ...defaultParams(), categoryId: 'tropical', seed: 'collection-motif-consistency' });
+    expect(manifest.consistency.consistent).toBe(true);
+    expect(manifest.consistency.issues).toEqual([]);
   });
 });
 

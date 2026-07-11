@@ -878,6 +878,34 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 
 ## 🗒 บันทึกการอัปเดต
 
+### v1.39 — 11 ก.ค. 2026 — Commercial Collection Engine Phase 4 (ปรับปรุงคอลเลกชันเบื้องหลัง)
+- 🎨 **Color Story Engine**: จากชุดสีของคอลเลกชันหนึ่งชุด ระบบคำนวณ **10 ชุดสี
+  ทางเลือก** ให้อัตโนมัติ — Original, Light, Dark, Spring, Summer, Autumn,
+  Winter, Monochrome, Muted, Bold — คำนวณจากทฤษฎีสี (hue/saturation/
+  lightness) จริง ไม่ใช่สุ่มสีใหม่ ทุกชุดสียังคงจำนวนสีและลำดับพื้นหลัง/สีเด่นเดิม
+  ให้ภาพรวมคอลเลกชันดูกลมกลืนกัน
+- 🧩 **ชิ้นงานคอลเลกชันใหม่ 2 แบบ**: **Background Texture** (พื้นผิวสีอ่อน
+  ตัดกันต่ำ ใช้ชุดสี Light จาก Color Story Engine เหมาะเป็นพื้นหลัง/digital
+  paper) และ **Individual Motifs** (ชิ้นลายเดี่ยว 6 ชิ้นจากชุด hero motif ของ
+  คอลเลกชัน แยกไฟล์ต่อชิ้น) — คอลเลกชันตอนนี้มี 14 ประเภทชิ้นงานรวม (จาก 12 เดิม)
+- 🔀 **แต่ละชิ้นงานได้ layout ที่ต่างกันจริง**: Hero/Secondary/Blender/Mini/
+  Stripe/Background Texture รับประกันว่าได้ layout ไม่ซ้ำกัน (ก่อนหน้านี้ Mini
+  Pattern อาจได้ layout เดียวกับ Hero Pattern โดยไม่ได้ตั้งใจ)
+- 🏷 **Product Targets**: ระบบประเมินความเหมาะสมของคอลเลกชันกับสินค้า 10
+  ประเภท (Wallpaper, Fabric, Wrapping Paper, Gift Wrap, Packaging,
+  Notebook Covers, Stationery, Home Decor, Textile, Digital Paper) จาก
+  คำค้น/หมวดลาย/ขนาด tile/ความหนาแน่นจริง พร้อมเหตุผลของแต่ละคะแนน
+- 📊 **Collection Score เพิ่ม 2 มิติ**: **Layout Diversity** (สัดส่วน layout ที่
+  ไม่ซ้ำกัน) และ **Motif Shape Diversity** (ความหลากหลายของรูปทรงชิ้นลายจริง
+  ทั้งคอลเลกชัน) — คะแนนรวมตอนนี้เฉลี่ยจาก 7 มิติ
+- 📋 **Collection Planner**: ประกอบ Collection Plan (ชื่อ/ธีม/หมวดหมู่/
+  marketplace เป้าหมาย/Style DNA/Color Story/สินค้าที่แนะนำ/ขนาด/เวอร์ชัน)
+  และ Collection Specification JSON ฉบับเต็มจาก Design Specification โดยตรง
+  — เตรียมฐานสำหรับการ export คอลเลกชันแบบมีโครงสร้างในเวอร์ชันถัดไป
+- ไม่มีหน้าจอหรือปุ่มใหม่ในเวอร์ชันนี้ — เป็นการต่อยอด Collection Studio Engine
+  (v1.33) เบื้องหลังล้วนๆ ทุกฟีเจอร์เดิม (Generate Collection, Project
+  Dashboard, Collection Workspace) ใช้งานเหมือนเดิมทุกประการ
+
 ### v1.38 — 11 ก.ค. 2026 — SVG Intelligence Engine Phase 3 (ปรับปรุงคุณภาพเบื้องหลัง)
 - 🛠 **SVG Optimizer ใหม่** (`engine/svgOptimizer.ts`): ทุกครั้งที่ Export
   (Single tile / 3×3 tiled) ระบบจะยุบกลุ่ม `<g>` ที่ห่อ transform ซ้อนกันโดย

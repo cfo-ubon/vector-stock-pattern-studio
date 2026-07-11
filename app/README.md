@@ -25,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 836 tests, see "Testing" below
+npm test         # vitest run — 901 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -1191,6 +1191,77 @@ second Collection is generated. `CollectionWorkspace.tsx` was deleted, not
 kept alongside it — see the Project Studio Engine section for the full
 Playwright verification.
 
+## Commercial Collection Engine — Phase 4 (`collection/colorStory.ts`, `collection/productTargets.ts`, `palettes/colorTransform.ts`, `trend/collectionPlan.ts`, extends `collection/collectionGenerator.ts` + `collection/collectionScore.ts`)
+
+Extends the Collection Studio Engine above (unmodified generation
+algorithms — this phase adds coordination and planning around it, it does
+not rebuild it) with a real Color Story Engine, real Product Targets, two
+new coordinated asset types, guaranteed per-asset layout diversity, and a
+Design-Spec-driven Collection Planner. Full architecture, algorithms, JSON
+schemas, and test coverage in
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md); summary:
+
+- **Color Story Engine** (`palettes/colorTransform.ts` + `collection/colorStory.ts`)
+  — `buildColorStory(colors)` derives all 10 named variants (Original/
+  Light/Dark/Spring/Summer/Autumn/Winter/Monochrome/Muted/Bold) from one
+  base color set via real HSL math (hue rotation + saturation/lightness
+  adjustment per variant, standard "4-season color analysis" convention),
+  never a re-roll — every variant keeps the same color count and
+  background/accent ordering as the input.
+- **Product Targets** (`collection/productTargets.ts`) — `evaluateProductTargets`
+  scores all 10 named product uses (Wallpaper/Fabric/Wrapping Paper/Gift
+  Wrap/Packaging/Notebook Covers/Stationery/Home Decor/Textile/Digital
+  Paper) against real signals (keyword-intent matches, well-suited
+  categories, tile-size/density fit), each score traceable to the rules
+  that actually fired — no invented "AI confidence".
+- **Two new coordinated assets** (`collection/collectionGenerator.ts`,
+  `COLLECTION_SCHEMA_VERSION` 2 → 3, additive) — **Background Texture**
+  (a subtle, low-contrast wash using the Color Story Engine's own "Light"
+  variant of the collection's real resolved colors) and **Individual
+  Motifs** (6 of the collection's own hero motifs, each exported
+  standalone, reusing — not regenerating — the existing Spot Motif set).
+- **Layout Variation** — every pattern-type asset (Hero/Secondary/Blender/
+  Mini/Stripe/Background Texture) is now guaranteed a genuinely distinct
+  layout (`allocateLayout`); Mini Pattern no longer silently inherits
+  whichever layout Hero Pattern picked.
+- **Motif Consistency** — `verifyConsistency` now optionally checks that
+  every factory-generated motif (border/corner/spot/decorative) shares one
+  motif family, not just the 5 core pattern assets.
+- **Collection Score** (`collection/collectionScore.ts`) gained two real
+  dimensions — **Layout Diversity** (distinct-layout fraction across
+  `patternTiles`) and **Motif Shape Diversity** (Shannon-entropy diversity
+  of shape-topology signatures pooled across the whole collection, reusing
+  `engine/svgGeometry.ts`'s `extractMotifShapeSignatures` from the SVG
+  Intelligence Engine) — `overall` is now a 7-dimension average, and
+  `REQUIRED_ASSET_TYPES` grew to the 12 core creative asset types.
+- **Collection Planner** (`trend/collectionPlan.ts`) — `buildCollectionPlan`
+  assembles Section 1's Collection Plan (name/theme/category/marketplace/
+  Style DNA/Color Story/recommended product uses/size/version) straight
+  from a Design Specification, no generated collection required.
+  `buildCollectionSpecification` assembles the full Section 7 Collection
+  Specification JSON (metadata/assets/colorVariants/layoutVariants/
+  motifRelationships/marketplaceTargets/commercialNotes) from a spec +
+  its generated collection. `buildCollectionPreviewMetadata` (Section 8)
+  and `prepareCollectionExport` (Section 10 — structured data only, no zip/
+  download logic added) round out the module.
+- **Backward compatibility**: `GeneratedCollection.patternTiles` (the new
+  field these scores/plans read) is additive; `patternParams`'s fixed
+  5-element hero/secondary/blender/mini/stripe order
+  `components/ProjectPanel.tsx` indexes into is untouched.
+  `project/projectManager.ts`'s `normalizeProject` was extended to
+  backfill `patternTiles` (via a real `buildTile` reconstruction from the
+  always-present `patternParams`) for collections persisted before this
+  phase, the same "fill in fields added after the record could already be
+  on disk" convention `designSpecs` already established.
+- **Deliberately not built this phase** (per the brief's own
+  constraints): no new UI (`components/CollectionWorkspace.tsx`-equivalent
+  for the planner does not exist; every addition is DOM-free
+  engine/orchestration code, consistent with the SVG Intelligence Engine
+  Phase 3 precedent of staying engine-only when a brief doesn't explicitly
+  ask for UI), no actual export/zip wiring for Section 10 (structured data
+  only, as instructed), no SEO, no Prompt Factory, no SVG generation
+  algorithm changes.
+
 ## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
 
 Turns the SEO page into a full pre-flight checklist for actually submitting
@@ -1548,16 +1619,21 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 836 tests (jsdom environment, component
-tests use React Testing Library) across 65 files. The list below predates
-the Design Intelligence Core, Design Workbench, and SVG Intelligence Engine
-Phase 3 milestones and covers the original engine/metadata/trend suites in
-detail; see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
-[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md), and
-[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md) for what their
-own test suites (`schemas/validators/services`, `workbench/` +
-`components/workbench/`, and `engine/svgOptimizer.test.ts` +
-`engine/scoring.test.ts` + `engine/styleDna.test.ts` respectively) cover:
+`npm test` runs `vitest run` — 901 tests (jsdom environment, component
+tests use React Testing Library) across 69 files. The list below predates
+the Design Intelligence Core, Design Workbench, SVG Intelligence Engine
+Phase 3, and Commercial Collection Engine Phase 4 milestones and covers the
+original engine/metadata/trend suites in detail; see
+[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
+[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md), and
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md) for what their own test
+suites (`schemas/validators/services`, `workbench/` +
+`components/workbench/`, `engine/svgOptimizer.test.ts` +
+`engine/scoring.test.ts` + `engine/styleDna.test.ts`, and
+`palettes/colorTransform.test.ts` + `collection/colorStory.test.ts` +
+`collection/productTargets.test.ts` + `trend/collectionPlan.test.ts`
+respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2298,6 +2374,7 @@ src/
   generators/       one file per pattern category
   layouts/          one file per placement strategy
   palettes/         flat-design color palettes
+    colorTransform.ts   Commercial Collection Engine Phase 4: hex<->HSL math (Color Story Engine's building block)
   export/
     svgExporter.ts    single-tile / pre-tiled SVG string builders + download
     previewMarkup.ts  <pattern>-based markup for on-screen preview/thumbnails
@@ -2308,7 +2385,9 @@ src/
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   collection/
     collectionGenerator.ts   Collection Studio Engine: builds a full Collection (assets + manifest)
-    collectionScore.ts       5-dimension Collection Score (consistency + commercial readiness)
+    collectionScore.ts       7-dimension Collection Score (consistency + diversity + commercial readiness)
+    colorStory.ts            Phase 4: 10 named palette variants (Light/Dark/seasons/Monochrome/Muted/Bold)
+    productTargets.ts        Phase 4: real rule-based scoring of the 10 named product uses
   project/
     projectTypes.ts        Project/ProjectCollectionEntry/ProjectExportHistoryEntry types
     projectManager.ts      pure Project CRUD + legacy-data migration
@@ -2337,6 +2416,7 @@ src/
     promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
     designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
     designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
+    collectionPlan.ts        Phase 4 Collection Planner: Plan/Specification JSON/preview metadata/export prep
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx

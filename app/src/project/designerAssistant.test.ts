@@ -17,7 +17,12 @@ describe('reviewProject', () => {
     const p = addCollectionToProject(createProject('Healthy'), generateCollection({ ...defaultParams(), seed: 'review-healthy' }));
     const review = reviewProject(p);
     expect(review.collectionsReviewed).toBe(1);
-    expect(review.averageCollectionScore).toBe(100);
+    // Not a flat 100: collection/collectionScore.ts's Motif Shape Diversity
+    // dimension (Commercial Collection Engine Phase 4) is a real, rich
+    // measurement rather than a binary consistency flag, so even a clean
+    // positive-path collection can land just under 100 there.
+    expect(review.averageCollectionScore).not.toBeNull();
+    expect(review.averageCollectionScore!).toBeGreaterThanOrEqual(95);
     expect(review.issues).toEqual([]);
   });
 

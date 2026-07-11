@@ -1,4 +1,5 @@
 import type { AssetSeoOverride, GeneratedCollection } from '../collection/collectionGenerator';
+import { buildTile } from '../engine/tile';
 import type { StockSiteId } from '../metadata/shutterstock';
 import type { MarketplaceId } from '../metadata/marketplaceProfiles';
 import type { SavedItem } from '../components/SavedPanel';
@@ -44,15 +45,37 @@ export function createProject(name: string): Project {
   };
 }
 
-/** Fills in fields added to `Project` after the record could already have
- * been persisted (currently just `designSpecs`, added for the Design
- * Workbench) with their empty default — every loader (`storage/
+/** Fills in fields added to `Project` (or to a nested `GeneratedCollection`
+ * a Project stores) after the record could already have been persisted —
+ * `designSpecs` (Design Workbench) and each collection's `patternTiles`
+ * (Commercial Collection Engine Phase 4) — with a real, correctly-derived
+ * default rather than an empty placeholder. Every loader (`storage/
  * projectStore.ts`'s `loadProjects`, `project/projectJson.ts`'s import)
  * runs records through this before they reach app state, so the rest of
- * the codebase can treat every field as always-present per the `Project`
- * type instead of re-checking for `undefined` at every call site. */
+ * the codebase can treat every field as always-present per the `Project`/
+ * `GeneratedCollection` types instead of re-checking for `undefined` at
+ * every call site — collection/collectionScore.ts's Layout/Motif Shape
+ * Diversity dimensions rely on this for collections saved before
+ * `patternTiles` existed. */
 export function normalizeProject(project: Project): Project {
-  return { ...project, designSpecs: project.designSpecs ?? [] };
+  return {
+    ...project,
+    designSpecs: project.designSpecs ?? [],
+    collections: project.collections.map((entry) => ({
+      ...entry,
+      collection: {
+        ...entry.collection,
+        // A pre-Phase-4 persisted collection has no `patternTiles` field at
+        // all (old data, not an empty array) — rebuild it from the
+        // `patternParams` every collection has always carried, via the
+        // same pure `buildTile` the generator itself uses. This recovers
+        // the 5 core pattern tiles exactly; it cannot recover a Background
+        // Texture that was never generated for that older collection,
+        // which is the correct, honest outcome (nothing to recover).
+        patternTiles: entry.collection.patternTiles ?? entry.collection.patternParams.map((p) => buildTile(p)),
+      },
+    })),
+  };
 }
 
 export function duplicateProject(project: Project): Project {
