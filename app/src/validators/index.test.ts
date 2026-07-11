@@ -11,6 +11,8 @@ import {
   validateColorRoleSystemData,
   validatePaletteData,
   validateQualityTargetData,
+  validateRejectRulesData,
+  validateLearningHistoryData,
 } from './index';
 import { TREND_PACK_DATA } from '../trend-packs';
 import { MARKETPLACE_DATA } from '../marketplaces';
@@ -18,19 +20,23 @@ import { STYLE_DNA_DATA } from '../style-dna';
 import { PATTERN_GRAMMAR_DATA } from '../pattern-grammar';
 import { MOTIF_GRAMMAR_DATA } from '../motif-grammar';
 import { COLOR_ROLE_SYSTEM_DATA, PALETTE_DATA } from '../color-roles';
+import { REJECT_RULES } from '../knowledge/rules';
+import { DEFAULT_LEARNING_HISTORY } from '../knowledge/history';
 
 describe('validators/index: schema registry', () => {
-  it('registers all 10 schemas keyed by their own $id', () => {
+  it('registers all 12 schemas keyed by their own $id', () => {
     expect(Object.keys(SCHEMA_REGISTRY).sort()).toEqual(
       [
         'colorRoleSystem.schema.json',
         'designSpecification.schema.json',
         'keywordBundle.schema.json',
+        'learningHistory.schema.json',
         'marketplaceProfile.schema.json',
         'motifGrammar.schema.json',
         'palette.schema.json',
         'patternGrammar.schema.json',
         'qualityTarget.schema.json',
+        'rejectRules.schema.json',
         'styleDna.schema.json',
         'trendPack.schema.json',
       ].sort(),
@@ -77,6 +83,14 @@ describe('validators/index: real data validates against its own schema (required
     for (const palette of PALETTE_DATA) {
       expect(validatePaletteData(palette), `${palette.id}: ${JSON.stringify(validatePaletteData(palette))}`).toEqual([]);
     }
+  });
+
+  it('the real reject-rules knowledge file passes validateRejectRulesData', () => {
+    expect(validateRejectRulesData(REJECT_RULES)).toEqual([]);
+  });
+
+  it('the default learning-history shape passes validateLearningHistoryData', () => {
+    expect(validateLearningHistoryData(DEFAULT_LEARNING_HISTORY)).toEqual([]);
   });
 });
 

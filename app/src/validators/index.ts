@@ -8,6 +8,8 @@ import motifGrammarSchema from '../schemas/motifGrammar.schema.json';
 import colorRoleSystemSchema from '../schemas/colorRoleSystem.schema.json';
 import paletteSchema from '../schemas/palette.schema.json';
 import qualityTargetSchema from '../schemas/qualityTarget.schema.json';
+import rejectRulesSchema from '../schemas/rejectRules.schema.json';
+import learningHistorySchema from '../schemas/learningHistory.schema.json';
 
 import { validateAgainstSchema, type JsonSchema, type SchemaRegistry, type ValidationIssue } from './jsonSchemaValidator';
 
@@ -27,6 +29,8 @@ export const SCHEMA_REGISTRY: SchemaRegistry = {
   'colorRoleSystem.schema.json': colorRoleSystemSchema as JsonSchema,
   'palette.schema.json': paletteSchema as JsonSchema,
   'qualityTarget.schema.json': qualityTargetSchema as JsonSchema,
+  'rejectRules.schema.json': rejectRulesSchema as JsonSchema,
+  'learningHistory.schema.json': learningHistorySchema as JsonSchema,
 };
 
 function makeValidator(schemaId: string) {
@@ -44,6 +48,8 @@ export const validateMotifGrammarData = makeValidator('motifGrammar.schema.json'
 export const validateColorRoleSystemData = makeValidator('colorRoleSystem.schema.json');
 export const validatePaletteData = makeValidator('palette.schema.json');
 export const validateQualityTargetData = makeValidator('qualityTarget.schema.json');
+export const validateRejectRulesData = makeValidator('rejectRules.schema.json');
+export const validateLearningHistoryData = makeValidator('learningHistory.schema.json');
 
 export type { JsonSchema, SchemaRegistry, ValidationIssue } from './jsonSchemaValidator';
 export { validateAgainstSchema, isValid } from './jsonSchemaValidator';

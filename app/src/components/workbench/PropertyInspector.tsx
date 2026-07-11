@@ -8,9 +8,9 @@ import { listMarketplaces, getMarketplace } from '../../services/marketplaceServ
 import { LAYOUT_LIST } from '../../layouts';
 import { HIERARCHY_PRESETS, type HierarchyParams } from '../../engine/hierarchy';
 import type { FlowProfile, RhythmProfile } from '../../engine/styleDna';
-import type { ClusterArchetype } from '../../engine/clusterEngine';
 import type { LayoutId } from '../../engine/types';
 import type { MarketplaceId } from '../../metadata/marketplaceProfiles';
+import { LAYOUT_CLUSTER_ARCHETYPES } from '../../knowledge/composition';
 
 // Design Workbench Section 3 ("Property Inspector") — every field listed
 // in the brief (Palette, Style DNA, Pattern, Composition, Density, Hero/
@@ -29,10 +29,12 @@ import type { MarketplaceId } from '../../metadata/marketplaceProfiles';
 // Composition Engine archetype a layout draws from — `engine/clusterEngine.ts`'s
 // `pickArchetypePool` chooses deterministically from the RNG inside
 // `scatter`/`toss`/`bouquet`'s own layout code, not from a spec field, so
-// there is nothing to edit here yet. `LAYOUT_CLUSTER_ARCHETYPES` below
-// surfaces the real, read-only candidate pool for the selected Pattern so
-// a designer can at least see which archetypes are in play — genuine data,
-// not an editable control pretending to exist.
+// there is nothing to edit here yet. `LAYOUT_CLUSTER_ARCHETYPES` (now
+// sourced from `knowledge/composition` — the Design Knowledge Engine,
+// Phase 6.5 — instead of a local copy) surfaces the real, read-only
+// candidate pool for the selected Pattern so a designer can at least see
+// which archetypes are in play — genuine data, not an editable control
+// pretending to exist.
 
 interface Props {
   spec: DesignSpecification;
@@ -47,16 +49,6 @@ const MARKETPLACE_OPTIONS = listMarketplaces();
 const HIERARCHY_PRESET_LIST = Object.entries(HIERARCHY_PRESETS).map(([id, preset]) => ({ id, ...preset }));
 const FLOW_OPTIONS: FlowProfile[] = ['calm', 'directional', 'dynamic'];
 const RHYTHM_OPTIONS: RhythmProfile[] = ['regular', 'organic', 'syncopated'];
-
-/** Real candidate pools each cluster-aware layout draws from — ported 1:1
- * from each layout's own source (`layouts/scatter.ts`, `layouts/toss.ts`,
- * `layouts/bouquet.ts`), not invented. Layouts absent here don't route
- * through the Cluster Composition Engine at all. */
-const LAYOUT_CLUSTER_ARCHETYPES: Partial<Record<LayoutId, ClusterArchetype[]>> = {
-  scatter: ['organicScatter', 'bouquet', 'asymmetric'],
-  toss: ['diagonal', 'cascade', 'sCurve'],
-  bouquet: ['bouquet'],
-};
 
 function hierarchyPresetIdFor(hierarchy: HierarchyParams): string | null {
   const match = HIERARCHY_PRESET_LIST.find((p) => JSON.stringify(p.value) === JSON.stringify(hierarchy));

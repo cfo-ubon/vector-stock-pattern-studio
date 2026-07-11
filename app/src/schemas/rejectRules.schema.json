@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "rejectRules.schema.json",
+  "title": "RejectRules",
+  "description": "Design Knowledge Engine (Phase 6.5) Section 9 — the real hard-reject thresholds engine/candidateEngine.ts's applyHardRejectRules enforces, externalized as editable data instead of buried TypeScript literals. This file documents the exact current behavior of that function; it is authoritative reference data, not a second enforcement path — candidateEngine.ts imports getHardNodeBudget() from knowledge/rules for the one numeric threshold, and the structural checks (empty pattern / NaN-Infinity / raster image / external ref / duplicate ids) stay real code in candidateEngine.ts because they are regex/structural logic, not tunable numbers.",
+  "type": "object",
+  "required": ["schemaVersion", "hardNodeBudget", "structuralChecks"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "number", "minimum": 1 },
+    "hardNodeBudget": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Maximum SVG node count before a candidate is hard-rejected as unsafe to render/export. Mirrors engine/candidateEngine.ts's HARD_NODE_BUDGET."
+    },
+    "structuralChecks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

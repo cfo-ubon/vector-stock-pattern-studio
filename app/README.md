@@ -1795,16 +1795,62 @@ summary:
   Marketplace Profile (validate-and-inspect only — the profile registry
   is a static build-time array).
 
+## Design Knowledge Engine — Phase 6.5 (`src/knowledge/*`)
+
+Centralizes structured design knowledge under `src/knowledge/` so every
+engine can consume one consistent API instead of importing 7+ different
+`services/*`/data-library paths directly. Full architecture, schema, and
+scope decisions in
+[`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md); summary:
+
+- **10 knowledge domains, all thin facades over already-real engines** —
+  `style/`, `motif/`, `palette/`, `composition/`, `pattern/`,
+  `collection/`, `marketplace/` wrap Style DNA, Motif/Pattern Grammar,
+  Color Roles/Color Story, Flow/Rhythm/Cluster Engine/Layouts, Collection
+  Plan/Product Targets, and Marketplace Profiles respectively — no
+  business logic moved, no rules duplicated. `composition/` is now also
+  the single source of truth for `LAYOUT_CLUSTER_ARCHETYPES`, removing a
+  hand-copied duplicate that used to live inside `PropertyInspector.tsx`.
+- **Design Rules** (`rules/rejectRules.json`, new) — the Candidate
+  Engine's hard-reject node-count threshold, externalized from a bare
+  TypeScript literal into editable JSON; `engine/candidateEngine.ts` now
+  reads `HARD_NODE_BUDGET` from `knowledge/rules` instead of hardcoding it.
+- **Recommendation Engine** (`recommendation/`, new) — a real aggregator
+  over 4 previously-independent recommenders (Style DNA export
+  recommendation, Product Targets, Trend Pack Auto-match, Quality Loop
+  recommendations), with optional Learning-History-based personalization.
+  Never hardcodes a recommendation.
+- **Learning History** (`history/`, new) — usage-frequency tracking for
+  Style DNA/Palette/Motif categories, recent collections, disable/clear/
+  export/import — distinct from `workbench/workbenchFavorites.ts`'s
+  explicit starring. `DesignWorkbench.tsx` records usage on every spec
+  change and on "Generate Collection".
+- **Validation** (`validation.ts`, new) — `validateAllKnowledge()` runs
+  every real knowledge file through its existing JSON Schema validator in
+  one call; `validateKnowledgeRelationships()` is a genuinely new check
+  that every cross-domain id reference (Style DNA → Palette/Motif/Layout/
+  Hierarchy, Motif Grammar → Pattern Grammar, etc.) actually resolves.
+- **Two new JSON Schemas** (`rejectRules.schema.json`,
+  `learningHistory.schema.json`) registered in the same
+  `validators/index.ts` `SCHEMA_REGISTRY` every other domain already uses
+  — no second validation engine.
+- **Deliberately not built this phase**: no UI panel (the brief explicitly
+  asks not to move business logic into the UI — this is a backend/
+  architecture milestone), no live registration path for an imported
+  Marketplace Profile (unchanged from Phase 6 — still validate-only).
+
 ## Testing
 
-`npm test` runs `vitest run` — 1132 tests (jsdom environment, component
-tests use React Testing Library) across 86 files. The list below predates
+`npm test` runs `vitest run` — 1228 tests (jsdom environment, component
+tests use React Testing Library) across 97 files. The list below predates
 the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
 Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
-Project Phoenix V2, and Marketplace Intelligence Engine Phase 5 milestones
-and covers the original engine/metadata/trend suites in detail; see
+Project Phoenix V2, Marketplace Intelligence Engine Phase 5, and Design
+Knowledge Engine Phase 6.5 milestones and covers the original
+engine/metadata/trend suites in detail; see
 [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
+[`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md),
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
 [`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md),
 [`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md), and
@@ -2662,4 +2708,10 @@ src/
   services/              Query/lookup layer + Keyword Bundle Engine
   workbench/              Design Workbench's pure logic layer — see
                           DESIGN_WORKBENCH.md
+  knowledge/              Design Knowledge Engine — see
+                          DESIGN_KNOWLEDGE_ENGINE.md
+    style/ motif/ palette/ composition/ pattern/ collection/
+    marketplace/ rules/ recommendation/ history/  (10 domains)
+    index.ts               Top-level barrel
+    validation.ts          Cross-domain validation
 ```

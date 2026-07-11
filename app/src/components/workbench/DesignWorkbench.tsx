@@ -53,6 +53,7 @@ import { ImportExportBar } from './ImportExportBar';
 import { ResizeHandle } from './ResizeHandle';
 import { PanelVisibilityBar } from './PanelVisibilityBar';
 import { GlobalSearchBar } from './GlobalSearchBar';
+import { loadLearningHistory, saveLearningHistory, recordStyleDnaUsage, recordPaletteUsage, recordCollectionGenerated } from '../../knowledge/history';
 import './workbench.css';
 
 // Design Workbench (Phase 3, restructured into a dockable multi-panel
@@ -166,10 +167,19 @@ export function DesignWorkbench({ onApplyToEditor, onDownloadPackage, onGenerate
   const [newEntryName, setNewEntryName] = useState('');
   const [selectedEntryId, setSelectedEntryId] = useState<string>('');
 
+  // Design Knowledge Engine (Phase 6.5), Section 10 — a real consumer of
+  // `knowledge/history`, distinct from the `favorites` state above
+  // (explicit starring): every spec that becomes the current one records
+  // implicit Style DNA/Palette usage, so Section 11's Recommendation
+  // Engine can personalize by what's actually used, not just starred.
+  const [learningHistory, setLearningHistory] = useState(() => loadLearningHistory());
+  useEffect(() => saveLearningHistory(learningHistory), [learningHistory]);
+
   function pushSpec(next: DesignSpecification) {
     setHistory((h) => pushHistory(h, next));
     setQualityResult(null);
     setSeed(newSeed('workbench'));
+    setLearningHistory((h) => recordPaletteUsage(recordStyleDnaUsage(h, next.styleDnaId), next.palette.id));
   }
 
   function handleGenerateSpec() {
@@ -414,7 +424,10 @@ export function DesignWorkbench({ onApplyToEditor, onDownloadPackage, onGenerate
               onRunQualityLoop={handleRunQualityLoop}
               qualityResult={qualityResult}
               qualityRunning={qualityRunning}
-              onGenerateCollection={() => onGenerateCollection(spec, seed)}
+              onGenerateCollection={() => {
+                setLearningHistory((h) => recordCollectionGenerated(h, { id: `${spec.project.name}-${seed}`, name: spec.project.name, createdAt: Date.now() }));
+                onGenerateCollection(spec, seed);
+              }}
               collectionStatus={collectionStatus}
               onDownloadPackage={(marketplaceId) => onDownloadPackage(spec, seed, marketplaceId)}
             />
