@@ -1474,7 +1474,7 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 534 tests across 36 files:
+`npm test` runs `vitest run` — 542 tests across 37 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1768,8 +1768,8 @@ project mutation already uses).
   `buildPackageTextFilesFromSeo` with a freshly generated SEO.
 - `trend/keywordMap.test.ts`, `trend/keywordBundle.test.ts`,
   `trend/trendPacks.test.ts`, `trend/designIntelligence.test.ts`,
-  `trend/designSpecValidation.test.ts` — see "Trend Intelligence Studio"
-  below.
+  `trend/designSpecValidation.test.ts`, `trend/designSpecToParams.test.ts`
+  — see "Trend Intelligence Studio" below.
 
 ## Trend Intelligence Studio (Phase 1 — Design Specification foundation) (`trend/`)
 
@@ -1877,6 +1877,25 @@ checked against the real registry it should exist in, every 0..1-ranged
 number range-checked, `colorRoles` checked against the actual palette —
 as `error`/`warning`-severity `ValidationIssue[]`, so a future JSON Editor
 can highlight problems without hard-blocking editing.
+
+### SVG Engine adapter — "no duplicated logic" (`trend/designSpecToParams.ts`)
+
+Section 8's explicit requirement ("The SVG generator must consume the
+Design Specification directly. No duplicated logic.") — the first
+downstream consumer wired to the Phase 1 schema. `buildGenerateParamsFromDesignSpec(spec, seed)`
+maps every `GenerateParams` field straight off the spec (mostly the exact
+same value under the exact same name, by design from Phase 1) and
+`buildTileFromDesignSpec(spec, seed)` hands that straight to the existing,
+completely unmodified `buildTile` — no generation logic re-implemented
+here, only the mapping. `seed` is a separate argument (not read from the
+spec) so one Design Specification can deterministically generate many
+distinct collection assets via distinct derived seeds, the same convention
+`collectionGenerator.ts` already uses for Hero/Secondary/Blender/Mini/
+Stripe. Verified for every one of the 4 Trend Packs: builds a valid,
+non-empty tile without throwing, is deterministic for the same spec+seed,
+and two different Trend Packs (with no keyword-derived signal pinning the
+palette/Style DNA) genuinely produce different generated output — proof
+the mapping isn't a no-op.
 
 ## Adding a new pattern category
 
