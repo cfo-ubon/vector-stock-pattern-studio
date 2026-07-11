@@ -8,6 +8,7 @@ import {
   buildCollectionSpecification,
   buildCollectionPreviewMetadata,
   prepareCollectionExport,
+  buildCollectionMarketplaceFilenames,
 } from './collectionPlan';
 import { COLLECTION_SCHEMA_VERSION } from '../collection/collectionGenerator';
 import { COLOR_STORY_VARIANT_IDS } from '../collection/colorStory';
@@ -196,5 +197,38 @@ describe('prepareCollectionExport (Section 10 — structured data only, no actua
     expect(prep.assetManifest).toEqual(collection.manifest.assets);
     expect(prep.marketplaceTargets[0]).toBe(spec.marketplace.id);
     expect(prep.productUses.length).toBeGreaterThan(0);
+  });
+});
+
+describe('buildCollectionMarketplaceFilenames (Marketplace Intelligence Engine Phase 5, Section 5)', () => {
+  it('produces one filename per pattern-type tile, all unique', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const collection = buildCollectionFromDesignSpec(spec, 'seed-mkt-filenames');
+    const filenames = buildCollectionMarketplaceFilenames(collection, 'shutterstock');
+    expect(filenames.length).toBe(collection.patternTiles.length);
+    expect(new Set(filenames.map((f) => f.filename)).size).toBe(filenames.length);
+    for (const f of filenames) expect(f.filename).toMatch(/\.eps$/);
+  });
+
+  it('assetIds match the real pattern asset ids in order', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const collection = buildCollectionFromDesignSpec(spec, 'seed-mkt-filenames-ids');
+    const filenames = buildCollectionMarketplaceFilenames(collection, 'shutterstock');
+    expect(filenames.map((f) => f.assetId)).toEqual(['hero', 'secondary', 'blender', 'mini', 'stripe', 'background-texture', 'dense-pattern', 'airy-pattern']);
+  });
+
+  it('uses the marketplace\'s own extension (svg for Creative Fabrica)', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const collection = buildCollectionFromDesignSpec(spec, 'seed-mkt-filenames-ext');
+    const filenames = buildCollectionMarketplaceFilenames(collection, 'creativefabrica');
+    for (const f of filenames) expect(f.filename).toMatch(/\.svg$/);
+  });
+
+  it('is deterministic for the same collection + marketplace', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const collection = buildCollectionFromDesignSpec(spec, 'seed-mkt-filenames-det');
+    const a = buildCollectionMarketplaceFilenames(collection, 'shutterstock');
+    const b = buildCollectionMarketplaceFilenames(collection, 'shutterstock');
+    expect(a).toEqual(b);
   });
 });

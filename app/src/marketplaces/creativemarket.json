@@ -9,5 +9,16 @@
   "keywordRules": { "minCount": 5, "maxCount": 20, "termLabel": "tags" },
   "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "svg" },
   "defaultCategory": "Seamless Digital Pattern",
-  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"]
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"],
+  "links": {
+    "portal": { "url": "https://creativemarket.com/sell", "verified": false },
+    "submission": { "url": "https://creativemarket.com/sell", "verified": false },
+    "analytics": { "url": "https://creativemarket.com/sell", "verified": false },
+    "help": { "url": "https://help.creativemarket.com/", "verified": false },
+    "guidelines": { "url": "https://creativemarket.com/sell", "verified": false },
+    "support": { "url": "https://help.creativemarket.com/", "verified": false }
+  },
+  "collectionNamingRules": { "template": "{primaryKeyword} Collection", "maxLength": 150 },
+  "supportedFileTypes": ["svg", "eps", "png", "jpg"],
+  "previewRequirements": { "minWidth": 1000, "minHeight": 1000, "format": "png", "notes": "Conservative floor based on this app's own default preview export size; confirm against Creative Market's current seller help docs for their exact published minimum." }
 }

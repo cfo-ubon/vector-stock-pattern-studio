@@ -9,5 +9,33 @@
   "keywordRules": { "minCount": 7, "maxCount": 50, "termLabel": "keywords" },
   "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "eps" },
   "defaultCategory": "Backgrounds/Textures",
-  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"]
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"],
+  "links": {
+    "portal": { "url": "https://submit.shutterstock.com/", "verified": true },
+    "submission": { "url": "https://submit.shutterstock.com/", "verified": true },
+    "analytics": { "url": "https://submit.shutterstock.com/earnings", "verified": false },
+    "help": { "url": "https://support.submit.shutterstock.com/", "verified": false },
+    "guidelines": { "url": "https://www.shutterstock.com/discover/content-guidelines", "verified": false },
+    "support": { "url": "https://support.submit.shutterstock.com/", "verified": false }
+  },
+  "collectionNamingRules": { "template": "{primaryKeyword} Collection", "maxLength": 200 },
+  "supportedFileTypes": ["svg", "eps", "png", "jpg"],
+  "previewRequirements": { "minWidth": 1000, "minHeight": 1000, "format": "png", "notes": "Conservative floor based on this app's own default PNG preview export size (3000x3000); confirm against Shutterstock's current contributor help docs for their exact published minimum." },
+  "categoryMapping": {
+    "geometric": "Abstract",
+    "botanical": "Nature",
+    "organic": "Abstract",
+    "tropical": "Nature",
+    "boho": "Abstract",
+    "lineart": "Abstract",
+    "mandala": "Arts",
+    "damask": "Vintage",
+    "cute": "Animals/Wildlife",
+    "seasonal": "Holidays",
+    "retro": "Vintage",
+    "plaid": "Abstract",
+    "animalprint": "Animals/Wildlife",
+    "paisley": "Arts",
+    "terrazzo": "Abstract"
+  }
 }

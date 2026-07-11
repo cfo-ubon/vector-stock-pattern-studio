@@ -9,5 +9,16 @@
   "keywordRules": { "minCount": 7, "maxCount": 50, "termLabel": "keywords" },
   "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "eps" },
   "defaultCategory": "Vectors",
-  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "keywords.txt", "filename.txt", "metadata.json"]
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "keywords.txt", "filename.txt", "metadata.json"],
+  "links": {
+    "portal": { "url": "https://www.freepik.com/contributor", "verified": false },
+    "submission": { "url": "https://www.freepik.com/contributor", "verified": false },
+    "analytics": { "url": "https://www.freepik.com/contributor", "verified": false },
+    "help": { "url": "https://support.freepik.com/", "verified": false },
+    "guidelines": { "url": "https://www.freepik.com/contributor", "verified": false },
+    "support": { "url": "https://support.freepik.com/", "verified": false }
+  },
+  "collectionNamingRules": { "template": "{primaryKeyword} Collection", "maxLength": 100 },
+  "supportedFileTypes": ["svg", "eps", "png", "jpg"],
+  "previewRequirements": { "minWidth": 1000, "minHeight": 1000, "format": "jpg", "notes": "Conservative floor based on this app's own default preview export size; confirm against Freepik's current contributor help docs for their exact published minimum." }
 }

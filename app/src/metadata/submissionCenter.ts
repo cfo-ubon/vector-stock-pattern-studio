@@ -172,7 +172,10 @@ export interface SeoAnalysis {
   keywordCoverage: number;
 }
 
-const COMMERCIAL_TAG_CANDIDATES = ['seamless', 'vector', 'pattern', 'commercial use', 'editable', 'repeat', 'tileable', 'print', 'wallpaper', 'textile'];
+// Exported (Marketplace Intelligence Engine Phase 5, Section 8) so the
+// Readiness Score module can reuse this exact commercial-tag pool instead
+// of maintaining a second, duplicate list.
+export const COMMERCIAL_TAG_CANDIDATES = ['seamless', 'vector', 'pattern', 'commercial use', 'editable', 'repeat', 'tileable', 'print', 'wallpaper', 'textile'];
 
 /** 5 broad keyword categories a well-covered listing should touch:
  * technique, subject/style, color/mood, use-case, and format. Presence is

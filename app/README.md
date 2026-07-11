@@ -25,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 994 tests, see "Testing" below
+npm test         # vitest run — 1047 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -1691,25 +1691,85 @@ project mutation already uses).
   pulls the real generated title and Clear correctly reverts to it, zero
   console errors throughout.
 
+## Marketplace Intelligence Engine — Phase 5 (`metadata/readinessScore.ts`, `trend/seoHintEngine.ts`, extends `metadata/marketplaceProfiles.ts` + `metadata/contributorLinks.ts` + `metadata/marketplaceValidation.ts` + `metadata/exportPackage.ts` + `trend/collectionPlan.ts`)
+
+Closes the remaining gaps in the Marketplace Profile System above against
+a more detailed brief for the same territory. Full architecture,
+algorithms, JSON schemas, and test coverage in
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md); summary:
+
+- **Profiles are now real, editable JSON — no hardcoded marketplace logic**
+  (`src/marketplaces/*.json`) — `metadata/marketplaceProfiles.ts` now
+  *builds* `MARKETPLACE_PROFILES` from that JSON instead of a hardcoded TS
+  object literal, closing a gap Design Intelligence Core Phase 1's own
+  report had flagged as a "Phase 2 recommendation." Every existing
+  consumer (SEO generation, validation, filenames, export packages, UI)
+  keeps working unchanged — only the data source moved.
+- **Profile Content grows to all 17 named fields** — added Help/
+  Guidelines/Submission/Analytics/Support URLs (previously only
+  Contributor Portal existed), Collection Naming Rules, Supported File
+  Types, Preview Requirements, and a real Category Mapping (Shutterstock
+  only, ported from its own pre-existing table; every other marketplace
+  honestly falls back to `defaultCategory` rather than a fabricated
+  mapping).
+- **Validation grows from 4 to all 9 named fields** — Collection Name,
+  Asset Name, Preview, Export Package, and Display validation added
+  (`metadata/marketplaceValidation.ts`), plus a third `'suggestion'`
+  severity tier alongside error/warning.
+- **SEO Hint Engine** (`trend/seoHintEngine.ts`, new) — deliberately
+  distinct from the final SEO generators above: runs from a Design
+  Specification alone, before any pattern is generated, and returns
+  candidate keyword pools/target ranges/advisory notes, never one
+  committed answer ("do not generate final SEO yet" from the brief,
+  taken literally).
+- **Contributor Center grows from 1 to all 6 named link types** (Portal/
+  Submission/Analytics/Help/Guidelines/Support) — `metadata/
+  contributorLinks.ts`'s new `MARKETPLACE_LINK_SETS`, rendered in the
+  existing Stock Readiness cards with the same honest unverified-URL
+  marker the original Contributor Portal link already used.
+- **Marketplace Package Profile** (`buildMarketplacePackageProfile` in
+  `metadata/exportPackage.ts`) — structured required-files/supported-
+  formats/preview-requirements metadata for a future export engine, no
+  export/zip logic added.
+- **Readiness Score** (`metadata/readinessScore.ts`, new) — one real,
+  per-marketplace score across all 5 named dimensions (SEO/filename/
+  metadata/marketplace-compatibility/commercial readiness), assembled
+  from data the existing SEO/validation/hard-reject modules already
+  compute.
+- **Collection-aware filenames** (`buildCollectionMarketplaceFilenames`
+  in `trend/collectionPlan.ts`) — a marketplace-optimized, deduped
+  filename for every pattern-type asset in an already-generated
+  Collection, consuming the Collection Specification per the brief's
+  explicit instruction.
+- **Deliberately not built this phase**: no upload automation anywhere
+  (every new link just opens in a new tab, same as the pre-existing
+  Contributor Portal link), no SVG Engine changes, no new marketplaces
+  beyond the existing 6.
+
 ## Testing
 
-`npm test` runs `vitest run` — 994 tests (jsdom environment, component
-tests use React Testing Library) across 72 files. The list below predates
+`npm test` runs `vitest run` — 1047 tests (jsdom environment, component
+tests use React Testing Library) across 75 files. The list below predates
 the Design Intelligence Core, Design Workbench, SVG Intelligence Engine
-Phase 3, Commercial Collection Engine Phase 4 (+ 4b), and Project Phoenix
-V2 milestones and covers the original engine/metadata/trend suites in
-detail; see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+Phase 3, Commercial Collection Engine Phase 4 (+ 4b), Project Phoenix V2,
+and Marketplace Intelligence Engine Phase 5 milestones and covers the
+original engine/metadata/trend suites in detail; see
+[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
-[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md), and
-[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md) for
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md),
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md), and
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md) for
 what their own test suites (`schemas/validators/services`, `workbench/` +
 `components/workbench/`, `engine/svgOptimizer.test.ts` +
 `engine/scoring.test.ts` + `engine/styleDna.test.ts`,
 `palettes/colorTransform.test.ts` + `collection/colorStory.test.ts` +
 `collection/productTargets.test.ts` + `collection/motifReuse.test.ts` +
-`trend/collectionPlan.test.ts`, and `engine/clusterEngine.test.ts` +
-`engine/heroComplexity.test.ts` respectively) cover:
+`trend/collectionPlan.test.ts`, `engine/clusterEngine.test.ts` +
+`engine/heroComplexity.test.ts`, and `metadata/marketplaceProfiles.test.ts` +
+`metadata/marketplaceValidation.test.ts` + `metadata/contributorLinks.test.ts` +
+`metadata/readinessScore.test.ts` + `trend/seoHintEngine.test.ts`
+respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2475,13 +2535,14 @@ src/
     projectJson.ts         Project JSON export/import
   metadata/
     shutterstock.ts         per-site SEO metadata (title/description/keywords)
-    contributorLinks.ts     Contributor Portal config: one entry per stock site
+    contributorLinks.ts     Contributor Center: all 6 link types (Portal/Submission/Analytics/Help/Guidelines/Support) per marketplace
     submissionCenter.ts     submission checklist + SEO analyzer + stock readiness
-    marketplaceProfiles.ts  Marketplace Profile System: per-marketplace rules config
+    marketplaceProfiles.ts  Marketplace Profile System: per-marketplace rules, loaded from ../marketplaces/*.json (Phase 5)
     filenameEngine.ts       marketplace-specific filename templates + dedupe
     marketplaceSeo.ts       generates one marketplace's Title/Description/Keywords/Filename
-    marketplaceValidation.ts validates generated SEO against a marketplace's own rules
-    exportPackage.ts        builds a marketplace's Export Package text/JSON files
+    marketplaceValidation.ts validates generated SEO against a marketplace's own rules (9 fields, Phase 5)
+    exportPackage.ts        builds a marketplace's Export Package text/JSON files + Package Profile (Phase 5)
+    readinessScore.ts       Phase 5: unified 5-dimension Readiness Score per marketplace
   trend/
     designSpecTypes.ts      Design Specification JSON schema + Keyword Bundle types
     keywordMap.ts            keyword -> engine signal config (palette/motif/Style DNA/mood hints)
@@ -2495,7 +2556,8 @@ src/
     promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
     designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
     designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
-    collectionPlan.ts        Phase 4/4b Collection Planner: Plan/Specification JSON/preview metadata/export prep
+    collectionPlan.ts        Phase 4/4b/5 Collection Planner: Plan/Specification JSON/preview metadata/export prep/marketplace filenames
+    seoHintEngine.ts         Phase 5: SEO Hint Engine — non-final marketplace-specific suggestions from a Design Spec alone
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
@@ -2532,7 +2594,9 @@ summary:
 src/
   schemas/            10 JSON Schema (draft-07 subset) documents
   trend-packs/         Trend Pack data (JSON) + index.ts loader
-  marketplaces/         Marketplace Profile data (JSON) + index.ts loader
+  marketplaces/         Marketplace Profile data (JSON) + index.ts loader — Phase 5:
+                        the real, single source of truth metadata/marketplaceProfiles.ts
+                        now builds MARKETPLACE_PROFILES from (no longer a parallel mirror)
   style-dna/            Style DNA data (JSON) + index.ts loader
   pattern-grammar/      Pattern Grammar Library (JSON, new) + index.ts loader
   motif-grammar/        Motif Grammar Library (JSON, new) + index.ts loader

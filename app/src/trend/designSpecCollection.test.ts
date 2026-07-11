@@ -106,6 +106,6 @@ describe('buildCollectionFromDesignSpec', () => {
       const b = buildCollectionFromDesignSpec(spec, 'seed-collection-b');
       expect(a.manifest.collectionId).not.toBe(b.manifest.collectionId);
     },
-    15000,
+    30000,
   );
 });

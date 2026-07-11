@@ -47,6 +47,32 @@ export function buildMarketplacePackageTextFiles(
   return buildPackageTextFilesFromSeo(tileData, marketplaceId, seo);
 }
 
+/** Section 7, "Marketplace Package Profile" — describes what a complete
+ * export package for this marketplace must contain, structured for a
+ * future export engine to consume (per the brief's explicit "prepare
+ * metadata, do not implement export yet"). Every field is read straight
+ * off the marketplace's own real profile, nothing new is decided here. */
+export interface MarketplacePackageProfile {
+  marketplaceId: MarketplaceId;
+  label: string;
+  requiredFiles: string[];
+  supportedFileTypes: string[];
+  primaryFormat: 'svg' | 'eps';
+  previewRequirements: { minWidth: number; minHeight: number; format: string; notes: string };
+}
+
+export function buildMarketplacePackageProfile(marketplaceId: MarketplaceId): MarketplacePackageProfile {
+  const profile = MARKETPLACE_PROFILES[marketplaceId];
+  return {
+    marketplaceId,
+    label: profile.label,
+    requiredFiles: profile.exportPackageFiles,
+    supportedFileTypes: profile.supportedFileTypes,
+    primaryFormat: profile.filenameRules.extension,
+    previewRequirements: profile.previewRequirements,
+  };
+}
+
 function buildMetadataJson(tileData: TileData, marketplaceId: MarketplaceId, seo: MarketplaceSeo, issues: ValidationIssue[]): string {
   const profile = MARKETPLACE_PROFILES[marketplaceId];
   return JSON.stringify(

@@ -3,7 +3,7 @@ import { defaultParams } from '../engine/defaults';
 import { buildTile } from '../engine/tile';
 import { MARKETPLACE_LIST } from './marketplaceProfiles';
 import { generateMarketplaceSeo } from './marketplaceSeo';
-import { buildMarketplacePackageTextFiles, buildPackageTextFilesFromSeo } from './exportPackage';
+import { buildMarketplacePackageTextFiles, buildPackageTextFilesFromSeo, buildMarketplacePackageProfile } from './exportPackage';
 
 function makeTileData(seed: string) {
   return buildTile({ ...defaultParams(), categoryId: 'botanical', seed });
@@ -124,5 +124,23 @@ describe('exportPackage: buildPackageTextFilesFromSeo preserves user edits', () 
     const strip = (files: typeof viaWrapper) =>
       files.map((f) => (f.name === 'metadata.json' ? { ...f, content: JSON.stringify({ ...JSON.parse(f.content), generatedAt: null }) } : f));
     expect(strip(viaWrapper)).toEqual(strip(viaDirect));
+  });
+});
+
+describe('buildMarketplacePackageProfile (Marketplace Intelligence Engine Phase 5, Section 7)', () => {
+  it('assembles real profile data — requiredFiles, supportedFileTypes, primaryFormat, previewRequirements', () => {
+    for (const profile of MARKETPLACE_LIST) {
+      const pkg = buildMarketplacePackageProfile(profile.id);
+      expect(pkg.marketplaceId).toBe(profile.id);
+      expect(pkg.label).toBe(profile.label);
+      expect(pkg.requiredFiles).toEqual(profile.exportPackageFiles);
+      expect(pkg.supportedFileTypes).toEqual(profile.supportedFileTypes);
+      expect(pkg.primaryFormat).toBe(profile.filenameRules.extension);
+      expect(pkg.previewRequirements).toEqual(profile.previewRequirements);
+    }
+  });
+
+  it('is deterministic', () => {
+    expect(buildMarketplacePackageProfile('shutterstock')).toEqual(buildMarketplacePackageProfile('shutterstock'));
   });
 });

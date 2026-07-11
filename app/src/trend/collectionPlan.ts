@@ -1,6 +1,7 @@
 import type { LayoutId } from '../engine/types';
 import { STYLE_DNA_PRESETS } from '../engine/styleDna';
-import type { MarketplaceId } from '../metadata/marketplaceProfiles';
+import { MARKETPLACE_PROFILES, type MarketplaceId } from '../metadata/marketplaceProfiles';
+import { buildMarketplaceFilename, dedupeFilename } from '../metadata/filenameEngine';
 import { COLLECTION_SCHEMA_VERSION, type CollectionManifest, type GeneratedCollection } from '../collection/collectionGenerator';
 import { computeCollectionScore, type CollectionScore } from '../collection/collectionScore';
 import { buildColorStory, COLOR_STORY_VARIANT_IDS, type ColorStorySet, type ColorStoryVariantId } from '../collection/colorStory';
@@ -113,6 +114,34 @@ export function buildLayoutVariants(collection: GeneratedCollection): Collection
     assetId: PATTERN_ASSET_IDS[i] ?? `pattern-${i}`,
     layoutId: tile.params.layoutId,
   }));
+}
+
+export interface CollectionMarketplaceFilename {
+  assetId: string;
+  filename: string;
+}
+
+/** Marketplace Intelligence Engine Phase 5, Section 5 — "Support ...
+ * Collection Specification JSON": a marketplace-optimized, deduped
+ * filename for every pattern-type asset in an already-generated
+ * Collection, reusing `metadata/filenameEngine.ts`'s real template
+ * resolution and dedup logic (never re-implemented here) against each
+ * asset's own real `GenerateParams` from `patternTiles`. Deliberately
+ * distinct from the collection's own internal asset ids/filenames
+ * (`collection.manifest.assets[].filename`, e.g. `collection-x-hero.svg`)
+ * — those are this app's own bookkeeping names; these are what the chosen
+ * marketplace's own filename rules would produce for the same assets. */
+export function buildCollectionMarketplaceFilenames(
+  collection: GeneratedCollection,
+  marketplaceId: MarketplaceId,
+  customTemplate?: string,
+): CollectionMarketplaceFilename[] {
+  const profile = MARKETPLACE_PROFILES[marketplaceId];
+  const used = new Set<string>();
+  return collection.patternTiles.map((tile, i) => {
+    const filename = buildMarketplaceFilename(tile.params, profile, customTemplate);
+    return { assetId: PATTERN_ASSET_IDS[i] ?? `pattern-${i}`, filename: dedupeFilename(filename, used) };
+  });
 }
 
 /** A small local slugify — deliberately not imported from
