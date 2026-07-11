@@ -1,0 +1,138 @@
+import { describe, it, expect } from 'vitest';
+import { defaultParams } from '../engine/defaults';
+import { generateCollection } from '../collection/collectionGenerator';
+import {
+  createProject,
+  duplicateProject,
+  renameProject,
+  toggleFavorite,
+  toggleArchive,
+  addCollectionToProject,
+  removeCollectionFromProject,
+  setCollectionUploadStatus,
+  addSavedItemToProject,
+  removeSavedItemFromProject,
+  migrateLegacyDataIntoProject,
+  LEGACY_PROJECT_NAME,
+} from './projectManager';
+import type { SavedItem } from '../components/SavedPanel';
+
+describe('projectManager: Project CRUD', () => {
+  it('creates a project with empty collections/savedItemIds/exportHistory', () => {
+    const p = createProject('My Project');
+    expect(p.name).toBe('My Project');
+    expect(p.favorite).toBe(false);
+    expect(p.archived).toBe(false);
+    expect(p.collections).toEqual([]);
+    expect(p.savedItemIds).toEqual([]);
+    expect(p.exportHistory).toEqual([]);
+  });
+
+  it('duplicates a project with a new id and independent (non-shared-reference) arrays', () => {
+    const p = createProject('Original');
+    const withCollection = addCollectionToProject(p, generateCollection({ ...defaultParams(), seed: 'proj-dup' }));
+    const dup = duplicateProject(withCollection);
+    expect(dup.id).not.toBe(withCollection.id);
+    expect(dup.name).toBe('Original (copy)');
+    expect(dup.collections).toEqual(withCollection.collections);
+    expect(dup.collections).not.toBe(withCollection.collections);
+    expect(dup.favorite).toBe(false);
+  });
+
+  it('renames a project and bumps updatedAt', () => {
+    const p = createProject('A');
+    const renamed = renameProject(p, 'B');
+    expect(renamed.name).toBe('B');
+    expect(renamed.id).toBe(p.id);
+  });
+
+  it('toggles favorite and archived independently', () => {
+    const p = createProject('A');
+    const fav = toggleFavorite(p);
+    expect(fav.favorite).toBe(true);
+    expect(fav.archived).toBe(false);
+    const archived = toggleArchive(fav);
+    expect(archived.archived).toBe(true);
+    expect(archived.favorite).toBe(true);
+    const unarchived = toggleArchive(archived);
+    expect(unarchived.archived).toBe(false);
+  });
+});
+
+describe('projectManager: Collections', () => {
+  it('adding a collection appends it and records exactly one export history entry', () => {
+    const p = createProject('A');
+    const collection = generateCollection({ ...defaultParams(), seed: 'proj-collection-1' });
+    const next = addCollectionToProject(p, collection);
+    expect(next.collections.length).toBe(1);
+    expect(next.collections[0].collection.manifest.collectionId).toBe(collection.manifest.collectionId);
+    expect(next.exportHistory.length).toBe(1);
+    expect(next.exportHistory[0].collectionId).toBe(next.collections[0].id);
+  });
+
+  it('adding a second collection prepends it (newest first) and accumulates history', () => {
+    const p = createProject('A');
+    const c1 = generateCollection({ ...defaultParams(), seed: 'proj-collection-a' });
+    const c2 = generateCollection({ ...defaultParams(), seed: 'proj-collection-b' });
+    const withBoth = addCollectionToProject(addCollectionToProject(p, c1), c2);
+    expect(withBoth.collections.length).toBe(2);
+    expect(withBoth.collections[0].collection.manifest.collectionId).toBe(c2.manifest.collectionId);
+    expect(withBoth.exportHistory.length).toBe(2);
+  });
+
+  it('removes a collection by its entry id without touching export history', () => {
+    const p = createProject('A');
+    const collection = generateCollection({ ...defaultParams(), seed: 'proj-collection-remove' });
+    const withIt = addCollectionToProject(p, collection);
+    const entryId = withIt.collections[0].id;
+    const removed = removeCollectionFromProject(withIt, entryId);
+    expect(removed.collections).toEqual([]);
+    expect(removed.exportHistory.length).toBe(1);
+  });
+
+  it('sets upload status per site without disturbing other sites', () => {
+    const p = createProject('A');
+    const collection = generateCollection({ ...defaultParams(), seed: 'proj-upload-status' });
+    const withIt = addCollectionToProject(p, collection);
+    const entryId = withIt.collections[0].id;
+    const updated = setCollectionUploadStatus(withIt, entryId, 'adobestock', 'uploaded');
+    expect(updated.collections[0].uploadStatus.adobestock).toBe('uploaded');
+    expect(updated.collections[0].uploadStatus.shutterstock).toBeUndefined();
+    const updated2 = setCollectionUploadStatus(updated, entryId, 'shutterstock', 'rejected');
+    expect(updated2.collections[0].uploadStatus.adobestock).toBe('uploaded');
+    expect(updated2.collections[0].uploadStatus.shutterstock).toBe('rejected');
+  });
+});
+
+describe('projectManager: Saved item references', () => {
+  it('adds a saved item id without duplicating it', () => {
+    const p = createProject('A');
+    const once = addSavedItemToProject(p, 'saved-1');
+    const twice = addSavedItemToProject(once, 'saved-1');
+    expect(twice.savedItemIds).toEqual(['saved-1']);
+  });
+
+  it('removes a saved item id', () => {
+    const p = addSavedItemToProject(createProject('A'), 'saved-1');
+    const removed = removeSavedItemFromProject(p, 'saved-1');
+    expect(removed.savedItemIds).toEqual([]);
+  });
+});
+
+describe('projectManager: legacy migration', () => {
+  it('creates a legacy project referencing every pre-existing saved item id', () => {
+    const items: SavedItem[] = [
+      { id: 's1', tileData: { params: defaultParams(), backgroundColor: '#fff', colors: [], svg: { tag: 'g', attrs: {}, children: [] } }, name: 'a', createdAt: 1, note: '', submissions: {} },
+      { id: 's2', tileData: { params: defaultParams(), backgroundColor: '#fff', colors: [], svg: { tag: 'g', attrs: {}, children: [] } }, name: 'b', createdAt: 2, note: '', submissions: {} },
+    ];
+    const project = migrateLegacyDataIntoProject(items);
+    expect(project.name).toBe(LEGACY_PROJECT_NAME);
+    expect(project.savedItemIds).toEqual(['s1', 's2']);
+    expect(project.collections).toEqual([]);
+  });
+
+  it('handles an empty saved library without error', () => {
+    const project = migrateLegacyDataIntoProject([]);
+    expect(project.savedItemIds).toEqual([]);
+  });
+});

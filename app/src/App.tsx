@@ -14,6 +14,21 @@ import { buildEps } from './export/epsExporter';
 import { buildSeoTextFile } from './metadata/shutterstock';
 import { buildShutterstockCsv, buildAdobeStockCsv } from './metadata/csv';
 import { loadSavedItems, putSavedItem, bulkPutSavedItems, deleteSavedItem, clearSavedItems } from './storage/savedStore';
+import { loadProjects, putProject, deleteProject } from './storage/projectStore';
+import {
+  createProject,
+  duplicateProject,
+  renameProject,
+  toggleFavorite,
+  toggleArchive,
+  addCollectionToProject,
+  setCollectionUploadStatus,
+  addSavedItemToProject,
+  removeSavedItemFromProject,
+  migrateLegacyDataIntoProject,
+} from './project/projectManager';
+import { exportProjectJson, importProjectJson } from './project/projectJson';
+import type { Project, UploadStatus } from './project/projectTypes';
 import { PALETTES } from './palettes/palettes';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
@@ -21,7 +36,9 @@ import { QualityPanel } from './components/QualityPanel';
 import { TrendPanel } from './components/TrendPanel';
 import { Gallery, type GalleryItem } from './components/Gallery';
 import { StockSubmissionCenter } from './components/StockSubmissionCenter';
-import { CollectionWorkspace } from './components/CollectionWorkspace';
+import { ProjectBar } from './components/ProjectBar';
+import { ProjectDashboard } from './components/ProjectDashboard';
+import { ProjectPanel } from './components/ProjectPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
 import type { StockSiteId } from './metadata/shutterstock';
@@ -77,22 +94,60 @@ function App() {
   // reads as "not ready" again after switching to a different pattern
   // instead of staying stuck on "done" from an unrelated earlier one.
   const [collectionGeneratedForSeed, setCollectionGeneratedForSeed] = useState<string | null>(null);
-  // Full generated collection (Collection Studio Engine, v1.33) — kept in
-  // state so it's browsable in-app via CollectionWorkspace, not just an
-  // auto-downloaded zip. Stays populated across pattern edits until the
-  // next successful "Generate Collection" so the workspace can still be
-  // reviewed/re-exported; collectionGeneratedForSeed above is what the
-  // Stock Submission Center checks for *current-pattern* readiness.
-  const [generatedCollection, setGeneratedCollection] = useState<GeneratedCollection | null>(null);
+  // Project Studio Engine (v1.34): every Collection now lives inside a
+  // Project (persisted to IndexedDB), not in ephemeral React state — see
+  // project/projectTypes.ts. `projects` is the full list (for the
+  // Dashboard/switcher), `activeProjectId` is which one the Active-Project
+  // bar currently has selected; every new Collection/saved-item is
+  // attributed to it. `view` toggles the app between its default editor
+  // screen and the full-screen Project Dashboard (Project Manager) — the
+  // "Active-Project bar" navigation model chosen over a Figma/Canva-style
+  // dashboard gate, so the editor stays the default screen.
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [view, setView] = useState<'editor' | 'dashboard'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
-  // Saved library lives in IndexedDB (effectively unlimited) — load once on
-  // mount; individual mutations write through per-item in their handlers.
+  // Saved library + Projects both live in IndexedDB (effectively
+  // unlimited) — load both once on mount; individual mutations write
+  // through per-item/per-project in their own handlers. If this is the
+  // very first load after the Project System shipped (no projects exist
+  // yet), auto-migrate any pre-existing Saved Library items into one
+  // default project so "everything belongs to a Project" holds
+  // immediately — nothing pre-existing is orphaned or lost.
   useEffect(() => {
-    loadSavedItems()
-      .then(setSaved)
-      .catch(() => {});
+    (async () => {
+      const [savedItems, loadedProjects] = await Promise.all([
+        loadSavedItems().catch(() => [] as SavedItem[]),
+        loadProjects().catch(() => [] as Project[]),
+      ]);
+      setSaved(savedItems);
+      if (loadedProjects.length === 0) {
+        const migrated = migrateLegacyDataIntoProject(savedItems);
+        setProjects([migrated]);
+        setActiveProjectId(migrated.id);
+        void putProject(migrated);
+      } else {
+        setProjects(loadedProjects);
+        setActiveProjectId((loadedProjects.find((p) => !p.archived) ?? loadedProjects[0]).id);
+      }
+    })();
+  }, []);
+
+  /** Applies `fn` to one project (by id) in state and writes the result
+   * through to IndexedDB — the shared update path every Project Manager
+   * action and every "attribute this new thing to the active project"
+   * call site below goes through, so state and storage never drift apart. */
+  const updateProject = useCallback((projectId: string, fn: (p: Project) => Project) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const next = fn(p);
+        void putProject(next);
+        return next;
+      }),
+    );
   }, []);
 
   const handleChange = useCallback((patch: Partial<GenerateParams>) => {
@@ -375,15 +430,113 @@ function App() {
       const activeDna = params.styleDnaId
         ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
         : undefined;
-      const collection = generateCollection(params, activeDna);
-      setGeneratedCollection(collection);
+      const collection: GeneratedCollection = generateCollection(params, activeDna);
       await buildAndDownloadCollectionZip(collection);
+      // "Everything must belong to a Project": if somehow nothing is
+      // active (e.g. every project was deleted), create a fresh one on the
+      // spot rather than silently dropping the collection just generated.
+      let projectId = activeProjectId;
+      if (!projectId) {
+        const fresh = createProject('โปรเจกต์ใหม่');
+        setProjects((prev) => [fresh, ...prev]);
+        void putProject(fresh);
+        setActiveProjectId(fresh.id);
+        projectId = fresh.id;
+      }
+      updateProject(projectId, (p) => addCollectionToProject(p, collection));
       setCollectionStatus('done');
       setCollectionGeneratedForSeed(params.seed);
     } catch {
       setCollectionStatus('idle');
     }
-  }, [params, buildAndDownloadCollectionZip]);
+  }, [params, buildAndDownloadCollectionZip, activeProjectId, updateProject]);
+
+  const handleExportCollectionZip = useCallback(
+    (collectionEntryId: string) => {
+      const project = projects.find((p) => p.id === activeProjectId);
+      const entry = project?.collections.find((c) => c.id === collectionEntryId);
+      if (entry) void buildAndDownloadCollectionZip(entry.collection);
+    },
+    [projects, activeProjectId, buildAndDownloadCollectionZip],
+  );
+
+  const handleSetUploadStatus = useCallback(
+    (collectionEntryId: string, site: StockSiteId, status: UploadStatus) => {
+      if (!activeProjectId) return;
+      updateProject(activeProjectId, (p) => setCollectionUploadStatus(p, collectionEntryId, site, status));
+    },
+    [activeProjectId, updateProject],
+  );
+
+  // --- Project Manager (Create/Open/Duplicate/Rename/Archive/Delete/
+  // Favorite) — every action here is a pure projectManager.ts transform
+  // applied via updateProject, which writes through to IndexedDB. ---
+  const handleCreateProject = useCallback(() => {
+    const name = window.prompt('ตั้งชื่อโปรเจกต์ใหม่', 'โปรเจกต์ใหม่');
+    if (!name || !name.trim()) return;
+    const project = createProject(name.trim());
+    setProjects((prev) => [project, ...prev]);
+    void putProject(project);
+    setActiveProjectId(project.id);
+  }, []);
+
+  const handleSwitchProject = useCallback((id: string) => setActiveProjectId(id), []);
+
+  const handleOpenProjectFromDashboard = useCallback((id: string) => {
+    setActiveProjectId(id);
+    setView('editor');
+  }, []);
+
+  const handleDuplicateProject = useCallback(
+    (id: string) => {
+      const project = projects.find((p) => p.id === id);
+      if (!project) return;
+      const dup = duplicateProject(project);
+      setProjects((prev) => [dup, ...prev]);
+      void putProject(dup);
+    },
+    [projects],
+  );
+
+  const handleRenameProject = useCallback(
+    (id: string, name: string) => updateProject(id, (p) => renameProject(p, name)),
+    [updateProject],
+  );
+
+  const handleToggleArchiveProject = useCallback((id: string) => updateProject(id, (p) => toggleArchive(p)), [updateProject]);
+  const handleToggleFavoriteProject = useCallback((id: string) => updateProject(id, (p) => toggleFavorite(p)), [updateProject]);
+
+  const handleDeleteProject = useCallback((id: string) => {
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+    void deleteProject(id);
+    setActiveProjectId((prev) => (prev === id ? null : prev));
+  }, []);
+
+  const handleExportProjectJson = useCallback(
+    (id: string) => {
+      const project = projects.find((p) => p.id === id);
+      if (!project) return;
+      const slug = project.name.toLowerCase().replace(/[^a-z0-9ก-๙]+/gi, '-').replace(/^-+|-+$/g, '') || 'project';
+      downloadBlobFile(`${slug}-project.json`, new Blob([exportProjectJson(project)], { type: 'application/json' }));
+    },
+    [projects],
+  );
+
+  const handleImportProjectJson = useCallback((file: File) => {
+    file
+      .text()
+      .then((text) => {
+        const result = importProjectJson(text);
+        if (!result.ok || !result.project) {
+          window.alert(result.error ?? 'นำเข้าไม่สำเร็จ');
+          return;
+        }
+        const imported = result.project;
+        setProjects((prev) => (prev.some((p) => p.id === imported.id) ? prev.map((p) => (p.id === imported.id ? imported : p)) : [imported, ...prev]));
+        void putProject(imported);
+      })
+      .catch(() => window.alert('อ่านไฟล์ไม่สำเร็จ — ตรวจว่าเลือกไฟล์ Project JSON ที่ถูกต้อง'));
+  }, []);
 
   // --- Saved library (คลังลายที่บันทึก): long-term keeps with per-site
   // submission tracking, independent of the rolling Gallery. Saving also
@@ -401,8 +554,9 @@ function App() {
     };
     setSaved((prev) => [item, ...prev]);
     void putSavedItem(item);
+    if (activeProjectId) updateProject(activeProjectId, (p) => addSavedItemToProject(p, item.id));
     handleDownloadBundle(tileData);
-  }, [tileData, filenameParts, handleDownloadBundle]);
+  }, [tileData, filenameParts, handleDownloadBundle, activeProjectId, updateProject]);
 
   const handleLoadSaved = useCallback((item: SavedItem) => {
     setTileData(item.tileData);
@@ -413,6 +567,16 @@ function App() {
   const handleRemoveSaved = useCallback((id: string) => {
     setSaved((prev) => prev.filter((s) => s.id !== id));
     void deleteSavedItem(id);
+    // Also drop the now-dangling reference from whichever project(s) held
+    // it, so a Project's savedItemIds never points at a deleted item.
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (!p.savedItemIds.includes(id)) return p;
+        const next = removeSavedItemFromProject(p, id);
+        void putProject(next);
+        return next;
+      }),
+    );
   }, []);
 
   /** Update one saved item in state and write it through to IndexedDB. */
@@ -466,8 +630,9 @@ function App() {
     }));
     setSaved((prev) => [...items, ...prev]);
     void bulkPutSavedItems(items);
+    if (activeProjectId) updateProject(activeProjectId, (p) => items.reduce((acc, it) => addSavedItemToProject(acc, it.id), p));
     setCheckedGalleryIds(new Set());
-  }, [gallery, checkedGalleryIds, filenameParts]);
+  }, [gallery, checkedGalleryIds, filenameParts, activeProjectId, updateProject]);
 
   // Colorway collection: rebuild the current pattern (same seed, same
   // composition) once per palette and save the whole set into the library
@@ -495,7 +660,8 @@ function App() {
     });
     setSaved((prev) => [...items, ...prev]);
     void bulkPutSavedItems(items);
-  }, [tileData, filenameParts]);
+    if (activeProjectId) updateProject(activeProjectId, (p) => items.reduce((acc, it) => addSavedItemToProject(acc, it.id), p));
+  }, [tileData, filenameParts, activeProjectId, updateProject]);
 
   // Standalone CSV downloads (the same CSVs also ship inside the
   // move-to-disk zip). Filenames use .eps since that's what actually gets
@@ -610,6 +776,29 @@ function App() {
           📖 คู่มือการใช้งาน
         </a>
       </header>
+      <ProjectBar
+        projects={projects}
+        activeProjectId={activeProjectId}
+        onSwitch={handleSwitchProject}
+        onCreate={handleCreateProject}
+        onOpenDashboard={() => setView('dashboard')}
+      />
+      {view === 'dashboard' ? (
+        <ProjectDashboard
+          projects={projects}
+          activeProjectId={activeProjectId}
+          onOpen={handleOpenProjectFromDashboard}
+          onDuplicate={handleDuplicateProject}
+          onRename={handleRenameProject}
+          onToggleArchive={handleToggleArchiveProject}
+          onToggleFavorite={handleToggleFavoriteProject}
+          onDelete={handleDeleteProject}
+          onCreate={handleCreateProject}
+          onClose={() => setView('editor')}
+          onExportJson={handleExportProjectJson}
+          onImportJson={handleImportProjectJson}
+        />
+      ) : (
       <div className="app-body">
         <ControlPanel
           params={params}
@@ -650,11 +839,11 @@ function App() {
             onToggleCheck={handleToggleGalleryCheck}
             onSaveChecked={handleSaveCheckedGallery}
           />
-          <CollectionWorkspace
-            collection={generatedCollection}
+          <ProjectPanel
+            project={projects.find((p) => p.id === activeProjectId) ?? null}
             building={collectionStatus === 'building'}
-            onGenerate={handleGenerateCollection}
-            onExportZip={() => generatedCollection && void buildAndDownloadCollectionZip(generatedCollection)}
+            onExportCollectionZip={handleExportCollectionZip}
+            onSetUploadStatus={handleSetUploadStatus}
           />
           <StockSubmissionCenter tileData={tileData} saved={saved} collectionGeneratedForSeed={collectionGeneratedForSeed} />
           <SavedPanel
@@ -672,6 +861,7 @@ function App() {
           />
         </main>
       </div>
+      )}
     </div>
   );
 }

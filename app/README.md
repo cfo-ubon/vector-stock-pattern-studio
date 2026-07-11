@@ -1042,32 +1042,23 @@ own already-generated data, no placeholder numbers:
   missing required asset type or a corrupted SVG genuinely lowers
   `commercialReadiness`.
 
-### Collection Workspace (`components/CollectionWorkspace.tsx`)
+### Collection browsing UI — now `components/ProjectPanel.tsx` (v1.34)
 
-The in-app "Collection tab" — previously (v1.31) clicking "Generate
-Collection" only auto-downloaded a zip with nothing browsable in-app; this
-adds the browsing/scoring layer on top without changing that one-click
-download behavior. Renders whenever `App.tsx`'s `generatedCollection` state
-is populated: a Collection Score readout (reusing the same
-`quality-overall`/`quality-bar`/`scoreColor` convention as `QualityPanel`),
-a button per asset to switch the preview (raw SVG injected via
-`dangerouslySetInnerHTML` after stripping the XML declaration — the same
-pattern `PreviewCanvas` already established for rendering generated SVG
-markup — or a `<pre>`-formatted JSON view for the `metadata`/`seoPackage`
-assets), a per-asset download button (`downloadSvgFile`/`downloadBlobFile`,
-reused directly from `export/svgExporter.ts`), and an "Export ZIP" button
-that re-triggers `buildAndDownloadCollectionZip` without regenerating.
-
-- Verified end-to-end via Playwright against the real dev server: clicked
-  "Generate Collection", confirmed the real zip downloaded (20 files,
-  correct folder structure including the new `svg/spot/`/`svg/preview/`
-  folders, `Collection.json` parses with `schemaVersion: 2` and
-  `consistency.consistent: true`), confirmed the Collection Workspace
-  rendered with a 100/100 Collection Score, clicked through all 18 asset
-  buttons (5 patterns + 4 border + 4 corner + 2 sheets + preview + metadata
-  + seoPackage) and confirmed each renders its own SVG/JSON, re-clicked
-  "Export ZIP" and confirmed a second zip downloads without regenerating,
-  zero console errors.
+v1.33 shipped this browsing/scoring layer as a standalone
+`components/CollectionWorkspace.tsx`, holding one ephemeral
+`GeneratedCollection` in `App.tsx` state (lost on refresh, nothing else
+browsable). v1.34's Project Studio Engine (see its own section below)
+folded this exact UI (asset switcher, Collection Score readout, per-asset
+download, "Export ZIP") into `ProjectPanel.tsx`'s `CollectionAndAssetBrowser`
+sub-component, now reading from a **persisted** `ProjectCollectionEntry`
+inside the active Project instead of ephemeral state — same rendering
+technique throughout (raw SVG via `dangerouslySetInnerHTML` after stripping
+the XML declaration, `<pre>`-formatted JSON for `metadata`/`seoPackage`
+assets, `downloadSvgFile`/`downloadBlobFile` reused directly from
+`export/svgExporter.ts`), just no longer disappears on refresh or when a
+second Collection is generated. `CollectionWorkspace.tsx` was deleted, not
+kept alongside it — see the Project Studio Engine section for the full
+Playwright verification.
 
 ## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
 
@@ -1151,9 +1142,152 @@ to stock sites — not just generating copy-paste metadata (which
   shows a real computed score, 5 readiness cards render, zero console
   errors on either viewport.
 
+## Project Studio Engine (`project/`, `storage/db.ts`, `storage/projectStore.ts`, `components/ProjectBar.tsx`, `components/ProjectDashboard.tsx`, `components/ProjectPanel.tsx`)
+
+Transforms the app from a pattern generator into a Commercial Design
+Workspace: every Concept/Moodboard/Style DNA/Collection/Asset/Metadata/SEO/
+Export History/Upload Status/Note now belongs to a persisted **Project**
+(`project/projectTypes.ts`), not scattered ephemeral state. Navigation model
+was an explicit product decision (`AskUserQuestion`): an **Active-Project
+bar** — the pattern editor stays the default screen exactly as before, no
+forced "open a project first" gate — rather than a Figma/Canva-style
+dashboard-first app shell, which would have been a much larger and riskier
+rewrite of every existing feature's entry point for the same acceptance
+criterion ("everything belongs to a Project").
+
+### Shared IndexedDB plumbing (`storage/db.ts`)
+
+Previously `storage/savedStore.ts` owned its own private `indexedDB.open('vsp-db', 1)`
+call. Project System needed a second object store in the same database, and
+two independent `indexedDB.open` calls with different version numbers would
+race/conflict — so the opening logic (the one `onupgradeneeded` allowed to
+create object stores), `idbAvailable`, `requestAsPromise`, and the generic
+localStorage-fallback `lsLoad`/`lsStore` helpers were extracted into
+`storage/db.ts`, bumping `DB_VERSION` 1 → 2 to add the new `projects` store
+alongside the existing `saved` store (untouched — no data migration, no
+shape change, `savedStore.ts` now just imports the shared helpers instead of
+defining its own copies).
+
+### Project data model (`project/projectTypes.ts`)
+
+`Project` = `{ id, name, favorite, archived, createdAt, updatedAt, concept,
+styleDnaId?, moodboard, notes, savedItemIds, collections, exportHistory }`.
+Deliberately doesn't duplicate data that already has a real home elsewhere:
+`savedItemIds` references `storage/savedStore.ts`'s existing Saved Library
+by id rather than copying `SavedItem`s; `collections` holds real
+`ProjectCollectionEntry` objects (`{ id, createdAt, collection:
+GeneratedCollection, uploadStatus }`) — the *actual* `GeneratedCollection`
+from `collection/collectionGenerator.ts`, not a summary, so a Collection
+persists exactly as generated and every existing Collection Studio Engine
+function (`computeCollectionScore`, asset SVGs, `patternParams`) keeps
+working unmodified against it. Moodboard items are lightweight color/note
+entries (no image upload — kept in scope with the app's "everything runs in
+your browser, no external calls, no file-storage-size concerns" convention,
+the same kind of scope call the Collection Preview's "no embedded SVG text"
+decision made in v1.33).
+
+### Project Manager (`project/projectManager.ts`)
+
+Pure, DOM-free functions for every Project Manager action — `createProject`,
+`duplicateProject` (new id, `(copy)` suffix, independently-cloned nested
+arrays so editing the duplicate never mutates the original), `renameProject`,
+`toggleFavorite`, `toggleArchive`, `updateConcept`/`updateNotes`,
+`addMoodboardItem`/`removeMoodboardItem`, `addCollectionToProject` (appends
+the collection *and* records one `ProjectExportHistoryEntry` in the same
+call, since a Collection only ever enters a Project by being generated —
+the two can't drift out of sync), `removeCollectionFromProject`,
+`setCollectionUploadStatus`, `addSavedItemToProject`/`removeSavedItemFromProject`.
+Every function returns a new object (never mutates its input), the same
+immutable-update convention as every other reducer-shaped helper in this
+app — `App.tsx`'s `updateProject(projectId, fn)` applies one of these and
+writes the result through to `storage/projectStore.ts` in one place, so
+state and IndexedDB never drift apart.
+
+`migrateLegacyDataIntoProject(savedItems)` builds the one-time migration
+Project (`LEGACY_PROJECT_NAME` = "คลังลายเดิม (ก่อนมี Project)") that
+adopts every pre-existing Saved Library item by id — run once, on `App.tsx`'s
+mount effect, only when `loadProjects()` returns empty, so "everything
+belongs to a Project" holds immediately for existing users too, not just
+data created going forward.
+
+### Project Dashboard stats + Asset Browser (`project/projectStats.ts`)
+
+`listProjectAssets(project)` flattens every asset across every Collection in
+the project into one browsable list (the Asset Browser's data source — real
+assets from already-generated collections, not a separate cross-collection
+asset library; same "per-collection, not a persistent cross-session
+library" scope the Style DNA milestone's Motif Factory decision set).
+`computeProjectStats(project)` derives the Dashboard's 6 stat fields purely
+from the project's own data: `collectionsCount`, `assetsCount`, `svgCount`,
+`metadataStatus` (complete/partial/missing, based on how many collections
+carry a `metadata` asset), `exportStatus` (exported/never), `uploadStatus`
+(allReady/inProgress/notStarted/noCollections, aggregated across every site
+on every collection) — no separate stored counters that could drift from
+reality.
+
+### Designer Assistant (`project/designerAssistant.ts`)
+
+`reviewProject(project)` — same scoping precedent as every other
+not-yet-a-full-Phase-8-engine Designer Assistant check in this app (Style
+DNA's drift display, the Collection's `verifyConsistency`, the Stock
+Submission Center's recommendations): a real, rule-based review computed
+from the project's own already-generated data, reusing
+`collection/collectionScore.ts`'s `computeCollectionScore` per collection
+rather than re-deriving its checks. Flags an empty project, aggregates every
+collection's own score issues, genuinely detects a Style DNA mismatch
+*across* collections in the same project (a check that doesn't exist at the
+single-collection level), and recommends filling in Concept/Moodboard when
+empty.
+
+### Project JSON (`project/projectJson.ts`)
+
+`exportProjectJson(project)` serializes a `Project` (wrapped with
+`schemaVersion`/`exportedAt`) to one JSON document — "everything must save
+inside one project" holds literally, since a Collection's full manifest+
+assets already live on the `Project` object itself, nothing external needs
+joining in. `importProjectJson(json)` parses and structurally validates it
+back (checks `id`/`name`/array-shaped `collections`/`savedItemIds`/
+`exportHistory` are present — deliberately lenient about `schemaVersion`
+itself, since the shape is what's actually checked).
+
+### UI (`components/ProjectBar.tsx`, `components/ProjectDashboard.tsx`, `components/ProjectPanel.tsx`)
+
+- **ProjectBar** — persistent header strip: active-project `<select>`
+  switcher, "+ โปรเจกต์ใหม่" (`window.prompt` for a name — the same
+  confirm/prompt convention `SavedPanel`'s delete flow already uses), and
+  "📊 Project Dashboard" to open the full-screen Project Manager.
+- **ProjectDashboard** — the Project Manager: a card grid (thumbnail = the
+  most recent collection's hero SVG, inline via `dangerouslySetInnerHTML`)
+  with real per-project stats from `computeProjectStats` and every CRUD
+  action, an archived-projects toggle, and Project JSON export/import
+  (`<input type="file">` reusing the same pattern `SavedPanel`'s "นำเข้า
+  backup" already established).
+- **ProjectPanel** — renders in the editor's main column whenever a Project
+  is active: Collection Browser (every `ProjectCollectionEntry` in the
+  project), the selected collection's `CollectionAndAssetBrowser`
+  sub-component (Asset Browser + Collection Score + new Metadata Browser +
+  new Upload Tracker), project-wide Export History, and the Designer
+  Assistant review — this is the direct evolution of v1.33's
+  `CollectionWorkspace.tsx` (see the note above). `App.tsx`'s
+  `handleGenerateCollection` now attributes every newly generated Collection
+  to `activeProjectId` (creating a fresh project on the fly in the
+  pathological case where none is active, so a Collection is never silently
+  dropped) instead of holding it in isolated ephemeral state.
+
+- Verified end-to-end via Playwright against the real dev server: fresh
+  load auto-migrates into one default project (visible in the Active-Project
+  bar immediately, no existing data lost), clicking "Generate Collection"
+  downloads the real zip *and* attributes the collection to the active
+  project (Collection Browser, Asset Browser, Metadata Browser with a real
+  SEO score, Upload Tracker all populate correctly), cycling an upload
+  status persists it, opening the Project Dashboard shows correct real
+  stats, Create/Duplicate/Rename/Export JSON/Archive/un-Archive all work
+  against the real UI, returning to the editor keeps the Project Panel
+  intact — zero console errors throughout.
+
 ## Testing
 
-`npm test` runs `vitest run` — 313 tests across 21 files:
+`npm test` runs `vitest run` — 342 tests across 25 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1336,6 +1470,38 @@ to stock sites — not just generating copy-paste metadata (which
   `buildSubmissionRecommendations`: empty for a fully healthy pattern, and
   produces a real recommendation that names the specific missing checklist
   item when one is missing.
+- `project/projectManager.test.ts` — `createProject` starts empty;
+  `duplicateProject` gets a new id, `(copy)` name, and independently-cloned
+  (non-shared-reference) nested arrays; rename/favorite/archive toggle
+  correctly and independently; `addCollectionToProject` appends the
+  collection and records exactly one export history entry, a second
+  addition prepends (newest-first) and accumulates history;
+  `removeCollectionFromProject` removes without touching history;
+  `setCollectionUploadStatus` updates one site without disturbing others;
+  saved-item id references dedupe on add and remove cleanly;
+  `migrateLegacyDataIntoProject` references every pre-existing saved item
+  id (and handles an empty library).
+- `project/projectStats.test.ts` — `listProjectAssets` is empty for a
+  collection-less project and flattens every asset across every collection,
+  tagged with its own collection; `computeProjectStats` reports
+  zeroed/empty stats for a brand-new project, real counts and
+  complete/exported status once a collection exists, and correctly
+  transitions upload status through notStarted → inProgress → allReady as
+  sites are marked; fully deterministic.
+- `project/designerAssistant.test.ts` — `reviewProject` flags an empty
+  project and recommends generating a collection; a healthy single-
+  collection project has no issues and a 100 average score; still
+  recommends filling in Concept/Moodboard until they're set, then stops
+  recommending once they are; genuinely flags a real Style DNA mismatch
+  *across* multiple collections in the same project (regression guard);
+  fully deterministic.
+- `project/projectJson.test.ts` — round-trips a project (with a collection)
+  through export/import back to an equivalent object (compared against the
+  JSON-normalized shape, since serialization legitimately drops explicit
+  `undefined` fields); the exported document carries the current schema
+  version and a real `exportedAt` timestamp; rejects invalid JSON,
+  well-formed-but-wrong-shape JSON, and a project object missing required
+  array fields.
 
 ## Adding a new pattern category
 
@@ -1385,11 +1551,19 @@ src/
     svgExporter.ts    single-tile / pre-tiled SVG string builders + download
     previewMarkup.ts  <pattern>-based markup for on-screen preview/thumbnails
   storage/
-    savedStore.ts       IndexedDB-backed saved pattern library (localStorage fallback)
+    db.ts               shared IndexedDB open/tx helpers + localStorage fallback (used by both stores below)
+    savedStore.ts       IndexedDB-backed saved pattern library
+    projectStore.ts     IndexedDB-backed Project store
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   collection/
     collectionGenerator.ts   Collection Studio Engine: builds a full Collection (assets + manifest)
     collectionScore.ts       5-dimension Collection Score (consistency + commercial readiness)
+  project/
+    projectTypes.ts        Project/ProjectCollectionEntry/ProjectExportHistoryEntry types
+    projectManager.ts      pure Project CRUD + legacy-data migration
+    projectStats.ts        Dashboard stats + Asset Browser data source
+    designerAssistant.ts   project-wide Designer Assistant review
+    projectJson.ts         Project JSON export/import
   metadata/
     shutterstock.ts        per-site SEO metadata (title/description/keywords)
     contributorLinks.ts     Contributor Portal config: one entry per stock site
@@ -1398,7 +1572,9 @@ src/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
-    CollectionWorkspace.tsx
+    ProjectBar.tsx
+    ProjectDashboard.tsx
+    ProjectPanel.tsx
     PreviewCanvas.tsx
     Gallery.tsx
 ```
