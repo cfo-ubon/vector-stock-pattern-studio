@@ -843,9 +843,147 @@ richer field set and a first-class Manager.
   generated SVG (verified directly: `STYLE_DNA_LIST` fixture test asserts
   two different styles produce different serialized SVG for the same seed).
 
+## Professional Asset Factory Engine (`engine/motifFactory.ts`, `engine/borderCornerAssets.ts`, `collection/collectionGenerator.ts`)
+
+Turns the app from a single-pattern generator into a commercial asset
+factory: one click on "🏭 Generate Collection" turns the current design
+concept (params + active Style DNA) into a full package — 5 pattern
+variants, border + corner assets, 4 motif sheets, a PNG preview, per-site
+metadata + SEO CSVs, and a Collection Manifest — all zipped together. The
+whole content-generation pipeline is DOM-free and unit-testable the same
+way every other engine module is; only PNG rasterization and the final
+`buildZip`/download call live in `App.tsx`, exactly like every other raster
+export in this app.
+
+### Motif Factory (`engine/motifFactory.ts`)
+
+Every other engine module treats a "motif" as purely ephemeral —
+`engine/tile.ts`'s placement loop calls a generator's `createMotif` once
+per placement and immediately wraps/discards the result; nothing stores an
+individual motif as a standalone object. This module is what's genuinely
+new: it calls the exact same `createMotif` functions independently of any
+tile placement and keeps the result as a tagged, inspectable `FactoryMotif`:
+
+- `id`, `family` (`familyForCategory(categoryId)` — a plain lookup table,
+  not per-motif branching), `role`, `category`, `styleDnaId`, `node`
+  (the real SvgNode geometry), `radius`, `bounds` (a real axis-aligned
+  bounding box — see below), `anchors` (`base`/`tip`/`center`, derived
+  purely from that real bounding box, not hand-authored attachment
+  metadata — no such data exists in any generator), `complexity` (0-100,
+  `countNodes(node) / COMPLEXITY_NODE_CEILING`, a real structural measure),
+  `colorRoles` (hex colors from the resolved palette this specific motif's
+  SVG actually references, scanned from its own fill/stroke attributes —
+  not just "the full palette"), `tags`.
+- `engine/svgAst.ts` gained `computeBoundingBox` alongside the existing
+  `computeBoundingRadius` — both now share one `collectWorldPoints` tree
+  walk (refactored out to avoid duplicating the per-tag point-extraction
+  switch), folded differently (max-distance-from-origin vs. min/max
+  axis-aligned box).
+- `createFactoryMotif(opts)` takes an explicit `index` (not a module-level
+  counter) for its id suffix and `colorSeed` — deliberately, so the exact
+  same call always produces the exact same motif regardless of how many
+  other motifs were generated earlier in the app's lifetime; a global
+  mutable counter would have silently broken the "same seed -> same result"
+  guarantee every other engine module upholds.
+- `generateMotifSet(params, {count, role, baseSeed, sizeMul})` — the basis
+  for every non-tile Collection asset, deterministically derived from
+  `baseSeed` via `createRng` (never `Math.random`).
+- `buildMotifSheet(motifs, opts)` — lays a motif set out in a simple
+  reference grid, transparent background, each motif in its own identified
+  group; the shared layout behind Spot Motif Sheet, Single Motif Library,
+  Background Elements, and Decorative Icons (they differ only in which
+  motif set/cell size feeds this one function, not in duplicated layout
+  code).
+
+### Border & Corner assets (`engine/borderCornerAssets.ts`)
+
+Genuinely new layout algorithms — no precedent existed anywhere in
+`/layouts` (every layout there builds a seamless *square* tile wrapped in
+both axes; a border strip only repeats along its running axis, and a
+corner unit doesn't repeat at all).
+
+- `buildBorderStrip({edge, length, band, motifs, rng, count})` — evenly
+  spaces motifs along the running axis at the band's centerline, wrap-
+  cloned only along that one axis (the 1D analogue of `tile.ts`'s 2D
+  wrap-and-clip technique) so the strip tiles seamlessly end-to-end.
+  `top`/`bottom` run horizontally, `left`/`right` run vertically (axis-
+  swapped in the same builder, not a separate rotated copy).
+- `buildCornerUnit({corner, band, motifs, rng, count})` — builds one
+  cluster of motifs concentrated near the corner point and tapering
+  outward (density biased toward the origin via a squared random radius)
+  once in "top-left" convention, then mirrors it into whichever corner was
+  requested via `scale(-1)` — so all 4 corners are visually consistent with
+  each other rather than 4 independently-random clusters, matching how
+  real textile/wallpaper border sets mirror one master corner.
+- `export/svgExporter.ts` gained `buildSvgDocument(content, width, height, viewBoxWidth?, viewBoxHeight?)`,
+  the shared `<svg>`-document wrapper `buildSingleTileSvg` was refactored
+  to call — reused by every Collection asset that isn't a `TileData` (border/
+  corner/sheets don't have one).
+
+### Collection Generator (`collection/collectionGenerator.ts`)
+
+`generateCollection(baseParams, styleDna?)` orchestrates all of the above
+into one `GeneratedCollection`:
+
+- **5 pattern-type assets** — Hero (base params as-is), Secondary (an
+  alternate layout — from the active Style DNA's own family if one is set,
+  else the next real layout in the registry — plus `denseLayered`
+  hierarchy), Coordinate (`scatter` layout, lower density, more negative
+  space, `minimalRepeat` hierarchy — an open "blender" print), Mini (half
+  tile size, smaller motifs, higher density — a ditsy-scale repeat),
+  Stripe (`layoutId: 'stripe'`, already a real existing layout). All 5 are
+  ordinary `buildTile` calls sharing `categoryId`/`paletteId`/`styleDnaId`,
+  each with its own deterministic seed via `candidateEngine.ts`'s existing
+  `deriveSeed` (reused, not reimplemented).
+- **Border (4 edges) + Corner (4 corners)** — built from a shared Motif
+  Factory set via `borderCornerAssets.ts`.
+- **4 motif sheets** — Spot Motif Sheet, Single Motif Library, Background
+  Elements, Decorative Icons — each a `generateMotifSet` + `buildMotifSheet`
+  pair with different role/count/size.
+- **Metadata + SEO Package** — 100% reuse of the existing per-site
+  metadata builders: `buildSiteMetadata`/`buildSeoTextFile`
+  (`metadata/shutterstock.ts`) for the hero pattern, and
+  `buildShutterstockCsv`/`buildAdobeStockCsv` (`metadata/csv.ts`) across
+  all 5 pattern-type assets (via lightweight `SavedItem`-shaped wrapper
+  objects, the same public shape those functions already consume for the
+  saved library).
+- **Collection Manifest** (`CollectionManifest`, `COLLECTION_SCHEMA_VERSION`) —
+  `collectionId`/`collectionName`/`createdAt`/`styleDnaId`/`seed`/`palette`/
+  `motifFamily`, every asset's id/type/label/filename/motifIds, every
+  Motif Factory motif's id/family/role/category/complexity/tags, an
+  explicit `relationships` list (the flattened asset->motif pairs — only
+  border/corner/sheet assets carry real motif relationships; the 5
+  pattern-type tiles draw motifs through `tile.ts`'s own inline
+  `createMotif` calls, which aren't tracked as `FactoryMotif` objects, so
+  they're honestly left with an empty `motifIds` list rather than a fake
+  one), and a `consistency` check.
+- **`verifyConsistency(patternParams)`** — a lightweight, real, rule-based
+  check (exported and directly unit-tested, including the negative path)
+  that the 5 pattern-type assets genuinely share one palette, one Style
+  DNA, and one category — the same "Designer Assistant must verify
+  collection consistency" requirement, scoped the same way Style DNA
+  scoped its own not-yet-built-engine dependencies: a real, useful check
+  built now, not a placeholder waiting on the still-nonexistent Phase 8
+  Designer Assistant engine.
+- **`App.tsx`'s `handleGenerateCollection`** adds the one DOM-dependent
+  step the pure `collection/` module can't do itself — rasterizing the
+  hero pattern to a PNG preview via a new Promise-based
+  `rasterizeSvgToPngBlob` (same `<canvas>` technique as the existing
+  JPEG export, just returning a Blob instead of calling
+  `downloadBlobFile` directly) — then zips everything with
+  `export/zip.ts`'s existing `buildZip` into `svg/patterns/`,
+  `svg/border/`, `svg/corner/`, `svg/sheets/`, `metadata/`, `preview/`,
+  plus `manifest.json` at the root.
+- Verified end-to-end via Playwright against the real dev server: applied
+  a Style DNA, clicked "Generate Collection", downloaded the real zip, and
+  inspected its contents directly (21 files, correct folder structure,
+  `manifest.json` parses with `consistency.consistent: true`, the PNG
+  preview is a real valid 2000x2000 RGBA PNG, no NaN/Infinity in any SVG),
+  zero console errors.
+
 ## Testing
 
-`npm test` runs `vitest run` — 246 tests across 16 files:
+`npm test` runs `vitest run` — 285 tests across 19 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -969,6 +1107,39 @@ richer field set and a first-class Manager.
   `data-style-dna-*` attributes when `styleDnaId` is unset (backward
   compatible), id/name/version embedded correctly when it's set, and an
   unknown/custom style id falls back to embedding the id itself as the name.
+- `engine/motifFactory.test.ts` — `familyForCategory` covers every
+  registered category; `createFactoryMotif` produces a real positive-area
+  bounding box/finite radius, is deterministic for the same rng state,
+  produces base/tip/center anchors consistent with the real bounding box,
+  complexity is bounded [0, 100] for every category, `colorRoles` is always
+  a subset of the input palette, tags always include category/role/family,
+  and id is derived from category/role/index (not a global counter, so
+  repeat calls never collide or drift); `generateMotifSet` covers count,
+  determinism, seed sensitivity, `sizeMul` scaling, and role/styleDnaId
+  propagation.
+- `engine/borderCornerAssets.test.ts` — `buildBorderStrip` produces
+  correct wide-vs-tall dimensions per edge, is deterministic, never emits
+  NaN/Infinity, and places at least the requested motif count;
+  `buildCornerUnit` is always a square `band x band` unit, is deterministic,
+  never emits NaN/Infinity for any of the 4 corners, and the 3 mirrored
+  corners genuinely differ in structure from the un-mirrored top-left base.
+- `collection/collectionGenerator.test.ts` — every required asset type is
+  present at least once, exactly 4 border + 4 corner assets, full
+  determinism (excluding the real-wall-clock `createdAt`), a different seed
+  produces a genuinely different collection, every SVG asset is a well-
+  formed document with no NaN/Infinity/raster; every pattern asset shares
+  category/palette (the manifest's own consistency check reports
+  `consistent: true`), the active Style DNA id carries through, the
+  positive-path guarantee holds across a sample of built-in styles, and
+  `verifyConsistency` genuinely flags a real palette/style/category
+  disagreement when given deliberately-mismatched params (the negative-path
+  regression guard for the Designer-Assistant-style consistency check);
+  every border/corner/sheet asset's `motifIds` reference real ids in the
+  returned motif set, and the manifest's `relationships` list is exactly
+  the flattened asset->motif pairs; the manifest schema version, unique
+  filenames, and seed/palette fields; the metadata asset carries all 5
+  stock sites' fields, and the SEO Package asset's CSVs cover all 5
+  pattern-type assets.
 
 ## Adding a new pattern category
 
@@ -1020,6 +1191,8 @@ src/
   storage/
     savedStore.ts       IndexedDB-backed saved pattern library (localStorage fallback)
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
+  collection/
+    collectionGenerator.ts   Professional Asset Factory: builds a full Collection (assets + manifest)
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx

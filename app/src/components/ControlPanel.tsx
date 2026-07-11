@@ -41,6 +41,8 @@ interface Props {
   onExportJpeg3x3: () => void;
   onColorwayAll: () => void;
   onReset: () => void;
+  onGenerateCollection: () => void;
+  collectionStatus: 'idle' | 'building' | 'done';
   aiPanel?: React.ReactNode;
 }
 
@@ -78,6 +80,8 @@ export function ControlPanel({
   onExportJpeg3x3,
   onColorwayAll,
   onReset,
+  onGenerateCollection,
+  collectionStatus,
   aiPanel,
 }: Props) {
   const mixMode = !!params.mixCategoryIds;
@@ -546,6 +550,15 @@ export function ControlPanel({
         </button>
         <button type="button" className="btn" onClick={onGenerateBatch}>
           Generate 9 variations
+        </button>
+        <button
+          type="button"
+          className="btn btn--save"
+          onClick={onGenerateCollection}
+          disabled={collectionStatus === 'building'}
+          title="สร้างชุด asset เชิงพาณิชย์ครบชุดจากตัวตนเดียวกัน (Style DNA/หมวด/ชุดสีเดียวกันทั้งหมด): Hero/Secondary/Coordinate/Mini/Stripe pattern, Border 4 ด้าน, Corner 4 มุม, Spot Motif Sheet, Single Motif Library, Background Elements, Decorative Icons, PNG preview, metadata + SEO package, และ manifest.json — ดาวน์โหลดเป็น zip เดียว"
+        >
+          {collectionStatus === 'building' ? '🏭 กำลังสร้างคอลเลกชัน…' : collectionStatus === 'done' ? '✅ สร้างคอลเลกชันอีกครั้ง' : '🏭 Generate Collection (ZIP)'}
         </button>
         <div className="candidate-controls" title="สร้างลายหลายแบบจาก seed เดียวกัน วิเคราะห์คุณภาพจริงจากโครงสร้างภาพ แล้วเลือกลายที่คะแนนสูงสุดมาแสดง">
           <div className="candidate-controls-row">
