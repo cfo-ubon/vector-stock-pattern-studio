@@ -1,6 +1,6 @@
 import type { TileData } from './types';
 import { serialize } from './svgAst';
-import { extractInstances, gridCoverage, periodicDist, countNodes, type MotifInstance } from './svgGeometry';
+import { extractInstances, extractMotifShapeSignatures, gridCoverage, periodicDist, periodicOffset, countNodes, type MotifInstance } from './svgGeometry';
 
 // Composition Scoring Engine — the broader metric set the Candidate Engine
 // uses to rank generated tiles against each other. Every number is derived
@@ -34,6 +34,31 @@ export interface CompositionMetrics {
   adjacencyRepetition: number;
   seamlessIntegrity: number;
   svgHealth: number;
+  /** SVG Intelligence Engine Phase 3 (Section 10 — "never fake scores"):
+   * a genuine directional-coherence measurement (does the placement
+   * sequence read as a deliberate flow — S-curve, diagonal, radial sweep —
+   * or as scattered zigzag), not a proxy averaged from unrelated metrics.
+   * See `computeFlowCoherence`. */
+  flowCoherence: number;
+  /** Real periodicity-strength measurement: how tightly nearest-neighbor
+   * spacings cluster around a small number of dominant "beat" intervals,
+   * via histogram entropy — a genuinely different statistic from
+   * `spacing`'s plain coefficient-of-variation. See
+   * `computeRhythmRegularity`. */
+  rhythmRegularity: number;
+  /** Real shape-topology diversity (Shannon entropy over each motif's
+   * rotation/scale/position-invariant path-command signature — see
+   * `svgGeometry.ts`'s `extractMotifShapeSignatures`), distinct from
+   * `scaleDiversity`/`rotationDiversity` (which only see *how* a shape was
+   * placed, never *which* shape it was). */
+  motifShapeDiversity: number;
+  /** Real corner-junction density-balance measurement: when a tile repeats,
+   * its 4 corners meet at one point — a real, well-known seamless-pattern
+   * defect is a "dead cross" at every one of those junctions even when the
+   * tile's overall density looks fine. Distinct from `edgeDensity` (which
+   * averages *all* border cells, diluting this specific hot spot). See
+   * `computeCornerContinuity`. */
+  cornerContinuity: number;
 }
 
 function clamp01to100(n: number): number {
@@ -296,6 +321,145 @@ function computeHeroSeparation(instances: MotifInstance[], tileSize: number, ove
   return ratio >= 1 ? 100 : clamp01to100(ratio * 100);
 }
 
+/** Greedy nearest-neighbor visiting order over `instances` (a cheap TSP
+ * heuristic — good enough for a "does the eye's path through this pattern
+ * flow smoothly" measurement, not meant to be an optimal tour). O(n^2),
+ * same complexity class `findNearest` above already accepts for this
+ * instance-count range. */
+function buildNearestNeighborChain(instances: MotifInstance[], tileSize: number): number[] {
+  const n = instances.length;
+  const visited = new Array(n).fill(false);
+  const order = [0];
+  visited[0] = true;
+  for (let step = 1; step < n; step++) {
+    const last = instances[order[order.length - 1]];
+    let bestIdx = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < n; i++) {
+      if (visited[i]) continue;
+      const d = periodicDist(last, instances[i], tileSize);
+      if (d < bestDist) {
+        bestDist = d;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx === -1) break;
+    order.push(bestIdx);
+    visited[bestIdx] = true;
+  }
+  return order;
+}
+
+/** Flow Score: walks a nearest-neighbor chain through every motif instance
+ * and measures how smoothly the *direction* changes step to step (average
+ * cosine similarity between consecutive direction vectors, mapped from
+ * [-1, 1] to [0, 100]). A composition with a real, deliberate flow (an
+ * S-curve, a diagonal sweep, a radial spiral) has motifs whose nearest-
+ * neighbor chain consistently points in a slowly-turning direction — high
+ * score. Pure random scatter produces an erratic, sign-flipping direction
+ * sequence — low score. This is a genuine geometric measurement of
+ * "flow", not a proxy borrowed from unrelated metrics. */
+function computeFlowCoherence(instances: MotifInstance[], tileSize: number): number {
+  if (instances.length < 3) return 100;
+  const order = buildNearestNeighborChain(instances, tileSize);
+  const dirs: Array<{ x: number; y: number }> = [];
+  for (let i = 0; i < order.length - 1; i++) {
+    const { dx, dy } = periodicOffset(instances[order[i]], instances[order[i + 1]], tileSize);
+    const len = Math.hypot(dx, dy);
+    if (len > 1e-6) dirs.push({ x: dx / len, y: dy / len });
+  }
+  if (dirs.length < 2) return 100;
+  let sumCos = 0;
+  for (let i = 0; i < dirs.length - 1; i++) {
+    sumCos += dirs[i].x * dirs[i + 1].x + dirs[i].y * dirs[i + 1].y;
+  }
+  const avgCos = sumCos / (dirs.length - 1);
+  return clamp01to100((avgCos + 1) * 50);
+}
+
+/** Rhythm Score: histogram-entropy peakiness of the nearest-neighbor
+ * spacing distribution — real design "rhythm" is a small number of
+ * recurring interval "beats", not just statistically even spacing (which
+ * `spacing`, a plain coefficient-of-variation, already measures and can't
+ * distinguish from "every gap is a different random size but happens to
+ * average out evenly"). Low entropy (spacings cluster into a few peaks) =
+ * strong rhythm; high entropy (flat histogram) = no discernible beat. */
+function computeRhythmRegularity(nearest: Array<{ distance: number }>): number {
+  const distances = nearest.map((n) => n.distance).filter((d) => Number.isFinite(d) && d > 0);
+  if (distances.length < 3) return 100;
+  const mean = distances.reduce((a, b) => a + b, 0) / distances.length;
+  if (mean <= 0) return 100;
+  const binCount = 8;
+  const bins = new Array(binCount).fill(0);
+  for (const d of distances) {
+    const ratio = Math.min(1.999, d / mean);
+    const bin = Math.min(binCount - 1, Math.floor((ratio / 2) * binCount));
+    bins[bin]++;
+  }
+  const n = distances.length;
+  let entropy = 0;
+  for (const c of bins) {
+    if (c <= 0) continue;
+    const p = c / n;
+    entropy -= p * Math.log2(p);
+  }
+  const maxEntropy = Math.log2(binCount);
+  return clamp01to100(100 * (1 - entropy / maxEntropy));
+}
+
+/** Motif Diversity: Shannon entropy over each motif's shape-topology
+ * signature (see `svgGeometry.ts`'s `extractMotifShapeSignatures`),
+ * normalized by the maximum possible entropy for this instance count
+ * (log2(n), reached only when every single instance has a unique shape) —
+ * so this rewards both "how many distinct shapes appear" and "how evenly
+ * they're used", not just evenness of an already-fixed category count. */
+function computeMotifShapeDiversity(signatures: string[]): number {
+  if (signatures.length <= 1) return 0;
+  const counts = new Map<string, number>();
+  for (const sig of signatures) counts.set(sig, (counts.get(sig) ?? 0) + 1);
+  const n = signatures.length;
+  let entropy = 0;
+  for (const c of counts.values()) {
+    const p = c / n;
+    entropy -= p * Math.log2(p);
+  }
+  const maxEntropy = Math.log2(n);
+  return maxEntropy > 0 ? clamp01to100((entropy / maxEntropy) * 100) : 0;
+}
+
+/** Repeat Score, corner half: when a tile repeats, its 4 corners meet at
+ * one shared point — this specifically measures density in the 4 corner-
+ * adjacent grid blocks against the tile's own average cell density, so a
+ * "dead cross" at every repeat junction (a real, well-known seamless-
+ * pattern defect distinct from a raw broken seam, which the wrap-clone
+ * technique already makes structurally impossible) is caught even when
+ * overall `edgeDensity` looks fine. */
+function computeCornerContinuity(instances: MotifInstance[], tileSize: number): number {
+  const { gridN, counts } = gridCoverage(instances, tileSize, 8);
+  const blockSize = 2;
+  const corners: Array<[number, number]> = [
+    [0, 0],
+    [gridN - blockSize, 0],
+    [0, gridN - blockSize],
+    [gridN - blockSize, gridN - blockSize],
+  ];
+  let cornerSum = 0;
+  let cornerCells = 0;
+  for (const [cx, cy] of corners) {
+    for (let dy = 0; dy < blockSize; dy++) {
+      for (let dx = 0; dx < blockSize; dx++) {
+        cornerSum += counts[(cy + dy) * gridN + (cx + dx)];
+        cornerCells++;
+      }
+    }
+  }
+  const cornerAvg = cornerCells > 0 ? cornerSum / cornerCells : 0;
+  const overallAvg = counts.reduce((a, b) => a + b, 0) / counts.length;
+  if (cornerAvg + overallAvg === 0) return 100;
+  const ratio = cornerAvg / (overallAvg || cornerAvg || 1);
+  return clamp01to100(100 - Math.abs(ratio - 1) * 70);
+}
+
 function computeSvgHealth(tileData: TileData, instances: MotifInstance[]): number {
   let score = 100;
   const svgStr = serialize(tileData.svg);
@@ -330,6 +494,10 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
   const edgeDensity = computeEdgeDensity(instances, tileSize);
   const adjacencyRepetition = computeAdjacencyRepetition(instances, nearest);
   const svgHealth = computeSvgHealth(tileData, instances);
+  const flowCoherence = computeFlowCoherence(instances, tileSize);
+  const rhythmRegularity = computeRhythmRegularity(nearest);
+  const motifShapeDiversity = computeMotifShapeDiversity(extractMotifShapeSignatures(tileData));
+  const cornerContinuity = computeCornerContinuity(instances, tileSize);
 
   return {
     composition: Math.round(composition),
@@ -352,6 +520,10 @@ export function computeMetrics(tileData: TileData): CompositionMetrics {
     adjacencyRepetition: Math.round(adjacencyRepetition),
     seamlessIntegrity: 100, // structural guarantee — see engine/qualityScore.ts
     svgHealth: Math.round(svgHealth),
+    flowCoherence: Math.round(flowCoherence),
+    rhythmRegularity: Math.round(rhythmRegularity),
+    motifShapeDiversity: Math.round(motifShapeDiversity),
+    cornerContinuity: Math.round(cornerContinuity),
   };
 }
 
@@ -379,6 +551,12 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     rotationDiversity: 0.06,
     edgeDensity: 0.06,
     largestEmptyRegion: 0.05,
+    // SVG Intelligence Engine Phase 3: real geometry, not a proxy — see
+    // each metric's own doc comment on CompositionMetrics.
+    cornerContinuity: 0.08,
+    motifShapeDiversity: 0.06,
+    flowCoherence: 0.04,
+    rhythmRegularity: 0.04,
   },
   textilePremium: {
     spacing: 0.16,
@@ -390,6 +568,11 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     colorBalance: 0.09,
     svgHealth: 0.09,
     largestEmptyRegion: 0.09,
+    // A repeating textile print lives or dies on rhythm/repeat quality.
+    rhythmRegularity: 0.12,
+    cornerContinuity: 0.1,
+    motifShapeDiversity: 0.08,
+    flowCoherence: 0.05,
   },
   editorialBotanical: {
     hierarchy: 0.14,
@@ -402,6 +585,11 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     rotationDiversity: 0.09,
     svgHealth: 0.09,
     largestEmptyRegion: 0.03,
+    // Editorial composition is defined by its flow more than any other style.
+    flowCoherence: 0.12,
+    cornerContinuity: 0.07,
+    motifShapeDiversity: 0.06,
+    rhythmRegularity: 0.04,
   },
   denseLuxury: {
     overlapQuality: 0.16,
@@ -414,6 +602,10 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
     svgHealth: 0.08,
     spacing: 0.07,
     largestEmptyRegion: 0.02,
+    cornerContinuity: 0.1,
+    motifShapeDiversity: 0.08,
+    rhythmRegularity: 0.05,
+    flowCoherence: 0.04,
   },
 };
 
@@ -442,6 +634,10 @@ const METRIC_LABELS: Partial<Record<keyof CompositionMetrics, string>> = {
   edgeDensity: 'edge density balance',
   adjacencyRepetition: 'adjacent-motif repetition',
   svgHealth: 'SVG technical health',
+  flowCoherence: 'directional flow coherence',
+  rhythmRegularity: 'spacing rhythm regularity',
+  motifShapeDiversity: 'motif shape diversity',
+  cornerContinuity: 'tile-corner junction balance',
 };
 
 export interface SoftPenaltyRule {
@@ -468,6 +664,8 @@ export const SOFT_PENALTY_RULES: SoftPenaltyRule[] = [
   { id: 'adjacentRepetition', label: 'the same motif repeats in adjacent positions too often', points: 6, check: (m) => m.adjacencyRepetition < 40 },
   { id: 'edgeImbalance', label: 'edge density is noticeably unbalanced against the interior', points: 5, check: (m) => m.edgeDensity < 40 },
   { id: 'lowPaletteContrast', label: 'palette contrast is muddy', points: 5, check: (m) => m.paletteContrast < 25 },
+  { id: 'cornerDeadZone', label: 'the tile-corner junction is noticeably empty or crowded when repeated', points: 8, check: (m) => m.cornerContinuity < 40 },
+  { id: 'repetitiveMotifShapes', label: 'too few distinct motif shapes for the number of instances placed', points: 6, check: (m) => m.motifShapeDiversity < 25 },
 ];
 
 export interface SoftPenaltyResult {

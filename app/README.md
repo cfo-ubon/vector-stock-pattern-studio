@@ -25,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 98 tests, see "Testing" below
+npm test         # vitest run — 836 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -620,19 +620,41 @@ untouched — this is an additive, opt-in pipeline.
   scoring engine doesn't duplicate it — `qualityScore.ts` now imports from
   here too, with zero change to its own six-number output (verified by the
   existing `qualityScore.test.ts` still passing unchanged).
-- `engine/scoring.ts` — `computeMetrics(tileData)` returns 19 metrics
+- `engine/scoring.ts` — `computeMetrics(tileData)` returns 24 metrics
   (composition, spacing, quadrant/horizontal/vertical balance, visual
   center offset, occupancy ratio, density variance, **largest empty
   region**, hierarchy, scale/rotation diversity, color balance, palette
   contrast — real relative-luminance range across the actual palette
   colors, not a placeholder — overlap quality, **hero separation**, edge
   density, adjacency repetition, seamless integrity, SVG technical
-  health), each 0-100 and derived purely from `extractInstances`/
-  `tileData.colors`/the serialized SVG string. `findNearest` computes the
-  nearest-neighbor distance/instance for every motif *once* per
-  `computeMetrics` call and is shared by spacing, overlap quality,
-  adjacency repetition and hero separation (previously each of those ran
-  its own duplicate O(n^2) pass).
+  health, **flow coherence**, **rhythm regularity**, **motif shape
+  diversity**, **corner continuity**), each 0-100 and derived purely from
+  `extractInstances`/`tileData.colors`/the serialized SVG string.
+  `findNearest` computes the nearest-neighbor distance/instance for every
+  motif *once* per `computeMetrics` call and is shared by spacing, overlap
+  quality, adjacency repetition and hero separation (previously each of
+  those ran its own duplicate O(n^2) pass).
+  - **SVG Intelligence Engine Phase 3** (real, non-proxy geometry — the
+    previous versions of these four were documented averages of
+    *unrelated* metrics, not actual measurements): `flowCoherence` walks a
+    greedy nearest-neighbor chain through every motif instance and
+    averages the cosine similarity of consecutive direction vectors — a
+    pattern whose motifs read as flowing in a consistent direction scores
+    high, a scattered cloud scores low. `rhythmRegularity` bins the
+    nearest-neighbor spacing distances into a histogram and scores by
+    Shannon-entropy peakiness — evenly-spaced motifs produce a tight
+    histogram (high score), chaotic spacing spreads flat (low score).
+    `motifShapeDiversity` builds a rotation/scale/position/color-invariant
+    "shape signature" per motif (its path command-letter sequence, or a
+    recursive signature for `<g>` groups) and scores the Shannon entropy
+    of the signature distribution — this is the first metric that can
+    tell "the same shape spun around" from "a genuinely different shape",
+    which `scaleDiversity`/`rotationDiversity` alone cannot. `cornerContinuity`
+    compares motif density in the four tile-corner regions (where the
+    seamless wrap-clone creates a compositional seam) against the tile's
+    overall average density. All four are wired into
+    `QUALITY_PRESET_WEIGHTS` for every preset and into two new
+    `SOFT_PENALTY_RULES` (`cornerDeadZone`, `repetitiveMotifShapes`).
   - `largestEmptyRegion` — a periodic (tile-wrap-aware) flood fill over the
     coarse occupancy grid finds the single largest contiguous empty
     region; only penalizes once it gets large relative to the tile (some
@@ -719,6 +741,49 @@ Weight Solver, Flow/Rhythm Engines, real Cluster objects, Asset DNA, Shape
 Grammar, Motif Family Generator, Pattern Evolution, Auto Improve, SVG
 Beautifier, Designer Assistant, category-specific scoring — see
 `docs/USER_GUIDE.md`'s v1.28 changelog for the full list).
+
+## SVG Optimizer (`engine/svgOptimizer.ts`)
+
+SVG Intelligence Engine Phase 3. Runs automatically on every real download —
+`export/svgExporter.ts`'s `buildSingleTileSvg` and `buildTiledSvg` both call
+`optimizeSvgTree` before serializing (once per tile, before the 3×3 cloning
+loop, not 9 times redundantly). It performs two lossless structural
+cleanups, nothing else:
+
+- **Collapses redundant `<g>` wrappers**: a `<g>` whose *only* attribute is
+  `transform`, wrapping exactly one `<g>` child, is collapsed into that
+  child — but only when the outer `<g>` has no `id`/`data-role`/`clip-path`
+  of its own, so `motif-N` and `layer-*` identity (what Affinity Designer's
+  layers panel and this app's own geometry parsing rely on) is never
+  touched. Transforms are combined by **string concatenation**
+  (`"translate(1 0) rotate(5)"`), not matrix reconstruction — SVG 1.1 §7.6
+  defines a `transform` attribute's function list as exactly equivalent to
+  nesting two elements with one function each, so concatenation is lossless
+  by spec, and it also means the optimizer's output stays parseable by
+  `svgGeometry.ts`'s own regex-based transform extraction (a matrix-
+  reconstructed `matrix(...)` string would not have been).
+- **Strips identity transforms**: any `transform` attribute that resolves
+  to the identity matrix (e.g. a leftover `translate(0 0)`) is removed.
+
+Both passes only touch `<g>`/attribute structure — path `d` geometry,
+colors, and node ordering are never modified, and precision was already
+rounded once at generation time (`svgAst.ts`'s `round()`), so there is no
+re-rounding to do. Measured on real generated tiles across the app's
+categories, the optimizer's node-count reduction ranges roughly 2-17%
+depending on how deeply layouts nest their placement groups, averaging
+around 5-6%. `optimizeSvgTree(root)` returns both the optimized tree and an
+`OptimizationReport` (`nodesBefore`/`nodesAfter`/`nodesRemoved`/
+`reductionPercent`/`groupsCollapsed`/`transformsStripped`) for callers that
+want the numbers, not just the smaller tree.
+
+**Not wired in yet**: the core `buildTile()` pipeline itself (left
+untouched — dozens of existing tests assert its exact output structure,
+and preview must stay pixel-identical to what a subsequent optimized export
+produces) and Collection Studio's asset SVGs (`collection/
+collectionGenerator.ts` serializes its own asset SVGs on a separate path
+that doesn't currently route through the exporter — a Phase 4 item, not a
+regression, since Collection assets didn't go through any optimizer before
+this phase either).
 
 ## Trend Intelligence Engine (`engine/trendEngine.ts`, `engine/colorAnalysis.ts`)
 
@@ -1483,14 +1548,16 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 794 tests (jsdom environment, component
-tests use React Testing Library) across 64 files. The list below predates
-the Design Intelligence Core and Design Workbench milestones and covers
-the original engine/metadata/trend suites in detail; see
-[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md) and
-[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md) for what their own test
-suites (`schemas/validators/services` and `workbench/` +
-`components/workbench/`, respectively) cover:
+`npm test` runs `vitest run` — 836 tests (jsdom environment, component
+tests use React Testing Library) across 65 files. The list below predates
+the Design Intelligence Core, Design Workbench, and SVG Intelligence Engine
+Phase 3 milestones and covers the original engine/metadata/trend suites in
+detail; see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md), and
+[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md) for what their
+own test suites (`schemas/validators/services`, `workbench/` +
+`components/workbench/`, and `engine/svgOptimizer.test.ts` +
+`engine/scoring.test.ts` + `engine/styleDna.test.ts` respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2227,6 +2294,7 @@ src/
     svgAst.ts       SvgNode builder + serializer + path-building helpers
     tile.ts         combines layout + generator + wrap/clip into one tile
     defaults.ts     default & randomized GenerateParams
+    svgOptimizer.ts SVG Intelligence Engine Phase 3: lossless node-count optimizer (runs at export)
   generators/       one file per pattern category
   layouts/          one file per placement strategy
   palettes/         flat-design color palettes

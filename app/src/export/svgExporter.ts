@@ -1,5 +1,6 @@
 import type { GenerateParams, SvgNode, TileData } from '../engine/types';
 import { h, serialize, round } from '../engine/svgAst';
+import { optimizeSvgTree } from '../engine/svgOptimizer';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { getPalette } from '../palettes/palettes';
@@ -78,25 +79,37 @@ export function buildSvgDocument(content: SvgNode, width: number, height: number
 
 /** Single-tile export: one editable tile, viewBox matches the tile size
  * exactly. This is the file to hand to a stock site's "seamless pattern"
- * requirement, or to open in Affinity Designer for further editing. */
+ * requirement, or to open in Affinity Designer for further editing.
+ * Runs the SVG Optimizer (engine/svgOptimizer.ts) first — a lossless
+ * structural cleanup (redundant `<g>` collapse, no-op transform removal)
+ * applied at the export boundary rather than inside `buildTile` itself, so
+ * every existing consumer of a plain `TileData` (preview rendering, the
+ * Candidate/Scoring Engine, every test that asserts exact tile structure)
+ * is completely unaffected — only the file the designer actually
+ * downloads/uploads is optimized. */
 export function buildSingleTileSvg(tileData: TileData): string {
   const { tileSize } = tileData.params;
-  return buildSvgDocument(tileData.svg, SINGLE_EXPORT_PIXEL_SIZE, SINGLE_EXPORT_PIXEL_SIZE, tileSize, tileSize);
+  const { node: optimized } = optimizeSvgTree(tileData.svg);
+  return buildSvgDocument(optimized, SINGLE_EXPORT_PIXEL_SIZE, SINGLE_EXPORT_PIXEL_SIZE, tileSize, tileSize);
 }
 
 /** Pre-tiled export: `cols` x `rows` literal, fully-editable copies of the
  * tile (not <use> references) so an Affinity Designer user can select and
- * tweak any individual repeat without "expanding" anything first. */
+ * tweak any individual repeat without "expanding" anything first. Also
+ * optimizer-cleaned (see `buildSingleTileSvg`) — optimized once before
+ * cloning, so the cleanup cost is paid a single time regardless of how
+ * many `cols x rows` copies are produced, not once per copy. */
 export function buildTiledSvg(tileData: TileData, cols = 3, rows = 3): string {
   const { tileSize } = tileData.params;
+  const { node: optimizedSvg } = optimizeSvgTree(tileData.svg);
   const copies: SvgNode[] = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const ids = new Set<string>();
-      collectIds(tileData.svg, ids);
+      collectIds(optimizedSvg, ids);
       const idMap = new Map<string, string>();
       ids.forEach((id) => idMap.set(id, `${id}-r${r}-c${c}`));
-      const cloned = remapIds(tileData.svg, idMap);
+      const cloned = remapIds(optimizedSvg, idMap);
       copies.push(h('g', { transform: `translate(${round(c * tileSize)} ${round(r * tileSize)})` }, [cloned]));
     }
   }

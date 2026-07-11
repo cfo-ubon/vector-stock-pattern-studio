@@ -14,6 +14,7 @@ import {
   importStyleDnaJson,
   deriveStyleDnaFromParams,
   duplicateStyleDna,
+  computeStyleDnaConsistency,
   STYLE_DNA_SCHEMA_VERSION,
   type StyleDna,
 } from './styleDna';
@@ -169,6 +170,52 @@ describe('Style DNA: create / duplicate custom styles', () => {
     expect(dup.label).toBe('Editorial Botanical (copy)');
     expect(dup.categories).toEqual(STYLE_DNA_PRESETS.editorialBotanical.categories);
     expect(isStyleDnaCompatible(dup, { paletteIds: PALETTE_IDS })).toBe(true);
+  });
+});
+
+describe('Style DNA: computeStyleDnaConsistency (Section 12 enforcement)', () => {
+  it('scores 100 when measured geometry exactly matches the style declared intent', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic; // density 0.32, motifComplexity 'simple' -> expected rotationDiversity 30
+    const score = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, dna);
+    expect(score).toBe(100);
+  });
+
+  it('penalizes a density that reads far denser than the style declares', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic; // density 0.32
+    const onTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, dna);
+    const offTarget = computeStyleDnaConsistency({ occupancyRatio: 90, rotationDiversity: 30 }, dna);
+    expect(offTarget).toBeLessThan(onTarget);
+  });
+
+  it('penalizes rotation diversity that does not match the declared motif complexity', () => {
+    const simple = STYLE_DNA_PRESETS.scandinavianOrganic; // simple -> expects ~30
+    const onTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, simple);
+    const offTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 90 }, simple);
+    expect(offTarget).toBeLessThan(onTarget);
+  });
+
+  it('expects higher rotation diversity for intricate styles than simple styles', () => {
+    const intricate = STYLE_DNA_PRESETS.luxuryFloral; // motifComplexity 'intricate' -> expects ~80
+    const simple = STYLE_DNA_PRESETS.scandinavianOrganic; // motifComplexity 'simple' -> expects ~30
+    // The same measured rotationDiversity of 80 should read as consistent for
+    // the intricate style but inconsistent for the simple one.
+    const intricateScore = computeStyleDnaConsistency({ occupancyRatio: intricate.density * 100, rotationDiversity: 80 }, intricate);
+    const simpleScore = computeStyleDnaConsistency({ occupancyRatio: simple.density * 100, rotationDiversity: 80 }, simple);
+    expect(intricateScore).toBeGreaterThan(simpleScore);
+  });
+
+  it('clamps to 0 rather than going negative for wildly out-of-range measurements', () => {
+    const dna = STYLE_DNA_PRESETS.minimalBotanical; // density 0.3, simple -> expects ~30
+    const score = computeStyleDnaConsistency({ occupancyRatio: 100, rotationDiversity: 100 }, dna);
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThan(50);
+  });
+
+  it('is a pure function of its inputs (no hidden randomness)', () => {
+    const dna = STYLE_DNA_PRESETS.darkBotanical;
+    const a = computeStyleDnaConsistency({ occupancyRatio: 55, rotationDiversity: 60 }, dna);
+    const b = computeStyleDnaConsistency({ occupancyRatio: 55, rotationDiversity: 60 }, dna);
+    expect(a).toBe(b);
   });
 });
 

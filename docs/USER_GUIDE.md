@@ -878,6 +878,28 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 
 ## 🗒 บันทึกการอัปเดต
 
+### v1.38 — 11 ก.ค. 2026 — SVG Intelligence Engine Phase 3 (ปรับปรุงคุณภาพเบื้องหลัง)
+- 🛠 **SVG Optimizer ใหม่** (`engine/svgOptimizer.ts`): ทุกครั้งที่ Export
+  (Single tile / 3×3 tiled) ระบบจะยุบกลุ่ม `<g>` ที่ห่อ transform ซ้อนกันโดย
+  ไม่จำเป็นและลบ transform ที่เท่ากับ identity ออกก่อนส่งออกไฟล์ — ลดจำนวน
+  node ในไฟล์ SVG โดยที่รูปร่าง ตำแหน่ง และโครงสร้างกลุ่ม
+  (`motif-1`, `layer-*`) ที่ Affinity Designer ใช้เลือก/แก้ยังเหมือนเดิมทุก
+  ประการ ไม่กระทบการแก้ไขในโปรแกรมออกแบบ
+- 📐 **คะแนนคุณภาพที่วัดจากรูปทรงจริง แทนค่าประมาณ**: 4 ตัวชี้วัดที่เคยเป็นค่า
+  เฉลี่ยจากตัวชี้วัดอื่น (ไม่ใช่ค่าที่วัดจริง) ตอนนี้คำนวณจากรูปทรงจริงในลายแล้ว:
+  **Flow Coherence** (ทิศทางการไหลของชิ้นลายต่อเนื่องกันแค่ไหน), **Rhythm
+  Regularity** (จังหวะระยะห่างสม่ำเสมอแค่ไหน), **Motif Shape Diversity**
+  (มีชิ้นลายกี่รูปทรงต่างกันจริงๆ ไม่ใช่แค่หมุน/ย่อขยายชิ้นเดิม), และ **Corner
+  Continuity** (มุมต่อขอบ tile ตอน repeat แน่น/โปร่งสมดุลแค่ไหน) — ใช้ในทั้ง
+  Composition Score ปุ่ม "Generate Best" และรายงานคุณภาพของ Trend
+  Intelligence Studio / Design Workbench
+- 🎯 **Style DNA Consistency**: ตรวจสอบว่าลายที่ render ออกมาจริง (ความ
+  หนาแน่น + ความหลากหลายของการหมุน) ยังตรงกับสไตล์ที่เลือกไว้หรือไม่ ใช้
+  ประกอบ Commercial Readiness ใน Trend Intelligence Studio
+- ไม่มีหน้าจอหรือปุ่มใหม่ในเวอร์ชันนี้ — เป็นการปรับปรุงคุณภาพเอนจินสร้างลาย
+  (SVG generation/scoring) ล้วนๆ ตามหลัง Design Intelligence Core และ
+  Trend Intelligence Engine ที่วางฐานไว้ก่อนหน้า
+
 ### v1.37 — 11 ก.ค. 2026 — Design Workbench
 - 🧭 **อัปเกรด Trend Intelligence Studio เป็น Design Workbench**: เวิร์กสเปซ
   หลักแบบมืออาชีพ 3 คอลัมน์ สำหรับสร้าง/ทบทวน/แก้/ตรวจสอบ/ดูตัวอย่าง/

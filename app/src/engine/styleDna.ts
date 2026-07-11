@@ -381,6 +381,33 @@ export function resetToStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
   return resolveStyleDna(dna, seed);
 }
 
+/** Style DNA Enforcement (SVG Intelligence Engine Phase 3, Section 12) —
+ * `computeStyleDrift` above already checks whether the *input params*
+ * (category/layout/palette/...) still match what the style would resolve
+ * to; this checks something `computeStyleDrift` can't: whether the
+ * *rendered geometry* actually reads as consistent with the style's own
+ * declared intent, using metrics `engine/scoring.ts`'s `computeMetrics`
+ * already measured from the real tile (no second scoring pass here).
+ * Two real signals, averaged:
+ *  - density match: measured `occupancyRatio` (0-100, real grid-coverage
+ *    fraction) vs. the style's declared `density` (0-1) — a "minimal"
+ *    style whose actual output reads as densely packed has drifted from
+ *    its own identity regardless of which category/layout produced it.
+ *  - complexity match: measured `rotationDiversity` (0-100) vs. what the
+ *    style's declared `motifComplexity` predicts (`intricate` styles are
+ *    expected to show more placement variation than `simple` ones, per
+ *    this same file's own `COMPLEXITY_ROTATION_BUMP` table).
+ * Deliberately two signals, not an invented ten — an honest, narrower
+ * real measurement beats a wider fabricated one (see this milestone's
+ * "never generate fake scores" requirement). */
+export function computeStyleDnaConsistency(metrics: { occupancyRatio: number; rotationDiversity: number }, dna: StyleDna): number {
+  const densityMatch = 100 - Math.abs(metrics.occupancyRatio - dna.density * 100);
+  const expectedRotationDiversity = { simple: 30, moderate: 55, intricate: 80 }[dna.motifComplexity];
+  const complexityMatch = 100 - Math.abs(metrics.rotationDiversity - expectedRotationDiversity);
+  const clamp = (n: number) => Math.max(0, Math.min(100, n));
+  return Math.round((clamp(densityMatch) + clamp(complexityMatch)) / 2);
+}
+
 /** True when every category/layout/palette a Style DNA references actually
  * exists in the currently-registered engine tables — guards against a
  * hand-edited or imported Style DNA JSON pointing at an id that doesn't

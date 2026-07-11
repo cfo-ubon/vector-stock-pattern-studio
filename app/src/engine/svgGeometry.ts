@@ -97,3 +97,63 @@ export function gridCoverage(instances: Array<{ x: number; y: number }>, tileSiz
 export function countNodes(node: SvgNode): number {
   return 1 + (node.children ?? []).reduce((sum, c) => sum + countNodes(c), 0);
 }
+
+/** Same wrap-aware "shortest path between a and b" `periodicDist` computes,
+ * but returning the offset vector itself (not just its length) — needed
+ * anywhere the *direction* between two periodically-wrapped points matters
+ * (e.g. Flow Score's direction-coherence walk), not just the distance. */
+export function periodicOffset(a: { x: number; y: number }, b: { x: number; y: number }, tileSize: number): { dx: number; dy: number } {
+  let bestDx = 0;
+  let bestDy = 0;
+  let best = Infinity;
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      const ddx = b.x + dx * tileSize - a.x;
+      const ddy = b.y + dy * tileSize - a.y;
+      const d = Math.hypot(ddx, ddy);
+      if (d < best) {
+        best = d;
+        bestDx = ddx;
+        bestDy = ddy;
+      }
+    }
+  }
+  return { dx: bestDx, dy: bestDy };
+}
+
+/** A rotation/scale/position/color-invariant fingerprint of one node's
+ * *shape topology* — a path's sequence of command letters (M/L/C/Q/A/Z,
+ * numbers stripped) and, for a group, the same recursively over its
+ * children. Two motifs built from a different number of petals, a
+ * different silhouette, or an extra decorative flourish get different
+ * signatures; two instances of literally the same shape at different
+ * rotation/scale/position get the *same* signature — which is exactly the
+ * "is this actually a different motif, or the same one just spun around"
+ * distinction `rotationDiversity`/`scaleDiversity` alone can't make. */
+function shapeSignature(node: SvgNode): string {
+  if (node.tag === 'path') {
+    const d = String(node.attrs?.d ?? '');
+    const commands = d.match(/[MLCQAZmlcqaz]/g) ?? [];
+    return `path:${commands.join('').toUpperCase()}`;
+  }
+  if (node.tag === 'g') {
+    return `g[${(node.children ?? []).map(shapeSignature).join(',')}]`;
+  }
+  return node.tag;
+}
+
+/** One shape signature per motif (its first/primary wrap instance — every
+ * wrap-clone of the same motif is geometrically identical content, just
+ * translated, so sampling one is sufficient and cheap). Used by
+ * `scoring.ts`'s `motifShapeDiversity` metric. */
+export function extractMotifShapeSignatures(tileData: TileData): string[] {
+  const groups = findMotifGroups(tileData.svg);
+  const signatures: string[] = [];
+  for (const group of groups) {
+    const firstInstance = (group.children ?? [])[0];
+    if (!firstInstance) continue;
+    const sig = (firstInstance.children ?? []).map(shapeSignature).join('|');
+    if (sig) signatures.push(sig);
+  }
+  return signatures;
+}

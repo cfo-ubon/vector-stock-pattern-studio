@@ -6,6 +6,7 @@ import {
   runDesignSpecQualityLoop,
   type DesignSpecQualityReport,
 } from './designSpecQuality';
+import { STYLE_DNA_PRESETS, computeStyleDnaConsistency } from '../engine/styleDna';
 import type { KeywordBundle } from './designSpecTypes';
 
 function makeBundle(overrides: Partial<KeywordBundle> = {}): KeywordBundle {
@@ -130,5 +131,57 @@ describe('runDesignSpecQualityLoop', () => {
     const impossible = { ...spec, qualityTargets: { minOverallScore: 999, minSeamlessIntegrity: 999, minMotifDiversity: 999, minCommercialReadiness: 999 } };
     const result = runDesignSpecQualityLoop(impossible, 'seed-loop-keep-best', 'fast', 3);
     expect(result.pool.winner.score).toBe(result.check.report.overall);
+  });
+});
+
+describe('runDesignSpecQualityLoop: report is wired to real CompositionMetrics (SVG Intelligence Engine Phase 3)', () => {
+  it('flow and rhythm are exact 1:1 reads of the real geometric metrics, not a proxy average', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-flow-rhythm', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.flow).toBe(m.flowCoherence);
+    expect(result.check.report.rhythm).toBe(m.rhythmRegularity);
+  });
+
+  it('repeatQuality is the average of seamlessIntegrity and the real cornerContinuity measurement', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-repeat', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.repeatQuality).toBe(Math.round((m.seamlessIntegrity + m.cornerContinuity) / 2));
+  });
+
+  it('motifDiversity averages placement diversity (scale/rotation) with real shape-topology diversity', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-diversity', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.motifDiversity).toBe(Math.round((m.scaleDiversity + m.rotationDiversity + m.motifShapeDiversity) / 3));
+  });
+
+  it('commercialReadiness folds in a real Style DNA consistency measurement when the spec resolves to a known style', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-commercial', 'fast');
+    const m = result.pool.winner.metrics;
+    const styleDna = STYLE_DNA_PRESETS[spec.styleDnaId];
+    expect(styleDna).toBeDefined();
+    const styleConsistency = computeStyleDnaConsistency(m, styleDna);
+    const expected = Math.round((m.colorBalance + m.paletteContrast + m.svgHealth + m.cornerContinuity + styleConsistency) / 5);
+    expect(result.check.report.commercialReadiness).toBe(expected);
+  });
+
+  it('balance is the average of the 3 real balance sub-metrics', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-balance', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.balance).toBe(Math.round((m.quadrantBalance + m.horizontalBalance + m.verticalBalance) / 3));
+  });
+
+  it('composition, hierarchy, svgHealth and negativeSpace are exact 1:1 reads of their metrics', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const result = runDesignSpecQualityLoop(spec, 'seed-wiring-direct', 'fast');
+    const m = result.pool.winner.metrics;
+    expect(result.check.report.composition).toBe(m.composition);
+    expect(result.check.report.hierarchy).toBe(m.hierarchy);
+    expect(result.check.report.svgHealth).toBe(m.svgHealth);
+    expect(result.check.report.negativeSpace).toBe(m.largestEmptyRegion);
   });
 });

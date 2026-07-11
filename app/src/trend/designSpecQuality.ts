@@ -1,5 +1,6 @@
 import { generateBest, deriveSeed, type CandidatePoolResult, type GenerationMode } from '../engine/candidateEngine';
 import type { QualityPresetId, CompositionMetrics } from '../engine/scoring';
+import { STYLE_DNA_PRESETS, computeStyleDnaConsistency } from '../engine/styleDna';
 import { buildGenerateParamsFromDesignSpec } from './designSpecToParams';
 import type { CompositionStyle, DesignSpecification } from './designSpecTypes';
 
@@ -29,14 +30,33 @@ export function qualityPresetForDesignSpec(spec: DesignSpecification): QualityPr
 }
 
 /** Section 12's 10 named metrics, resolved against the real
- * `CompositionMetrics` wherever an exact match exists (Composition,
- * Hierarchy, "Repeat Quality" = seamlessIntegrity, "SVG Health" =
- * svgHealth, "Balance" = quadrantBalance, "Negative Space" =
- * largestEmptyRegion — a real measured proxy, not the spec's own *input*
- * negativeSpace number) and a clearly-labeled averaged proxy for the 3
- * that have no single existing metric (Flow, Rhythm, Motif Diversity) plus
- * Commercial Readiness. Every value is 0-100, same scale as the underlying
- * `CompositionMetrics`. */
+ * `CompositionMetrics` — as of SVG Intelligence Engine Phase 3, every
+ * field below is either a direct 1:1 metric or a documented average of
+ * *real, independently-measured* geometry (no proxy borrowed from an
+ * unrelated metric):
+ *   composition        <- m.composition
+ *   hierarchy           <- m.hierarchy
+ *   flow                <- m.flowCoherence (real directional-coherence
+ *                          measurement — see scoring.ts)
+ *   rhythm              <- m.rhythmRegularity (real spacing-periodicity
+ *                          measurement)
+ *   balance             <- average of the 3 real balance metrics
+ *   negativeSpace       <- m.largestEmptyRegion (real measured proxy, not
+ *                          the spec's own *input* negativeSpace number)
+ *   repeatQuality       <- average of m.seamlessIntegrity (structural
+ *                          guarantee) and m.cornerContinuity (real
+ *                          corner-junction density-balance measurement)
+ *   svgHealth           <- m.svgHealth
+ *   motifDiversity      <- average of m.scaleDiversity, m.rotationDiversity
+ *                          (how a shape was placed) and m.motifShapeDiversity
+ *                          (real shape-topology diversity — which shape it
+ *                          was, not just how it was placed/scaled)
+ *   commercialReadiness <- average of m.colorBalance, m.paletteContrast,
+ *                          m.svgHealth, m.cornerContinuity, and (when a
+ *                          Style DNA is selected) a real style-consistency
+ *                          measurement (engine/styleDna.ts's
+ *                          computeStyleDnaConsistency)
+ * Every value is 0-100, same scale as the underlying `CompositionMetrics`. */
 export interface DesignSpecQualityReport {
   overall: number;
   composition: number;
@@ -51,21 +71,22 @@ export interface DesignSpecQualityReport {
   commercialReadiness: number;
 }
 
-function buildQualityReport(overall: number, m: CompositionMetrics): DesignSpecQualityReport {
+function buildQualityReport(overall: number, m: CompositionMetrics, spec: DesignSpecification): DesignSpecQualityReport {
+  const styleDna = STYLE_DNA_PRESETS[spec.styleDnaId];
+  const styleConsistency = styleDna ? computeStyleDnaConsistency(m, styleDna) : undefined;
+  const commercialSignals = [m.colorBalance, m.paletteContrast, m.svgHealth, m.cornerContinuity, ...(styleConsistency !== undefined ? [styleConsistency] : [])];
   return {
     overall,
     composition: m.composition,
     hierarchy: m.hierarchy,
-    // Flow/Rhythm have no single existing metric — averaged from the
-    // closest real proxies (documented, not presented as an exact match).
-    flow: Math.round((m.heroSeparation + m.edgeDensity) / 2),
-    rhythm: Math.round((m.spacing + (100 - m.densityVariance)) / 2),
+    flow: m.flowCoherence,
+    rhythm: m.rhythmRegularity,
     balance: Math.round((m.quadrantBalance + m.horizontalBalance + m.verticalBalance) / 3),
     negativeSpace: m.largestEmptyRegion,
-    repeatQuality: m.seamlessIntegrity,
+    repeatQuality: Math.round((m.seamlessIntegrity + m.cornerContinuity) / 2),
     svgHealth: m.svgHealth,
-    motifDiversity: Math.round((m.scaleDiversity + m.rotationDiversity) / 2),
-    commercialReadiness: Math.round((m.colorBalance + m.paletteContrast + m.svgHealth) / 3),
+    motifDiversity: Math.round((m.scaleDiversity + m.rotationDiversity + m.motifShapeDiversity) / 3),
+    commercialReadiness: Math.round(commercialSignals.reduce((a, b) => a + b, 0) / commercialSignals.length),
   };
 }
 
@@ -130,7 +151,7 @@ export function runDesignSpecQualityLoop(
     const roundSeed = round === 0 ? seed : deriveSeed(seed, 'quality-loop', round);
     const baseParams = buildGenerateParamsFromDesignSpec(spec, roundSeed);
     const pool = generateBest(baseParams, mode, qualityPreset);
-    const report = buildQualityReport(pool.winner.score, pool.winner.metrics);
+    const report = buildQualityReport(pool.winner.score, pool.winner.metrics, spec);
     const check = checkDesignSpecQuality(report, spec);
 
     if (!bestCheck || pool.winner.score > bestPool!.winner.score) {
