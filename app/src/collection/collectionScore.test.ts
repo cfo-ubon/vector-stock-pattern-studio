@@ -73,9 +73,10 @@ describe('computeCollectionScore', () => {
     expect(score.commercialReadiness).toBeLessThan(100);
   });
 
-  it('requires exactly the 12 core creative asset types', () => {
+  it('requires exactly the 14 core creative asset types', () => {
     expect(REQUIRED_ASSET_TYPES).toEqual([
       'heroPattern', 'secondaryPattern', 'blenderPattern', 'miniPattern', 'stripePattern', 'backgroundTexture',
+      'densePattern', 'airyPattern',
       'borderPattern', 'cornerPattern', 'spotMotifSheet', 'individualMotif', 'decorativeElementsSheet', 'collectionPreview',
     ]);
   });

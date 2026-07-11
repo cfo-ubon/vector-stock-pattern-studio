@@ -39,12 +39,14 @@ export interface CollectionScore {
   issues: string[];
 }
 
-/** The 12 creative asset types every collection must contain — used by the
+/** The 14 creative asset types every collection must contain — used by the
  * commercialReadiness dimension's completeness check. Deliberately excludes
  * metadata/seoPackage: those are SEO extras, not part of the Collection
- * Studio spec's core asset structure. */
+ * Studio spec's core asset structure. Phase 4b adds `densePattern` and
+ * `airyPattern` (Section 2's remaining two named asset kinds). */
 export const REQUIRED_ASSET_TYPES: AssetType[] = [
   'heroPattern', 'secondaryPattern', 'blenderPattern', 'miniPattern', 'stripePattern', 'backgroundTexture',
+  'densePattern', 'airyPattern',
   'borderPattern', 'cornerPattern', 'spotMotifSheet', 'individualMotif', 'decorativeElementsSheet', 'collectionPreview',
 ];
 

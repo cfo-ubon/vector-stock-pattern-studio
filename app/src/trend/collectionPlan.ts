@@ -5,6 +5,7 @@ import { COLLECTION_SCHEMA_VERSION, type CollectionManifest, type GeneratedColle
 import { computeCollectionScore, type CollectionScore } from '../collection/collectionScore';
 import { buildColorStory, COLOR_STORY_VARIANT_IDS, type ColorStorySet, type ColorStoryVariantId } from '../collection/colorStory';
 import { evaluateProductTargets, recommendedProductUses, type ProductUseEvaluation, type ProductUseId } from '../collection/productTargets';
+import type { MotifReuseReport } from '../collection/motifReuse';
 import { buildDesignSpecCollectionName } from './designSpecSeo';
 import type { DesignSpecification } from './designSpecTypes';
 
@@ -28,8 +29,15 @@ export interface CollectionPlan {
   collectionTheme: string;
   commercialCategory: string;
   targetMarketplace: MarketplaceId;
+  /** Section 1's own "Marketplace Targets" field (plural) — the primary
+   * `targetMarketplace` plus any additional marketplaces the active Style
+   * DNA preset curates (same real data `CollectionSpecification.
+   * marketplaceTargets`/`CollectionExportPrep.marketplaceTargets` already
+   * derive via `buildMarketplaceTargets`, now also surfaced on the Plan
+   * itself since Section 1 explicitly names it as a Plan-level field). */
+  marketplaceTargets: MarketplaceId[];
   styleDnaId: string;
-  /** Full Section 3 Color Story — all 10 named variants (Section 1 asks
+  /** Full Section 3 Color Story — all 13 named variants (Section 1 asks
    * for one "Color Story" field; this is the real palette-variant set that
    * field resolves to, not just a label). */
   colorStory: ColorStorySet;
@@ -62,6 +70,7 @@ export function buildCollectionPlan(spec: DesignSpecification): CollectionPlan {
     collectionTheme: spec.trend?.theme ?? spec.keywordBundle.primaryKeyword,
     commercialCategory: spec.keywordBundle.commercialCategory,
     targetMarketplace: spec.marketplace.id,
+    marketplaceTargets: buildMarketplaceTargets(spec),
     styleDnaId: spec.styleDnaId,
     colorStory: buildColorStory(spec.palette.colors),
     recommendedProductUses: recommendedProductUses(productEvaluations),
@@ -89,7 +98,7 @@ export function buildProductTargets(spec: DesignSpecification): ProductUseEvalua
  * exact order `GeneratedCollection.patternTiles` returns them. Kept local
  * to this module (not re-exported from collectionGenerator.ts) since nothing
  * there currently needs its own asset ids as a named list. */
-const PATTERN_ASSET_IDS = ['hero', 'secondary', 'blender', 'mini', 'stripe', 'background-texture'];
+const PATTERN_ASSET_IDS = ['hero', 'secondary', 'blender', 'mini', 'stripe', 'background-texture', 'dense-pattern', 'airy-pattern'];
 
 export interface CollectionLayoutVariant {
   assetId: string;
@@ -133,6 +142,12 @@ export interface CollectionSpecification {
   colorVariants: ColorStorySet;
   layoutVariants: CollectionLayoutVariant[];
   motifRelationships: CollectionManifest['relationships'];
+  /** Section 6/8's "Motif Variants" — which motifs are genuinely shared
+   * across more than one asset, grouped by role/family, with the real
+   * rotation/scale variants each placement got. Read straight off
+   * `collection.motifReuse` (collection/motifReuse.ts) — computed once
+   * during generation, never re-derived here. */
+  motifVariants: MotifReuseReport;
   /** The Design Spec's own chosen marketplace, plus (when the active Style
    * DNA is a known built-in preset) that style's own curated
    * `exportRecommendation.recommendedSites` — real, already-authored
@@ -176,6 +191,7 @@ export function buildCollectionSpecification(spec: DesignSpecification, collecti
     colorVariants: plan.colorStory,
     layoutVariants: buildLayoutVariants(collection),
     motifRelationships: collection.manifest.relationships,
+    motifVariants: collection.motifReuse,
     marketplaceTargets: buildMarketplaceTargets(spec),
     commercialNotes: buildCommercialNotes(spec, plan, collection, score),
   };
@@ -194,17 +210,46 @@ export interface CollectionPreviewMetadata {
   layoutDiversity: { distinctLayouts: number; totalPatternAssets: number; score: number };
   motifConsistency: CollectionManifest['consistency'];
   commercialReadiness: number;
+  /** Section 10 "Collection Cover" — which asset a preview UI should
+   * feature first. Always the Hero Pattern (the same asset
+   * collection/collectionGenerator.ts's own `buildCollectionPreview`
+   * composite places first), falling back to whatever asset the manifest
+   * lists first in the (structurally impossible in practice, but never
+   * assumed) case a collection has no `hero` asset. */
+  coverAssetId: string;
+  /** Section 10 "Asset Order" — every asset id in the real order the
+   * generator assembled them (`manifest.assets`), never re-sorted. */
+  assetOrder: string[];
+  /** Section 10 "Palette Story" — one deterministic, fact-derived line
+   * (never fabricated marketing copy, same convention
+   * `buildCommercialNotes` already follows). */
+  paletteStory: string;
+  /** Section 10 "Layout Story" — one deterministic line naming the real
+   * layout each pattern-type asset actually got. */
+  layoutStory: string;
+  /** Section 10 "Motif Family" — the collection's own real dominant motif
+   * family (`manifest.motifFamily`) plus a one-line description. */
+  motifFamily: { family: CollectionManifest['motifFamily']; description: string };
 }
 
 export function buildCollectionPreviewMetadata(collection: GeneratedCollection): CollectionPreviewMetadata {
   const score = computeCollectionScore(collection);
   const layouts = collection.patternTiles.map((t) => t.params.layoutId);
+  const assetOrder = collection.manifest.assets.map((a) => a.id);
   return {
     assetRelationships: collection.manifest.relationships,
     colorStory: { variantCount: COLOR_STORY_VARIANT_IDS.length, variantIds: COLOR_STORY_VARIANT_IDS },
     layoutDiversity: { distinctLayouts: new Set(layouts).size, totalPatternAssets: layouts.length, score: score.layoutDiversity },
     motifConsistency: collection.manifest.consistency,
     commercialReadiness: score.commercialReadiness,
+    coverAssetId: assetOrder.includes('hero') ? 'hero' : (assetOrder[0] ?? 'hero'),
+    assetOrder,
+    paletteStory: `${COLOR_STORY_VARIANT_IDS.length} coordinated palette variants available (${COLOR_STORY_VARIANT_IDS.join(', ')}), each preserving the collection's own base color count and ordering.`,
+    layoutStory: `${new Set(layouts).size}/${layouts.length} pattern-type assets use a genuinely distinct layout: ${layouts.join(', ')}.`,
+    motifFamily: {
+      family: collection.manifest.motifFamily,
+      description: `Every asset shares the "${collection.manifest.motifFamily}" motif family, generated from the "${collection.patternParams[0]?.categoryId ?? 'unknown'}" category.`,
+    },
   };
 }
 

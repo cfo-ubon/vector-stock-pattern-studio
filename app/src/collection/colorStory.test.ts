@@ -5,9 +5,10 @@ import { buildColorStory, COLOR_STORY_VARIANT_IDS } from './colorStory';
 const BASE_COLORS = ['#FFF6EC', '#FFD6E0', '#C9E4DE', '#C6DEF1', '#FBE4C8', '#DBCDF0'];
 
 describe('buildColorStory', () => {
-  it('produces exactly the 10 named variants', () => {
+  it('produces exactly the 13 named variants', () => {
     const story = buildColorStory(BASE_COLORS);
     expect(Object.keys(story).sort()).toEqual([...COLOR_STORY_VARIANT_IDS].sort());
+    expect(COLOR_STORY_VARIANT_IDS.length).toBe(13);
   });
 
   it('every variant keeps the same color count as the input', () => {
@@ -91,5 +92,46 @@ describe('buildColorStory', () => {
     const story = buildColorStory(['#FFFFFF', '#111111']);
     expect(story.light.colors.length).toBe(2);
     expect(story.monochrome.colors.length).toBe(2);
+  });
+});
+
+describe('buildColorStory: Phase 4b variants (Earth Tone, Luxury, Pastel)', () => {
+  it('earthTone/luxury/pastel each differ from original and from each other', () => {
+    const story = buildColorStory(BASE_COLORS);
+    const ids = ['earthTone', 'luxury', 'pastel'] as const;
+    const serialized = ids.map((id) => story[id].colors.join(','));
+    expect(new Set(serialized).size).toBe(ids.length);
+    for (const id of ids) {
+      expect(story[id].colors.join(',')).not.toBe(story.original.colors.join(','));
+      expect(story[id].colors.length).toBe(BASE_COLORS.length);
+    }
+  });
+
+  it('"pastel" is measurably lighter and less saturated than "original"', () => {
+    const story = buildColorStory(BASE_COLORS);
+    for (let i = 0; i < BASE_COLORS.length; i++) {
+      const orig = hexToHsl(BASE_COLORS[i]);
+      const pastel = hexToHsl(story.pastel.colors[i]);
+      expect(pastel.l).toBeGreaterThan(orig.l);
+      expect(pastel.s).toBeLessThan(orig.s + 1);
+    }
+  });
+
+  it('"luxury" is measurably darker than "original"', () => {
+    const story = buildColorStory(BASE_COLORS);
+    for (let i = 0; i < BASE_COLORS.length; i++) {
+      const origL = hexToHsl(BASE_COLORS[i]).l;
+      const luxuryL = hexToHsl(story.luxury.colors[i]).l;
+      expect(luxuryL).toBeLessThan(origL);
+    }
+  });
+
+  it('"earthTone" is measurably less saturated than "original"', () => {
+    const story = buildColorStory(BASE_COLORS);
+    for (let i = 0; i < BASE_COLORS.length; i++) {
+      const origS = hexToHsl(BASE_COLORS[i]).s;
+      const earthS = hexToHsl(story.earthTone.colors[i]).s;
+      expect(earthS).toBeLessThan(origS + 1);
+    }
   });
 });

@@ -15,6 +15,17 @@ import type { FactoryMotif } from './motifFactory';
 export type BorderEdge = 'top' | 'bottom' | 'left' | 'right';
 export type CornerId = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
+/** One real motif placement decision — which shared motif was used, and
+ * the rotation/scale variant it got at this specific spot. Exposed so
+ * `collection/motifReuse.ts` (Commercial Collection Engine Phase 4b,
+ * Section 6 "Motif Reuse Engine") can report genuine per-instance variant
+ * data instead of re-deriving or guessing it from the flattened SVG. */
+export interface MotifPlacementLogEntry {
+  motifId: string;
+  rotationDeg: number;
+  scale: number;
+}
+
 function scaleMotifToFit(motif: FactoryMotif, targetSize: number): number {
   const naturalSize = Math.max(motif.bounds.width, motif.bounds.height) || 1;
   return targetSize / naturalSize;
@@ -43,7 +54,7 @@ export function buildBorderStrip(opts: {
   rng: Rng;
   backgroundColor: string;
   count: number;
-}): { svg: SvgNode; width: number; height: number } {
+}): { svg: SvgNode; width: number; height: number; placements: MotifPlacementLogEntry[] } {
   const { edge, length, band, motifs, rng, backgroundColor, count } = opts;
   const horizontal = edge === 'top' || edge === 'bottom';
   const width = horizontal ? length : band;
@@ -52,12 +63,14 @@ export function buildBorderStrip(opts: {
   const targetSize = band * 0.72;
 
   const groups: SvgNode[] = [];
+  const placements: MotifPlacementLogEntry[] = [];
   for (let i = 0; i < count; i++) {
     const motif = motifs[i % motifs.length];
     const along = spacing * (i + 0.5) + rngRange(rng, -spacing * 0.1, spacing * 0.1);
     const cross = band / 2 + rngRange(rng, -band * 0.06, band * 0.06);
     const scale = scaleMotifToFit(motif, targetSize) * (1 + rngRange(rng, -0.08, 0.08));
     const rotationDeg = jitter(rng, 0, 6);
+    placements.push({ motifId: motif.id, rotationDeg, scale });
     const [x, y] = horizontal ? [along, cross] : [cross, along];
     // Wrap-clone along the running axis only — a border tiles end-to-end,
     // never top-to-bottom.
@@ -74,7 +87,7 @@ export function buildBorderStrip(opts: {
     h('rect', { x: 0, y: 0, width, height, fill: backgroundColor }),
     h('g', { 'clip-path': `url(#border-clip-${edge})` }, groups),
   ]);
-  return { svg: content, width, height };
+  return { svg: content, width, height, placements };
 }
 
 /** A quarter-plane cluster of motifs concentrated near the corner point and
@@ -90,7 +103,7 @@ export function buildCornerUnit(opts: {
   rng: Rng;
   backgroundColor: string;
   count: number;
-}): { svg: SvgNode; width: number; height: number } {
+}): { svg: SvgNode; width: number; height: number; placements: MotifPlacementLogEntry[] } {
   const { corner, band, motifs, rng, backgroundColor, count } = opts;
 
   // Base cluster in top-left convention: corner point at (0,0), motifs
@@ -99,6 +112,7 @@ export function buildCornerUnit(opts: {
   // evenly; squashing the radius toward 0 concentrates more points near
   // the corner, tapering outward).
   const baseGroups: SvgNode[] = [];
+  const placements: MotifPlacementLogEntry[] = [];
   for (let i = 0; i < count; i++) {
     const motif = motifs[i % motifs.length];
     const angle = rngRange(rng, 0, Math.PI / 2);
@@ -110,6 +124,7 @@ export function buildCornerUnit(opts: {
     const targetSize = band * 0.3 * taper;
     const scale = scaleMotifToFit(motif, targetSize);
     const rotationDeg = jitter(rng, 0, 10);
+    placements.push({ motifId: motif.id, rotationDeg, scale });
     baseGroups.push(placeMotif(motif, x, y, scale, rotationDeg));
   }
   const baseCluster = h('g', { id: 'corner-cluster-base' }, baseGroups);
@@ -129,5 +144,5 @@ export function buildCornerUnit(opts: {
     h('rect', { x: 0, y: 0, width: band, height: band, fill: backgroundColor }),
     h('g', { 'clip-path': `url(#corner-clip-${corner})` }, [mirrored]),
   ]);
-  return { svg: content, width: band, height: band };
+  return { svg: content, width: band, height: band, placements };
 }

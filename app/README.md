@@ -25,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 961 tests, see "Testing" below
+npm test         # vitest run — 994 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -1232,7 +1232,7 @@ second Collection is generated. `CollectionWorkspace.tsx` was deleted, not
 kept alongside it — see the Project Studio Engine section for the full
 Playwright verification.
 
-## Commercial Collection Engine — Phase 4 (`collection/colorStory.ts`, `collection/productTargets.ts`, `palettes/colorTransform.ts`, `trend/collectionPlan.ts`, extends `collection/collectionGenerator.ts` + `collection/collectionScore.ts`)
+## Commercial Collection Engine — Phase 4 (`collection/colorStory.ts`, `collection/productTargets.ts`, `collection/motifReuse.ts`, `palettes/colorTransform.ts`, `trend/collectionPlan.ts`, extends `collection/collectionGenerator.ts` + `collection/collectionScore.ts`)
 
 Extends the Collection Studio Engine above (unmodified generation
 algorithms — this phase adds coordination and planning around it, it does
@@ -1302,6 +1302,39 @@ schemas, and test coverage in
   ask for UI), no actual export/zip wiring for Section 10 (structured data
   only, as instructed), no SEO, no Prompt Factory, no SVG generation
   algorithm changes.
+
+**Phase 4b** (a follow-up, more detailed brief for the same milestone,
+`COLLECTION_SCHEMA_VERSION` 3 → 4, additive) closed the remaining gaps:
+
+- **Color Story Engine** grew from 10 to 13 variants — added **Earth
+  Tone**, **Luxury**, **Pastel**.
+- **Two more coordinated assets** — **Dense Pattern** and **Airy Pattern**,
+  built from the already-registered `densePremium`/`airy` layouts (Project
+  PHOENIX's Cluster Composition Engine), rounding Section 2's asset list
+  out to all 12 named kinds. `REQUIRED_ASSET_TYPES` grew to 14.
+- **Motif Reuse Engine** (`collection/motifReuse.ts`, new) — Border,
+  Corner, and part of the Decorative Elements Sheet now draw from one real
+  shared `fillerMotifPool` instead of 3 independently-generated sets, and
+  `engine/borderCornerAssets.ts`'s builders now report the real rotation/
+  scale variant each placement got. `GeneratedCollection.motifReuse` and
+  `CollectionSpecification.motifVariants` surface the report (shared hero
+  motifs / shared leaves / shared fillers / shared decorative elements,
+  reuse ratio).
+- **Collection Plan gained a plural `marketplaceTargets` field** (Section
+  1's own field, previously only computed on the Specification/Export-prep
+  level), and **Collection Preview Metadata gained Section 10's remaining
+  fields** — `coverAssetId`, `assetOrder`, `paletteStory`, `layoutStory`,
+  `motifFamily` description — all real, fact-derived data.
+- **Collection size actually scales generation now** (Section 12) — the
+  Design Spec's own `collection.size` is wired into `generateCollection`,
+  which pads Individual Motif count reuse-first (already-generated,
+  unused-so-far motif pools before any new geometry) up to a 100-asset
+  cap, without ever shrinking the required structural asset types.
+- **Deliberately not built in 4b either**: no new `LayoutId`s for Section
+  5's Editorial/Organic Scatter/Diagonal strategies (already real, one
+  layer down, as Cluster Composition Engine archetypes — adding new
+  standalone layout ids would duplicate engine work outside this
+  milestone's remit), no UI, no export wiring beyond what already existed.
 
 ## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
 
@@ -1660,12 +1693,12 @@ project mutation already uses).
 
 ## Testing
 
-`npm test` runs `vitest run` — 961 tests (jsdom environment, component
-tests use React Testing Library) across 71 files. The list below predates
+`npm test` runs `vitest run` — 994 tests (jsdom environment, component
+tests use React Testing Library) across 72 files. The list below predates
 the Design Intelligence Core, Design Workbench, SVG Intelligence Engine
-Phase 3, Commercial Collection Engine Phase 4, and Project Phoenix V2
-milestones and covers the original engine/metadata/trend suites in detail;
-see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+Phase 3, Commercial Collection Engine Phase 4 (+ 4b), and Project Phoenix
+V2 milestones and covers the original engine/metadata/trend suites in
+detail; see [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
 [`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md), and
@@ -1674,9 +1707,9 @@ what their own test suites (`schemas/validators/services`, `workbench/` +
 `components/workbench/`, `engine/svgOptimizer.test.ts` +
 `engine/scoring.test.ts` + `engine/styleDna.test.ts`,
 `palettes/colorTransform.test.ts` + `collection/colorStory.test.ts` +
-`collection/productTargets.test.ts` + `trend/collectionPlan.test.ts`, and
-`engine/clusterEngine.test.ts` + `engine/heroComplexity.test.ts`
-respectively) cover:
+`collection/productTargets.test.ts` + `collection/motifReuse.test.ts` +
+`trend/collectionPlan.test.ts`, and `engine/clusterEngine.test.ts` +
+`engine/heroComplexity.test.ts` respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2431,8 +2464,9 @@ src/
   collection/
     collectionGenerator.ts   Collection Studio Engine: builds a full Collection (assets + manifest)
     collectionScore.ts       7-dimension Collection Score (consistency + diversity + commercial readiness)
-    colorStory.ts            Phase 4: 10 named palette variants (Light/Dark/seasons/Monochrome/Muted/Bold)
+    colorStory.ts            Phase 4/4b: 13 named palette variants (Light/Dark/seasons/Monochrome/Muted/Bold/Earth Tone/Luxury/Pastel)
     productTargets.ts        Phase 4: real rule-based scoring of the 10 named product uses
+    motifReuse.ts            Phase 4b: Motif Reuse Engine — shared-motif reporting across assets
   project/
     projectTypes.ts        Project/ProjectCollectionEntry/ProjectExportHistoryEntry types
     projectManager.ts      pure Project CRUD + legacy-data migration
@@ -2461,7 +2495,7 @@ src/
     promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
     designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
     designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
-    collectionPlan.ts        Phase 4 Collection Planner: Plan/Specification JSON/preview metadata/export prep
+    collectionPlan.ts        Phase 4/4b Collection Planner: Plan/Specification JSON/preview metadata/export prep
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx

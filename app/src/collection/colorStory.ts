@@ -30,10 +30,14 @@ export type ColorStoryVariantId =
   | 'winter'
   | 'monochrome'
   | 'muted'
-  | 'bold';
+  | 'bold'
+  | 'earthTone'
+  | 'luxury'
+  | 'pastel';
 
 export const COLOR_STORY_VARIANT_IDS: ColorStoryVariantId[] = [
   'original', 'light', 'dark', 'spring', 'summer', 'autumn', 'winter', 'monochrome', 'muted', 'bold',
+  'earthTone', 'luxury', 'pastel',
 ];
 
 const VARIANT_LABELS: Record<ColorStoryVariantId, string> = {
@@ -47,6 +51,9 @@ const VARIANT_LABELS: Record<ColorStoryVariantId, string> = {
   monochrome: 'Monochrome',
   muted: 'Muted',
   bold: 'Bold',
+  earthTone: 'Earth Tone',
+  luxury: 'Luxury',
+  pastel: 'Pastel',
 };
 
 export interface ColorStoryVariant {
@@ -72,9 +79,23 @@ const VARIANT_TRANSFORMS: Partial<Record<ColorStoryVariantId, HexTransform>> = {
   summer: (hex) => adjustLightness(adjustSaturation(rotateHue(hex, -6), -12), 10),
   autumn: (hex) => adjustLightness(adjustSaturation(rotateHue(hex, 20), 5), -8),
   winter: (hex) => adjustLightness(adjustSaturation(rotateHue(hex, -15), 8), -12),
+  // Earth Tone: warm hue rotation toward ochre/terracotta, desaturated and
+  // deepened — the same "shift hue, then pull saturation/lightness" recipe
+  // as the seasonal variants, tuned toward a real earth-tone palette
+  // convention (clay/moss/sand) rather than an invented look.
+  earthTone: (hex) => adjustLightness(adjustSaturation(rotateHue(hex, 18), -28), -10),
+  // Luxury: deep jewel-tone rotation (toward emerald/sapphire/aubergine),
+  // high saturation, noticeably darker — distinct from "dark" (which keeps
+  // the original hue and only drops lightness) and from "bold" (which
+  // keeps the original hue and stays light enough to read as bright).
+  luxury: (hex) => adjustLightness(adjustSaturation(rotateHue(hex, -12), 18), -18),
+  // Pastel: very light and softly desaturated — distinct from "light"
+  // (a smaller, more conservative lift) by pushing lightness further while
+  // pulling saturation down more, the standard pastel-palette recipe.
+  pastel: (hex) => adjustLightness(adjustSaturation(hex, -22), 30),
 };
 
-/** Derives the full 10-variant Color Story from one base color set.
+/** Derives the full 13-variant Color Story from one base color set.
  * Deterministic (no randomness) — the same input colors always produce the
  * same 10 variants. `baseColors[0]` is treated as the background color (the
  * same convention `palettes/palettes.ts`'s `Palette.colors` already uses)

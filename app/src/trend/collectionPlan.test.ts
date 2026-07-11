@@ -59,7 +59,7 @@ describe('buildCollectionPlan (Section 1)', () => {
     expect(plan.collectionTheme).toBe(spec.trend!.theme);
   });
 
-  it('colorStory has all 10 named variants, each preserving the base color count', () => {
+  it('colorStory has all 13 named variants, each preserving the base color count', () => {
     const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
     const plan = buildCollectionPlan(spec);
     expect(Object.keys(plan.colorStory).sort()).toEqual([...COLOR_STORY_VARIANT_IDS].sort());
@@ -82,6 +82,13 @@ describe('buildCollectionPlan (Section 1)', () => {
     expect(buildCollectionPlan(spec)).toEqual(buildCollectionPlan(spec));
   });
 
+  it('marketplaceTargets (Section 1) always starts with the spec\'s own target marketplace', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const plan = buildCollectionPlan(spec);
+    expect(plan.marketplaceTargets[0]).toBe(spec.marketplace.id);
+    expect(new Set(plan.marketplaceTargets).size).toBe(plan.marketplaceTargets.length);
+  });
+
   it('an explicit product keyword (e.g. "wallpaper") surfaces Wallpaper among the recommendations', () => {
     const spec = buildDesignSpecification({ keywordBundle: makeBundle({ commercialCategory: 'wallpaper' }), createdAt: 1000 });
     const plan = buildCollectionPlan(spec);
@@ -98,13 +105,15 @@ describe('buildProductTargets (Section 6)', () => {
 });
 
 describe('buildLayoutVariants (Section 7)', () => {
-  it('lists 6 pattern-type assets, each with a real, genuinely distinct layout', () => {
+  it('lists 8 pattern-type assets, each with a real, genuinely distinct layout', () => {
     const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
     const collection = buildCollectionFromDesignSpec(spec, 'seed-layout-variants');
     const variants = buildLayoutVariants(collection);
-    expect(variants.length).toBe(6);
-    expect(variants.map((v) => v.assetId)).toEqual(['hero', 'secondary', 'blender', 'mini', 'stripe', 'background-texture']);
-    expect(new Set(variants.map((v) => v.layoutId)).size).toBe(6);
+    expect(variants.length).toBe(8);
+    expect(variants.map((v) => v.assetId)).toEqual([
+      'hero', 'secondary', 'blender', 'mini', 'stripe', 'background-texture', 'dense-pattern', 'airy-pattern',
+    ]);
+    expect(new Set(variants.map((v) => v.layoutId)).size).toBe(8);
   });
 });
 
@@ -120,6 +129,7 @@ describe('buildCollectionSpecification (Section 7)', () => {
 
     expect(collectionSpec.assets).toEqual(collection.manifest.assets);
     expect(collectionSpec.motifRelationships).toEqual(collection.manifest.relationships);
+    expect(collectionSpec.motifVariants).toEqual(collection.motifReuse);
     expect(collectionSpec.colorVariants).toEqual(collectionSpec.metadata.plan.colorStory);
 
     expect(collectionSpec.marketplaceTargets[0]).toBe(spec.marketplace.id);
@@ -144,14 +154,33 @@ describe('buildCollectionPreviewMetadata (Section 8)', () => {
     const collection = buildCollectionFromDesignSpec(spec, 'seed-preview-metadata');
     const preview = buildCollectionPreviewMetadata(collection);
 
-    expect(preview.layoutDiversity.totalPatternAssets).toBe(6);
-    expect(preview.layoutDiversity.distinctLayouts).toBe(6);
+    expect(preview.layoutDiversity.totalPatternAssets).toBe(8);
+    expect(preview.layoutDiversity.distinctLayouts).toBe(8);
     expect(preview.layoutDiversity.score).toBe(100);
     expect(preview.motifConsistency).toEqual(collection.manifest.consistency);
     expect(preview.commercialReadiness).toBeGreaterThanOrEqual(0);
     expect(preview.commercialReadiness).toBeLessThanOrEqual(100);
     expect(preview.colorStory.variantIds).toEqual(COLOR_STORY_VARIANT_IDS);
     expect(preview.assetRelationships).toEqual(collection.manifest.relationships);
+  });
+
+  it('Section 10 preview fields (cover, asset order, palette/layout story, motif family) are real, non-fabricated data', () => {
+    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), createdAt: 1000 });
+    const collection = buildCollectionFromDesignSpec(spec, 'seed-preview-story');
+    const preview = buildCollectionPreviewMetadata(collection);
+
+    expect(preview.coverAssetId).toBe('hero');
+    expect(preview.assetOrder).toEqual(collection.manifest.assets.map((a) => a.id));
+    expect(preview.assetOrder[0]).toBe('hero');
+
+    expect(preview.paletteStory).toContain(String(COLOR_STORY_VARIANT_IDS.length));
+    for (const id of COLOR_STORY_VARIANT_IDS) expect(preview.paletteStory).toContain(id);
+
+    const realLayouts = collection.patternTiles.map((t) => t.params.layoutId);
+    for (const layoutId of realLayouts) expect(preview.layoutStory).toContain(layoutId);
+
+    expect(preview.motifFamily.family).toBe(collection.manifest.motifFamily);
+    expect(preview.motifFamily.description).toContain(collection.manifest.motifFamily);
   });
 });
 

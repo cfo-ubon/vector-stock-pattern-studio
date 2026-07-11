@@ -14,6 +14,7 @@ import type { SavedItem } from '../components/SavedPanel';
 import { resolveStyleDna, type StyleDna } from '../engine/styleDna';
 import type { MarketplaceId } from '../metadata/marketplaceProfiles';
 import { buildColorStory } from './colorStory';
+import { buildMotifReuseReport, type CollectionMotifPlacement, type MotifReuseReport } from './motifReuse';
 
 // Collection Studio Engine — v1.33 in-place evolution of the Professional
 // Asset Factory Engine (v1.31, "PAF"). Same underlying idea (one Style DNA
@@ -40,12 +41,23 @@ import { buildColorStory } from './colorStory';
 // Section 5, "Layout Variation") instead of letting Mini Pattern silently
 // inherit the Hero Pattern's own layout the way it used to.
 //
+// Commercial Collection Engine Phase 4b (schema version 3 -> 4, additive
+// again — `patternParams` is still untouched) closes the last 2 of the 12
+// named asset kinds a follow-up, more detailed brief asked for:
+// `densePattern` and `airyPattern`, built from the already-registered
+// `densePremium`/`airy` layouts (Project PHOENIX's Cluster Composition
+// Engine, unmodified) the same way Background Texture was added — appended
+// to `patternTiles` only, never to `patternParams`. It also consolidates
+// the border/corner/decorative motif sets into a real shared pool
+// (`collection/motifReuse.ts`, Section 6 "Motif Reuse Engine") instead of 3
+// independently-generated sets that happened to look similar.
+//
 // This module is deliberately DOM-free (no <canvas>, no download/zip
 // calls) so the whole pipeline is unit-testable the same way every other
 // engine module is — PNG rasterization and ZIP packaging happen one layer
 // up, in App.tsx, exactly like every other raster/zip export in this app.
 
-export const COLLECTION_SCHEMA_VERSION = 3;
+export const COLLECTION_SCHEMA_VERSION = 4;
 
 export type AssetType =
   | 'heroPattern'
@@ -54,6 +66,8 @@ export type AssetType =
   | 'miniPattern'
   | 'stripePattern'
   | 'backgroundTexture'
+  | 'densePattern'
+  | 'airyPattern'
   | 'borderPattern'
   | 'cornerPattern'
   | 'spotMotifSheet'
@@ -146,14 +160,18 @@ export interface GeneratedCollection {
    * instead, not here. */
   patternParams: GenerateParams[];
   /** Every pattern-type `TileData` actually built for this collection —
-   * the same 5 `patternParams` covers, in the same order, *plus* the
-   * Background Texture pattern (Commercial Collection Engine Phase 4,
-   * Section 2) at the end. Additive: exists so collection/collectionScore.ts
-   * can compute real layout/motif-diversity dimensions (Section 9) and
+   * the same 5 `patternParams` covers, in the same order, *plus*
+   * Background Texture, Dense Pattern, and Airy Pattern (Commercial
+   * Collection Engine Phase 4/4b, Section 2) at the end, in that order.
+   * Additive: exists so collection/collectionScore.ts can compute real
+   * layout/motif-diversity dimensions (Section 9) and
    * trend/collectionPlan.ts can build preview metadata, without
    * re-deriving or re-parsing anything and without disturbing
    * `patternParams`'s own fixed shape. */
   patternTiles: TileData[];
+  /** Section 6, "Motif Reuse Engine" — which motifs genuinely reach more
+   * than one asset, and with what real rotation/scale variants. */
+  motifReuse: MotifReuseReport;
 }
 
 /** A different layout from `baseParams.layoutId` for the Secondary Pattern
@@ -257,7 +275,24 @@ export function buildCollectionPreview(
   return { svg: h('g', { id: 'collection-preview' }, cells), width, height };
 }
 
-export function generateCollection(baseParams: GenerateParams, styleDna?: StyleDna, collectionNameOverride?: string): GeneratedCollection {
+/** Fixed asset count independent of Individual Motif count: 8 pattern-type
+ * tiles (Hero/Secondary/Blender/Mini/Stripe/Background/Dense/Airy) + 4
+ * border + 4 corner + Spot Motif Sheet + Decorative Elements Sheet +
+ * Collection Preview + Metadata + SEO Package. Section 12's "10/25/50/100
+ * related assets" only varies Individual Motif count on top of this —
+ * every other asset kind is a fixed, required part of the collection
+ * structure (`collectionScore.ts`'s `REQUIRED_ASSET_TYPES`), so shrinking
+ * below this floor would break commercialReadiness completeness. */
+const FIXED_NON_INDIVIDUAL_ASSET_COUNT = 21;
+const BASE_INDIVIDUAL_MOTIF_COUNT = 6;
+const MAX_COLLECTION_SIZE = 100;
+
+export function generateCollection(
+  baseParams: GenerateParams,
+  styleDna?: StyleDna,
+  collectionNameOverride?: string,
+  requestedCollectionSize?: number,
+): GeneratedCollection {
   const baseSeed = baseParams.seed;
   const collectionId = `collection-${baseSeed}`;
 
@@ -332,18 +367,64 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
     seed: deriveSeed(baseSeed, 'collection-background-texture', 0),
   });
 
+  // Dense Pattern + Airy Pattern (new Commercial Collection Engine Phase 4
+  // brief, Section 2) — the two remaining named asset kinds this generator
+  // didn't produce yet. Both reuse *existing, already-registered* layouts
+  // (`densePremium`/`airy` — Project PHOENIX's Cluster Composition Engine
+  // powers both already, unmodified here) rather than inventing new layout
+  // logic. Like Background Texture, both are additive: they extend
+  // `patternTiles` (freely resizable) but never `patternParams` (fixed
+  // 5-element shape components/ProjectPanel.tsx depends on).
+  const denseLayout = allocateLayout('densePremium', usedLayouts);
+  usedLayouts.add(denseLayout);
+  const denseTile = buildTile({
+    ...baseParams,
+    layoutId: denseLayout,
+    density: Math.min(1, baseParams.density * 1.4),
+    negativeSpace: Math.max(0, (baseParams.negativeSpace ?? 0) - 0.15),
+    hierarchy: HIERARCHY_PRESETS.denseLayered.value,
+    seed: deriveSeed(baseSeed, 'collection-dense', 0),
+  });
+
+  const airyLayout = allocateLayout('airy', usedLayouts);
+  usedLayouts.add(airyLayout);
+  const airyTile = buildTile({
+    ...baseParams,
+    layoutId: airyLayout,
+    density: Math.max(0.1, baseParams.density * 0.55),
+    negativeSpace: Math.min(1, (baseParams.negativeSpace ?? 0) + 0.3),
+    hierarchy: HIERARCHY_PRESETS.minimalRepeat.value,
+    seed: deriveSeed(baseSeed, 'collection-airy', 0),
+  });
+
   const patternTiles = [heroTile, secondaryTile, blenderTile, miniTile, stripeTile];
-  const allPatternTiles = [...patternTiles, backgroundTile];
+  const allPatternTiles = [...patternTiles, backgroundTile, denseTile, airyTile];
 
   // 2. Motif Factory sets — independent motifs from the same category,
   // tagged by role, feeding the border/corner/sheet assets below. The
   // Decorative Elements Sheet consolidates what v1.31 built as two
   // separate sets (Background Elements + Decorative Icons) into one.
-  const borderMotifs = generateMotifSet(baseParams, { count: 4, role: 'accent', baseSeed: deriveSeed(baseSeed, 'collection-border-motifs', 0), sizeMul: 0.6 });
-  const cornerMotifs = generateMotifSet(baseParams, { count: 4, role: 'accent', baseSeed: deriveSeed(baseSeed, 'collection-corner-motifs', 0), sizeMul: 0.6 });
+  //
+  // Motif Reuse Engine (Section 6, added Phase 4b): `fillerMotifPool` is
+  // generated *once* and reused — not regenerated — across Border, Corner,
+  // and the first few slots of the Decorative Elements Sheet, so those 9
+  // assets genuinely share real motif geometry (`collection/motifReuse.ts`
+  // reports exactly which motifs and how many assets each reaches) instead
+  // of 3 independently-random sets that only happened to look similar.
+  // Spot Motifs stay their own pool (role 'hero', Individual Motifs already
+  // reuses a slice of it below — pre-existing, unchanged) since border/
+  // corner/decorative accents are a different creative role than hero
+  // motifs.
+  const fillerMotifPool = generateMotifSet(baseParams, { count: 8, role: 'filler', baseSeed: deriveSeed(baseSeed, 'collection-filler-pool', 0), sizeMul: 0.6 });
   const spotMotifs = generateMotifSet(baseParams, { count: 12, role: 'hero', baseSeed: deriveSeed(baseSeed, 'collection-spot', 0) });
-  const decorativeMotifs = generateMotifSet(baseParams, { count: 16, role: 'accent', baseSeed: deriveSeed(baseSeed, 'collection-decorative', 0), sizeMul: 0.45 });
-  const allMotifs = [...borderMotifs, ...cornerMotifs, ...spotMotifs, ...decorativeMotifs];
+  const decorativeAccents = generateMotifSet(baseParams, { count: 12, role: 'accent', baseSeed: deriveSeed(baseSeed, 'collection-decorative', 0), sizeMul: 0.45 });
+  const borderMotifs = fillerMotifPool;
+  const cornerMotifs = fillerMotifPool;
+  const decorativeMotifs = [...fillerMotifPool.slice(0, 4), ...decorativeAccents];
+  // Finalized once Individual Motif padding (Section 12, below) decides
+  // whether any additional pad motifs are needed.
+  const uniqueMotifsById = new Map<string, FactoryMotif>();
+  for (const m of [...fillerMotifPool, ...spotMotifs, ...decorativeAccents]) uniqueMotifsById.set(m.id, m);
 
   // 3. Border (4 edges) + Corner (4 corners) assets.
   const bandSize = Math.round(baseParams.tileSize * 0.18);
@@ -371,6 +452,15 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
     }),
   );
 
+  // Motif Reuse Engine (Section 6) — the real rotation/scale variant each
+  // shared filler motif got at each placement, tagged with which asset used
+  // it, straight from `buildBorderStrip`/`buildCornerUnit`'s own real
+  // placement decisions (never re-derived or guessed).
+  const motifPlacementLog: CollectionMotifPlacement[] = [
+    ...edges.flatMap((edge, i) => borderBuilds[i].placements.map((p) => ({ ...p, assetId: `border-${edge}` }))),
+    ...corners.flatMap((corner, i) => cornerBuilds[i].placements.map((p) => ({ ...p, assetId: `corner-${corner}` }))),
+  ];
+
   // 4. Isolated-motif sheets (transparent background, SVG only).
   const spotSheet = buildMotifSheet(spotMotifs, { cols: 4, cellSize: 220, padding: 20, idPrefix: 'spot' });
   const decorativeSheet = buildMotifSheet(decorativeMotifs, { cols: 4, cellSize: 170, padding: 16, idPrefix: 'decor' });
@@ -383,8 +473,34 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
   // motifs already tracked in `allMotifs`/the manifest's relationships —
   // no duplicate generation, no risk of drifting from the shared motif
   // family.
-  const individualMotifCount = Math.min(6, spotMotifs.length);
-  const individualMotifs = spotMotifs.slice(0, individualMotifCount);
+  //
+  // Section 12, "Performance" (10/25/50/100-asset collections) — the only
+  // asset kind this generator scales with `requestedCollectionSize` is
+  // Individual Motifs, and it scales by *reuse first*: the still-unused
+  // remainder of `spotMotifs`, then the entire `fillerMotifPool`, then
+  // `decorativeAccents` are all already-generated geometry this collection
+  // built anyway for other assets — exporting them standalone costs one
+  // cheap SVG-document wrap, not a regeneration. Only once every already-
+  // generated motif is exhausted does this fall back to `generateMotifSet`
+  // for genuinely new geometry, and only for the exact remainder still
+  // needed to reach the requested size (never more).
+  const baseIndividualCount = Math.min(BASE_INDIVIDUAL_MOTIF_COUNT, spotMotifs.length);
+  const targetTotalAssets = requestedCollectionSize !== undefined
+    ? Math.min(MAX_COLLECTION_SIZE, Math.max(FIXED_NON_INDIVIDUAL_ASSET_COUNT + baseIndividualCount, requestedCollectionSize))
+    : FIXED_NON_INDIVIDUAL_ASSET_COUNT + baseIndividualCount;
+  const targetIndividualMotifCount = targetTotalAssets - FIXED_NON_INDIVIDUAL_ASSET_COUNT;
+  const extraNeeded = Math.max(0, targetIndividualMotifCount - baseIndividualCount);
+
+  const reusableExtraMotifs: FactoryMotif[] = [...spotMotifs.slice(baseIndividualCount), ...fillerMotifPool, ...decorativeAccents];
+  const reusedExtras = reusableExtraMotifs.slice(0, extraNeeded);
+  const stillNeeded = extraNeeded - reusedExtras.length;
+  const padMotifs = stillNeeded > 0
+    ? generateMotifSet(baseParams, { count: stillNeeded, role: 'accent', baseSeed: deriveSeed(baseSeed, 'collection-pad-motifs', 0), sizeMul: 0.5 })
+    : [];
+  for (const m of padMotifs) uniqueMotifsById.set(m.id, m);
+  const allMotifs = [...uniqueMotifsById.values()];
+
+  const individualMotifs = [...spotMotifs.slice(0, baseIndividualCount), ...reusedExtras, ...padMotifs];
   const individualMotifBuilds = individualMotifs.map((motif) => {
     const size = Math.max(motif.bounds.width, motif.bounds.height) || 1;
     const pad = size * 0.15;
@@ -401,10 +517,14 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
   // for the batch-upload CSVs.
   const siteMetadata: SiteMetadata[] = buildSiteMetadata(heroTile);
   const seoText = buildSeoTextFile(heroTile);
-  const csvItems: SavedItem[] = patternTiles.map((t, i) => ({
+  // Dense/Airy Pattern are real sellable focal patterns (unlike Background
+  // Texture, which stays excluded per its own documented rationale above),
+  // so they're appended to the sellable-pattern CSV list too.
+  const sellablePatternTiles = [...patternTiles, denseTile, airyTile];
+  const csvItems: SavedItem[] = sellablePatternTiles.map((t, i) => ({
     id: `${collectionId}-csv-${i}`,
     tileData: t,
-    name: `${collectionId}-${['hero', 'secondary', 'blender', 'mini', 'stripe'][i]}`,
+    name: `${collectionId}-${['hero', 'secondary', 'blender', 'mini', 'stripe', 'dense', 'airy'][i]}`,
     createdAt: Date.now(),
     note: '',
     submissions: {},
@@ -422,6 +542,8 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
       { id: 'mini', node: miniTile.svg, width: miniTile.params.tileSize, height: miniTile.params.tileSize },
       { id: 'stripe', node: stripeTile.svg, width: stripeTile.params.tileSize, height: stripeTile.params.tileSize },
       { id: 'background-texture', node: backgroundTile.svg, width: backgroundTile.params.tileSize, height: backgroundTile.params.tileSize },
+      { id: 'dense', node: denseTile.svg, width: denseTile.params.tileSize, height: denseTile.params.tileSize },
+      { id: 'airy', node: airyTile.svg, width: airyTile.params.tileSize, height: airyTile.params.tileSize },
       { id: 'border', node: borderBuilds[0].svg, width: borderBuilds[0].width, height: borderBuilds[0].height },
       { id: 'corner', node: cornerBuilds[0].svg, width: cornerBuilds[0].width, height: cornerBuilds[0].height },
       { id: 'spot', node: spotSheet.svg, width: spotSheet.width, height: spotSheet.height },
@@ -438,6 +560,8 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
     { id: 'mini', type: 'miniPattern', label: 'Mini Pattern', filename: `${collectionId}-mini.svg`, svg: buildSvgDocument(miniTile.svg, 3000, 3000, miniTile.params.tileSize, miniTile.params.tileSize), motifIds: [] },
     { id: 'stripe', type: 'stripePattern', label: 'Stripe Pattern', filename: `${collectionId}-stripe.svg`, svg: buildSvgDocument(stripeTile.svg, 3000, 3000, stripeTile.params.tileSize, stripeTile.params.tileSize), motifIds: [] },
     { id: 'background-texture', type: 'backgroundTexture', label: 'Background Texture', filename: `${collectionId}-background-texture.svg`, svg: buildSvgDocument(backgroundTile.svg, 3000, 3000, backgroundTile.params.tileSize, backgroundTile.params.tileSize), motifIds: [] },
+    { id: 'dense-pattern', type: 'densePattern', label: 'Dense Pattern', filename: `${collectionId}-dense.svg`, svg: buildSvgDocument(denseTile.svg, 3000, 3000, denseTile.params.tileSize, denseTile.params.tileSize), motifIds: [] },
+    { id: 'airy-pattern', type: 'airyPattern', label: 'Airy Pattern', filename: `${collectionId}-airy.svg`, svg: buildSvgDocument(airyTile.svg, 3000, 3000, airyTile.params.tileSize, airyTile.params.tileSize), motifIds: [] },
     ...edges.map((edge, i) => ({
       id: `border-${edge}`,
       type: 'borderPattern' as const,
@@ -498,5 +622,14 @@ export function generateCollection(baseParams: GenerateParams, styleDna?: StyleD
     consistency,
   };
 
-  return { manifest, assets, motifs: allMotifs, patternParams: patternTiles.map((t) => t.params), patternTiles: allPatternTiles };
+  const motifReuse = buildMotifReuseReport(relationships, allMotifs, motifPlacementLog);
+
+  return {
+    manifest,
+    assets,
+    motifs: allMotifs,
+    patternParams: patternTiles.map((t) => t.params),
+    patternTiles: allPatternTiles,
+    motifReuse,
+  };
 }

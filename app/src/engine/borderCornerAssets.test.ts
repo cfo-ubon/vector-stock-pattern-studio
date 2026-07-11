@@ -35,6 +35,16 @@ describe('buildBorderStrip', () => {
     const matches = serialize(result.svg).match(/scale\(/g) ?? [];
     expect(matches.length).toBeGreaterThanOrEqual(12);
   });
+
+  it('reports exactly `count` real placement decisions (Motif Reuse Engine, Phase 4b)', () => {
+    const result = buildBorderStrip({ edge: 'bottom', length: 1200, band: 150, motifs, rng: createRng('bs-placements'), backgroundColor: '#fff', count: 12 });
+    expect(result.placements.length).toBe(12);
+    for (const p of result.placements) {
+      expect(motifs.some((m) => m.id === p.motifId)).toBe(true);
+      expect(Number.isFinite(p.rotationDeg)).toBe(true);
+      expect(p.scale).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('buildCornerUnit', () => {
@@ -64,5 +74,15 @@ describe('buildCornerUnit', () => {
     const bottomRight = buildCornerUnit({ corner: 'bottom-right', band: 300, motifs, rng: createRng('cu-mirror'), backgroundColor: '#fff', count: 6 });
     const serialized = [topLeft, topRight, bottomLeft, bottomRight].map((r) => serialize(r.svg));
     expect(new Set(serialized).size).toBe(4);
+  });
+
+  it('reports exactly `count` real placement decisions (Motif Reuse Engine, Phase 4b)', () => {
+    const result = buildCornerUnit({ corner: 'top-left', band: 300, motifs, rng: createRng('cu-placements'), backgroundColor: '#fff', count: 6 });
+    expect(result.placements.length).toBe(6);
+    for (const p of result.placements) {
+      expect(motifs.some((m) => m.id === p.motifId)).toBe(true);
+      expect(Number.isFinite(p.rotationDeg)).toBe(true);
+      expect(p.scale).toBeGreaterThan(0);
+    }
   });
 });

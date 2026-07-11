@@ -80,13 +80,17 @@ describe('buildCollectionFromDesignSpec', () => {
       // own existing behavior, unrelated to this Design-Spec-driven wiring)
       // allowed to differ by a millisecond between two independent calls —
       // same reasoning exportPackage.test.ts's determinism test already uses.
+      // Two full collection builds in one test, each now building 8
+      // pattern-type tiles instead of 6 (Commercial Collection Engine
+      // Phase 4b adds Dense Pattern + Airy Pattern) — bumped past the
+      // previous 15000ms override for the same reason it existed at all.
       const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q2', createdAt: 1000 });
       const a = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       const b = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       expect({ ...a.manifest, createdAt: null }).toEqual({ ...b.manifest, createdAt: null });
       expect(a.assets).toEqual(b.assets);
     },
-    15000,
+    30000,
   );
 
   it(
