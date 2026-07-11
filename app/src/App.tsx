@@ -8,21 +8,19 @@ import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
 import { generateCollection } from './collection/collectionGenerator';
-import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename } from './export/svgExporter';
+import { buildSingleTileSvg, buildTiledSvg, downloadSvgFile, downloadBlobFile, buildExportFilename, buildFilenameParts } from './export/svgExporter';
 import { buildZip, type ZipEntry } from './export/zip';
 import { buildEps } from './export/epsExporter';
 import { buildSeoTextFile } from './metadata/shutterstock';
 import { buildShutterstockCsv, buildAdobeStockCsv } from './metadata/csv';
 import { loadSavedItems, putSavedItem, bulkPutSavedItems, deleteSavedItem, clearSavedItems } from './storage/savedStore';
-import { GENERATORS } from './generators';
-import { getPalette, PALETTES } from './palettes/palettes';
-import { LAYOUTS } from './layouts';
+import { PALETTES } from './palettes/palettes';
 import { ControlPanel } from './components/ControlPanel';
 import { PreviewCanvas } from './components/PreviewCanvas';
 import { QualityPanel } from './components/QualityPanel';
 import { TrendPanel } from './components/TrendPanel';
 import { Gallery, type GalleryItem } from './components/Gallery';
-import { MetadataPanel } from './components/MetadataPanel';
+import { StockSubmissionCenter } from './components/StockSubmissionCenter';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
 import type { StockSiteId } from './metadata/shutterstock';
@@ -61,6 +59,13 @@ function App() {
   const [candidateProgress, setCandidateProgress] = useState<CandidateProgress | null>(null);
   const [candidateSummary, setCandidateSummary] = useState<{ total: number; valid: number; score: number; preset: QualityPresetId } | null>(null);
   const [collectionStatus, setCollectionStatus] = useState<'idle' | 'building' | 'done'>('idle');
+  // Tracks *which pattern's seed* the last successfully-generated Collection
+  // belongs to (not just a generic building/done flag) — the Stock
+  // Submission Center's "Collection Ready" checklist item compares this
+  // against the currently-displayed pattern's own seed, so it correctly
+  // reads as "not ready" again after switching to a different pattern
+  // instead of staying stuck on "done" from an unrelated earlier one.
+  const [collectionGeneratedForSeed, setCollectionGeneratedForSeed] = useState<string | null>(null);
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -195,16 +200,7 @@ function App() {
   // Filename mirrors what the pattern looks like: palette (or "custom
   // colors"), category and layout, so exported files are self-describing
   // in a folder full of downloads.
-  const filenameParts = useCallback((data: TileData) => {
-    const p = data.params;
-    const paletteName = p.customColors?.length ? 'custom colors' : getPalette(p.paletteId).label;
-    const categoryName =
-      p.mixCategoryIds && p.mixCategoryIds.length >= 2
-        ? `mix ${p.mixCategoryIds.map((id) => GENERATORS[id]?.label ?? id).join(' x ')}`
-        : (GENERATORS[p.categoryId]?.label ?? p.categoryId);
-    const layoutName = LAYOUTS[p.layoutId]?.label ?? p.layoutId;
-    return [paletteName, categoryName, layoutName];
-  }, []);
+  const filenameParts = useCallback((data: TileData) => buildFilenameParts(data.params), []);
 
   const handleExportSingle = useCallback(() => {
     const svg = buildSingleTileSvg(tileData);
@@ -366,6 +362,7 @@ function App() {
       const zip = buildZip(files);
       downloadBlobFile(`${manifest.collectionId}.zip`, zip);
       setCollectionStatus('done');
+      setCollectionGeneratedForSeed(params.seed);
     } catch {
       setCollectionStatus('idle');
     }
@@ -636,7 +633,7 @@ function App() {
             onToggleCheck={handleToggleGalleryCheck}
             onSaveChecked={handleSaveCheckedGallery}
           />
-          <MetadataPanel tileData={tileData} />
+          <StockSubmissionCenter tileData={tileData} saved={saved} collectionGeneratedForSeed={collectionGeneratedForSeed} />
           <SavedPanel
             items={saved}
             hasCurrent={!!tileData}

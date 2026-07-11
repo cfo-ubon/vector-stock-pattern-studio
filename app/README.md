@@ -981,9 +981,91 @@ into one `GeneratedCollection`:
   preview is a real valid 2000x2000 RGBA PNG, no NaN/Infinity in any SVG),
   zero console errors.
 
+## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
+
+Turns the SEO page into a full pre-flight checklist for actually submitting
+to stock sites — not just generating copy-paste metadata (which
+`metadata/shutterstock.ts` already did and still does, unchanged).
+
+- **Contributor Portal** (`metadata/contributorLinks.ts`): one config file,
+  `CONTRIBUTOR_LINKS: ContributorLink[]`, each `{id, label, url, verified}`.
+  Adding a future site is one new object — nothing else in the UI changes.
+  Rendered as `target="_blank" rel="noopener noreferrer"` buttons above
+  `MetadataPanel` (which is where "Product Title" actually lives — see
+  below), so it satisfies "above Product Title" regardless of which site
+  tab is active. Adobe Stock (`contributor.stock.adobe.com`) and
+  Shutterstock (`submit.shutterstock.com`) URLs are marked `verified: true`
+  (stable, well-known contributor-portal domains); Freepik/Creative
+  Fabrica/Creative Market are marked `verified: false` — general "become a
+  contributor" landing pages used because the exact upload-dashboard URL
+  wasn't confidently known at authoring time (per the project's rule to
+  never guess a URL without confidence). Unverified links render with a ⚠️
+  and a tooltip pointing at the one line to fix in the config file.
+- **Submission Checklist** (`buildSubmissionChecklist`): the 11 required
+  items (SVG Generated, Preview Generated, Metadata Ready, Title Ready,
+  Description Ready, Keywords Ready, Filename Ready, Collection Ready, ZIP
+  Ready, SVG Valid, Originality Checklist), each `ready`/`warning`/
+  `missing` — computed from real data, reusing existing modules rather than
+  reimplementing: `SVG Valid` calls `candidateEngine.ts`'s
+  `applyHardRejectRules` (now exported) directly on the current tile;
+  `Filename Ready` calls the new shared `buildFilenameParts`
+  (`export/svgExporter.ts` — factored out of what used to be a private
+  `filenameParts` closure inside `App.tsx`, so the checklist computes the
+  *exact* filename the app would actually export, not a second drifting
+  copy); `Originality Checklist` hashes the current params with
+  `designModel.ts`'s existing `hashParams` and checks it against the saved
+  library — a real, honestly-scoped check (only ever catches "you already
+  saved this exact configuration," never "someone else on the internet
+  already sold this," since the app has no external image database, same
+  disclaimer the Quality Score panel already carries); `Collection Ready`
+  compares the current pattern's seed against a new `collectionGeneratedForSeed`
+  state in `App.tsx` (replacing a latent bug in the pre-existing generic
+  `collectionStatus` flag, which never reset when the user switched to a
+  different pattern and would silently keep reporting "done" for an
+  unrelated pattern).
+- **SEO Analyzer** (`analyzeSeo`): score (0-100, a weighted blend of title/
+  description/keyword-count/commercial-tag/coverage sub-scores minus a
+  duplicate-keyword penalty — same "weighted average" convention
+  `scoring.ts`'s `computeOverallScore` uses), keyword count, duplicate
+  keywords (real Map-based counting over the actual generated keyword
+  list — always empty against this app's own output since
+  `shutterstock.ts`'s keyword builder already dedupes upstream, a
+  documented and tested invariant, not a fake always-passing check),
+  title/description/filename length, commercial tags present (checked
+  against real generated keywords, not a static claim), keyword coverage
+  (fraction of technique/use-case/format keyword buckets actually touched).
+- **Stock Readiness** (`computeStockReadiness`): one card per site,
+  `ready`/`needsReview`/`issues`, each with real `issues`/`recommendations`
+  derived from that site's own documented field-length/keyword-count
+  limits (`SITE_LIMITS` — the shutterstock/adobestock/freepik values are
+  the sites' own documented upload-form caps, already implicitly present
+  as `meta` display strings in `shutterstock.ts` and now restated as
+  structured numbers; creativefabrica/creativemarket have no publicly
+  documented hard cap, so those two use a clearly-labeled *practical*
+  ceiling instead of a claimed platform limit).
+- **Recommendations** (`buildSubmissionRecommendations`): the "Designer
+  Assistant" requirement for this page — a real, rule-based function
+  derived directly from the checklist/analyzer/readiness results (missing/
+  warning checklist items, duplicate keywords, low coverage, thin
+  commercial tags, per-site issues), same scoping precedent as every other
+  not-yet-a-full-Phase-8-engine Designer Assistant check in this app
+  (Style DNA's drift display, the Collection's `verifyConsistency`): a
+  genuinely useful function built now, not a placeholder.
+- `components/StockSubmissionCenter.tsx` composes all of the above above
+  the existing, completely unmodified `MetadataPanel` (rendered as its last
+  child) — `App.tsx` now renders `<StockSubmissionCenter>` where
+  `<MetadataPanel>` used to render directly.
+- Verified live via Playwright (desktop + mobile): all 5 contributor
+  buttons present with correct `href`/`target="_blank"`/`rel`, clicking one
+  genuinely opens a new tab/popup (network-blocked in the sandbox, which is
+  expected — the point verified is that a real new tab opens, not that the
+  sandbox has internet access), 11 checklist items render, SEO Analyzer
+  shows a real computed score, 5 readiness cards render, zero console
+  errors on either viewport.
+
 ## Testing
 
-`npm test` runs `vitest run` — 285 tests across 19 files:
+`npm test` runs `vitest run` — 304 tests across 20 files:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -1140,6 +1222,23 @@ into one `GeneratedCollection`:
   filenames, and seed/palette fields; the metadata asset carries all 5
   stock sites' fields, and the SEO Package asset's CSVs cover all 5
   pattern-type assets.
+- `metadata/submissionCenter.test.ts` — `buildSubmissionChecklist` returns
+  exactly the 11 required items with real non-empty labels/statuses/
+  details; SVG Generated/Preview Generated/SVG Valid are ready for a
+  normal tile; Collection Ready correctly reflects whether the current
+  seed matches the last-generated collection's seed (including the stale-
+  seed case); Originality Checklist warns on a real duplicate in the saved
+  library and stays ready otherwise; full determinism. `analyzeSeo`: score
+  bounded [0, 100], keyword count matches real generated data, never
+  reports duplicates against this app's own (already-deduped) keyword
+  output, all lengths reflect real non-zero content, commercial tags are a
+  real subset of generated keywords, coverage bounded [0, 100],
+  determinism. `computeStockReadiness`: exactly 5 cards, a healthy pattern
+  is ready with no issues on every site, a deliberately-invalid SVG
+  checklist produces real issues on every card.
+  `buildSubmissionRecommendations`: empty for a fully healthy pattern, and
+  produces a real recommendation that names the specific missing checklist
+  item when one is missing.
 
 ## Adding a new pattern category
 
@@ -1193,9 +1292,14 @@ src/
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   collection/
     collectionGenerator.ts   Professional Asset Factory: builds a full Collection (assets + manifest)
+  metadata/
+    shutterstock.ts        per-site SEO metadata (title/description/keywords)
+    contributorLinks.ts     Contributor Portal config: one entry per stock site
+    submissionCenter.ts     submission checklist + SEO analyzer + stock readiness
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
+    StockSubmissionCenter.tsx
     PreviewCanvas.tsx
     Gallery.tsx
 ```

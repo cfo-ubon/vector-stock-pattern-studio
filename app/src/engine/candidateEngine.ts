@@ -41,12 +41,16 @@ export function deriveSeed(baseSeed: string, purpose: string, index: number): st
 
 const HARD_NODE_BUDGET = 8000;
 
-interface HardRejectResult {
+export interface HardRejectResult {
   rejected: boolean;
   reasons: string[];
 }
 
-function applyHardRejectRules(tileData: TileData): HardRejectResult {
+/** Exported so other features (e.g. the Stock Submission Center's "SVG
+ * Valid" checklist item) can run the exact same structural validity check
+ * directly on the current tile instead of re-deriving a whole candidate
+ * pool just to get one boolean. */
+export function applyHardRejectRules(tileData: TileData): HardRejectResult {
   const reasons: string[] = [];
   const instances = extractInstances(tileData);
   if (instances.length === 0) reasons.push('empty pattern — no motifs placed');

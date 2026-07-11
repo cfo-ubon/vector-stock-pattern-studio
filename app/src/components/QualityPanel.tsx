@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { TileData } from '../engine/types';
 import { computeQualityScore } from '../engine/qualityScore';
 import { QUALITY_PRESET_LABELS, type QualityPresetId } from '../engine/scoring';
+import { scoreColor } from './scoreColor';
 
 export interface CandidateSummary {
   total: number;
@@ -23,12 +24,6 @@ const ROWS: Array<{ key: keyof ReturnType<typeof computeQualityScore>; label: st
   { key: 'seamlessIntegrity', label: 'Seamless integrity' },
   { key: 'motifDiversity', label: 'Motif diversity' },
 ];
-
-function scoreColor(v: number): string {
-  if (v >= 80) return '#5fbf7f';
-  if (v >= 55) return '#e0b84a';
-  return '#e0715a';
-}
 
 /** Deterministic heuristic quality readout — computed straight from this
  * pattern's own generated geometry (engine/qualityScore.ts), not a

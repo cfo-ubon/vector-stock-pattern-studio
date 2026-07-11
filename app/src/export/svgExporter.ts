@@ -1,5 +1,8 @@
-import type { SvgNode, TileData } from '../engine/types';
+import type { GenerateParams, SvgNode, TileData } from '../engine/types';
 import { h, serialize, round } from '../engine/svgAst';
+import { GENERATORS } from '../generators';
+import { LAYOUTS } from '../layouts';
+import { getPalette } from '../palettes/palettes';
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 const SVG_NS_ATTRS = {
@@ -108,6 +111,22 @@ export function buildTiledSvg(tileData: TileData, cols = 3, rows = 3): string {
     [h('g', { id: 'pattern-tiled' }, copies)],
   );
   return `${XML_HEADER}\n${serialize(root)}\n`;
+}
+
+/** Human-readable palette/category/layout labels for a pattern's params —
+ * the exact parts `buildExportFilename` slugifies into a file name.
+ * Factored out of App.tsx (which used to have its own local copy of this
+ * exact logic) so the Stock Submission Center's checklist/analyzer can
+ * compute the real filename the app would actually export, instead of a
+ * second, drifting reimplementation. */
+export function buildFilenameParts(params: GenerateParams): string[] {
+  const paletteName = params.customColors?.length ? 'custom colors' : getPalette(params.paletteId).label;
+  const categoryName =
+    params.mixCategoryIds && params.mixCategoryIds.length >= 2
+      ? `mix ${params.mixCategoryIds.map((id) => GENERATORS[id]?.label ?? id).join(' x ')}`
+      : (GENERATORS[params.categoryId]?.label ?? params.categoryId);
+  const layoutName = LAYOUTS[params.layoutId]?.label ?? params.layoutId;
+  return [paletteName, categoryName, layoutName];
 }
 
 /** Descriptive, filesystem-safe filename derived from what the pattern
