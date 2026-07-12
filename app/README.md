@@ -1882,6 +1882,54 @@ recommendations. Full architecture and scope decisions in
 - **New UI**: `components/workbench/DesignCriticPanel.tsx` — a dockable
   Critic tab reusing the same `qualityResult` the Quality Panel computes.
 
+## Design Evolution Engine — Phase 8 (`src/evolution/*`)
+
+A genetic-algorithm-style layer that generates a population of Design
+Specification variants from one starting spec, scores them with the real
+Design Critic, and evolves that population across generations toward
+higher measurable quality. Full architecture, algorithms, and empirical
+verification in [`DESIGN_EVOLUTION_ENGINE.md`](./DESIGN_EVOLUTION_ENGINE.md);
+summary:
+
+- **Candidate Generator** (`candidateGenerator.ts`) — configurable
+  population size; candidate 0 is always the untouched seed spec
+  (elitism baseline), every other candidate carries 1+ real mutations.
+- **Mutation Engine** (`mutationEngine.ts`) — 6 named operators
+  (cluster density, motif scale, overlap, hierarchy, palette weighting,
+  negative space), each patching one real spec field, bounded to real
+  reference data (`HIERARCHY_PRESETS`) where one exists. `styleDnaId` is
+  never touched by any operator.
+- **Crossover Engine** (`crossoverEngine.ts`) — 4 trait groups
+  (composition, palette, cluster, motif), each taken wholly from one
+  parent, never blended field-by-field within a group.
+- **Fitness Evaluation** (`fitnessEvaluation.ts`) — scores every
+  candidate via the real Design Critic (Phase 7), never a second scoring
+  implementation; transparent 11-dimension critique travels with every
+  score, and a real hard-reject sentinel (`fitness.rejected`) is surfaced
+  explicitly rather than hidden behind a suspicious `-1`.
+- **Selection Strategy** (`selectionStrategy.ts`) — elitist, tournament,
+  and roulette-wheel algorithms, all configurable.
+- **Diversity Control** (`diversityControl.ts`) — candidate similarity
+  measured with the real `workbench/jsonDiff.ts` diff utility; near-
+  duplicates are pruned with a soft top-up so pruning can never stall
+  evolution below the target population size.
+- **Evolution Timeline** (`evolutionTimeline.ts`) — one record per
+  generation, with `compareGenerations` for a real field-level diff
+  between any two generations' best candidates.
+- **Design DNA** (`types.ts`) — every candidate's lineage (parent ids,
+  applied mutations, crossover record) travels with it.
+- **Stopping Conditions** (`stoppingConditions.ts`) — quality threshold,
+  max generations (always enforced), wall-clock budget, and evaluation
+  budget, each independently configurable.
+- **Empirically verified convergence**: elitism makes the timeline's
+  best score structurally non-decreasing (a provable guarantee, not a
+  hope); a real empirical run also found and now tests a genuine
+  recovery from a fully hard-rejected generation 0 to a real 46/100
+  candidate by generation 1.
+- **New UI**: `components/workbench/EvolutionPanel.tsx` — a dockable
+  Evolution tab with population/generation/selection controls, a
+  browsable timeline, and an "Apply Winning Design" action.
+
 ## Testing
 
 `npm test` runs `vitest run` — 1301 tests (jsdom environment, component

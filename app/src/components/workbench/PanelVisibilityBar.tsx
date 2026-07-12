@@ -15,6 +15,7 @@ const PANEL_LABELS: Record<PanelId, string> = {
   prompt: '🤖 Prompt',
   quality: '🎯 Quality',
   critic: '🖌 Critic',
+  evolution: '🧬 Evolution',
   validation: '✅ Validation',
   preview: '🖼 Live Preview',
   history: '🕘 History',

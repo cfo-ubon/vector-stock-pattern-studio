@@ -88,6 +88,7 @@ const MarketplacePanel = lazy(() => import('./MarketplacePanel').then((m) => ({ 
 const PromptPanel = lazy(() => import('./PromptPanel').then((m) => ({ default: m.PromptPanel })));
 const QualityPanel = lazy(() => import('./QualityPanel').then((m) => ({ default: m.QualityPanel })));
 const DesignCriticPanel = lazy(() => import('./DesignCriticPanel').then((m) => ({ default: m.DesignCriticPanel })));
+const EvolutionPanel = lazy(() => import('./EvolutionPanel').then((m) => ({ default: m.EvolutionPanel })));
 
 function LazyFallback() {
   return <p className="metadata-hint">⏳ Loading panel…</p>;
@@ -137,6 +138,7 @@ const PANEL_LABELS: Record<PanelId, string> = {
   prompt: '🤖 Prompt',
   quality: '🎯 Quality',
   critic: '🖌 Critic',
+  evolution: '🧬 Evolution',
   validation: '✅ Validation',
   preview: '🖼 Live Preview',
   history: '🕘 History',
@@ -424,6 +426,11 @@ export function DesignWorkbench({ onApplyToEditor, onDownloadPackage, onGenerate
                 onUpdateSpec={pushSpec}
                 activeProject={activeProject}
               />
+            </Suspense>
+          )}
+          {spec && settings.rightTab === 'evolution' && isPanelVisible(settings, 'evolution') && (
+            <Suspense fallback={<LazyFallback />}>
+              <EvolutionPanel spec={spec} seed={seed} onApplySpec={pushSpec} />
             </Suspense>
           )}
           {spec && settings.rightTab === 'validation' && isPanelVisible(settings, 'validation') && <ValidationPanel spec={spec} />}

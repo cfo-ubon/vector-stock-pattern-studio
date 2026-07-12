@@ -765,6 +765,83 @@
   gap: 0.6rem;
 }
 
+/* Evolution Panel (Phase 8) */
+
+.workbench-evolution-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-evolution-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.workbench-evolution-config label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.workbench-evolution-dna {
+  border-top: 1px solid var(--border);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+.workbench-evolution-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.workbench-evolution-generation-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.workbench-evolution-generation-chip--active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.workbench-evolution-candidate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.workbench-evolution-candidate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.15rem 0.3rem;
+}
+
+.workbench-evolution-candidate--best {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.workbench-evolution-candidate--rejected {
+  color: #e05252;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .design-workbench * {
     transition: none !important;
