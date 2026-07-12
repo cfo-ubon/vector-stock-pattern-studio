@@ -14,6 +14,7 @@ const PANEL_LABELS: Record<PanelId, string> = {
   marketplace: '🏬 Marketplace',
   prompt: '🤖 Prompt',
   quality: '🎯 Quality',
+  critic: '🖌 Critic',
   validation: '✅ Validation',
   preview: '🖼 Live Preview',
   history: '🕘 History',

@@ -9,6 +9,8 @@ import { CopyButton } from '../MetadataPanel';
 import { getMotifGrammar } from '../../services/motifGrammarService';
 import type { GenerateParams } from '../../engine/types';
 import type { DesignSpecQualityLoopResult } from '../../trend/designSpecQuality';
+import { buildDesignReport } from '../../critic/designReport';
+import { checkQualityGate } from '../../critic/qualityGate';
 
 // Design Workbench Section 4 ("Live Preview") — every sub-preview reads
 // directly from `spec` (a `useMemo` per tab keyed on `spec`/`seed`/
@@ -82,6 +84,31 @@ export function LivePreviewPanel({
   const tiledSvgHtml = useMemo(() => (tab === 'repeat' ? buildTiledSvg(tile, 3, 3).replace(/^<\?xml[^>]*\?>\s*/, '') : ''), [tile, tab]);
   const seo = useMemo(() => buildDesignSpecSeo(spec, tile, marketplaceId), [spec, tile, marketplaceId]);
   const seoIssues = useMemo(() => validateMarketplaceSeo(seo, MARKETPLACE_PROFILES[marketplaceId]), [seo, marketplaceId]);
+
+  // Design Critic Phase 7 ("must become the quality gate before any artwork
+  // proceeds to SEO, export, or marketplace preparation") — reuses the same
+  // `qualityResult` already computed for this tile (never re-runs the loop)
+  // to build a `DesignReport` and check it against `critic/qualityGate.ts`.
+  // Without a `qualityResult` yet (loop never run) there's nothing to gate
+  // on, so export/collection proceed ungated, same as before this wiring.
+  const gate = useMemo(() => {
+    if (!qualityResult) return null;
+    const report = buildDesignReport(spec, qualityResult.pool.winner.tileData, qualityResult.pool.winner.metrics, qualityResult.check.report, qualityResult.check.meetsTargets);
+    return checkQualityGate(report);
+  }, [spec, qualityResult]);
+
+  function confirmPastGate(action: string): boolean {
+    if (!gate || gate.passed) return true;
+    return window.confirm(`${gate.message}\n\nProceed with "${action}" anyway?`);
+  }
+
+  function handleDownloadPackage() {
+    if (confirmPastGate('Download Marketplace Package')) onDownloadPackage(marketplaceId);
+  }
+
+  function handleGenerateCollection() {
+    if (confirmPastGate('Generate Collection')) onGenerateCollection();
+  }
 
   return (
     <div className="workbench-live-preview">
@@ -232,7 +259,8 @@ export function LivePreviewPanel({
           <p className="metadata-hint">
             Collection: <strong>{seo.collectionName}</strong> · Asset: <strong>{seo.assetName}</strong>
           </p>
-          <button type="button" className="btn btn--primary" onClick={() => onDownloadPackage(marketplaceId)}>
+          {gate && !gate.passed && <div className="marketplace-ready-indicator marketplace-ready-indicator--issues">🚧 {gate.message} — Design Critic panel has details.</div>}
+          <button type="button" className="btn btn--primary" onClick={handleDownloadPackage}>
             📦 Download Marketplace Package ({MARKETPLACE_PROFILES[marketplaceId].label})
           </button>
         </div>
@@ -249,7 +277,8 @@ export function LivePreviewPanel({
             ))}
           </ul>
           <p className="metadata-hint">This is a preview of planned assets only.</p>
-          <button type="button" className="btn btn--primary" onClick={onGenerateCollection} disabled={collectionStatus === 'building'}>
+          {gate && !gate.passed && <div className="marketplace-ready-indicator marketplace-ready-indicator--issues">🚧 {gate.message} — Design Critic panel has details.</div>}
+          <button type="button" className="btn btn--primary" onClick={handleGenerateCollection} disabled={collectionStatus === 'building'}>
             {collectionStatus === 'building' ? '🏭 Generating…' : '🏭 Generate Collection'}
           </button>
         </div>

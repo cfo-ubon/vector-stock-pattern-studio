@@ -1839,15 +1839,58 @@ scope decisions in
   architecture milestone), no live registration path for an imported
   Marketplace Profile (unchanged from Phase 6 — still validate-only).
 
+## Design Critic & Art Direction Engine — Phase 7 (`src/critic/*`)
+
+Reviews an already-generated tile like an experienced surface pattern
+designer and turns that review into scores, named problems, and
+recommendations. Full architecture and scope decisions in
+[`DESIGN_CRITIC.md`](./DESIGN_CRITIC.md); summary:
+
+- **Design Critique** (`designCritique.ts`) — 11 named dimensions
+  (Composition/Hierarchy/Balance/Rhythm/Flow/Cluster Quality/Negative
+  Space/Overlap/Repeat Quality/Motif Diversity/Commercial Readiness) +
+  overall, reshaped from the existing `DesignSpecQualityReport` +
+  `CompositionMetrics` — no new scoring math.
+- **Visual Analysis** (`visualAnalysis.ts`) — 10 detectors (Weak Hero,
+  Crowded Areas, Dead Space, Mechanical Spacing, Grid Appearance, Weak
+  Clusters, Low Detail, Repeated Rotation, Repeated Scale, Weak Flow); 7
+  reuse existing `CompositionMetrics` thresholds, 3 are new detectors
+  built directly on real per-instance geometry.
+- **Penalty System** (`problems.ts`) — severity-banded (high/medium/low)
+  filter over the existing `SOFT_PENALTY_RULES` (19 named, exact-point
+  rules) — no duplicate penalty logic.
+- **Art Direction Engine** (`artDirection.ts`) — one recommendation rule
+  per visual issue; only proposes a `DesignSpecification` patch when a
+  real field lever exists (e.g. Increase Hero Detail, Reduce Density,
+  Rotate Leaves, Improve Rhythm), otherwise advisory-only.
+- **Style Coach** (`styleCoach.ts`) — 7 categories (Luxury/Minimal/
+  Botanical/Kids/Scandinavian/Retro/Editorial), grounded in real
+  `knowledge/style` records, not hand-written copy.
+- **Collection Critic** (`collectionCritic.ts`) — thin wrap of
+  `collection/collectionScore.ts`; Thai issue strings preserved verbatim.
+- **Design Report** (`designReport.ts`) — aggregates the above into
+  Problems/Recommendations/Expected Improvements/Priority order.
+- **Improvement Loop** (`improvementLoop.ts`) — the only module that
+  mutates a spec: Evaluate -> Recommend -> Patch -> Re-generate ->
+  Evaluate Again, up to 3 rounds, with guards against a grid-layout
+  rhythm-patch dead end and against ever returning a round whose winning
+  candidate got hard-rejected by the patch it just applied.
+- **Quality Gate** (`qualityGate.ts`) — fails on an unmet commercial bar,
+  any high-severity problem, or overall score below 50; wired into
+  `LivePreviewPanel.tsx`'s "Download Marketplace Package" and "Generate
+  Collection" actions via a `window.confirm` the designer can override.
+- **New UI**: `components/workbench/DesignCriticPanel.tsx` — a dockable
+  Critic tab reusing the same `qualityResult` the Quality Panel computes.
+
 ## Testing
 
-`npm test` runs `vitest run` — 1228 tests (jsdom environment, component
-tests use React Testing Library) across 97 files. The list below predates
+`npm test` runs `vitest run` — 1301 tests (jsdom environment, component
+tests use React Testing Library) across 107 files. The list below predates
 the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
 Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
-Project Phoenix V2, Marketplace Intelligence Engine Phase 5, and Design
-Knowledge Engine Phase 6.5 milestones and covers the original
-engine/metadata/trend suites in detail; see
+Project Phoenix V2, Marketplace Intelligence Engine Phase 5, Design
+Knowledge Engine Phase 6.5, and Design Critic Phase 7 milestones and
+covers the original engine/metadata/trend suites in detail; see
 [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
 [`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md),

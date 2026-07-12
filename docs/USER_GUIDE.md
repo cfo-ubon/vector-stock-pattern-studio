@@ -729,7 +729,7 @@ prompt ล้วนมาจากก้อนเดียวกัน)
 เวอร์ชันนี้ (Phase 6) อัปเกรดเป็นเวิร์กสเปซแบบหลายแผงที่**ปรับขนาดและ
 ซ่อน/แสดงได้เอง**: มีแถบค้นหา 🔎 ด้านบน (ค้นทั้ง Project, Collection, Motif,
 Trend Pack, Marketplace Profile ในช่องเดียว) และแถบชิปสำหรับซ่อน/เรียกคืน
-แผงทั้ง 11 แผงกลับมา — ลากขอบซ้าย/ขวาของแผงด้วยเมาส์ (หรือกดปุ่มลูกศรตอน
+แผงทั้ง 12 แผงกลับมา — ลากขอบซ้าย/ขวาของแผงด้วยเมาส์ (หรือกดปุ่มลูกศรตอน
 โฟกัสที่ขอบ) เพื่อปรับความกว้างได้ตามใจ ระบบจำค่าที่ปรับไว้ให้อัตโนมัติ
 (export/import เป็นไฟล์ Workspace Settings ได้ในแท็บ Import/Export)
 
@@ -737,7 +737,7 @@ Trend Pack, Marketplace Profile ในช่องเดียว) และแ�
 แท็บ 🗂 Explorer 🆕 / ⭐ Favorites / 📂 Import-Export / 💾 Project
 **คอลัมน์กลาง** — Design Specification Panel (พื้นที่หลัก)
 **คอลัมน์ขวา** — แท็บ ⚙️ Inspector / 🏬 Marketplace 🆕 / 🤖 Prompt 🆕 /
-🎯 Quality 🆕 / ✅ Validation / 🖼 Live Preview / 🕘 History
+🎯 Quality 🆕 / 🖌 Critic 🆕 / ✅ Validation / 🖼 Live Preview / 🕘 History
 
 รองรับ **โหมดสว่าง/มืด** (ปุ่ม ☀️/🌙 มุมขวาบน จำค่าไว้ให้อัตโนมัติ) และย่อเป็น
 คอลัมน์เดียวอัตโนมัติเมื่อหน้าจอแคบ (มือถือ/แท็บเล็ต — บนจอแคบขอบลาก
@@ -843,6 +843,41 @@ Readiness** (Overlap เป็นคะแนนใหม่ วัดว่า�
 Quality/SVG Health/Motif Diversity) ถ้ามีมิติไหนคะแนนต่ำกว่า 60 ระบบจะขึ้น
 **คำแนะนำที่ทำตามได้จริง** ในหัวข้อ "Recommendations" ให้ทันที
 
+### 🖌 Design Critic Panel — ผู้ช่วยตรวจงานแบบนักออกแบบมืออาชีพ 🆕
+
+แท็บ "🖌 Critic" ในคอลัมน์ขวา: กด **"🎯 Run Quality Loop"** (ใช้ผลรอบ
+เดียวกับแท็บ 🎯 Quality ไม่คำนวณซ้ำ) เพื่อดู:
+
+- **📐 Design Critique** — คะแนน 11 มิติ (Composition, Hierarchy,
+  Balance, Rhythm, Flow, Cluster Quality, Negative Space, Overlap, Repeat
+  Quality, Motif Diversity, Commercial Readiness) + คะแนนรวม
+- **👁 Visual Analysis** — ตรวจ 10 ปัญหาที่เห็นด้วยตา (Weak Hero, Crowded
+  Areas, Dead Space, Mechanical Spacing, Grid Appearance, Weak Clusters,
+  Low Detail, Repeated Rotation, Repeated Scale, Weak Flow) พร้อมหลักฐาน
+  ตัวเลขจริงต่อข้อ
+- **🛑 Problems** — รายการปัญหาที่วัดได้พร้อมคะแนนหักและระดับความรุนแรง
+  (สูง/กลาง/ต่ำ)
+- **🖌 Recommendations** — คำแนะนำเรียงตามความสำคัญ บางข้อกดปุ่ม
+  **"Apply"** เพื่อแก้ Design Spec ให้ทันที (เช่น เพิ่มรายละเอียดลายหลัก,
+  เปลี่ยน Layout จาก Grid เป็น Scatter), บางข้อเป็นคำแนะนำอย่างเดียว
+  (ระบบไม่มีช่องข้อมูลให้แก้อัตโนมัติจริงๆ จะบอกตรงๆ ว่า "Advisory only"
+  ไม่เสกช่องแก้ปลอมขึ้นมา)
+- **🎨 Style Coach** — เลือกสไตล์ (Luxury/Minimal/Botanical/Kids/
+  Scandinavian/Retro/Editorial) หรือให้ระบบเดาจาก Style DNA ที่ใช้อยู่ แล้ว
+  ดูคำแนะนำเทียบกับสไตล์นั้นจริงๆ
+- **🔁 Improvement Loop** — กด **"▶ Run Improvement Loop"** ให้ระบบทำ
+  วนอัตโนมัติสูงสุด 3 รอบ (ประเมิน → แนะนำ → แก้ Spec → สร้างใหม่ →
+  ประเมินอีกครั้ง) แล้วกด **"Apply Final Spec"** เพื่อรับผลลัพธ์รอบที่ดีที่สุด
+- **🏭 Collection Critic** — ถ้าโปรเจกต์ที่เปิดอยู่มีคอลเลกชันที่สร้างไว้แล้ว จะ
+  เห็นคะแนนความสอดคล้องของคอลเลกชันนั้น (Palette/Motifs/Layouts/Visual
+  Identity/Variation/Commercial Readiness)
+
+**เกตคุณภาพก่อนส่งขาย 🆕**: ปุ่ม **"📦 Download Marketplace Package"** และ
+**"🏭 Generate Collection"** ในแท็บ Live Preview จะเช็คผลจาก Design Critic
+ก่อนเสมอ — ถ้ายังไม่ผ่านเกณฑ์ (มีปัญหาระดับสูง หรือคะแนนรวมต่ำกว่า 50 หรือ
+ยังไม่ผ่าน Quality Targets ของ Spec เอง) ระบบจะเด้งกล่องยืนยันบอกเหตุผล —
+ยังกดยืนยันเพื่อดำเนินการต่อได้เสมอ ไม่ได้ล็อกปุ่มไว้ถาวร
+
 ### ⭐ Favorites
 
 แท็บ "⭐ Favorites" ในคอลัมน์ซ้าย ปักดาว **Trend Pack, Style DNA, Palette,
@@ -932,6 +967,31 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.45 — 12 ก.ค. 2026 — Design Critic & Art Direction Engine Phase 7 (ผู้ช่วยตรวจงานออกแบบ)
+- 🖌 **แท็บ Critic ใหม่ในคอลัมน์ขวา**: กด "Run Quality Loop" แล้วดูรีวิวลาย
+  แบบที่นักออกแบบมืออาชีพจะทำ — **ไม่ใช่แค่คะแนน แต่บอกด้วยว่าทำไมถึงได้
+  คะแนนนั้น และแก้ยังไงได้บ้าง**
+- 📐 **Design Critique 11 มิติ**: Composition, Hierarchy, Balance, Rhythm,
+  Flow, Cluster Quality, Negative Space, Overlap, Repeat Quality, Motif
+  Diversity, Commercial Readiness — คะแนนเดียวกับที่ระบบใช้ตัดสินจริง
+  ไม่ใช่คะแนนแยกอีกชุด
+- 👁 **Visual Analysis 10 จุดตรวจ**: ตรวจจับ Weak Hero, Crowded Areas, Dead
+  Space, Mechanical Spacing, Grid Appearance, Weak Clusters, Low Detail,
+  Repeated Rotation, Repeated Scale, Weak Flow พร้อมหลักฐานตัวเลขจริง
+- 🖌 **คำแนะนำที่กด Apply ได้ทันที**: บางคำแนะนำ (เพิ่มรายละเอียดลายหลัก,
+  ลดความหนาแน่น, เปลี่ยน Layout จาก Grid เป็น Scatter, หมุนใบไม้ ฯลฯ) กด
+  "Apply" แล้วแก้ Design Spec ให้ทันที บางข้อเป็นคำแนะนำอย่างเดียวเพราะ
+  ระบบไม่มีช่องข้อมูลจริงให้แก้อัตโนมัติ (บอกตรงๆ ไม่เสกช่องแก้ปลอม)
+- 🎨 **Style Coach**: เทียบลายกับ 7 สไตล์ (Luxury/Minimal/Botanical/Kids/
+  Scandinavian/Retro/Editorial) จากข้อมูล Style DNA จริง
+- 🔁 **Improvement Loop อัตโนมัติสูงสุด 3 รอบ**: ประเมิน → แนะนำ → แก้ Spec
+  → สร้างใหม่ → ประเมินอีกครั้ง กด "Apply Final Spec" รับผลลัพธ์รอบที่ดีที่สุด
+- 🏭 **Collection Critic**: ตรวจความสอดคล้องของคอลเลกชันที่สร้างไว้แล้ว
+  (Palette/Motifs/Layouts/Visual Identity/Variation/Commercial Readiness)
+- 🚧 **เกตคุณภาพก่อนส่งขายใหม่**: ปุ่ม "Download Marketplace Package" และ
+  "Generate Collection" เช็คผล Design Critic ก่อนเสมอ ถ้ายังไม่ผ่านเกณฑ์จะ
+  เด้งกล่องยืนยันบอกเหตุผล — ยังกดยืนยันเพื่อไปต่อได้เสมอ ไม่ได้ล็อกปุ่มถาวร
 
 ### v1.43 — 11 ก.ค. 2026 — Design Workbench Phase 6 (เวิร์กสเปซหลายแผงปรับแต่งได้)
 - 🧭 **Design Workbench กลายเป็นศูนย์กลางจริง**: รวมทุกเอนจินที่มีอยู่แล้ว

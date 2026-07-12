@@ -9,11 +9,11 @@
 // calls these functions on mount/change.
 
 export type LeftPanelId = 'projectExplorer' | 'favorites' | 'importExport' | 'project';
-export type RightPanelId = 'inspector' | 'marketplace' | 'prompt' | 'quality' | 'validation' | 'preview' | 'history';
+export type RightPanelId = 'inspector' | 'marketplace' | 'prompt' | 'quality' | 'critic' | 'validation' | 'preview' | 'history';
 export type PanelId = LeftPanelId | RightPanelId;
 
 export const LEFT_PANEL_IDS: LeftPanelId[] = ['projectExplorer', 'favorites', 'importExport', 'project'];
-export const RIGHT_PANEL_IDS: RightPanelId[] = ['inspector', 'marketplace', 'prompt', 'quality', 'validation', 'preview', 'history'];
+export const RIGHT_PANEL_IDS: RightPanelId[] = ['inspector', 'marketplace', 'prompt', 'quality', 'critic', 'validation', 'preview', 'history'];
 
 export const WORKSPACE_SETTINGS_SCHEMA_VERSION = 1;
 

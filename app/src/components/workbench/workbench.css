@@ -721,6 +721,50 @@
   cursor: grab;
 }
 
+/* Design Critic Panel (Phase 7) */
+
+.workbench-critic-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-critic-issue--detected {
+  color: #e0a552;
+}
+
+.workbench-critic-severity {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 0.3rem;
+}
+
+.workbench-critic-severity--high {
+  background: rgba(224, 82, 82, 0.18);
+  color: #e05252;
+}
+
+.workbench-critic-severity--medium {
+  background: rgba(224, 165, 82, 0.18);
+  color: #e0a552;
+}
+
+.workbench-critic-severity--low {
+  background: rgba(153, 153, 153, 0.18);
+  color: var(--text-dim);
+}
+
+.workbench-critic-recommendation {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .design-workbench * {
     transition: none !important;
