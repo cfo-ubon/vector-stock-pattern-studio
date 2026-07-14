@@ -28,7 +28,7 @@ describe('buildDesignReport', () => {
     const report = buildDesignReport(spec, tile, metrics, loopResult.check.report, loopResult.check.meetsTargets);
 
     expect(report.critique.overall).toBeGreaterThanOrEqual(0);
-    expect(report.visualIssues.length).toBe(10);
+    expect(report.visualIssues.length).toBe(11);
     expect(Array.isArray(report.problems)).toBe(true);
     expect(Array.isArray(report.recommendations)).toBe(true);
     expect(report.priorityOrder.length).toBe(report.recommendations.length);

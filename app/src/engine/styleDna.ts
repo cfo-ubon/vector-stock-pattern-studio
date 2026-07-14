@@ -15,17 +15,21 @@ import type { StockSiteId } from '../metadata/shutterstock';
 // (create/duplicate/rename/delete/export/import/favorite, see
 // storage/styleDnaStore.ts).
 //
-// Scope note: the roadmap's Cluster Engine (Phase 3), Pattern Evolution
-// (Phase 6), Botanical Geometry (Phase 4) and a dedicated Designer Assistant
-// (Phase 8) do not exist yet, and the project's own rule is to never build
-// ahead of the current phase. `clusterStyle`/`clusterDensity` are therefore
-// approximated today through the real levers that already exist
-// (overlapAmount + Composition Intelligence's balanceStrength) rather than a
-// true clustering placement algorithm, and `botanicalGrowthPreset` is stored/
-// round-tripped as a reserved, informational field (it does not yet steer
-// which botanical shape variant is drawn — that requires a hook into
-// generators/botanical.ts that belongs to Phase 4). Every other field maps to
-// a real, already-implemented engine parameter and visibly changes the
+// Scope note: `botanicalGrowthPreset` is stored/round-tripped as a reserved,
+// informational field — it does not yet steer which botanical shape variant
+// is drawn (that requires a hook into generators/botanical.ts no phase has
+// built yet). `clusterStyle`/`clusterDensity` previously had the same
+// reserved status (this comment used to say the Cluster Engine "doesn't
+// exist yet"), but Project Phoenix V2 shipped a real one
+// (`engine/clusterEngine.ts`) and Composition Intelligence Foundation V2
+// (Build 001) connected it here: `clusterStyle`/`clusterDensity` now also
+// drive real Pattern Physics attraction strength (Section 8,
+// `engine/patternPhysics.ts`) on top of the balance-correction proxy they
+// already fed — see `CLUSTER_ATTRACTION_STRENGTH` below. `flowProfile` used
+// to only resolve to `rotationJitter` (spin, not placement); it now also
+// drives `compositionIntelligence.flowBiasStrength` (Section 5, a real
+// placement bias — see `FLOW_BIAS_STRENGTH` below). Every other field maps
+// to a real, already-implemented engine parameter and visibly changes the
 // generated SVG.
 
 export const STYLE_DNA_SCHEMA_VERSION = 1;
@@ -92,6 +96,16 @@ const COMPLEXITY_ROTATION_BUMP: Record<MotifComplexity, number> = { simple: 0, m
 const COMPLEXITY_COLOR_COUNT: Record<MotifComplexity, number> = { simple: 3, moderate: 4, intricate: 5 };
 export const RHYTHM_STRENGTH: Record<RhythmProfile, number> = { regular: 0.15, organic: 0.4, syncopated: 0.6 };
 const CLUSTER_BALANCE_STRENGTH: Record<ClusterStyle, number> = { none: 0.6, loose: 0.5, tight: 0.25, bouquet: 0.2 };
+// Composition Intelligence Foundation V2 (Build 001) — real Pattern
+// Physics (Section 8) strength per cluster style: a "bouquet"/"tight"
+// identity means members should read as pulled toward their hero, so
+// attraction is strongest there; "none" still gets a small baseline pull
+// (isolated decorative objects are never the goal) rather than 0.
+const CLUSTER_ATTRACTION_STRENGTH: Record<ClusterStyle, number> = { none: 0.2, loose: 0.35, tight: 0.55, bouquet: 0.6 };
+// Real Flow Engine (Section 5) placement-bias strength per flow profile —
+// "calm" resolves to 0 regardless (applyFlowBias treats profile 'calm' as
+// a no-op anyway; the 0 here just keeps this table self-documenting).
+const FLOW_BIAS_STRENGTH: Record<FlowProfile, number> = { calm: 0, directional: 0.3, dynamic: 0.4 };
 const COLOR_STRATEGY_STORY: Record<ColorStrategy, boolean> = {
   dominantDuo: true,
   fullPalette: false,
@@ -337,6 +351,10 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     compositionIntelligence: {
       balanceStrength: CLUSTER_BALANCE_STRENGTH[dna.clusterStyle] * (1 - dna.clusterDensity * 0.4),
       rhythmStrength: RHYTHM_STRENGTH[dna.rhythmProfile],
+      attractionStrength: CLUSTER_ATTRACTION_STRENGTH[dna.clusterStyle] * (0.6 + dna.clusterDensity * 0.4),
+      negativeSpaceStrength: 0.2 + dna.negativeSpace * 0.5,
+      flowProfile: dna.flowProfile,
+      flowBiasStrength: FLOW_BIAS_STRENGTH[dna.flowProfile],
     },
     tileSize: dna.exportRecommendation.tileSize,
     patternScale: dna.exportRecommendation.patternScale,

@@ -1980,6 +1980,49 @@ schema, and empirical findings in
   with real Quality Score, Relationships, and Recommendation panels for
   the selected asset.
 
+## Composition Intelligence Foundation V2 — Build 001 (`src/engine/*`, `src/critic/*`)
+
+A focused visual-quality upgrade to the placement/composition pipeline —
+no new features, panels, or generators. Full architecture, empirical
+before/after comparison, and design decisions in
+[`COMPOSITION_ENGINE_V2.md`](./COMPOSITION_ENGINE_V2.md) and
+[`../docs/BUILD_REPORT.md`](../docs/BUILD_REPORT.md); summary:
+
+- **Pattern Physics** (`engine/patternPhysics.ts`, new) — every placement
+  attracts toward its nearest strictly-more-important hierarchy role
+  (hero > secondary > filler > accent), bounded to a real local radius
+  derived from the pattern's own median spacing.
+- **Flow Engine, made real** (`compositionIntelligence.ts`'s
+  `applyFlowBias`) — `flowProfile` (calm/directional/dynamic) now
+  genuinely biases placement position, not only rotation jitter as
+  before.
+- **Negative Space, finer-grained** (`applyNegativeSpaceCorrection`) — the
+  same weighted-redistribution mechanism the existing balance correction
+  used, reused at a finer 4x4 grid resolution to catch localized holes a
+  coarse 2x2 split missed.
+- **Layer Priority** (`hierarchy.ts`'s `sortByLayerPriority`) — a real bug
+  fix: hero motifs are now guaranteed to paint last (on top), never buried
+  under a later-drawn secondary/filler motif at an overlap point.
+- **Silhouette Check** (`critic/visualAnalysis.ts`'s
+  `detectFragmentedSilhouette`) — the Design Critic's 11th visual-analysis
+  detector: does the pattern read as one cohesive shape from a distance,
+  or as fragmented confetti, via a motif-size-scaled occupancy grid.
+- **`REGULAR_LATTICE_LAYOUTS`** (`grid`/`gridMinimal`/`halfDrop`/`brick`/
+  `stripe`) opt out of the new passes entirely — an empirical before/after
+  comparison found these deliberately regular layouts' near-ceiling flow
+  scores measurably hurt (not helped) by flow-bias/negative-space/
+  attraction, so only the original balance/rhythm passes apply to them.
+- **Style DNA wiring**: `clusterStyle`/`clusterDensity`/`flowProfile` now
+  drive real `attractionStrength`/`flowBiasStrength` values instead of an
+  indirect balance-correction proxy; a stale comment describing the
+  Cluster Engine as not yet existing was corrected.
+- **Empirically measured, not assumed**: a real before/after comparison
+  across 30 generated scenarios found `spacingUniformity` +6.9,
+  `gridAppearanceScore` +3.6, and fragmented-silhouette incidence 8/30 ->
+  6/30 — alongside a small, honestly-reported tradeoff (`largestEmptyRegion`
+  -3.5) documented in [`../docs/KNOWN_ISSUES.md`](../docs/KNOWN_ISSUES.md)
+  rather than hidden.
+
 ## Testing
 
 `npm test` runs `vitest run` — 1301 tests (jsdom environment, component
@@ -1988,7 +2031,8 @@ the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
 Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
 Project Phoenix V2, Marketplace Intelligence Engine Phase 5, Design
 Knowledge Engine Phase 6.5, Design Critic Phase 7, Design Evolution
-Engine Phase 8, and Asset Ecosystem Engine Phase 9 milestones and
+Engine Phase 8, Asset Ecosystem Engine Phase 9, and Composition
+Intelligence Foundation V2 Build 001 milestones and
 covers the original engine/metadata/trend suites in detail; see
 [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
@@ -1996,8 +2040,9 @@ covers the original engine/metadata/trend suites in detail; see
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
 [`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md),
 [`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md),
-[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md), and
-[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md) for
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md),
+[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md), and
+[`COMPOSITION_ENGINE_V2.md`](./COMPOSITION_ENGINE_V2.md) for
 what their own test suites (`schemas/validators/services`, `workbench/` +
 `components/workbench/`, `engine/svgOptimizer.test.ts` +
 `engine/scoring.test.ts` + `engine/styleDna.test.ts`,

@@ -5,12 +5,15 @@ import { computeMetrics } from '../engine/scoring';
 import { detectVisualIssues } from './visualAnalysis';
 
 describe('detectVisualIssues', () => {
-  it('returns exactly the 10 brief-named issues, every time', () => {
+  it('returns exactly the 11 brief-named issues, every time', () => {
     const tile = buildTile({ ...defaultParams(), seed: 'visual-analysis-1' });
     const metrics = computeMetrics(tile);
     const issues = detectVisualIssues(tile, metrics);
     expect(issues.map((i) => i.id).sort()).toEqual(
-      ['crowdedAreas', 'deadSpace', 'gridAppearance', 'lowDetail', 'mechanicalSpacing', 'repeatedRotation', 'repeatedScale', 'weakClusters', 'weakFlow', 'weakHero'].sort(),
+      [
+        'crowdedAreas', 'deadSpace', 'fragmentedSilhouette', 'gridAppearance', 'lowDetail', 'mechanicalSpacing',
+        'repeatedRotation', 'repeatedScale', 'weakClusters', 'weakFlow', 'weakHero',
+      ].sort(),
     );
   });
 
@@ -76,5 +79,50 @@ describe('detectVisualIssues', () => {
     const tile = buildTile({ ...defaultParams(), density: 0, seed: 'visual-analysis-empty' });
     const metrics = computeMetrics(tile);
     expect(() => detectVisualIssues(tile, metrics)).not.toThrow();
+  });
+});
+
+describe('detectVisualIssues: fragmentedSilhouette (Build 001, Section 9)', () => {
+  it('flags a genuinely sparse, small-motif Airy pattern as fragmented', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', seed: 'silhouette-airy-1' });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.detected).toBe(true);
+  });
+
+  it('does not flag a dense, cluster-engine-backed Scatter pattern (cohesive by construction)', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'scatter', seed: 'silhouette-scatter-1' });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.detected).toBe(false);
+  });
+
+  it('does not flag a dense Bouquet pattern (cohesive by construction)', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'bouquet', categoryId: 'botanical', seed: 'silhouette-bouquet-1' });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.detected).toBe(false);
+  });
+
+  it('cites the real region/island/largest-blob counts in its evidence', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', seed: 'silhouette-evidence-1' });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.evidence).toMatch(/region\(s\) on the \d+x\d+ grid/);
+  });
+
+  it('is deterministic for the same tile', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', seed: 'silhouette-det-1' });
+    const metrics = computeMetrics(tile);
+    const a = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette');
+    const b = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette');
+    expect(a).toEqual(b);
+  });
+
+  it('never throws when there are too few instances to assess', () => {
+    const tile = buildTile({ ...defaultParams(), density: 0, seed: 'silhouette-empty-1' });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.detected).toBe(false);
   });
 });

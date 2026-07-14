@@ -1,5 +1,5 @@
 import type { TileData } from '../engine/types';
-import { extractInstances, type MotifInstance } from '../engine/svgGeometry';
+import { extractInstances, gridCoverage, type MotifInstance } from '../engine/svgGeometry';
 import type { CompositionMetrics } from '../engine/scoring';
 
 // Design Critic & Art Direction Engine (Phase 7) — Section 2 "Visual
@@ -14,6 +14,16 @@ import type { CompositionMetrics } from '../engine/scoring';
 // instances repeat" detectors. Those 3 are genuinely new here, built
 // directly on `engine/svgGeometry.ts`'s real per-instance `MotifInstance`
 // data (never re-deriving geometry that engine already extracts).
+//
+// Composition Intelligence Foundation V2 (Build 001) — Section 9,
+// "Silhouette Check" — adds an 11th detector, Fragmented Silhouette,
+// answering a genuinely different question than any of the above: not
+// "is any one region crowded/empty/mechanical" but "does the pattern's own
+// ink read as one (or a few) cohesive shape(s) from a distance, or as many
+// disconnected islands". Built on `engine/svgGeometry.ts`'s `gridCoverage`
+// (reused, not duplicated — the same occupancy grid `engine/scoring.ts`'s
+// dead-space check already builds), flood-filling connected *occupied*
+// cells rather than empty ones.
 
 export type VisualIssueId =
   | 'weakHero'
@@ -25,7 +35,8 @@ export type VisualIssueId =
   | 'lowDetail'
   | 'repeatedRotation'
   | 'repeatedScale'
-  | 'weakFlow';
+  | 'weakFlow'
+  | 'fragmentedSilhouette';
 
 export interface VisualIssue {
   id: VisualIssueId;
@@ -180,7 +191,89 @@ function detectFromMetrics(m: CompositionMetrics, instances: MotifInstance[]): V
   ];
 }
 
-/** Runs all 10 named Section 2 detectors against one rendered tile.
+const FRAGMENTED_ISOLATED_FRACTION_THRESHOLD = 0.45;
+const FRAGMENTED_LARGEST_BLOB_CEILING = 0.5;
+const SILHOUETTE_GRID_MIN = 4;
+const SILHOUETTE_GRID_MAX = 40;
+/** How many motif-widths make up one grid cell — tuned so a single motif's
+ * own footprint occupies roughly one cell, the same reasoning
+ * `engine/clusterEngine.ts`'s `clusterBaseRadius` uses for its own spacing
+ * math (never a fixed pixel constant, always relative to the pattern's own
+ * real motif size). A *fixed* cell count (as `engine/scoring.ts`'s dead-
+ * space check uses) works for "how big is the largest hole" but produces a
+ * false "always one connected blob" reading here: this pattern's toroidal
+ * wrap means a fixed coarse grid's cells are almost always touching
+ * regardless of how sparse the real placements are. */
+const SILHOUETTE_CELL_TO_MOTIF_RATIO = 1.6;
+
+/** Flood-fills an occupancy grid sized to the pattern's own real motif
+ * footprint (via `engine/svgGeometry.ts`'s `gridCoverage`, reused rather
+ * than duplicated) to find connected components of *occupied* cells — the
+ * inverse concept of "largest empty region". A pattern with one dominant
+ * blob (or a few large ones) reads as a cohesive surface from a distance;
+ * a pattern with many small, mostly single-cell islands and no single
+ * blob claiming a real share of the ink reads as fragmented confetti. */
+function detectFragmentedSilhouette(tile: TileData, instances: MotifInstance[]): VisualIssue {
+  if (instances.length < 3) {
+    return { id: 'fragmentedSilhouette', label: 'Fragmented Silhouette', detected: false, evidence: 'Too few instances to assess overall silhouette.' };
+  }
+  const tileSize = tile.params.tileSize;
+  const motifSize = tile.params.motifSize;
+  const silhouetteGridSize = Math.max(
+    SILHOUETTE_GRID_MIN,
+    Math.min(SILHOUETTE_GRID_MAX, Math.round(tileSize / (motifSize * SILHOUETTE_CELL_TO_MOTIF_RATIO))),
+  );
+  const { gridN, counts } = gridCoverage(instances, tileSize, silhouetteGridSize);
+  const totalCells = gridN * gridN;
+  const visited = new Array(totalCells).fill(false);
+  const componentSizes: number[] = [];
+  for (let start = 0; start < totalCells; start++) {
+    if (visited[start] || counts[start] === 0) continue;
+    let size = 0;
+    const queue = [start];
+    visited[start] = true;
+    while (queue.length > 0) {
+      const idx = queue.pop()!;
+      size++;
+      const gx = idx % gridN;
+      const gy = Math.floor(idx / gridN);
+      const neighbors = [
+        gy * gridN + ((gx + 1) % gridN),
+        gy * gridN + ((gx - 1 + gridN) % gridN),
+        ((gy + 1) % gridN) * gridN + gx,
+        ((gy - 1 + gridN) % gridN) * gridN + gx,
+      ];
+      for (const n of neighbors) {
+        if (!visited[n] && counts[n] > 0) {
+          visited[n] = true;
+          queue.push(n);
+        }
+      }
+    }
+    componentSizes.push(size);
+  }
+  const totalOccupied = componentSizes.reduce((a, b) => a + b, 0);
+  if (totalOccupied === 0 || componentSizes.length <= 1) {
+    return {
+      id: 'fragmentedSilhouette',
+      label: 'Fragmented Silhouette',
+      detected: false,
+      evidence: totalOccupied === 0 ? 'No occupied cells.' : 'The pattern occupies a single connected region.',
+    };
+  }
+  const isolatedCount = componentSizes.filter((s) => s === 1).length;
+  const isolatedFraction = isolatedCount / componentSizes.length;
+  const largestFraction = Math.max(...componentSizes) / totalOccupied;
+  const detected = isolatedFraction > FRAGMENTED_ISOLATED_FRACTION_THRESHOLD && largestFraction < FRAGMENTED_LARGEST_BLOB_CEILING;
+  return {
+    id: 'fragmentedSilhouette',
+    label: 'Fragmented Silhouette',
+    detected,
+    evidence: `${componentSizes.length} separate ink region(s) on the ${gridN}x${gridN} grid, ${isolatedCount} single-cell island(s) (${Math.round(isolatedFraction * 100)}%), largest region holds ${Math.round(largestFraction * 100)}% of occupied cells.`,
+  };
+}
+
+/** Runs all 11 named Section 2/9 detectors against one rendered tile.
  * Deterministic — same tile always produces the same issue list. */
 export function detectVisualIssues(tile: TileData, metrics: CompositionMetrics): VisualIssue[] {
   const instances = extractInstances(tile);
@@ -189,5 +282,6 @@ export function detectVisualIssues(tile: TileData, metrics: CompositionMetrics):
     detectCrowdedAreas(tile, instances),
     detectRepeatedRotation(instances),
     detectRepeatedScale(instances),
+    detectFragmentedSilhouette(tile, instances),
   ];
 }

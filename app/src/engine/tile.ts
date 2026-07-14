@@ -5,7 +5,7 @@ import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
-import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
+import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS, REGULAR_LATTICE_LAYOUTS, sortByLayerPriority } from './hierarchy';
 import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
@@ -167,9 +167,26 @@ export function buildTile(params: GenerateParams): TileData {
   // consumption, so it never affects seed determinism upstream or
   // downstream; undefined params is a strict no-op (see
   // engine/compositionIntelligence.ts).
+  // Composition Intelligence V2's flow-bias/negative-space/attraction
+  // passes exist to make organic or scattered compositions read as more
+  // intentional — for a strict, evenly-spaced lattice layout (Grid, Grid
+  // Minimal) the "flaw" they'd correct is the deliberate point of the
+  // layout, so only the original V1 fields (balance/rhythm, neither of
+  // which ever fired on a genuinely regular grid) apply there.
+  const effectiveCompositionIntelligence =
+    params.compositionIntelligence && REGULAR_LATTICE_LAYOUTS.has(params.layoutId)
+      ? { balanceStrength: params.compositionIntelligence.balanceStrength, rhythmStrength: params.compositionIntelligence.rhythmStrength }
+      : params.compositionIntelligence;
   const refinedPlacements = params.compositionIntelligence
-    ? applyCompositionIntelligence(roledPlacements, tileSize, params.compositionIntelligence)
+    ? applyCompositionIntelligence(roledPlacements, tileSize, effectiveCompositionIntelligence)
     : roledPlacements;
+
+  // Layer Priority (Composition Intelligence Foundation V2, Section 2): a
+  // stable sort so higher-priority roles (hero) always paint last, i.e. on
+  // top. A no-op for every placement with no role — a stable sort of an
+  // all-equal-priority array never reorders — so patterns that never opted
+  // into the Hierarchy Engine are unaffected.
+  const paintOrderedPlacements = sortByLayerPriority(refinedPlacements);
 
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
@@ -189,7 +206,7 @@ export function buildTile(params: GenerateParams): TileData {
   const useHighlight = !!params.flatHighlight;
   const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
 
-  const motifGroups: SvgNode[] = refinedPlacements.map((placement, index) => {
+  const motifGroups: SvgNode[] = paintOrderedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.

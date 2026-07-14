@@ -88,6 +88,37 @@ describe('normalizeParams', () => {
     expect(normalized.compositionIntelligence!.rhythmStrength).toBeGreaterThanOrEqual(0);
   });
 
+  it('clamps out-of-range V2 compositionIntelligence fields and drops an invalid flowProfile', () => {
+    const bad = {
+      ...defaultParams(),
+      compositionIntelligence: {
+        balanceStrength: 0.5,
+        rhythmStrength: 0.35,
+        attractionStrength: 5,
+        negativeSpaceStrength: -5,
+        flowBiasStrength: 99,
+        flowProfile: 'sideways' as never,
+      },
+    };
+    const normalized = normalizeParams(bad);
+    expect(normalized.compositionIntelligence!.attractionStrength).toBeLessThanOrEqual(1);
+    expect(normalized.compositionIntelligence!.negativeSpaceStrength).toBeGreaterThanOrEqual(0);
+    expect(normalized.compositionIntelligence!.flowBiasStrength).toBeLessThanOrEqual(1);
+    expect(normalized.compositionIntelligence!.flowProfile).toBeUndefined();
+  });
+
+  it('preserves a valid flowProfile and leaves unset V2 fields unset (no fabricated values)', () => {
+    const params = {
+      ...defaultParams(),
+      compositionIntelligence: { balanceStrength: 0.5, rhythmStrength: 0.35, flowProfile: 'dynamic' as const },
+    };
+    const normalized = normalizeParams(params);
+    expect(normalized.compositionIntelligence!.flowProfile).toBe('dynamic');
+    expect(normalized.compositionIntelligence!.attractionStrength).toBeUndefined();
+    expect(normalized.compositionIntelligence!.negativeSpaceStrength).toBeUndefined();
+    expect(normalized.compositionIntelligence!.flowBiasStrength).toBeUndefined();
+  });
+
   it('handles NaN gracefully by falling back to a sane default', () => {
     const bad = { ...defaultParams(), density: NaN, motifSize: NaN };
     const normalized = normalizeParams(bad);

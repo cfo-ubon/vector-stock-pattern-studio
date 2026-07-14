@@ -43,6 +43,12 @@ describe('buildArtDirectionRecommendations', () => {
     expect(rec.specPatch).toBeUndefined();
   });
 
+  it('fragmentedSilhouette (Build 001, Section 9) produces an honest advisory-only recommendation (no fabricated spec field)', () => {
+    const [rec] = buildArtDirectionRecommendations(makeSpec(), [issue('fragmentedSilhouette')]);
+    expect(rec.id).toBe('increaseConnectivity');
+    expect(rec.specPatch).toBeUndefined();
+  });
+
   it('crowdedAreas increases negativeSpace and decreases density, both clamped to [0,1]', () => {
     const spec = { ...makeSpec(), negativeSpace: 0.95, density: 0.02 };
     const [rec] = buildArtDirectionRecommendations(spec, [issue('crowdedAreas')]);

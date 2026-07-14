@@ -68,6 +68,58 @@ export const HIERARCHY_PRESETS: Record<string, { label: string; value: Hierarchy
  * distorting the hand-tuned composition instead of improving it. */
 export const HIERARCHY_EXEMPT_LAYOUTS = new Set(['heroFlow', 'heroScatter', 'bouquet', 'densePremium']);
 
+/** Layouts whose entire visual identity IS a strict, evenly-spaced lattice
+ * or band structure — `grid`/`gridMinimal` are the pair
+ * `critic/artDirection.ts`'s `isStrictGridLayout` already treats as "strict
+ * grid"; `halfDrop`/`brick` (offset-row masonry lattices) and `stripe`
+ * (banded repeat) were added after an empirical before/after comparison
+ * (Build 001) found the identical problem measurably hurting them too —
+ * their baseline `flowCoherence` sits near the ceiling (85-94/100, vs.
+ * 64-80 for organic/cluster layouts) precisely because a fully regular
+ * lattice's nearest-neighbor chain is, by construction, about as
+ * directionally consistent as a chain can be; Composition Intelligence
+ * V2's flow-bias/negative-space/attraction passes measurably eroded that
+ * (-22 to -28 points for brick/halfDrop, -3 to -6 for stripe) rather than
+ * improving it. Composition Intelligence V2's passes exist to make organic
+ * or scattered compositions read as more intentional, but for every layout
+ * in this set the "flaw" they'd be correcting (even spacing, axis/band
+ * alignment) is the deliberate point of the layout. `engine/tile.ts`
+ * strips just the V2 fields for these layouts before running Composition
+ * Intelligence — balance correction and rhythm smoothing (V1) still apply
+ * exactly as before, since neither ever fired on a genuinely regular
+ * layout anyway (both only correct *severe* imbalance/outliers, never an
+ * intentionally uniform one). */
+export const REGULAR_LATTICE_LAYOUTS = new Set(['grid', 'gridMinimal', 'halfDrop', 'brick', 'stripe']);
+
+/** Composition Intelligence Foundation V2, Section 2/3 — "Importance" and
+ * "Layer Priority" formalized as one shared ranking, rather than each
+ * consumer hand-rolling its own hero > secondary > filler > accent order.
+ * `engine/patternPhysics.ts`'s attraction pass reads `ROLE_IMPORTANCE` to
+ * decide which role pulls which; `sortByLayerPriority` below reads
+ * `ROLE_LAYER_PRIORITY` for paint order. The brief's other two dimensions
+ * aren't duplicated here because they're already real: "Scale" is
+ * `HierarchyParams`'s own `*Scale` fields above, "Density" is its `*Ratio`
+ * fields, and "Detail" is `engine/heroComplexity.ts`'s per-role overlay
+ * (hero/secondary get one, filler/accent don't). */
+export const ROLE_IMPORTANCE: Record<MotifRole, number> = { hero: 100, secondary: 65, filler: 35, accent: 15 };
+export const ROLE_LAYER_PRIORITY: Record<MotifRole, number> = { hero: 3, secondary: 2, filler: 1, accent: 0 };
+
+/** Stable-sorts placements so higher layer-priority roles (hero) paint last
+ * — i.e. on top. Before this pass existed, a layout+hierarchy combination
+ * could (and did) leave a hero motif buried under a later-drawn secondary/
+ * filler motif at an overlap point, undercutting the exact prominence the
+ * Hierarchy Engine's own heroScale is meant to create — this is Section 2's
+ * "Layer Priority" made real. Placements with no role (every pattern that
+ * never opted into the Hierarchy Engine) all share priority 0, so a stable
+ * sort leaves their relative order completely unchanged — a strict no-op
+ * for every pre-existing saved pattern that predates hierarchy. */
+export function sortByLayerPriority(placements: Placement[]): Placement[] {
+  return placements
+    .map((p, i) => ({ p, i, priority: p.role ? ROLE_LAYER_PRIORITY[p.role] : 0 }))
+    .sort((a, b) => a.priority - b.priority || a.i - b.i)
+    .map((e) => e.p);
+}
+
 function normalizeRatios(h: HierarchyParams): [number, number, number, number] {
   const sum = h.heroRatio + h.secondaryRatio + h.fillerRatio + h.accentRatio;
   if (sum <= 0) return [0, 1, 0, 0];

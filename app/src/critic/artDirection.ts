@@ -146,6 +146,14 @@ const ART_DIRECTION_RULES: Record<VisualIssueId, IssueRuleBuilder> = {
     rationale: "Placement doesn't read as a deliberate directional sweep.",
     specPatch: spec.flow === 'calm' ? { flow: 'directional' } : spec.flow === 'directional' ? { flow: 'dynamic' } : undefined,
   }),
+  fragmentedSilhouette: () => ({
+    id: 'increaseConnectivity',
+    label: 'Increase Connectivity',
+    priority: 'medium',
+    rationale:
+      'Motifs read as many disconnected islands rather than one cohesive surface. No Design Specification field controls cluster attraction/connectivity directly yet, so this is advisory only.',
+    specPatch: undefined,
+  }),
 };
 
 /** Builds one Art Direction recommendation per detected Section 2 visual

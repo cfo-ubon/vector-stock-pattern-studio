@@ -71,6 +71,47 @@ describe('Style DNA: loading', () => {
   });
 });
 
+describe('Style DNA: Composition Intelligence V2 wiring (Build 001)', () => {
+  it('resolves a real flowProfile/flowBiasStrength pair for every preset (Section 5)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-flow-check');
+      expect(patch.compositionIntelligence!.flowProfile).toBe(dna.flowProfile);
+      expect(patch.compositionIntelligence!.flowBiasStrength).toBeGreaterThanOrEqual(0);
+      if (dna.flowProfile !== 'calm') expect(patch.compositionIntelligence!.flowBiasStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolves a real, positive attractionStrength for every preset (Section 8)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-attraction-check');
+      expect(patch.compositionIntelligence!.attractionStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('a tighter/bouquet cluster style resolves stronger attraction than none', () => {
+    const none = { ...STYLE_DNA_PRESETS.editorialBotanical, clusterStyle: 'none' as const, clusterDensity: 0.3 };
+    const bouquet = { ...STYLE_DNA_PRESETS.editorialBotanical, clusterStyle: 'bouquet' as const, clusterDensity: 0.3 };
+    const noneStrength = resolveStyleDna(none, 'attraction-compare').compositionIntelligence!.attractionStrength!;
+    const bouquetStrength = resolveStyleDna(bouquet, 'attraction-compare').compositionIntelligence!.attractionStrength!;
+    expect(bouquetStrength).toBeGreaterThan(noneStrength);
+  });
+
+  it('resolves negativeSpaceStrength that increases with the style\'s own negativeSpace field', () => {
+    const airy = { ...STYLE_DNA_PRESETS.editorialBotanical, negativeSpace: 0.8 };
+    const dense = { ...STYLE_DNA_PRESETS.editorialBotanical, negativeSpace: 0.1 };
+    const airyStrength = resolveStyleDna(airy, 'negspace-compare').compositionIntelligence!.negativeSpaceStrength!;
+    const denseStrength = resolveStyleDna(dense, 'negspace-compare').compositionIntelligence!.negativeSpaceStrength!;
+    expect(airyStrength).toBeGreaterThan(denseStrength);
+  });
+
+  it('every preset still resolves to a buildable tile with the new fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'ci-v2-build-check' })).not.toThrow();
+    }
+  });
+});
+
 describe('Style DNA: migration / backward compatibility', () => {
   it('a params object with no styleDnaId (pre-v1.30 shape) still builds fine', () => {
     const legacy = { ...defaultParams(), seed: 'style-migration' };
