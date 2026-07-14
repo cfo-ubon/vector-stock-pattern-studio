@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "asset.schema.json",
+  "title": "Asset",
+  "description": "Asset Ecosystem Engine (Phase 9) — one reusable vector asset record: real, already-generated SVG geometry (`node`) plus the Section 2 metadata describing it. `node` is validated as a structural object here (its exact recursive SvgNode shape is enforced by TypeScript at compile time, the same way every other engine's SvgNode-bearing data in this app is — a full recursive JSON Schema for an open-ended AST would duplicate that type checking, not add real validation).",
+  "type": "object",
+  "required": ["metadata", "node", "width", "height", "radius"],
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["id", "name", "kind", "family", "categoryId", "complexity", "patternTypes", "compatibility", "editable", "version", "createdAt", "sourceCollectionId", "sourceMotifIds", "colorRoles"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["heroMotif", "leaf", "flower", "branch", "texture", "border", "frame", "icon", "decorativeShape"] },
+        "family": { "type": "string", "enum": ["flower", "leaf", "branch", "berry", "icon", "decorative", "background", "geometric"] },
+        "role": { "type": "string", "enum": ["hero", "secondary", "filler", "accent", "icon", "background"] },
+        "categoryId": { "type": "string", "minLength": 1 },
+        "styleDnaId": { "type": "string" },
+        "complexity": { "type": "number", "minimum": 0, "maximum": 100 },
+        "patternTypes": { "type": "array", "items": { "type": "string" } },
+        "compatibility": {
+          "type": "object",
+          "required": ["patternGrammars", "compatibleFamilies", "marketplaces"],
+          "additionalProperties": false,
+          "properties": {
+            "patternGrammars": { "type": "array", "items": { "type": "string" } },
+            "compatibleFamilies": { "type": "array", "items": { "type": "string" } },
+            "marketplaces": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "editable": { "type": "boolean", "enum": [true] },
+        "version": { "type": "number", "minimum": 1 },
+        "createdAt": { "type": "number", "minimum": 0 },
+        "sourceCollectionId": { "type": "string", "minLength": 1 },
+        "sourceMotifIds": { "type": "array", "items": { "type": "string" } },
+        "colorRoles": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "node": { "type": "object" },
+    "width": { "type": "number", "minimum": 0 },
+    "height": { "type": "number", "minimum": 0 },
+    "radius": { "type": "number", "minimum": 0 }
+  }
+}

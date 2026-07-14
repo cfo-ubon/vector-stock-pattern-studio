@@ -10,6 +10,7 @@ import paletteSchema from '../schemas/palette.schema.json';
 import qualityTargetSchema from '../schemas/qualityTarget.schema.json';
 import rejectRulesSchema from '../schemas/rejectRules.schema.json';
 import learningHistorySchema from '../schemas/learningHistory.schema.json';
+import assetSchema from '../schemas/asset.schema.json';
 
 import { validateAgainstSchema, type JsonSchema, type SchemaRegistry, type ValidationIssue } from './jsonSchemaValidator';
 
@@ -31,6 +32,7 @@ export const SCHEMA_REGISTRY: SchemaRegistry = {
   'qualityTarget.schema.json': qualityTargetSchema as JsonSchema,
   'rejectRules.schema.json': rejectRulesSchema as JsonSchema,
   'learningHistory.schema.json': learningHistorySchema as JsonSchema,
+  'asset.schema.json': assetSchema as JsonSchema,
 };
 
 function makeValidator(schemaId: string) {
@@ -50,6 +52,7 @@ export const validatePaletteData = makeValidator('palette.schema.json');
 export const validateQualityTargetData = makeValidator('qualityTarget.schema.json');
 export const validateRejectRulesData = makeValidator('rejectRules.schema.json');
 export const validateLearningHistoryData = makeValidator('learningHistory.schema.json');
+export const validateAssetData = makeValidator('asset.schema.json');
 
 export type { JsonSchema, SchemaRegistry, ValidationIssue } from './jsonSchemaValidator';
 export { validateAgainstSchema, isValid } from './jsonSchemaValidator';

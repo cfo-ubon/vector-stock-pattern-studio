@@ -16,6 +16,7 @@ const PANEL_LABELS: Record<PanelId, string> = {
   quality: '🎯 Quality',
   critic: '🖌 Critic',
   evolution: '🧬 Evolution',
+  assetLibrary: '🗃 Assets',
   validation: '✅ Validation',
   preview: '🖼 Live Preview',
   history: '🕘 History',

@@ -1930,6 +1930,56 @@ summary:
   Evolution tab with population/generation/selection controls, a
   browsable timeline, and an "Apply Winning Design" action.
 
+## Asset Ecosystem Engine — Phase 9 (`src/assets/*`)
+
+Turns already-generated Collection geometry into reusable, first-class
+Asset records — searchable, scoreable, relatable, and remixable
+independently of the Collection they came from. Full architecture,
+schema, and empirical findings in
+[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md); summary:
+
+- **Asset Extraction** (`extraction.ts`) — 9 kinds (Hero Motif, Leaf,
+  Flower, Branch, Texture, Border, Frame, Icon, Decorative Shape) from a
+  real `GeneratedCollection`; Border/Frame assets are reconstructed
+  byte-identically from the Collection's own real seed derivation and
+  `buildBorderStrip`/`buildCornerUnit` calls — no duplicate SVG
+  generation logic.
+- **Asset Metadata** (`types.ts`) — id/name/family/Style DNA/complexity/
+  pattern types/compatibility/editable/version, all sourced from real
+  `FactoryMotif`/`knowledge/*` data, never fabricated.
+- **Asset Relationships** (`relationships.ts`) — 5 types
+  (flowerToLeaf, leafToBranch, borderToCorner, collectionToAsset,
+  sameFamily), all derived from real fields; flowerToLeaf/leafToBranch
+  are pool-wide (cross-collection) since a single generator category
+  can never span two families.
+- **Asset Variants** (`variants.ts`) — 7 reusable variants (Outline,
+  Filled, Minimal, Detailed, Bold, Monoline, Vintage); `detailed` reuses
+  the real Hero Motif Complexity engine, `vintage` reuses the real color
+  transform utilities.
+- **Smart Search** (`search.ts`) — by keyword, family, kind, Style DNA,
+  marketplace, color, pattern type, and complexity range.
+- **Smart Recommendation** (`recommendation.ts`) — reuses the Design
+  Knowledge Engine's real family-combination compatibility data, never a
+  second compatibility scheme.
+- **Asset Collections** (`library.ts` + `storage/assetStore.ts`) —
+  Favorites and Packs (Collections/Templates) in `localStorage`, plus a
+  full IndexedDB-backed Asset Library (`storage/db.ts` bumped to
+  `DB_VERSION: 3`) that persists extracted assets across sessions and
+  future Collections.
+- **SVG Decomposition** (`decomposition.ts`) — splits a rendered tile
+  into per-instance editable assets, maintaining full SVG editability.
+- **Quality Score** (`qualityScore.ts`) — Reusability, Complexity (reused
+  verbatim), Commercial Usefulness, Compatibility, and Overall, all
+  0-100 and scaled against real Design Knowledge Engine denominators.
+- **New JSON Schema** (`asset.schema.json`) registered in the same
+  `validators/index.ts` `SCHEMA_REGISTRY` every other domain uses, plus
+  `assets/validation.ts` for schema + cross-domain relationship
+  integrity checks.
+- **New UI**: `components/workbench/AssetLibraryPanel.tsx` — a dockable
+  "🗃 Assets" tab to extract, browse, search, favorite, and vary assets,
+  with real Quality Score, Relationships, and Recommendation panels for
+  the selected asset.
+
 ## Testing
 
 `npm test` runs `vitest run` — 1301 tests (jsdom environment, component
@@ -1937,15 +1987,17 @@ tests use React Testing Library) across 107 files. The list below predates
 the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
 Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
 Project Phoenix V2, Marketplace Intelligence Engine Phase 5, Design
-Knowledge Engine Phase 6.5, and Design Critic Phase 7 milestones and
+Knowledge Engine Phase 6.5, Design Critic Phase 7, Design Evolution
+Engine Phase 8, and Asset Ecosystem Engine Phase 9 milestones and
 covers the original engine/metadata/trend suites in detail; see
 [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
 [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
 [`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md),
 [`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
 [`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md),
-[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md), and
-[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md) for
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md),
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md), and
+[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md) for
 what their own test suites (`schemas/validators/services`, `workbench/` +
 `components/workbench/`, `engine/svgOptimizer.test.ts` +
 `engine/scoring.test.ts` + `engine/styleDna.test.ts`,

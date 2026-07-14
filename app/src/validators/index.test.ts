@@ -24,9 +24,10 @@ import { REJECT_RULES } from '../knowledge/rules';
 import { DEFAULT_LEARNING_HISTORY } from '../knowledge/history';
 
 describe('validators/index: schema registry', () => {
-  it('registers all 12 schemas keyed by their own $id', () => {
+  it('registers all 13 schemas keyed by their own $id', () => {
     expect(Object.keys(SCHEMA_REGISTRY).sort()).toEqual(
       [
+        'asset.schema.json',
         'colorRoleSystem.schema.json',
         'designSpecification.schema.json',
         'keywordBundle.schema.json',
