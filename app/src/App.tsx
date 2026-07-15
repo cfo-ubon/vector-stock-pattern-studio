@@ -4,6 +4,7 @@ import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed } from './engine/rng';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
+import { buildTileWithHeroRetry } from './engine/heroDetector';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
@@ -166,7 +167,10 @@ function App() {
   }, []);
 
   const handleGenerate = useCallback(() => {
-    const next = buildTile(params);
+    // Build 003, Part 11 (Hero Detector): analyzes the real Hero
+    // Visibility Score right after generation and regenerates from a
+    // derived sub-seed if it's poor — see engine/heroDetector.ts.
+    const next = buildTileWithHeroRetry(params).tileData;
     setTileData(next);
     const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: next, createdAt: Date.now() };
     setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
@@ -193,7 +197,8 @@ function App() {
     for (let i = 0; i < 9; i++) {
       const seed = randomSeed();
       const variantParams = activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed };
-      const data = buildTile(variantParams);
+      // Build 003, Part 11 (Hero Detector): see handleGenerate above.
+      const data = buildTileWithHeroRetry(variantParams).tileData;
       latest = data;
       items.push({ id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
     }

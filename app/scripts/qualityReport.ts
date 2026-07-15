@@ -1,10 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildTile } from '../src/engine/tile';
+import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { defaultParams } from '../src/engine/defaults';
 import type { GenerateParams, LayoutId } from '../src/engine/types';
-import { computeMetrics, computeOverallScore, computeHeroVisibilityScore, SOFT_PENALTY_RULES, type CompositionMetrics } from '../src/engine/scoring';
+import { computeOverallScore, computeHeroVisibilityScore, SOFT_PENALTY_RULES, type CompositionMetrics } from '../src/engine/scoring';
 import { computePatternReadability, type PatternReadabilityResult } from '../src/engine/patternReadability';
 import { detectVisualIssues, type VisualIssueId } from '../src/critic/visualAnalysis';
 import { STYLE_DNA_PRESETS, resolveStyleDna, computeStyleDnaConsistency } from '../src/engine/styleDna';
@@ -95,8 +95,12 @@ interface EvalResult {
 }
 
 function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
-  const tile = buildTile(params);
-  const metrics = computeMetrics(tile);
+  // Build 003, Part 11 (Hero Detector): measures the real, shipped
+  // behavior — see engine/heroDetector.ts — rather than a raw single
+  // buildTile call the app itself no longer makes for a fresh generation.
+  // Reuses the metrics it already computed internally instead of paying
+  // for a second full computeMetrics pass over the same tile.
+  const { tileData: tile, metrics } = buildTileWithHeroRetry(params);
   const absoluteCommercialQuality = computeOverallScore(metrics, 'stockClean').score;
   const heroVisibility = computeHeroVisibilityScore(metrics);
   const readability = computePatternReadability(tile, metrics);
