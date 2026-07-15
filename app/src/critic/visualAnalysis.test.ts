@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { defaultParams } from '../engine/defaults';
 import { buildTile } from '../engine/tile';
 import { computeMetrics } from '../engine/scoring';
+import { HIERARCHY_PRESETS } from '../engine/hierarchy';
 import { detectVisualIssues } from './visualAnalysis';
 
 describe('detectVisualIssues', () => {
@@ -130,6 +131,71 @@ describe('detectVisualIssues: fragmentedSilhouette (Build 001, Section 9)', () =
     const tile = buildTile({ ...defaultParams(), density: 0, seed: 'silhouette-empty-1' });
     const metrics = computeMetrics(tile);
     const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
+    expect(issue.detected).toBe(false);
+  });
+});
+
+describe('detectVisualIssues: lowHeroVisibility / weakHierarchy calibration (Build 002, Section 6)', () => {
+  // These two detectors (added Build 001.1, Section 5/9) had no dedicated
+  // true-positive/true-negative fixture before this: a diagnostic sweep
+  // across every layout x HIERARCHY_PRESETS combination found `hierarchy`
+  // reaches down to single digits (weakHierarchy is real and reachable),
+  // but no combination of layout x hierarchy preset alone ever pushed the
+  // composite Hero Visibility Score below its own 55-point threshold — it
+  // took a real, simultaneously weak hero (minimalRepeat's tiny heroRatio/
+  // heroScale, which also thins out real hero-role instances so
+  // `heroDetailRatio` reflects an undetailed hero) *and* a near-zero-
+  // contrast forced 2-color palette together. Both thresholds are real and
+  // reachable by genuinely bad output, not vestigial dead code.
+  it('flags a genuinely weak hero (thin tiering + flat 2-color palette) as low hero visibility', () => {
+    const tile = buildTile({
+      ...defaultParams(),
+      layoutId: 'halfDrop',
+      categoryId: 'botanical',
+      hierarchy: HIERARCHY_PRESETS.minimalRepeat.value,
+      colorCount: 2,
+      customColors: ['#f5f5f0', '#eeeee5'],
+      density: 0.3,
+      seed: 's6-lowherovis-b1',
+    });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'lowHeroVisibility')!;
+    expect(issue.detected).toBe(true);
+  });
+
+  it('does not flag a strongly-tiered, high-contrast hero as low hero visibility', () => {
+    const tile = buildTile({
+      ...defaultParams(),
+      layoutId: 'grid',
+      hierarchy: HIERARCHY_PRESETS.heroFocus.value,
+      seed: 's6-stronghero-1',
+    });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'lowHeroVisibility')!;
+    expect(issue.detected).toBe(false);
+  });
+
+  it('flags near-uniform scale tiering (minimalRepeat) as weak hierarchy', () => {
+    const tile = buildTile({
+      ...defaultParams(),
+      layoutId: 'gridMinimal',
+      hierarchy: HIERARCHY_PRESETS.minimalRepeat.value,
+      seed: 's6-weakhier-c3',
+    });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'weakHierarchy')!;
+    expect(issue.detected).toBe(true);
+  });
+
+  it('does not flag a strongly-tiered hierarchy (heroFocus) as weak hierarchy', () => {
+    const tile = buildTile({
+      ...defaultParams(),
+      layoutId: 'grid',
+      hierarchy: HIERARCHY_PRESETS.heroFocus.value,
+      seed: 's6-stronghier-1',
+    });
+    const metrics = computeMetrics(tile);
+    const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'weakHierarchy')!;
     expect(issue.detected).toBe(false);
   });
 });
