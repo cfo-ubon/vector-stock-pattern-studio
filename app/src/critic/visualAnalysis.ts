@@ -218,17 +218,32 @@ const SILHOUETTE_GRID_MAX = 40;
  * regardless of how sparse the real placements are. */
 const SILHOUETTE_CELL_TO_MOTIF_RATIO = 1.6;
 
+export interface SilhouetteCohesion {
+  gridN: number;
+  componentSizes: number[];
+  totalOccupied: number;
+  /** Fraction of connected ink regions that are a single, isolated cell. */
+  isolatedFraction: number;
+  /** Fraction of all occupied cells claimed by the single largest region. */
+  largestFraction: number;
+}
+
 /** Flood-fills an occupancy grid sized to the pattern's own real motif
  * footprint (via `engine/svgGeometry.ts`'s `gridCoverage`, reused rather
  * than duplicated) to find connected components of *occupied* cells — the
  * inverse concept of "largest empty region". A pattern with one dominant
  * blob (or a few large ones) reads as a cohesive surface from a distance;
  * a pattern with many small, mostly single-cell islands and no single
- * blob claiming a real share of the ink reads as fragmented confetti. */
-function detectFragmentedSilhouette(tile: TileData, instances: MotifInstance[]): VisualIssue {
-  if (instances.length < 3) {
-    return { id: 'fragmentedSilhouette', label: 'Fragmented Silhouette', detected: false, evidence: 'Too few instances to assess overall silhouette.' };
-  }
+ * blob claiming a real share of the ink reads as fragmented confetti.
+ *
+ * Build 004, Section 10 (Botanical Beauty Metrics V2): exported (was
+ * previously inlined in `detectFragmentedSilhouette` alone) so
+ * `engine/botanicalBeautyMetrics.ts`'s "Silhouette Beauty" dimension reuses
+ * the exact same real computation instead of re-deriving it — `null` for
+ * the same "not enough signal" cases this detector already returns early
+ * on, so callers get one shared definition of "can't assess this yet". */
+export function computeSilhouetteCohesion(tile: TileData, instances: MotifInstance[]): SilhouetteCohesion | null {
+  if (instances.length < 3) return null;
   const tileSize = tile.params.tileSize;
   const motifSize = tile.params.motifSize;
   const silhouetteGridSize = Math.max(
@@ -266,6 +281,21 @@ function detectFragmentedSilhouette(tile: TileData, instances: MotifInstance[]):
   }
   const totalOccupied = componentSizes.reduce((a, b) => a + b, 0);
   if (totalOccupied === 0 || componentSizes.length <= 1) {
+    return { gridN, componentSizes, totalOccupied, isolatedFraction: 0, largestFraction: totalOccupied === 0 ? 0 : 1 };
+  }
+  const isolatedCount = componentSizes.filter((s) => s === 1).length;
+  const isolatedFraction = isolatedCount / componentSizes.length;
+  const largestFraction = Math.max(...componentSizes) / totalOccupied;
+  return { gridN, componentSizes, totalOccupied, isolatedFraction, largestFraction };
+}
+
+function detectFragmentedSilhouette(tile: TileData, instances: MotifInstance[]): VisualIssue {
+  const cohesion = computeSilhouetteCohesion(tile, instances);
+  if (!cohesion) {
+    return { id: 'fragmentedSilhouette', label: 'Fragmented Silhouette', detected: false, evidence: 'Too few instances to assess overall silhouette.' };
+  }
+  const { gridN, componentSizes, totalOccupied, isolatedFraction, largestFraction } = cohesion;
+  if (totalOccupied === 0 || componentSizes.length <= 1) {
     return {
       id: 'fragmentedSilhouette',
       label: 'Fragmented Silhouette',
@@ -274,8 +304,6 @@ function detectFragmentedSilhouette(tile: TileData, instances: MotifInstance[]):
     };
   }
   const isolatedCount = componentSizes.filter((s) => s === 1).length;
-  const isolatedFraction = isolatedCount / componentSizes.length;
-  const largestFraction = Math.max(...componentSizes) / totalOccupied;
   const detected = isolatedFraction > FRAGMENTED_ISOLATED_FRACTION_THRESHOLD && largestFraction < FRAGMENTED_LARGEST_BLOB_CEILING;
   return {
     id: 'fragmentedSilhouette',
