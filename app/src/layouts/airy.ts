@@ -1,7 +1,7 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
-import { jitter, rngRange } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
+import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
 
 /** Airy Botanical — Build 002, Section 5 (Semantic Cluster Engine
  * coverage): each sparse anchor point now spawns a small real cluster using
@@ -26,6 +26,10 @@ export const airyLayout: PatternLayout = {
     const clusterRadius = clusterBaseRadius(params.motifSize, airyDensity) * 0.7;
     const placements: Placement[] = [];
     let colorSeed = 0;
+    // Build 003, Part 9: one shared rotation angle family for every member
+    // in this tile (this layout rolls its own rotation per member below
+    // instead of using the cluster engine's, so the family is applied here).
+    const angleFamily = createAngleFamily(rng);
 
     for (const [x, y] of points) {
       const members = generateCluster('airy', rng, {
@@ -37,7 +41,7 @@ export const airyLayout: PatternLayout = {
         placements.push({
           x: wrapCoord(x + m.dx, params.tileSize),
           y: wrapCoord(y + m.dy, params.tileSize),
-          rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
+          rotationDeg: pickFamilyAngle(rng, angleFamily, params.rotationJitter),
           scale: Math.max(0.2, m.scaleMul),
           colorSeed: colorSeed++,
           role: m.role,

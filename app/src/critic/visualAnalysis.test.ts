@@ -92,7 +92,12 @@ describe('detectVisualIssues: fragmentedSilhouette (Build 001, Section 9)', () =
     // reads as more cohesive than before — density is lowered here to keep
     // exercising this test's real intent (a genuinely sparse composition
     // still reads as fragmented), not because the detector itself changed.
-    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', density: 0.15, seed: 'silhouette-airy-2' });
+    // Build 003, Section 2 (Rotation Angle Families) added one extra rng
+    // draw before this layout's placement loop, shifting this seed's exact
+    // placements enough to flip this borderline 0.15 case — lowered further
+    // to 0.05, comfortably clear of the boundary, same as the original
+    // tuning above (not a real fragmentation-detector change).
+    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', density: 0.05, seed: 'silhouette-airy-2' });
     const metrics = computeMetrics(tile);
     const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
     expect(issue.detected).toBe(true);

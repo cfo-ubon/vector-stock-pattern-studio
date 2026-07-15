@@ -3,6 +3,7 @@ import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
 import { placeZoneAnchors } from '../engine/compositionZones';
+import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
 
 /** Dense Premium: three overlapping scale tiers (large, medium, small)
  * layered on top of each other at high overall density — the "maximalist,
@@ -41,11 +42,17 @@ export const densePremiumLayout: PatternLayout = {
     const zone = pickCompositionZone(rng);
     const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
     const clusterRadius = clusterBaseRadius(params.motifSize, density) * 0.5;
+    // Build 003, Part 9: one shared rotation angle family for every hero and
+    // its cluster's supporting members in this tile — the secondary/filler
+    // tiers below stay independent full-range rotation on purpose, mirroring
+    // their independent-Poisson-disc placement (this layout's own documented
+    // identity, see the zone comment above).
+    const angleFamily = createAngleFamily(rng);
     for (const [x, y] of heroPoints) {
       placements.push({
         x,
         y,
-        rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
+        rotationDeg: pickFamilyAngle(rng, angleFamily, params.rotationJitter),
         scale: Math.max(0.25, 1.15 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'hero',
@@ -56,6 +63,7 @@ export const densePremiumLayout: PatternLayout = {
         rotationJitter: params.rotationJitter,
         scaleJitter: params.scaleJitter,
         memberCount: rngInt(rng, 2, 3),
+        angleFamily,
       });
       for (const m of members) {
         if (m.role === 'hero') continue; // the real hero is placed above

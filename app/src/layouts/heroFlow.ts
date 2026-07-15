@@ -3,6 +3,7 @@ import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, wrapCoord, poissonDiscPoints } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
 import { createSineFlowPath, sineFlowPosition, sineFlowTangentDeg } from '../engine/flowArchitecture';
+import { createAngleFamily } from '../engine/rotationFamilies';
 
 /** Hero + Editorial Flow: a few large "hero" motifs strung along a single
  * smooth diagonal-ish flow path (an editorial magazine-spread rhythm), each
@@ -36,6 +37,10 @@ export const heroFlowLayout: PatternLayout = {
     // anchoring its own small editorial cluster of supporting members.
     const heroCount = rngInt(rng, 3, 5);
     const clusterRadius = clusterBaseRadius(params.motifSize, params.density) * 0.55;
+    // Build 003, Part 9: one shared rotation angle family for every
+    // cluster's supporting members in this tile (see
+    // `engine/rotationFamilies.ts`) — created once here, not per-cluster.
+    const angleFamily = createAngleFamily(rng);
     for (let i = 0; i < heroCount; i++) {
       const t = (i + 0.5) / heroCount;
       const heroX = t * tileSize;
@@ -55,6 +60,7 @@ export const heroFlowLayout: PatternLayout = {
         rotationJitter: params.rotationJitter,
         scaleJitter: params.scaleJitter,
         memberCount: rngInt(rng, 2, 3),
+        angleFamily,
       });
       const theta = (slopeDeg * Math.PI) / 180;
       const cos = Math.cos(theta);

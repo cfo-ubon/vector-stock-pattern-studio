@@ -3,6 +3,7 @@ import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
 import { placeZoneAnchors } from '../engine/compositionZones';
+import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
 
 /** Hero + Random Scatter: a handful of large, widely-spaced "hero" motifs,
  * each anchoring its own small `organicScatter`-archetype cluster of
@@ -40,12 +41,18 @@ export const heroScatterLayout: PatternLayout = {
     const placements: Placement[] = [];
     let colorSeed = 0;
     const clusterRadius = clusterBaseRadius(params.motifSize, params.density) * 0.75;
+    // Build 003, Part 9: one shared rotation angle family for every hero and
+    // its cluster's supporting members in this tile — the ambient filler
+    // layer below stays independent full-range rotation on purpose,
+    // mirroring its independent Poisson-disc placement (see the zone
+    // comment above).
+    const angleFamily = createAngleFamily(rng);
 
     for (const [x, y] of heroPoints) {
       placements.push({
         x,
         y,
-        rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
+        rotationDeg: pickFamilyAngle(rng, angleFamily, params.rotationJitter),
         scale: Math.max(0.5, 1.5 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'hero',
@@ -56,6 +63,7 @@ export const heroScatterLayout: PatternLayout = {
         rotationJitter: params.rotationJitter,
         scaleJitter: params.scaleJitter,
         memberCount: rngInt(rng, 2, 4),
+        angleFamily,
       });
       for (const m of members) {
         if (m.role === 'hero') continue; // the real hero is placed above

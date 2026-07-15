@@ -3,6 +3,7 @@ import type { MotifRole } from './hierarchy';
 import { jitter, rngRange, rngInt, rngPick } from './rng';
 import { spacingForDensity, wrapCoord } from '../layouts/shared';
 import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
+import { createAngleFamily, pickFamilyAngle, type AngleFamily } from './rotationFamilies';
 
 // Cluster Composition Engine — Project Phoenix V2, Section 1/2. Replaces
 // "scatter individual motifs independently" with the workflow the brief
@@ -60,6 +61,16 @@ export interface ClusterGenerateOptions {
    * default range (not a fixed constant — a bouquet reads richer than a
    * minimal asymmetric pairing). */
   memberCount?: number;
+  /** Build 003, Part 9 (Rotation Angle Families): the shared set of 2-4
+   * "natural" base directions every member's rotation jitters around,
+   * instead of each member independently picking a fresh angle anywhere
+   * in 0-360 (see `engine/rotationFamilies.ts`). Defaults to a fresh
+   * family for this call alone when omitted — pass the *same* family
+   * across every cluster in one tile generation (as
+   * `buildClusterPlacements` below does) so the whole tile commits to one
+   * consistent set of directions rather than each cluster inventing its
+   * own. */
+  angleFamily?: AngleFamily;
 }
 
 // Build 002, Section 4 (Scale Diversity): widened from the original
@@ -198,6 +209,7 @@ function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, 
  * flower" this engine can guarantee without recognizing shape semantics). */
 export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: ClusterGenerateOptions): ClusterMember[] {
   const { baseRadius: r, rotationJitter, scaleJitter } = opts;
+  const angleFamily = opts.angleFamily ?? createAngleFamily(rng);
   const defaultCounts: Record<ClusterArchetype, [number, number]> = {
     bouquet: [6, 10],
     radial: [5, 8],
@@ -247,7 +259,7 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
     return {
       dx: ux * mag,
       dy: uy * mag,
-      rotationDeg: jitter(rng, rngRange(rng, 0, 360), rotationJitter),
+      rotationDeg: pickFamilyAngle(rng, angleFamily, rotationJitter),
       scaleMul: rngRange(rng, sLo, sHi) * (1 + rngRange(rng, -scaleJitter, scaleJitter)),
       role: o.role,
       overlapsHero,
@@ -412,6 +424,10 @@ export interface BuildClusterPlacementsOptions {
   /** Build 003: the composition zone anchor placement should follow —
    * defaults to a random pick (see `placeClusterAnchors`) when omitted. */
   zone?: CompositionZone;
+  /** Build 003, Part 9: the shared rotation angle family every cluster in
+   * this tile should use — defaults to one fresh family for the whole
+   * call (shared across every anchor) when omitted. */
+  angleFamily?: AngleFamily;
 }
 
 /** Top-level assembly: places cluster anchors across the tile, generates
@@ -425,6 +441,7 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
   const cohesionTarget = opts.cohesionTarget ?? 70;
   const baseRadius = clusterBaseRadius(motifSize, density);
   const anchors = placeClusterAnchors(tileSize, baseRadius, rng, opts.zone);
+  const angleFamily = opts.angleFamily ?? createAngleFamily(rng);
 
   const placements: Placement[] = [];
   let colorSeed = 0;
@@ -438,6 +455,7 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
         baseRadius: baseRadius * anchor.sizeMul,
         rotationJitter,
         scaleJitter,
+        angleFamily,
       });
       const { cohesion } = evaluateCluster(candidate, baseRadius * anchor.sizeMul);
       if (cohesion > bestCohesion) {
