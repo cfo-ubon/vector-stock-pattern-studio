@@ -302,7 +302,11 @@ export function buildTile(params: GenerateParams): TileData {
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.
     const motifColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
-    const motif = generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed);
+    // Build 004, Section 1: threads the placement's real hierarchy role into
+    // createMotif so a botanical-aware generator can pick a role-appropriate
+    // shape (Section 2+) instead of a flat random pick — every other
+    // generator still ignores this hint exactly as before.
+    const motif = generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role });
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing

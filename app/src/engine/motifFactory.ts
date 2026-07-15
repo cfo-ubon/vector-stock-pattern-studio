@@ -145,7 +145,9 @@ export function createFactoryMotif(opts: {
   tags?: string[];
 }): FactoryMotif {
   const generator = GENERATORS[opts.categoryId] ?? Object.values(GENERATORS)[0];
-  const motif: Motif = generator.createMotif(opts.rng, opts.colors, opts.size, opts.index);
+  // Build 004, Section 1: same role hint tile.ts now passes at its own
+  // createMotif call site.
+  const motif: Motif = generator.createMotif(opts.rng, opts.colors, opts.size, opts.index, { role: opts.role });
   const safeRadius = Math.max(motif.radius, computeBoundingRadius(motif.node));
   const bounds = computeBoundingBox(motif.node);
   return {

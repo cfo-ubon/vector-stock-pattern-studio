@@ -37,6 +37,23 @@ export interface Motif {
   radius: number;
 }
 
+/** Build 004, Section 1 (Botanical DNA Engine foundation): optional hints a
+ * caller can pass to `createMotif` so a generator that understands a real
+ * botanical taxonomy (see `generators/botanical.ts`'s `Variant` tagging,
+ * added in Section 2) can pick a role- and family-appropriate shape instead
+ * of a flat random pick over its whole variant pool. `family`/`part` are
+ * loose strings rather than the real `BotanicalFamily`/`BotanicalPart`
+ * unions (introduced in Sections 2-3) so this interface doesn't force every
+ * one of the 15 pattern categories to import botanical-specific types they
+ * have no use for. Every existing generator ignores hints it doesn't
+ * understand — this field is purely additive, so all non-botanical
+ * categories behave identically to before it existed. */
+export interface MotifCreateHints {
+  role?: string;
+  family?: string;
+  part?: string;
+}
+
 /** A generator produces one random motif each time it's called, drawing
  * from its own pool of shape variants. Implementations live in /generators. */
 export interface PatternGenerator {
@@ -73,7 +90,7 @@ export interface PatternGenerator {
    * are broken if every square gets an independent random color instead of
    * strictly alternating. Those generators read `colorSeed % 2` (etc.) to
    * get that positional alternation; everyone else can ignore the param. */
-  createMotif(rng: Rng, colors: string[], size: number, colorSeed?: number): Motif;
+  createMotif(rng: Rng, colors: string[], size: number, colorSeed?: number, hints?: MotifCreateHints): Motif;
 }
 
 /** Where a motif instance is placed within the tile, before wrap cloning. */

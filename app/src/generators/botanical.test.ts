@@ -18,6 +18,16 @@ describe('botanicalGenerator', () => {
     expect(a.radius).toBe(b.radius);
   });
 
+  it('Build 004, Section 1: an unrecognized createMotif hints object is inert (no family/part logic wired yet)', () => {
+    for (let i = 0; i < 10; i++) {
+      const seed = `botanical-hints-inert-${i}`;
+      const plain = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0);
+      const withHints = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0, { role: 'hero', family: 'rose', part: 'heroFlower' });
+      expect(serialize(withHints.node)).toBe(serialize(plain.node));
+      expect(withHints.radius).toBe(plain.radius);
+    }
+  });
+
   it('produces valid, finite, non-empty SVG for many seeds', () => {
     for (let i = 0; i < 60; i++) {
       const motif = botanicalGenerator.createMotif(createRng(`botanical-seed-${i}`), COLORS, 70);
