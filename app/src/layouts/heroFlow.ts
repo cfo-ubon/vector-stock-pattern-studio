@@ -4,6 +4,7 @@ import { spacingForDensity, wrapCoord, poissonDiscPoints } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
 import { createSineFlowPath, sineFlowPosition, sineFlowTangentDeg } from '../engine/flowArchitecture';
 import { createAngleFamily } from '../engine/rotationFamilies';
+import { createRhythmBands, rhythmSpacingMultiplier } from '../engine/rhythmBands';
 
 /** Hero + Editorial Flow: a few large "hero" motifs strung along a single
  * smooth diagonal-ish flow path (an editorial magazine-spread rhythm), each
@@ -90,7 +91,13 @@ export const heroFlowLayout: PatternLayout = {
     // bucket of the real scale-repeat detector.
     const fillerMinDist = spacing * 1.3;
     const fillerTarget = Math.max(6, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.6));
-    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng);
+    // Build 003, Part 5 (Rhythm Density Bands): a shared dense/loose wave
+    // varies this layer's spacing across the tile instead of one flat
+    // value everywhere, avoiding a perfectly uniform scatter.
+    const rhythm = createRhythmBands(rng);
+    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng, (x, y) =>
+      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+    );
     for (const [x, y] of fillerPoints) {
       placements.push({
         x,

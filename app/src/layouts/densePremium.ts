@@ -4,6 +4,7 @@ import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
 import { placeZoneAnchors } from '../engine/compositionZones';
 import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
+import { createRhythmBands, rhythmSpacingMultiplier } from '../engine/rhythmBands';
 
 /** Dense Premium: three overlapping scale tiers (large, medium, small)
  * layered on top of each other at high overall density — the "maximalist,
@@ -85,9 +86,16 @@ export const densePremiumLayout: PatternLayout = {
     // scaleJitter (0.15) their instances landed in a narrow +/-15% band,
     // reliably packing the majority of the tile's placements into one
     // bucket of the real scale-repeat detector (critic/visualAnalysis.ts).
+    // Build 003, Part 5 (Rhythm Density Bands): shared across both
+    // independent tiers below, so the whole "background" of the pattern
+    // (not just one tier) commits to the same dense/loose wave instead of
+    // each tier's flat spacing reading as separately uniform.
+    const rhythm = createRhythmBands(rng);
     const secondaryMinDist = baseSpacing * 1.05;
     const secondaryTarget = Math.max(4, Math.round((tileSize * tileSize) / (secondaryMinDist * secondaryMinDist)));
-    const secondaryPoints = poissonDiscPoints(tileSize, secondaryMinDist, secondaryTarget, rng);
+    const secondaryPoints = poissonDiscPoints(tileSize, secondaryMinDist, secondaryTarget, rng, (x, y) =>
+      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+    );
     for (const [x, y] of secondaryPoints) {
       placements.push({
         x,
@@ -101,7 +109,9 @@ export const densePremiumLayout: PatternLayout = {
 
     const fillerMinDist = baseSpacing * 0.65;
     const fillerTarget = Math.max(4, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.15));
-    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng);
+    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng, (x, y) =>
+      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+    );
     for (const [x, y] of fillerPoints) {
       placements.push({
         x,

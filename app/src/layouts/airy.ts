@@ -2,6 +2,7 @@ import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/type
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
 import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
+import { createRhythmBands, rhythmSpacingMultiplier } from '../engine/rhythmBands';
 
 /** Airy Botanical — Build 002, Section 5 (Semantic Cluster Engine
  * coverage): each sparse anchor point now spawns a small real cluster using
@@ -22,7 +23,15 @@ export const airyLayout: PatternLayout = {
     const airyDensity = params.density * 0.35; // always sparse, whatever the slider says
     const minDist = spacingForDensity(params.motifSize, airyDensity) * 1.15;
     const targetCount = Math.max(3, Math.round((params.tileSize * params.tileSize) / (minDist * minDist)));
-    const points = poissonDiscPoints(params.tileSize, minDist, targetCount, rng);
+    // Build 003, Part 5 (Rhythm Density Bands): this plain scatter was the
+    // one anchor tier still using a single flat spacing everywhere — a
+    // shared dense/loose wave now varies it across the tile instead,
+    // keeping airy's generous-negative-space identity while avoiding a
+    // perfectly uniform distribution.
+    const rhythm = createRhythmBands(rng);
+    const points = poissonDiscPoints(params.tileSize, minDist, targetCount, rng, (x, y) =>
+      rhythmSpacingMultiplier(rhythm, x, y, params.tileSize),
+    );
     const clusterRadius = clusterBaseRadius(params.motifSize, airyDensity) * 0.7;
     const placements: Placement[] = [];
     let colorSeed = 0;

@@ -4,6 +4,7 @@ import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
 import { placeZoneAnchors } from '../engine/compositionZones';
 import { createAngleFamily, pickFamilyAngle } from '../engine/rotationFamilies';
+import { createRhythmBands, rhythmSpacingMultiplier } from '../engine/rhythmBands';
 
 /** Hero + Random Scatter: a handful of large, widely-spaced "hero" motifs,
  * each anchoring its own small `organicScatter`-archetype cluster of
@@ -36,7 +37,15 @@ export const heroScatterLayout: PatternLayout = {
     // members nearby, so this layer only needs to cover leftover space.
     const fillerMinDist = spacingForDensity(params.motifSize, params.density) * 0.75;
     const fillerTarget = Math.max(6, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.6));
-    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng);
+    // Build 003, Part 5 (Rhythm Density Bands): this ambient layer still
+    // stays off the zone skeleton (see comment above), but a shared
+    // dense/loose wave now varies its spacing across the tile instead of
+    // one flat value everywhere, so it reads as rhythm rather than a
+    // perfectly uniform scatter.
+    const rhythm = createRhythmBands(rng);
+    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng, (x, y) =>
+      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+    );
 
     const placements: Placement[] = [];
     let colorSeed = 0;

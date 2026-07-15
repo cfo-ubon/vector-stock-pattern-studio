@@ -41,8 +41,21 @@ export function wrapCoord(v: number, tileSize: number): number {
  * point (not just the raw coordinates), so density looks uniform right up
  * to the tile seam instead of clumping or gapping there. Shared by every
  * layout that needs "N points, no two closer than minDist" — plain
- * scatter, hero tiers, bouquet centers, airy/dense composition layers. */
-export function poissonDiscPoints(tileSize: number, minDist: number, targetCount: number, rng: Rng): Array<[number, number]> {
+ * scatter, hero tiers, bouquet centers, airy/dense composition layers.
+ *
+ * `spacingMultiplier`, when given, scales `minDist` per-candidate by its
+ * position (Build 003, Part 5 — Rhythm Density Bands, see
+ * `engine/rhythmBands.ts`): below 1 packs a candidate's neighbourhood
+ * tighter, above 1 spreads it looser, so the result reads as alternating
+ * dense/loose bands instead of one flat spacing everywhere. Omitted, the
+ * function behaves exactly as before. */
+export function poissonDiscPoints(
+  tileSize: number,
+  minDist: number,
+  targetCount: number,
+  rng: Rng,
+  spacingMultiplier?: (x: number, y: number) => number,
+): Array<[number, number]> {
   const maxAttempts = Math.max(50, targetCount * 40);
   const points: Array<[number, number]> = [];
 
@@ -63,7 +76,8 @@ export function poissonDiscPoints(tileSize: number, minDist: number, targetCount
   while (points.length < targetCount && attempts < maxAttempts) {
     attempts++;
     const candidate: [number, number] = [rngRange(rng, 0, tileSize), rngRange(rng, 0, tileSize)];
-    const ok = points.every(([px, py]) => periodicDist(candidate[0], candidate[1], px, py) >= minDist);
+    const localMinDist = spacingMultiplier ? minDist * spacingMultiplier(candidate[0], candidate[1]) : minDist;
+    const ok = points.every(([px, py]) => periodicDist(candidate[0], candidate[1], px, py) >= localMinDist);
     if (ok) points.push(candidate);
   }
   return points;
