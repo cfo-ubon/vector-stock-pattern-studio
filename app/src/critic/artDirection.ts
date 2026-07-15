@@ -2,6 +2,17 @@ import { HIERARCHY_PRESETS } from '../engine/hierarchy';
 import type { DesignSpecification } from '../trend/designSpecTypes';
 import type { VisualIssue, VisualIssueId } from './visualAnalysis';
 
+// Build 001.1, Section 9 (Design Critic Improvements): 3 new rules below
+// (`weakHierarchy` -> Increase Hero Scale, `tooManyFillers` -> Reduce
+// Fillers, `lowHeroVisibility` -> Increase Hero Contrast) follow the same
+// real-lever-or-honest-advisory split the module header above already
+// commits to. `fillerRatio` is a genuine `HierarchyParams` field (unlike
+// per-motif detail/scale, which have no spec-level lever), so Reduce
+// Fillers gets a real `specPatch`; Increase Hero Contrast does not (no
+// spec field controls per-motif accent color contrast independently of
+// the whole palette), so it stays advisory, same honesty as
+// `increaseMotifDetail`/`varyMotifScale` above.
+
 // Design Critic & Art Direction Engine (Phase 7) — Section 4 "Art
 // Direction Engine". Unlike Section 7's plain-text recommendations
 // (`trend/designSpecQuality.ts`'s `buildQualityRecommendations`, already
@@ -140,8 +151,8 @@ const ART_DIRECTION_RULES: Record<VisualIssueId, IssueRuleBuilder> = {
     specPatch: undefined,
   }),
   weakFlow: (spec) => ({
-    id: 'improveFlow',
-    label: 'Improve Flow',
+    id: 'increaseFlowBias',
+    label: 'Increase Flow Bias',
     priority: 'medium',
     rationale: "Placement doesn't read as a deliberate directional sweep.",
     specPatch: spec.flow === 'calm' ? { flow: 'directional' } : spec.flow === 'directional' ? { flow: 'dynamic' } : undefined,
@@ -152,6 +163,39 @@ const ART_DIRECTION_RULES: Record<VisualIssueId, IssueRuleBuilder> = {
     priority: 'medium',
     rationale:
       'Motifs read as many disconnected islands rather than one cohesive surface. No Design Specification field controls cluster attraction/connectivity directly yet, so this is advisory only.',
+    specPatch: undefined,
+  }),
+  weakHierarchy: (spec) => ({
+    id: 'increaseHeroScale',
+    label: 'Increase Hero Scale',
+    priority: 'high',
+    rationale: "Scale tiering between hero/secondary/filler/accent doesn't read as deliberate.",
+    specPatch:
+      JSON.stringify(spec.hierarchy) !== JSON.stringify(HIERARCHY_PRESETS[HIGHEST_HERO_SCALE_PRESET].value)
+        ? { hierarchy: HIERARCHY_PRESETS[HIGHEST_HERO_SCALE_PRESET].value }
+        : undefined,
+  }),
+  tooManyFillers: (spec) => {
+    const h = spec.hierarchy;
+    const newFillerRatio = Math.max(0.1, h.fillerRatio - 0.15);
+    const delta = h.fillerRatio - newFillerRatio;
+    return {
+      id: 'reduceFillers',
+      label: 'Reduce Fillers',
+      priority: 'medium',
+      rationale: 'Filler motifs make up an unusually large share of the tile, competing with the hero rather than supporting it.',
+      specPatch:
+        delta > 0
+          ? { hierarchy: { ...h, fillerRatio: newFillerRatio, heroRatio: h.heroRatio + delta * 0.5, secondaryRatio: h.secondaryRatio + delta * 0.5 } }
+          : undefined,
+    };
+  },
+  lowHeroVisibility: () => ({
+    id: 'increaseHeroContrast',
+    label: 'Increase Hero Contrast',
+    priority: 'medium',
+    rationale:
+      'Hero Visibility Score is low. Hero Detail, hero-vs-filler ratio, and hierarchy tiering are already covered by their own dedicated recommendations when detected; no Design Specification field controls per-motif accent color contrast independently of the whole palette, so try a higher-contrast Style DNA or palette preset.',
     specPatch: undefined,
   }),
 };

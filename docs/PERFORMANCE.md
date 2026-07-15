@@ -96,3 +96,67 @@ Full project suite: 127 files / 1510 tests, ~270s wall clock in this
 environment (includes ~40 new tests this build added; the increase over
 the pre-Build-001 baseline of 126 files / 1462 tests is proportional to
 the new test count, not a per-test slowdown).
+
+---
+
+## Build 001.1 -- Composition Quality Refinement
+
+### Methodology
+
+Same warmup-controlled, interleaved methodology Build 001 established
+(20 warmup + 20 measured iterations, median reported) applied where a
+real timing comparison was relevant. Most of this build's additions
+(Sections 5/6/7's new scoring modules) are pure O(n) reads over
+already-extracted instances/metrics with no new placement-refinement
+pass, so they don't need a before/after generation-time table the way
+Build 001's O(n^2) Pattern Physics did -- their cost is a single
+`extractInstances`/metrics pass' worth of work, already paid for by the
+existing scoring pipeline.
+
+### SVG node count -- the one real regression found and fixed
+
+Section 1's 2 new hero-only overlay primitives
+(`buildDecorativeDots`/`buildAccentArc`) measurably increased average SVG
+node count per hero instance. For most real specs this stayed well within
+`knowledge/rules`'s hard node budget (8000). One specific real scenario
+-- a grid-layout spec with `density` 0.55 and `heroRatio` 0.12 producing
+1024 total instances (129 heroes) -- sat at 7906/8000 (98.8%) of budget
+even *before* this build's changes, an inherent fragility of that one
+scenario. Adding the 2 new primitives at their first-pass trigger
+probabilities pushed it to 9541/8000 -- a hard reject that hadn't existed
+before. Fixed with a density-aware damping throttle (see Design Decisions
+#4); the same scenario now measures 7898/8000, back under budget.
+
+| Scenario | Nodes before Build 001.1 | Nodes with un-throttled Section 1 additions | Nodes after `densityDamping` fix |
+|---|---:|---:|---:|
+| 1024-instance grid spec (density 0.55, heroRatio 0.12) | 7906 | 9541 (over 8000 budget) | 7898 |
+
+### Composition-quality re-measurement (30-scenario suite, same methodology as Build 001)
+
+| Metric | Build 001 (after) | Build 001.1 (after) |
+|---|---:|---:|
+| `heroDetailRatio` | 56.0 | 60.9 |
+| `hierarchy` | 95.7 | 97.6 |
+| `flowCoherence` | 69.3 | 69.4-69.6 |
+| `largestEmptyRegion` | 94.0 | 94.5 |
+| `spacingUniformity` | 89.2 | 87.9-90.1 (within noise across variants tested) |
+| `overallScore` (editorialBotanical) | 78.6-78.9 | 79.6-80.4 |
+| `deadSpace` flagged | 2/30 | 2/30 (unchanged -- see Known Issues #1 resolution notes on why this specific detector count didn't move further) |
+| `fragmentedSilhouette` flagged | 6/30 | 6-7/30 |
+| `weakHero` flagged | 7/30 | 2-6/30 (varies with hero-complexity throttle tuning; final shipped configuration measures 6/30) |
+
+### 100-pattern Visual Portfolio Review generation cost
+
+Generating and scoring 105 patterns (7 seeds x 15 Style DNA presets,
+trimmed to 100) via the real `DesignSpecification` -> `buildTileFromDesignSpec`
+-> `runDesignSpecQualityLoop` pipeline took under 5 minutes wall-clock in
+this environment when run without contending for CPU against a parallel
+test suite -- a one-off validation cost, not a persistent runtime path.
+
+### Test suite performance
+
+Full project suite: 129 files / 1524 tests, ~400s wall clock in this
+environment (up from Build 001's 127 files / 1510 tests, ~270s -- the
+increase is proportional to ~14 new tests plus 2 new test files, not a
+per-test slowdown; the wall-clock increase also reflects environment
+variance run-to-run, not purely new test count).

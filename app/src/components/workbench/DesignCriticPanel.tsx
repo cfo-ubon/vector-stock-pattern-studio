@@ -100,6 +100,47 @@ export function DesignCriticPanel({ spec, seed, qualityResult, qualityRunning, o
           </details>
 
           <details className="workbench-collapsible">
+            <summary>💰 Commercial Validation — {report.commercialValidation.commercialScore}/100</summary>
+            <div className="workbench-quality-scores">
+              {(
+                [
+                  ['commercialScore', 'Commercial Score'],
+                  ['commercialReadiness', 'Commercial Readiness'],
+                  ['premiumFeeling', 'Premium Feeling'],
+                  ['luxuryFeeling', 'Luxury Feeling'],
+                  ['editorialFeeling', 'Editorial Feeling'],
+                  ['wallpaperScore', 'Wallpaper Score'],
+                  ['fabricScore', 'Fabric Score'],
+                  ['giftWrapScore', 'Gift Wrap Score'],
+                ] as const
+              ).map(([key, label]) => (
+                <div key={key} className={`workbench-quality-score ${scoreClass(report.commercialValidation[key])}`}>
+                  <span>{label}</span>
+                  <strong>{report.commercialValidation[key]}</strong>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <details className="workbench-collapsible">
+            <summary>🔍 Pattern Readability {report.readability.readableAtAllScales ? '— ✅ readable at every scale' : '— ⚠️ weak at one or more scales'}</summary>
+            <div className="workbench-quality-scores">
+              {(
+                [
+                  ['thumbnail200', 'Thumbnail (200px)'],
+                  ['thumbnail400', 'Preview (400px)'],
+                  ['zoom800', 'Zoom (800%)'],
+                ] as const
+              ).map(([key, label]) => (
+                <div key={key} className={`workbench-quality-score ${scoreClass(report.readability[key])}`}>
+                  <span>{label}</span>
+                  <strong>{report.readability[key]}</strong>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <details className="workbench-collapsible">
             <summary>👁 Visual Analysis {report.visualIssues.some((i) => i.detected) ? `(${report.visualIssues.filter((i) => i.detected).length} detected)` : '(clean)'}</summary>
             <ul className="workbench-diff-list">
               {report.visualIssues.map((issue) => (

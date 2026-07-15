@@ -760,6 +760,25 @@ export const QUALITY_PRESET_WEIGHTS: Record<QualityPresetId, Partial<Record<keyo
   },
 };
 
+/** Build 001.1, Section 5 (Hero Visibility Score): does the hero motif
+ * actually read as the focal point of the tile, at a glance? Composed
+ * entirely from real, already-computed `CompositionMetrics` — no new
+ * geometry measurement, since every real component of "hero visibility"
+ * (is it more detailed, is it isolated enough to read as distinct, does
+ * the tile's own tiering read as deliberate, does its color stand out)
+ * already has a genuine measurement above: `heroDetailRatio` (detail),
+ * `heroSeparation` (isolation from competing neighbors), `hierarchy`
+ * (deliberate scale tiering), `paletteContrast` (color pop). Weighted
+ * toward detail and separation — a hero that is merely bigger but has no
+ * extra detail and sits shoulder-to-shoulder with fillers still fails to
+ * read as a focal point, which is exactly the brief's "increasing size
+ * alone is NOT sufficient" for Section 1 restated as a score. */
+export function computeHeroVisibilityScore(metrics: CompositionMetrics): number {
+  const score =
+    metrics.heroDetailRatio * 0.35 + metrics.heroSeparation * 0.3 + metrics.hierarchy * 0.2 + metrics.paletteContrast * 0.15;
+  return clamp01to100(score);
+}
+
 export interface ScoreResult {
   score: number;
   penaltyReasons: string[];

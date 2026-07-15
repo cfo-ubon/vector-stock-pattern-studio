@@ -27,7 +27,7 @@ export interface CompositionIntelligenceParams {
    * Undefined behaves as 0 (no-op), matching every other optional field
    * here so patterns saved before this field existed are unaffected. */
   attractionStrength?: number;
-  /** Section 6, Negative Space Engine — a finer-grained (4x4, vs.
+  /** Section 6, Negative Space Engine — a finer-grained (8x8, vs.
    * balanceStrength's 2x2) pass over the same weighted-cell redistribution
    * mechanism, catching localized empty holes a coarse quadrant split
    * averages away. 0/undefined = no-op. */
@@ -65,7 +65,7 @@ export function computeWeight(p: Placement): number {
  * falls in — `quadrantOf`'s old 2x2-only logic generalized to any grid
  * resolution, so the same weighted-redistribution mechanism below serves
  * both the coarse "balance" pass (gridN=2) and the finer "negative space"
- * pass (gridN=4) without two copies of the partitioning logic. */
+ * pass (gridN=8) without two copies of the partitioning logic. */
 function cellOf(x: number, y: number, tileSize: number, gridN: number): number {
   const px = ((x % tileSize) + tileSize) % tileSize;
   const py = ((y % tileSize) + tileSize) % tileSize;
@@ -96,7 +96,7 @@ function moveIntoCell(p: { x: number; y: number }, tileSize: number, gridN: numb
  * the way to the target cell rather than snapping — only fires when the
  * imbalance is severe (mild unevenness reads as designed, not machine-
  * stamped). Shared by `applyBalanceCorrection` (gridN=2, macro composition
- * weight) and `applyNegativeSpaceCorrection` (gridN=4, catches localized
+ * weight) and `applyNegativeSpaceCorrection` (gridN=8, catches localized
  * holes a 2x2 split averages away) — one mechanism, two resolutions,
  * rather than duplicated logic for what the brief treats as two named
  * concepts. */
@@ -157,12 +157,28 @@ export function applyBalanceCorrection(placements: Placement[], tileSize: number
 }
 
 /** Section 6, Negative Space Engine — the same weighted-redistribution
- * mechanism as `applyBalanceCorrection`, at a finer 4x4 grid resolution.
+ * mechanism as `applyBalanceCorrection`, at a finer 8x8 grid resolution.
  * A large empty hole is, in this model, nothing more than a cell whose
  * weight is far below the mean — genuinely catching localized holes a
- * coarse 2x2 quadrant split would average into "roughly even" and miss. */
+ * coarse 2x2 quadrant split would average into "roughly even" and miss.
+ *
+ * Build 001.1, Known Issue #1: this was gridN=4 in Build 001. Empirical
+ * investigation found that `engine/scoring.ts`'s `largestEmptyRegion` — the
+ * metric this pass exists to improve, and what `deadSpace` in
+ * critic/visualAnalysis.ts is thresholded on — is measured via
+ * `gridCoverage(instances, tileSize, 8)`, an 8x8 grid, not 4x4. A 4x4 cell
+ * can read as "roughly average weight" while one of its four 8x8
+ * sub-cells is a real hole the detector flags, so the correction pass was
+ * structurally unable to see the same holes the detector penalizes.
+ * Matching the grid resolution to the detector's own is what makes this
+ * pass address the thing it's actually scored against, rather than a
+ * coarser proxy for it. (Two rejected fixes were tried first — reordering
+ * Attraction and Negative Space Correction relative to each other, in both
+ * directions — see git history / BUILD_REPORT.md for the empirical data;
+ * neither moved the metric and one introduced a new `fragmentedSilhouette`
+ * regression, so the pipeline order below is unchanged from Build 001.) */
 export function applyNegativeSpaceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
-  return applyGridBalanceCorrection(placements, tileSize, 4, strength);
+  return applyGridBalanceCorrection(placements, tileSize, 8, strength);
 }
 
 export type FlowBiasProfile = FlowProfile;
@@ -177,7 +193,27 @@ export type FlowBiasProfile = FlowProfile;
  * flowing wave rather than a single straight line, matching "dynamic"
  * reading as more energetic than a calm directional sweep. Pure and
  * deterministic (a function of each placement's own position, never rng),
- * so it composes safely with every other pass here regardless of order. */
+ * so it composes safely with every other pass here regardless of order.
+ *
+ * Build 001.1, Section 3 (Flow Optimization): Build 001 measured a small
+ * `flowCoherence` regression (70.0 -> 69.3). The Known Issue #1 grid-
+ * resolution fix above (`applyNegativeSpaceCorrection`, gridN 4 -> 8)
+ * recovered this as a side effect (69.3 -> 69.6 in the same 30-scenario
+ * empirical suite) without touching this function. Beyond that, several
+ * direct strengthenings of this pass were tried and measured, not
+ * assumed: raising `pull`'s coefficient, running this pass a second time
+ * after rhythm smoothing (to undo whatever later passes displaced),
+ * replacing the diagonal-convergence field with a pure shear, and blends
+ * of the two at several weights. Every variant that moved flowCoherence
+ * up by more than ~0.2 did so by trading away `fragmentedSilhouette`
+ * (6/30 -> 7-9/30) or `largestEmptyRegion`/overall score in the opposite
+ * direction — this pass's own bounded, small-`pull` design is already
+ * near the achievable balance point for this mechanism, not an
+ * oversight. A materially higher flowCoherence would need a genuinely
+ * different mechanism (e.g. per-layout flow paths informed by each
+ * layout's own generation, rather than a single post-hoc global field
+ * applied after the fact) — out of scope for a refinement build against
+ * working architecture. */
 export function applyFlowBias(placements: Placement[], tileSize: number, profile: FlowBiasProfile, strength: number): Placement[] {
   if (strength <= 0 || profile === 'calm' || placements.length === 0) return placements;
   const pull = 0.18 * strength;
@@ -247,7 +283,21 @@ export function applyRhythmSmoothing(placements: Placement[], tileSize: number, 
  * reference, so old saved patterns that predate this field reproduce
  * identically; each new V2 field is independently optional so a params
  * object carrying only the original two V1 fields runs exactly the V1
- * pipeline (balance -> rhythm), byte-for-byte unchanged. */
+ * pipeline (balance -> rhythm), byte-for-byte unchanged.
+ *
+ * Build 001.1 (Known Issue #1 fix): see `applyNegativeSpaceCorrection`'s
+ * doc comment for the real root cause (a grid-resolution mismatch against
+ * the `largestEmptyRegion`/`deadSpace` detector) and why that, not pass
+ * ordering, was the actual fix. Two reordering variants were tried and
+ * empirically rejected first (see `docs/DESIGN_DECISIONS.md`): running
+ * Attraction before Negative Space Correction (in either position) left
+ * `deadSpace` unchanged (2/30 scenarios) and made `fragmentedSilhouette`
+ * measurably worse (6/30 -> 8/30) — the Build 001 pipeline order below is
+ * unchanged from what shipped. A targeted "protect Negative Space
+ * Correction's moved placements from Attraction" variant was also tried
+ * and measured to have no effect once isolated from the grid-resolution
+ * fix (identical metrics with or without it), so it was dropped rather
+ * than kept as unexercised complexity. */
 export function applyCompositionIntelligence(
   placements: Placement[],
   tileSize: number,
@@ -262,6 +312,8 @@ export function applyCompositionIntelligence(
   const spaced = params.negativeSpaceStrength
     ? applyNegativeSpaceCorrection(balanced, tileSize, params.negativeSpaceStrength)
     : balanced;
-  const attracted = params.attractionStrength ? applyAttraction(spaced, tileSize, params.attractionStrength) : spaced;
+  const attracted = params.attractionStrength
+    ? applyAttraction(spaced, tileSize, params.attractionStrength)
+    : spaced;
   return applyRhythmSmoothing(attracted, tileSize, params.rhythmStrength);
 }

@@ -5,7 +5,7 @@ import { computeMetrics } from '../engine/scoring';
 import { detectVisualIssues } from './visualAnalysis';
 
 describe('detectVisualIssues', () => {
-  it('returns exactly the 11 brief-named issues, every time', () => {
+  it('returns exactly the 14 brief-named issues, every time', () => {
     const tile = buildTile({ ...defaultParams(), seed: 'visual-analysis-1' });
     const metrics = computeMetrics(tile);
     const issues = detectVisualIssues(tile, metrics);
@@ -13,6 +13,7 @@ describe('detectVisualIssues', () => {
       [
         'crowdedAreas', 'deadSpace', 'fragmentedSilhouette', 'gridAppearance', 'lowDetail', 'mechanicalSpacing',
         'repeatedRotation', 'repeatedScale', 'weakClusters', 'weakFlow', 'weakHero',
+        'lowHeroVisibility', 'weakHierarchy', 'tooManyFillers',
       ].sort(),
     );
   });

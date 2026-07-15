@@ -9,7 +9,7 @@ leave the original entry for history.
 
 ## Build 001 — Composition Intelligence Foundation V2
 
-### 1. Negative Space Correction and Pattern Physics can partially offset each other
+### 1. Negative Space Correction and Pattern Physics can partially offset each other — RESOLVED (Build 001.1)
 
 Measured via the empirical before/after comparison (see
 `docs/PERFORMANCE.md`/`BUILD_REPORT.md`): across 30 real generated
@@ -28,6 +28,9 @@ weakFlow) regressed. **Not fixed in this build** — see
 `docs/ROADMAP.md`'s Recommended Next Build for the proposed fix (reorder
 the pipeline so Attraction runs before Negative Space Correction, or align
 both passes to the same grid resolution).
+
+**Resolution (Build 001.1)**: the actual root cause was a grid-resolution
+mismatch, not pass ordering — see this file's Build 001.1 section, item 1.
 
 ### 2. Pattern Physics' O(n²) cost dominates generation time for very high-instance-count layouts
 
@@ -69,3 +72,59 @@ schema `critic/artDirection.ts` patches). The new `increaseConnectivity`
 recommendation is therefore honestly advisory-only (`specPatch: undefined`),
 consistent with `weakClusters`/`lowDetail`/`repeatedScale`'s existing
 convention of not fabricating a spec-level lever that doesn't exist.
+
+---
+
+## Build 001.1 -- Composition Quality Refinement
+
+### 1. Section 4's fix — recorded here in full for traceability
+
+Root-caused, not just patched: `applyNegativeSpaceCorrection` operated on
+a 4x4 grid while `engine/scoring.ts`'s `largestEmptyRegion` (and the
+`deadSpace` detector built on it) measures on an 8x8 grid
+(`gridCoverage(instances, tileSize, 8)`) -- the correction pass was
+structurally unable to see the same holes the detector penalizes. Two
+reordering variants (Attraction before Negative Space Correction, in
+either position) were tried first and empirically rejected -- both left
+`deadSpace` unchanged and made `fragmentedSilhouette` measurably worse
+(6/30 -> 8/30). A targeted "protect Negative-Space-moved indices from
+Attraction" variant was also tried and measured to have zero effect once
+isolated. The actual fix -- matching the grid resolution (`gridN` 4 -> 8)
+-- moved `largestEmptyRegion` 94.0 -> 94.5 and `overallScore` 78.6 ->
+79.6 in the same 30-scenario suite, with no regression on
+`fragmentedSilhouette`, `clusterCohesion`, or `hierarchy`. Marked
+**RESOLVED** — see Build 001's item 1 above for the original entry.
+
+### 2. Section 3 (Flow Optimization) has a low ceiling with the current mechanism
+
+7 distinct strengthenings of `applyFlowBias` were tried and measured
+(higher pull strength, a pure-shear field, running the pass twice,
+several diagonal/shear blends). Every variant that raised `flowCoherence`
+by more than ~0.2 traded away `fragmentedSilhouette` or
+`largestEmptyRegion`/overall score in the opposite direction. **Impact**:
+small -- the Section 4 grid-resolution fix already recovered
+`flowCoherence` as a side effect (69.3 -> 69.4-69.6). **Not fixed further
+this build** -- a materially higher `flowCoherence` would need a
+genuinely different mechanism (e.g. per-layout flow paths informed by
+each layout's own generation), not further tuning of the existing
+post-hoc global field.
+
+### 3. `commercialScore` structurally favors hero-centric Style DNA presets
+
+The 100-pattern Visual Portfolio Review (Section 8) found every top-20
+pattern used a hero-centric layout + the `heroFocus` hierarchy preset;
+minimal/airy-leaning presets never appeared in the top 20.
+`commercialScore`'s weighting (Overall Score + Commercial Readiness + Hero
+Visibility Score) has no style-aware adjustment for presets that are
+intentionally not hero-dominant. **Impact**: a minimal-style pattern's
+real commercial merit (which isn't about hero dominance) is currently
+under-scored by this specific composite. **Not fixed this build** --
+flagged as a Recommended Next Build item.
+
+### 4. `densePremium`'s per-hero filler clusters trade a small isolation cost for a real hierarchy gain
+
+Section 2's per-hero `bouquet` cluster wired into `densePremium`'s filler
+tier raised `hierarchy` +7.8 (6-scenario cluster-focused suite) at a small
+`isolationScore` cost (-5.6). **Impact**: small, measured, accepted --
+`overallScore` for `densePremium` moved from 81.8 to 81.5 (within noise),
+essentially unchanged net. Not tuned further this build.

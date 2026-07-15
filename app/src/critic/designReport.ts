@@ -7,6 +7,8 @@ import { detectVisualIssues, type VisualIssue } from './visualAnalysis';
 import { detectProblems, type DesignProblem } from './problems';
 import { buildArtDirectionRecommendations, type ArtDirectionRecommendation } from './artDirection';
 import { buildStyleCoachNotes, type StyleCoachNote, type StyleCoachCategory } from './styleCoach';
+import { computePatternReadability, type PatternReadabilityResult } from '../engine/patternReadability';
+import { evaluateCommercialValidation, type CommercialValidationResult } from './commercialValidation';
 
 // Design Critic & Art Direction Engine (Phase 7) — Section 7 "Design
 // Report". Combines Sections 1-5 (Critique, Visual Analysis, Problems,
@@ -41,7 +43,15 @@ const RECOMMENDATION_DIMENSION: Record<string, keyof Omit<DesignCritique, 'overa
   increaseMotifDetail: 'motifDiversity',
   rotateLeaves: 'motifDiversity',
   varyMotifScale: 'motifDiversity',
-  improveFlow: 'flow',
+  increaseFlowBias: 'flow',
+  // Build 001.1, Section 9/5: Hero Visibility Score has no dedicated
+  // critique dimension of its own (it's a composite read from the same
+  // `hierarchy`/`heroDetailRatio`/etc. metrics `hierarchy` already
+  // represents at the critique level) — `hierarchy` is the nearest real
+  // dimension for all three of these hero-focused recommendations.
+  increaseHeroScale: 'hierarchy',
+  reduceFillers: 'hierarchy',
+  increaseHeroContrast: 'hierarchy',
 };
 
 function buildExpectedImprovements(recommendations: ArtDirectionRecommendation[], critique: DesignCritique): ExpectedImprovement[] {
@@ -72,6 +82,13 @@ export interface DesignReport {
   priorityOrder: string[];
   styleCoachNotes: StyleCoachNote[];
   meetsCommercialBar: boolean;
+  /** Build 001.1, Section 6: readability at a ~200px thumbnail, ~400px
+   * preview, and ~800% zoom — see `engine/patternReadability.ts`. */
+  readability: PatternReadabilityResult;
+  /** Build 001.1, Section 7: Commercial Score, Premium/Luxury/Editorial
+   * Feeling, Wallpaper/Fabric/Gift Wrap Score, Commercial Readiness — see
+   * `critic/commercialValidation.ts`. */
+  commercialValidation: CommercialValidationResult;
 }
 
 /** Builds the full Section 7 Design Report for one rendered tile. Never
@@ -96,6 +113,8 @@ export function buildDesignReport(
     .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] || (problemPoints.get(b.id) ?? 0) - (problemPoints.get(a.id) ?? 0))
     .map((r) => r.id);
   const styleCoachNotes = buildStyleCoachNotes(spec, styleCoachCategory);
+  const readability = computePatternReadability(tile, metrics);
+  const commercialValidation = evaluateCommercialValidation(spec, metrics, qualityReport);
 
   return {
     critique,
@@ -106,5 +125,7 @@ export function buildDesignReport(
     priorityOrder,
     styleCoachNotes,
     meetsCommercialBar: meetsTargets,
+    readability,
+    commercialValidation,
   };
 }

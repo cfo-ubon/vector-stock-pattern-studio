@@ -226,7 +226,11 @@ export function buildTile(params: GenerateParams): TileData {
     // Every overlay primitive stays within `safeRadius`, computed above
     // from the *undetailed* shape, so the wrap-inclusion bound below still
     // holds without needing to re-measure after the overlay is added.
-    const detailedNode = applyHeroDetailOverlay(motif.node, { role: placement.role, radius: safeRadius, colors: motifColors }, rng);
+    const detailedNode = applyHeroDetailOverlay(
+      motif.node,
+      { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length },
+      rng,
+    );
     // The shadow copy extends the reach of a placement — include its
     // offset in the wrap-inclusion test so edge shadows stay seamless too.
     const effectiveRadius = safeRadius * placement.scale + (useShadow ? Math.hypot(shadowDx, shadowDy) : 0);

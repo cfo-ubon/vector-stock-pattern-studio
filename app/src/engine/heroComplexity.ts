@@ -20,6 +20,19 @@ import { rngRange, rngPick } from './rng';
 // seam (the radius used for edge-inclusion tests in tile.ts is computed
 // *before* the overlay is added and stays a valid, if slightly
 // conservative, bound).
+//
+// Build 001.1, Section 1 (Hero Complexity Engine): the brief's "increasing
+// size alone is NOT sufficient" applies to this overlay's own first
+// iteration too — Build 001 shipped 3 primitives (ring, texture lines,
+// nested contour). This build adds `buildDecorativeDots` (Decorative
+// Shapes / Micro Decorations) and `buildAccentArc` (a hero-only
+// Supporting Accent Element), so a hero motif is richer along more of the
+// brief's own named axes, not just "the same 3 primitives, more often".
+// Style DNA stays intact throughout: every primitive draws in a color
+// already resolved for this placement (`opts.colors`) and never reaches
+// past the motif's own established radius or introduces a new color, so
+// the overlay reads as "this motif, more detailed" rather than a
+// stylistically foreign sticker.
 
 /** 0-100 — how much extra detail a role gets. Secondary gets a real but
  * smaller boost than hero (Section 4: complexity should differ by tier,
@@ -88,6 +101,49 @@ function buildNestedContour(radius: number, rng: Rng, color: string): SvgNode {
   return h('polygon', { points: points.join(' '), fill: 'none', stroke: color, 'stroke-width': round(strokeWidth), transform: `rotate(${round(rotation)})` });
 }
 
+/** Build 001.1, Section 1 (Hero Complexity Engine) — "Decorative Shapes" /
+ * "Micro Decorations": a small ring of tiny filled dots just outside the
+ * motif's own core, evenly spaced but with a jittered start angle so the
+ * ring itself never reads as identical between instances. Hero-only
+ * (like `buildNestedContour`/`buildAccentArc`) and capped small — a tile
+ * can place hundreds of hero+secondary instances, so keeping this off
+ * secondary specifically (which Build 001 already gave a ring + texture
+ * lines) keeps the aggregate node cost bounded even in dense layouts. */
+function buildDecorativeDots(radius: number, rng: Rng, color: string): SvgNode {
+  const count = rngPick(rng, [3, 4] as const);
+  const ringR = radius * rngRange(rng, 0.72, 0.85);
+  const dotR = radius * 0.05;
+  const startAngle = rngRange(rng, 0, Math.PI * 2);
+  const dots: SvgNode[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = startAngle + (i / count) * Math.PI * 2;
+    dots.push(h('circle', { cx: round(Math.cos(angle) * ringR), cy: round(Math.sin(angle) * ringR), r: round(dotR), fill: color }));
+  }
+  return h('g', {}, dots);
+}
+
+/** Build 001.1, Section 1 — "Supporting Accent Element": a single short,
+ * off-center arc stroke, reading as a highlight/accent mark rather than a
+ * structural line — hero-only (Section 4's "complexity should differ by
+ * tier", and this is deliberately the richest, most hero-exclusive
+ * primitive here alongside the nested contour). Drawn via a two-point
+ * quadratic path rather than a full circle so it stays a partial,
+ * asymmetric mark instead of one more concentric ring. */
+function buildAccentArc(radius: number, rng: Rng, color: string): SvgNode {
+  const arcR = radius * rngRange(rng, 0.58, 0.7);
+  const startAngle = rngRange(rng, 0, Math.PI * 2);
+  const sweep = rngRange(rng, 0.9, 1.6); // radians — a partial arc, never a full ring
+  const endAngle = startAngle + sweep;
+  const x1 = Math.cos(startAngle) * arcR;
+  const y1 = Math.sin(startAngle) * arcR;
+  const x2 = Math.cos(endAngle) * arcR;
+  const y2 = Math.sin(endAngle) * arcR;
+  const largeArc = sweep > Math.PI ? 1 : 0;
+  const strokeWidth = radius * 0.016;
+  const d = `M ${round(x1)} ${round(y1)} A ${round(arcR)} ${round(arcR)} 0 ${largeArc} 1 ${round(x2)} ${round(y2)}`;
+  return h('path', { d, fill: 'none', stroke: color, 'stroke-width': round(strokeWidth), 'stroke-linecap': 'round' });
+}
+
 export interface HeroComplexityOptions {
   role: MotifRole | undefined;
   /** The motif's own bounding radius (pre-placement-scale, local units) —
@@ -97,6 +153,28 @@ export interface HeroComplexityOptions {
   /** Resolved colors for this specific placement (index 0 = background) —
    * the overlay always draws in an accent color, never the background. */
   colors: string[];
+  /** Build 001.1, Section 1: total placement count on this tile, when the
+   * caller already knows it (`engine/tile.ts` does). Optional and unused
+   * below 400 instances — only damps the two newest, hero-only primitives
+   * (`buildDecorativeDots`/`buildAccentArc`) once a tile's own instance
+   * count is high enough that their aggregate node cost, multiplied
+   * across every hero, becomes the difference between fitting inside
+   * `knowledge/rules`' hard SVG node budget and not. Undefined behaves as
+   * "no damping" — every existing caller/test that never passes this
+   * field is completely unaffected. */
+  instanceCount?: number;
+}
+
+/** Above this many placements on one tile, a tile-wide "how many heroes
+ * are there, really" effect makes even a small per-hero node addition
+ * compound into hundreds of extra nodes — so the two newest primitives
+ * scale their own trigger probability down rather than firing at their
+ * normal rate on every single hero regardless of how many there are. */
+const DENSITY_DAMPING_THRESHOLD = 400;
+
+function densityDamping(instanceCount: number | undefined): number {
+  if (!instanceCount || instanceCount <= DENSITY_DAMPING_THRESHOLD) return 1;
+  return Math.max(0.25, DENSITY_DAMPING_THRESHOLD / instanceCount);
 }
 
 /** Adds a real, bounded detail overlay on top of `motifNode` for hero/
@@ -120,10 +198,13 @@ export function applyHeroDetailOverlay(motifNode: SvgNode, opts: HeroComplexityO
   const color = rngPick(rng, accents);
   const levelFrac = level / 100;
 
+  const damping = densityDamping(opts.instanceCount);
   const overlays: SvgNode[] = [];
   if (rng() < levelFrac * 0.7) overlays.push(buildInnerRing(opts.radius, level, rng, color));
   if (rng() < levelFrac * 0.4) overlays.push(buildTextureLines(opts.radius, level, rng, color));
+  if (level >= 90 && rng() < 0.18 * damping) overlays.push(buildDecorativeDots(opts.radius, rng, color));
   if (level >= 90 && rng() < 0.35) overlays.push(buildNestedContour(opts.radius, rng, color));
+  if (level >= 90 && rng() < 0.22 * damping) overlays.push(buildAccentArc(opts.radius, rng, color));
 
   if (overlays.length === 0) return motifNode;
   return h('g', {}, [motifNode, ...overlays]);

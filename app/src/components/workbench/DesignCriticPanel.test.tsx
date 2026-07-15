@@ -61,7 +61,21 @@ describe('DesignCriticPanel: with a real quality result', () => {
 
   it('renders all 11 Design Critique dimensions from the real report', () => {
     render(<DesignCriticPanel {...props} qualityResult={qualityResult} />);
-    for (const label of ['Composition', 'Hierarchy', 'Balance', 'Rhythm', 'Flow', 'Cluster Quality', 'Negative Space', 'Overlap', 'Repeat Quality', 'Motif Diversity', 'Commercial Readiness']) {
+    for (const label of ['Composition', 'Hierarchy', 'Balance', 'Rhythm', 'Flow', 'Cluster Quality', 'Negative Space', 'Overlap', 'Repeat Quality', 'Motif Diversity']) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+    // "Commercial Readiness" legitimately appears twice (Design Critique
+    // and Build 001.1's Commercial Validation section) — both real, both
+    // reading the same underlying value.
+    expect(screen.getAllByText('Commercial Readiness').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders the Build 001.1 Commercial Validation and Pattern Readability sections', () => {
+    render(<DesignCriticPanel {...props} qualityResult={qualityResult} />);
+    for (const label of ['Commercial Score', 'Premium Feeling', 'Luxury Feeling', 'Editorial Feeling', 'Wallpaper Score', 'Fabric Score', 'Gift Wrap Score']) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+    for (const label of ['Thumbnail (200px)', 'Preview (400px)', 'Zoom (800%)']) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
   });

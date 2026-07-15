@@ -852,10 +852,17 @@ Quality/SVG Health/Motif Diversity) ถ้ามีมิติไหนคะ�
 - **📐 Design Critique** — คะแนน 11 มิติ (Composition, Hierarchy,
   Balance, Rhythm, Flow, Cluster Quality, Negative Space, Overlap, Repeat
   Quality, Motif Diversity, Commercial Readiness) + คะแนนรวม
-- **👁 Visual Analysis** — ตรวจ 11 ปัญหาที่เห็นด้วยตา (Weak Hero, Crowded
+- **💰 Commercial Validation 🆕**: Commercial Score, Commercial Readiness,
+  Premium/Luxury/Editorial Feeling, Wallpaper/Fabric/Gift Wrap Score —
+  8 คะแนนบอกว่าลายนี้ "ขายได้จริง" แค่ไหน ไม่ใช่แค่คะแนนความสวยงามรวม
+- **🔍 Pattern Readability 🆕**: เช็คว่าลายยังดูออกชัดเจนไหมที่ขนาด
+  Thumbnail 200px, Preview 400px และตอนซูม 800% — ลายหลักต้องยังเห็นชัด
+  แม้ย่อเล็กลงมากในหน้าค้นหาของ Marketplace
+- **👁 Visual Analysis** — ตรวจ 14 ปัญหาที่เห็นด้วยตา (Weak Hero, Crowded
   Areas, Dead Space, Mechanical Spacing, Grid Appearance, Weak Clusters,
   Low Detail, Repeated Rotation, Repeated Scale, Weak Flow, Fragmented
-  Silhouette 🆕) พร้อมหลักฐานตัวเลขจริงต่อข้อ
+  Silhouette, Low Hero Visibility 🆕, Weak Hierarchy 🆕, Too Many
+  Fillers 🆕) พร้อมหลักฐานตัวเลขจริงต่อข้อ
 - **🛑 Problems** — รายการปัญหาที่วัดได้พร้อมคะแนนหักและระดับความรุนแรง
   (สูง/กลาง/ต่ำ)
 - **🖌 Recommendations** — คำแนะนำเรียงตามความสำคัญ บางข้อกดปุ่ม
@@ -1027,6 +1034,41 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.49 — 15 ก.ค. 2026 — Build 001.1 Composition Quality Refinement (ยกระดับคุณภาพต่อจาก Build 001 แบบวัดผลจริง)
+- 🏆 **ลายหลัก (Hero) มีรายละเอียดมากขึ้นจริง**: เพิ่มลวดลายตกแต่งใหม่ 2 แบบ
+  (จุดประดับ, เส้นโค้งเน้น) เฉพาะลายหลักเท่านั้น — ทำให้ลายหลักดูโดดเด่นด้วย
+  รายละเอียด ไม่ใช่แค่ขนาดใหญ่กว่า พร้อมระบบป้องกันไฟล์ใหญ่เกินไปอัตโนมัติ
+  เมื่อลายมีจำนวนชิ้นเยอะมาก
+- 🌸 **Hero Flow / Hero Scatter / Dense Premium มีกลุ่มลายรองรอบลายหลักแล้ว**:
+  ทั้ง 3 เลย์เอาต์นี้ตอนนี้ให้ลายรอง/ลายเติมรวมกลุ่มรอบลายหลักแต่ละชิ้นจริง
+  (ไม่ใช่กระจายลอยๆ ไม่มีจุดยึดเกาะเหมือนเดิม) แต่ยังคงเอกลักษณ์เดิมของแต่ละ
+  เลย์เอาต์ไว้ (เส้นทางไหล / กระจายห่างๆ / 3 ระดับความหนาแน่น)
+- 🕳️ **แก้ปัญหาพื้นที่ว่างจริงจากต้นตอ**: Build 001 เคยมีปัญหาเล็กน้อยที่ระบบ
+  ลดพื้นที่ว่างกับระบบดึงดูดลายทำงานขัดกันบางจุด — คราวนี้เจอต้นเหตุจริง
+  (ระบบตรวจพื้นที่ว่างมองละเอียดกว่าที่ระบบแก้ไขทำงานอยู่) แก้ไขแล้ว ไม่ใช่แค่
+  ปะปัญหาที่ปลายเหตุ
+- 🎯 **Hero Visibility Score ใหม่**: คะแนนใหม่วัดว่าลายหลัก "เด่นจริง" แค่ไหน
+  จากรายละเอียด + ระยะห่างจากลายอื่น + ลำดับชั้นที่ชัดเจน + สีที่โดดเด่น
+  รวมเป็นคะแนนเดียว ถ้าต่ำจะมีคำแนะนำเจาะจง
+- 💰 **Commercial Validation — 8 คะแนนใหม่ในแท็บ Critic 🆕**: Commercial
+  Score, Commercial Readiness, Premium/Luxury/Editorial Feeling,
+  Wallpaper/Fabric/Gift Wrap Score — บอกได้ละเอียดขึ้นว่าลายนี้เหมาะขาย
+  แบบไหน ไม่ใช่แค่คะแนนความสวยงามรวมอย่างเดียว
+- 🔍 **Pattern Readability — เช็คความชัดเจนที่ 3 ขนาดจริง 🆕**: Thumbnail
+  200px (ขนาดที่เห็นในหน้าค้นหา Marketplace), Preview 400px, และซูม 800%
+  — ถ้าลายหลักไม่ชัดที่ขนาดเล็กจะรู้ทันที ก่อนอัปโหลดขายจริง
+- 👁 **Visual Analysis เพิ่มจาก 11 เป็น 14 จุดตรวจ**: เพิ่ม Low Hero
+  Visibility, Weak Hierarchy, Too Many Fillers — พร้อมคำแนะนำเจาะจงต่อจุด
+  (Increase Hero Scale, Reduce Fillers, Increase Hero Contrast)
+- 📊 **ทดสอบจริงกับ 100 ลาย ครอบคลุมทั้ง 15 Style DNA**: สร้างลายจริง 100
+  แบบ ให้คะแนน Commercial Score จริง จัดอันดับ Top 20/Best 10/Best 5 —
+  พบว่าลายที่เน้นลายหลักเด่น (Modern Tropical, Luxury Floral) ทำคะแนนดี
+  ที่สุด ส่วนสไตล์มินิมอลยังมีช่องพัฒนาต่อ (บันทึกไว้ตรงๆ ใน Build Report)
+- ✅ **วัดผลจริงทุกจุดก่อนปล่อยใช้**: `heroDetailRatio` +4.9,
+  `hierarchy` +1.9, คะแนนรวมเฉลี่ย +0.8 ถึง +1.0 จากการเทียบลายก่อน/หลัง
+  จริง 30 ชุดตัวอย่างเหมือน Build 001 (รายละเอียดเต็มอยู่ใน Build Report
+  บน GitHub)
 
 ### v1.48 — 14 ก.ค. 2026 — Composition Intelligence Foundation V2, Build 001 (ยกระดับคุณภาพการจัดวางลายทั้งระบบ)
 - 🎨 **ลายที่สร้างใหม่ทุกครั้งดูเป็นมืออาชีพขึ้นทันที** — อัปเกรดเบื้องหลังการ

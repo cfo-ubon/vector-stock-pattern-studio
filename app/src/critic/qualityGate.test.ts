@@ -15,6 +15,11 @@ function fakeReport(overrides: Partial<DesignReport> = {}): DesignReport {
     priorityOrder: [],
     styleCoachNotes: [],
     meetsCommercialBar: true,
+    readability: { thumbnail200: 90, thumbnail400: 90, zoom800: 90, readableAtAllScales: true },
+    commercialValidation: {
+      commercialScore: 90, commercialReadiness: 90, premiumFeeling: 90, luxuryFeeling: 90,
+      editorialFeeling: 90, wallpaperScore: 90, fabricScore: 90, giftWrapScore: 90,
+    },
     ...overrides,
   };
 }

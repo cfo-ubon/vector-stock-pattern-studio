@@ -72,3 +72,73 @@ project suite: 127 files / 1510 tests passing.
 `docs/KNOWN_ISSUES.md`, `docs/PERFORMANCE.md`, `docs/ROADMAP.md` (all
 new), plus `app/README.md` summary section and
 `docs/USER_GUIDE.md` Thai changelog (v1.48).
+
+---
+
+## Build 001.1 -- Composition Quality Refinement
+
+**Goal**: a quality refinement build against Build 001's own measured
+weaknesses (not a new-feature build) -- Commercial Quality ~8.2/10 -> 9.0+.
+
+### Added
+
+- `engine/patternReadability.ts` (new module) -- `computePatternReadability`
+  (Section 6): thumbnail-200px/400px legibility and 800%-zoom scores.
+- `critic/commercialValidation.ts` (new module) -- `evaluateCommercialValidation`
+  (Section 7): `commercialScore`, `commercialReadiness`, `premiumFeeling`,
+  `luxuryFeeling`, `editorialFeeling`, `wallpaperScore`, `fabricScore`,
+  `giftWrapScore`.
+- `engine/scoring.ts`: `computeHeroVisibilityScore` (Section 5).
+- `critic/visualAnalysis.ts`: 3 new detectors -- `lowHeroVisibility`,
+  `weakHierarchy`, `tooManyFillers` (Sections 5/9).
+- `critic/artDirection.ts`: 3 new rules -- `weakHierarchy` -> Increase
+  Hero Scale, `tooManyFillers` -> Reduce Fillers (real `fillerRatio`
+  patch), `lowHeroVisibility` -> Increase Hero Contrast (advisory).
+- `engine/heroComplexity.ts`: `buildDecorativeDots`, `buildAccentArc` (2
+  new hero-only detail-overlay primitives, Section 1); `densityDamping`
+  (instance-count-aware throttle, see Fixed below).
+- `engine/clusterEngine.ts`-backed per-hero clusters in `layouts/heroFlow.ts`,
+  `layouts/heroScatter.ts`, `layouts/densePremium.ts` (Section 2).
+- `docs/COMMERCIAL_TARGET.md` (new -- Section 10 business KPI doc).
+
+### Changed
+
+- `engine/compositionIntelligence.ts`: `applyNegativeSpaceCorrection`'s
+  grid resolution changed from 4x4 to 8x8, matching
+  `engine/scoring.ts`'s `largestEmptyRegion`/`deadSpace` detector grid --
+  the real root-cause fix for Build 001's Known Issue #1 (see Design
+  Decisions).
+- `critic/artDirection.ts`: `weakFlow`'s recommendation id/label renamed
+  `improveFlow`/"Improve Flow" -> `increaseFlowBias`/"Increase Flow Bias"
+  (Section 9's own naming).
+- `critic/designReport.ts`: `DesignReport` gained 2 new fields --
+  `readability` (Section 6) and `commercialValidation` (Section 7).
+  `RECOMMENDATION_DIMENSION` extended for the 3 new recommendation ids.
+- `engine/tile.ts`: passes `instanceCount` into `applyHeroDetailOverlay`
+  so the new density-damping throttle has real data to act on.
+
+### Fixed
+
+- Build 001's Known Issue #1 (Negative Space Correction / Pattern Physics
+  interaction): root-caused to a grid-resolution mismatch, not a pass-
+  ordering problem -- 2 reordering variants were tried and empirically
+  rejected (see Design Decisions) before the actual fix was found.
+- A real regression introduced mid-build by Section 1's own new overlay
+  primitives: their added SVG-node cost pushed one already-marginal real
+  scenario (a 1024-instance grid spec at 7906/8000 of the hard node
+  budget) over the hard-reject threshold. Fixed with `densityDamping`
+  rather than shrinking the new primitives into visual insignificance.
+
+### Tests
+
+~30 new tests across `engine/patternReadability.test.ts` (new file),
+`critic/commercialValidation.test.ts` (new file), `critic/artDirection.test.ts`,
+`critic/visualAnalysis.test.ts`, `critic/designReport.test.ts`. Full
+project suite: 129 files / 1524 tests passing.
+
+### Documentation
+
+`docs/BUILD_REPORT.md`, `docs/DESIGN_DECISIONS.md`, `docs/KNOWN_ISSUES.md`,
+`docs/PERFORMANCE.md`, `docs/ROADMAP.md` (all appended),
+`docs/COMMERCIAL_TARGET.md` (new), plus `docs/USER_GUIDE.md` Thai
+changelog (v1.49).

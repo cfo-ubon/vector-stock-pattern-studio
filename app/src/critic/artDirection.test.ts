@@ -28,7 +28,7 @@ describe('buildArtDirectionRecommendations', () => {
 
   it('one recommendation per detected issue only', () => {
     const recs = buildArtDirectionRecommendations(makeSpec(), [issue('weakHero'), issue('deadSpace', false), issue('weakFlow')]);
-    expect(recs.map((r) => r.id).sort()).toEqual(['improveFlow', 'increaseHeroDetail'].sort());
+    expect(recs.map((r) => r.id).sort()).toEqual(['increaseFlowBias', 'increaseHeroDetail'].sort());
   });
 
   it('weakHero patches hierarchy to the real highest-heroScale preset', () => {
@@ -103,10 +103,31 @@ describe('buildArtDirectionRecommendations', () => {
   });
 
   it('every recommendation has a non-empty rationale and a valid priority', () => {
-    const allIssues = (['weakHero', 'crowdedAreas', 'deadSpace', 'mechanicalSpacing', 'gridAppearance', 'weakClusters', 'lowDetail', 'repeatedRotation', 'repeatedScale', 'weakFlow'] as const).map((id) => issue(id));
+    const allIssues = (['weakHero', 'crowdedAreas', 'deadSpace', 'mechanicalSpacing', 'gridAppearance', 'weakClusters', 'lowDetail', 'repeatedRotation', 'repeatedScale', 'weakFlow', 'weakHierarchy', 'tooManyFillers', 'lowHeroVisibility'] as const).map((id) => issue(id));
     for (const rec of buildArtDirectionRecommendations(makeSpec(), allIssues)) {
       expect(rec.rationale.length).toBeGreaterThan(0);
       expect(['high', 'medium', 'low']).toContain(rec.priority);
     }
+  });
+
+  it('weakHierarchy (Build 001.1, Section 9) patches hierarchy to the real highest-heroScale preset', () => {
+    const spec = { ...makeSpec(), hierarchy: HIERARCHY_PRESETS.minimalRepeat.value };
+    const [rec] = buildArtDirectionRecommendations(spec, [issue('weakHierarchy')]);
+    expect(rec.id).toBe('increaseHeroScale');
+    expect(rec.specPatch?.hierarchy).toEqual(HIERARCHY_PRESETS.heroFocus.value);
+  });
+
+  it('tooManyFillers (Build 001.1, Section 9) reduces fillerRatio and redistributes into hero/secondary', () => {
+    const spec = { ...makeSpec(), hierarchy: { ...HIERARCHY_PRESETS.minimalRepeat.value, fillerRatio: 0.5, heroRatio: 0.1, secondaryRatio: 0.3 } };
+    const [rec] = buildArtDirectionRecommendations(spec, [issue('tooManyFillers')]);
+    expect(rec.id).toBe('reduceFillers');
+    expect(rec.specPatch?.hierarchy?.fillerRatio).toBeLessThan(0.5);
+    expect(rec.specPatch?.hierarchy?.heroRatio).toBeGreaterThan(0.1);
+  });
+
+  it('lowHeroVisibility (Build 001.1, Section 5) is an honest advisory-only recommendation', () => {
+    const [rec] = buildArtDirectionRecommendations(makeSpec(), [issue('lowHeroVisibility')]);
+    expect(rec.id).toBe('increaseHeroContrast');
+    expect(rec.specPatch).toBeUndefined();
   });
 });

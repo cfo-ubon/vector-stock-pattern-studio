@@ -133,3 +133,123 @@ measured rather than cherry-picking only the metrics that improved — see
 `docs/KNOWN_ISSUES.md` for the specific tradeoff and
 `docs/ROADMAP.md`/`BUILD_REPORT.md`'s Recommended Next Build for the fix
 (reordering or resolution-aligning the two passes).
+
+---
+
+## Build 001.1 -- Composition Quality Refinement
+
+### 1. Known Issue #1's real root cause was a grid-resolution mismatch, not pass ordering
+
+Two reordering variants (Attraction before Negative Space Correction, in
+either position) were the first, "obvious" hypothesis -- both were
+implemented and empirically tested against the exact 30-scenario suite
+Build 001 established. Both left `deadSpace` completely unchanged (2/30,
+no improvement) and made `fragmentedSilhouette` measurably worse (6/30 ->
+8/30) -- a genuine new regression. A follow-up, more surgical
+"protect Negative-Space-Correction's own moved placements from
+Attraction" mechanism was then implemented (a new `protectedIndices`
+parameter on `applyAttraction`) -- it also showed **zero measurable
+effect**, despite a diagnostic confirming the protected set was non-empty
+(385 placements moved across 30 scenarios). Tracing why led to the actual
+root cause: `engine/scoring.ts`'s `largestEmptyRegion` (and the
+`deadSpace` detector built on it) measures on an 8x8 grid
+(`gridCoverage(instances, tileSize, 8)`), while
+`applyNegativeSpaceCorrection` operated on a 4x4 grid -- 4x coarser than
+what the detector actually penalizes. **Decision**: change
+`applyNegativeSpaceCorrection`'s `gridN` from 4 to 8, matching the
+detector exactly, and remove the now-provably-inert `protectedIndices`
+mechanism rather than keep unexercised complexity. Verified: this alone
+recovered `largestEmptyRegion` (94.0 -> 94.5) and `overallScore` (78.6 ->
+79.6) with no `fragmentedSilhouette` regression -- the pipeline order
+itself was never the problem.
+
+### 2. Section 3 (Flow) was left unchanged after 7 measured, rejected strengthening attempts
+
+The brief asked for Flow Optimization without sacrificing Negative Space/
+Hierarchy/Cluster Cohesion. Tried and measured: raising `applyFlowBias`'s
+pull-strength coefficient; running the pass a second time after rhythm
+smoothing; replacing the diagonal-convergence field with a pure shear;
+and 3 blended diagonal/shear weightings. Every variant that moved
+`flowCoherence` up by more than ~0.2 did so by trading `fragmentedSilhouette`
+(6/30 -> 7-9/30) or `largestEmptyRegion`/overall score in the opposite
+direction. **Decision**: leave `applyFlowBias`'s mechanism exactly as
+Build 001 shipped it -- it already sits near the achievable balance point
+for a single post-hoc global field, and the Section 4 fix recovered
+`flowCoherence` as a side effect anyway (69.3 -> 69.4-69.6) without any of
+these tradeoffs. Documented as a real, measured "don't chase it further"
+finding rather than silently doing nothing.
+
+### 3. Semantic Cluster V2: each of the 3 layouts keeps its own placement identity
+
+`heroFlow`/`heroScatter`/`densePremium` (Build 001's own Roadmap-named
+candidates) each build hero placement differently on purpose (a sine-wave
+flow path / sparse Poisson-disc / three independent density tiers) --
+replacing all three with one generic `buildClusterPlacements` call would
+have flattened that intentional variety. **Decision**: keep each layout's
+own hero-placement math, and wire `engine/clusterEngine.ts`'s
+`generateCluster` in only for the *supporting* members around each hero
+-- `editorial` archetype rotated to the local flow-path tangent for
+`heroFlow`, `organicScatter` for `heroScatter`'s "burst" identity, a tight
+`bouquet` for `densePremium`'s filler tier specifically (the tier whose
+own independent-density identity mattered least to preserve). Verified via
+the same empirical 6-scenario suite: `hierarchy` improved in all three
+(heroFlow steady at 100, heroScatter 90 -> 100, densePremium 80.7 -> 88.5)
+while `clusterCohesion`/`heroSeparation` stayed exactly 100 in every case.
+
+### 4. Hero Complexity Engine's 2 new primitives needed a density-aware throttle, discovered empirically
+
+Adding `buildDecorativeDots`/`buildAccentArc` (both hero-only) at their
+first-pass trigger probabilities caused a real full-test-suite regression:
+`critic/improvementLoop.test.ts`'s "stops as soon as the commercial bar
+is met" test started failing because a specific real spec (a 1024-instance
+grid layout, `heroRatio` 0.12 -> 129 heroes) went from 7906/8000 of the
+hard SVG node budget (`knowledge/rules`'s `getHardNodeBudget()`, 8000) to
+9541/8000 -- a hard reject that hadn't existed before. Repeatedly shrinking
+the 2 new primitives' own trigger probability alone was not enough (even
+near-zero probability only approaches the pre-existing 7906 baseline,
+which itself had only 94 nodes of headroom -- an inherent fragility of that
+one scenario, not of the new primitives). **Decision**: add a real,
+tile-wide `instanceCount`-aware damping factor (`densityDamping` in
+`engine/heroComplexity.ts`, wired from `engine/tile.ts`'s already-known
+`paintOrderedPlacements.length`) that only engages above 400 instances --
+below that threshold every existing test/behavior is completely
+unaffected (verified: `instanceCount` is optional and defaults to no
+damping). This is a real structural fix (aggregate node cost scales with
+instance count, not per-instance detail alone) rather than permanently
+gutting the new primitives to survive one pathological scenario.
+
+### 5. Hero Visibility Score and Commercial Score reuse existing metrics, never recompute
+
+Both new composites (`computeHeroVisibilityScore` in `engine/scoring.ts`;
+`commercialScore` in `critic/commercialValidation.ts`) are weighted blends
+of fields that already exist and are already real
+(`heroDetailRatio`/`heroSeparation`/`hierarchy`/`paletteContrast` for the
+former; Overall Score/`commercialReadiness`/Hero Visibility Score for the
+latter). **Decision**: keep both as pure derived functions, not new
+stored `CompositionMetrics` fields -- adding a field would have rippled
+into `QUALITY_PRESET_WEIGHTS`, every exhaustive-metric-key iteration, and
+every existing snapshot test, for a value that's fully computable from
+data already on the object.
+
+### 6. Premium/Luxury/Editorial Feeling: grounded in real Style DNA data, "Premium" honestly has no dedicated category
+
+`critic/styleCoach.ts`'s 7 brief-named categories include `luxury` and
+`editorial` but not `premium`. **Decision**: `luxuryFeeling`/
+`editorialFeeling` reuse `findStylesForCategory` (Section 5's own real
+Style DNA matching) turned into a numeric closeness score; `premiumFeeling`
+is instead built from real construction-quality metrics
+(`svgHealth`/`cornerContinuity`/`heroDetailRatio`/`colorBalance`) since no
+Style DNA preset or category legitimately represents "premium" as its own
+aesthetic distinct from luxury/editorial -- inventing an 8th
+`StyleCoachCategory` just for this one composite would have gone beyond
+Section 5's own brief-defined, already-shipped scope.
+
+### 7. Wallpaper/Fabric/Gift Wrap Score: reused Collection Engine's Product Targets outright, zero duplication
+
+`collection/productTargets.ts`'s `evaluateProductTargets` (Commercial
+Collection Engine Phase 4) already scores exactly these 3 product uses
+(among 10) from real category/tileSize/density/keyword signals.
+**Decision**: `critic/commercialValidation.ts` calls it directly and reads
+out the 3 named scores rather than re-deriving a parallel rule set --
+verified via a test asserting the values match `evaluateProductTargets`'s
+own output exactly, byte-for-byte.
