@@ -2,6 +2,7 @@ import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/type
 import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
+import { sineFlowPosition, sineFlowTangentDeg, type SineFlowPath } from '../engine/flowArchitecture';
 
 /** S-Curve Botanical — Build 002, Section 5 (Semantic Cluster Engine
  * coverage): motifs now cluster along the serpentine path instead of one
@@ -39,14 +40,21 @@ export const sCurveLayout: PatternLayout = {
     for (let curve = 0; curve < curveCount; curve++) {
       const baseY = ((curve + 0.5) * tileSize) / curveCount;
       const phase = rngRange(rng, 0, Math.PI * 2);
+      // Build 002, Section 9 (Flow Architecture Prototype): `heroFlow.ts`
+      // computed this exact same periodic-sine-wave position/tangent math
+      // under different variable names — this path object plus
+      // `sineFlowPosition`/`sineFlowTangentDeg` (`engine/flowArchitecture.ts`)
+      // is that shared math, extracted once both were compared and found
+      // identical. `amplitude`/`phase` are still generated here (not via
+      // the module's `createSineFlowPath` factory) so this curve loop's
+      // real rng-consumption order — one amplitude for all curves, a
+      // fresh phase per curve — stays exactly as it always was.
+      const path: SineFlowPath = { tileSize, centerY: baseY, amplitude, freq, phase };
       for (let i = 0; i < anchorsPerCurve; i++) {
         const t = i / anchorsPerCurve;
         const x = t * tileSize;
-        const angle = 2 * Math.PI * freq * t + phase;
-        const y = baseY + amplitude * Math.sin(angle);
-        // Tangent direction dy/dx, converted to degrees for rotation.
-        const slope = amplitude * ((2 * Math.PI * freq) / tileSize) * Math.cos(angle);
-        const tangentDeg = (Math.atan2(slope * (tileSize / anchorsPerCurve), tileSize / anchorsPerCurve) * 180) / Math.PI;
+        const y = sineFlowPosition(path, t);
+        const tangentDeg = sineFlowTangentDeg(path, t);
         const theta = (tangentDeg * Math.PI) / 180;
         const cos = Math.cos(theta);
         const sin = Math.sin(theta);

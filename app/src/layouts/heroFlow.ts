@@ -2,6 +2,7 @@ import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/type
 import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, wrapCoord, poissonDiscPoints } from './shared';
 import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
+import { createSineFlowPath, sineFlowPosition, sineFlowTangentDeg } from '../engine/flowArchitecture';
 
 /** Hero + Editorial Flow: a few large "hero" motifs strung along a single
  * smooth diagonal-ish flow path (an editorial magazine-spread rhythm), each
@@ -20,14 +21,13 @@ export const heroFlowLayout: PatternLayout = {
   generate(params: LayoutParams, rng: Rng): Placement[] {
     const { tileSize } = params;
     const spacing = spacingForDensity(params.motifSize, params.density);
-    const freq = 1;
-    const amplitude = tileSize * rngRange(rng, 0.15, 0.25);
-    const phase = rngRange(rng, 0, Math.PI * 2);
-    const flowY = (t: number) => tileSize * 0.5 + amplitude * Math.sin(2 * Math.PI * freq * t + phase);
-    const flowSlopeDeg = (t: number) => {
-      const slope = amplitude * (2 * Math.PI * freq) * Math.cos(2 * Math.PI * freq * t + phase);
-      return (Math.atan2(slope / tileSize, 1) * 180) / Math.PI;
-    };
+    // Build 002, Section 9 (Flow Architecture Prototype): this periodic
+    // sine-wave path was found identical to `sCurve.ts`'s own hand-rolled
+    // path math — see `engine/flowArchitecture.ts`'s module doc comment.
+    // `createSineFlowPath`'s rng-consumption order (amplitude, then phase)
+    // matches this layout's original order exactly, so this is a drop-in
+    // replacement, not a behavior change.
+    const path = createSineFlowPath(rng, tileSize, [0.15, 0.25]);
 
     const placements: Placement[] = [];
     let colorSeed = 0;
@@ -39,8 +39,8 @@ export const heroFlowLayout: PatternLayout = {
     for (let i = 0; i < heroCount; i++) {
       const t = (i + 0.5) / heroCount;
       const heroX = t * tileSize;
-      const heroY = flowY(t);
-      const slopeDeg = flowSlopeDeg(t);
+      const heroY = sineFlowPosition(path, t);
+      const slopeDeg = sineFlowTangentDeg(path, t);
       placements.push({
         x: wrapCoord(heroX, tileSize),
         y: wrapCoord(heroY, tileSize),
