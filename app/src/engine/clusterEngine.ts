@@ -4,6 +4,7 @@ import { jitter, rngRange, rngInt, rngPick } from './rng';
 import { spacingForDensity, wrapCoord } from '../layouts/shared';
 import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
 import { createAngleFamily, pickFamilyAngle, type AngleFamily } from './rotationFamilies';
+import { resolveClusterCollisions } from './clusterAvoidance';
 
 // Cluster Composition Engine — Project Phoenix V2, Section 1/2. Replaces
 // "scatter individual motifs independently" with the workflow the brief
@@ -354,17 +355,29 @@ const SIZE_RHYTHM = [1.35, 0.82, 1.05, 0.62];
  * varies per anchor via the size rhythm below (Section 2's "no equal
  * spacing", Section 6's "avoid mechanical distribution") — the zone
  * governs *where* anchors concentrate, not their individual spacing rule. */
+/** Same minDist multiplier `placeZoneAnchors` was called with below (average
+ * size-based) and `resolveClusterCollisions` is called with after (real
+ * per-anchor size-based) — kept as one constant so the two stay in sync. */
+const ANCHOR_MIN_DIST_MUL = 1.7;
+
 export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: Rng, zone?: CompositionZone): ClusterAnchor[] {
   const chosenZone = zone ?? rngPick(rng, COMPOSITION_ZONES);
   const avgSizeMul = SIZE_RHYTHM.reduce((a, b) => a + b, 0) / SIZE_RHYTHM.length;
-  const minDist = baseRadius * avgSizeMul * 1.7;
+  const minDist = baseRadius * avgSizeMul * ANCHOR_MIN_DIST_MUL;
   const targetCount = Math.max(2, Math.round((tileSize * tileSize) / (minDist * minDist)));
   const points = placeZoneAnchors(chosenZone, tileSize, minDist, targetCount, rng);
   const startOffset = rngInt(rng, 0, SIZE_RHYTHM.length - 1);
-  return points.map(([x, y], i) => {
+  const anchors = points.map(([x, y], i) => {
     const sizeMul = SIZE_RHYTHM[(i + startOffset) % SIZE_RHYTHM.length] * (1 + rngRange(rng, -0.08, 0.08));
     return { x, y, sizeMul };
   });
+  // Build 003, Part 10 (Cluster Avoidance): the average-based minDist above
+  // only guarantees spacing for the *typical* anchor — two anchors that
+  // happen to land near each other and both draw the size rhythm's largest
+  // step can still end up too close for their real size, reading as two
+  // hero motifs visually touching. This resolves those specific pairs
+  // without disturbing anchors that were already spaced correctly.
+  return resolveClusterCollisions(anchors, baseRadius, ANCHOR_MIN_DIST_MUL, tileSize);
 }
 
 /** Small, sparse bridging accents placed at the midpoint between cluster
