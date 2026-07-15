@@ -7,6 +7,7 @@ import { smoothPathD, wobbleEnvelope, radialAsymmetry, tangentToUpAngleDeg, type
 import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growth';
 import { organicPetalPath, petalRing } from './petals';
 import { BOTANICAL_FAMILIES, type BotanicalFamily } from './botanicalFamilies';
+import { BOTANICAL_PARTS, shapeCategoryForPart, type BotanicalPart, type PartShapeCategory } from './botanicalParts';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes —
 // no gradients or texture, matching the flat-illustration look common in
@@ -1075,34 +1076,38 @@ interface TaggedVariant {
    * a featured flower with neutral filler greenery — so a family filter
    * (see `poolForFamily`) never over-narrows to an empty/awkward pool. */
   family?: BotanicalFamily;
+  /** Which of the 5 real `PartShapeCategory` values this shape represents
+   * (Build 004, Section 3) — every variant gets exactly one, unlike
+   * `family` which several deliberately leave unset. */
+  category: PartShapeCategory;
 }
 
 const TAGGED_VARIANTS: TaggedVariant[] = [
-  { variant: singleLeaf },
-  { variant: flowerBloom },
-  { variant: flowerBud },
-  { variant: leafyBranch },
-  { variant: fernFrond, family: 'fern' },
-  { variant: simpleTulip, family: 'tulip' },
-  { variant: layeredBloom },
-  { variant: wildflowerSprig, family: 'wildflower' },
-  { variant: mapleLeaf },
-  { variant: heartLeaf },
-  { variant: peonyFlower, family: 'peony' },
-  { variant: ranunculusRosette, family: 'rose' },
-  { variant: poppyFlower, family: 'wildflower' },
-  { variant: anemoneFlower, family: 'anemone' },
-  { variant: daisyFlower, family: 'daisy' },
-  { variant: cosmosFlower, family: 'cosmos' },
-  { variant: eucalyptusSprig, family: 'eucalyptus' },
-  { variant: oliveBranch, family: 'olive' },
-  { variant: laurelSprig, family: 'herb' },
-  { variant: sageSprig, family: 'herb' },
-  { variant: bellFlower, family: 'wildflower' },
-  { variant: magnoliaFlower, family: 'magnolia' },
-  { variant: hydrangeaBloom, family: 'hydrangea' },
-  { variant: lavenderSpike, family: 'lavender' },
-  { variant: berryBranch, family: 'berryBranch' },
+  { variant: singleLeaf, category: 'leaf' },
+  { variant: flowerBloom, category: 'flower' },
+  { variant: flowerBud, category: 'bud' },
+  { variant: leafyBranch, category: 'branch' },
+  { variant: fernFrond, family: 'fern', category: 'branch' },
+  { variant: simpleTulip, family: 'tulip', category: 'flower' },
+  { variant: layeredBloom, category: 'flower' },
+  { variant: wildflowerSprig, family: 'wildflower', category: 'branch' },
+  { variant: mapleLeaf, category: 'leaf' },
+  { variant: heartLeaf, category: 'leaf' },
+  { variant: peonyFlower, family: 'peony', category: 'flower' },
+  { variant: ranunculusRosette, family: 'rose', category: 'flower' },
+  { variant: poppyFlower, family: 'wildflower', category: 'flower' },
+  { variant: anemoneFlower, family: 'anemone', category: 'flower' },
+  { variant: daisyFlower, family: 'daisy', category: 'flower' },
+  { variant: cosmosFlower, family: 'cosmos', category: 'flower' },
+  { variant: eucalyptusSprig, family: 'eucalyptus', category: 'branch' },
+  { variant: oliveBranch, family: 'olive', category: 'branch' },
+  { variant: laurelSprig, family: 'herb', category: 'branch' },
+  { variant: sageSprig, family: 'herb', category: 'branch' },
+  { variant: bellFlower, family: 'wildflower', category: 'flower' },
+  { variant: magnoliaFlower, family: 'magnolia', category: 'flower' },
+  { variant: hydrangeaBloom, family: 'hydrangea', category: 'flower' },
+  { variant: lavenderSpike, family: 'lavender', category: 'flower' },
+  { variant: berryBranch, family: 'berryBranch', category: 'berry' },
 ];
 
 const VARIANTS: Variant[] = TAGGED_VARIANTS.map((t) => t.variant);
@@ -1123,10 +1128,31 @@ function poolForFamily(family: BotanicalFamily): Variant[] {
   return matches.length > 0 ? matches.map((t) => t.variant) : VARIANTS;
 }
 
+/** Build 004, Section 3: narrows by family (as `poolForFamily` does) and
+ * then, if `hints.part` maps to a real `PartShapeCategory` (see
+ * `shapeCategoryForPart`), narrows further to variants tagged with that
+ * category — a `part` hint of `'stem'`/`'connector'`/`'silhouette'` has no
+ * dedicated shape category yet, so it's a documented no-op rather than an
+ * error (see `shapeCategoryForPart`'s own doc comment). Falls back to the
+ * full pool if the combined filter would otherwise be empty. */
+function poolForHints(hints?: MotifCreateHints): Variant[] {
+  const family = hints?.family as BotanicalFamily | undefined;
+  const part = hints?.part as BotanicalPart | undefined;
+  const category = part && (BOTANICAL_PARTS as string[]).includes(part) ? shapeCategoryForPart(part) : undefined;
+  let matches = TAGGED_VARIANTS;
+  if (family && (BOTANICAL_FAMILIES as string[]).includes(family)) {
+    matches = matches.filter((t) => t.family === family || t.family === undefined);
+  }
+  if (category) {
+    matches = matches.filter((t) => t.category === category);
+  }
+  return matches.length > 0 ? matches.map((t) => t.variant) : VARIANTS;
+}
+
 /** Exposed for tests: lets a test assert precisely which variants a family
  * hint does/doesn't include, rather than inferring it indirectly from
  * serialized SVG output. */
-export const __testables = { poolForFamily, TAGGED_VARIANTS };
+export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS };
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
@@ -1135,8 +1161,7 @@ export const botanicalGenerator: PatternGenerator = {
     'Flat minimal leaves, blooms, buds and leafy branches — 25 variants across 15 named botanical families (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb), built on a shared curve-quality and botanical-growth engine.',
   defaultMotifSize: 70,
   createMotif(rng: Rng, colors: string[], size: number, _colorSeed?: number, hints?: MotifCreateHints): Motif {
-    const family = hints?.family as BotanicalFamily | undefined;
-    const pool = family && (BOTANICAL_FAMILIES as string[]).includes(family) ? poolForFamily(family) : VARIANTS;
+    const pool = poolForHints(hints);
     const variant = rngPick(rng, pool);
     const { node, radius } = variant(rng, colors, size);
     return { node, radius };

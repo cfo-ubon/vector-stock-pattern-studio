@@ -4,6 +4,7 @@ import { serialize } from '../engine/svgAst';
 import type { SvgNode } from '../engine/types';
 import { botanicalGenerator, BOTANICAL_VARIANTS, __testables } from './botanical';
 import { BOTANICAL_FAMILIES } from './botanicalFamilies';
+import { BOTANICAL_PARTS, shapeCategoryForPart } from './botanicalParts';
 
 const COLORS = ['#f4ede4', '#c9a86c', '#7c8a5f', '#a94438', '#3c3a34'];
 
@@ -19,14 +20,45 @@ describe('botanicalGenerator', () => {
     expect(a.radius).toBe(b.radius);
   });
 
-  it('Build 004, Section 1: a role-only hint (no family) is inert -- role/part selection logic is Section 3+', () => {
+  it('Build 004, Section 1: a bare role hint (no family, no part) is inert', () => {
     for (let i = 0; i < 10; i++) {
       const seed = `botanical-hints-inert-${i}`;
       const plain = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0);
-      const withHints = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0, { role: 'hero', part: 'heroFlower' });
+      const withHints = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0, { role: 'hero' });
       expect(serialize(withHints.node)).toBe(serialize(plain.node));
       expect(withHints.radius).toBe(plain.radius);
     }
+  });
+
+  it('Build 004, Section 3: poolForHints narrows by part-shape-category, real category-membership check', () => {
+    const { poolForHints, TAGGED_VARIANTS } = __testables;
+    for (const part of BOTANICAL_PARTS) {
+      const category = shapeCategoryForPart(part);
+      const pool = poolForHints({ part });
+      if (category) {
+        const expected = TAGGED_VARIANTS.filter((t) => t.category === category).map((t) => t.variant);
+        expect(pool.length).toBe(expected.length);
+        for (const v of expected) expect(pool).toContain(v);
+        const excluded = TAGGED_VARIANTS.filter((t) => t.category !== category).map((t) => t.variant);
+        for (const v of excluded) expect(pool).not.toContain(v);
+      } else {
+        // 'stem'/'connector'/'silhouette' have no dedicated shape category
+        // yet -- a documented no-op, so the pool falls back to the full set.
+        expect(pool.length).toBe(BOTANICAL_VARIANTS.length);
+      }
+    }
+  });
+
+  it('Build 004, Section 3: family + part hints combine (intersection), not just the last one applied', () => {
+    const { poolForHints, TAGGED_VARIANTS } = __testables;
+    // 'wildflower' family x 'flower' category: poppyFlower/bellFlower are
+    // wildflower+flower; wildflowerSprig is wildflower+branch (excluded).
+    const pool = poolForHints({ family: 'wildflower', part: 'heroFlower' });
+    const expected = TAGGED_VARIANTS.filter((t) => (t.family === 'wildflower' || t.family === undefined) && t.category === 'flower').map(
+      (t) => t.variant,
+    );
+    expect(pool.length).toBe(expected.length);
+    for (const v of expected) expect(pool).toContain(v);
   });
 
   it('Build 004, Section 2: poolForFamily narrows to only that family plus untagged universal variants', () => {
