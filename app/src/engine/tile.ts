@@ -9,6 +9,55 @@ import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS, REGULAR_LATTICE_LAYOUTS, sort
 import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
+import { countNodes } from './svgGeometry';
+
+// Build 002, Section 10 — Performance and SVG Safety. A real safety margin
+// under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
+// deliberately well under it, not "7898/8000 and call it healthy". This is
+// the *only* generation-time safety net: the Candidate Engine's own
+// reject-and-retry only runs in pool-generation mode (`generateBest`),
+// never for a single direct `buildTile()` call, which is exactly the path
+// every layout/generator combination goes through at least once.
+//
+// Deliberately measures the REAL, already-built per-instance node cost
+// (summed from the actual `motifGroups`/`shadowGroups` SvgNode trees) rather
+// than estimating it from one sampled reference motif — some categories
+// (botanical's growth-variant system especially) swing widely in per-motif
+// node count from one random draw to the next, so a single-sample estimate
+// is not a reliable predictor of the *tile's own* real average and would
+// either under- or over-thin. Using the real measured total means this pass
+// is a strict no-op for every tile that doesn't need it (the overwhelming
+// majority) and thins to a provably accurate target on the ones that do.
+const NODE_BUDGET_SAFETY_MARGIN = 6000;
+
+/** Evenly spaced (never random) selection of `count` values out of `pool`,
+ * so thinning stays deterministic and spatially representative — shared by
+ * both the ordinary (thin non-protected instances only) and the rare
+ * (protected instances alone exceed budget) node-budget-safety cases below. */
+function evenStrideSelect(pool: number[], count: number): number[] {
+  if (count >= pool.length) return pool;
+  const stride = pool.length / count;
+  const out: number[] = [];
+  for (let i = 0; i < count; i++) out.push(pool[Math.min(pool.length - 1, Math.floor(i * stride))]);
+  return out;
+}
+
+// Same coarse 8x8 grid + 2x2 corner blocks `scoring.ts`'s
+// `computeCornerContinuity` measures — a placement landing in one of the 4
+// tile-corner blocks is load-bearing for that real seamless-repeat
+// measurement (a tile's 4 corners meet at one point when repeated), so
+// node-budget thinning must never remove it even though it isn't a hero;
+// losing corner coverage doesn't just look thin, it fails a structural
+// quality target most style specs require to be exactly 100.
+const CORNER_GRID_N = 8;
+const CORNER_BLOCK_SIZE = 2;
+function isCornerCritical(p: Placement, tileSize: number): boolean {
+  const cell = tileSize / CORNER_GRID_N;
+  const gx = Math.min(CORNER_GRID_N - 1, Math.floor((((p.x % tileSize) + tileSize) % tileSize) / cell));
+  const gy = Math.min(CORNER_GRID_N - 1, Math.floor((((p.y % tileSize) + tileSize) % tileSize) / cell));
+  const inCornerRange = (v: number) => v < CORNER_BLOCK_SIZE || v >= CORNER_GRID_N - CORNER_BLOCK_SIZE;
+  return inCornerRange(gx) && inCornerRange(gy);
+}
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -276,13 +325,82 @@ export function buildTile(params: GenerateParams): TileData {
     return h('g', { id: `motif-${index + 1}`, ...(placement.role ? { 'data-role': placement.role } : {}) }, instances);
   });
 
-  // Filler goes behind everything except the background; built last so its
-  // rng draws never shift the main pattern for an existing seed.
+  // Filler goes behind everything except the background; built right after
+  // the motif/shadow layers (still before the Section 10 budget check
+  // below) so its own real node count is included in that check, but after
+  // every motif's own rng draws so enabling/disabling it never shifts the
+  // main pattern for a given seed — thinning the motif/shadow layers below
+  // is a pure post-hoc filter that consumes no rng, so this ordering still
+  // preserves that guarantee exactly.
   const fillerStyle = params.fillerStyle ?? 'none';
+  const fillerLayer = fillerStyle !== 'none' ? buildFillerLayer(fillerStyle, rng, useStory ? storyColors : colors, tileSize) : null;
+  const fixedOverheadNodeCount = (fillerLayer ? countNodes(fillerLayer) : 0) + 4; // + defs/clipPath/background/tile-content wrapper
+
+  // Build 002, Section 10: check the REAL, already-built node count of the
+  // whole tile (motif + shadow + filler + fixed structural overhead)
+  // against the safety margin and thin the motif/shadow layers only if it's
+  // actually exceeded — see NODE_BUDGET_SAFETY_MARGIN's own doc comment for
+  // why this measures the real total rather than estimating it up front.
+  // Filler/background overhead is left untouched by thinning (it doesn't
+  // scale with placement count and isn't tied to any role/hierarchy
+  // decision), so only the motif+shadow budget is reduced to compensate.
+  //
+  // Cost is split by role rather than using one blended average: hero
+  // instances are drawn at a much larger scale (more wrap-clone copies
+  // near tile edges) plus the Hero Complexity detail overlay, so they cost
+  // far more per instance than the many small filler/accent instances that
+  // dominate a blended average — spending that whole blended average on
+  // "keep every hero, fill the rest with non-heroes" would systematically
+  // overshoot the budget by however much heroes cost above average.
+  const shadowByIndex = new Map<number, SvgNode>();
+  for (const g of shadowGroups) {
+    const m = /^shadow-(\d+)$/.exec(String(g.attrs?.id ?? ''));
+    if (m) shadowByIndex.set(Number(m[1]) - 1, g);
+  }
+  const perIndexCost = paintOrderedPlacements.map((_, i) => countNodes(motifGroups[i]) + (shadowByIndex.has(i) ? countNodes(shadowByIndex.get(i)!) : 0));
+  const realInstanceNodeCount = perIndexCost.reduce((a, b) => a + b, 0);
+  const instanceBudget = NODE_BUDGET_SAFETY_MARGIN - fixedOverheadNodeCount;
+  let finalMotifGroups = motifGroups;
+  let finalShadowGroups = shadowGroups;
+  if (realInstanceNodeCount > instanceBudget && paintOrderedPlacements.length > 0) {
+    const protectedIndices: number[] = [];
+    const thinnableIndices: number[] = [];
+    paintOrderedPlacements.forEach((p, i) =>
+      (p.role === 'hero' || isCornerCritical(p, tileSize) ? protectedIndices : thinnableIndices).push(i),
+    );
+    const protectedCost = protectedIndices.reduce((sum, i) => sum + perIndexCost[i], 0);
+
+    let keptIndices: Set<number>;
+    if (protectedCost >= instanceBudget) {
+      // Even every hero/corner-critical instance alone exceeds the budget —
+      // the rare edge case where the layout's own hero count/scale is the
+      // problem, not the filler layer. Thin the protected set itself
+      // (evenly, not randomly) rather than silently leaving the tile over
+      // budget.
+      const protectedAvg = protectedCost / protectedIndices.length;
+      const protectedTarget = Math.max(1, Math.floor(instanceBudget / protectedAvg));
+      keptIndices = new Set(evenStrideSelect(protectedIndices, protectedTarget));
+    } else {
+      const thinnableCost = realInstanceNodeCount - protectedCost;
+      const thinnableAvg = thinnableIndices.length > 0 ? thinnableCost / thinnableIndices.length : 0;
+      const remainingBudget = instanceBudget - protectedCost;
+      const thinnableTarget = thinnableAvg > 0 ? Math.max(0, Math.floor(remainingBudget / thinnableAvg)) : thinnableIndices.length;
+      keptIndices = new Set([...protectedIndices, ...evenStrideSelect(thinnableIndices, thinnableTarget)]);
+    }
+
+    if (keptIndices.size < paintOrderedPlacements.length) {
+      finalMotifGroups = motifGroups.filter((_, i) => keptIndices.has(i));
+      finalShadowGroups = shadowGroups.filter((g) => {
+        const m = /^shadow-(\d+)$/.exec(String(g.attrs?.id ?? ''));
+        return m ? keptIndices.has(Number(m[1]) - 1) : true;
+      });
+    }
+  }
+
   const patternLayers: SvgNode[] = [];
-  if (fillerStyle !== 'none') patternLayers.push(buildFillerLayer(fillerStyle, rng, useStory ? storyColors : colors, tileSize));
-  if (shadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, shadowGroups));
-  patternLayers.push(...motifGroups);
+  if (fillerLayer) patternLayers.push(fillerLayer);
+  if (finalShadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, finalShadowGroups));
+  patternLayers.push(...finalMotifGroups);
 
   // Style DNA metadata: Affinity Designer and every SVG viewer show unknown
   // data-* attributes as harmless metadata (same convention already used for

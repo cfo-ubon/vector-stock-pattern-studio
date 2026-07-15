@@ -26,7 +26,14 @@ describe('computeQualityScore', () => {
   });
 
   it('produces different scores for visually different compositions', () => {
-    const base = { ...defaultParams(), categoryId: 'botanical', layoutId: 'grid' as const, seed: 'quality-diff' };
+    // Build 002, Section 10: tileSize dropped to 600 (from the default
+    // 1200) so the dense (0.9) case stays comfortably under the real
+    // node-budget safety margin (engine/tile.ts's NODE_BUDGET_SAFETY_MARGIN)
+    // — composition/occupancy is a resolution-independent fraction, so this
+    // still exercises the same real "sparse vs. dense reads differently"
+    // invariant without the dense case triggering budget-safety thinning
+    // (which this test isn't about).
+    const base = { ...defaultParams(), categoryId: 'botanical', layoutId: 'grid' as const, seed: 'quality-diff', tileSize: 600 };
     const sparse = computeQualityScore(buildTile({ ...base, density: 0.1, hierarchy: undefined }));
     const dense = computeQualityScore(buildTile({ ...base, density: 0.9, hierarchy: undefined }));
     expect(sparse.composition).not.toBe(dense.composition);

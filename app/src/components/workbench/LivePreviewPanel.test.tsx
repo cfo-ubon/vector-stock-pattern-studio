@@ -130,9 +130,17 @@ describe('LivePreviewPanel: Design Critic quality gate (Phase 7)', () => {
 
   it('does not prompt when the quality gate passes', () => {
     const props = baseProps();
-    const qualityResult = runDesignSpecQualityLoop(props.spec, props.seed, 'fast');
+    // Build 002, Section 10's node-budget safety net can cost a real tile a
+    // few points of cornerContinuity when it needs to thin a large-tileSize
+    // pattern — enough, occasionally, to miss the default spec's exact
+    // minSeamlessIntegrity: 100 target. Same fix as `failingQualitySpec`
+    // above: set an easily-achievable target rather than relying on
+    // whatever score this seed's generation happens to produce, since this
+    // test exercises the gate-passed UI wiring, not exact scoring.
+    const spec = { ...props.spec, qualityTargets: { minOverallScore: 0, minSeamlessIntegrity: 0, minMotifDiversity: 0, minCommercialReadiness: 0 } };
+    const qualityResult = runDesignSpecQualityLoop(spec, props.seed, 'fast');
     const confirmSpy = vi.spyOn(window, 'confirm');
-    render(<LivePreviewPanel {...props} qualityResult={qualityResult} />);
+    render(<LivePreviewPanel {...props} spec={spec} qualityResult={qualityResult} />);
     fireEvent.click(screen.getByRole('tab', { name: '🏷 Filename' }));
     fireEvent.click(screen.getByRole('button', { name: /Download Marketplace Package/ }));
     expect(confirmSpy).not.toHaveBeenCalled();
