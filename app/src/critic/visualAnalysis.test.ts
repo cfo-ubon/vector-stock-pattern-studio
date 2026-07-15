@@ -85,7 +85,13 @@ describe('detectVisualIssues', () => {
 
 describe('detectVisualIssues: fragmentedSilhouette (Build 001, Section 9)', () => {
   it('flags a genuinely sparse, small-motif Airy pattern as fragmented', () => {
-    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', seed: 'silhouette-airy-1' });
+    // Build 002, Section 5 gave `airy` real Cluster Engine cohesion (each
+    // anchor is now a genuine hero + 1-2 member cluster, not an independent
+    // scatter of same-weight motifs), so its *default*-density silhouette
+    // reads as more cohesive than before — density is lowered here to keep
+    // exercising this test's real intent (a genuinely sparse composition
+    // still reads as fragmented), not because the detector itself changed.
+    const tile = buildTile({ ...defaultParams(), layoutId: 'airy', density: 0.15, seed: 'silhouette-airy-2' });
     const metrics = computeMetrics(tile);
     const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'fragmentedSilhouette')!;
     expect(issue.detected).toBe(true);

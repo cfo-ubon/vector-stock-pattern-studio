@@ -13,9 +13,9 @@ import {
 } from './clusterEngine';
 
 describe('CLUSTER_ARCHETYPES', () => {
-  it('has exactly the 8 named archetypes from the brief', () => {
+  it('has the 8 named archetypes from the original brief plus Build 002 Section 5\'s new `airy` archetype', () => {
     expect([...CLUSTER_ARCHETYPES].sort()).toEqual(
-      ['asymmetric', 'bouquet', 'cascade', 'diagonal', 'editorial', 'organicScatter', 'radial', 'sCurve'].sort(),
+      ['airy', 'asymmetric', 'bouquet', 'cascade', 'diagonal', 'editorial', 'organicScatter', 'radial', 'sCurve'].sort(),
     );
   });
 });
@@ -60,11 +60,20 @@ describe('generateCluster', () => {
   });
 
   it('guarantees at least one member is pulled into the intentional-overlap band', () => {
-    for (const archetype of CLUSTER_ARCHETYPES) {
+    // `airy` is deliberately excluded — Build 002, Section 5's real, distinct
+    // identity for this archetype is *never* forcing overlap (generous
+    // negative space, "a few sprigs floating"), covered by its own test below.
+    for (const archetype of CLUSTER_ARCHETYPES.filter((a) => a !== 'airy')) {
       const rng = createRng(`cluster-overlap-${archetype}`);
       const members = generateCluster(archetype, rng, opts);
       expect(members.some((m) => m.overlapsHero)).toBe(true);
     }
+  });
+
+  it('airy never forces overlap — every member stays outside the overlap band', () => {
+    const rng = createRng('cluster-overlap-airy');
+    const members = generateCluster('airy', rng, { ...opts, memberCount: 2 });
+    expect(members.some((m) => m.overlapsHero)).toBe(false);
   });
 
   it('is paint-ordered hero -> secondary -> filler -> accent (supporting members render over the hero)', () => {

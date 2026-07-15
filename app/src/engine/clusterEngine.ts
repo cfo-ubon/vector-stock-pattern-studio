@@ -23,10 +23,11 @@ export type ClusterArchetype =
   | 'organicScatter'
   | 'sCurve'
   | 'diagonal'
-  | 'asymmetric';
+  | 'asymmetric'
+  | 'airy';
 
 export const CLUSTER_ARCHETYPES: ClusterArchetype[] = [
-  'bouquet', 'cascade', 'radial', 'editorial', 'organicScatter', 'sCurve', 'diagonal', 'asymmetric',
+  'bouquet', 'cascade', 'radial', 'editorial', 'organicScatter', 'sCurve', 'diagonal', 'asymmetric', 'airy',
 ];
 
 /** One motif's position within a cluster, relative to the cluster's own
@@ -165,6 +166,20 @@ function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, 
       const dist = rngRange(rng, r * 0.8, r * 1.35);
       return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role: roleFor(t) };
     }
+    case 'airy': {
+      // Build 002, Section 5 — a genuinely distinct, deliberately sparse
+      // archetype: 1-2 members floating far out from the hero (never the
+      // tight/dense "supporting company" every other archetype builds),
+      // almost all of them accent-weight rather than secondary/filler, and
+      // a much wider reach than any other archetype's `r` multiplier. This
+      // is what gives `layouts/airy.ts` its own real identity through the
+      // Cluster Engine — "a few sprigs floating on a big empty ground",
+      // not a renamed bouquet/organicScatter at a smaller radius.
+      const angle = rngRange(rng, 0, Math.PI * 2);
+      const dist = rngRange(rng, r * 1.1, r * 1.9);
+      const role: Exclude<MotifRole, 'hero'> = i === 0 ? 'secondary' : 'accent';
+      return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role };
+    }
   }
 }
 
@@ -191,6 +206,7 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
     sCurve: [4, 6],
     diagonal: [4, 6],
     asymmetric: [4, 7],
+    airy: [1, 2],
   };
   const [lo, hi] = defaultCounts[archetype];
   const total = opts.memberCount ?? rngInt(rng, lo, hi);
@@ -210,9 +226,11 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
   // Pull ~30% of members (at least 1) into the deliberate overlap band —
   // rescale the same direction vector to a shorter magnitude rather than
   // picking a new random spot, so the archetype's own directional identity
-  // is preserved even for the overlapping members.
+  // is preserved even for the overlapping members. `airy`'s whole identity
+  // is deliberate *non*-overlap (generous negative space, "a few sprigs
+  // floating"), so it's the one archetype this forced band never applies to.
   const overlapBandFrac = r * 0.42;
-  const overlapCount = Math.max(1, Math.round(total * 0.3));
+  const overlapCount = archetype === 'airy' ? 0 : Math.max(1, Math.round(total * 0.3));
   const overlapIndices = new Set<number>();
   while (overlapIndices.size < Math.min(overlapCount, total)) {
     overlapIndices.add(rngInt(rng, 0, total - 1));

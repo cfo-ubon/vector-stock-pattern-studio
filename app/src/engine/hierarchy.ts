@@ -78,8 +78,15 @@ export const HIERARCHY_PRESETS: Record<string, { label: string; value: Hierarchy
  * compounding two independent "make it smaller" factors until the result
  * clamped at the 0.05 floor for a large fraction of instances — a real,
  * measured pile-up in the scale-repeat detector's lowest bucket, not
- * something a wider per-instance wobble alone could fix. */
-export const HIERARCHY_EXEMPT_LAYOUTS = new Set(['heroFlow', 'heroScatter', 'bouquet', 'densePremium', 'scatter', 'toss']);
+ * something a wider per-instance wobble alone could fix.
+ *
+ * Build 002, Section 5 (Semantic Cluster Engine coverage): `radial`,
+ * `sCurve`, and `airy` join this set for the same reason — they now build
+ * their own real per-member cluster roles/scale directly (see each
+ * layout's own doc comment), so the generic pass would double-assign. */
+export const HIERARCHY_EXEMPT_LAYOUTS = new Set([
+  'heroFlow', 'heroScatter', 'bouquet', 'densePremium', 'scatter', 'toss', 'radial', 'sCurve', 'airy',
+]);
 
 /** Layouts whose entire visual identity IS a strict, evenly-spaced lattice
  * or band structure — `grid`/`gridMinimal` are the pair
