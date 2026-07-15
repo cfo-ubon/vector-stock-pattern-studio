@@ -1,4 +1,4 @@
-import type { Motif, PatternGenerator, Rng } from '../engine/types';
+import type { Motif, MotifCreateHints, PatternGenerator, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
 import { accentColors, blendHex } from '../palettes/palettes';
 import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
@@ -6,6 +6,7 @@ import { pinnateVeins } from './shared';
 import { smoothPathD, wobbleEnvelope, radialAsymmetry, tangentToUpAngleDeg, type Pt } from '../engine/curveEngine';
 import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growth';
 import { organicPetalPath, petalRing } from './petals';
+import { BOTANICAL_FAMILIES, type BotanicalFamily } from './botanicalFamilies';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes —
 // no gradients or texture, matching the flat-illustration look common in
@@ -871,43 +872,272 @@ const sageSprig: Variant = (rng, colors, size) => {
   return { node, radius: size * 0.6 };
 };
 
-const VARIANTS: Variant[] = [
-  singleLeaf,
-  flowerBloom,
-  flowerBud,
-  leafyBranch,
-  fernFrond,
-  simpleTulip,
-  layeredBloom,
-  wildflowerSprig,
-  mapleLeaf,
-  heartLeaf,
-  peonyFlower,
-  ranunculusRosette,
-  poppyFlower,
-  anemoneFlower,
-  daisyFlower,
-  cosmosFlower,
-  eucalyptusSprig,
-  oliveBranch,
-  laurelSprig,
-  sageSprig,
-  bellFlower,
+/** Magnolia: a small number of large, thick waxy tepals (fewer and bigger
+ * than peony's many ruffled petals, rounder than anemone's) around a
+ * distinctive columnar/conical center built as a stack of shrinking
+ * ellipses rather than a flat disc — the trait that most separates a real
+ * magnolia silhouette from every other large bloom in this file. */
+const magnoliaFlower: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const tepalColor = rngPick(rng, accents);
+  const coreColor = rngPick(rng, accents);
+  const outerCount = rngInt(rng, 6, 8);
+  const hasInnerLayer = rngBool(rng);
+  const innerCount = hasInnerLayer ? rngInt(rng, 3, 4) : 0;
+  const outerTepals: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < outerCount; i++) {
+    const asym = radialAsymmetry(rng, 3, 0.05);
+    const angle = (360 / outerCount) * i + asym.angle;
+    const len = r * rngRange(rng, 0.82, 0.98) * asym.lengthScale;
+    const width = len * rngRange(rng, 0.42, 0.52) * asym.widthScale;
+    outerTepals.push(
+      h('g', { transform: `rotate(${round(angle)})` }, [h('path', { d: organicPetalPath(len, width, 0.8), fill: tepalColor })]),
+    );
+  }
+  const innerTepals: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < innerCount; i++) {
+    const angle = (360 / innerCount) * i + 360 / (innerCount * 2);
+    const len = r * rngRange(rng, 0.48, 0.58);
+    innerTepals.push(
+      h('g', { transform: `rotate(${round(angle)})` }, [
+        h('path', { d: organicPetalPath(len, len * 0.48, 0.7), fill: blendHex(tepalColor, 0.85, colors[0]) }),
+      ]),
+    );
+  }
+  const coneSegments = 4;
+  const coneNodes: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < coneSegments; i++) {
+    const t = i / (coneSegments - 1);
+    coneNodes.push(
+      h('ellipse', {
+        cx: 0,
+        cy: round(-r * 0.05 - t * r * 0.14),
+        rx: round(r * 0.12 * (1 - t * 0.55)),
+        ry: round(r * 0.07 * (1 - t * 0.4)),
+        fill: blendHex(coreColor, 0.25 + t * 0.35, '#2c2013'),
+      }),
+    );
+  }
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, outerTepals),
+    ...(innerTepals.length ? [h('g', { 'data-part': 'petals-inner' }, innerTepals)] : []),
+    h('g', { 'data-part': 'center' }, coneNodes),
+  ]);
+  return { node, radius: r * 1.08 };
+};
+
+/** One tiny 4-petal floret — hydrangea's real bloom unit. A hydrangea head
+ * is dozens of these packed into one dome, structurally distinct from
+ * every other flower here (which is one bloom with many petals, not many
+ * tiny blooms forming one head). */
+function hydrangeaFloret(rng: Rng, color: string, floretSize: number): ReturnType<typeof h> {
+  const petals: ReturnType<typeof h>[] = [];
+  const count = 4;
+  for (let i = 0; i < count; i++) {
+    const angle = (360 / count) * i + rngRange(rng, -6, 6);
+    petals.push(
+      h('g', { transform: `rotate(${round(angle)})` }, [
+        h('path', { d: organicPetalPath(floretSize * 0.5, floretSize * 0.42, 0.85), fill: color }),
+      ]),
+    );
+  }
+  return h('g', {}, petals);
+}
+
+/** Hydrangea: 16-24 tiny florets packed into a dome via golden-angle
+ * (sunflower-seed) spiral placement — fills evenly at any floret count
+ * without a visible grid, unlike a plain concentric-ring layout. */
+const hydrangeaBloom: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const floretCount = rngInt(rng, 16, 24);
+  const goldenAngleDeg = 137.5077;
+  const florets: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < floretCount; i++) {
+    const t = i / floretCount;
+    const dist = r * 0.86 * Math.sqrt(t);
+    const rad = (i * goldenAngleDeg * Math.PI) / 180;
+    const floretSize = size * rngRange(rng, 0.22, 0.3) * (0.65 + 0.35 * (1 - t));
+    const color = rngPick(rng, accents);
+    florets.push(
+      h(
+        'g',
+        { transform: `translate(${round(Math.cos(rad) * dist)} ${round(Math.sin(rad) * dist)}) rotate(${round(rngRange(rng, 0, 90))})` },
+        [hydrangeaFloret(rng, color, floretSize)],
+      ),
+    );
+  }
+  const node = h('g', {}, [h('g', { 'data-part': 'petals-outer' }, florets)]);
+  return { node, radius: r * 1.02 };
+};
+
+/** Lavender: many tiny tubular florets densely alternating up the top ~60%
+ * of a near-straight upright spike — structurally distinct from
+ * bellFlower's sparse raceme of larger drooping bells (lavender florets
+ * are small, upright and tightly packed, not few and hanging). */
+const lavenderSpike: Variant = (rng, colors, size) => {
+  const stem = generateStem(rng, size * 0.92, rngRange(rng, 0.02, 0.06));
+  const stemColor = rngPick(rng, accentColors(colors));
+  const floretColor = rngPick(rng, accentColors(colors));
+  const floretCount = rngInt(rng, 18, 26);
+  const florets: ReturnType<typeof h>[] = [];
+  const spikeStart = 0.4;
+  for (let i = 0; i < floretCount; i++) {
+    const t = spikeStart + (1 - spikeStart) * (i / Math.max(1, floretCount - 1));
+    const sample = stem.sampler.at(Math.min(t, 0.99));
+    const side: 1 | -1 = i % 2 === 0 ? 1 : -1;
+    const reach = size * rngRange(rng, 0.03, 0.075) * (1 - t * 0.3);
+    const ox = sample.point.x + sample.normal.x * side * reach;
+    const oy = sample.point.y + sample.normal.y * side * reach;
+    const floretLen = size * 0.06 * (1 - t * 0.2);
+    florets.push(
+      h('ellipse', {
+        cx: round(ox),
+        cy: round(oy),
+        rx: round(floretLen * 0.4),
+        ry: round(floretLen),
+        fill: floretColor,
+        transform: `rotate(${round(tangentToUpAngleDeg(sample.tangent))} ${round(ox)} ${round(oy)})`,
+      }),
+    );
+  }
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.025), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'petals-outer' }, florets),
+  ]);
+  return { node, radius: size * 0.55 };
+};
+
+/** A small tight cluster of round berries at one point along a stem. */
+function berryCluster(rng: Rng, color: string, r: number): ReturnType<typeof h>[] {
+  const count = rngInt(rng, 3, 5);
+  const berries: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = rngRange(rng, 0, Math.PI * 2);
+    const dist = rngRange(rng, 0, r * 0.55);
+    berries.push(
+      h('circle', {
+        cx: round(Math.cos(angle) * dist),
+        cy: round(Math.sin(angle) * dist * 0.85),
+        r: round(r * rngRange(rng, 0.85, 1)),
+        fill: color,
+      }),
+    );
+  }
+  return berries;
+}
+
+/** Berry Branch: a laurel-style paired-leaf stem plus 2-3 berry clusters
+ * near its tip — fruit-bearing, structurally distinct from every
+ * flower/leaf-only variant above (reuses laurel's leaf silhouette/
+ * arrangement, since real berry branches are usually plain-leaved). */
+const berryBranch: Variant = (rng, colors, size) => {
+  const preset = GROWTH_PRESETS.laurel;
+  const stem = generateStem(rng, size, preset.curvature);
+  const stemColor = rngPick(rng, accentColors(colors));
+  const berryColor = rngPick(rng, accentColors(colors));
+  const leafColor = rngPick(rng, accentColors(colors));
+  const leaves = growLeaves(rng, stem, { ...preset, leafCount: [4, 6] });
+  const leafNodes = leaves.map((leaf) => {
+    const leafLen = size * rngRange(rng, 0.24, 0.32) * leaf.scale;
+    return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+      h('path', { d: laurelLeafPath(leafLen, leafLen * 0.4), fill: leafColor }),
+    ]);
+  });
+  const clusterCount = rngInt(rng, 2, 3);
+  const berryRadius = size * rngRange(rng, 0.045, 0.06);
+  const berryNodes: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < clusterCount; i++) {
+    const t = 0.55 + 0.4 * (clusterCount > 1 ? i / (clusterCount - 1) : 0.5);
+    const sample = stem.sampler.at(Math.min(t, 0.98));
+    berryNodes.push(
+      h('g', { transform: `translate(${round(sample.point.x)} ${round(sample.point.y)})` }, berryCluster(rng, berryColor, berryRadius)),
+    );
+  }
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'stem' }, [
+      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.035), 'stroke-linecap': 'round' }),
+    ]),
+    h('g', { 'data-part': 'leaves' }, leafNodes),
+    h('g', { 'data-part': 'berries' }, berryNodes),
+  ]);
+  return { node, radius: size * 0.6 };
+};
+
+interface TaggedVariant {
+  variant: Variant;
+  /** Which of the 15 named `BotanicalFamily` values this shape belongs to.
+   * Left `undefined` for shapes that read fine alongside any species — a
+   * plain leaf or generic 5-petal bloom, the way a real arrangement mixes
+   * a featured flower with neutral filler greenery — so a family filter
+   * (see `poolForFamily`) never over-narrows to an empty/awkward pool. */
+  family?: BotanicalFamily;
+}
+
+const TAGGED_VARIANTS: TaggedVariant[] = [
+  { variant: singleLeaf },
+  { variant: flowerBloom },
+  { variant: flowerBud },
+  { variant: leafyBranch },
+  { variant: fernFrond, family: 'fern' },
+  { variant: simpleTulip, family: 'tulip' },
+  { variant: layeredBloom },
+  { variant: wildflowerSprig, family: 'wildflower' },
+  { variant: mapleLeaf },
+  { variant: heartLeaf },
+  { variant: peonyFlower, family: 'peony' },
+  { variant: ranunculusRosette, family: 'rose' },
+  { variant: poppyFlower, family: 'wildflower' },
+  { variant: anemoneFlower, family: 'anemone' },
+  { variant: daisyFlower, family: 'daisy' },
+  { variant: cosmosFlower, family: 'cosmos' },
+  { variant: eucalyptusSprig, family: 'eucalyptus' },
+  { variant: oliveBranch, family: 'olive' },
+  { variant: laurelSprig, family: 'herb' },
+  { variant: sageSprig, family: 'herb' },
+  { variant: bellFlower, family: 'wildflower' },
+  { variant: magnoliaFlower, family: 'magnolia' },
+  { variant: hydrangeaBloom, family: 'hydrangea' },
+  { variant: lavenderSpike, family: 'lavender' },
+  { variant: berryBranch, family: 'berryBranch' },
 ];
+
+const VARIANTS: Variant[] = TAGGED_VARIANTS.map((t) => t.variant);
 
 /** Exposed for tests/tooling that need to exercise every named variant
  * directly (e.g. "does every variant render without error") rather than
  * relying on random seeds happening to hit all of them. */
 export const BOTANICAL_VARIANTS = VARIANTS;
 
+/** Every variant tagged with `family`, plus the untagged universal-foliage
+ * variants (see `TaggedVariant.family`'s doc comment) — never the full
+ * unfiltered pool, so a family hint genuinely narrows what gets drawn
+ * instead of being purely cosmetic. Falls back to the full pool only if a
+ * family somehow has zero tagged variants (defensive; doesn't happen for
+ * any of the 15 real families today). */
+function poolForFamily(family: BotanicalFamily): Variant[] {
+  const matches = TAGGED_VARIANTS.filter((t) => t.family === family || t.family === undefined);
+  return matches.length > 0 ? matches.map((t) => t.variant) : VARIANTS;
+}
+
+/** Exposed for tests: lets a test assert precisely which variants a family
+ * hint does/doesn't include, rather than inferring it indirectly from
+ * serialized SVG output. */
+export const __testables = { poolForFamily, TAGGED_VARIANTS };
+
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
   label: 'Botanical / Floral',
   description:
-    'Flat minimal leaves, blooms, buds and leafy branches — 21 variants including peony, ranunculus, poppy, anemone, daisy, cosmos, bell flower, eucalyptus, olive, laurel and sage, built on a shared curve-quality and botanical-growth engine.',
+    'Flat minimal leaves, blooms, buds and leafy branches — 25 variants across 15 named botanical families (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb), built on a shared curve-quality and botanical-growth engine.',
   defaultMotifSize: 70,
-  createMotif(rng: Rng, colors: string[], size: number): Motif {
-    const variant = rngPick(rng, VARIANTS);
+  createMotif(rng: Rng, colors: string[], size: number, _colorSeed?: number, hints?: MotifCreateHints): Motif {
+    const family = hints?.family as BotanicalFamily | undefined;
+    const pool = family && (BOTANICAL_FAMILIES as string[]).includes(family) ? poolForFamily(family) : VARIANTS;
+    const variant = rngPick(rng, pool);
     const { node, radius } = variant(rng, colors, size);
     return { node, radius };
   },

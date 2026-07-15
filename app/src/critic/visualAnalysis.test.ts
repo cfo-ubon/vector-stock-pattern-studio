@@ -161,7 +161,20 @@ describe('detectVisualIssues: lowHeroVisibility / weakHierarchy calibration (Bui
       colorCount: 2,
       customColors: ['#f5f5f0', '#eeeee5'],
       density: 0.3,
-      seed: 's6-lowherovis-b1',
+      // Build 004, Section 2 (measured regression fix): this fixture's
+      // original seed ('s6-lowherovis-b1') relied on the botanical
+      // generator's random variant pick landing on a specific shape whose
+      // heroDetailRatio kept the composite Hero Visibility Score under the
+      // real 55-point threshold. Growing the pool from 21 to 25 variants
+      // (Section 2's new families) shifts which variant that same seed's
+      // rng() draw now lands on -- measured: the original seed's score rose
+      // from under 55 to 63.55 (no longer weak). This seed was found via a
+      // direct re-sweep and still produces a genuinely weak hero (score
+      // 42.9, comfortable margin under the threshold) -- the fix is the
+      // trigger seed, not the detector or its threshold, matching this
+      // suite's own established precedent (see Build 003's
+      // `fragmentedSilhouette` density retune, Section 2).
+      seed: 's6-lowherovis-retry-10',
     });
     const metrics = computeMetrics(tile);
     const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'lowHeroVisibility')!;
