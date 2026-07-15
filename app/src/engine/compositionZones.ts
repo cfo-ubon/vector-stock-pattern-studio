@@ -260,7 +260,19 @@ function periodicDist(ax: number, ay: number, bx: number, by: number, tileSize: 
 export function placeZoneAnchors(zone: CompositionZone, tileSize: number, minDist: number, targetCount: number, rng: Rng): Array<[number, number]> {
   const p = sampleZoneParams(rng);
   const isSequence = zone === 'offset' || zone === 'goldenRatio';
-  const poolSize = Math.max(400, targetCount * 60);
+  // Build 003 (measured perf fix): the greedy accept loop below is
+  // O(poolSize x targetCount) in the typical case (each candidate is
+  // checked against every already-accepted point), so an unbounded 60x
+  // multiplier is fine at the anchor counts this module's own design
+  // assumed (see the loop's own doc comment — "often under 15"), but grows
+  // quadratically for a layout like densePremium whose hero tier can need
+  // 60+ anchors. Measured: this made densePremium (already the single
+  // most expensive layout pre-Build-003) ~39% slower per tile. Capping the
+  // pool leaves every existing test (all use targetCount=10, well under
+  // the cap) byte-identical, while bounding the worst case for
+  // high-anchor-count layouts — the "uniform top-up" fallback already
+  // guarantees a non-degenerate count regardless of pool size.
+  const poolSize = Math.min(Math.max(400, targetCount * 60), 2400);
 
   const candidates: Array<{ x: number; y: number; priority: number }> = [];
   if (isSequence) {
