@@ -3,7 +3,8 @@ import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
 import { randomSeed, createRng } from './engine/rng';
-import { assignBatchCompositionZones } from './engine/portfolioVariety';
+import { assignPortfolioDiversity } from './engine/portfolioVariety';
+import { HIERARCHY_PRESETS } from './engine/hierarchy';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
 import { buildTileWithHeroRetry } from './engine/heroDetector';
 import type { QualityPresetId } from './engine/scoring';
@@ -195,24 +196,37 @@ function App() {
   // memory of what earlier items in this same batch already chose — with a
   // Style DNA active, `preferredZones` pools are only 2-3 zones, so 9
   // independent draws very plausibly repeat the same whole-tile composition
-  // more than once. `assignBatchCompositionZones` (engine/portfolioVariety.ts)
-  // assigns all 9 up front from a shuffled, without-replacement-until-
-  // exhausted pool instead, so the batch never shows two thumbnails sharing
-  // an identical composition back to back.
+  // more than once.
+  //
+  // Build 004, Section 11 (Portfolio Diversity Engine V2): generalizes that
+  // same shuffled-bag guarantee across every other named diversity
+  // dimension that has a real, directly overridable `GenerateParams` field
+  // — Botanical Family, Cluster/Bouquet Type, and Hero Structure, alongside
+  // the original Composition Zone — via `assignPortfolioDiversity`
+  // (engine/portfolioVariety.ts). Each is narrowed to the active Style
+  // DNA's own preference pool when one is set, the same way `zoneCandidates`
+  // already did, so a batch still explores that style's own family of looks
+  // rather than the engine's full unrestricted range.
   const handleGenerateBatch = useCallback(() => {
     const activeDna = params.styleDnaId
       ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
       : undefined;
-    const zoneCandidates = activeDna?.preferredZones?.length ? activeDna.preferredZones : undefined;
-    const zoneRng = createRng(randomSeed());
-    const batchZones = assignBatchCompositionZones(zoneRng, 9, zoneCandidates);
+    const diversityRng = createRng(randomSeed());
+    const batch = assignPortfolioDiversity(diversityRng, 9, {
+      compositionZones: activeDna?.preferredZones?.length ? activeDna.preferredZones : undefined,
+      botanicalFamilies: activeDna?.preferredFamilies?.length ? activeDna.preferredFamilies : undefined,
+      clusterTypes: activeDna?.preferredClusterArchetypes?.length ? activeDna.preferredClusterArchetypes : undefined,
+    });
     const items: GalleryItem[] = [];
     let latest = tileData;
     for (let i = 0; i < 9; i++) {
       const seed = randomSeed();
       const variantParams = {
         ...(activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed }),
-        compositionZone: batchZones[i],
+        compositionZone: batch[i].compositionZone,
+        botanicalFamily: batch[i].botanicalFamily,
+        clusterArchetypes: [batch[i].clusterType],
+        hierarchy: HIERARCHY_PRESETS[batch[i].heroStructure].value,
       };
       // Build 003, Part 11 (Hero Detector): see handleGenerate above.
       const data = buildTileWithHeroRetry(variantParams).tileData;
