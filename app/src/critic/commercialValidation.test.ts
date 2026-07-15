@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildDesignSpecification } from '../trend/designIntelligence';
 import type { KeywordBundle } from '../trend/designSpecTypes';
 import { buildTileFromDesignSpec } from '../trend/designSpecToParams';
-import { computeMetrics } from '../engine/scoring';
+import { computeMetrics, computeHeroVisibilityScore } from '../engine/scoring';
 import { runDesignSpecQualityLoop } from '../trend/designSpecQuality';
 import { evaluateCommercialValidation } from './commercialValidation';
 
@@ -57,6 +57,7 @@ describe('evaluateCommercialValidation', () => {
       tileSize: spec.exportHints.tileSize,
       density: spec.density,
       keywordText: [spec.keywordBundle.commercialCategory, spec.keywordBundle.primaryKeyword, ...spec.keywordBundle.secondaryKeywords].join(' '),
+      heroVisibility: computeHeroVisibilityScore(metrics),
     });
     expect(result.wallpaperScore).toBe(productEvaluations.find((e) => e.id === 'wallpaper')!.score);
     expect(result.fabricScore).toBe(productEvaluations.find((e) => e.id === 'fabric')!.score);
@@ -73,5 +74,38 @@ describe('evaluateCommercialValidation', () => {
     const a = evaluate('commercial-validation-5');
     const b = evaluate('commercial-validation-5');
     expect(a).toEqual(b);
+  });
+
+  describe('heroVisibility wiring (Build 002, Section 7)', () => {
+    it('feeds the already-computed real Hero Visibility Score into giftWrapScore via evaluateProductTargets', async () => {
+      const { evaluateProductTargets } = await import('../collection/productTargets');
+      const spec = makeSpec({ patternType: 'cute', primaryKeyword: 'Gift Wrap', commercialCategory: 'giftWrap' });
+      const tile = buildTileFromDesignSpec(spec, 'commercial-validation-6');
+      const metrics = computeMetrics(tile);
+      const loopResult = runDesignSpecQualityLoop(spec, 'commercial-validation-6', 'fast', 1);
+      const heroVisibility = computeHeroVisibilityScore(metrics);
+
+      const result = evaluateCommercialValidation(spec, metrics, loopResult.check.report);
+      const withHeroVisibility = evaluateProductTargets({
+        categoryId: spec.keywordBundle.patternType,
+        tileSize: spec.exportHints.tileSize,
+        density: spec.density,
+        keywordText: [spec.keywordBundle.commercialCategory, spec.keywordBundle.primaryKeyword, ...spec.keywordBundle.secondaryKeywords].join(' '),
+        heroVisibility,
+      });
+      const withoutHeroVisibility = evaluateProductTargets({
+        categoryId: spec.keywordBundle.patternType,
+        tileSize: spec.exportHints.tileSize,
+        density: spec.density,
+        keywordText: [spec.keywordBundle.commercialCategory, spec.keywordBundle.primaryKeyword, ...spec.keywordBundle.secondaryKeywords].join(' '),
+      });
+
+      expect(result.giftWrapScore).toBe(withHeroVisibility.find((e) => e.id === 'giftWrap')!.score);
+      // wallpaperScore/fabricScore have no heroVisibility rule, so wiring
+      // it in must never move them.
+      const wallpaperWith = withHeroVisibility.find((e) => e.id === 'wallpaper')!.score;
+      const wallpaperWithout = withoutHeroVisibility.find((e) => e.id === 'wallpaper')!.score;
+      expect(wallpaperWith).toBe(wallpaperWithout);
+    });
   });
 });

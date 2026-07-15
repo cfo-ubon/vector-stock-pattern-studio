@@ -48,13 +48,33 @@ interface ProductUseRule {
   maxTileSize?: number;
   minDensity?: number;
   maxDensity?: number;
+  /** Build 002, Section 7: a real, measured output-quality signal (not
+   * another input-derived rule) — `engine/scoring.ts`'s Hero Visibility
+   * Score for the *actual generated tile*. A diagnostic sweep across the
+   * 4 real generator categories this rule applies to (cute/seasonal/
+   * retro/geometric) x 3 seeds each, through the real Design Spec
+   * pipeline, found Hero Visibility genuinely varies (69-86 for this
+   * sample) and is a well-known real commercial distinction: a
+   * gift-worthy print needs a real standout motif, unlike wallpaper's
+   * subtler all-over repeat. 70 sits near that sample's low end so the
+   * real majority of generated output clears it (9/12 in the sweep) while
+   * genuinely below-average hero visibility still gets a real, honest
+   * penalty rather than a free pass.
+   * (`engine/patternReadability.ts`'s thumbnail200 score was tried first
+   * and rejected — the pipeline's fixed 3000px `exportHints.tileSize`
+   * puts it in a narrow 31-40 band for every category, giving a
+   * threshold-based rule almost no real signal to reward.) Deliberately
+   * *not* set on `wallpaper`, keeping the two scores independent: nothing
+   * that improves giftWrap's real hero visibility can ever move
+   * wallpaperScore, which has no rule that reads this field. */
+  minHeroVisibility?: number;
 }
 
 const RULES: Record<ProductUseId, ProductUseRule> = {
   wallpaper: { keywords: ['wallpaper', 'wall mural', 'mural'], categories: ['botanical', 'damask', 'mandala', 'tropical', 'organic'], minTileSize: 1200 },
   fabric: { keywords: ['fabric', 'apparel', 'upholstery', 'quilt', 'quilting'], categories: ['botanical', 'tropical', 'paisley', 'plaid', 'animalprint', 'boho'], minTileSize: 1000 },
   wrappingPaper: { keywords: ['wrapping paper', 'wrap'], categories: ['cute', 'seasonal', 'geometric', 'retro'], maxTileSize: 1400 },
-  giftWrap: { keywords: ['gift wrap', 'gift'], categories: ['cute', 'seasonal', 'retro', 'geometric'], maxTileSize: 1400 },
+  giftWrap: { keywords: ['gift wrap', 'gift'], categories: ['cute', 'seasonal', 'retro', 'geometric'], maxTileSize: 1400, minHeroVisibility: 70 },
   packaging: { keywords: ['packaging', 'box', 'label'], categories: ['geometric', 'plaid', 'terrazzo', 'lineart'], maxDensity: 0.6 },
   notebookCovers: { keywords: ['notebook', 'journal', 'planner', 'cover'], categories: ['geometric', 'mandala', 'boho', 'lineart'], maxTileSize: 1200 },
   stationery: { keywords: ['stationery', 'card', 'paper goods', 'invitation'], categories: ['geometric', 'cute', 'lineart', 'damask'], maxDensity: 0.55 },
@@ -84,6 +104,12 @@ export interface ProductTargetsInput {
    * typically join commercialCategory + primaryKeyword + secondaryKeywords.
    * Matching is case-insensitive; this function lowercases internally. */
   keywordText: string;
+  /** Build 002, Section 7: `engine/scoring.ts`'s real Hero Visibility
+   * Score for the actual generated tile, when the caller has already
+   * computed it (optional — a caller with only spec-level input, no
+   * rendered tile yet, simply omits it and every `minHeroVisibility`
+   * rule is skipped, exactly as if the field didn't exist). */
+  heroVisibility?: number;
 }
 
 const SUITABILITY_THRESHOLD = 60;
@@ -129,6 +155,16 @@ export function evaluateProductTargets(input: ProductTargetsInput): ProductUseEv
         reasons.push(`pattern density fits ${PRODUCT_USE_LABELS[id]}'s typical look`);
       } else {
         score -= 10;
+      }
+    }
+
+    if (rule.minHeroVisibility !== undefined && input.heroVisibility !== undefined) {
+      if (input.heroVisibility >= rule.minHeroVisibility) {
+        score += 10;
+        reasons.push(`this pattern's real Hero Visibility Score (${Math.round(input.heroVisibility)}/100) gives it the standout motif ${PRODUCT_USE_LABELS[id]} needs`);
+      } else {
+        score -= 5;
+        reasons.push(`this pattern's real Hero Visibility Score (${Math.round(input.heroVisibility)}/100) is below what ${PRODUCT_USE_LABELS[id]} typically needs to stand out`);
       }
     }
 

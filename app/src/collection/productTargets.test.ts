@@ -47,6 +47,33 @@ describe('evaluateProductTargets', () => {
     const upper = evaluateProductTargets({ categoryId: 'geometric', tileSize: 900, density: 0.5, keywordText: 'STATIONERY SET' });
     expect(lower).toEqual(upper);
   });
+
+  describe('heroVisibility (Build 002, Section 7)', () => {
+    it('a real high Hero Visibility Score raises giftWrap over the same input without it', () => {
+      const withoutHeroVisibility = evaluateProductTargets({ categoryId: 'cute', tileSize: 1000, density: 0.5, keywordText: '' });
+      const withHeroVisibility = evaluateProductTargets({ categoryId: 'cute', tileSize: 1000, density: 0.5, keywordText: '', heroVisibility: 90 });
+      const before = withoutHeroVisibility.find((r) => r.id === 'giftWrap')!.score;
+      const after = withHeroVisibility.find((r) => r.id === 'giftWrap')!.score;
+      expect(after).toBeGreaterThan(before);
+    });
+
+    it('a real low Hero Visibility Score lowers giftWrap versus the same input without it', () => {
+      const withoutHeroVisibility = evaluateProductTargets({ categoryId: 'cute', tileSize: 1000, density: 0.5, keywordText: '' });
+      const withHeroVisibility = evaluateProductTargets({ categoryId: 'cute', tileSize: 1000, density: 0.5, keywordText: '', heroVisibility: 20 });
+      const before = withoutHeroVisibility.find((r) => r.id === 'giftWrap')!.score;
+      const after = withHeroVisibility.find((r) => r.id === 'giftWrap')!.score;
+      expect(after).toBeLessThan(before);
+    });
+
+    it('never moves wallpaperScore, which has no heroVisibility rule', () => {
+      const withoutHeroVisibility = evaluateProductTargets({ categoryId: 'botanical', tileSize: 1600, density: 0.5, keywordText: 'wallpaper' });
+      const withHighHeroVisibility = evaluateProductTargets({ categoryId: 'botanical', tileSize: 1600, density: 0.5, keywordText: 'wallpaper', heroVisibility: 95 });
+      const withLowHeroVisibility = evaluateProductTargets({ categoryId: 'botanical', tileSize: 1600, density: 0.5, keywordText: 'wallpaper', heroVisibility: 5 });
+      const scoreOf = (results: ReturnType<typeof evaluateProductTargets>) => results.find((r) => r.id === 'wallpaper')!.score;
+      expect(scoreOf(withHighHeroVisibility)).toBe(scoreOf(withoutHeroVisibility));
+      expect(scoreOf(withLowHeroVisibility)).toBe(scoreOf(withoutHeroVisibility));
+    });
+  });
 });
 
 describe('recommendedProductUses', () => {

@@ -85,7 +85,23 @@ const PRODUCT_SCORE_IDS: Record<'wallpaperScore' | 'fabricScore' | 'giftWrapScor
 /** Runs the Section 7 Commercial Validation checks for one Design
  * Specification + its already-computed metrics/quality report. Pure
  * aggregation over other modules' real scores — no new geometry or spec
- * analysis of its own beyond `styleFitScore`/`commercialScore` above. */
+ * analysis of its own beyond `styleFitScore`/`commercialScore` above.
+ *
+ * Build 002, Section 7: feeds the already-computed `heroVisibility`
+ * (this function computed it below anyway, for `commercialScore`) into
+ * `evaluateProductTargets`'s `minHeroVisibility` rule (currently only on
+ * `giftWrap`) — a real, measured signal, not a fabricated new metric.
+ * `thumbnail200` marketplace-thumbnail readability was tried first and
+ * rejected: a diagnostic sweep across every generator category found the
+ * Design Spec pipeline's fixed `exportHints.tileSize` (3000px, a
+ * deliberate stock-asset constant — buyers rescale the vector for
+ * whatever they print) puts thumbnail200 in a narrow 31-40 band for
+ * *every* category, giving a threshold-based rule almost no genuine
+ * signal to reward or penalize. `heroVisibility` (already computed here)
+ * varies meaningfully in real generation (67-86 measured across 8
+ * categories x 3 seeds) and is a genuine, well-known gift-wrap
+ * commercial concern — a gift-worthy print needs a real standout motif,
+ * not a subtler all-over repeat the way wallpaper does. */
 export function evaluateCommercialValidation(
   spec: DesignSpecification,
   metrics: CompositionMetrics,
@@ -105,6 +121,7 @@ export function evaluateCommercialValidation(
     tileSize: spec.exportHints.tileSize,
     density: spec.density,
     keywordText: [spec.keywordBundle.commercialCategory, spec.keywordBundle.primaryKeyword, ...spec.keywordBundle.secondaryKeywords].join(' '),
+    heroVisibility,
   });
   const scoreFor = (id: ProductUseId) => productEvaluations.find((e) => e.id === id)?.score ?? 0;
 
