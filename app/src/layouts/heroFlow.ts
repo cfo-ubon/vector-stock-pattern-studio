@@ -77,7 +77,11 @@ export const heroFlowLayout: PatternLayout = {
     // Ambient filler: small motifs scattered through the remaining negative
     // space, at low density — the per-hero clusters above already
     // contribute their own filler/accent members near the path, so this
-    // layer only needs to cover what's left over.
+    // layer only needs to cover what's left over. Build 002, Section 4:
+    // widened from [0.3, 0.5] for the same real-measured reason as
+    // heroScatter/densePremium's own ambient filler tiers — this is usually
+    // the tile's most numerous role, and a narrow range packed it into one
+    // bucket of the real scale-repeat detector.
     const fillerMinDist = spacing * 1.3;
     const fillerTarget = Math.max(6, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.6));
     const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng);
@@ -86,7 +90,7 @@ export const heroFlowLayout: PatternLayout = {
         x,
         y,
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
-        scale: Math.max(0.25, rngRange(rng, 0.3, 0.5) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
+        scale: Math.max(0.25, rngRange(rng, 0.27, 0.53) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'filler',
       });

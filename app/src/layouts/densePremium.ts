@@ -63,6 +63,13 @@ export const densePremiumLayout: PatternLayout = {
       }
     }
 
+    // Build 002, Section 4: secondary/filler scale widened from a fixed
+    // multiplier (0.72 / 0.4) +/- scaleJitter to a real range — these two
+    // tiers are independent Poisson-disc layers (not routed through
+    // engine/clusterEngine.ts's ROLE_SCALE_RANGE at all), so at the default
+    // scaleJitter (0.15) their instances landed in a narrow +/-15% band,
+    // reliably packing the majority of the tile's placements into one
+    // bucket of the real scale-repeat detector (critic/visualAnalysis.ts).
     const secondaryMinDist = baseSpacing * 1.05;
     const secondaryTarget = Math.max(4, Math.round((tileSize * tileSize) / (secondaryMinDist * secondaryMinDist)));
     const secondaryPoints = poissonDiscPoints(tileSize, secondaryMinDist, secondaryTarget, rng);
@@ -71,7 +78,7 @@ export const densePremiumLayout: PatternLayout = {
         x,
         y,
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
-        scale: Math.max(0.25, 0.72 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
+        scale: Math.max(0.25, rngRange(rng, 0.63, 0.83) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'secondary',
       });
@@ -85,7 +92,7 @@ export const densePremiumLayout: PatternLayout = {
         x,
         y,
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
-        scale: Math.max(0.25, 0.4 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
+        scale: Math.max(0.25, rngRange(rng, 0.32, 0.48) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'filler',
       });

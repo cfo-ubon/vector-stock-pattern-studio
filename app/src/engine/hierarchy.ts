@@ -65,8 +65,21 @@ export const HIERARCHY_PRESETS: Record<string, { label: string; value: Hierarchy
 /** Layouts that already build their own explicit hero/secondary/filler
  * tiers internally — applying the generic hierarchy pass on top would
  * multiply an already-large hero by heroScale again (double-compounding),
- * distorting the hand-tuned composition instead of improving it. */
-export const HIERARCHY_EXEMPT_LAYOUTS = new Set(['heroFlow', 'heroScatter', 'bouquet', 'densePremium']);
+ * distorting the hand-tuned composition instead of improving it.
+ *
+ * Build 002, Section 4 (Scale Diversity): `scatter` and `toss` were missing
+ * from this set despite routing through the exact same real per-role
+ * `engine/clusterEngine.ts` scale assignment (`ROLE_SCALE_RANGE`) as
+ * `bouquet`/`densePremium` (all four call `buildClusterPlacements`) — the
+ * real, measured root cause of this section's repeatedScale flag rate
+ * (56-80% for scatter/toss specifically): applyHierarchy was re-assigning a
+ * FRESH random role and re-multiplying the cluster engine's already-small
+ * accent/filler scale by its own accentScale/fillerScale a second time,
+ * compounding two independent "make it smaller" factors until the result
+ * clamped at the 0.05 floor for a large fraction of instances — a real,
+ * measured pile-up in the scale-repeat detector's lowest bucket, not
+ * something a wider per-instance wobble alone could fix. */
+export const HIERARCHY_EXEMPT_LAYOUTS = new Set(['heroFlow', 'heroScatter', 'bouquet', 'densePremium', 'scatter', 'toss']);
 
 /** Layouts whose entire visual identity IS a strict, evenly-spaced lattice
  * or band structure — `grid`/`gridMinimal` are the pair
@@ -149,9 +162,20 @@ export function applyHierarchy(placements: Placement[], hierarchy: HierarchyPara
       role = 'accent';
       mul = hierarchy.accentScale;
     }
-    // A touch of independent per-instance variation so same-role motifs
-    // don't all land at exactly the same scale.
-    const wobble = 1 + rngRange(rng, -0.06, 0.06);
+    // Build 002, Section 4 (Scale Diversity): a real, wide per-instance
+    // spread within each role's own scale band, not just cosmetic noise —
+    // the old +/-6% wobble left same-role motifs (often 30%+ of a tile's
+    // placements, e.g. DEFAULT_HIERARCHY's 38% secondary / 35% filler)
+    // clustered tightly enough around one multiplier to dominate a single
+    // bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat detector
+    // (SCALE_REPEAT_THRESHOLD 0.5) on almost every real generation — exactly
+    // the repeatedScale flag rate this section measured at 32% portfolio-
+    // wide. +/-22% keeps every role's own band comfortably separated from
+    // its neighbors (hero/secondary/filler/accent multipliers are spaced far
+    // enough apart across every HIERARCHY_PRESETS entry that +/-22% never
+    // makes two roles' ranges overlap), while spreading each role's own
+    // instances across roughly 2 of the detector's 8 buckets instead of 1.
+    const wobble = 1 + rngRange(rng, -0.22, 0.22);
     return { ...p, role, scale: Math.max(0.05, p.scale * mul * wobble) };
   });
 }

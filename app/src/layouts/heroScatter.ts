@@ -60,12 +60,17 @@ export const heroScatterLayout: PatternLayout = {
         });
       }
     }
+    // Build 002, Section 4: widened from [0.35, 0.55] — this ambient filler
+    // layer is typically the most numerous tier on the tile (every hero's
+    // own cluster contributes its own filler/accent on top), so a narrow
+    // fixed range reliably packed a majority of instances into one bucket
+    // of the real scale-repeat detector (critic/visualAnalysis.ts).
     for (const [x, y] of fillerPoints) {
       placements.push({
         x,
         y,
         rotationDeg: jitter(rng, rngRange(rng, 0, 360), params.rotationJitter),
-        scale: Math.max(0.25, rngRange(rng, 0.35, 0.55) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
+        scale: Math.max(0.25, rngRange(rng, 0.32, 0.58) * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'filler',
       });

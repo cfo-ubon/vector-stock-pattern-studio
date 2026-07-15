@@ -42,21 +42,62 @@ function evenStrideSelect(pool: number[], count: number): number[] {
   return out;
 }
 
-// Same coarse 8x8 grid + 2x2 corner blocks `scoring.ts`'s
-// `computeCornerContinuity` measures — a placement landing in one of the 4
-// tile-corner blocks is load-bearing for that real seamless-repeat
-// measurement (a tile's 4 corners meet at one point when repeated), so
-// node-budget thinning must never remove it even though it isn't a hero;
-// losing corner coverage doesn't just look thin, it fails a structural
-// quality target most style specs require to be exactly 100.
-const CORNER_GRID_N = 8;
-const CORNER_BLOCK_SIZE = 2;
-function isCornerCritical(p: Placement, tileSize: number): boolean {
-  const cell = tileSize / CORNER_GRID_N;
-  const gx = Math.min(CORNER_GRID_N - 1, Math.floor((((p.x % tileSize) + tileSize) % tileSize) / cell));
-  const gy = Math.min(CORNER_GRID_N - 1, Math.floor((((p.y % tileSize) + tileSize) % tileSize) / cell));
-  const inCornerRange = (v: number) => v < CORNER_BLOCK_SIZE || v >= CORNER_GRID_N - CORNER_BLOCK_SIZE;
-  return inCornerRange(gx) && inCornerRange(gy);
+// Same coarse 8x8 grid every coverage/density/corner metric in `scoring.ts`
+// measures (gridCoverage/computeCornerContinuity/computeEdgeDensity) — see
+// `stratifiedSelect` below for why thinning distributes proportionally
+// across every cell instead of exempting the 4 corner blocks outright: an
+// absolute exemption preserves the corner blocks' *raw count* while every
+// other cell gets cut, which pushes the corner-vs-overall density *ratio*
+// (computeCornerContinuity's real measurement, and computeEdgeDensity's
+// border/interior ratio) just as far out of balance in the other direction
+// — corners end up over-represented once the tile-wide average has been
+// cut hard. Keeping every cell's survivor count proportional to its own
+// original share is what actually preserves the ratio these metrics check.
+function gridCellOf(p: Placement, tileSize: number, gridN: number): number {
+  const cell = tileSize / gridN;
+  const gx = Math.min(gridN - 1, Math.floor((((p.x % tileSize) + tileSize) % tileSize) / cell));
+  const gy = Math.min(gridN - 1, Math.floor((((p.y % tileSize) + tileSize) % tileSize) / cell));
+  return gy * gridN + gx;
+}
+
+/** Selects `count` survivors out of `indices` (indices into `placements`)
+ * spread proportionally across the same coarse 8x8 spatial grid every
+ * coverage/density/corner metric in `scoring.ts` measures, rather than a
+ * blind stride over array/generation order. A severe cut (this pass only
+ * ever fires when the real node count is already well over budget, often
+ * needing to keep well under a third of placements) can otherwise empty out
+ * whole regions of the tile purely by chance of which *index* happened to
+ * survive the stride — this tile's own real spatial layout decides survivor
+ * counts instead, so occupancy/edge-density/corner-continuity stay
+ * representative of the original composition even under a heavy cut. Uses
+ * the Largest Remainder Method so per-cell survivor counts sum to exactly
+ * `count`. */
+function stratifiedSelect(indices: number[], placements: Placement[], tileSize: number, count: number): number[] {
+  if (count >= indices.length) return indices;
+  const gridN = 8;
+  const byCell = new Map<number, number[]>();
+  for (const i of indices) {
+    const cell = gridCellOf(placements[i], tileSize, gridN);
+    let bucket = byCell.get(cell);
+    if (!bucket) {
+      bucket = [];
+      byCell.set(cell, bucket);
+    }
+    bucket.push(i);
+  }
+  const cells = [...byCell.entries()];
+  const shareRaw = cells.map(([, idxs]) => (idxs.length / indices.length) * count);
+  const shareFloor = shareRaw.map(Math.floor);
+  let remaining = count - shareFloor.reduce((a, b) => a + b, 0);
+  const remainders = shareRaw.map((s, i) => ({ i, frac: s - shareFloor[i] })).sort((a, b) => b.frac - a.frac);
+  for (const { i } of remainders) {
+    if (remaining <= 0) break;
+    shareFloor[i]++;
+    remaining--;
+  }
+  const out: number[] = [];
+  cells.forEach(([, idxs], i) => out.push(...evenStrideSelect(idxs, Math.min(shareFloor[i], idxs.length))));
+  return out;
 }
 
 const WRAP_OFFSETS = [-1, 0, 1];
@@ -365,27 +406,24 @@ export function buildTile(params: GenerateParams): TileData {
   if (realInstanceNodeCount > instanceBudget && paintOrderedPlacements.length > 0) {
     const protectedIndices: number[] = [];
     const thinnableIndices: number[] = [];
-    paintOrderedPlacements.forEach((p, i) =>
-      (p.role === 'hero' || isCornerCritical(p, tileSize) ? protectedIndices : thinnableIndices).push(i),
-    );
+    paintOrderedPlacements.forEach((p, i) => (p.role === 'hero' ? protectedIndices : thinnableIndices).push(i));
     const protectedCost = protectedIndices.reduce((sum, i) => sum + perIndexCost[i], 0);
 
     let keptIndices: Set<number>;
     if (protectedCost >= instanceBudget) {
-      // Even every hero/corner-critical instance alone exceeds the budget —
-      // the rare edge case where the layout's own hero count/scale is the
-      // problem, not the filler layer. Thin the protected set itself
-      // (evenly, not randomly) rather than silently leaving the tile over
-      // budget.
+      // Even every hero instance alone exceeds the budget — the rare edge
+      // case where the layout's own hero count/scale is the problem, not
+      // the filler layer. Thin the hero set itself (evenly, not randomly)
+      // rather than silently leaving the tile over budget.
       const protectedAvg = protectedCost / protectedIndices.length;
       const protectedTarget = Math.max(1, Math.floor(instanceBudget / protectedAvg));
-      keptIndices = new Set(evenStrideSelect(protectedIndices, protectedTarget));
+      keptIndices = new Set(stratifiedSelect(protectedIndices, paintOrderedPlacements, tileSize, protectedTarget));
     } else {
       const thinnableCost = realInstanceNodeCount - protectedCost;
       const thinnableAvg = thinnableIndices.length > 0 ? thinnableCost / thinnableIndices.length : 0;
       const remainingBudget = instanceBudget - protectedCost;
       const thinnableTarget = thinnableAvg > 0 ? Math.max(0, Math.floor(remainingBudget / thinnableAvg)) : thinnableIndices.length;
-      keptIndices = new Set([...protectedIndices, ...evenStrideSelect(thinnableIndices, thinnableTarget)]);
+      keptIndices = new Set([...protectedIndices, ...stratifiedSelect(thinnableIndices, paintOrderedPlacements, tileSize, thinnableTarget)]);
     }
 
     if (keptIndices.size < paintOrderedPlacements.length) {

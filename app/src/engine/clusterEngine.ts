@@ -60,10 +60,24 @@ export interface ClusterGenerateOptions {
   memberCount?: number;
 }
 
+// Build 002, Section 4 (Scale Diversity): widened from the original
+// (secondary [0.55,0.75], filler [0.3,0.48], accent [0.12,0.24]) — measured
+// against the frozen 30-scenario/100-pattern set, `filler` is both the most
+// numerous role in every cluster-driven layout (60-70% of instances) and
+// the narrowest absolute range, so its instances reliably packed into a
+// single bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat
+// detector (SCALE_REPEAT_THRESHOLD 0.5) once combined with the hero's own
+// much larger scale widening the detector's global min-max span. Widening
+// every non-hero role's own band (with deliberate, real overlap between
+// adjacent roles — e.g. filler's new ceiling 0.58 sits inside secondary's
+// new floor 0.5 — rather than three disjoint narrow slices) spreads each
+// role's own instances across roughly 2 buckets instead of 1, while
+// preserving real hierarchy (hero remains visibly the largest, accent the
+// smallest) since the *medians* of each band stay clearly separated.
 const ROLE_SCALE_RANGE: Record<Exclude<MotifRole, 'hero'>, [number, number]> = {
-  secondary: [0.55, 0.75],
-  filler: [0.3, 0.48],
-  accent: [0.12, 0.24],
+  secondary: [0.52, 0.78],
+  filler: [0.28, 0.52],
+  accent: [0.11, 0.26],
 };
 
 /** Same spacing formula every layout already uses for single-motif
