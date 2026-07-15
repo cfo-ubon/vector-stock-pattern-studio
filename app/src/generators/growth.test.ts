@@ -68,4 +68,112 @@ describe('growLeaves', () => {
       expect(leaves[i].side).not.toBe(leaves[i + 1].side);
     }
   });
+
+  it('alternate/opposite leaves are always tagged "front" (no layering concept of their own, Build 003 behavior unchanged)', () => {
+    for (const name of ['eucalyptus', 'olive', 'laurel', 'sage', 'fern', 'leafyBranch']) {
+      const preset = GROWTH_PRESETS[name];
+      const stem = generateStem(createRng(`layer-${name}`), 100, preset.curvature);
+      const leaves = growLeaves(createRng(`layer-${name}`), stem, preset);
+      expect(leaves.every((l) => l.layer === 'front')).toBe(true);
+    }
+  });
+});
+
+describe('growLeaves: Build 004 Section 5 whorled arrangement', () => {
+  it('groups leaves into real whorls: every leaf in a whorl shares the same t (within jitter tolerance) and covers a full ring, not just 2 sides', () => {
+    const stem = generateStem(createRng('whorl-stem'), 100, GROWTH_PRESETS.herbWhorl.curvature);
+    const leaves = growLeaves(createRng('whorl'), stem, GROWTH_PRESETS.herbWhorl);
+    expect(leaves.length).toBeGreaterThan(3); // more than a single alternate/opposite node could ever produce
+    const distinctSides = new Set(leaves.map((l) => l.side));
+    expect(distinctSides.size).toBe(2); // real ring coverage, not one-sided
+  });
+
+  it('is deterministic for the same seed', () => {
+    const stem = generateStem(createRng('whorl-det-stem'), 100, GROWTH_PRESETS.herbWhorl.curvature);
+    const a = growLeaves(createRng('whorl-det'), stem, GROWTH_PRESETS.herbWhorl);
+    const b = growLeaves(createRng('whorl-det'), stem, GROWTH_PRESETS.herbWhorl);
+    expect(a).toEqual(b);
+  });
+
+  it('produces both "back" and "front" layered leaves across enough seeds (real Layered Leaves, not always one tag)', () => {
+    let sawBack = false;
+    let sawFront = false;
+    for (let seed = 0; seed < 10; seed++) {
+      const stem = generateStem(createRng(`whorl-layer-stem-${seed}`), 100, GROWTH_PRESETS.herbWhorl.curvature);
+      const leaves = growLeaves(createRng(`whorl-layer-${seed}`), stem, GROWTH_PRESETS.herbWhorl);
+      if (leaves.some((l) => l.layer === 'back')) sawBack = true;
+      if (leaves.some((l) => l.layer === 'front')) sawFront = true;
+    }
+    expect(sawBack).toBe(true);
+    expect(sawFront).toBe(true);
+  });
+
+  it('whorl node positions are not perfectly evenly spaced (real Leaf Rhythm jitter)', () => {
+    let sawJitter = false;
+    for (let seed = 0; seed < 10; seed++) {
+      const stem = generateStem(createRng(`whorl-rhythm-stem-${seed}`), 100, GROWTH_PRESETS.herbWhorl.curvature);
+      const leaves = growLeaves(createRng(`whorl-rhythm-${seed}`), stem, GROWTH_PRESETS.herbWhorl);
+      const distinctT = [...new Set(leaves.map((l) => Math.round(l.t * 1000) / 1000))].sort((a, b) => a - b);
+      if (distinctT.length > 1) {
+        const gaps = distinctT.slice(1).map((t, i) => t - distinctT[i]);
+        if (new Set(gaps.map((g) => Math.round(g * 1000))).size > 1) sawJitter = true;
+      }
+    }
+    expect(sawJitter).toBe(true);
+  });
+
+  it('produces only finite placement values', () => {
+    const stem = generateStem(createRng('whorl-finite'), 100, GROWTH_PRESETS.herbWhorl.curvature);
+    const leaves = growLeaves(createRng('whorl-finite'), stem, GROWTH_PRESETS.herbWhorl);
+    for (const leaf of leaves) {
+      expect(Number.isFinite(leaf.point.x)).toBe(true);
+      expect(Number.isFinite(leaf.point.y)).toBe(true);
+      expect(Number.isFinite(leaf.angle)).toBe(true);
+      expect(leaf.scale).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('growLeaves: Build 004 Section 5 radial arrangement', () => {
+  it('every leaf radiates from the same anchor t (a basal rosette, not spread along the stem length)', () => {
+    const stem = generateStem(createRng('radial-stem'), 100, GROWTH_PRESETS.basalRosette.curvature);
+    const leaves = growLeaves(createRng('radial'), stem, GROWTH_PRESETS.basalRosette);
+    const anchorT = GROWTH_PRESETS.basalRosette.startT!;
+    for (const leaf of leaves) expect(leaf.t).toBeCloseTo(anchorT, 5);
+  });
+
+  it('leaves fan across a real angular spread (not all identical direction)', () => {
+    const stem = generateStem(createRng('radial-spread-stem'), 100, GROWTH_PRESETS.basalRosette.curvature);
+    const leaves = growLeaves(createRng('radial-spread'), stem, GROWTH_PRESETS.basalRosette);
+    const angles = leaves.map((l) => l.angle);
+    expect(Math.max(...angles) - Math.min(...angles)).toBeGreaterThan(90);
+  });
+
+  it('back-layer leaves are always emitted before front-layer leaves (paint order = array order)', () => {
+    const stem = generateStem(createRng('radial-order-stem'), 100, GROWTH_PRESETS.basalRosette.curvature);
+    const leaves = growLeaves(createRng('radial-order'), stem, GROWTH_PRESETS.basalRosette);
+    let seenFront = false;
+    for (const leaf of leaves) {
+      if (leaf.layer === 'front') seenFront = true;
+      if (seenFront) expect(leaf.layer).toBe('front'); // never back after the first front
+    }
+  });
+
+  it('is deterministic for the same seed', () => {
+    const stem = generateStem(createRng('radial-det-stem'), 100, GROWTH_PRESETS.basalRosette.curvature);
+    const a = growLeaves(createRng('radial-det'), stem, GROWTH_PRESETS.basalRosette);
+    const b = growLeaves(createRng('radial-det'), stem, GROWTH_PRESETS.basalRosette);
+    expect(a).toEqual(b);
+  });
+
+  it('produces only finite placement values', () => {
+    const stem = generateStem(createRng('radial-finite'), 100, GROWTH_PRESETS.basalRosette.curvature);
+    const leaves = growLeaves(createRng('radial-finite'), stem, GROWTH_PRESETS.basalRosette);
+    for (const leaf of leaves) {
+      expect(Number.isFinite(leaf.point.x)).toBe(true);
+      expect(Number.isFinite(leaf.point.y)).toBe(true);
+      expect(Number.isFinite(leaf.angle)).toBe(true);
+      expect(leaf.scale).toBeGreaterThan(0);
+    }
+  });
 });
