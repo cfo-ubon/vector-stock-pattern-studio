@@ -53,20 +53,36 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   const { colors, size, family } = opts;
   const accents = colors.length > 1 ? colors.slice(1) : colors;
 
+  // A hero placement is already positioned by its OWN layout's spacing math
+  // (which sized the gaps to its neighbors assuming a plain single-variant
+  // motif's footprint) -- a hero drawn from a cluster-based layout
+  // (bouquet/heroScatter) additionally sits inside that outer layout's own
+  // cluster. Keeping this inner arrangement tight (not the ~size*0.4 a
+  // freestanding cluster would use) keeps the assembled hero's overall
+  // radius close to a plain hero's, so it reads as "one richer object" at
+  // the same footprint rather than sprawling into space the outer layout
+  // reserved for its other members.
   const members = generateCluster('bouquet', rng, {
-    baseRadius: size * 0.42,
+    baseRadius: size * 0.2,
     rotationJitter: 12,
     scaleJitter: 0.15,
     memberCount: rngInt(rng, 4, 6),
   });
 
-  const stem = generateStem(rng, size * 0.85, rngRange(rng, 0.05, 0.1));
+  // Kept short (a plain hero variant's own stems are similarly compact) --
+  // a full-length stem (previously size*0.85, reaching ~size*0.42 from
+  // center on its own) plus leaves extending further past its tip was the
+  // real, dominant driver of an oversized rendered bounding radius
+  // (confirmed via computeBoundingRadius, which re-measures actual SVG
+  // geometry independent of the `radius` estimate below) -- not the
+  // cluster member spread, which this function already keeps tight.
+  const stem = generateStem(rng, size * 0.4, rngRange(rng, 0.05, 0.1));
   const stemColor = rngPick(rng, accents);
   const leafPreset = GROWTH_PRESETS.leafyBranch;
   const leaves = growLeaves(rng, stem, leafPreset);
   const leafColor = rngPick(rng, accents);
   const leafNodes = leaves.map((leaf) => {
-    const leafLen = size * rngRange(rng, 0.22, 0.32) * leaf.scale;
+    const leafLen = size * rngRange(rng, 0.12, 0.18) * leaf.scale;
     return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
       h('path', { d: simpleLeafPath(leafLen, leafLen * 0.5), fill: leafColor }),
     ]);

@@ -140,6 +140,11 @@ export interface LayoutParams {
    * random pick, so a Style DNA preset's own zone preference actually
    * reaches the layout that places anchors. */
   preferredZone?: import('./compositionZones').CompositionZone;
+  /** Build 004, Section 9 (Style DNA botanical grammar) — see
+   * GenerateParams.clusterArchetypes. Cluster-based layouts that pick among
+   * several archetypes use this directly (no further random narrowing) when
+   * set, instead of their own hardcoded default pool. */
+  preferredClusterArchetypes?: import('./clusterEngine').ClusterArchetype[];
 }
 
 export interface PatternLayout {
@@ -248,6 +253,25 @@ export interface GenerateParams {
    * applied, or the style has no zone preference) means every zone-picking
    * layout falls back to its existing random pick. */
   compositionZone?: import('./compositionZones').CompositionZone;
+  /** Build 004, Section 9 (Style DNA botanical grammar): a Style DNA
+   * preset's preferred Botanical Family (see generators/botanicalFamilies.ts),
+   * resolved once per seed the same way compositionZone already is.
+   * Undefined means every botanical variant pick stays a plain,
+   * family-unrestricted random pick, identical to every pattern generated
+   * before this field existed. */
+  botanicalFamily?: import('../generators/botanicalFamilies').BotanicalFamily;
+  /** Build 004, Section 9: a Style DNA preset's preferred cluster-archetype
+   * pool — passed straight through to whichever cluster-based layout the
+   * style resolves to (see LayoutParams.preferredClusterArchetypes).
+   * Undefined = every layout's own existing default/random pick. */
+  clusterArchetypes?: import('./clusterEngine').ClusterArchetype[];
+  /** Build 004, Section 9 (Premium Hero Builder): when true and a hero
+   * placement's active generator is the botanical one, the hero is
+   * assembled as a full multi-part bouquet (generators/premiumHero.ts)
+   * instead of one independent variant. Undefined/false leaves every hero
+   * placement completely unaffected — the default for every style that
+   * doesn't explicitly opt in. */
+  premiumHero?: boolean;
   seed: string;
 }
 

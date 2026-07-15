@@ -1,5 +1,5 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
-import { jitter, rngRange, rngInt } from '../engine/rng';
+import { jitter, rngRange, rngInt, rngPick } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
 import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
 import { placeZoneAnchors } from '../engine/compositionZones';
@@ -44,6 +44,13 @@ export const heroScatterLayout: PatternLayout = {
     // mirroring its independent Poisson-disc placement (see the zone
     // comment above).
     const angleFamily = createAngleFamily(rng);
+    // Build 004, Section 9 (Style DNA botanical grammar): a preset's own
+    // cluster-archetype preference (if any) picks the one archetype every
+    // hero's own cluster in this tile uses, instead of the hardcoded
+    // 'organicScatter' default — chosen once per tile, the same "commit
+    // once, don't let each hero invent its own" convention `angleFamily`
+    // above already established.
+    const archetype = params.preferredClusterArchetypes?.length ? rngPick(rng, params.preferredClusterArchetypes) : 'organicScatter';
 
     for (const [x, y] of heroPoints) {
       placements.push({
@@ -55,7 +62,7 @@ export const heroScatterLayout: PatternLayout = {
         role: 'hero',
       });
 
-      const members = generateCluster('organicScatter', rng, {
+      const members = generateCluster(archetype, rng, {
         baseRadius: clusterRadius,
         rotationJitter: params.rotationJitter,
         scaleJitter: params.scaleJitter,

@@ -16,7 +16,13 @@ export const scatterLayout: PatternLayout = {
   id: 'scatter',
   label: 'Random Scatter',
   generate(params: LayoutParams, rng: Rng): Placement[] {
-    const archetypes = pickArchetypePool(rng, ['organicScatter', 'bouquet', 'asymmetric']);
+    // Build 004, Section 9 (Style DNA botanical grammar): a preset's own
+    // cluster-archetype preference (if any) is used directly as the
+    // cycling pool, rather than narrowed further to a single random pick —
+    // the whole point of the preference is "these are the archetypes this
+    // identity uses". Undefined (no Style DNA, or a style with no
+    // preference) keeps the existing random-single-pick behavior.
+    const archetypes = params.preferredClusterArchetypes ?? pickArchetypePool(rng, ['organicScatter', 'bouquet', 'asymmetric']);
     return buildClusterPlacements(
       {
         tileSize: params.tileSize,

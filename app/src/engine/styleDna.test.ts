@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { defaultParams } from './defaults';
 import { buildTile } from './tile';
 import { serialize } from './svgAst';
+import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
 import {
   STYLE_DNA_PRESETS,
@@ -155,6 +156,109 @@ describe('Style DNA: Style Grammar zone preferences (Build 003, Part 7)', () => 
     const patch = resolveStyleDna(dna, 'zone-reaches-layout');
     expect(patch.compositionZone).toBeDefined();
     expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'zone-reaches-layout' })).not.toThrow();
+  });
+});
+
+describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
+  it('every style whose categories include botanical declares at least one preferred family', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.categories.includes('botanical')) {
+        expect(dna.preferredFamilies?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('resolves botanicalFamily to one of the style\'s own preferredFamilies', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (!dna.preferredFamilies?.length) continue;
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `family-membership-${i}`);
+        expect(dna.preferredFamilies).toContain(patch.botanicalFamily);
+      }
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same family', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'family-determinism-check');
+    const b = resolveStyleDna(dna, 'family-determinism-check');
+    expect(a.botanicalFamily).toBe(b.botanicalFamily);
+  });
+
+  it('a multi-family style explores more than one family across different seeds', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // 4 preferred families
+    const seen = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      seen.add(resolveStyleDna(dna, `family-variety-${i}`).botanicalFamily!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('leaves botanicalFamily undefined for a style with no family preference', () => {
+    const dna = STYLE_DNA_PRESETS.modernTropical; // not a botanical-category style
+    const patch = resolveStyleDna(dna, 'no-family-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('resolves clusterArchetypes as the style\'s own preference pool, unnarrowed', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const patch = resolveStyleDna(dna, 'cluster-archetype-check');
+    expect(patch.clusterArchetypes).toEqual(dna.preferredClusterArchetypes);
+  });
+
+  it('leaves clusterArchetypes undefined for a style with no archetype preference', () => {
+    const dna = STYLE_DNA_PRESETS.editorialBotanical; // layouts heroFlow/sCurve, no cluster preference set
+    const patch = resolveStyleDna(dna, 'no-cluster-archetype-check');
+    expect(patch.clusterArchetypes).toBeUndefined();
+  });
+
+  it('resolves premiumHero from the style\'s own declared value', () => {
+    expect(resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-check').premiumHero).toBe(true);
+    expect(resolveStyleDna(STYLE_DNA_PRESETS.minimalBotanical, 'premium-hero-check').premiumHero).toBeFalsy();
+  });
+
+  it('every preset still resolves to a buildable tile with the new botanical grammar fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'botanical-grammar-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'botanical-grammar-build-check' })).not.toThrow();
+    }
+  });
+
+  it('premiumHero visibly changes the generated SVG for the same seed (Premium Hero Builder actually reaches tile.ts)', () => {
+    const on = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-visible-diff');
+    const off = resolveStyleDna({ ...STYLE_DNA_PRESETS.luxuryFloral, premiumHero: false }, 'premium-hero-visible-diff');
+    const svgOn = serialize(buildTile({ ...defaultParams(), ...on, seed: 'premium-hero-visible-diff' }).svg);
+    const svgOff = serialize(buildTile({ ...defaultParams(), ...off, seed: 'premium-hero-visible-diff' }).svg);
+    expect(svgOn).not.toBe(svgOff);
+    expect(svgOn).toContain('data-part="premium-hero"');
+    expect(svgOff).not.toContain('data-part="premium-hero"');
+  });
+
+  it('a preferred family actually reaches the layout via a real tile build (no throw, botanicalFamily resolved)', () => {
+    const dna = STYLE_DNA_PRESETS.minimalBotanical;
+    const patch = resolveStyleDna(dna, 'family-reaches-tile');
+    expect(patch.botanicalFamily).toBeDefined();
+    expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'family-reaches-tile' })).not.toThrow();
+  });
+
+  it('premiumHero does not collapse the tile\'s overall instance count on a many-hero-anchor layout (regression: node-budget thinning previously gutted the composition down to only hero-role instances)', () => {
+    // luxuryFloral's own 'bouquet' layout places one hero anchor PER
+    // cluster (potentially many across the tile), not one hero for the
+    // whole tile -- assembling every single one as a full premium bouquet
+    // previously ballooned real node count past NODE_BUDGET_SAFETY_MARGIN
+    // in tile.ts, triggering its "protect every hero, drop everything
+    // else" thinning so hard the whole composition collapsed to just a
+    // handful of surviving hero instances.
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.luxuryFloral, layouts: ['bouquet'] };
+    const patch = resolveStyleDna(dna, 'premium-hero-node-budget');
+    const on = buildTile({ ...defaultParams(), ...patch, premiumHero: true, seed: 'premium-hero-node-budget' });
+    const off = buildTile({ ...defaultParams(), ...patch, premiumHero: false, seed: 'premium-hero-node-budget' });
+    const onCount = extractInstances(on).length;
+    const offCount = extractInstances(off).length;
+    // Some thinning to accommodate the heavier premium heroes is expected
+    // and fine; a wholesale collapse (only a small fraction of the
+    // baseline instance count surviving) is the real regression.
+    expect(onCount).toBeGreaterThan(offCount * 0.5);
   });
 });
 

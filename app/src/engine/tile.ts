@@ -10,6 +10,7 @@ import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
+import { buildPremiumHero } from '../generators/premiumHero';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -236,6 +237,7 @@ export function buildTile(params: GenerateParams): TileData {
       radialSymmetry: params.radialSymmetry,
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
       preferredZone: params.compositionZone,
+      preferredClusterArchetypes: params.clusterArchetypes,
     },
     rng,
   );
@@ -297,6 +299,21 @@ export function buildTile(params: GenerateParams): TileData {
   const useHighlight = !!params.flatHighlight;
   const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
 
+  // Build 004, Section 9 fix: a cluster-based layout (bouquet/heroScatter)
+  // can place MANY hero-role anchors across one tile (one per cluster, not
+  // one "the" hero for the whole tile) -- assembling every single one as a
+  // full multi-part bouquet was measured to balloon the tile's real node
+  // count past NODE_BUDGET_SAFETY_MARGIN below, triggering that budget's
+  // own "protect every hero, drop everything else" thinning so hard it
+  // gutted the whole composition (quadrant balance collapsing from ~95 to
+  // ~0 in the frozen quality harness). A premium hero is meant to be a
+  // real centerpiece object, not a repeated-many-times motif, so only the
+  // first few hero placements encountered get the full assembly; any
+  // further ones fall back to the plain single-variant path exactly as
+  // before this feature existed.
+  const MAX_PREMIUM_HEROES_PER_TILE = 3;
+  let premiumHeroesBuilt = 0;
+
   const motifGroups: SvgNode[] = paintOrderedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
@@ -305,8 +322,20 @@ export function buildTile(params: GenerateParams): TileData {
     // Build 004, Section 1: threads the placement's real hierarchy role into
     // createMotif so a botanical-aware generator can pick a role-appropriate
     // shape (Section 2+) instead of a flat random pick — every other
-    // generator still ignores this hint exactly as before.
-    const motif = generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role });
+    // generator still ignores this hint exactly as before. Section 9 adds
+    // the preferred Botanical Family (see engine/styleDna.ts) the same way.
+    // Build 004, Section 9 (Premium Hero Builder): a hero placement whose
+    // active generator is the botanical one gets assembled as a full
+    // multi-part bouquet instead of one independent variant, when the
+    // resolved Style DNA opts in — undefined/false `premiumHero` (every
+    // style that doesn't declare it, and every pattern with no Style DNA
+    // applied) leaves this exactly the single createMotif call it always was.
+    const usePremiumHero =
+      !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
+    if (usePremiumHero) premiumHeroesBuilt++;
+    const motif = usePremiumHero
+      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily })
+      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: params.botanicalFamily });
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
@@ -320,8 +349,10 @@ export function buildTile(params: GenerateParams): TileData {
     // own shape — filler/accent/unroled placements pass through unchanged.
     // Every overlay primitive stays within `safeRadius`, computed above
     // from the *undetailed* shape, so the wrap-inclusion bound below still
-    // holds without needing to re-measure after the overlay is added.
-    const detailedNode = applyHeroDetailOverlay(
+    // holds without needing to re-measure after the overlay is added. A
+    // premium hero already applies its own Micro Details overlay
+    // internally, so it isn't run through this a second time.
+    const detailedNode = usePremiumHero ? motif.node : applyHeroDetailOverlay(
       motif.node,
       { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length },
       rng,

@@ -1,8 +1,10 @@
 import type { GenerateParams, LayoutId } from './types';
 import type { CompositionZone } from './compositionZones';
+import type { ClusterArchetype } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { GENERATORS } from '../generators';
 import { GROWTH_PRESETS } from '../generators/growth';
+import type { BotanicalFamily } from '../generators/botanicalFamilies';
 import { createRng, rngPick, randomSeed } from './rng';
 import type { StockSiteId } from '../metadata/shutterstock';
 
@@ -71,6 +73,31 @@ export interface StyleDna {
    * with no particular compositional identity just leaves every
    * zone-picking layout on its existing random pick. */
   preferredZones?: CompositionZone[];
+  /** Build 004, Section 9 (Style DNA botanical grammar): the Botanical
+   * Families (see generators/botanicalFamilies.ts) this style's own
+   * botanical vocabulary draws from — same `pickPreferred` mechanism as
+   * `categories`/`layouts`/`paletteIds`/`preferredZones`. Only meaningful
+   * for a style whose `categories` includes `'botanical'` (every other
+   * generator ignores the resolved family hint); omitted for non-botanical
+   * styles rather than set to a value nothing ever reads. */
+  preferredFamilies?: BotanicalFamily[];
+  /** Build 004, Section 9: this style's own cluster-archetype preference,
+   * passed straight through (as a pool, not narrowed to one pick — see
+   * GenerateParams.clusterArchetypes) to whichever cluster-based layout the
+   * style resolves to. Only meaningful for a style whose `layouts` include
+   * a cluster-aware layout that actually consults it (`scatter`,
+   * `heroScatter` — see LAYOUT_CLUSTER_ARCHETYPES in knowledge/composition);
+   * `bouquet`/`airy`'s own archetype IS their identity and is deliberately
+   * never overridden. */
+  preferredClusterArchetypes?: ClusterArchetype[];
+  /** Build 004, Section 9 (Premium Hero Builder): true for a style whose
+   * own "design language" wants a hero built as a full multi-part bouquet
+   * (generators/premiumHero.ts) rather than one independent variant.
+   * Deliberately false/omitted for styles the brief explicitly describes
+   * as spare/minimal (Minimal Botanical's "simple silhouettes, few
+   * elements") or non-botanical (the hero's active generator has to be the
+   * botanical one for this to have any effect at all). */
+  premiumHero?: boolean;
   /** Named hierarchy profile — references the existing HIERARCHY_PRESETS
    * table (hero/secondary/filler/accent ratios + scales) instead of
    * duplicating those 8 numbers per style. */
@@ -143,6 +170,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'editorialBotanical', label: 'Editorial Botanical',
     description: 'Clean, directional botanical layout with generous quiet space for editorial/print use.',
     categories: ['botanical'], layouts: ['heroFlow', 'sCurve'], preferredZones: ['editorial', 'sCurve', 'diagonal'], hierarchyPreset: 'balancedEditorial',
+    preferredFamilies: ['magnolia', 'anemone', 'tulip'], premiumHero: true,
     density: 0.5, negativeSpace: 0.2, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'laurel', colorStrategy: 'dominantDuo',
@@ -153,6 +181,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'luxuryFloral', label: 'Luxury Floral',
     description: 'Large hero blooms in a hand-tied bouquet arrangement with jewel-tone richness.',
     categories: ['botanical'], layouts: ['bouquet', 'heroScatter'], preferredZones: ['goldenRatio', 'diagonal', 'offset'], hierarchyPreset: 'heroFocus',
+    preferredFamilies: ['rose', 'peony', 'magnolia', 'hydrangea'], preferredClusterArchetypes: ['sprayBouquet', 'bouquet'], premiumHero: true,
     density: 0.55, negativeSpace: 0.15, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'bouquet', clusterDensity: 0.6,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'eucalyptus', colorStrategy: 'highContrast',
@@ -163,6 +192,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'scandinavianOrganic', label: 'Scandinavian Organic',
     description: 'Airy, restrained organic shapes with a muted coastal-neutral palette.',
     categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], preferredZones: ['wave', 'offset', 'centerFocus'], hierarchyPreset: 'airyPremium',
+    preferredFamilies: ['eucalyptus', 'olive', 'fern'], preferredClusterArchetypes: ['organicScatter', 'diagonal'],
     density: 0.32, negativeSpace: 0.5, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', colorStrategy: 'monochromeAccent',
@@ -173,6 +203,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'minimalBotanical', label: 'Minimal Botanical',
     description: 'A single restrained botanical silhouette repeated on a strict minimal grid.',
     categories: ['botanical'], layouts: ['gridMinimal', 'grid'], preferredZones: ['centerFocus', 'cornerFlow'], hierarchyPreset: 'minimalRepeat',
+    preferredFamilies: ['eucalyptus', 'olive'],
     density: 0.3, negativeSpace: 0.45, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', botanicalGrowthPreset: 'laurel', colorStrategy: 'monochromeAccent',
@@ -183,6 +214,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'vintageHerbarium', label: 'Vintage Herbarium',
     description: 'Pressed-specimen scatter in muted earth tones, full-palette botanical variety.',
     categories: ['botanical'], layouts: ['scatter', 'halfDrop'], preferredZones: ['offset', 'wave', 'editorial'], hierarchyPreset: 'allOverTextile',
+    preferredFamilies: ['herb', 'wildflower', 'fern'], preferredClusterArchetypes: ['organicScatter', 'wildCluster'],
     density: 0.45, negativeSpace: 0.25, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'sage', colorStrategy: 'fullPalette',
@@ -193,6 +225,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'darkBotanical', label: 'Dark Botanical',
     description: 'Moody midnight palette, tightly clustered hero foliage, dimensional depth.',
     categories: ['botanical'], layouts: ['bouquet', 'sCurve'], preferredZones: ['radial', 'diagonal', 'centerFocus'], hierarchyPreset: 'heroFocus',
+    preferredFamilies: ['fern', 'magnolia', 'berryBranch'], premiumHero: true,
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.55,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'fern', colorStrategy: 'highContrast',
@@ -203,6 +236,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'modernTropical', label: 'Modern Tropical',
     description: 'Bold, dynamic tropical foliage with citrus/ocean contrast and syncopated rhythm.',
     categories: ['tropical'], layouts: ['heroScatter', 'toss'], preferredZones: ['zFlow', 'wave', 'diagonal'], hierarchyPreset: 'heroFocus',
+    preferredClusterArchetypes: ['cornerCluster', 'sprayBouquet'],
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.15,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'intricate', colorStrategy: 'highContrast',
@@ -243,6 +277,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'kidsPlayful', label: 'Kids Playful',
     description: 'Bright, bouncy toss/scatter of simple friendly shapes with candy-shop color.',
     categories: ['cute'], layouts: ['toss', 'scatter'], preferredZones: ['offset', 'zFlow', 'wave'], hierarchyPreset: 'ditsyFloral',
+    preferredClusterArchetypes: ['wildCluster', 'organicScatter'],
     density: 0.55, negativeSpace: 0.1, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'simple', colorStrategy: 'fullPalette',
@@ -253,6 +288,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'retroOrganic', label: 'Retro Organic',
     description: 'Sun-bleached retro palette flowing through soft organic silhouettes.',
     categories: ['retro', 'organic'], layouts: ['heroFlow', 'scatter'], preferredZones: ['wave', 'sCurve', 'diagonal'], hierarchyPreset: 'balancedEditorial',
+    preferredClusterArchetypes: ['diagonal', 'organicScatter'],
     density: 0.5, negativeSpace: 0.15, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', colorStrategy: 'highContrast',
@@ -263,6 +299,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'organicAbstract', label: 'Organic Abstract',
     description: 'Loose abstract organic scatter with syncopated rhythm and full palette range.',
     categories: ['organic'], layouts: ['scatter', 'airy'], preferredZones: ['offset', 'radial', 'wave'], hierarchyPreset: 'minimalRepeat',
+    preferredClusterArchetypes: ['wildCluster', 'organicScatter'],
     density: 0.4, negativeSpace: 0.35, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'intricate', colorStrategy: 'fullPalette',
@@ -273,6 +310,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'bohoFloral', label: 'Boho Floral',
     description: 'Warm terracotta boho motifs tossed with botanical accents, dense and layered.',
     categories: ['boho', 'botanical'], layouts: ['toss', 'scatter'], preferredZones: ['diagonal', 'zFlow', 'offset'], hierarchyPreset: 'denseLayered',
+    preferredFamilies: ['wildflower', 'daisy', 'cosmos', 'lavender'], preferredClusterArchetypes: ['sprayBouquet', 'organicScatter'], premiumHero: true,
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.45,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'leafyBranch', colorStrategy: 'fullPalette',
@@ -283,6 +321,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     id: 'softWatercolorInspired', label: 'Soft Watercolor Inspired (Vector only)',
     description: 'A watercolor *feel* built entirely from flat vector fills and soft color blending — no raster texture, no bitmap brush strokes; airy negative space and a soft two-tone palette do the work.',
     categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], preferredZones: ['centerFocus', 'wave', 'offset'], hierarchyPreset: 'airyPremium',
+    preferredFamilies: ['cosmos', 'anemone', 'hydrangea'], preferredClusterArchetypes: ['organicScatter', 'asymmetric'],
     density: 0.35, negativeSpace: 0.4, overlapMode: 'subtle', overlapAmount: 0.15,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.25,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
@@ -318,6 +357,9 @@ export type StyleDnaResolvedFields = Pick<
   | 'patternScale'
   | 'styleDnaId'
   | 'compositionZone'
+  | 'botanicalFamily'
+  | 'clusterArchetypes'
+  | 'premiumHero'
 >;
 
 /** Deterministically picks one entry from a Style DNA's preferred list using
@@ -340,6 +382,9 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
   const paletteId = pickPreferred(dna.paletteIds, dna.id, seed, 'palette');
   const compositionZone = dna.preferredZones?.length
     ? pickPreferred(dna.preferredZones, dna.id, seed, 'zone')
+    : undefined;
+  const botanicalFamily = dna.preferredFamilies?.length
+    ? pickPreferred(dna.preferredFamilies, dna.id, seed, 'family')
     : undefined;
   const generator = GENERATORS[categoryId];
   const depth = DEPTH_SHADOW[dna.svgDepthMode];
@@ -372,6 +417,9 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     patternScale: dna.exportRecommendation.patternScale,
     styleDnaId: dna.id,
     compositionZone,
+    botanicalFamily,
+    clusterArchetypes: dna.preferredClusterArchetypes,
+    premiumHero: dna.premiumHero,
   };
 }
 
