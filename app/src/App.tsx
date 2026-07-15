@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
-import { randomSeed } from './engine/rng';
+import { randomSeed, createRng } from './engine/rng';
+import { assignBatchCompositionZones } from './engine/portfolioVariety';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
 import { buildTileWithHeroRetry } from './engine/heroDetector';
 import type { QualityPresetId } from './engine/scoring';
@@ -188,15 +189,31 @@ function App() {
   // hierarchy/etc. per item — so the 9 patterns explore that style's own
   // family of looks and genuinely read as one collection, rather than 9
   // unrelated random patterns. No style active = unchanged prior behavior.
+  //
+  // Build 003, Part 13 (Portfolio Variety): each variant's own independent
+  // random Composition Zone pick (see engine/compositionZones.ts) has no
+  // memory of what earlier items in this same batch already chose — with a
+  // Style DNA active, `preferredZones` pools are only 2-3 zones, so 9
+  // independent draws very plausibly repeat the same whole-tile composition
+  // more than once. `assignBatchCompositionZones` (engine/portfolioVariety.ts)
+  // assigns all 9 up front from a shuffled, without-replacement-until-
+  // exhausted pool instead, so the batch never shows two thumbnails sharing
+  // an identical composition back to back.
   const handleGenerateBatch = useCallback(() => {
     const activeDna = params.styleDnaId
       ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
       : undefined;
+    const zoneCandidates = activeDna?.preferredZones?.length ? activeDna.preferredZones : undefined;
+    const zoneRng = createRng(randomSeed());
+    const batchZones = assignBatchCompositionZones(zoneRng, 9, zoneCandidates);
     const items: GalleryItem[] = [];
     let latest = tileData;
     for (let i = 0; i < 9; i++) {
       const seed = randomSeed();
-      const variantParams = activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed };
+      const variantParams = {
+        ...(activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed }),
+        compositionZone: batchZones[i],
+      };
       // Build 003, Part 11 (Hero Detector): see handleGenerate above.
       const data = buildTileWithHeroRetry(variantParams).tileData;
       latest = data;
