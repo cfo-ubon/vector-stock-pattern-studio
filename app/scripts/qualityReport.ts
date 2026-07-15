@@ -5,6 +5,7 @@ import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { defaultParams } from '../src/engine/defaults';
 import type { GenerateParams, LayoutId } from '../src/engine/types';
 import { computeOverallScore, computeHeroVisibilityScore, SOFT_PENALTY_RULES, type CompositionMetrics } from '../src/engine/scoring';
+import { computePatternBeautyScore } from '../src/engine/patternBeautyScore';
 import { computePatternReadability, type PatternReadabilityResult } from '../src/engine/patternReadability';
 import { detectVisualIssues, type VisualIssueId } from '../src/critic/visualAnalysis';
 import { STYLE_DNA_PRESETS, resolveStyleDna, computeStyleDnaConsistency } from '../src/engine/styleDna';
@@ -87,6 +88,7 @@ interface EvalResult {
   metrics: CompositionMetrics;
   absoluteCommercialQuality: number;
   heroVisibility: number;
+  patternBeautyScore: number;
   readability: PatternReadabilityResult;
   nodeCount: number;
   issues: Record<VisualIssueId, boolean>;
@@ -103,6 +105,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
   const { tileData: tile, metrics } = buildTileWithHeroRetry(params);
   const absoluteCommercialQuality = computeOverallScore(metrics, 'stockClean').score;
   const heroVisibility = computeHeroVisibilityScore(metrics);
+  const patternBeautyScore = computePatternBeautyScore(metrics).overall;
   const readability = computePatternReadability(tile, metrics);
   const nodeCount = countNodes(tile.svg);
   const issueList = detectVisualIssues(tile, metrics);
@@ -117,7 +120,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     productTargetFit = Math.round(evaluations.reduce((a, e) => a + e.score, 0) / evaluations.length);
   }
 
-  return { label, layoutId: params.layoutId, categoryId: params.categoryId, seed: params.seed, styleDnaId, metrics, absoluteCommercialQuality, heroVisibility, readability, nodeCount, issues, styleFitQuality, productTargetFit };
+  return { label, layoutId: params.layoutId, categoryId: params.categoryId, seed: params.seed, styleDnaId, metrics, absoluteCommercialQuality, heroVisibility, patternBeautyScore, readability, nodeCount, issues, styleFitQuality, productTargetFit };
 }
 
 // ---- Frozen 30-scenario suite ----
@@ -182,6 +185,7 @@ function aggregateMetrics(results: EvalResult[]) {
   }
   perMetric.absoluteCommercialQuality = stats(results.map((r) => r.absoluteCommercialQuality));
   perMetric.heroVisibility = stats(results.map((r) => r.heroVisibility));
+  perMetric.patternBeautyScore = stats(results.map((r) => r.patternBeautyScore));
   perMetric.readabilityThumbnail200 = stats(results.map((r) => r.readability.thumbnail200));
   perMetric.readabilityThumbnail400 = stats(results.map((r) => r.readability.thumbnail400));
   perMetric.readabilityZoom800 = stats(results.map((r) => r.readability.zoom800));
@@ -285,6 +289,7 @@ function main() {
   console.log(`Portfolio (n=${portfolioResults.length}): Absolute Commercial Quality mean=${report.portfolio.aggregate.absoluteCommercialQuality.mean}, median=${report.portfolio.aggregate.absoluteCommercialQuality.median}`);
   console.log(`Portfolio Palette Contrast mean=${report.portfolio.aggregate.paletteContrast.mean}`);
   console.log(`Portfolio Hero Visibility mean=${report.portfolio.aggregate.heroVisibility.mean}`);
+  console.log(`Portfolio Pattern Beauty Score mean=${report.portfolio.aggregate.patternBeautyScore.mean}`);
   console.log(`Portfolio Readability@200px mean=${report.portfolio.aggregate.readabilityThumbnail200.mean}`);
   console.log(`Portfolio repeatedScale rate=${report.portfolio.visualIssueRates.repeatedScale}%`);
   console.log(`Generation time: ${elapsedMs}ms`);
