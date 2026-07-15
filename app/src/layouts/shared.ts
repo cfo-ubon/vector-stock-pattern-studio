@@ -36,6 +36,14 @@ export function wrapCoord(v: number, tileSize: number): number {
   return ((v % tileSize) + tileSize) % tileSize;
 }
 
+/** An existing feature (a hero motif, say) that a fresh scatter must keep
+ * clear of — see `obstacles` below. */
+export interface PoissonObstacle {
+  x: number;
+  y: number;
+  radius: number;
+}
+
 /** Poisson-disc-ish point scatter via periodic rejection sampling: checks
  * candidate distance against all 8 neighbour copies of every existing
  * point (not just the raw coordinates), so density looks uniform right up
@@ -48,13 +56,22 @@ export function wrapCoord(v: number, tileSize: number): number {
  * `engine/rhythmBands.ts`): below 1 packs a candidate's neighbourhood
  * tighter, above 1 spreads it looser, so the result reads as alternating
  * dense/loose bands instead of one flat spacing everywhere. Omitted, the
- * function behaves exactly as before. */
+ * function behaves exactly as before.
+ *
+ * `obstacles`, when given, rejects any candidate that lands inside another
+ * already-placed feature's own clearance radius (Build 003, Part 4 — a
+ * layout's independently-placed ambient/secondary/filler tier previously
+ * had no idea where that layout's hero tier landed, so a filler motif
+ * could land squarely on top of a hero; see the layouts that pass hero
+ * placements in here). Toroidal, same wrap handling as the point-to-point
+ * spacing check above. */
 export function poissonDiscPoints(
   tileSize: number,
   minDist: number,
   targetCount: number,
   rng: Rng,
   spacingMultiplier?: (x: number, y: number) => number,
+  obstacles?: PoissonObstacle[],
 ): Array<[number, number]> {
   const maxAttempts = Math.max(50, targetCount * 40);
   const points: Array<[number, number]> = [];
@@ -77,7 +94,9 @@ export function poissonDiscPoints(
     attempts++;
     const candidate: [number, number] = [rngRange(rng, 0, tileSize), rngRange(rng, 0, tileSize)];
     const localMinDist = spacingMultiplier ? minDist * spacingMultiplier(candidate[0], candidate[1]) : minDist;
-    const ok = points.every(([px, py]) => periodicDist(candidate[0], candidate[1], px, py) >= localMinDist);
+    const ok =
+      points.every(([px, py]) => periodicDist(candidate[0], candidate[1], px, py) >= localMinDist) &&
+      (!obstacles || obstacles.every((o) => periodicDist(candidate[0], candidate[1], o.x, o.y) >= o.radius));
     if (ok) points.push(candidate);
   }
   return points;

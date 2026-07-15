@@ -95,8 +95,21 @@ export const heroFlowLayout: PatternLayout = {
     // varies this layer's spacing across the tile instead of one flat
     // value everywhere, avoiding a perfectly uniform scatter.
     const rhythm = createRhythmBands(rng);
-    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng, (x, y) =>
-      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+    // Build 003, Part 4 (hero-size-aware negative space): this independent
+    // layer previously had no idea where the hero tier landed on the path,
+    // so a filler motif could land squarely on top of a hero. Passing the
+    // real hero placements as obstacles keeps this layer out of each
+    // hero's own footprint.
+    const heroObstacles = placements
+      .filter((p) => p.role === 'hero')
+      .map((p) => ({ x: p.x, y: p.y, radius: params.motifSize * p.scale * 0.5 * 1.05 }));
+    const fillerPoints = poissonDiscPoints(
+      tileSize,
+      fillerMinDist,
+      fillerTarget,
+      rng,
+      (x, y) => rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+      heroObstacles,
     );
     for (const [x, y] of fillerPoints) {
       placements.push({

@@ -90,6 +90,14 @@ export const densePremiumLayout: PatternLayout = {
     // independent tiers below, so the whole "background" of the pattern
     // (not just one tier) commits to the same dense/loose wave instead of
     // each tier's flat spacing reading as separately uniform.
+    //
+    // Build 003, Part 4 (hero-size-aware negative space): deliberately NOT
+    // applied here, unlike heroScatter/heroFlow's ambient filler — this
+    // layout's whole identity is "richly layered fabric that never reads
+    // as empty at any zoom level" (see the module doc comment above), so
+    // secondary/filler tiers crowding a hero is the intended maximalist
+    // look, not the "leftover negative space" those two other layouts
+    // explicitly describe their own ambient layer as covering.
     const rhythm = createRhythmBands(rng);
     const secondaryMinDist = baseSpacing * 1.05;
     const secondaryTarget = Math.max(4, Math.round((tileSize * tileSize) / (secondaryMinDist * secondaryMinDist)));

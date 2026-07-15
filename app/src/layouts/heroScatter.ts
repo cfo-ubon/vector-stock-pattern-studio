@@ -32,21 +32,6 @@ export const heroScatterLayout: PatternLayout = {
     const zone = pickCompositionZone(rng);
     const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
 
-    // Ambient filler runs at a lower density than Build 001 shipped — each
-    // hero's own cluster below now contributes its own filler/accent
-    // members nearby, so this layer only needs to cover leftover space.
-    const fillerMinDist = spacingForDensity(params.motifSize, params.density) * 0.75;
-    const fillerTarget = Math.max(6, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.6));
-    // Build 003, Part 5 (Rhythm Density Bands): this ambient layer still
-    // stays off the zone skeleton (see comment above), but a shared
-    // dense/loose wave now varies its spacing across the tile instead of
-    // one flat value everywhere, so it reads as rhythm rather than a
-    // perfectly uniform scatter.
-    const rhythm = createRhythmBands(rng);
-    const fillerPoints = poissonDiscPoints(tileSize, fillerMinDist, fillerTarget, rng, (x, y) =>
-      rhythmSpacingMultiplier(rhythm, x, y, tileSize),
-    );
-
     const placements: Placement[] = [];
     let colorSeed = 0;
     const clusterRadius = clusterBaseRadius(params.motifSize, params.density) * 0.75;
@@ -86,6 +71,30 @@ export const heroScatterLayout: PatternLayout = {
         });
       }
     }
+    // Ambient filler runs at a lower density than Build 001 shipped — each
+    // hero's own cluster above now contributes its own filler/accent
+    // members nearby, so this layer only needs to cover leftover space.
+    // Build 003, Part 4 (hero-size-aware negative space): this independent
+    // Poisson-disc layer previously had no idea where the hero tier
+    // landed, so a filler motif could land squarely on top of a hero —
+    // measured at ~54% of heroes across the portfolio having some
+    // non-hero placement deeply inside their own footprint. Passing the
+    // real hero placements as obstacles keeps this layer out of each
+    // hero's own footprint, the literal "large objects need space" ask.
+    const fillerMinDist = spacingForDensity(params.motifSize, params.density) * 0.75;
+    const fillerTarget = Math.max(6, Math.round((tileSize * tileSize) / (fillerMinDist * fillerMinDist) / 1.6));
+    const rhythm = createRhythmBands(rng);
+    const heroObstacles = placements
+      .filter((p) => p.role === 'hero')
+      .map((p) => ({ x: p.x, y: p.y, radius: params.motifSize * p.scale * 0.5 * 1.05 }));
+    const fillerPoints = poissonDiscPoints(
+      tileSize,
+      fillerMinDist,
+      fillerTarget,
+      rng,
+      (x, y) => rhythmSpacingMultiplier(rhythm, x, y, tileSize),
+      heroObstacles,
+    );
     // Build 002, Section 4: widened from [0.35, 0.55] — this ambient filler
     // layer is typically the most numerous tier on the tile (every hero's
     // own cluster contributes its own filler/accent on top), so a narrow
