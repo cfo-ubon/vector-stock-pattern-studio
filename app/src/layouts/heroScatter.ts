@@ -1,7 +1,8 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
 import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
-import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
+import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
+import { placeZoneAnchors } from '../engine/compositionZones';
 
 /** Hero + Random Scatter: a handful of large, widely-spaced "hero" motifs,
  * each anchoring its own small `organicScatter`-archetype cluster of
@@ -19,7 +20,15 @@ export const heroScatterLayout: PatternLayout = {
     const { tileSize } = params;
     const heroMinDist = spacingForDensity(params.motifSize, params.density) * 2.4;
     const heroTarget = Math.max(2, Math.round((tileSize * tileSize) / (heroMinDist * heroMinDist)));
-    const heroPoints = poissonDiscPoints(tileSize, heroMinDist, heroTarget, rng);
+    // Build 003, Part 1/6 (Composition Zone Engine): hero anchors — the
+    // placements every supporting cluster grows from — now follow one
+    // named composition zone instead of plain uniform scatter, so this
+    // layout's overall silhouette reads as "designed to a skeleton", not
+    // random hero positions with clusters glued on. The ambient filler
+    // layer below stays plain Poisson-disc on purpose — it exists to cover
+    // whatever negative space is left over, not to follow the skeleton.
+    const zone = pickCompositionZone(rng);
+    const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
 
     // Ambient filler runs at a lower density than Build 001 shipped — each
     // hero's own cluster below now contributes its own filler/accent

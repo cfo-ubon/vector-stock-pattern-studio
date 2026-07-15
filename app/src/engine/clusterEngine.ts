@@ -1,7 +1,8 @@
 import type { Placement, Rng } from './types';
 import type { MotifRole } from './hierarchy';
 import { jitter, rngRange, rngInt, rngPick } from './rng';
-import { spacingForDensity, poissonDiscPoints, wrapCoord } from '../layouts/shared';
+import { spacingForDensity, wrapCoord } from '../layouts/shared';
+import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
 
 // Cluster Composition Engine — Project Phoenix V2, Section 1/2. Replaces
 // "scatter individual motifs independently" with the workflow the brief
@@ -330,17 +331,23 @@ export interface ClusterAnchor {
  * so the *sequence* is varied but still deterministic for a given seed. */
 const SIZE_RHYTHM = [1.35, 0.82, 1.05, 0.62];
 
-/** Organic, non-grid placement of cluster anchors across the tile —
- * reuses the same wrap-aware Poisson-disc sampler every other layout
- * already relies on for "N points, no two closer than minDist" (Section
- * 6's breathing room), with minDist itself varying per anchor via the size
- * rhythm above so anchor spacing is never uniform (Section 2's "no equal
- * spacing", Section 6's "avoid mechanical distribution"). */
-export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: Rng): ClusterAnchor[] {
+/** Build 003, Part 1/6 (Composition Zone Engine): placement of cluster
+ * anchors across the tile now follows one named composition zone (a real
+ * skeleton — diagonal band, sine wave, golden-ratio spiral, ...) instead
+ * of plain uniform Poisson-disc scatter — see `engine/compositionZones.ts`.
+ * `zone` defaults to a random pick so every existing caller that doesn't
+ * care which zone still gets one (and gets a real one, not "no zone");
+ * pass it explicitly when a caller (a Style DNA preset's zone preference,
+ * or a portfolio-variety tracker) wants control. Anchor spacing still
+ * varies per anchor via the size rhythm below (Section 2's "no equal
+ * spacing", Section 6's "avoid mechanical distribution") — the zone
+ * governs *where* anchors concentrate, not their individual spacing rule. */
+export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: Rng, zone?: CompositionZone): ClusterAnchor[] {
+  const chosenZone = zone ?? rngPick(rng, COMPOSITION_ZONES);
   const avgSizeMul = SIZE_RHYTHM.reduce((a, b) => a + b, 0) / SIZE_RHYTHM.length;
   const minDist = baseRadius * avgSizeMul * 1.7;
   const targetCount = Math.max(2, Math.round((tileSize * tileSize) / (minDist * minDist)));
-  const points = poissonDiscPoints(tileSize, minDist, targetCount, rng);
+  const points = placeZoneAnchors(chosenZone, tileSize, minDist, targetCount, rng);
   const startOffset = rngInt(rng, 0, SIZE_RHYTHM.length - 1);
   return points.map(([x, y], i) => {
     const sizeMul = SIZE_RHYTHM[(i + startOffset) % SIZE_RHYTHM.length] * (1 + rngRange(rng, -0.08, 0.08));
@@ -402,6 +409,9 @@ export interface BuildClusterPlacementsOptions {
   maxAttemptsPerCluster?: number;
   /** Minimum acceptable cohesion — attempts stop early once reached. */
   cohesionTarget?: number;
+  /** Build 003: the composition zone anchor placement should follow —
+   * defaults to a random pick (see `placeClusterAnchors`) when omitted. */
+  zone?: CompositionZone;
 }
 
 /** Top-level assembly: places cluster anchors across the tile, generates
@@ -414,7 +424,7 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
   const maxAttempts = opts.maxAttemptsPerCluster ?? 3;
   const cohesionTarget = opts.cohesionTarget ?? 70;
   const baseRadius = clusterBaseRadius(motifSize, density);
-  const anchors = placeClusterAnchors(tileSize, baseRadius, rng);
+  const anchors = placeClusterAnchors(tileSize, baseRadius, rng, opts.zone);
 
   const placements: Placement[] = [];
   let colorSeed = 0;
@@ -460,3 +470,17 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
 export function pickArchetypePool(rng: Rng, candidates: ClusterArchetype[] = CLUSTER_ARCHETYPES): ClusterArchetype[] {
   return [rngPick(rng, candidates)];
 }
+
+/** Build 003: deterministically pick one composition zone (see
+ * `engine/compositionZones.ts`) — the same "commit to one, don't blend
+ * everything" convention `pickArchetypePool` already established for
+ * cluster archetypes, applied one level up at the whole-tile skeleton. A
+ * caller (Style DNA zone preferences, portfolio-variety tracking) can
+ * narrow `candidates`; a plain layout can just call this with no
+ * arguments and get a real, randomly-committed zone. */
+export function pickCompositionZone(rng: Rng, candidates: CompositionZone[] = COMPOSITION_ZONES): CompositionZone {
+  return rngPick(rng, candidates);
+}
+
+export { COMPOSITION_ZONES } from './compositionZones';
+export type { CompositionZone } from './compositionZones';

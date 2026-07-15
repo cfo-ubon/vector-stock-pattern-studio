@@ -1,7 +1,8 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
 import { jitter, rngRange, rngInt } from '../engine/rng';
 import { spacingForDensity, poissonDiscPoints, wrapCoord } from './shared';
-import { generateCluster, clusterBaseRadius } from '../engine/clusterEngine';
+import { generateCluster, clusterBaseRadius, pickCompositionZone } from '../engine/clusterEngine';
+import { placeZoneAnchors } from '../engine/compositionZones';
 
 /** Dense Premium: three overlapping scale tiers (large, medium, small)
  * layered on top of each other at high overall density — the "maximalist,
@@ -32,7 +33,13 @@ export const densePremiumLayout: PatternLayout = {
 
     const heroMinDist = baseSpacing * 1.7;
     const heroTarget = Math.max(4, Math.round((tileSize * tileSize) / (heroMinDist * heroMinDist)));
-    const heroPoints = poissonDiscPoints(tileSize, heroMinDist, heroTarget, rng);
+    // Build 003, Part 1/6: the hero tier (the one tier every other layer
+    // orbits/layers around) now follows a real composition zone; the
+    // secondary/filler tiers stay independent Poisson-disc on purpose —
+    // that independence is this layout's own documented identity (three
+    // overlapping densities, not one hero-centric skeleton).
+    const zone = pickCompositionZone(rng);
+    const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
     const clusterRadius = clusterBaseRadius(params.motifSize, density) * 0.5;
     for (const [x, y] of heroPoints) {
       placements.push({
