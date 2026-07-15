@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createRng } from './rng';
+import { validatePathD } from './curveEngine';
 import {
   CLUSTER_ARCHETYPES,
   clusterBaseRadius,
@@ -9,7 +10,10 @@ import {
   connectClusters,
   buildClusterPlacements,
   pickArchetypePool,
+  buildClusterStem,
+  __clusterStemTestables,
   type ClusterMember,
+  type StemTopology,
 } from './clusterEngine';
 
 describe('CLUSTER_ARCHETYPES', () => {
@@ -340,5 +344,107 @@ describe('pickArchetypePool', () => {
     const pool = pickArchetypePool(rng, ['bouquet', 'radial']);
     expect(pool.length).toBe(1);
     expect(['bouquet', 'radial']).toContain(pool[0]);
+  });
+});
+
+describe('buildClusterStem: Build 004 Section 6', () => {
+  const hero: ClusterMember = { dx: 0, dy: 0, rotationDeg: 0, scaleMul: 1, role: 'hero', overlapsHero: false };
+  function makeMembers(offsets: Array<[number, number]>): ClusterMember[] {
+    return [
+      hero,
+      ...offsets.map(([dx, dy]): ClusterMember => ({ dx, dy, rotationDeg: 0, scaleMul: 0.6, role: 'secondary', overlapsHero: false })),
+    ];
+  }
+  const members = makeMembers([
+    [80, 20],
+    [-60, 90],
+    [40, -100],
+    [-90, -30],
+  ]);
+  const topologies: StemTopology[] = ['straight', 'arc', 'sCurve', 'ySplit', 'branching', 'organicCurve', 'doubleBranch'];
+
+  it('every topology produces valid, finite path data', () => {
+    for (const topology of topologies) {
+      const stem = buildClusterStem(createRng(`stem-valid-${topology}`), members, topology);
+      expect(stem.branches.length).toBeGreaterThan(0);
+      for (const branch of stem.branches) {
+        expect(validatePathD(branch.path)).toEqual([]);
+        expect(branch.targetIndex).toBeGreaterThanOrEqual(0);
+        expect(branch.targetIndex).toBeLessThan(members.length - 1);
+      }
+    }
+  });
+
+  it('is deterministic for the same seed, for every topology', () => {
+    for (const topology of topologies) {
+      const a = buildClusterStem(createRng(`stem-det-${topology}`), members, topology);
+      const b = buildClusterStem(createRng(`stem-det-${topology}`), members, topology);
+      expect(a).toEqual(b);
+    }
+  });
+
+  it('returns no branches for a hero-only cluster (no floating stems to nowhere)', () => {
+    for (const topology of topologies) {
+      const stem = buildClusterStem(createRng(`stem-solo-${topology}`), [hero], topology);
+      expect(stem.branches).toEqual([]);
+    }
+  });
+
+  it('straight/arc/sCurve each connect to exactly 1 member (the closest to the hero)', () => {
+    for (const topology of ['straight', 'arc', 'sCurve'] as const) {
+      const stem = buildClusterStem(createRng(`stem-simple-${topology}`), members, topology);
+      expect(stem.branches.length).toBe(1);
+      // Member index 1 ([-60, 90], dist ~108.2) is NOT the closest --
+      // member index 0 ([80, 20], dist ~82.5) is.
+      const ranked = __clusterStemTestables.rankByDistanceFromHero(members.slice(1));
+      expect(stem.branches[0].targetIndex).toBe(ranked[0].idx);
+    }
+  });
+
+  it('organicCurve connects to up to 2 members', () => {
+    const stem = buildClusterStem(createRng('stem-organic'), members, 'organicCurve');
+    expect(stem.branches.length).toBe(2);
+  });
+
+  it('ySplit produces exactly 2 branches that both pass through the same shared split point', () => {
+    const raw = __clusterStemTestables.buildYSplit(createRng('stem-ysplit-raw'), members.slice(1));
+    expect(raw.length).toBe(2);
+    // Each branch's points are [origin, splitPoint, target] -- index 1 must
+    // be the identical shared point for both branches.
+    expect(raw[0].points[1]).toEqual(raw[1].points[1]);
+    expect(raw[0].points[1]).not.toEqual(raw[0].points[2]); // split point != target
+  });
+
+  it('branching produces up to 3 branches with staggered (non-identical) split points', () => {
+    const raw = __clusterStemTestables.buildBranching(createRng('stem-branching-raw'), members.slice(1));
+    expect(raw.length).toBe(3);
+    const splitPoints = raw.map((b) => b.points[1]);
+    const distinct = new Set(splitPoints.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`));
+    expect(distinct.size).toBeGreaterThan(1); // staggered, not all the same point
+  });
+
+  it('doubleBranch bows its 2 branches to opposite sides of the direct hero-target line (not one shared point)', () => {
+    const raw = __clusterStemTestables.buildDoubleBranch(createRng('stem-double-raw'), members.slice(1));
+    expect(raw.length).toBe(2);
+    // The midpoint waypoints must differ from each other (opposite-side
+    // bow), unlike ySplit's identical shared split point.
+    expect(raw[0].points[1]).not.toEqual(raw[1].points[1]);
+  });
+
+  it('singleStemPoints: "straight" is a direct 2-point line; "arc"/"sCurve"/"organicCurve" add real curvature waypoints', () => {
+    const target = { x: 100, y: 0 };
+    const straight = __clusterStemTestables.singleStemPoints(target, 'straight', createRng('single-straight'));
+    expect(straight.length).toBe(2);
+    const arc = __clusterStemTestables.singleStemPoints(target, 'arc', createRng('single-arc'));
+    expect(arc.length).toBe(3);
+    const sCurve = __clusterStemTestables.singleStemPoints(target, 'sCurve', createRng('single-scurve'));
+    expect(sCurve.length).toBe(4);
+    const organic = __clusterStemTestables.singleStemPoints(target, 'organicCurve', createRng('single-organic'));
+    expect(organic.length).toBe(3);
+  });
+
+  it('rankByDistanceFromHero ranks members closest-first', () => {
+    const ranked = __clusterStemTestables.rankByDistanceFromHero(members.slice(1));
+    for (let i = 1; i < ranked.length; i++) expect(ranked[i].dist).toBeGreaterThanOrEqual(ranked[i - 1].dist);
   });
 });

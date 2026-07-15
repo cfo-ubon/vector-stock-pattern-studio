@@ -5,6 +5,7 @@ import { spacingForDensity, wrapCoord } from '../layouts/shared';
 import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
 import { createAngleFamily, pickFamilyAngle, type AngleFamily } from './rotationFamilies';
 import { resolveClusterCollisions } from './clusterAvoidance';
+import { smoothPathD, type Pt } from './curveEngine';
 
 // Cluster Composition Engine — Project Phoenix V2, Section 1/2. Replaces
 // "scatter individual motifs independently" with the workflow the brief
@@ -586,4 +587,194 @@ export function pickCompositionZone(rng: Rng, candidates: CompositionZone[] = CO
 }
 
 export { COMPOSITION_ZONES } from './compositionZones';
+
+// Build 004, Section 6 (Stem Engine): the brief's "generate stems before
+// flowers... avoid floating flowers" applies at two levels this codebase
+// already separates -- a single motif's own internal stem (generators/
+// growth.ts's `generateStem`, unchanged here) and the CLUSTER's implicit
+// connective structure (a hero and its supporting members currently only
+// have relative dx/dy offsets, with no shared stem geometry drawn between
+// them). This section adds the latter: real, distinct connective stem
+// geometry spanning a cluster's members, reusing the same Catmull-Rom
+// smoothing (`curveEngine.ts`'s `smoothPathD`) the per-motif stem engine
+// already relies on for curve quality. Not yet wired into the tile
+// rendering pipeline (`tile.ts` only knows about flat `Placement[]`, not
+// clusters, so painting these stems as a visible layer is a rendering-
+// pipeline change of its own) -- Section 8 (Premium Hero Builder, which
+// explicitly needs a hero's own "Stem" as one of its assembled parts) is
+// the natural place that consumes this.
+
+export type StemTopology = 'straight' | 'arc' | 'sCurve' | 'ySplit' | 'branching' | 'organicCurve' | 'doubleBranch';
+
+export interface ClusterStemBranch {
+  path: string;
+  /** Index into the cluster's own non-hero members (i.e. `members.slice(1)`
+   * passed to `buildClusterStem`) that this branch terminates at. */
+  targetIndex: number;
+}
+
+export interface ClusterStem {
+  topology: StemTopology;
+  branches: ClusterStemBranch[];
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+function pathFromPoints(points: Pt[]): string {
+  return smoothPathD(
+    points.map((p) => ({ x: round2(p.x), y: round2(p.y) })),
+    { closed: false, tension: 6 },
+  );
+}
+
+/** A single hero->target stem with one of 4 simple, non-branching profiles.
+ * `target` is relative to the hero (which `generateCluster` always places at
+ * (0,0), so callers pass member `{dx, dy}` directly). */
+function singleStemPoints(target: Pt, style: 'straight' | 'arc' | 'sCurve' | 'organicCurve', rng: Rng): Pt[] {
+  if (style === 'straight') return [{ x: 0, y: 0 }, target];
+  const dist = Math.hypot(target.x, target.y) || 1;
+  const nx = -target.y / dist;
+  const ny = target.x / dist;
+  if (style === 'arc') {
+    const bend = dist * rngRange(rng, 0.08, 0.16);
+    return [{ x: 0, y: 0 }, { x: target.x * 0.5 + nx * bend, y: target.y * 0.5 + ny * bend }, target];
+  }
+  if (style === 'sCurve') {
+    const bend = dist * rngRange(rng, 0.1, 0.18);
+    return [
+      { x: 0, y: 0 },
+      { x: target.x * 0.33 + nx * bend, y: target.y * 0.33 + ny * bend },
+      { x: target.x * 0.66 - nx * bend, y: target.y * 0.66 - ny * bend },
+      target,
+    ];
+  }
+  // organicCurve: a single looser, asymmetric bend (larger and less
+  // predictable than `arc`'s), the "Organic Curve" the brief names
+  // separately from a plain `arc`.
+  const bend = dist * rngRange(rng, 0.14, 0.28);
+  const along = rngRange(rng, 0.35, 0.65);
+  return [
+    { x: 0, y: 0 },
+    { x: target.x * along + nx * bend + rngRange(rng, -dist * 0.03, dist * 0.03), y: target.y * along + ny * bend + rngRange(rng, -dist * 0.03, dist * 0.03) },
+    target,
+  ];
+}
+
+interface RawStemBranch {
+  points: Pt[];
+  targetIndex: number;
+}
+
+/** Members ranked by distance from the hero (closest first) -- "attach
+ * naturally" means connecting to the members already sitting nearest the
+ * hero, not an arbitrary or furthest-first selection. */
+function rankByDistanceFromHero(others: ClusterMember[]): Array<{ idx: number; dist: number }> {
+  return others.map((m, idx) => ({ idx, dist: Math.hypot(m.dx, m.dy) })).sort((a, b) => a.dist - b.dist);
+}
+
+function buildSimpleStem(rng: Rng, others: ClusterMember[], style: 'straight' | 'arc' | 'sCurve' | 'organicCurve', maxBranches: number): RawStemBranch[] {
+  const ranked = rankByDistanceFromHero(others);
+  const chosen = ranked.slice(0, Math.max(1, Math.min(maxBranches, ranked.length)));
+  return chosen.map(({ idx }) => ({
+    points: singleStemPoints({ x: others[idx].dx, y: others[idx].dy }, style, rng),
+    targetIndex: idx,
+  }));
+}
+
+/** Y Split: a single trunk that splits into exactly 2 branches at one
+ * shared point roughly halfway out -- both branches pass through that same
+ * point before diverging toward their own target. */
+function buildYSplit(rng: Rng, others: ClusterMember[]): RawStemBranch[] {
+  const ranked = rankByDistanceFromHero(others);
+  const chosen = ranked.slice(0, Math.min(2, ranked.length));
+  if (chosen.length < 2) return buildSimpleStem(rng, others, 'arc', 1);
+  const targets = chosen.map(({ idx }) => others[idx]);
+  const splitFrac = rngRange(rng, 0.45, 0.6);
+  const splitPoint: Pt = {
+    x: ((targets[0].dx + targets[1].dx) / 2) * splitFrac,
+    y: ((targets[0].dy + targets[1].dy) / 2) * splitFrac,
+  };
+  return chosen.map(({ idx }, i) => ({
+    points: [{ x: 0, y: 0 }, splitPoint, { x: targets[i].dx, y: targets[i].dy }],
+    targetIndex: idx,
+  }));
+}
+
+/** Branching: 3+ branches peeling off a shared trunk at staggered points
+ * (each branch splits further out than the last) -- a real branching
+ * silhouette, distinct from `ySplit`'s single shared split point for
+ * exactly 2 branches. */
+function buildBranching(rng: Rng, others: ClusterMember[]): RawStemBranch[] {
+  const ranked = rankByDistanceFromHero(others);
+  const chosen = ranked.slice(0, Math.min(3, ranked.length));
+  if (chosen.length === 0) return [];
+  return chosen.map(({ idx }, i) => {
+    const target = others[idx];
+    const splitFrac = 0.3 + (i / Math.max(1, chosen.length - 1)) * 0.35 + rngRange(rng, -0.05, 0.05);
+    const splitPoint: Pt = { x: target.dx * splitFrac, y: target.dy * splitFrac };
+    return { points: [{ x: 0, y: 0 }, splitPoint, { x: target.dx, y: target.dy }], targetIndex: idx };
+  });
+}
+
+/** Double Branch: 2 branches that stay on OPPOSITE sides of the direct
+ * hero->target line (bowing apart from each other), rather than sharing one
+ * convergent split point the way `ySplit` does -- two stems growing
+ * side by side, not a fork from a single point. */
+function buildDoubleBranch(rng: Rng, others: ClusterMember[]): RawStemBranch[] {
+  const ranked = rankByDistanceFromHero(others);
+  const chosen = ranked.slice(0, Math.min(2, ranked.length));
+  if (chosen.length < 2) return buildSimpleStem(rng, others, 'arc', 1);
+  const targets = chosen.map(({ idx }) => others[idx]);
+  const avgAngle = Math.atan2((targets[0].dy + targets[1].dy) / 2, (targets[0].dx + targets[1].dx) / 2);
+  const perp: Pt = { x: -Math.sin(avgAngle), y: Math.cos(avgAngle) };
+  const refDist = Math.hypot(targets[0].dx, targets[0].dy) || 1;
+  const offset = refDist * rngRange(rng, 0.06, 0.12);
+  return chosen.map(({ idx }, i) => {
+    const side = i === 0 ? 1 : -1;
+    const target = targets[i];
+    const mid: Pt = { x: target.dx * 0.5 + perp.x * offset * side, y: target.dy * 0.5 + perp.y * offset * side };
+    return { points: [{ x: 0, y: 0 }, mid, { x: target.dx, y: target.dy }], targetIndex: idx };
+  });
+}
+
+/** Builds real connective stem geometry for a cluster's members (see the
+ * module note above on why this isn't yet wired into tile rendering).
+ * `members` is the full array `generateCluster` returns (hero first, at
+ * (0,0)); every topology connects the hero to a small, distance-ranked
+ * subset of its supporting members rather than every single one, matching
+ * the brief's own "avoid unnecessary overlap"/"avoid excessive DOM growth"
+ * rendering requirements. */
+export function buildClusterStem(rng: Rng, members: ClusterMember[], topology: StemTopology): ClusterStem {
+  const others = members.slice(1);
+  if (others.length === 0) return { topology, branches: [] };
+  let raw: RawStemBranch[];
+  switch (topology) {
+    case 'straight':
+      raw = buildSimpleStem(rng, others, 'straight', 1);
+      break;
+    case 'arc':
+      raw = buildSimpleStem(rng, others, 'arc', 1);
+      break;
+    case 'sCurve':
+      raw = buildSimpleStem(rng, others, 'sCurve', 1);
+      break;
+    case 'organicCurve':
+      raw = buildSimpleStem(rng, others, 'organicCurve', 2);
+      break;
+    case 'ySplit':
+      raw = buildYSplit(rng, others);
+      break;
+    case 'branching':
+      raw = buildBranching(rng, others);
+      break;
+    case 'doubleBranch':
+      raw = buildDoubleBranch(rng, others);
+      break;
+  }
+  return { topology, branches: raw.map(({ points, targetIndex }) => ({ path: pathFromPoints(points), targetIndex })) };
+}
+
+export const __clusterStemTestables = { singleStemPoints, buildYSplit, buildBranching, buildDoubleBranch, rankByDistanceFromHero };
 export type { CompositionZone } from './compositionZones';
