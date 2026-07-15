@@ -118,6 +118,11 @@ export interface LayoutParams {
   radialSymmetry: number; // 1 = off, N = N-fold rotational symmetry
   /** From the active generator's `disableGridRhythm` — see PatternGenerator. */
   disableGridRhythm: boolean;
+  /** Build 003, Part 7 (Style Grammar) — see GenerateParams.compositionZone.
+   * Layouts that pick a composition zone use this when set instead of a
+   * random pick, so a Style DNA preset's own zone preference actually
+   * reaches the layout that places anchors. */
+  preferredZone?: import('./compositionZones').CompositionZone;
 }
 
 export interface PatternLayout {
@@ -218,6 +223,14 @@ export interface GenerateParams {
    * these params doesn't require re-resolving the style. Undefined for
    * every pattern created before Style DNA existed. */
   styleDnaId?: string;
+  /** Build 003, Part 7 (Style Grammar): a Style DNA preset's preferred
+   * composition zone (see engine/compositionZones.ts), resolved once per
+   * seed the same way categoryId/layoutId/paletteId already are — so each
+   * preset's own "design language" includes a real compositional identity,
+   * not just density/palette/rotation numbers. Undefined (no Style DNA
+   * applied, or the style has no zone preference) means every zone-picking
+   * layout falls back to its existing random pick. */
+  compositionZone?: import('./compositionZones').CompositionZone;
   seed: string;
 }
 

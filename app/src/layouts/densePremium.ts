@@ -40,7 +40,10 @@ export const densePremiumLayout: PatternLayout = {
     // secondary/filler tiers stay independent Poisson-disc on purpose —
     // that independence is this layout's own documented identity (three
     // overlapping densities, not one hero-centric skeleton).
-    const zone = pickCompositionZone(rng);
+    // Build 003, Part 7 (Style Grammar): a Style DNA preset's own zone
+    // preference (if any) wins over a random pick, so its "design
+    // language" includes a real compositional identity.
+    const zone = params.preferredZone ?? pickCompositionZone(rng);
     const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
     const clusterRadius = clusterBaseRadius(params.motifSize, density) * 0.5;
     // Build 003, Part 9: one shared rotation angle family for every hero and

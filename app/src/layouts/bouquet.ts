@@ -26,6 +26,9 @@ export const bouquetLayout: PatternLayout = {
         rotationJitter: params.rotationJitter,
         scaleJitter: params.scaleJitter,
         archetypes: ['bouquet'],
+        // Build 003, Part 7 (Style Grammar): a Style DNA preset's own zone
+        // preference (if any) wins over buildClusterPlacements' random pick.
+        zone: params.preferredZone,
       },
       rng,
     );

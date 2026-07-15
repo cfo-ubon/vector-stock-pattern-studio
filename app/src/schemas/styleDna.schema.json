@@ -18,6 +18,11 @@
     "custom": { "type": "boolean", "enum": [true] },
     "categories": { "type": "array", "minItems": 1, "items": { "type": "string" } },
     "layouts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "preferredZones": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["diagonal", "sCurve", "zFlow", "centerFocus", "cornerFlow", "radial", "wave", "editorial", "offset", "goldenRatio"] }
+    },
     "hierarchyPreset": { "type": "string", "enum": ["heroFocus", "balancedEditorial", "denseLayered", "airyPremium", "ditsyFloral", "allOverTextile", "minimalRepeat"] },
     "density": { "type": "number", "minimum": 0, "maximum": 1 },
     "negativeSpace": { "type": "number", "minimum": 0, "maximum": 1 },

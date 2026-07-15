@@ -235,6 +235,7 @@ export function buildTile(params: GenerateParams): TileData {
       mirror: params.mirror,
       radialSymmetry: params.radialSymmetry,
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
+      preferredZone: params.compositionZone,
     },
     rng,
   );

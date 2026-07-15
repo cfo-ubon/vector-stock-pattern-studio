@@ -112,6 +112,52 @@ describe('Style DNA: Composition Intelligence V2 wiring (Build 001)', () => {
   });
 });
 
+describe('Style DNA: Style Grammar zone preferences (Build 003, Part 7)', () => {
+  it('every built-in preset declares at least one preferred composition zone', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect(dna.preferredZones?.length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolves compositionZone to one of the style\'s own preferredZones', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `zone-membership-${i}`);
+        expect(dna.preferredZones).toContain(patch.compositionZone);
+      }
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same zone', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'zone-determinism-check');
+    const b = resolveStyleDna(dna, 'zone-determinism-check');
+    expect(a.compositionZone).toBe(b.compositionZone);
+  });
+
+  it('a multi-zone style explores more than one zone across different seeds', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // 3 preferred zones
+    const seen = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      seen.add(resolveStyleDna(dna, `zone-variety-${i}`).compositionZone!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('leaves compositionZone undefined for a style with no zone preference', () => {
+    const noZone: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: undefined };
+    const patch = resolveStyleDna(noZone, 'no-zone-check');
+    expect(patch.compositionZone).toBeUndefined();
+  });
+
+  it('a preferred zone actually reaches the layout that places anchors', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // layouts: bouquet, heroScatter
+    const patch = resolveStyleDna(dna, 'zone-reaches-layout');
+    expect(patch.compositionZone).toBeDefined();
+    expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'zone-reaches-layout' })).not.toThrow();
+  });
+});
+
 describe('Style DNA: migration / backward compatibility', () => {
   it('a params object with no styleDnaId (pre-v1.30 shape) still builds fine', () => {
     const legacy = { ...defaultParams(), seed: 'style-migration' };

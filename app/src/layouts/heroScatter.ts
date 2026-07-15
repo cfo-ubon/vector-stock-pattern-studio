@@ -29,7 +29,10 @@ export const heroScatterLayout: PatternLayout = {
     // random hero positions with clusters glued on. The ambient filler
     // layer below stays plain Poisson-disc on purpose — it exists to cover
     // whatever negative space is left over, not to follow the skeleton.
-    const zone = pickCompositionZone(rng);
+    // Build 003, Part 7 (Style Grammar): a Style DNA preset's own zone
+    // preference (if any) wins over a random pick, so its "design
+    // language" includes a real compositional identity.
+    const zone = params.preferredZone ?? pickCompositionZone(rng);
     const heroPoints = placeZoneAnchors(zone, tileSize, heroMinDist, heroTarget, rng);
 
     const placements: Placement[] = [];
