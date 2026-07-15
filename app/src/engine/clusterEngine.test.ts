@@ -13,9 +13,23 @@ import {
 } from './clusterEngine';
 
 describe('CLUSTER_ARCHETYPES', () => {
-  it('has the 8 named archetypes from the original brief plus Build 002 Section 5\'s new `airy` archetype', () => {
+  it('has the 8 named archetypes from the original brief plus Build 002 Section 5\'s new `airy` archetype, plus Build 004 Section 4\'s 4 new archetypes', () => {
     expect([...CLUSTER_ARCHETYPES].sort()).toEqual(
-      ['airy', 'asymmetric', 'bouquet', 'cascade', 'diagonal', 'editorial', 'organicScatter', 'radial', 'sCurve'].sort(),
+      [
+        'airy',
+        'asymmetric',
+        'bouquet',
+        'branchCluster',
+        'cascade',
+        'cornerCluster',
+        'diagonal',
+        'editorial',
+        'organicScatter',
+        'radial',
+        'sCurve',
+        'sprayBouquet',
+        'wildCluster',
+      ].sort(),
     );
   });
 });
@@ -99,6 +113,63 @@ describe('generateCluster', () => {
     const rng = createRng('cluster-count');
     const members = generateCluster('radial', rng, { ...opts, memberCount: 6 });
     expect(members.length).toBe(7); // hero + 6
+  });
+});
+
+describe('generateCluster: Build 004 Section 4 new archetypes', () => {
+  const opts = { baseRadius: 200, rotationJitter: 15, scaleJitter: 0.15 };
+
+  it('sprayBouquet: every member falls within a real angular cone (a fan, not a full-circle ring)', () => {
+    const rng = createRng('spray-cone');
+    const members = generateCluster('sprayBouquet', rng, { ...opts, memberCount: 8 }).slice(1);
+    const angles = members.map((m) => Math.atan2(m.dy, m.dx));
+    // A true full-circle archetype (bouquet) would spread across ~2*PI; a
+    // fan held to one shared side should span meaningfully less.
+    const sorted = [...angles].sort((a, b) => a - b);
+    const span = sorted[sorted.length - 1] - sorted[0];
+    expect(span).toBeLessThan(Math.PI * 1.6);
+  });
+
+  it('wildCluster: at least one outlier reaches further than any non-outlier member across enough seeds', () => {
+    let sawFarOutlier = false;
+    for (let seed = 0; seed < 15; seed++) {
+      const rng = createRng(`wild-outlier-${seed}`);
+      const members = generateCluster('wildCluster', rng, { ...opts, memberCount: 8 }).slice(1);
+      const dists = members.map((m) => Math.hypot(m.dx, m.dy));
+      if (Math.max(...dists) > opts.baseRadius * 1.3) sawFarOutlier = true;
+    }
+    expect(sawFarOutlier).toBe(true);
+  });
+
+  it('cornerCluster: commits to one of the 4 true diagonal directions, every member biased toward it', () => {
+    const corners = [Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4, (7 * Math.PI) / 4];
+    const rng = createRng('corner-bias');
+    const members = generateCluster('cornerCluster', rng, { ...opts, memberCount: 6 }).slice(1);
+    const angles = members.map((m) => Math.atan2(m.dy, m.dx));
+    const nearestCornerDist = (a: number) => Math.min(...corners.map((c) => Math.abs(Math.atan2(Math.sin(a - c), Math.cos(a - c)))));
+    for (const a of angles) expect(nearestCornerDist(a)).toBeLessThan(0.6);
+  });
+
+  it('branchCluster: members split into 2-3 distinct directions from a shared base angle', () => {
+    const rng = createRng('branch-split');
+    const members = generateCluster('branchCluster', rng, { ...opts, memberCount: 6 }).slice(1);
+    const angles = members.map((m) => Math.atan2(m.dy, m.dx));
+    // Cluster angles into distinct buckets (tolerance for jitter) and expect
+    // more than one real direction, not everything collapsed onto one line.
+    const buckets: number[] = [];
+    for (const a of angles) {
+      const existing = buckets.find((b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))) < 0.25);
+      if (existing === undefined) buckets.push(a);
+    }
+    expect(buckets.length).toBeGreaterThan(1);
+  });
+
+  it('all 4 new archetypes are deterministic for the same seed', () => {
+    for (const archetype of ['sprayBouquet', 'wildCluster', 'cornerCluster', 'branchCluster'] as const) {
+      const a = generateCluster(archetype, createRng(`new-arch-det-${archetype}`), opts);
+      const b = generateCluster(archetype, createRng(`new-arch-det-${archetype}`), opts);
+      expect(a).toEqual(b);
+    }
   });
 });
 

@@ -1,6 +1,6 @@
 import type { Placement, Rng } from './types';
 import type { MotifRole } from './hierarchy';
-import { jitter, rngRange, rngInt, rngPick } from './rng';
+import { jitter, rngRange, rngInt, rngPick, rngBool } from './rng';
 import { spacingForDensity, wrapCoord } from '../layouts/shared';
 import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
 import { createAngleFamily, pickFamilyAngle, type AngleFamily } from './rotationFamilies';
@@ -27,10 +27,20 @@ export type ClusterArchetype =
   | 'sCurve'
   | 'diagonal'
   | 'asymmetric'
-  | 'airy';
+  | 'airy'
+  | 'sprayBouquet'
+  | 'wildCluster'
+  | 'cornerCluster'
+  | 'branchCluster';
 
 export const CLUSTER_ARCHETYPES: ClusterArchetype[] = [
   'bouquet', 'cascade', 'radial', 'editorial', 'organicScatter', 'sCurve', 'diagonal', 'asymmetric', 'airy',
+  // Build 004, Section 4 (Botanical Cluster Generator): the brief's 9 named
+  // cluster types map onto the 9 archetypes above 1:1 (Mini Bouquet=bouquet,
+  // Diagonal Cluster=diagonal, Organic Cluster=organicScatter, Asymmetric
+  // Cluster=asymmetric, Floating Cluster=airy) except for these 4, which
+  // have no existing equivalent and get real, distinct geometry below.
+  'sprayBouquet', 'wildCluster', 'cornerCluster', 'branchCluster',
 ];
 
 /** One motif's position within a cluster, relative to the cluster's own
@@ -114,7 +124,7 @@ interface RawOffset {
  * archetype has a real, distinct directional identity (Section 2,
  * "directional flow") rather than being the same scatter with a different
  * name. */
-function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, rng: Rng, r: number): RawOffset {
+function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, rng: Rng, r: number, sharedAngle?: number): RawOffset {
   const t = total > 1 ? i / (total - 1) : 0.5;
   const roleFor = (frac: number): Exclude<MotifRole, 'hero'> => (frac < 0.22 ? 'secondary' : frac < 0.7 ? 'filler' : 'accent');
 
@@ -193,6 +203,51 @@ function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, 
       const role: Exclude<MotifRole, 'hero'> = i === 0 ? 'secondary' : 'accent';
       return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role };
     }
+    case 'sprayBouquet': {
+      // Build 004, Section 4: a fan held to one shared side, like flowers
+      // gathered and spread in a hand -- distinct from `bouquet`'s
+      // full-circle independent angle per member. `sharedAngle` (computed
+      // once per cluster in `generateCluster`) anchors the whole fan;
+      // distance grows with member index so the fan reads as widening
+      // outward rather than a uniform ring.
+      const angle = (sharedAngle ?? 0) + rngRange(rng, -0.9, 0.9);
+      const dist = r * (0.35 + 0.75 * t) + rngRange(rng, -r * 0.08, r * 0.08);
+      return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role: roleFor(t) };
+    }
+    case 'wildCluster': {
+      // Build 004, Section 4: chaotic scatter with wider distance variance
+      // than `organicScatter`, plus an occasional outlier reaching much
+      // further out -- a genuinely "wild", less-composed silhouette rather
+      // than a controlled ring.
+      const angle = rngRange(rng, 0, Math.PI * 2);
+      const isOutlier = rngBool(rng, 0.18);
+      const dist = isOutlier ? rngRange(rng, r * 1.3, r * 2.1) : rngRange(rng, r * 0.2, r * 1.0);
+      return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role: isOutlier ? 'accent' : roleFor(t) };
+    }
+    case 'cornerCluster': {
+      // Build 004, Section 4: commits to one true 45-degree diagonal
+      // direction (toward a tile corner) as its shared angle, chosen once
+      // per cluster in `generateCluster` -- genuinely distinct from
+      // `sprayBouquet`'s arbitrary shared direction.
+      const angle = (sharedAngle ?? 0) + rngRange(rng, -0.35, 0.35);
+      const dist = rngRange(rng, r * 0.4, r * 1.25);
+      return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role: roleFor(t) };
+    }
+    case 'branchCluster': {
+      // Build 004, Section 4: members split round-robin into 2-3 diverging
+      // directions from one shared base angle, distance increasing along
+      // each branch -- foreshadows the real Stem Engine (Section 6) without
+      // implementing actual branch geometry yet.
+      const branchCount = total >= 6 ? 3 : 2;
+      const branchIndex = i % branchCount;
+      const branchOffsets = branchCount === 3 ? [-0.55, 0, 0.55] : [-0.4, 0.4];
+      const angle = (sharedAngle ?? 0) + branchOffsets[branchIndex] + rngRange(rng, -0.08, 0.08);
+      const branchLen = Math.ceil(total / branchCount);
+      const along = Math.floor(i / branchCount);
+      const tt = branchLen > 1 ? along / (branchLen - 1) : 0.5;
+      const dist = r * (0.3 + 1.1 * tt) + rngRange(rng, -r * 0.06, r * 0.06);
+      return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, role: roleFor(t) };
+    }
   }
 }
 
@@ -221,6 +276,10 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
     diagonal: [4, 6],
     asymmetric: [4, 7],
     airy: [1, 2],
+    sprayBouquet: [5, 8],
+    wildCluster: [5, 9],
+    cornerCluster: [4, 7],
+    branchCluster: [5, 8],
   };
   const [lo, hi] = defaultCounts[archetype];
   const total = opts.memberCount ?? rngInt(rng, lo, hi);
@@ -234,8 +293,21 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
     overlapsHero: false,
   };
 
+  // Build 004, Section 4: `sprayBouquet`/`cornerCluster`/`branchCluster` each
+  // need ONE shared direction for the whole cluster (a fan, a corner-biased
+  // diagonal, a branch base angle) rather than each member picking its own.
+  // This extra rng() draw is conditional -- only these 3 new archetypes
+  // consume it -- so every existing archetype's rng-consumption sequence
+  // (and therefore its determinism/existing tests) stays unchanged.
+  const sharedAngle =
+    archetype === 'cornerCluster'
+      ? ([Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4, (7 * Math.PI) / 4] as const)[rngInt(rng, 0, 3)]
+      : archetype === 'sprayBouquet' || archetype === 'branchCluster'
+        ? rngRange(rng, 0, Math.PI * 2)
+        : undefined;
+
   const raw: RawOffset[] = [];
-  for (let i = 0; i < total; i++) raw.push(archetypeOffset(archetype, i, total, rng, r));
+  for (let i = 0; i < total; i++) raw.push(archetypeOffset(archetype, i, total, rng, r, sharedAngle));
 
   // Pull ~30% of members (at least 1) into the deliberate overlap band —
   // rescale the same direction vector to a shorter magnitude rather than
