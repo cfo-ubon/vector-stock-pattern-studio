@@ -1,0 +1,42 @@
+{
+  "id": "tropicalLeaf",
+  "label": "Tropical Leaf",
+  "botanicalFamilyName": "Araceae",
+  "silhouette": "broadLeaf",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.3,
+  "bouquetRole": "foliageOnly",
+  "flowerDiameterClass": "none",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "none",
+  "petalOverlap": "none",
+  "petalSilhouette": "none",
+  "petalEdgeStyle": "none",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "thick",
+  "branchingTendency": "single",
+  "leafType": "broad",
+  "veinType": "palmate",
+  "naturalColorFamilies": [
+    "green",
+    "dark-green"
+  ],
+  "premiumScore": 60,
+  "eleganceScore": 65,
+  "commercialPopularity": 72,
+  "companions": [],
+  "usageProfiles": [
+    "modern",
+    "wallpaper",
+    "textile"
+  ]
+}

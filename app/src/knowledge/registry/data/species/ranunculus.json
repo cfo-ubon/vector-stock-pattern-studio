@@ -1,0 +1,61 @@
+{
+  "id": "ranunculus",
+  "label": "Ranunculus",
+  "botanicalFamilyName": "Ranunculaceae",
+  "silhouette": "layered",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 0.95,
+  "leafDensityScale": 0.7,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "large",
+  "bloomStageRange": [
+    0.6,
+    1
+  ],
+  "petalCountRange": [
+    60,
+    100
+  ],
+  "petalArrangement": "rosette",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "cupped",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "single",
+  "leafType": "compound",
+  "veinType": "palmate",
+  "naturalColorFamilies": [
+    "white",
+    "pink",
+    "red",
+    "orange",
+    "burgundy"
+  ],
+  "premiumScore": 90,
+  "eleganceScore": 93,
+  "commercialPopularity": 82,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.85
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.8
+    },
+    {
+      "family": "berryBranch",
+      "role": "accentBerry",
+      "strength": 0.55
+    }
+  ],
+  "usageProfiles": [
+    "luxuryFloral",
+    "wedding",
+    "editorialBotanical"
+  ]
+}

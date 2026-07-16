@@ -1,0 +1,60 @@
+{
+  "id": "cosmos",
+  "label": "Cosmos",
+  "botanicalFamilyName": "Asteraceae",
+  "silhouette": "airy",
+  "growthPreset": "sage",
+  "stemLengthScale": 1.2,
+  "leafDensityScale": 0.4,
+  "bouquetRole": "filler",
+  "flowerDiameterClass": "medium",
+  "bloomStageRange": [
+    0.7,
+    1
+  ],
+  "petalCountRange": [
+    8,
+    8
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "none",
+  "petalSilhouette": "star",
+  "petalEdgeStyle": "serrated",
+  "centerStructure": "open",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "branching",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "pink",
+    "white",
+    "orange",
+    "red"
+  ],
+  "premiumScore": 55,
+  "eleganceScore": 70,
+  "commercialPopularity": 60,
+  "companions": [
+    {
+      "family": "wildflower",
+      "role": "filler",
+      "strength": 0.8
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.75
+    },
+    {
+      "family": "herb",
+      "role": "foliage",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "nursery",
+    "vintage",
+    "fabric"
+  ]
+}

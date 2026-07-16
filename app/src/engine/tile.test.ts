@@ -7,6 +7,7 @@ import { LAYOUTS } from '../layouts';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { extractInstances } from './svgGeometry';
 import type { GenerateParams } from './types';
+import { PRODUCT_USE_IDS } from '../collection/productTargets';
 
 describe('buildTile: seeded reproducibility', () => {
   it('the same seed + params produce byte-identical SVG output', () => {
@@ -282,5 +283,42 @@ describe('buildTile: Negative Space Designer (Build 006, Section 5)', () => {
     const plain = buildTile(base);
     const giftWrap = buildTile({ ...base, productTarget: 'giftWrap' as const });
     expect(serialize(plain.svg)).not.toBe(serialize(giftWrap.svg));
+  });
+});
+
+describe('buildTile: Product-aware Species Selection (Build 008B, Section 8)', () => {
+  it('omitting productTarget with no botanicalFamily set reproduces the exact prior output (backward compatible)', () => {
+    const withField = buildTile({ ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, seed: 'product-species-none' });
+    const without = { ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, seed: 'product-species-none' } as GenerateParams;
+    delete without.productTarget;
+    const alsoWithout = buildTile(without);
+    expect(serialize(withField.svg)).toBe(serialize(alsoWithout.svg));
+  });
+
+  it('a productTarget with no explicit botanicalFamily genuinely changes the generated botanical tile vs. no productTarget', () => {
+    const base = { ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, seed: 'product-species-wallpaper' };
+    const plain = buildTile(base);
+    const wallpaperTarget = buildTile({ ...base, productTarget: 'wallpaper' as const });
+    expect(serialize(plain.svg)).not.toBe(serialize(wallpaperTarget.svg));
+  });
+
+  it('an explicit botanicalFamily always wins over a productTarget-driven fallback', () => {
+    const withFamily = buildTile({
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
+      botanicalFamily: 'olive', productTarget: 'wallpaper' as const, seed: 'product-species-explicit-family',
+    });
+    const withFamilyNoProduct = buildTile({
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
+      botanicalFamily: 'olive', seed: 'product-species-explicit-family',
+    });
+    expect(serialize(withFamily.svg)).toBe(serialize(withFamilyNoProduct.svg));
+  });
+
+  it('every real ProductUseId builds a valid botanical tile with no explicit family set', () => {
+    for (const productTarget of PRODUCT_USE_IDS) {
+      expect(() =>
+        buildTile({ ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, productTarget, seed: `product-species-${productTarget}` }),
+      ).not.toThrow();
+    }
   });
 });

@@ -1,0 +1,62 @@
+{
+  "id": "hydrangea",
+  "label": "Hydrangea",
+  "botanicalFamilyName": "Hydrangeaceae",
+  "silhouette": "rounded",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 0.85,
+  "leafDensityScale": 0.8,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "large",
+  "bloomStageRange": [
+    0.7,
+    1
+  ],
+  "petalCountRange": [
+    4,
+    4
+  ],
+  "petalArrangement": "cluster",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "star",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "open",
+  "sepalStructure": "none",
+  "stemThickness": "medium",
+  "branchingTendency": "sparse",
+  "leafType": "serrated",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "blue",
+    "pink",
+    "purple",
+    "white",
+    "green"
+  ],
+  "premiumScore": 82,
+  "eleganceScore": 80,
+  "commercialPopularity": 85,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.85
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.65
+    },
+    {
+      "family": "berryBranch",
+      "role": "accentBerry",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "wallpaper",
+    "textile",
+    "wedding",
+    "fabric"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "magnolia",
+  "label": "Magnolia",
+  "botanicalFamilyName": "Magnoliaceae",
+  "silhouette": "layered",
+  "growthPreset": "laurel",
+  "stemLengthScale": 0.8,
+  "leafDensityScale": 0.6,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "extraLarge",
+  "bloomStageRange": [
+    0.4,
+    0.9
+  ],
+  "petalCountRange": [
+    6,
+    12
+  ],
+  "petalArrangement": "layered",
+  "petalOverlap": "moderate",
+  "petalSilhouette": "cupped",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "cone",
+  "sepalStructure": "leafy",
+  "stemThickness": "thick",
+  "branchingTendency": "sparse",
+  "leafType": "broad",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "white",
+    "pink",
+    "cream"
+  ],
+  "premiumScore": 88,
+  "eleganceScore": 92,
+  "commercialPopularity": 70,
+  "companions": [
+    {
+      "family": "olive",
+      "role": "foliage",
+      "strength": 0.7
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "editorialBotanical",
+    "wallpaper",
+    "vintage"
+  ]
+}

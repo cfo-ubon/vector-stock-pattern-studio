@@ -1,0 +1,61 @@
+{
+  "id": "peony",
+  "label": "Peony",
+  "botanicalFamilyName": "Paeoniaceae",
+  "silhouette": "rounded",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 0.9,
+  "leafDensityScale": 0.85,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "extraLarge",
+  "bloomStageRange": [
+    0.6,
+    1
+  ],
+  "petalCountRange": [
+    50,
+    100
+  ],
+  "petalArrangement": "rosette",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "ruffled",
+  "petalEdgeStyle": "ruffled",
+  "centerStructure": "pompom",
+  "sepalStructure": "minimal",
+  "stemThickness": "thick",
+  "branchingTendency": "single",
+  "leafType": "compound",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "pink",
+    "white",
+    "coral",
+    "burgundy"
+  ],
+  "premiumScore": 95,
+  "eleganceScore": 90,
+  "commercialPopularity": 90,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.85
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.7
+    },
+    {
+      "family": "berryBranch",
+      "role": "accentBerry",
+      "strength": 0.55
+    }
+  ],
+  "usageProfiles": [
+    "luxuryFloral",
+    "wedding",
+    "editorialBotanical",
+    "textile"
+  ]
+}

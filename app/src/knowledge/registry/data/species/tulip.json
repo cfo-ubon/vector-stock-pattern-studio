@@ -1,0 +1,57 @@
+{
+  "id": "tulip",
+  "label": "Tulip",
+  "botanicalFamilyName": "Liliaceae",
+  "silhouette": "architectural",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 1.1,
+  "leafDensityScale": 0.5,
+  "bouquetRole": "supporting",
+  "flowerDiameterClass": "medium",
+  "bloomStageRange": [
+    0.3,
+    0.7
+  ],
+  "petalCountRange": [
+    6,
+    6
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "slight",
+  "petalSilhouette": "cupped",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "none",
+  "stemThickness": "medium",
+  "branchingTendency": "single",
+  "leafType": "broad",
+  "veinType": "parallel",
+  "naturalColorFamilies": [
+    "red",
+    "yellow",
+    "pink",
+    "purple",
+    "white"
+  ],
+  "premiumScore": 70,
+  "eleganceScore": 85,
+  "commercialPopularity": 80,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.8
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "scandinavian",
+    "modern",
+    "minimal",
+    "greetingCard"
+  ]
+}

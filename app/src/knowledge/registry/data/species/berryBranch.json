@@ -1,0 +1,55 @@
+{
+  "id": "berryBranch",
+  "label": "Berry Branch",
+  "botanicalFamilyName": "Rosaceae",
+  "silhouette": "clustered",
+  "growthPreset": "laurel",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.7,
+  "bouquetRole": "supporting",
+  "flowerDiameterClass": "small",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "cluster",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "rounded",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "medium",
+  "branchingTendency": "branching",
+  "leafType": "serrated",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "red",
+    "burgundy",
+    "orange",
+    "purple"
+  ],
+  "premiumScore": 62,
+  "eleganceScore": 68,
+  "commercialPopularity": 70,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.75
+    },
+    {
+      "family": "olive",
+      "role": "foliage",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "vintage",
+    "wallpaper",
+    "packaging"
+  ]
+}

@@ -1,16 +1,18 @@
 import type { Motif, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
 import { rngPick, rngRange, rngInt, rngBool } from '../engine/rng';
-import { generateCluster, type ClusterMember } from '../engine/clusterEngine';
+import { generateCluster, type ClusterMember, type ClusterArchetype } from '../engine/clusterEngine';
 import { applyHeroDetailOverlay } from '../engine/heroComplexity';
 import { generateStem, growLeaves, GROWTH_PRESETS } from './growth';
 import { calyxBase, flowerCenterDetail } from './shared';
 import { botanicalGenerator } from './botanical';
 import { BOTANICAL_SPECIES, pickCompanionFamily, type BotanicalFamily } from './botanicalFamilies';
-import { illustrationTemplateForSpecies } from './illustrationFamily';
+import type { BotanicalPart } from './botanicalParts';
+import { illustrationTemplateForSpecies, type IllustrationTemplate } from './illustrationFamily';
 import { leafAnatomyFor, anatomicalLeafNode, pickLeafEdge } from './leafAnatomy';
 import { flowerAnatomyFor, rollOpenness } from './flowerAnatomy';
 import type { DesignGenerationRules } from '../engine/designKnowledge';
+import type { CompanionRole } from '../knowledge/registry/speciesSchema';
 
 // Build 004, Section 8 (Premium Hero Builder): "Heroes should become
 // botanical bouquets. Instead of one flower, construct Hero Flower +
@@ -55,7 +57,23 @@ import type { DesignGenerationRules } from '../engine/designKnowledge';
 const ROLE_VISUAL_WEIGHT: Record<string, number> = { hero: 4, secondary: 2, filler: 1, accent: 0.5 };
 const MAX_SUPPORT_WEIGHT_RATIO = 0.9;
 
-function balanceVisualWeight(members: ClusterMember[]): ClusterMember[] {
+/** Build 008B, Section 6 (Commercial Asset Priority): "large premium
+ * flowers should visually dominate, small fillers should never overpower
+ * heroes" -- the brief's own wording -- becomes a real, computed
+ * tightening of the existing Build 006 support-weight cap using the
+ * hero's own real `premiumScore` (Build 008B, Section 1) instead of one
+ * flat ratio applied to every hero species alike. A top-tier species
+ * (premiumScore 100) tightens the cap to 0.7 (its supports recede
+ * further, letting the hero dominate more); a modest one (0) relaxes back
+ * to the original 1.0. A hero with no species hint at all (`family`
+ * undefined) keeps the exact pre-008B 0.9 ratio -- byte-identical output
+ * for every existing no-family call site. */
+export function supportWeightRatio(premiumScore: number | undefined): number {
+  if (premiumScore === undefined) return MAX_SUPPORT_WEIGHT_RATIO;
+  return 1.0 - (premiumScore / 100) * 0.3;
+}
+
+function balanceVisualWeight(members: ClusterMember[], premiumScore?: number): ClusterMember[] {
   const heroWeight = members
     .filter((m) => m.role === 'hero')
     .reduce((sum, m) => sum + ROLE_VISUAL_WEIGHT.hero * m.scaleMul, 0);
@@ -63,10 +81,66 @@ function balanceVisualWeight(members: ClusterMember[]): ClusterMember[] {
   const supportWeight = members
     .filter((m) => m.role !== 'hero')
     .reduce((sum, m) => sum + (ROLE_VISUAL_WEIGHT[m.role] ?? 1) * m.scaleMul, 0);
-  const cap = heroWeight * MAX_SUPPORT_WEIGHT_RATIO;
+  const cap = heroWeight * supportWeightRatio(premiumScore);
   if (supportWeight <= cap || supportWeight <= 0) return members;
   const shrink = cap / supportWeight;
   return members.map((m) => (m.role === 'hero' ? m : { ...m, scaleMul: m.scaleMul * shrink }));
+}
+
+/** Build 007, Section 3 (Premium Bouquet Designer, "filler flowers, berry
+ * balance"): the `bouquet` template used to force EVERY filler member to a
+ * berry part regardless of what the companion species actually is -- a
+ * Rose paired with Baby's-Breath (a real filler-role species with no
+ * berries at all) still drew a berry.
+ *
+ * Build 008B, Section 3 (Commercial Bouquet Grammar): sharpened further
+ * using the real, typed pairing role Build 008B's own companion matrix
+ * carries per companion (`SpeciesCompanion.role` -- 'foliage' | 'filler' |
+ * 'accentBerry', knowledge/registry/speciesSchema.ts) instead of the
+ * coarser `bouquetRole === 'filler'` check alone -- a Rose paired with
+ * Eucalyptus (role: 'foliage') now genuinely draws a Filler Leaf sprig
+ * rather than falling through to a berry, matching the brief's own named
+ * role hierarchy ("...Filler Flower -> Filler Leaf -> Berry..."). Falls
+ * back to the pre-008B `bouquetRole`-only check when no companion role is
+ * known at all (a species with an empty companion list reproduces prior
+ * output exactly, same as `pickCompanionFamily`'s own fallback). Exported
+ * as a pure function so this decision is unit-testable independent of the
+ * full SVG assembly. */
+export function resolveFillerPart(
+  template: IllustrationTemplate,
+  companionRole: CompanionRole | undefined,
+  fillerFamily: BotanicalFamily | undefined,
+): BotanicalPart {
+  if (companionRole === 'foliage') return template.fillerLeafPart;
+  if (companionRole === 'filler') return 'secondaryFlower';
+  if (companionRole === 'accentBerry') return template.fillerPart;
+  const companionIsFillerFlower = fillerFamily ? BOTANICAL_SPECIES[fillerFamily].bouquetRole === 'filler' : false;
+  return companionIsFillerFlower ? 'secondaryFlower' : template.fillerPart;
+}
+
+/** Build 008B, Section 7 (Silhouette Diversity): every premium hero used to
+ * always assemble its internal members via the `bouquet` cluster
+ * archetype -- a real, tuned arrangement, but the ONLY one, so a large
+ * portfolio's premium heroes all read as the same circular silhouette
+ * regardless of species or seed. `cascade`/`diagonal`/`asymmetric`/
+ * `editorial` are real, already-implemented, already-tested archetypes
+ * (engine/clusterEngine.ts) with genuinely distinct member geometry
+ * (vertical, 45-degree axis, near/far counterweight groups, horizontal
+ * spread) that were simply never reachable at hero-assembly scale. Kept
+ * `bouquet`-majority-weighted (3 of 7 pool entries) rather than a flat
+ * 1-in-5 pick, so the existing, well-tuned circular silhouette stays the
+ * common case while a real, measurable minority of heroes now read as a
+ * genuinely different shape -- directly the brief's own "avoid repeated
+ * circular bouquets" ask, without discarding what already worked. */
+const HERO_SILHOUETTE_ARCHETYPES: ClusterArchetype[] = ['bouquet', 'bouquet', 'bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial'];
+
+/** Resolves which cluster archetype a premium hero's own internal members
+ * arrange around -- an explicit `archetype` option always wins (a future
+ * Style-DNA-driven hook), otherwise a weighted roll from
+ * `HERO_SILHOUETTE_ARCHETYPES`. Exported as a pure function so the
+ * weighting is unit-testable independent of the full SVG assembly. */
+export function resolveHeroArchetype(rng: Rng, explicit?: ClusterArchetype): ClusterArchetype {
+  return explicit ?? rngPick(rng, HERO_SILHOUETTE_ARCHETYPES);
 }
 
 export interface PremiumHeroOptions {
@@ -78,6 +152,10 @@ export interface PremiumHeroOptions {
    * (no Style DNA, or one whose rules happen to match the defaults below)
    * reproduces this function's original Build 004 behavior exactly. */
   designRules?: DesignGenerationRules;
+  /** Build 008B, Section 7 (Silhouette Diversity): forces a specific
+   * internal arrangement archetype instead of the default weighted roll
+   * (see `resolveHeroArchetype`) -- undefined lets the roll happen. */
+  archetype?: ClusterArchetype;
 }
 
 /** Assembles one hero as a real multi-part botanical bouquet: a grown stem
@@ -87,7 +165,7 @@ export interface PremiumHeroOptions {
  * archetype's own arrangement math. Deterministic for a given rng
  * sequence. */
 export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
-  const { colors, size, family, designRules } = opts;
+  const { colors, size, family, designRules, archetype } = opts;
   const accents = colors.length > 1 ? colors.slice(1) : colors;
 
   // A hero placement is already positioned by its OWN layout's spacing math
@@ -108,7 +186,8 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // 1.0 defaults exactly.
   const memberCountRange = designRules?.heroMemberCountRange ?? [4, 6];
   const baseRadiusScale = designRules?.bouquetBaseRadiusScale ?? 1;
-  const members = generateCluster('bouquet', rng, {
+  const resolvedArchetype = resolveHeroArchetype(rng, archetype);
+  const members = generateCluster(resolvedArchetype, rng, {
     baseRadius: size * 0.2 * baseRadiusScale,
     rotationJitter: 12,
     scaleJitter: 0.15,
@@ -238,7 +317,7 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // `balanceVisualWeight`'s own doc comment) -- a no-op for the ordinary
   // roll, a real cap for the occasional one where support members would
   // otherwise out-weigh the hero.
-  const balancedMembers = balanceVisualWeight(members);
+  const balancedMembers = balanceVisualWeight(members, species?.premiumScore);
 
   let secondaryToggle = 0;
   let colorSeed = 1;
@@ -289,19 +368,8 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.55, colorSeed++, { role: 'secondary', part, family });
     } else if (member.role === 'filler') {
-      // Build 007, Section 3 (Premium Bouquet Designer, "filler flowers,
-      // berry balance"): the `bouquet` template used to force EVERY filler
-      // member to a berry part regardless of what the companion species
-      // actually is -- a Rose paired with Baby's-Breath (a real filler-role
-      // species with no berries at all) still drew a berry. Now a
-      // companion whose own real `bouquetRole` is genuinely `'filler'`
-      // (Baby's Breath, Cosmos, Wildflower) draws as a small filler flower
-      // instead, while a companion that IS a real berry species
-      // (`berryBranch`, `bouquetRole: 'supporting'`) keeps the berry --
-      // "which filler reads correctly" now follows the companion's own
-      // real botanical role instead of one constant for every pairing.
-      const companionIsFillerFlower = fillerFamily ? BOTANICAL_SPECIES[fillerFamily].bouquetRole === 'filler' : false;
-      const fillerPart = companionIsFillerFlower ? 'secondaryFlower' : template.fillerPart;
+      const companionEntry = species?.companions.find((c) => c.family === companionFamily);
+      const fillerPart = resolveFillerPart(template, companionEntry?.role, fillerFamily);
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: fillerPart, family: fillerFamily });
     } else {
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: template.accentPart, family: fillerFamily });

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { KnowledgeRegistry } from './knowledgeRegistry';
 import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES } from '../../generators/botanicalFamilies';
 import { STYLE_RAW_RECORDS } from './styleData';
+import { SPECIES_RAW_RECORDS } from './speciesData';
 
 describe('KnowledgeRegistry (Build 008A, Section 2)', () => {
   beforeEach(() => {
@@ -33,21 +34,36 @@ describe('KnowledgeRegistry (Build 008A, Section 2)', () => {
     expect(list.map((s) => s.id)).toEqual(expectedIds);
   });
 
-  it('getSpecies resolves every real botanical family to its real profile (Build 004/005/007 data, unmigrated but exposed)', () => {
+  it('getSpecies resolves every real botanical family to its real, registry-loaded record (Build 008B)', () => {
     for (const family of BOTANICAL_FAMILIES) {
       const species = KnowledgeRegistry.getSpecies(family);
       expect(species).toEqual(BOTANICAL_SPECIES[family]);
     }
   });
 
-  it('list("species") returns one entry per real botanical family', () => {
-    expect(KnowledgeRegistry.list('species').length).toBe(BOTANICAL_FAMILIES.length);
+  it('getSpecies returns undefined for an unknown family, never throws', () => {
+    expect(KnowledgeRegistry.getSpecies('not-a-real-family' as never)).toBeUndefined();
   });
 
-  it('validate() reports valid:true and no issues for the real, shipped data', () => {
+  it('list("species") returns exactly one entry per real species-data record', () => {
+    const list = KnowledgeRegistry.list('species');
+    expect(list.length).toBe(SPECIES_RAW_RECORDS.length);
+    expect(list.length).toBe(BOTANICAL_FAMILIES.length);
+    const ids = new Set(list.map((s) => s.id));
+    expect(ids.size).toBe(list.length);
+  });
+
+  it('validate() reports valid:true and no style or species issues for the real, shipped data', () => {
     const result = KnowledgeRegistry.validate();
     expect(result.valid).toBe(true);
     expect(result.issues).toEqual([]);
+    expect(result.speciesIssues).toEqual([]);
+  });
+
+  it('caches the species load: two getSpecies calls return the exact same object reference', () => {
+    const a = KnowledgeRegistry.getSpecies('rose');
+    const b = KnowledgeRegistry.getSpecies('rose');
+    expect(a).toBe(b);
   });
 
   it('diagnostics() reports real, consistent counts and version info', () => {

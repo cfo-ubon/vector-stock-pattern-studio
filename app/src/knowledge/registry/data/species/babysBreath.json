@@ -1,0 +1,43 @@
+{
+  "id": "babysBreath",
+  "label": "Baby's Breath",
+  "botanicalFamilyName": "Caryophyllaceae",
+  "silhouette": "airy",
+  "growthPreset": "sage",
+  "stemLengthScale": 1.1,
+  "leafDensityScale": 0.3,
+  "bouquetRole": "filler",
+  "flowerDiameterClass": "small",
+  "bloomStageRange": [
+    0.8,
+    1
+  ],
+  "petalCountRange": [
+    5,
+    5
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "none",
+  "petalSilhouette": "star",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "branching",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "white",
+    "cream"
+  ],
+  "premiumScore": 48,
+  "eleganceScore": 72,
+  "commercialPopularity": 80,
+  "companions": [],
+  "usageProfiles": [
+    "wedding",
+    "greetingCard",
+    "packaging",
+    "nursery"
+  ]
+}

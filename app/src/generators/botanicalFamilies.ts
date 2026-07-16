@@ -1,6 +1,7 @@
 import type { Rng } from '../engine/types';
-import { rngPick } from '../engine/rng';
-import type { GROWTH_PRESETS } from './growth';
+import type { BotanicalSpeciesRecord, UsageProfileId } from '../knowledge/registry/speciesSchema';
+import { KnowledgeRegistry } from '../knowledge/registry/knowledgeRegistry';
+import type { ProductUseId } from '../collection/productTargets';
 
 // Build 004, Section 2: the original 15 named botanical families -- a real
 // taxonomy (as opposed to `motifFactory.ts`'s coarse `'flower'` MotifFamily
@@ -68,59 +69,28 @@ export const BOTANICAL_FAMILIES: BotanicalFamily[] = [
 ];
 
 /** A species' real, owned design knowledge -- not just a shape-pool filter
- * key. `growthPreset` points at an actual `GROWTH_PRESETS` entry
- * (generators/growth.ts), so a species genuinely drives which stem
- * curvature/leaf arrangement/leaf taper gets used wherever this profile is
- * consulted (see `generators/premiumHero.ts`'s `buildPremiumHero`, Build
- * 005 Section 4's wiring point), rather than every family sharing one
- * hardcoded preset regardless of species. `stemLengthScale`/
- * `leafDensityScale` are relative multipliers (1 = a size-neutral
- * baseline); `silhouette` and `bouquetRole` are the real, honest read a
- * surface pattern designer would give the species at a glance -- used by
- * later Build 005 sections (Design Knowledge/Rule Engine, Designer Brain)
- * to make composition choices instead of a uniform random pick, not
- * decorative labels. */
-export interface BotanicalSpeciesProfile {
-  label: string;
-  silhouette: 'rounded' | 'layered' | 'spiky' | 'airy' | 'architectural' | 'wispy' | 'clustered' | 'broadLeaf';
-  growthPreset: keyof typeof GROWTH_PRESETS;
-  stemLengthScale: number;
-  leafDensityScale: number;
-  bouquetRole: 'statement' | 'supporting' | 'filler' | 'foliageOnly';
-  /** Build 006, Section 3 (Natural Botanical Relationships): the real
-   * companion species a professional florist/surface designer would pair
-   * this one WITH for its supporting foliage/filler roles -- e.g. a rose
-   * bouquet's non-hero members are traditionally eucalyptus/baby's-breath/
-   * berries, never another rose. `foliageOnly`/`filler` species are the
-   * companions themselves (that's what they're for), so their own list is
-   * intentionally empty rather than fabricated -- documented here, not
-   * silently omitted. Consulted by `pickCompanionFamily` below; a species
-   * with an empty list simply keeps using its own family for every role,
-   * reproducing pre-Build-006 behavior exactly. */
-  companionFamilies: BotanicalFamily[];
-}
+ * key. Build 008B, Section 1 (Commercial Botanical Species Library)
+ * replaces this file's own hardcoded literal with the real, versioned
+ * `BotanicalSpeciesRecord` the Knowledge Registry loads from
+ * `knowledge/registry/data/species/*.json` -- every field this type
+ * already had (`silhouette`, `growthPreset`, `stemLengthScale`,
+ * `leafDensityScale`, `bouquetRole`, `companionFamilies`) keeps its exact
+ * old name/value space (kept as a type alias, not a redeclared shape), so
+ * every existing consumer (`premiumHero.ts`, `illustrationFamily.ts`,
+ * `designKnowledge.ts`) reads unchanged data through the same field names
+ * it always has, while gaining every new commercial field (petal/bloom/
+ * companion-matrix/usage-profile knowledge) the registry now carries. */
+export type BotanicalSpeciesProfile = BotanicalSpeciesRecord;
 
-export const BOTANICAL_SPECIES: Record<BotanicalFamily, BotanicalSpeciesProfile> = {
-  rose: { label: 'Rose', silhouette: 'layered', growthPreset: 'leafyBranch', stemLengthScale: 1.0, leafDensityScale: 0.9, bouquetRole: 'statement', companionFamilies: ['eucalyptus', 'babysBreath', 'berryBranch'] },
-  peony: { label: 'Peony', silhouette: 'rounded', growthPreset: 'leafyBranch', stemLengthScale: 0.9, leafDensityScale: 0.85, bouquetRole: 'statement', companionFamilies: ['eucalyptus', 'fern', 'olive'] },
-  tulip: { label: 'Tulip', silhouette: 'architectural', growthPreset: 'leafyBranch', stemLengthScale: 1.1, leafDensityScale: 0.5, bouquetRole: 'supporting', companionFamilies: ['eucalyptus', 'fern'] },
-  anemone: { label: 'Anemone', silhouette: 'rounded', growthPreset: 'sage', stemLengthScale: 1.0, leafDensityScale: 0.7, bouquetRole: 'supporting', companionFamilies: ['olive', 'fern', 'babysBreath'] },
-  magnolia: { label: 'Magnolia', silhouette: 'layered', growthPreset: 'laurel', stemLengthScale: 0.8, leafDensityScale: 0.6, bouquetRole: 'statement', companionFamilies: ['olive', 'fern'] },
-  hydrangea: { label: 'Hydrangea', silhouette: 'rounded', growthPreset: 'leafyBranch', stemLengthScale: 0.85, leafDensityScale: 0.8, bouquetRole: 'statement', companionFamilies: ['eucalyptus', 'fern', 'berryBranch'] },
-  cosmos: { label: 'Cosmos', silhouette: 'airy', growthPreset: 'sage', stemLengthScale: 1.2, leafDensityScale: 0.4, bouquetRole: 'filler', companionFamilies: ['wildflower', 'babysBreath', 'herb'] },
-  wildflower: { label: 'Wild Meadow', silhouette: 'airy', growthPreset: 'sage', stemLengthScale: 1.1, leafDensityScale: 0.5, bouquetRole: 'filler', companionFamilies: ['cosmos', 'babysBreath', 'herb', 'lavender'] },
-  daisy: { label: 'Daisy', silhouette: 'rounded', growthPreset: 'sage', stemLengthScale: 1.0, leafDensityScale: 0.5, bouquetRole: 'filler', companionFamilies: ['wildflower', 'babysBreath', 'herb'] },
-  lavender: { label: 'Lavender', silhouette: 'spiky', growthPreset: 'herbWhorl', stemLengthScale: 1.15, leafDensityScale: 0.6, bouquetRole: 'filler', companionFamilies: ['olive', 'herb', 'wildflower'] },
-  eucalyptus: { label: 'Eucalyptus', silhouette: 'wispy', growthPreset: 'eucalyptus', stemLengthScale: 1.2, leafDensityScale: 1.1, bouquetRole: 'foliageOnly', companionFamilies: [] },
-  olive: { label: 'Olive', silhouette: 'wispy', growthPreset: 'olive', stemLengthScale: 1.1, leafDensityScale: 1.0, bouquetRole: 'foliageOnly', companionFamilies: [] },
-  fern: { label: 'Fern', silhouette: 'clustered', growthPreset: 'fern', stemLengthScale: 0.9, leafDensityScale: 1.4, bouquetRole: 'foliageOnly', companionFamilies: [] },
-  berryBranch: { label: 'Berry Branch', silhouette: 'clustered', growthPreset: 'laurel', stemLengthScale: 1.0, leafDensityScale: 0.7, bouquetRole: 'supporting', companionFamilies: ['eucalyptus', 'olive'] },
-  herb: { label: 'Herb', silhouette: 'wispy', growthPreset: 'sage', stemLengthScale: 0.9, leafDensityScale: 0.9, bouquetRole: 'foliageOnly', companionFamilies: [] },
-  ranunculus: { label: 'Ranunculus', silhouette: 'layered', growthPreset: 'leafyBranch', stemLengthScale: 0.95, leafDensityScale: 0.7, bouquetRole: 'statement', companionFamilies: ['eucalyptus', 'babysBreath', 'berryBranch'] },
-  protea: { label: 'Protea', silhouette: 'architectural', growthPreset: 'basalRosette', stemLengthScale: 1.0, leafDensityScale: 0.5, bouquetRole: 'statement', companionFamilies: ['eucalyptus', 'fern', 'tropicalLeaf'] },
-  tropicalLeaf: { label: 'Tropical Leaf', silhouette: 'broadLeaf', growthPreset: 'leafyBranch', stemLengthScale: 1.0, leafDensityScale: 0.3, bouquetRole: 'foliageOnly', companionFamilies: [] },
-  babysBreath: { label: "Baby's Breath", silhouette: 'airy', growthPreset: 'sage', stemLengthScale: 1.1, leafDensityScale: 0.3, bouquetRole: 'filler', companionFamilies: [] },
-};
+/** Built from the Knowledge Registry's real, loaded-and-validated species
+ * records (Build 008B) -- no longer a hardcoded object literal (Build
+ * 004/005/007). `KnowledgeRegistry.list('species')` throws
+ * `KnowledgeValidationError` at first use if the shipped JSON data itself
+ * is invalid, so a broken data file fails loudly here rather than
+ * producing an incomplete species table. */
+export const BOTANICAL_SPECIES: Record<BotanicalFamily, BotanicalSpeciesRecord> = Object.fromEntries(
+  KnowledgeRegistry.list('species').map((record) => [record.id, record]),
+) as Record<BotanicalFamily, BotanicalSpeciesRecord>;
 
 /** All distinct `silhouette` values the species taxonomy actually uses --
  * a real, fixed-size set (currently 8) consulted by Build 006, Section 9's
@@ -131,6 +101,61 @@ export const BOTANICAL_SILHOUETTES: BotanicalSpeciesProfile['silhouette'][] = [
   'rounded', 'layered', 'spiky', 'airy', 'architectural', 'wispy', 'clustered', 'broadLeaf',
 ];
 
+/** Real families that list `profile` among their `usageProfiles` (Build
+ * 008B, Section 4: Species Usage Profiles), ordered by commercial fitness
+ * (premium + elegance + commercial-popularity, descending) so a caller
+ * that wants "the single best fit" can just take index 0 rather than
+ * re-deriving an ordering itself. Used as `resolveStyleDna`'s fallback
+ * family pool for any style that declares no explicit `preferredFamilies`
+ * (see `engine/styleDna.ts`'s `STYLE_USAGE_PROFILE` map) -- every one of
+ * the 15 shipped built-in styles already has a curated `preferredFamilies`
+ * list, so this path only ever activates for a future/custom style that
+ * doesn't, never changing any existing style's resolved output. */
+export function speciesForUsageProfile(profile: UsageProfileId): BotanicalFamily[] {
+  return BOTANICAL_FAMILIES
+    .filter((f) => BOTANICAL_SPECIES[f].usageProfiles.includes(profile))
+    .sort((a, b) => {
+      const scoreOf = (f: BotanicalFamily) => {
+        const s = BOTANICAL_SPECIES[f];
+        return s.premiumScore + s.eleganceScore + s.commercialPopularity;
+      };
+      return scoreOf(b) - scoreOf(a);
+    });
+}
+
+/** Build 008B, Section 8 (Product-aware Species Selection): which real
+ * `UsageProfileId` each real `ProductUseId` (collection/productTargets.ts
+ * -- the app's own 10 named commercial product targets) maps to for
+ * species-selection purposes -- a hand-authored editorial judgment (the
+ * same convention `engine/styleDna.ts`'s own `STYLE_USAGE_PROFILE` map
+ * already established), not a computed score. The brief's own Section 8
+ * wording names products this app doesn't track as a real, validated
+ * taxonomy ("Phone Case", "Poster", "Art Print") -- reusing the real,
+ * already-validated `ProductUseId` set here instead of inventing new
+ * categories nothing else in the app checks against. */
+const PRODUCT_USAGE_PROFILE: Record<ProductUseId, UsageProfileId> = {
+  wallpaper: 'wallpaper',
+  fabric: 'fabric',
+  wrappingPaper: 'packaging',
+  giftWrap: 'packaging',
+  packaging: 'packaging',
+  notebookCovers: 'minimal',
+  stationery: 'greetingCard',
+  homeDecor: 'wallpaper',
+  textile: 'textile',
+  digitalPaper: 'minimal',
+};
+
+/** Real families that fit `productTarget`'s own mapped usage profile
+ * (see `PRODUCT_USAGE_PROFILE`), ordered by commercial fitness -- same
+ * ordering convention as `speciesForUsageProfile` (which this delegates
+ * to). Used by `engine/tile.ts` as a fallback family pick when a tile
+ * declares a real `productTarget` but no Style DNA already resolved a
+ * `botanicalFamily` -- never overrides an explicit style/user choice. */
+export function speciesForProductTarget(productTarget: ProductUseId): BotanicalFamily[] {
+  return speciesForUsageProfile(PRODUCT_USAGE_PROFILE[productTarget]);
+}
+
 /** Picks a real companion species for `primary`'s supporting/filler/accent
  * bouquet roles -- e.g. a Rose hero pairs with Eucalyptus/Baby's-Breath/
  * Berries, never another Rose. Falls back to `primary` itself (byte-
@@ -138,10 +163,28 @@ export const BOTANICAL_SILHOUETTES: BotanicalSpeciesProfile['silhouette'][] = [
  * list (every `foliageOnly`/`filler` species -- they ARE the companions)
  * or no `family` hint was given at all. Picked ONCE per hero (not once per
  * member) by the caller so a single bouquet reads as one coherent pairing,
- * not a different random companion on every filler. */
+ * not a different random companion on every filler.
+ *
+ * Build 008B, Section 2 (Companion Species Matrix): replaces the old
+ * uniform `rngPick` across a flat id list with a real roulette-wheel pick
+ * weighted by each companion's `strength` (0-1) -- a rose's 0.9-strength
+ * eucalyptus pairing is genuinely more likely to be chosen than its
+ * 0.6-strength berry-branch pairing, matching how a real florist reaches
+ * for the strongest pairing far more often than a weaker one, while still
+ * leaving room for the weaker pairing to appear sometimes (portfolio
+ * variety, Section 9). */
 export function pickCompanionFamily(rng: Rng, primary: BotanicalFamily | undefined): BotanicalFamily | undefined {
   if (!primary) return primary;
-  const companions = BOTANICAL_SPECIES[primary].companionFamilies;
+  const companions = BOTANICAL_SPECIES[primary].companions;
   if (companions.length === 0) return primary;
-  return rngPick(rng, companions);
+
+  const totalStrength = companions.reduce((sum, c) => sum + c.strength, 0);
+  if (totalStrength <= 0) return companions[0].family;
+
+  let roll = rng() * totalStrength;
+  for (const companion of companions) {
+    roll -= companion.strength;
+    if (roll <= 0) return companion.family;
+  }
+  return companions[companions.length - 1].family;
 }

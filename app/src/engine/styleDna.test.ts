@@ -5,6 +5,7 @@ import { serialize } from './svgAst';
 import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
+import { BOTANICAL_SPECIES } from '../generators/botanicalFamilies';
 import {
   STYLE_DNA_PRESETS,
   STYLE_DNA_LIST,
@@ -260,6 +261,50 @@ describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
     // and fine; a wholesale collapse (only a small fraction of the
     // baseline instance count surviving) is the real regression.
     expect(onCount).toBeGreaterThan(offCount * 0.5);
+  });
+});
+
+describe('Style DNA: Species Usage Profile fallback (Build 008B, Section 4)', () => {
+  it('every real shipped botanical-category style still has an explicit preferredFamilies list (the fallback never fires for shipped styles)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.categories.includes('botanical')) {
+        expect(dna.preferredFamilies?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('leaves botanicalFamily undefined for a botanical-category style whose id has no STYLE_USAGE_PROFILE mapping', () => {
+    const dna: StyleDna = {
+      ...STYLE_DNA_PRESETS.luxuryFloral,
+      id: 'test-no-preferred-families-no-usage-mapping',
+      preferredFamilies: undefined,
+    };
+    const patch = resolveStyleDna(dna, 'usage-profile-fallback-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('a real style id mapped in STYLE_USAGE_PROFILE resolves a family matching that usage profile, when preferredFamilies is stripped', () => {
+    const base = STYLE_DNA_PRESETS.editorialBotanical;
+    const dna: StyleDna = { ...base, preferredFamilies: undefined };
+    for (let i = 0; i < 10; i++) {
+      const patch = resolveStyleDna(dna, `usage-profile-real-id-${i}`);
+      expect(patch.botanicalFamily).toBeDefined();
+      expect(BOTANICAL_SPECIES[patch.botanicalFamily!].usageProfiles).toContain('editorialBotanical');
+    }
+  });
+
+  it('never assigns a botanical family fallback to a non-botanical-category style, even if mapped in STYLE_USAGE_PROFILE', () => {
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.modernTropical, preferredFamilies: undefined };
+    expect(dna.categories.includes('botanical')).toBe(false);
+    const patch = resolveStyleDna(dna, 'non-botanical-fallback-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('the fallback is deterministic for a given seed', () => {
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredFamilies: undefined };
+    const a = resolveStyleDna(dna, 'usage-profile-determinism').botanicalFamily;
+    const b = resolveStyleDna(dna, 'usage-profile-determinism').botanicalFamily;
+    expect(a).toBe(b);
   });
 });
 

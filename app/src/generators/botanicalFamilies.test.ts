@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createRng } from '../engine/rng';
 import { GROWTH_PRESETS } from './growth';
-import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES, BOTANICAL_SILHOUETTES, pickCompanionFamily } from './botanicalFamilies';
+import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES, BOTANICAL_SILHOUETTES, pickCompanionFamily, speciesForProductTarget } from './botanicalFamilies';
+import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import { botanicalGenerator, __testables } from './botanical';
 
 describe('BOTANICAL_SPECIES (Build 005, Section 4)', () => {
@@ -122,5 +123,101 @@ describe('BOTANICAL_SPECIES companion pairing (Build 006, Section 3: Natural Bot
     const used = new Set(BOTANICAL_FAMILIES.map((f) => BOTANICAL_SPECIES[f].silhouette));
     for (const s of used) expect(BOTANICAL_SILHOUETTES).toContain(s);
     expect(BOTANICAL_SILHOUETTES.length).toBeGreaterThanOrEqual(used.size);
+  });
+});
+
+describe('BOTANICAL_SPECIES commercial knowledge (Build 008B, Section 1: Commercial Botanical Species Library)', () => {
+  it('every species has real, populated commercial fields (not the old simplified profile)', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      const species = BOTANICAL_SPECIES[family];
+      expect(species.botanicalFamilyName.length).toBeGreaterThan(0);
+      expect(species.premiumScore).toBeGreaterThanOrEqual(0);
+      expect(species.premiumScore).toBeLessThanOrEqual(100);
+      expect(species.eleganceScore).toBeGreaterThanOrEqual(0);
+      expect(species.eleganceScore).toBeLessThanOrEqual(100);
+      expect(species.commercialPopularity).toBeGreaterThanOrEqual(0);
+      expect(species.commercialPopularity).toBeLessThanOrEqual(100);
+      expect(species.petalCountRange[0]).toBeLessThanOrEqual(species.petalCountRange[1]);
+      expect(species.bloomStageRange[0]).toBeLessThanOrEqual(species.bloomStageRange[1]);
+      expect(Array.isArray(species.usageProfiles)).toBe(true);
+      expect(species.usageProfiles.length).toBeGreaterThan(0);
+      expect(Array.isArray(species.companions)).toBe(true);
+    }
+  });
+
+  it('companionFamilies (backward-compat) stays exactly the companions matrix\'s family list, in order', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      const species = BOTANICAL_SPECIES[family];
+      expect(species.companionFamilies).toEqual(species.companions.map((c) => c.family));
+    }
+  });
+
+  it('every companion entry has a real strength in [0, 1] and a real role', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      for (const companion of BOTANICAL_SPECIES[family].companions) {
+        expect(companion.strength).toBeGreaterThanOrEqual(0);
+        expect(companion.strength).toBeLessThanOrEqual(1);
+        expect(['foliage', 'filler', 'accentBerry']).toContain(companion.role);
+      }
+    }
+  });
+});
+
+describe('pickCompanionFamily weighted-strength pick (Build 008B, Section 2: Companion Species Matrix)', () => {
+  it('is deterministic for a given seed', () => {
+    const a = pickCompanionFamily(createRng('weighted-1'), 'rose');
+    const b = pickCompanionFamily(createRng('weighted-1'), 'rose');
+    expect(a).toBe(b);
+  });
+
+  it('a companion with much higher strength is picked substantially more often than a much weaker one', () => {
+    const counts: Record<string, number> = {};
+    for (let i = 0; i < 400; i++) {
+      const pick = pickCompanionFamily(createRng(`weighted-strength-${i}`), 'rose')!;
+      counts[pick] = (counts[pick] ?? 0) + 1;
+    }
+    const strongest = [...BOTANICAL_SPECIES.rose.companions].sort((a, b) => b.strength - a.strength)[0];
+    const weakest = [...BOTANICAL_SPECIES.rose.companions].sort((a, b) => a.strength - b.strength)[0];
+    if (strongest.family !== weakest.family) {
+      expect(counts[strongest.family] ?? 0).toBeGreaterThan(counts[weakest.family] ?? 0);
+    }
+  });
+
+  it('never picks a family outside the real companions list', () => {
+    for (let i = 0; i < 40; i++) {
+      const pick = pickCompanionFamily(createRng(`weighted-bounds-${i}`), 'peony')!;
+      expect(BOTANICAL_SPECIES.peony.companions.map((c) => c.family)).toContain(pick);
+    }
+  });
+});
+
+describe('speciesForProductTarget (Build 008B, Section 8: Product-aware Species Selection)', () => {
+  it('every real ProductUseId resolves to at least one real, non-empty species pool', () => {
+    for (const productTarget of PRODUCT_USE_IDS) {
+      const pool = speciesForProductTarget(productTarget);
+      expect(pool.length).toBeGreaterThan(0);
+      for (const family of pool) expect(BOTANICAL_FAMILIES).toContain(family);
+    }
+  });
+
+  it('wallpaper and homeDecor both resolve species that declare the real "wallpaper" usage profile', () => {
+    for (const productTarget of ['wallpaper', 'homeDecor'] as const) {
+      const pool = speciesForProductTarget(productTarget);
+      for (const family of pool) expect(BOTANICAL_SPECIES[family].usageProfiles).toContain('wallpaper');
+    }
+  });
+
+  it('fabric and textile resolve species matching their own distinct usage profiles', () => {
+    for (const family of speciesForProductTarget('fabric')) expect(BOTANICAL_SPECIES[family].usageProfiles).toContain('fabric');
+    for (const family of speciesForProductTarget('textile')) expect(BOTANICAL_SPECIES[family].usageProfiles).toContain('textile');
+  });
+
+  it('is ordered by commercial fitness, matching speciesForUsageProfile\'s own convention', () => {
+    const pool = speciesForProductTarget('wallpaper');
+    for (let i = 1; i < pool.length; i++) {
+      const prevScore = BOTANICAL_SPECIES[pool[i - 1]].premiumScore + BOTANICAL_SPECIES[pool[i - 1]].eleganceScore + BOTANICAL_SPECIES[pool[i - 1]].commercialPopularity;
+      const currScore = BOTANICAL_SPECIES[pool[i]].premiumScore + BOTANICAL_SPECIES[pool[i]].eleganceScore + BOTANICAL_SPECIES[pool[i]].commercialPopularity;
+      expect(prevScore).toBeGreaterThanOrEqual(currScore);
+    }
   });
 });

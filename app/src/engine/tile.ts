@@ -12,6 +12,7 @@ import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
 import { buildPremiumHero } from '../generators/premiumHero';
 import { resolveNegativeSpaceForProduct } from './negativeSpaceDesigner';
+import { speciesForProductTarget } from '../generators/botanicalFamilies';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -233,6 +234,16 @@ export function buildTile(params: GenerateParams): TileData {
   const spacingAdjust = (params.overlapAmount ?? 0) - effectiveNegativeSpace;
   const effectiveDensity = Math.max(0, Math.min(1, params.density + spacingAdjust * 0.4));
 
+  // Build 008B, Section 8 (Product-aware Species Selection): a real
+  // `productTarget` (collection/productTargets.ts) with no Style DNA
+  // family already resolved falls back to that product's own best-fit
+  // species (see `speciesForProductTarget`'s own doc comment) instead of
+  // leaving `botanicalFamily` unset -- never overrides an explicit
+  // style/user family choice, and `productTarget` undefined reproduces
+  // `params.botanicalFamily` exactly.
+  const effectiveBotanicalFamily =
+    params.botanicalFamily ?? (params.productTarget ? speciesForProductTarget(params.productTarget)[0] : undefined);
+
   const placements: Placement[] = layout.generate(
     {
       tileSize,
@@ -341,8 +352,8 @@ export function buildTile(params: GenerateParams): TileData {
       !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
     if (usePremiumHero) premiumHeroesBuilt++;
     const motif = usePremiumHero
-      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily, designRules: params.designRules })
-      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: params.botanicalFamily });
+      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: effectiveBotanicalFamily, designRules: params.designRules })
+      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: effectiveBotanicalFamily });
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing

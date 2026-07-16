@@ -1,20 +1,23 @@
 import type { StyleDna } from '../../engine/styleDna';
-import { BOTANICAL_SPECIES, BOTANICAL_FAMILIES, type BotanicalFamily, type BotanicalSpeciesProfile } from '../../generators/botanicalFamilies';
+import type { BotanicalFamily } from '../../generators/botanicalFamilies';
 import schemaVersionData from '../schema_version.json';
 import { STYLE_SCHEMA_VERSION } from './styleSchema';
 import { STYLE_RAW_RECORDS } from './styleData';
 import { loadStyleRecords, formatStyleLoadIssues, type StyleLoadIssue } from './styleLoader';
+import type { BotanicalSpeciesRecord } from './speciesSchema';
+import { SPECIES_SCHEMA_VERSION } from './speciesSchema';
+import { SPECIES_RAW_RECORDS } from './speciesData';
+import { loadSpeciesRecords, formatSpeciesLoadIssues, type SpeciesLoadIssue } from './speciesLoader';
 
 // Build 008A, Section 2 (Knowledge Registry) — the one reusable loading/
 // validation/caching/versioning layer future builds (Species, Products,
 // Marketplace, Collections — see the brief's own closing framing) can add
-// a domain to without redesigning this class. Today only the `style`
-// domain has real migrated data (`styleData.ts`); `getSpecies()` exists
-// now as a real, working accessor over the still-hardcoded
-// `BOTANICAL_SPECIES` table (Build 007) so the call-site contract is
-// already in place for whenever Species itself gets a real JSON+schema
-// migration (Build 008B, per BUILD_008A_AUDIT.md's recommendation) --
-// nothing about `botanicalFamilies.ts` is touched or restructured.
+// a domain to without redesigning this class. Build 008B, Section 1 adds
+// the second real domain: `species` now loads/validates/caches real JSON
+// records (`speciesData.ts`/`speciesLoader.ts`) exactly like `style` does
+// — `generators/botanicalFamilies.ts`'s `BOTANICAL_SPECIES` is built FROM
+// `KnowledgeRegistry.list('species')`, so only a type-only import of
+// `BotanicalFamily` remains here (no runtime circularity).
 
 export interface KnowledgeSchemaVersion {
   knowledgeVersion: string;
@@ -51,6 +54,7 @@ export class KnowledgeValidationError extends Error {
 
 class KnowledgeRegistryImpl {
   private styleCache: Map<string, StyleDna> | null = null;
+  private speciesCache: Map<string, BotanicalSpeciesRecord> | null = null;
   private lastLoadedAt = 0;
 
   /** Loads (or returns the already-cached) style map. Real caching: the
@@ -87,31 +91,61 @@ class KnowledgeRegistryImpl {
     return this.ensureStylesLoaded().get(id);
   }
 
-  /** Real per-species accessor over the existing `BOTANICAL_SPECIES` table
-   * (Build 004/005/007) — species data itself is NOT migrated this build
-   * (see BUILD_008A_AUDIT.md §2), this just gives future callers the same
-   * `KnowledgeRegistry.getSpecies(...)` shape they'll keep using once it is. */
-  getSpecies(family: BotanicalFamily): BotanicalSpeciesProfile | undefined {
-    return BOTANICAL_SPECIES[family];
+  /** Loads (or returns the already-cached) species map — same real
+   * load-validate-cache-once pattern as `ensureStylesLoaded` (Build 008B,
+   * Section 1). */
+  private ensureSpeciesLoaded(): Map<string, BotanicalSpeciesRecord> {
+    if (this.speciesCache) return this.speciesCache;
+
+    const declaredVersion = (schemaVersionData as KnowledgeSchemaVersion).speciesSchema;
+    if (declaredVersion !== SPECIES_SCHEMA_VERSION) {
+      throw new KnowledgeValidationError(
+        `Knowledge Registry: schema_version.json declares speciesSchema "${declaredVersion}" but the loader implements "${SPECIES_SCHEMA_VERSION}". Update one to match the other before loading.`,
+        [],
+      );
+    }
+
+    const result = loadSpeciesRecords(SPECIES_RAW_RECORDS);
+    if (!result.species) {
+      const message = `Knowledge Registry: ${result.issues.length} species record(s) failed validation:\n${formatSpeciesLoadIssues(result.issues)}`;
+      throw new KnowledgeValidationError(message, []);
+    }
+
+    this.speciesCache = result.species;
+    this.lastLoadedAt = Date.now();
+    return this.speciesCache;
   }
 
-  /** Lists every loaded record for a domain. Only `'style'` has real
-   * migrated data this build; `'species'` reads the same fixed real
-   * taxonomy `getSpecies` does. */
+  /** Resolves one species record by botanical family id, or `undefined` if
+   * unknown — reads from the real, loaded-and-validated species cache
+   * (Build 008B), no longer a direct proxy to a hardcoded table. */
+  getSpecies(family: BotanicalFamily): BotanicalSpeciesRecord | undefined {
+    return this.ensureSpeciesLoaded().get(family);
+  }
+
+  /** Lists every loaded record for a domain — both `'style'` and
+   * `'species'` are real, loaded, validated, cached data (Build 008A +
+   * 008B). */
   list(domain: 'style'): StyleDna[];
-  list(domain: 'species'): BotanicalSpeciesProfile[];
-  list(domain: 'style' | 'species'): StyleDna[] | BotanicalSpeciesProfile[] {
+  list(domain: 'species'): BotanicalSpeciesRecord[];
+  list(domain: 'style' | 'species'): StyleDna[] | BotanicalSpeciesRecord[] {
     if (domain === 'style') return [...this.ensureStylesLoaded().values()];
-    return BOTANICAL_FAMILIES.map((f) => BOTANICAL_SPECIES[f]);
+    return [...this.ensureSpeciesLoaded().values()];
   }
 
-  /** Re-runs validation over the currently-loaded style records (or loads
-   * them fresh if not yet cached) and returns a non-throwing report —
-   * unlike `ensureStylesLoaded`, this never throws, so a caller (a
-   * diagnostics panel, a test) can inspect problems without crashing. */
-  validate(): { valid: boolean; issues: StyleLoadIssue[] } {
-    const result = loadStyleRecords(STYLE_RAW_RECORDS);
-    return { valid: result.styles !== null, issues: result.issues };
+  /** Re-runs validation over the currently-loaded style and species
+   * records (or loads them fresh if not yet cached) and returns a
+   * non-throwing report — unlike `ensureStylesLoaded`/`ensureSpeciesLoaded`,
+   * this never throws, so a caller (a diagnostics panel, a test) can
+   * inspect problems without crashing. */
+  validate(): { valid: boolean; issues: StyleLoadIssue[]; speciesIssues: SpeciesLoadIssue[] } {
+    const styleResult = loadStyleRecords(STYLE_RAW_RECORDS);
+    const speciesResult = loadSpeciesRecords(SPECIES_RAW_RECORDS);
+    return {
+      valid: styleResult.styles !== null && speciesResult.species !== null,
+      issues: styleResult.issues,
+      speciesIssues: speciesResult.issues,
+    };
   }
 
   /** Real, computed diagnostics — every field here is either read
@@ -119,11 +153,12 @@ class KnowledgeRegistryImpl {
    * data, or a real timestamp; nothing estimated. */
   diagnostics(): KnowledgeDiagnostics {
     const styles = this.ensureStylesLoaded();
+    const species = this.ensureSpeciesLoaded();
     return {
       declaredVersion: schemaVersionData as KnowledgeSchemaVersion,
       implementedStyleSchemaVersion: STYLE_SCHEMA_VERSION,
       styleCount: styles.size,
-      speciesCount: BOTANICAL_FAMILIES.length,
+      speciesCount: species.size,
       lastLoadedAt: this.lastLoadedAt,
     };
   }
@@ -134,6 +169,7 @@ class KnowledgeRegistryImpl {
    * behavior without sharing state across test cases. */
   _resetCacheForTests(): void {
     this.styleCache = null;
+    this.speciesCache = null;
     this.lastLoadedAt = 0;
   }
 }

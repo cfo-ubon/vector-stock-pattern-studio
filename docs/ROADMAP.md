@@ -66,14 +66,35 @@ Build-numbered, forward-looking. Each entry is either shipped
   Score composite), Illustration Quality Score V2 (bouquet/gesture/leaf/
   flower realism + premium feel, all measured from real SVG structure).
   See `docs/build_reports/BUILD_007_REPORT.md`.
+- **Build 008A — Knowledge Infrastructure (Project Orchid)**: a real,
+  reusable Knowledge Registry (load/validate/cache/version/diagnostics)
+  future builds can add a domain to, proved by migrating Style DNA's 15
+  built-in presets off a hardcoded object literal onto real, editable,
+  schema-validated JSON files — zero generation-output change (verified
+  by a dedicated compatibility test suite). See
+  `docs/build_reports/BUILD_008A_REPORT.md`.
+- **Build 008B — Commercial Botanical Species Engine**: the Botanical
+  Species table (19 species) migrated through the same Knowledge Registry
+  pattern, redesigned (not just moved) into a real commercial record —
+  botanical family/bloom/petal/leaf structure, premium/elegance/
+  commercial-popularity scores, a strength-weighted companion matrix,
+  usage-profile tags. Every one of those fields is real, wired generation
+  logic: a genuine Filler-Leaf/Filler-Flower/Berry choice from the
+  companion's typed role, a premium-score-driven visual-weight cap, a
+  5-archetype internal hero-silhouette roll (was always circular before),
+  a usage-profile/product-target species fallback. Measured against the
+  Build 007 baseline: every score within normal variance or a real
+  improvement (Leaf Realism +2.6, Premium Feel +1.0), zero regressions,
+  zero node-budget failures across 430 measured patterns. See
+  `docs/build_reports/BUILD_008B_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_007_REPORT.md` §10 for the current list)
+## Recommended Next Build (see `docs/build_reports/BUILD_008B_REPORT.md` §15 for the current list)
 
-Build 007's own report has the up-to-date, evidence-based recommendation
-list (extend Flower Anatomy data to spray-role species, wire the Petal
-Variation Library into the remaining ring-based flowers, root-cause the
-small `repeatedScale` uptick, a genuinely coordinated Gesture Engine
-across cluster placement). The section below is kept for history but
+Build 008B's own report has the up-to-date, evidence-based recommendation
+list (add `crescent`/`wallpaper` cluster archetypes, a real
+portfolio-level hero-silhouette-archetype diversity metric, a UI producer
+for `productTarget` on single-tile generation, reconcile the legacy stale
+Style DNA JSON system). The section below is kept for history but
 reflects Build 001.1's own state, not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)

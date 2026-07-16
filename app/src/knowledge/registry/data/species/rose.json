@@ -1,0 +1,62 @@
+{
+  "id": "rose",
+  "label": "Rose",
+  "botanicalFamilyName": "Rosaceae",
+  "silhouette": "layered",
+  "growthPreset": "leafyBranch",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.9,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "large",
+  "bloomStageRange": [
+    0.55,
+    1
+  ],
+  "petalCountRange": [
+    25,
+    40
+  ],
+  "petalArrangement": "layered",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "cupped",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "star",
+  "stemThickness": "medium",
+  "branchingTendency": "sparse",
+  "leafType": "serrated",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "red",
+    "pink",
+    "white",
+    "peach",
+    "yellow"
+  ],
+  "premiumScore": 92,
+  "eleganceScore": 95,
+  "commercialPopularity": 98,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.9
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.85
+    },
+    {
+      "family": "berryBranch",
+      "role": "accentBerry",
+      "strength": 0.6
+    }
+  ],
+  "usageProfiles": [
+    "luxuryFloral",
+    "wedding",
+    "greetingCard",
+    "editorialBotanical"
+  ]
+}

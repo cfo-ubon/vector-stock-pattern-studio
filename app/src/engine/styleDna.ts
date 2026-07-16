@@ -5,6 +5,8 @@ import { HIERARCHY_PRESETS } from './hierarchy';
 import { GENERATORS } from '../generators';
 import { GROWTH_PRESETS } from '../generators/growth';
 import type { BotanicalFamily } from '../generators/botanicalFamilies';
+import { speciesForUsageProfile } from '../generators/botanicalFamilies';
+import type { UsageProfileId } from '../knowledge/registry/speciesSchema';
 import { createRng, randomSeed } from './rng';
 import type { StockSiteId } from '../metadata/shutterstock';
 import type { ProductUseId } from '../collection/productTargets';
@@ -196,6 +198,35 @@ export const STYLE_DNA_LIST: StyleDna[] = KnowledgeRegistry.list('style');
 
 export const STYLE_DNA_PRESETS: Record<string, StyleDna> = Object.fromEntries(STYLE_DNA_LIST.map((dna) => [dna.id, dna]));
 
+/** Build 008B, Section 4 (Species Usage Profiles): which real
+ * `UsageProfileId` (knowledge/registry/speciesSchema.ts) each built-in
+ * style's own design identity maps to -- a hand-authored editorial
+ * judgment (the same convention `StyleDnaExportRecommendation
+ * .bestProductTargets` already established), not a computed score. Only
+ * consulted by `resolveStyleDna` as a fallback family pool for a style
+ * with no explicit `preferredFamilies` (see below) -- every shipped style
+ * already has one, so this map changes no existing style's resolved
+ * output; it exists so a future/custom style without a hand-picked family
+ * list still gets species that genuinely fit its usage context instead of
+ * an unweighted pick across all 19 families. */
+export const STYLE_USAGE_PROFILE: Partial<Record<string, UsageProfileId>> = {
+  editorialBotanical: 'editorialBotanical',
+  luxuryFloral: 'luxuryFloral',
+  scandinavianOrganic: 'scandinavian',
+  minimalBotanical: 'minimal',
+  vintageHerbarium: 'vintage',
+  darkBotanical: 'modern',
+  modernTropical: 'modern',
+  boutiquePackaging: 'packaging',
+  luxuryWallpaper: 'wallpaper',
+  premiumTextile: 'textile',
+  kidsPlayful: 'nursery',
+  retroOrganic: 'vintage',
+  organicAbstract: 'modern',
+  bohoFloral: 'wedding',
+  softWatercolorInspired: 'greetingCard',
+};
+
 /** The subset of GenerateParams a Style DNA resolves — used both to build
  * the actual patch applied to the app's params and to compute drift (which
  * fields the user has since hand-edited away from the style's own values). */
@@ -241,6 +272,24 @@ function pickPreferred<T>(list: T[], dnaId: string, seed: string, salt: string):
   return weightedPickPreferred(rng, list);
 }
 
+/** Build 008B, Section 4 fallback: for a *botanical-category* style with no
+ * explicit `preferredFamilies`, looks up its `STYLE_USAGE_PROFILE` entry
+ * and picks (deterministically, weighted toward the commercially-strongest
+ * fit) from the real species that declare that usage profile. Returns
+ * `undefined` (byte-identical to pre-008B behavior) for any non-botanical
+ * style -- `preferredFamilies` itself is documented as "only meaningful
+ * for a style whose `categories` includes `'botanical'`", so this fallback
+ * honors that same rule rather than assigning a botanical family hint to
+ * e.g. a Tropical- or Geometric-only style. */
+function resolveFallbackBotanicalFamily(dna: StyleDna, seed: string): BotanicalFamily | undefined {
+  if (!dna.categories.includes('botanical')) return undefined;
+  const profile = STYLE_USAGE_PROFILE[dna.id];
+  if (!profile) return undefined;
+  const candidates = speciesForUsageProfile(profile);
+  if (candidates.length === 0) return undefined;
+  return pickPreferred(candidates, dna.id, seed, 'usageProfileFamily');
+}
+
 /** Resolves a Style DNA into the concrete GenerateParams patch. Every field
  * maps to a real, already-implemented engine parameter (see module note for
  * the two intentionally-reserved exceptions). */
@@ -253,7 +302,7 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     : undefined;
   const botanicalFamily = dna.preferredFamilies?.length
     ? pickPreferred(dna.preferredFamilies, dna.id, seed, 'family')
-    : undefined;
+    : resolveFallbackBotanicalFamily(dna, seed);
   const generator = GENERATORS[categoryId];
   const depth = DEPTH_SHADOW[dna.svgDepthMode];
 
