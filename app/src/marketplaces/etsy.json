@@ -1,0 +1,24 @@
+{
+  "id": "etsy",
+  "label": "Etsy",
+  "future": true,
+  "contributorUrl": "https://www.etsy.com/sell",
+  "contributorUrlVerified": false,
+  "titleRules": { "minLength": 10, "maxLength": 140 },
+  "descriptionRules": { "required": true, "minLength": 40, "maxLength": 5000, "practicalCeiling": true },
+  "keywordRules": { "minCount": 5, "maxCount": 13, "maxKeywordLength": 20, "termLabel": "tags" },
+  "filenameRules": { "template": "{palette}-{category}-{layout}-seamless-pattern-{seed}", "maxLength": 100, "extension": "svg" },
+  "defaultCategory": "Digital Prints",
+  "exportPackageFiles": ["pattern.svg", "preview.png", "title.txt", "description.txt", "keywords.txt", "filename.txt", "metadata.json"],
+  "links": {
+    "portal": { "url": "https://www.etsy.com/sell", "verified": false },
+    "submission": { "url": "https://www.etsy.com/sell", "verified": false },
+    "analytics": { "url": "https://www.etsy.com/sell", "verified": false },
+    "help": { "url": "https://help.etsy.com/hc/en-us", "verified": false },
+    "guidelines": { "url": "https://www.etsy.com/sell", "verified": false },
+    "support": { "url": "https://help.etsy.com/hc/en-us", "verified": false }
+  },
+  "collectionNamingRules": { "template": "{primaryKeyword} Collection", "maxLength": 140 },
+  "supportedFileTypes": ["svg", "eps", "png", "jpg"],
+  "previewRequirements": { "minWidth": 1000, "minHeight": 1000, "format": "jpg", "notes": "Conservative floor based on this app's own default preview export size; confirm against Etsy's current seller help docs for their exact published minimum, and note Etsy sellers typically list finished products, not raw vector files, matching this profile's future:true flag." }
+}

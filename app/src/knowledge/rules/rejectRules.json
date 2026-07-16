@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "hardNodeBudget": 8000,
+  "structuralChecks": [
+    { "id": "emptyPattern", "description": "No motif instances were placed at all." },
+    { "id": "invalidGeometry", "description": "Rendered SVG contains a NaN or Infinity coordinate." },
+    { "id": "rasterImage", "description": "Rendered SVG contains a raster <image> element (this app is vector-only)." },
+    { "id": "externalResourceRef", "description": "Rendered SVG references an external resource via href/xlink:href." },
+    { "id": "duplicateMotifIds", "description": "Two or more placed motif instances share the same id." },
+    { "id": "nodeBudgetExceeded", "description": "Total SVG node count exceeds hardNodeBudget." }
+  ]
+}

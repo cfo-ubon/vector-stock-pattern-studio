@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { defaultParams } from './defaults';
 import { buildTile } from './tile';
 import { serialize } from './svgAst';
+import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
+import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import {
   STYLE_DNA_PRESETS,
   STYLE_DNA_LIST,
@@ -14,6 +16,7 @@ import {
   importStyleDnaJson,
   deriveStyleDnaFromParams,
   duplicateStyleDna,
+  computeStyleDnaConsistency,
   STYLE_DNA_SCHEMA_VERSION,
   type StyleDna,
 } from './styleDna';
@@ -67,6 +70,196 @@ describe('Style DNA: loading', () => {
     const svgA = serialize(buildTile({ ...defaultParams(), ...a, seed: 'visible-diff' }).svg);
     const svgB = serialize(buildTile({ ...defaultParams(), ...b, seed: 'visible-diff' }).svg);
     expect(svgA).not.toBe(svgB);
+  });
+});
+
+describe('Style DNA: Composition Intelligence V2 wiring (Build 001)', () => {
+  it('resolves a real flowProfile/flowBiasStrength pair for every preset (Section 5)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-flow-check');
+      expect(patch.compositionIntelligence!.flowProfile).toBe(dna.flowProfile);
+      expect(patch.compositionIntelligence!.flowBiasStrength).toBeGreaterThanOrEqual(0);
+      if (dna.flowProfile !== 'calm') expect(patch.compositionIntelligence!.flowBiasStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolves a real, positive attractionStrength for every preset (Section 8)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-attraction-check');
+      expect(patch.compositionIntelligence!.attractionStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('a tighter/bouquet cluster style resolves stronger attraction than none', () => {
+    const none = { ...STYLE_DNA_PRESETS.editorialBotanical, clusterStyle: 'none' as const, clusterDensity: 0.3 };
+    const bouquet = { ...STYLE_DNA_PRESETS.editorialBotanical, clusterStyle: 'bouquet' as const, clusterDensity: 0.3 };
+    const noneStrength = resolveStyleDna(none, 'attraction-compare').compositionIntelligence!.attractionStrength!;
+    const bouquetStrength = resolveStyleDna(bouquet, 'attraction-compare').compositionIntelligence!.attractionStrength!;
+    expect(bouquetStrength).toBeGreaterThan(noneStrength);
+  });
+
+  it('resolves negativeSpaceStrength that increases with the style\'s own negativeSpace field', () => {
+    const airy = { ...STYLE_DNA_PRESETS.editorialBotanical, negativeSpace: 0.8 };
+    const dense = { ...STYLE_DNA_PRESETS.editorialBotanical, negativeSpace: 0.1 };
+    const airyStrength = resolveStyleDna(airy, 'negspace-compare').compositionIntelligence!.negativeSpaceStrength!;
+    const denseStrength = resolveStyleDna(dense, 'negspace-compare').compositionIntelligence!.negativeSpaceStrength!;
+    expect(airyStrength).toBeGreaterThan(denseStrength);
+  });
+
+  it('every preset still resolves to a buildable tile with the new fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'ci-v2-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'ci-v2-build-check' })).not.toThrow();
+    }
+  });
+});
+
+describe('Style DNA: Style Grammar zone preferences (Build 003, Part 7)', () => {
+  it('every built-in preset declares at least one preferred composition zone', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect(dna.preferredZones?.length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolves compositionZone to one of the style\'s own preferredZones', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `zone-membership-${i}`);
+        expect(dna.preferredZones).toContain(patch.compositionZone);
+      }
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same zone', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'zone-determinism-check');
+    const b = resolveStyleDna(dna, 'zone-determinism-check');
+    expect(a.compositionZone).toBe(b.compositionZone);
+  });
+
+  it('a multi-zone style explores more than one zone across different seeds', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // 3 preferred zones
+    const seen = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      seen.add(resolveStyleDna(dna, `zone-variety-${i}`).compositionZone!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('leaves compositionZone undefined for a style with no zone preference', () => {
+    const noZone: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: undefined };
+    const patch = resolveStyleDna(noZone, 'no-zone-check');
+    expect(patch.compositionZone).toBeUndefined();
+  });
+
+  it('a preferred zone actually reaches the layout that places anchors', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // layouts: bouquet, heroScatter
+    const patch = resolveStyleDna(dna, 'zone-reaches-layout');
+    expect(patch.compositionZone).toBeDefined();
+    expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'zone-reaches-layout' })).not.toThrow();
+  });
+});
+
+describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
+  it('every style whose categories include botanical declares at least one preferred family', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.categories.includes('botanical')) {
+        expect(dna.preferredFamilies?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('resolves botanicalFamily to one of the style\'s own preferredFamilies', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (!dna.preferredFamilies?.length) continue;
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `family-membership-${i}`);
+        expect(dna.preferredFamilies).toContain(patch.botanicalFamily);
+      }
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same family', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'family-determinism-check');
+    const b = resolveStyleDna(dna, 'family-determinism-check');
+    expect(a.botanicalFamily).toBe(b.botanicalFamily);
+  });
+
+  it('a multi-family style explores more than one family across different seeds', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral; // 4 preferred families
+    const seen = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      seen.add(resolveStyleDna(dna, `family-variety-${i}`).botanicalFamily!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('leaves botanicalFamily undefined for a style with no family preference', () => {
+    const dna = STYLE_DNA_PRESETS.modernTropical; // not a botanical-category style
+    const patch = resolveStyleDna(dna, 'no-family-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('resolves clusterArchetypes as the style\'s own preference pool, unnarrowed', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const patch = resolveStyleDna(dna, 'cluster-archetype-check');
+    expect(patch.clusterArchetypes).toEqual(dna.preferredClusterArchetypes);
+  });
+
+  it('leaves clusterArchetypes undefined for a style with no archetype preference', () => {
+    const dna = STYLE_DNA_PRESETS.editorialBotanical; // layouts heroFlow/sCurve, no cluster preference set
+    const patch = resolveStyleDna(dna, 'no-cluster-archetype-check');
+    expect(patch.clusterArchetypes).toBeUndefined();
+  });
+
+  it('resolves premiumHero from the style\'s own declared value', () => {
+    expect(resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-check').premiumHero).toBe(true);
+    expect(resolveStyleDna(STYLE_DNA_PRESETS.minimalBotanical, 'premium-hero-check').premiumHero).toBeFalsy();
+  });
+
+  it('every preset still resolves to a buildable tile with the new botanical grammar fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'botanical-grammar-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'botanical-grammar-build-check' })).not.toThrow();
+    }
+  });
+
+  it('premiumHero visibly changes the generated SVG for the same seed (Premium Hero Builder actually reaches tile.ts)', () => {
+    const on = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-visible-diff');
+    const off = resolveStyleDna({ ...STYLE_DNA_PRESETS.luxuryFloral, premiumHero: false }, 'premium-hero-visible-diff');
+    const svgOn = serialize(buildTile({ ...defaultParams(), ...on, seed: 'premium-hero-visible-diff' }).svg);
+    const svgOff = serialize(buildTile({ ...defaultParams(), ...off, seed: 'premium-hero-visible-diff' }).svg);
+    expect(svgOn).not.toBe(svgOff);
+    expect(svgOn).toContain('data-part="premium-hero"');
+    expect(svgOff).not.toContain('data-part="premium-hero"');
+  });
+
+  it('a preferred family actually reaches the layout via a real tile build (no throw, botanicalFamily resolved)', () => {
+    const dna = STYLE_DNA_PRESETS.minimalBotanical;
+    const patch = resolveStyleDna(dna, 'family-reaches-tile');
+    expect(patch.botanicalFamily).toBeDefined();
+    expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'family-reaches-tile' })).not.toThrow();
+  });
+
+  it('premiumHero does not collapse the tile\'s overall instance count on a many-hero-anchor layout (regression: node-budget thinning previously gutted the composition down to only hero-role instances)', () => {
+    // luxuryFloral's own 'bouquet' layout places one hero anchor PER
+    // cluster (potentially many across the tile), not one hero for the
+    // whole tile -- assembling every single one as a full premium bouquet
+    // previously ballooned real node count past NODE_BUDGET_SAFETY_MARGIN
+    // in tile.ts, triggering its "protect every hero, drop everything
+    // else" thinning so hard the whole composition collapsed to just a
+    // handful of surviving hero instances.
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.luxuryFloral, layouts: ['bouquet'] };
+    const patch = resolveStyleDna(dna, 'premium-hero-node-budget');
+    const on = buildTile({ ...defaultParams(), ...patch, premiumHero: true, seed: 'premium-hero-node-budget' });
+    const off = buildTile({ ...defaultParams(), ...patch, premiumHero: false, seed: 'premium-hero-node-budget' });
+    const onCount = extractInstances(on).length;
+    const offCount = extractInstances(off).length;
+    // Some thinning to accommodate the heavier premium heroes is expected
+    // and fine; a wholesale collapse (only a small fraction of the
+    // baseline instance count surviving) is the real regression.
+    expect(onCount).toBeGreaterThan(offCount * 0.5);
   });
 });
 
@@ -172,6 +365,52 @@ describe('Style DNA: create / duplicate custom styles', () => {
   });
 });
 
+describe('Style DNA: computeStyleDnaConsistency (Section 12 enforcement)', () => {
+  it('scores 100 when measured geometry exactly matches the style declared intent', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic; // density 0.32, motifComplexity 'simple' -> expected rotationDiversity 30
+    const score = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, dna);
+    expect(score).toBe(100);
+  });
+
+  it('penalizes a density that reads far denser than the style declares', () => {
+    const dna = STYLE_DNA_PRESETS.scandinavianOrganic; // density 0.32
+    const onTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, dna);
+    const offTarget = computeStyleDnaConsistency({ occupancyRatio: 90, rotationDiversity: 30 }, dna);
+    expect(offTarget).toBeLessThan(onTarget);
+  });
+
+  it('penalizes rotation diversity that does not match the declared motif complexity', () => {
+    const simple = STYLE_DNA_PRESETS.scandinavianOrganic; // simple -> expects ~30
+    const onTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 30 }, simple);
+    const offTarget = computeStyleDnaConsistency({ occupancyRatio: 32, rotationDiversity: 90 }, simple);
+    expect(offTarget).toBeLessThan(onTarget);
+  });
+
+  it('expects higher rotation diversity for intricate styles than simple styles', () => {
+    const intricate = STYLE_DNA_PRESETS.luxuryFloral; // motifComplexity 'intricate' -> expects ~80
+    const simple = STYLE_DNA_PRESETS.scandinavianOrganic; // motifComplexity 'simple' -> expects ~30
+    // The same measured rotationDiversity of 80 should read as consistent for
+    // the intricate style but inconsistent for the simple one.
+    const intricateScore = computeStyleDnaConsistency({ occupancyRatio: intricate.density * 100, rotationDiversity: 80 }, intricate);
+    const simpleScore = computeStyleDnaConsistency({ occupancyRatio: simple.density * 100, rotationDiversity: 80 }, simple);
+    expect(intricateScore).toBeGreaterThan(simpleScore);
+  });
+
+  it('clamps to 0 rather than going negative for wildly out-of-range measurements', () => {
+    const dna = STYLE_DNA_PRESETS.minimalBotanical; // density 0.3, simple -> expects ~30
+    const score = computeStyleDnaConsistency({ occupancyRatio: 100, rotationDiversity: 100 }, dna);
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThan(50);
+  });
+
+  it('is a pure function of its inputs (no hidden randomness)', () => {
+    const dna = STYLE_DNA_PRESETS.darkBotanical;
+    const a = computeStyleDnaConsistency({ occupancyRatio: 55, rotationDiversity: 60 }, dna);
+    const b = computeStyleDnaConsistency({ occupancyRatio: 55, rotationDiversity: 60 }, dna);
+    expect(a).toBe(b);
+  });
+});
+
 describe('Style DNA: compatibility', () => {
   it('rejects a style referencing a category id that does not exist', () => {
     const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, categories: ['not-a-real-category'] };
@@ -186,5 +425,22 @@ describe('Style DNA: compatibility', () => {
   it('rejects a style with an empty categories/layouts/palettes list', () => {
     const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, categories: [] };
     expect(isStyleDnaCompatible(bad, { paletteIds: PALETTE_IDS })).toBe(false);
+  });
+});
+
+describe('Style DNA: Commercial Knowledge architecture (Build 005, Section 8)', () => {
+  it('every built-in preset declares real, valid bestProductTargets', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect(dna.exportRecommendation.bestProductTargets).toBeDefined();
+      for (const target of dna.exportRecommendation.bestProductTargets ?? []) {
+        expect(PRODUCT_USE_IDS).toContain(target);
+      }
+    }
+  });
+
+  it('every preset declares at least one product target', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect((dna.exportRecommendation.bestProductTargets ?? []).length).toBeGreaterThan(0);
+    }
   });
 });

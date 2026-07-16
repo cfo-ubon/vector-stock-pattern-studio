@@ -1,0 +1,15 @@
+{
+  "id": "airy",
+  "label": "Airy",
+  "description": "Light, breathable composition with generous negative space — a single hero or a loose, uncluttered scatter reads as premium/minimal rather than sparse-looking.",
+  "compatibleLayouts": ["airy", "scatter", "gridMinimal"],
+  "hierarchyPreset": "airyPremium",
+  "densityRange": { "min": 0.25, "max": 0.4 },
+  "negativeSpaceRange": { "min": 0.35, "max": 0.55 },
+  "compatibleFlowProfiles": ["calm"],
+  "compatibleRhythmProfiles": ["regular", "organic"],
+  "rules": [
+    { "id": "airy-density-ceiling", "description": "Density above 0.4 starts to visually crowd an airy composition — pick a denser grammar instead.", "severity": "warning" },
+    { "id": "airy-negative-space-floor", "description": "Negative space below 0.3 defeats the point of an airy composition.", "severity": "warning" }
+  ]
+}

@@ -15,9 +15,34 @@ import {
   addSavedItemToProject,
   removeSavedItemFromProject,
   migrateLegacyDataIntoProject,
+  normalizeProject,
+  addDesignSpecToProject,
+  addDesignSpecVersion,
+  renameDesignSpecEntry,
+  removeDesignSpecFromProject,
+  removeDesignSpecVersion,
   LEGACY_PROJECT_NAME,
 } from './projectManager';
 import type { SavedItem } from '../components/SavedPanel';
+import { buildDesignSpecification } from '../trend/designIntelligence';
+import type { KeywordBundle } from '../trend/designSpecTypes';
+import type { Project } from './projectTypes';
+
+function makeBundle(overrides: Partial<KeywordBundle> = {}): KeywordBundle {
+  return {
+    primaryKeyword: 'Luxury Botanical',
+    secondaryKeywords: ['Wallpaper'],
+    marketplace: 'adobestock',
+    season: 'spring',
+    audience: 'editorial',
+    commercialCategory: 'wallpaper',
+    patternType: 'botanical',
+    paletteDirection: 'muted green',
+    difficulty: 'moderate',
+    collectionSize: 8,
+    ...overrides,
+  };
+}
 
 describe('projectManager: Project CRUD', () => {
   it('creates a project with empty collections/savedItemIds/exportHistory', () => {
@@ -218,5 +243,72 @@ describe('projectManager: legacy migration', () => {
   it('handles an empty saved library without error', () => {
     const project = migrateLegacyDataIntoProject([]);
     expect(project.savedItemIds).toEqual([]);
+  });
+});
+
+describe('projectManager: normalizeProject (Design Workbench backward compatibility)', () => {
+  it('fills in an empty designSpecs array for a record persisted before that field existed', () => {
+    const legacy = { ...createProject('Old') } as Project;
+    delete (legacy as Partial<Project>).designSpecs;
+    expect(normalizeProject(legacy).designSpecs).toEqual([]);
+  });
+
+  it('leaves an already-normalized project untouched', () => {
+    const project = createProject('A');
+    expect(normalizeProject(project)).toEqual(project);
+  });
+});
+
+describe('projectManager: Design Specification version history (Design Workbench Section 7)', () => {
+  const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q1', createdAt: 1000 });
+
+  it('addDesignSpecToProject creates a new entry with one version', () => {
+    const project = addDesignSpecToProject(createProject('A'), 'Spring Botanical', spec);
+    expect(project.designSpecs).toHaveLength(1);
+    expect(project.designSpecs[0].name).toBe('Spring Botanical');
+    expect(project.designSpecs[0].versions).toHaveLength(1);
+    expect(project.designSpecs[0].versions[0].spec).toEqual(spec);
+  });
+
+  it('addDesignSpecVersion appends without dropping earlier versions', () => {
+    let project = addDesignSpecToProject(createProject('A'), 'Spring Botanical', spec);
+    const entryId = project.designSpecs[0].id;
+    const editedSpec = { ...spec, density: 0.9 };
+    project = addDesignSpecVersion(project, entryId, editedSpec, 'increased density');
+    expect(project.designSpecs[0].versions).toHaveLength(2);
+    expect(project.designSpecs[0].versions[0].spec).toEqual(spec);
+    expect(project.designSpecs[0].versions[1].spec).toEqual(editedSpec);
+    expect(project.designSpecs[0].versions[1].note).toBe('increased density');
+  });
+
+  it('renameDesignSpecEntry renames only the targeted entry', () => {
+    let project = addDesignSpecToProject(createProject('A'), 'Draft 1', spec);
+    project = addDesignSpecToProject(project, 'Draft 2', spec);
+    const targetId = project.designSpecs[0].id;
+    project = renameDesignSpecEntry(project, targetId, 'Final');
+    expect(project.designSpecs[0].name).toBe('Final');
+    expect(project.designSpecs[1].name).toBe('Draft 2');
+  });
+
+  it('removeDesignSpecFromProject removes the whole entry', () => {
+    let project = addDesignSpecToProject(createProject('A'), 'Draft 1', spec);
+    const targetId = project.designSpecs[0].id;
+    project = removeDesignSpecFromProject(project, targetId);
+    expect(project.designSpecs).toEqual([]);
+  });
+
+  it('removeDesignSpecVersion removes one version but never the last one', () => {
+    let project = addDesignSpecToProject(createProject('A'), 'Draft 1', spec);
+    const entryId = project.designSpecs[0].id;
+    project = addDesignSpecVersion(project, entryId, { ...spec, density: 0.9 });
+    expect(project.designSpecs[0].versions).toHaveLength(2);
+
+    const firstVersionId = project.designSpecs[0].versions[0].id;
+    project = removeDesignSpecVersion(project, entryId, firstVersionId);
+    expect(project.designSpecs[0].versions).toHaveLength(1);
+
+    const lastVersionId = project.designSpecs[0].versions[0].id;
+    project = removeDesignSpecVersion(project, entryId, lastVersionId);
+    expect(project.designSpecs[0].versions).toHaveLength(1); // refused — can't drop the last version
   });
 });

@@ -1,0 +1,14 @@
+{
+  "id": "balanced",
+  "label": "Balanced",
+  "description": "The default, general-purpose editorial balance — even hero/secondary/filler distribution, works for most commercial categories without a strong directional statement.",
+  "compatibleLayouts": ["heroFlow", "sCurve", "scatter"],
+  "hierarchyPreset": "balancedEditorial",
+  "densityRange": { "min": 0.4, "max": 0.55 },
+  "negativeSpaceRange": { "min": 0.1, "max": 0.3 },
+  "compatibleFlowProfiles": ["directional", "dynamic"],
+  "compatibleRhythmProfiles": ["regular", "organic"],
+  "rules": [
+    { "id": "balanced-default-fallback", "description": "Safe default when no strong composition signal is present in the Keyword Bundle or Trend Pack.", "severity": "warning" }
+  ]
+}

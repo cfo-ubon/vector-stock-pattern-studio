@@ -1,5 +1,6 @@
 import { generateBest, deriveSeed, type CandidatePoolResult, type GenerationMode } from '../engine/candidateEngine';
 import type { QualityPresetId, CompositionMetrics } from '../engine/scoring';
+import { STYLE_DNA_PRESETS, computeStyleDnaConsistency } from '../engine/styleDna';
 import { buildGenerateParamsFromDesignSpec } from './designSpecToParams';
 import type { CompositionStyle, DesignSpecification } from './designSpecTypes';
 
@@ -28,15 +29,39 @@ export function qualityPresetForDesignSpec(spec: DesignSpecification): QualityPr
   return COMPOSITION_TO_QUALITY_PRESET[spec.composition];
 }
 
-/** Section 12's 10 named metrics, resolved against the real
- * `CompositionMetrics` wherever an exact match exists (Composition,
- * Hierarchy, "Repeat Quality" = seamlessIntegrity, "SVG Health" =
- * svgHealth, "Balance" = quadrantBalance, "Negative Space" =
- * largestEmptyRegion — a real measured proxy, not the spec's own *input*
- * negativeSpace number) and a clearly-labeled averaged proxy for the 3
- * that have no single existing metric (Flow, Rhythm, Motif Diversity) plus
- * Commercial Readiness. Every value is 0-100, same scale as the underlying
- * `CompositionMetrics`. */
+/** Section 12's 10 named metrics plus Design Workbench Phase 6's Quality
+ * Panel addition (`overlap`), resolved against the real
+ * `CompositionMetrics` — as of SVG Intelligence Engine Phase 3, every
+ * field below is either a direct 1:1 metric or a documented average of
+ * *real, independently-measured* geometry (no proxy borrowed from an
+ * unrelated metric):
+ *   composition        <- m.composition
+ *   hierarchy           <- m.hierarchy
+ *   flow                <- m.flowCoherence (real directional-coherence
+ *                          measurement — see scoring.ts)
+ *   rhythm              <- m.rhythmRegularity (real spacing-periodicity
+ *                          measurement)
+ *   balance             <- average of the 3 real balance metrics
+ *   negativeSpace       <- m.largestEmptyRegion (real measured proxy, not
+ *                          the spec's own *input* negativeSpace number)
+ *   repeatQuality       <- average of m.seamlessIntegrity (structural
+ *                          guarantee) and m.cornerContinuity (real
+ *                          corner-junction density-balance measurement)
+ *   svgHealth           <- m.svgHealth
+ *   motifDiversity      <- average of m.scaleDiversity, m.rotationDiversity
+ *                          (how a shape was placed) and m.motifShapeDiversity
+ *                          (real shape-topology diversity — which shape it
+ *                          was, not just how it was placed/scaled)
+ *   overlap             <- m.overlapQuality (real motif-overlap measurement,
+ *                          Project PHOENIX V2's Overlap Engine — added Phase
+ *                          6 for the Design Workbench's Quality Panel, which
+ *                          names this dimension explicitly)
+ *   commercialReadiness <- average of m.colorBalance, m.paletteContrast,
+ *                          m.svgHealth, m.cornerContinuity, and (when a
+ *                          Style DNA is selected) a real style-consistency
+ *                          measurement (engine/styleDna.ts's
+ *                          computeStyleDnaConsistency)
+ * Every value is 0-100, same scale as the underlying `CompositionMetrics`. */
 export interface DesignSpecQualityReport {
   overall: number;
   composition: number;
@@ -48,24 +73,27 @@ export interface DesignSpecQualityReport {
   repeatQuality: number;
   svgHealth: number;
   motifDiversity: number;
+  overlap: number;
   commercialReadiness: number;
 }
 
-function buildQualityReport(overall: number, m: CompositionMetrics): DesignSpecQualityReport {
+function buildQualityReport(overall: number, m: CompositionMetrics, spec: DesignSpecification): DesignSpecQualityReport {
+  const styleDna = STYLE_DNA_PRESETS[spec.styleDnaId];
+  const styleConsistency = styleDna ? computeStyleDnaConsistency(m, styleDna) : undefined;
+  const commercialSignals = [m.colorBalance, m.paletteContrast, m.svgHealth, m.cornerContinuity, ...(styleConsistency !== undefined ? [styleConsistency] : [])];
   return {
     overall,
     composition: m.composition,
     hierarchy: m.hierarchy,
-    // Flow/Rhythm have no single existing metric — averaged from the
-    // closest real proxies (documented, not presented as an exact match).
-    flow: Math.round((m.heroSeparation + m.edgeDensity) / 2),
-    rhythm: Math.round((m.spacing + (100 - m.densityVariance)) / 2),
+    flow: m.flowCoherence,
+    rhythm: m.rhythmRegularity,
     balance: Math.round((m.quadrantBalance + m.horizontalBalance + m.verticalBalance) / 3),
     negativeSpace: m.largestEmptyRegion,
-    repeatQuality: m.seamlessIntegrity,
+    repeatQuality: Math.round((m.seamlessIntegrity + m.cornerContinuity) / 2),
     svgHealth: m.svgHealth,
-    motifDiversity: Math.round((m.scaleDiversity + m.rotationDiversity) / 2),
-    commercialReadiness: Math.round((m.colorBalance + m.paletteContrast + m.svgHealth) / 3),
+    motifDiversity: Math.round((m.scaleDiversity + m.rotationDiversity + m.motifShapeDiversity) / 3),
+    overlap: m.overlapQuality,
+    commercialReadiness: Math.round(commercialSignals.reduce((a, b) => a + b, 0) / commercialSignals.length),
   };
 }
 
@@ -95,6 +123,44 @@ export function checkDesignSpecQuality(report: DesignSpecQualityReport, spec: De
     shortfalls.push(`Commercial Readiness ${report.commercialReadiness} < ${qualityTargets.minCommercialReadiness}`);
   }
   return { report, meetsTargets: shortfalls.length === 0, shortfalls };
+}
+
+/** Below this, a dimension is considered "needs attention" for
+ * recommendation purposes — the same 60-point bar Product Targets'
+ * `SUITABILITY_THRESHOLD` and other rule-based advisories in this app
+ * already use, not a newly-invented number. */
+const RECOMMENDATION_THRESHOLD = 60;
+
+interface QualityRecommendationRule {
+  dimension: keyof DesignSpecQualityReport;
+  message: string;
+}
+
+/** Design Workbench Section 7 ("Provide actionable recommendations") —
+ * one real, rule-based tip per weak dimension, each pointing at a real
+ * Property Inspector field or workflow action, never generic praise/
+ * filler text. Same "real, narrowly-scoped, directly-tested" convention
+ * `metadata/submissionCenter.ts`'s `buildSubmissionRecommendations`
+ * already established for marketplace readiness. */
+const QUALITY_RECOMMENDATION_RULES: QualityRecommendationRule[] = [
+  { dimension: 'composition', message: 'Composition score is low — try a different Composition style in the Inspector, or increase Negative Space.' },
+  { dimension: 'hierarchy', message: 'Hierarchy score is low — the hero motif may not stand out enough from fillers; pick a Hierarchy preset with a stronger scale contrast.' },
+  { dimension: 'flow', message: 'Flow score is low — motifs read as static or scattered rather than directional; try a more dynamic Flow setting.' },
+  { dimension: 'rhythm', message: 'Rhythm score is low — spacing feels irregular; try a more regular Rhythm setting or a different repeat layout.' },
+  { dimension: 'balance', message: 'Balance score is low — the composition leans heavily toward one side or quadrant; try raising Density or a more symmetric repeat layout.' },
+  { dimension: 'negativeSpace', message: 'Negative Space score is low — the pattern may feel cramped; try lowering Density.' },
+  { dimension: 'repeatQuality', message: 'Repeat Quality score is low — seams or corners may be visible when tiled; try a different Pattern (repeat type) or regenerate with a new seed.' },
+  { dimension: 'svgHealth', message: 'SVG Health score is low — the generated SVG has structural issues; regenerate with a new seed.' },
+  { dimension: 'motifDiversity', message: 'Motif Diversity score is low — add more Hero/Secondary/Filler motif categories in the Inspector for a richer mix of shapes.' },
+  { dimension: 'overlap', message: 'Overlap score is low — motifs may read as isolated stickers rather than a composed pattern; try raising Density or a denser repeat layout.' },
+  { dimension: 'commercialReadiness', message: 'Commercial Readiness score is low — check palette contrast in the Inspector, and consider selecting a Style DNA preset for a more market-consistent look.' },
+];
+
+/** Every rule whose named dimension actually fell below the threshold in
+ * this real report — deterministic, empty when the report is healthy
+ * (never a fabricated "everything looks great!" filler message). */
+export function buildQualityRecommendations(report: DesignSpecQualityReport): string[] {
+  return QUALITY_RECOMMENDATION_RULES.filter((rule) => report[rule.dimension] < RECOMMENDATION_THRESHOLD).map((rule) => rule.message);
 }
 
 export interface DesignSpecQualityLoopResult {
@@ -130,7 +196,7 @@ export function runDesignSpecQualityLoop(
     const roundSeed = round === 0 ? seed : deriveSeed(seed, 'quality-loop', round);
     const baseParams = buildGenerateParamsFromDesignSpec(spec, roundSeed);
     const pool = generateBest(baseParams, mode, qualityPreset);
-    const report = buildQualityReport(pool.winner.score, pool.winner.metrics);
+    const report = buildQualityReport(pool.winner.score, pool.winner.metrics, spec);
     const check = checkDesignSpecQuality(report, spec);
 
     if (!bestCheck || pool.winner.score > bestPool!.winner.score) {

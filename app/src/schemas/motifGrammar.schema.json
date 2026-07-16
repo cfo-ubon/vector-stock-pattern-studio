@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "motifGrammar.schema.json",
+  "title": "MotifGrammar",
+  "description": "Composition rules *within* one motif family/category — which roles/complexity levels/orientation freedoms are valid, and which Pattern Grammars (composition styles) this category composes well with. New in Design Intelligence Core Phase 1 — formalizes rules that were previously implicit per-generator (generators/*.ts) as externally-editable data. Does not change or replace the generators themselves.",
+  "type": "object",
+  "required": [
+    "id", "label", "family", "defaultMotifSize", "complexityLevels", "roles",
+    "rotationAllowed", "mirrorAllowed", "disableGridRhythm", "compatiblePatternGrammars", "rules"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": ["geometric", "botanical", "organic", "tropical", "boho", "lineart", "mandala", "damask", "cute", "seasonal", "retro", "plaid", "animalprint", "paisley", "terrazzo"]
+    },
+    "label": { "type": "string", "minLength": 1 },
+    "family": { "type": "string", "enum": ["flower", "leaf", "branch", "berry", "icon", "decorative", "background", "geometric"] },
+    "defaultMotifSize": { "type": "number", "minimum": 1 },
+    "recommendedDensity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "complexityLevels": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["simple", "moderate", "intricate"] }
+    },
+    "roles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["hero", "secondary", "filler", "accent"] }
+    },
+    "rotationAllowed": { "type": "boolean" },
+    "mirrorAllowed": { "type": "boolean" },
+    "disableGridRhythm": { "type": "boolean" },
+    "compatiblePatternGrammars": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["airy", "balanced", "dense", "editorial", "maximalist", "minimal"] }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "severity"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "enum": ["error", "warning"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "minimal",
+  "label": "Minimal",
+  "description": "A single restrained silhouette repeated on a strict grid — the most restrained composition, favors Scandinavian/modern-minimal commercial use cases.",
+  "compatibleLayouts": ["gridMinimal", "grid"],
+  "hierarchyPreset": "minimalRepeat",
+  "densityRange": { "min": 0.25, "max": 0.45 },
+  "negativeSpaceRange": { "min": 0.3, "max": 0.5 },
+  "compatibleFlowProfiles": ["calm", "dynamic"],
+  "compatibleRhythmProfiles": ["regular", "syncopated"],
+  "rules": [
+    { "id": "minimal-single-motif-family", "description": "A minimal composition reads best with exactly one motif family (no secondary/filler variety) — heroMotifs/secondaryMotifs should reference the same categoryId.", "severity": "warning" }
+  ]
+}

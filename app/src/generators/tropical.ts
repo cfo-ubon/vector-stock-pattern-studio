@@ -26,7 +26,7 @@ function bladePath(length: number, width: number): string {
   );
 }
 
-const palmFrond: Variant = (rng, colors, size) => {
+export const palmFrond: Variant = (rng, colors, size) => {
   const bladeCount = rngInt(rng, 5, 7);
   const length = size * rngRange(rng, 0.55, 0.7);
   const width = length * 0.32;
@@ -126,7 +126,7 @@ function monsteraOutline(r: number, rng: Rng): string {
   return d;
 }
 
-const monsteraLeaf: Variant = (rng, colors, size) => {
+export const monsteraLeaf: Variant = (rng, colors, size) => {
   const r = size / 2;
   const leafColor = rngPick(rng, accentColors(colors));
   const holeColor = colors[0];

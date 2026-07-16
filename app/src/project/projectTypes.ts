@@ -1,5 +1,6 @@
 import type { GeneratedCollection } from '../collection/collectionGenerator';
 import type { StockSiteId } from '../metadata/shutterstock';
+import type { DesignSpecification } from '../trend/designSpecTypes';
 
 // Project Studio Engine — everything the app produces (Concept, Moodboard,
 // Style DNA, Collections, Assets, Metadata/SEO, Export History, Upload
@@ -45,6 +46,32 @@ export interface ProjectExportHistoryEntry {
   collectionName: string;
 }
 
+/** One saved version of a Design Specification (Design Workbench Section 7
+ * — "Save Design Specification inside Project... Maintain version
+ * history"). `spec` is the exact `DesignSpecification` object produced by
+ * the Design Intelligence Engine (`trend/designIntelligence.ts`) or edited
+ * in the Workbench's Property Inspector — this type doesn't reshape it. */
+export interface ProjectDesignSpecVersion {
+  id: string;
+  savedAt: number;
+  note?: string;
+  spec: DesignSpecification;
+}
+
+/** One Design Specification "document" inside a Project — a named slot
+ * holding an ordered list of versions (`versions[versions.length - 1]` is
+ * current). Kept separate from `ProjectCollectionEntry` (a *generated*
+ * Collection) since a Design Spec is the editable source a Collection gets
+ * generated *from*, and a designer may keep several draft specs before
+ * generating anything. */
+export interface ProjectDesignSpecEntry {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  versions: ProjectDesignSpecVersion[];
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -63,6 +90,12 @@ export interface Project {
   savedItemIds: string[];
   collections: ProjectCollectionEntry[];
   exportHistory: ProjectExportHistoryEntry[];
+  /** Design Workbench Section 7. Added after the original Project Studio
+   * Engine shipped — projects persisted before this field existed won't
+   * have it on disk, so always read this via `normalizeProject()`
+   * (project/projectManager.ts), never assume it's present on a raw
+   * loaded record. */
+  designSpecs: ProjectDesignSpecEntry[];
 }
 
 /** Schema version for the exported Project JSON file — independent of

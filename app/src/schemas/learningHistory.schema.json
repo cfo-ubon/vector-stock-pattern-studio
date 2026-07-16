@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "learningHistory.schema.json",
+  "title": "LearningHistory",
+  "description": "Design Knowledge Engine (Phase 6.5) Section 10 — locally-recorded usage history, distinct from workbench/workbenchFavorites.ts's explicit star-toggle favorites: this tracks implicit usage frequency (how often a Style DNA/Palette/Motif was actually used) and recently-generated collections, not what the user starred. Exported/imported as this exact shape.",
+  "type": "object",
+  "required": ["schemaVersion", "enabled", "styleDnaUsage", "paletteUsage", "motifUsage", "recentCollections"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "number", "minimum": 1 },
+    "enabled": { "type": "boolean" },
+    "styleDnaUsage": {
+      "type": "object",
+      "description": "Style DNA id -> use count. Per-value shape (number >= 0) is enforced by knowledge/history's own TypeScript types and normalizeLearningHistory, not by this schema — the hand-rolled validator (validators/jsonSchemaValidator.ts) only supports a boolean additionalProperties, not a per-key value schema."
+    },
+    "paletteUsage": {
+      "type": "object",
+      "description": "Palette id -> use count. See styleDnaUsage's note on per-value validation."
+    },
+    "motifUsage": {
+      "type": "object",
+      "description": "Motif Grammar category id -> use count. See styleDnaUsage's note on per-value validation."
+    },
+    "recentCollections": {
+      "type": "array",
+      "description": "Most-recent-first, capped at RECENT_COLLECTIONS_LIMIT by the recording function (not by this schema).",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "createdAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "createdAt": { "type": "number", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyHierarchy, DEFAULT_HIERARCHY } from './hierarchy';
+import { applyHierarchy, DEFAULT_HIERARCHY, ROLE_IMPORTANCE, ROLE_LAYER_PRIORITY, sortByLayerPriority } from './hierarchy';
 import { createRng } from './rng';
 import type { Placement } from './types';
 
@@ -43,5 +43,47 @@ describe('applyHierarchy', () => {
     expect(roles.has('filler')).toBe(false);
     expect(roles.has('accent')).toBe(false);
     expect(roled.every((p) => p.role === 'hero' || p.role === 'secondary')).toBe(true);
+  });
+});
+
+describe('ROLE_IMPORTANCE / ROLE_LAYER_PRIORITY', () => {
+  it('rank hero > secondary > filler > accent for both dimensions', () => {
+    expect(ROLE_IMPORTANCE.hero).toBeGreaterThan(ROLE_IMPORTANCE.secondary);
+    expect(ROLE_IMPORTANCE.secondary).toBeGreaterThan(ROLE_IMPORTANCE.filler);
+    expect(ROLE_IMPORTANCE.filler).toBeGreaterThan(ROLE_IMPORTANCE.accent);
+    expect(ROLE_LAYER_PRIORITY.hero).toBeGreaterThan(ROLE_LAYER_PRIORITY.secondary);
+    expect(ROLE_LAYER_PRIORITY.secondary).toBeGreaterThan(ROLE_LAYER_PRIORITY.filler);
+    expect(ROLE_LAYER_PRIORITY.filler).toBeGreaterThan(ROLE_LAYER_PRIORITY.accent);
+  });
+});
+
+describe('sortByLayerPriority', () => {
+  function p(role: Placement['role'], i: number): Placement {
+    return { x: i, y: i, rotationDeg: 0, scale: 1, colorSeed: i, role };
+  }
+
+  it('is a strict no-op (identical order) when no placement has a role', () => {
+    const placements = [p(undefined, 0), p(undefined, 1), p(undefined, 2)];
+    const sorted = sortByLayerPriority(placements);
+    expect(sorted.map((x) => x.colorSeed)).toEqual([0, 1, 2]);
+  });
+
+  it('paints hero last regardless of original order', () => {
+    const placements = [p('hero', 0), p('accent', 1), p('filler', 2), p('secondary', 3)];
+    const sorted = sortByLayerPriority(placements);
+    expect(sorted[sorted.length - 1].role).toBe('hero');
+  });
+
+  it('is a stable sort: placements sharing a role keep their relative order', () => {
+    const placements = [p('filler', 0), p('filler', 1), p('hero', 2), p('filler', 3)];
+    const sorted = sortByLayerPriority(placements);
+    const fillerSeeds = sorted.filter((x) => x.role === 'filler').map((x) => x.colorSeed);
+    expect(fillerSeeds).toEqual([0, 1, 3]);
+  });
+
+  it('orders every role by ROLE_LAYER_PRIORITY: accent, filler, secondary, hero', () => {
+    const placements = [p('hero', 0), p('secondary', 1), p('accent', 2), p('filler', 3)];
+    const sorted = sortByLayerPriority(placements);
+    expect(sorted.map((x) => x.role)).toEqual(['accent', 'filler', 'secondary', 'hero']);
   });
 });

@@ -67,7 +67,10 @@ const SHUTTERSTOCK_SECONDARY: Record<string, string> = {
 
 // Universal keywords that apply to every seamless vector pattern. Long
 // enough to always pad the list to 50 after category/palette words.
-const UNIVERSAL = [
+// Exported (Marketplace Intelligence Engine Phase 5, Section 4) so the
+// SEO Hint Engine can suggest from this same real candidate pool instead
+// of maintaining a second, duplicate list.
+export const UNIVERSAL = [
   'seamless', 'pattern', 'vector', 'seamless pattern', 'background', 'wallpaper', 'textile',
   'fabric', 'print', 'repeat', 'texture', 'design', 'illustration', 'flat', 'wrapping paper',
   'surface pattern', 'backdrop', 'decorative', 'ornament', 'stationery', 'packaging', 'fashion',
@@ -77,7 +80,8 @@ const UNIVERSAL = [
   'card', 'invitation', 'editable', 'eps',
 ];
 
-const CATEGORY_KEYWORDS: Record<string, { phrase: string; words: string[] }> = {
+// Exported alongside UNIVERSAL for the same reason (SEO Hint Engine reuse).
+export const CATEGORY_KEYWORDS: Record<string, { phrase: string; words: string[] }> = {
   geometric: {
     phrase: 'geometric shapes',
     words: ['geometric', 'geometry', 'circle', 'triangle', 'hexagon', 'shapes', 'bauhaus', 'scandinavian', 'mid century', 'retro', 'polygon', 'grid', 'mosaic', 'nordic', 'contemporary', 'stripe', 'dot', 'memphis'],

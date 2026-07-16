@@ -1,14 +1,21 @@
 import type { StockSiteId } from './shutterstock';
-import { CONTRIBUTOR_LINKS } from './contributorLinks';
+import { MARKETPLACE_DATA, type MarketplaceLinks, type MarketplaceProfileData } from '../marketplaces';
 
 // Marketplace Profile System — the config layer every marketplace-specific
 // rule in the app should read from, instead of one generic SEO profile.
-// This module is deliberately *data*, not logic: adding a 7th marketplace
-// is one new entry here (plus one new branch in shutterstock.ts's
-// buildSiteMetadata, which is the actual title/description/keyword *text*
-// generator — this file owns the *rules* those fields must satisfy, and
-// the rules driving the Filename Engine / export package / validation
-// layers built on top of it).
+//
+// Marketplace Intelligence Engine Phase 5 (Section 9, "no hardcoded
+// marketplace logic") closes a gap Design Intelligence Core Phase 1's own
+// report flagged as a "Phase 2 recommendation": `MARKETPLACE_PROFILES`
+// below is no longer a hardcoded TS object literal — it's built from
+// `../marketplaces`'s real, editable JSON files (`MARKETPLACE_DATA`), the
+// single source of truth every marketplace-aware module in the app now
+// shares (this file, contributorLinks.ts, and — through them — SEO
+// generation, validation, filenames, export packages, readiness scoring).
+// Adding a 7th marketplace is now one new JSON file under
+// `src/marketplaces/` (registered in `marketplaces/index.ts`) plus one new
+// branch in shutterstock.ts's `buildSiteMetadata` (the title/description/
+// keyword *text* generator, which this file's *rules* still don't own).
 
 export type MarketplaceId = StockSiteId;
 
@@ -55,6 +62,18 @@ export interface FilenameRules {
   extension: 'svg' | 'eps';
 }
 
+export interface CollectionNamingRules {
+  template: string;
+  maxLength: number;
+}
+
+export interface PreviewRequirements {
+  minWidth: number;
+  minHeight: number;
+  format: string;
+  notes: string;
+}
+
 export interface MarketplaceProfile {
   id: MarketplaceId;
   label: string;
@@ -72,101 +91,65 @@ export interface MarketplaceProfile {
    * seamless vector pattern — a flat default for sites without a real
    * per-engine-category breakdown in the app yet (only Shutterstock's
    * secondary category varies by pattern category today, via
-   * shutterstock.ts's own SHUTTERSTOCK_SECONDARY table). */
+   * `categoryMapping` below). */
   defaultCategory: string;
   /** Ordered list of files a "download package" for this marketplace
    * contains — descriptive metadata the UI/export builder reads, not code. */
   exportPackageFiles: string[];
+  /** Section 6, "Contributor Center" — 6 named link types (Portal,
+   * Submission, Analytics, Help, Guidelines, Support), each with its own
+   * `verified` flag. `contributorUrl`/`contributorUrlVerified` above are
+   * kept as a stable alias of `links.portal` for existing callers. */
+  links: MarketplaceLinks;
+  /** Section 2, "Collection Naming Rules". */
+  collectionNamingRules: CollectionNamingRules;
+  /** Section 2, "Supported File Types" — every format this app can
+   * actually deliver for this marketplace's package. */
+  supportedFileTypes: string[];
+  /** Section 2, "Preview Requirements". */
+  previewRequirements: PreviewRequirements;
+  /** Section 2, "Category Mapping" — real generator-category id ->
+   * marketplace category label, when the app has verified per-category
+   * data for this marketplace (today: Shutterstock only). Falls back to
+   * `defaultCategory` wherever a category id isn't in this map, or the map
+   * itself is absent. */
+  categoryMapping?: Record<string, string>;
 }
 
-const DEFAULT_FILENAME_TEMPLATE = '{palette}-{category}-{layout}-seamless-pattern-{seed}';
+function toProfile(data: MarketplaceProfileData): MarketplaceProfile {
+  return {
+    id: data.id as MarketplaceId,
+    label: data.label,
+    future: data.future,
+    contributorUrl: data.links.portal.url,
+    contributorUrlVerified: data.links.portal.verified,
+    titleRules: data.titleRules,
+    descriptionRules: data.descriptionRules,
+    keywordRules: data.keywordRules,
+    filenameRules: data.filenameRules,
+    defaultCategory: data.defaultCategory,
+    exportPackageFiles: data.exportPackageFiles,
+    links: data.links,
+    collectionNamingRules: data.collectionNamingRules,
+    supportedFileTypes: data.supportedFileTypes,
+    previewRequirements: data.previewRequirements,
+    categoryMapping: data.categoryMapping,
+  };
+}
 
-const STANDARD_PACKAGE_FILES = ['pattern.svg', 'preview.png', 'title.txt', 'description.txt', 'keywords.txt', 'filename.txt', 'metadata.json'];
-
-export const MARKETPLACE_PROFILES: Record<MarketplaceId, MarketplaceProfile> = {
-  shutterstock: {
-    id: 'shutterstock',
-    label: 'Shutterstock',
-    future: false,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'shutterstock')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'shutterstock')!.verified,
-    titleRules: { minLength: 20, maxLength: 200 },
-    descriptionRules: { required: true, minLength: 20, maxLength: 200 },
-    keywordRules: { minCount: 7, maxCount: 50, termLabel: 'keywords' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'eps' },
-    defaultCategory: 'Backgrounds/Textures',
-    exportPackageFiles: STANDARD_PACKAGE_FILES,
-  },
-  adobestock: {
-    id: 'adobestock',
-    label: 'Adobe Stock',
-    future: false,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'adobestock')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'adobestock')!.verified,
-    titleRules: { minLength: 20, maxLength: 70 },
-    // Adobe Stock's upload form has no separate description field —
-    // matches shutterstock.ts's buildSiteMetadata, which only emits
-    // Title/Keywords/Category for this site.
-    descriptionRules: { required: false, minLength: 0, maxLength: 0 },
-    keywordRules: { minCount: 7, maxCount: 49, termLabel: 'keywords' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'eps' },
-    defaultCategory: 'Graphic Resources',
-    exportPackageFiles: STANDARD_PACKAGE_FILES.filter((f) => f !== 'description.txt'),
-  },
-  freepik: {
-    id: 'freepik',
-    label: 'Freepik',
-    future: false,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'freepik')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'freepik')!.verified,
-    titleRules: { minLength: 20, maxLength: 100 },
-    descriptionRules: { required: false, minLength: 0, maxLength: 0 },
-    keywordRules: { minCount: 7, maxCount: 50, termLabel: 'keywords' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'eps' },
-    defaultCategory: 'Vectors',
-    exportPackageFiles: STANDARD_PACKAGE_FILES.filter((f) => f !== 'description.txt'),
-  },
-  creativefabrica: {
-    id: 'creativefabrica',
-    label: 'Creative Fabrica',
-    future: false,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'creativefabrica')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'creativefabrica')!.verified,
-    titleRules: { minLength: 10, maxLength: 150 },
-    descriptionRules: { required: true, minLength: 40, maxLength: 5000, practicalCeiling: true },
-    keywordRules: { minCount: 5, maxCount: 20, termLabel: 'tags' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'svg' },
-    defaultCategory: 'Digital Paper & Fabric Design',
-    exportPackageFiles: STANDARD_PACKAGE_FILES,
-  },
-  creativemarket: {
-    id: 'creativemarket',
-    label: 'Creative Market',
-    future: false,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'creativemarket')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'creativemarket')!.verified,
-    titleRules: { minLength: 10, maxLength: 150 },
-    descriptionRules: { required: true, minLength: 40, maxLength: 5000, practicalCeiling: true },
-    keywordRules: { minCount: 5, maxCount: 20, termLabel: 'tags' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'svg' },
-    defaultCategory: 'Seamless Digital Pattern',
-    exportPackageFiles: STANDARD_PACKAGE_FILES,
-  },
-  // Etsy real, stable, long-documented limits: 140-char title, 13 tags max
-  // (each tag <=20 chars), no hard description cap in practice.
-  etsy: {
-    id: 'etsy',
-    label: 'Etsy',
-    future: true,
-    contributorUrl: CONTRIBUTOR_LINKS.find((l) => l.id === 'etsy')!.url,
-    contributorUrlVerified: CONTRIBUTOR_LINKS.find((l) => l.id === 'etsy')!.verified,
-    titleRules: { minLength: 10, maxLength: 140 },
-    descriptionRules: { required: true, minLength: 40, maxLength: 5000, practicalCeiling: true },
-    keywordRules: { minCount: 5, maxCount: 13, maxKeywordLength: 20, termLabel: 'tags' },
-    filenameRules: { template: DEFAULT_FILENAME_TEMPLATE, maxLength: 100, extension: 'svg' },
-    defaultCategory: 'Digital Prints',
-    exportPackageFiles: STANDARD_PACKAGE_FILES,
-  },
-};
+export const MARKETPLACE_PROFILES: Record<MarketplaceId, MarketplaceProfile> = Object.fromEntries(
+  MARKETPLACE_DATA.map((data) => [data.id, toProfile(data)]),
+) as Record<MarketplaceId, MarketplaceProfile>;
 
 export const MARKETPLACE_LIST: MarketplaceProfile[] = Object.values(MARKETPLACE_PROFILES);
+
+/** Section 2, "Category Mapping" resolver — the real marketplace category
+ * for a given engine category id, falling back to the profile's
+ * `defaultCategory` when no per-category mapping exists (either the
+ * marketplace has no `categoryMapping` at all, or this specific category
+ * id isn't in it). Centralized here so every caller (SEO hints, export
+ * package metadata) resolves category the same honest way instead of
+ * re-deriving the fallback logic. */
+export function resolveMarketplaceCategory(profile: MarketplaceProfile, categoryId: string): string {
+  return profile.categoryMapping?.[categoryId] ?? profile.defaultCategory;
+}

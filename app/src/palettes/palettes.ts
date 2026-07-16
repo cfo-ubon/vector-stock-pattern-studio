@@ -67,6 +67,16 @@ export function accentColors(colors: string[]): string[] {
 export function resolveColors(palette: Palette, count: number): string[] {
   const n = Math.max(2, Math.min(count, palette.colors.length));
   if (n === palette.colors.length) return palette.colors.slice();
+  // Build 002, Section 2: n===2 needs its own direct case. The general
+  // interpolation loop below always degenerates to `[colors[0], colors[1]]`
+  // for n===2 (its one iteration always computes idx = round(0 * step) = 0),
+  // so every `monochromeAccent`-strategy Style DNA preset that resolves to
+  // n=2 (e.g. scandinavianOrganic, minimalBotanical) was silently limited to
+  // the two lightest, adjacent palette entries regardless of how wide the
+  // palette's actual luminance range was. Using the true two extremes fixes
+  // paletteContrast without touching any palette's declared colors or the
+  // n>=3 path (which already reaches the far end correctly).
+  if (n === 2) return [palette.colors[0], palette.colors[palette.colors.length - 1]];
   const result = [palette.colors[0]];
   const rest = palette.colors.slice(1);
   const step = (rest.length - 1) / Math.max(1, n - 2);

@@ -1,0 +1,23 @@
+{
+  "id": "vintageHerbarium",
+  "label": "Vintage Herbarium",
+  "description": "Pressed-specimen scatter in muted earth tones, full-palette botanical variety.",
+  "categories": ["botanical"],
+  "layouts": ["scatter", "halfDrop"],
+  "hierarchyPreset": "allOverTextile",
+  "density": 0.45,
+  "negativeSpace": 0.25,
+  "overlapMode": "none",
+  "overlapAmount": 0,
+  "flowProfile": "calm",
+  "rhythmProfile": "organic",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.35,
+  "motifComplexity": "moderate",
+  "botanicalGrowthPreset": "sage",
+  "colorStrategy": "fullPalette",
+  "paletteIds": ["earth-tone", "terracotta"],
+  "backgroundStrategy": "neutralPaper",
+  "svgDepthMode": "flat",
+  "exportRecommendation": { "tileSize": 1400, "patternScale": 1, "recommendedSites": ["creativemarket", "creativefabrica"] }
+}

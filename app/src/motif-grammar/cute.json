@@ -1,0 +1,13 @@
+{
+  "id": "cute",
+  "label": "Cute / Kids",
+  "family": "icon",
+  "defaultMotifSize": 60,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "balanced"],
+  "rules": []
+}

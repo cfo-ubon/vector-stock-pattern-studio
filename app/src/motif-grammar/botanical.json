@@ -1,0 +1,15 @@
+{
+  "id": "botanical",
+  "label": "Botanical / Floral",
+  "family": "flower",
+  "defaultMotifSize": 70,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["airy", "balanced", "editorial", "dense", "maximalist"],
+  "rules": [
+    { "id": "botanical-dense-node-budget", "description": "Botanical + dense/maximalist composition + high density is the combination most likely to exceed the SVG Engine's hard node budget (documented finding from the v1.35 SVG structural audit) — verify with the Design Quality loop.", "severity": "warning" }
+  ]
+}

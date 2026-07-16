@@ -1,0 +1,15 @@
+{
+  "id": "dense",
+  "label": "Dense",
+  "description": "Rich, layered wallpaper-scale coverage — hero motifs cluster tightly, minimal breathing room, built for luxury wallpaper/upholstery scale.",
+  "compatibleLayouts": ["densePremium", "halfDrop", "toss"],
+  "hierarchyPreset": "denseLayered",
+  "densityRange": { "min": 0.5, "max": 0.7 },
+  "negativeSpaceRange": { "min": 0, "max": 0.1 },
+  "compatibleFlowProfiles": ["directional"],
+  "compatibleRhythmProfiles": ["organic"],
+  "rules": [
+    { "id": "dense-overlap-required", "description": "A dense composition without any overlapAmount tends to show visible seams between motifs — pair with overlapMode 'natural' or 'dense'.", "severity": "warning" },
+    { "id": "dense-node-budget-risk", "description": "Dense + a high-detail motif category (e.g. botanical, mandala) can exceed the SVG Engine's hard node budget — verify with the Design Quality loop before shipping.", "severity": "warning" }
+  ]
+}

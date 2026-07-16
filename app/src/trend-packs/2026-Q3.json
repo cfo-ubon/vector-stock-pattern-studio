@@ -1,0 +1,20 @@
+{
+  "id": "2026-Q3",
+  "label": "2026 Q3 — Vintage Herbarium",
+  "season": "autumn",
+  "theme": "Vintage Herbarium",
+  "mood": "nostalgic, warm, pressed botanical",
+  "commercialUses": ["stationery", "packaging", "homeDecor"],
+  "paletteDirection": "earth tone",
+  "popularMotifs": ["botanical", "damask"],
+  "suggestedLayouts": ["bouquet", "sCurve"],
+  "negativeSpace": 0.25,
+  "compositionStyle": "balanced",
+  "styleDnaId": "vintageHerbarium",
+  "colorRoles": { "background": "#F4EDE4", "primary": "#A9714B", "secondary": "#D9A566", "accent": "#8F9E7B" },
+  "patternTypes": ["botanical", "damask"],
+  "collectionRecommendations": {
+    "size": 8,
+    "assetTypes": ["heroPattern", "secondaryPattern", "miniPattern", "stripePattern", "borderPattern", "cornerPattern", "spotMotifSheet"]
+  }
+}

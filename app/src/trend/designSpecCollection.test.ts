@@ -80,19 +80,32 @@ describe('buildCollectionFromDesignSpec', () => {
       // own existing behavior, unrelated to this Design-Spec-driven wiring)
       // allowed to differ by a millisecond between two independent calls —
       // same reasoning exportPackage.test.ts's determinism test already uses.
+      // Two full collection builds in one test, each now building 8
+      // pattern-type tiles instead of 6 (Commercial Collection Engine
+      // Phase 4b adds Dense Pattern + Airy Pattern) — bumped past the
+      // previous 15000ms override for the same reason it existed at all.
       const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q2', createdAt: 1000 });
       const a = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       const b = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       expect({ ...a.manifest, createdAt: null }).toEqual({ ...b.manifest, createdAt: null });
       expect(a.assets).toEqual(b.assets);
     },
-    15000,
+    30000,
   );
 
-  it('a different seed produces a genuinely different collection id', () => {
-    const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q1', createdAt: 1000 });
-    const a = buildCollectionFromDesignSpec(spec, 'seed-collection-a');
-    const b = buildCollectionFromDesignSpec(spec, 'seed-collection-b');
-    expect(a.manifest.collectionId).not.toBe(b.manifest.collectionId);
-  });
+  it(
+    'a different seed produces a genuinely different collection id',
+    () => {
+      // Two full collection builds in one test — same "some category/layout
+      // combos take several seconds for a full collection" headroom the
+      // determinism test above already documents (Cluster Composition
+      // Engine layouts place more motifs per tile than the old independent
+      // scatter did, by design — see engine/clusterEngine.ts).
+      const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q1', createdAt: 1000 });
+      const a = buildCollectionFromDesignSpec(spec, 'seed-collection-a');
+      const b = buildCollectionFromDesignSpec(spec, 'seed-collection-b');
+      expect(a.manifest.collectionId).not.toBe(b.manifest.collectionId);
+    },
+    30000,
+  );
 });

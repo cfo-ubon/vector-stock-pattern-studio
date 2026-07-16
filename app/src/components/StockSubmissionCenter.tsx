@@ -4,7 +4,7 @@ import type { SavedItem } from './SavedPanel';
 import { MetadataPanel } from './MetadataPanel';
 import { MarketplaceProfileSelector } from './MarketplaceProfileSelector';
 import { scoreColor } from './scoreColor';
-import { CONTRIBUTOR_LINKS } from '../metadata/contributorLinks';
+import { CONTRIBUTOR_LINKS, MARKETPLACE_LINK_SETS, CONTRIBUTOR_LINK_TYPES } from '../metadata/contributorLinks';
 import { generateMarketplaceSeo, type MarketplaceSeo } from '../metadata/marketplaceSeo';
 import { validateMarketplaceSeo, isMarketplaceReady } from '../metadata/marketplaceValidation';
 import { MARKETPLACE_PROFILES, type MarketplaceId } from '../metadata/marketplaceProfiles';
@@ -148,6 +148,7 @@ export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForS
               const validationIssues = validateMarketplaceSeo(marketplaceSeo, profile);
               const validationReady = isMarketplaceReady(validationIssues);
               const contributor = CONTRIBUTOR_LINKS.find((l) => l.id === card.siteId);
+              const linkSet = MARKETPLACE_LINK_SETS.find((l) => l.id === card.siteId);
               return (
                 <div key={card.siteId} className={`readiness-card readiness-card--${card.status}`}>
                   <div className="readiness-card-header">
@@ -174,11 +175,28 @@ export function StockSubmissionCenter({ tileData, saved, collectionGeneratedForS
                     </ul>
                   )}
                   <div className="readiness-card-actions">
-                    {contributor && (
-                      <a href={contributor.url} target="_blank" rel="noopener noreferrer" className="link-btn">
-                        🔗 Contributor Link
-                      </a>
-                    )}
+                    {linkSet
+                      ? CONTRIBUTOR_LINK_TYPES.map(({ key, label }) => {
+                          const entry = linkSet.links[key];
+                          return (
+                            <a
+                              key={key}
+                              href={entry.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="link-btn"
+                              title={entry.verified ? undefined : 'URL ยังไม่ได้ยืนยัน — แก้ไขได้ที่ src/marketplaces/*.json'}
+                            >
+                              🔗 {label}
+                              {!entry.verified && ' ⚠️'}
+                            </a>
+                          );
+                        })
+                      : contributor && (
+                          <a href={contributor.url} target="_blank" rel="noopener noreferrer" className="link-btn">
+                            🔗 Contributor Link
+                          </a>
+                        )}
                     <button type="button" className="link-btn" onClick={() => onDownloadPackage(card.siteId, marketplaceSeo)}>
                       📦 Download Package
                     </button>

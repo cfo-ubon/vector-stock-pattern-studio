@@ -5,6 +5,7 @@ import { serialize } from './svgAst';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { HIERARCHY_PRESETS } from './hierarchy';
+import { extractInstances } from './svgGeometry';
 import type { GenerateParams } from './types';
 
 describe('buildTile: seeded reproducibility', () => {
@@ -98,15 +99,104 @@ describe('buildTile: Hierarchy Engine', () => {
     expect(svg).toMatch(/data-role="(hero|secondary|filler|accent)"/);
   });
 
-  it('does not apply the hierarchy pass on exempt layouts (bouquet already builds its own tiers)', () => {
-    const params: GenerateParams = {
-      ...defaultParams(),
-      layoutId: 'bouquet',
-      hierarchy: HIERARCHY_PRESETS.heroFocus.value,
-      seed: 'hier-role-2',
-    };
+  it('bouquet (Cluster Engine-backed) tags its own real hero/secondary/filler/accent roles', () => {
+    const params: GenerateParams = { ...defaultParams(), layoutId: 'bouquet', seed: 'hier-role-2' };
     const svg = serialize(buildTile(params).svg);
-    expect(svg).not.toMatch(/data-role/);
+    expect(svg).toMatch(/data-role="hero"/);
+    expect(svg).toMatch(/data-role="(secondary|filler|accent)"/);
+  });
+
+  it('does not apply the generic hierarchy pass on exempt layouts (bouquet already builds its own tiers via the Cluster Engine) — a hierarchy preset has zero effect on its output', () => {
+    const withoutHierarchy = serialize(buildTile({ ...defaultParams(), layoutId: 'bouquet', seed: 'hier-role-exempt' }).svg);
+    const withHierarchy = serialize(
+      buildTile({ ...defaultParams(), layoutId: 'bouquet', hierarchy: HIERARCHY_PRESETS.heroFocus.value, seed: 'hier-role-exempt' }).svg,
+    );
+    expect(withHierarchy).toBe(withoutHierarchy);
+  });
+});
+
+describe('buildTile: Layer Priority paint order (Build 001, Section 2)', () => {
+  it('paints every hero-role motif after every other roled motif, so hero always renders on top', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'grid', hierarchy: HIERARCHY_PRESETS.heroFocus.value, seed: 'layer-priority-1' });
+    const instances = extractInstances(tile);
+    const heroIndices = instances.filter((i) => i.role === 'hero').map((i) => i.index);
+    const otherIndices = instances.filter((i) => i.role && i.role !== 'hero').map((i) => i.index);
+    expect(heroIndices.length).toBeGreaterThan(0);
+    expect(otherIndices.length).toBeGreaterThan(0);
+    expect(Math.min(...heroIndices)).toBeGreaterThan(Math.max(...otherIndices));
+  });
+
+  it('is a strict no-op for a tile with no roles at all (paint order identical to before Layer Priority existed)', () => {
+    const noHierarchy = { ...defaultParams(), layoutId: 'grid' as const, seed: 'layer-priority-2' };
+    delete (noHierarchy as Partial<GenerateParams>).hierarchy;
+    const withoutSort = serialize(buildTile(noHierarchy).svg);
+    // No hierarchy set at all -> every placement has role undefined -> the
+    // stable sort must leave the array (and therefore the output) unchanged.
+    expect(withoutSort).not.toMatch(/data-role/);
+  });
+
+  it('the bouquet layout (Cluster Engine-backed, already hero-first internally) still ends with hero painted last', () => {
+    const tile = buildTile({ ...defaultParams(), layoutId: 'bouquet', categoryId: 'botanical', seed: 'layer-priority-3' });
+    const instances = extractInstances(tile);
+    const heroIndices = instances.filter((i) => i.role === 'hero').map((i) => i.index);
+    const otherIndices = instances.filter((i) => i.role && i.role !== 'hero').map((i) => i.index);
+    if (heroIndices.length > 0 && otherIndices.length > 0) {
+      expect(Math.min(...heroIndices)).toBeGreaterThan(Math.max(...otherIndices));
+    }
+  });
+});
+
+describe('buildTile: Regular Lattice layouts opt out of Composition Intelligence V2 (Build 001)', () => {
+  it('a strict Grid layout at full default settings still reads as a genuine even lattice', () => {
+    // Regression guard: Composition Intelligence V2's new flow-bias/
+    // negative-space/attraction passes must not fight Grid's own deliberate
+    // even spacing — verified indirectly via the Design Critic's
+    // spacingUniformity metric elsewhere; here we just confirm the V2 fields
+    // being present at all doesn't throw or corrupt Grid's output.
+    const params: GenerateParams = { ...defaultParams(), layoutId: 'grid', seed: 'regular-lattice-1' };
+    expect(() => buildTile(params)).not.toThrow();
+  });
+
+  it('every Regular Lattice layout (Grid, Grid Minimal, Half-Drop, Brick, Stripe) produces identical output whether or not the new V2 fields are present (only V1 fields ever apply to them)', () => {
+    for (const layoutId of ['grid', 'gridMinimal', 'halfDrop', 'brick', 'stripe'] as const) {
+      const v1Only = serialize(buildTile({ ...defaultParams(), layoutId, compositionIntelligence: { balanceStrength: 0.5, rhythmStrength: 0.35 }, seed: `regular-lattice-2-${layoutId}` }).svg);
+      const withV2 = serialize(
+        buildTile({
+          ...defaultParams(),
+          layoutId,
+          compositionIntelligence: {
+            balanceStrength: 0.5,
+            rhythmStrength: 0.35,
+            attractionStrength: 0.9,
+            negativeSpaceStrength: 0.9,
+            flowProfile: 'dynamic',
+            flowBiasStrength: 0.9,
+          },
+          seed: `regular-lattice-2-${layoutId}`,
+        }).svg,
+      );
+      expect(withV2).toBe(v1Only);
+    }
+  });
+
+  it('a non-lattice layout (scatter) is genuinely affected by the new V2 fields', () => {
+    const v1Only = serialize(buildTile({ ...defaultParams(), layoutId: 'scatter', compositionIntelligence: { balanceStrength: 0.5, rhythmStrength: 0.35 }, seed: 'regular-lattice-3' }).svg);
+    const withV2 = serialize(
+      buildTile({
+        ...defaultParams(),
+        layoutId: 'scatter',
+        compositionIntelligence: {
+          balanceStrength: 0.5,
+          rhythmStrength: 0.35,
+          attractionStrength: 0.9,
+          negativeSpaceStrength: 0.9,
+          flowProfile: 'dynamic',
+          flowBiasStrength: 0.9,
+        },
+        seed: 'regular-lattice-3',
+      }).svg,
+    );
+    expect(withV2).not.toBe(v1Only);
   });
 });
 

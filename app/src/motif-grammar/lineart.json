@@ -1,0 +1,13 @@
+{
+  "id": "lineart",
+  "label": "Line Art",
+  "family": "decorative",
+  "defaultMotifSize": 65,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["minimal", "balanced"],
+  "rules": []
+}

@@ -1,25 +1,53 @@
 import type { Placement } from './types';
-import { periodicDist } from './svgGeometry';
+import { periodicDist, periodicOffset } from './svgGeometry';
+import { applyAttraction } from './patternPhysics';
+import type { FlowProfile } from './styleDna';
 
-// Composition Intelligence Engine (Roadmap Phase 2) — where Phase 1's
-// Scoring Engine only *measures* composition quality after a tile is built,
-// this module *acts* on the raw placement list before it's turned into SVG:
-// a deterministic, geometry-only refinement pass that corrects severe
-// quadrant-weight imbalance and smooths isolated-motif spacing outliers.
-// Pure functions, no rng — it only ever reshapes the placements the layout
-// and hierarchy pass already produced, never adds/removes any or consumes
-// additional random draws, so it never disturbs seed determinism upstream.
+// Composition Intelligence Engine (Roadmap Phase 2; extended to V2 by
+// Composition Intelligence Foundation V2, Build 001) — where the Scoring
+// Engine only *measures* composition quality after a tile is built, this
+// module *acts* on the raw placement list before it's turned into SVG: a
+// deterministic, geometry-only refinement pipeline. V1 shipped balance
+// correction (Section 1/6) and rhythm smoothing; V2 adds a real Flow Engine
+// pass (Section 5 — `flowProfile` previously only nudged rotation jitter,
+// never placement), a finer-grained Negative Space pass (Section 6 — the
+// same weighted-redistribution mechanism balance correction uses, reused at
+// a finer grid resolution rather than duplicated), and Pattern Physics
+// (Section 8, `engine/patternPhysics.ts`). Every pass here stays pure and
+// rng-free — it only ever reshapes the placements the layout/hierarchy
+// stage already produced, never adds/removes any or consumes additional
+// random draws, so it never disturbs seed determinism upstream.
 
 export interface CompositionIntelligenceParams {
   /** 0 = no quadrant-balance correction, 1 = strongest correction. */
   balanceStrength: number;
   /** 0 = no spacing-rhythm smoothing, 1 = strongest smoothing. */
   rhythmStrength: number;
+  /** Section 8, Pattern Physics — 0 = no role-attraction, 1 = strongest.
+   * Undefined behaves as 0 (no-op), matching every other optional field
+   * here so patterns saved before this field existed are unaffected. */
+  attractionStrength?: number;
+  /** Section 6, Negative Space Engine — a finer-grained (8x8, vs.
+   * balanceStrength's 2x2) pass over the same weighted-cell redistribution
+   * mechanism, catching localized empty holes a coarse quadrant split
+   * averages away. 0/undefined = no-op. */
+  negativeSpaceStrength?: number;
+  /** Section 5, Flow Engine — which directional field placements are
+   * biased toward. Undefined/'calm' = no bias regardless of
+   * flowBiasStrength (an even, non-directional field is what "calm"
+   * means). */
+  flowProfile?: FlowProfile;
+  /** 0 = no flow bias, 1 = strongest. 0/undefined = no-op. */
+  flowBiasStrength?: number;
 }
 
 export const DEFAULT_COMPOSITION_INTELLIGENCE: CompositionIntelligenceParams = {
   balanceStrength: 0.5,
   rhythmStrength: 0.35,
+  attractionStrength: 0.4,
+  negativeSpaceStrength: 0.35,
+  flowProfile: 'directional',
+  flowBiasStrength: 0.25,
 };
 
 /** A hero motif reads as visually heavier than its raw area alone would
@@ -33,71 +61,74 @@ export function computeWeight(p: Placement): number {
   return p.scale * p.scale * bump;
 }
 
-function quadrantOf(x: number, y: number, tileSize: number): number {
+/** Which cell of an `gridN` x `gridN` grid (x-major, wrap-aware) a point
+ * falls in — `quadrantOf`'s old 2x2-only logic generalized to any grid
+ * resolution, so the same weighted-redistribution mechanism below serves
+ * both the coarse "balance" pass (gridN=2) and the finer "negative space"
+ * pass (gridN=8) without two copies of the partitioning logic. */
+function cellOf(x: number, y: number, tileSize: number, gridN: number): number {
   const px = ((x % tileSize) + tileSize) % tileSize;
   const py = ((y % tileSize) + tileSize) % tileSize;
-  const qx = px < tileSize / 2 ? 0 : 1;
-  const qy = py < tileSize / 2 ? 0 : 1;
-  return qy * 2 + qx;
+  const cx = Math.min(gridN - 1, Math.floor((px / tileSize) * gridN));
+  const cy = Math.min(gridN - 1, Math.floor((py / tileSize) * gridN));
+  return cy * gridN + cx;
 }
 
-/** Mirrors a point across whichever tile mid-line separates `fromQ` from
- * `toQ`, preserving its distance-from-edge relationship on the axis that
- * doesn't change quadrant — a locally-consistent relocation (not a random
- * jump), and one that's guaranteed to land in the target quadrant since a
- * full mirror always crosses to the opposite side of that mid-line. */
-function reflectIntoQuadrant(p: { x: number; y: number }, fromQ: number, toQ: number, tileSize: number): { x: number; y: number } {
-  const fromQx = fromQ % 2;
-  const fromQy = Math.floor(fromQ / 2);
-  const toQx = toQ % 2;
-  const toQy = Math.floor(toQ / 2);
+/** Moves a point into `targetCell`, preserving its fractional position
+ * within its own current cell so the relocation reads as "the same local
+ * arrangement, shifted to a different region" rather than snapping to one
+ * fixed spot — generalizes `reflectIntoQuadrant`'s old mirror-only trick
+ * (which only worked for exactly 2 divisions per axis) to any grid
+ * resolution and any pair of cells, adjacent or not. */
+function moveIntoCell(p: { x: number; y: number }, tileSize: number, gridN: number, targetCell: number): { x: number; y: number } {
+  const cellSize = tileSize / gridN;
   const px = ((p.x % tileSize) + tileSize) % tileSize;
   const py = ((p.y % tileSize) + tileSize) % tileSize;
-  return {
-    x: fromQx !== toQx ? tileSize - px : p.x,
-    y: fromQy !== toQy ? tileSize - py : p.y,
-  };
+  const fracX = (px % cellSize) / cellSize;
+  const fracY = (py % cellSize) / cellSize;
+  const tcx = targetCell % gridN;
+  const tcy = Math.floor(targetCell / gridN);
+  return { x: (tcx + fracX) * cellSize, y: (tcy + fracY) * cellSize };
 }
 
 /** Redistributes a bounded number of the lightest placements out of the
- * heaviest quadrant into the lightest one, blending most (never all) of the
- * way to a guaranteed-crossing reflected position rather than snapping —
- * only fires when the imbalance is severe (mild unevenness reads as
- * designed, not machine-stamped). */
-export function applyBalanceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
+ * heaviest grid cell into the lightest one, blending most (never all) of
+ * the way to the target cell rather than snapping — only fires when the
+ * imbalance is severe (mild unevenness reads as designed, not machine-
+ * stamped). Shared by `applyBalanceCorrection` (gridN=2, macro composition
+ * weight) and `applyNegativeSpaceCorrection` (gridN=8, catches localized
+ * holes a 2x2 split averages away) — one mechanism, two resolutions,
+ * rather than duplicated logic for what the brief treats as two named
+ * concepts. */
+export function applyGridBalanceCorrection(placements: Placement[], tileSize: number, gridN: number, strength: number): Placement[] {
   if (strength <= 0 || placements.length < 4) return placements;
 
   const weights = placements.map(computeWeight);
-  const quadWeights = [0, 0, 0, 0];
-  const quadIndex = placements.map((p, i) => {
-    const q = quadrantOf(p.x, p.y, tileSize);
-    quadWeights[q] += weights[i];
-    return q;
+  const numCells = gridN * gridN;
+  const cellWeights = new Array(numCells).fill(0);
+  const cellIndex = placements.map((p, i) => {
+    const c = cellOf(p.x, p.y, tileSize, gridN);
+    cellWeights[c] += weights[i];
+    return c;
   });
-  const totalWeight = quadWeights.reduce((a, b) => a + b, 0);
+  const totalWeight = cellWeights.reduce((a, b) => a + b, 0);
   if (totalWeight <= 0) return placements;
 
-  const meanWeight = totalWeight / 4;
-  const heaviest = quadWeights.indexOf(Math.max(...quadWeights));
-  const lightest = quadWeights.indexOf(Math.min(...quadWeights));
-  const imbalance = (quadWeights[heaviest] - quadWeights[lightest]) / (meanWeight || 1);
+  const meanWeight = totalWeight / numCells;
+  const heaviest = cellWeights.indexOf(Math.max(...cellWeights));
+  const lightest = cellWeights.indexOf(Math.min(...cellWeights));
+  const imbalance = (cellWeights[heaviest] - cellWeights[lightest]) / (meanWeight || 1);
   if (heaviest === lightest || imbalance < 0.5) return placements;
 
   const movable = placements
     .map((_, i) => ({ i, w: weights[i] }))
-    .filter((e) => quadIndex[e.i] === heaviest)
+    .filter((e) => cellIndex[e.i] === heaviest)
     // Move the lightest placements out first — relieves crowding without
-    // disturbing the quadrant's own anchor/hero motifs.
+    // disturbing the cell's own anchor/hero motifs.
     .sort((a, b) => a.w - b.w);
 
-  const excessWeight = (quadWeights[heaviest] - meanWeight) * strength;
+  const excessWeight = (cellWeights[heaviest] - meanWeight) * strength;
   const maxMoves = Math.max(1, Math.floor(placements.length * 0.15));
-  // A blend of exactly 50% toward a full mirror reflection lands exactly on
-  // the mid-line (ambiguous quadrant) — anything above 50% is guaranteed to
-  // cross into the target quadrant, so this always actually relocates the
-  // placement's region while still leaving room for `strength` to control
-  // how much of the *rest* of its position (the non-flipping axis, and how
-  // far past the mid-line) follows along.
   const pullFrac = 0.5 + 0.45 * strength;
 
   const result = placements.slice();
@@ -106,11 +137,11 @@ export function applyBalanceCorrection(placements: Placement[], tileSize: number
   for (const entry of movable) {
     if (moved >= maxMoves || movedWeight >= excessWeight) break;
     const p = result[entry.i];
-    const reflected = reflectIntoQuadrant(p, heaviest, lightest, tileSize);
+    const target = moveIntoCell(p, tileSize, gridN, lightest);
     result[entry.i] = {
       ...p,
-      x: p.x + (reflected.x - p.x) * pullFrac,
-      y: p.y + (reflected.y - p.y) * pullFrac,
+      x: p.x + (target.x - p.x) * pullFrac,
+      y: p.y + (target.y - p.y) * pullFrac,
     };
     movedWeight += entry.w;
     moved++;
@@ -118,27 +149,85 @@ export function applyBalanceCorrection(placements: Placement[], tileSize: number
   return result;
 }
 
-/** The shortest periodic (wrap-aware) vector from a to b — same neighbor
- * relationship `periodicDist` measures, but returning the offset itself
- * instead of just its length, since the smoothing pass needs a direction to
- * pull along. */
-function shortestOffset(a: { x: number; y: number }, b: { x: number; y: number }, tileSize: number): { dx: number; dy: number } {
-  let bestDx = 0;
-  let bestDy = 0;
-  let best = Infinity;
-  for (let ox = -1; ox <= 1; ox++) {
-    for (let oy = -1; oy <= 1; oy++) {
-      const dx = b.x + ox * tileSize - a.x;
-      const dy = b.y + oy * tileSize - a.y;
-      const d = Math.hypot(dx, dy);
-      if (d < best) {
-        best = d;
-        bestDx = dx;
-        bestDy = dy;
-      }
+/** Macro-level composition-weight balance across a 2x2 split of the tile —
+ * unchanged behavior from Composition Intelligence Engine V1, now a thin
+ * wrapper over the shared `applyGridBalanceCorrection`. */
+export function applyBalanceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
+  return applyGridBalanceCorrection(placements, tileSize, 2, strength);
+}
+
+/** Section 6, Negative Space Engine — the same weighted-redistribution
+ * mechanism as `applyBalanceCorrection`, at a finer 8x8 grid resolution.
+ * A large empty hole is, in this model, nothing more than a cell whose
+ * weight is far below the mean — genuinely catching localized holes a
+ * coarse 2x2 quadrant split would average into "roughly even" and miss.
+ *
+ * Build 001.1, Known Issue #1: this was gridN=4 in Build 001. Empirical
+ * investigation found that `engine/scoring.ts`'s `largestEmptyRegion` — the
+ * metric this pass exists to improve, and what `deadSpace` in
+ * critic/visualAnalysis.ts is thresholded on — is measured via
+ * `gridCoverage(instances, tileSize, 8)`, an 8x8 grid, not 4x4. A 4x4 cell
+ * can read as "roughly average weight" while one of its four 8x8
+ * sub-cells is a real hole the detector flags, so the correction pass was
+ * structurally unable to see the same holes the detector penalizes.
+ * Matching the grid resolution to the detector's own is what makes this
+ * pass address the thing it's actually scored against, rather than a
+ * coarser proxy for it. (Two rejected fixes were tried first — reordering
+ * Attraction and Negative Space Correction relative to each other, in both
+ * directions — see git history / BUILD_REPORT.md for the empirical data;
+ * neither moved the metric and one introduced a new `fragmentedSilhouette`
+ * regression, so the pipeline order below is unchanged from Build 001.) */
+export function applyNegativeSpaceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
+  return applyGridBalanceCorrection(placements, tileSize, 8, strength);
+}
+
+export type FlowBiasProfile = FlowProfile;
+
+/** Section 5, Flow Engine — makes `flowProfile` actually steer *placement*,
+ * not just each motif's own spin (see engine/styleDna.ts's
+ * `FLOW_ROTATION_JITTER`, which only ever fed rotationJitter). `calm` is a
+ * deliberate no-op: an even, non-directional field is what "calm" means.
+ * `directional` nudges every placement a bounded distance toward the
+ * tile's own main diagonal, reading as one confident sweep across the
+ * surface. `dynamic` applies a two-axis sinusoidal drift — a genuinely
+ * flowing wave rather than a single straight line, matching "dynamic"
+ * reading as more energetic than a calm directional sweep. Pure and
+ * deterministic (a function of each placement's own position, never rng),
+ * so it composes safely with every other pass here regardless of order.
+ *
+ * Build 001.1, Section 3 (Flow Optimization): Build 001 measured a small
+ * `flowCoherence` regression (70.0 -> 69.3). The Known Issue #1 grid-
+ * resolution fix above (`applyNegativeSpaceCorrection`, gridN 4 -> 8)
+ * recovered this as a side effect (69.3 -> 69.6 in the same 30-scenario
+ * empirical suite) without touching this function. Beyond that, several
+ * direct strengthenings of this pass were tried and measured, not
+ * assumed: raising `pull`'s coefficient, running this pass a second time
+ * after rhythm smoothing (to undo whatever later passes displaced),
+ * replacing the diagonal-convergence field with a pure shear, and blends
+ * of the two at several weights. Every variant that moved flowCoherence
+ * up by more than ~0.2 did so by trading away `fragmentedSilhouette`
+ * (6/30 -> 7-9/30) or `largestEmptyRegion`/overall score in the opposite
+ * direction — this pass's own bounded, small-`pull` design is already
+ * near the achievable balance point for this mechanism, not an
+ * oversight. A materially higher flowCoherence would need a genuinely
+ * different mechanism (e.g. per-layout flow paths informed by each
+ * layout's own generation, rather than a single post-hoc global field
+ * applied after the fact) — out of scope for a refinement build against
+ * working architecture. */
+export function applyFlowBias(placements: Placement[], tileSize: number, profile: FlowBiasProfile, strength: number): Placement[] {
+  if (strength <= 0 || profile === 'calm' || placements.length === 0) return placements;
+  const pull = 0.18 * strength;
+  return placements.map((p) => {
+    const px = ((p.x % tileSize) + tileSize) % tileSize;
+    const py = ((p.y % tileSize) + tileSize) % tileSize;
+    if (profile === 'directional') {
+      const t = (px + py) / 2;
+      return { ...p, x: p.x + (t - px) * pull, y: p.y + (t - py) * pull };
     }
-  }
-  return { dx: bestDx, dy: bestDy };
+    const waveY = Math.sin((px / tileSize) * Math.PI * 2) * tileSize * 0.12;
+    const waveX = Math.cos((py / tileSize) * Math.PI * 2) * tileSize * 0.06;
+    return { ...p, x: p.x + waveX * pull, y: p.y + waveY * pull };
+  });
 }
 
 /** Pulls placements that sit unusually far from their nearest neighbor
@@ -178,23 +267,53 @@ export function applyRhythmSmoothing(placements: Placement[], tileSize: number, 
     const { distance, other } = nearest[i];
     if (!Number.isFinite(distance) || distance <= threshold || !other) continue;
     const p = result[i];
-    const { dx, dy } = shortestOffset(p, other, tileSize);
+    const { dx, dy } = periodicOffset(p, other, tileSize);
     result[i] = { ...p, x: p.x + dx * pullFrac, y: p.y + dy * pullFrac };
     moved++;
   }
   return result;
 }
 
-/** Orchestrator: balance correction first (coarse, region-level), then
- * rhythm smoothing (fine, neighbor-level) — undefined params is a strict
- * no-op, returning the exact same array reference, so old saved patterns
- * that predate this field reproduce identically. */
+/** Orchestrator: flow bias first (a broad directional character for the
+ * whole field), then balance correction (macro, region-level), negative
+ * space correction (meso, localized holes), pattern physics (micro,
+ * role-to-role attraction), and finally rhythm smoothing (fine, neighbor-
+ * level polish) — each stage progressively finer-grained than the last.
+ * Undefined params is a strict no-op, returning the exact same array
+ * reference, so old saved patterns that predate this field reproduce
+ * identically; each new V2 field is independently optional so a params
+ * object carrying only the original two V1 fields runs exactly the V1
+ * pipeline (balance -> rhythm), byte-for-byte unchanged.
+ *
+ * Build 001.1 (Known Issue #1 fix): see `applyNegativeSpaceCorrection`'s
+ * doc comment for the real root cause (a grid-resolution mismatch against
+ * the `largestEmptyRegion`/`deadSpace` detector) and why that, not pass
+ * ordering, was the actual fix. Two reordering variants were tried and
+ * empirically rejected first (see `docs/DESIGN_DECISIONS.md`): running
+ * Attraction before Negative Space Correction (in either position) left
+ * `deadSpace` unchanged (2/30 scenarios) and made `fragmentedSilhouette`
+ * measurably worse (6/30 -> 8/30) — the Build 001 pipeline order below is
+ * unchanged from what shipped. A targeted "protect Negative Space
+ * Correction's moved placements from Attraction" variant was also tried
+ * and measured to have no effect once isolated from the grid-resolution
+ * fix (identical metrics with or without it), so it was dropped rather
+ * than kept as unexercised complexity. */
 export function applyCompositionIntelligence(
   placements: Placement[],
   tileSize: number,
   params?: CompositionIntelligenceParams,
 ): Placement[] {
   if (!params) return placements;
-  const balanced = applyBalanceCorrection(placements, tileSize, params.balanceStrength);
-  return applyRhythmSmoothing(balanced, tileSize, params.rhythmStrength);
+  const flowed =
+    params.flowProfile && params.flowBiasStrength
+      ? applyFlowBias(placements, tileSize, params.flowProfile, params.flowBiasStrength)
+      : placements;
+  const balanced = applyBalanceCorrection(flowed, tileSize, params.balanceStrength);
+  const spaced = params.negativeSpaceStrength
+    ? applyNegativeSpaceCorrection(balanced, tileSize, params.negativeSpaceStrength)
+    : balanced;
+  const attracted = params.attractionStrength
+    ? applyAttraction(spaced, tileSize, params.attractionStrength)
+    : spaced;
+  return applyRhythmSmoothing(attracted, tileSize, params.rhythmStrength);
 }

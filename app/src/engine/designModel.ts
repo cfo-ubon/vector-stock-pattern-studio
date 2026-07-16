@@ -101,9 +101,15 @@ export function normalizeParams(params: GenerateParams): GenerateParams {
   if (next.negativeSpace !== undefined) next.negativeSpace = clampNum(next.negativeSpace, 0, 1, 0);
   if (next.overlapAmount !== undefined) next.overlapAmount = clampNum(next.overlapAmount, 0, 1, 0);
   if (next.compositionIntelligence) {
+    const ci = next.compositionIntelligence;
+    const flowProfile = ci.flowProfile === 'calm' || ci.flowProfile === 'directional' || ci.flowProfile === 'dynamic' ? ci.flowProfile : undefined;
     next.compositionIntelligence = {
-      balanceStrength: clampNum(next.compositionIntelligence.balanceStrength, 0, 1, 0.5),
-      rhythmStrength: clampNum(next.compositionIntelligence.rhythmStrength, 0, 1, 0.35),
+      balanceStrength: clampNum(ci.balanceStrength, 0, 1, 0.5),
+      rhythmStrength: clampNum(ci.rhythmStrength, 0, 1, 0.35),
+      ...(ci.attractionStrength !== undefined ? { attractionStrength: clampNum(ci.attractionStrength, 0, 1, 0) } : {}),
+      ...(ci.negativeSpaceStrength !== undefined ? { negativeSpaceStrength: clampNum(ci.negativeSpaceStrength, 0, 1, 0) } : {}),
+      ...(flowProfile !== undefined ? { flowProfile } : {}),
+      ...(ci.flowBiasStrength !== undefined ? { flowBiasStrength: clampNum(ci.flowBiasStrength, 0, 1, 0) } : {}),
     };
   }
   return next;

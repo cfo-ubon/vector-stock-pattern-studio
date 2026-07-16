@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "styleDna.schema.json",
+  "title": "StyleDna",
+  "description": "One named design identity (category+layout+palette+density+hierarchy+flow+overlap+cluster bundled as one choice). Mirrors app/src/engine/styleDna.ts's StyleDna TypeScript type.",
+  "type": "object",
+  "required": [
+    "id", "label", "description", "categories", "layouts", "hierarchyPreset",
+    "density", "negativeSpace", "overlapMode", "overlapAmount", "flowProfile",
+    "rhythmProfile", "clusterStyle", "clusterDensity", "motifComplexity",
+    "colorStrategy", "paletteIds", "backgroundStrategy", "svgDepthMode", "exportRecommendation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "label": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "custom": { "type": "boolean", "enum": [true] },
+    "categories": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "layouts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "preferredZones": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["diagonal", "sCurve", "zFlow", "centerFocus", "cornerFlow", "radial", "wave", "editorial", "offset", "goldenRatio"] }
+    },
+    "hierarchyPreset": { "type": "string", "enum": ["heroFocus", "balancedEditorial", "denseLayered", "airyPremium", "ditsyFloral", "allOverTextile", "minimalRepeat"] },
+    "density": { "type": "number", "minimum": 0, "maximum": 1 },
+    "negativeSpace": { "type": "number", "minimum": 0, "maximum": 1 },
+    "overlapMode": { "type": "string", "enum": ["none", "subtle", "natural", "dense"] },
+    "overlapAmount": { "type": "number", "minimum": 0, "maximum": 1 },
+    "flowProfile": { "type": "string", "enum": ["calm", "directional", "dynamic"] },
+    "rhythmProfile": { "type": "string", "enum": ["regular", "organic", "syncopated"] },
+    "clusterStyle": { "type": "string", "enum": ["none", "loose", "tight", "bouquet"] },
+    "clusterDensity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "motifComplexity": { "type": "string", "enum": ["simple", "moderate", "intricate"] },
+    "botanicalGrowthPreset": { "type": "string" },
+    "colorStrategy": { "type": "string", "enum": ["dominantDuo", "fullPalette", "monochromeAccent", "highContrast"] },
+    "paletteIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "backgroundStrategy": { "type": "string", "enum": ["minimalLight", "richContrast", "darkMoody", "neutralPaper"] },
+    "svgDepthMode": { "type": "string", "enum": ["flat", "soft", "dimensional"] },
+    "exportRecommendation": {
+      "type": "object",
+      "required": ["tileSize", "patternScale", "recommendedSites"],
+      "additionalProperties": false,
+      "properties": {
+        "tileSize": { "type": "integer", "minimum": 1 },
+        "patternScale": { "type": "number", "minimum": 0 },
+        "recommendedSites": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["shutterstock", "adobestock", "freepik", "creativefabrica", "creativemarket", "etsy"] }
+        }
+      }
+    }
+  }
+}

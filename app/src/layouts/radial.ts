@@ -1,12 +1,23 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
+import { jitter } from '../engine/rng';
 import { spacingForDensity, wrapCoord } from './shared';
-import { jitter, rngRange } from '../engine/rng';
+import { generateCluster } from '../engine/clusterEngine';
 
-/** Radial / mandala layout: places medallion centers on a sparse grid (so
- * multiple mandalas tile across the surface), and around each center scatters
- * motifs in rings using N-fold rotational symmetry (`radialSymmetry`). Each
- * ring's motifs are evenly spaced by angle and rotated to face outward,
- * which is what produces the classic kaleidoscope look. */
+/** Radial / Mandala — Build 002, Section 5 (Semantic Cluster Engine
+ * coverage): each medallion is now a real Cluster Engine `radial` archetype
+ * (previously dormant — no layout used it) instead of a hand-rolled ring/
+ * fold loop, so every medallion gets real hero/secondary/filler/accent
+ * tiering and the archetype's own controlled-overlap band, rather than every
+ * ring member competing at the same visual weight. `radialSymmetry` (fold)
+ * still drives the member count directly, so the kaleidoscope identity —
+ * N roughly-evenly-spaced members per medallion, jittered rather than
+ * perfectly regular — is unchanged; only rotation is overridden per member
+ * (facing outward from its own medallion center) since a mandala's members
+ * must face out to read as petals/rays, unlike a generic cluster's own
+ * free rotation. Medallions are still tiled across a sparse grid so
+ * multiple mandalas repeat across the surface, distinct from `bouquet`
+ * (one dominant cluster) or `heroScatter` (many independent hero clusters
+ * with no rotational-symmetry constraint). */
 export const radialLayout: PatternLayout = {
   id: 'radial',
   label: 'Radial / Mandala',
@@ -19,6 +30,7 @@ export const radialLayout: PatternLayout = {
     const cellW = params.tileSize / cols;
     const cellH = params.tileSize / rows;
     const fold = Math.max(3, Math.round(params.radialSymmetry) || 6);
+    const medallionRadius = Math.min(cellW, cellH) * 0.42;
     const placements: Placement[] = [];
     let colorSeed = 0;
 
@@ -26,34 +38,23 @@ export const radialLayout: PatternLayout = {
       for (let c = 0; c < cols; c++) {
         const cx = (c + 0.5) * cellW;
         const cy = (r + 0.5) * cellH;
-        const maxRadius = Math.min(cellW, cellH) * 0.42;
-        const ringCount = 2;
-        for (let ring = 1; ring <= ringCount; ring++) {
-          const radius = (maxRadius * ring) / ringCount;
-          const scale = 1 - (ring - 1) * 0.22;
-          for (let k = 0; k < fold; k++) {
-            const angle = (360 / fold) * k + (ring % 2 === 0 ? 360 / fold / 2 : 0);
-            const rad = (angle * Math.PI) / 180;
-            const x = wrapCoord(cx + radius * Math.cos(rad), params.tileSize);
-            const y = wrapCoord(cy + radius * Math.sin(rad), params.tileSize);
-            const scaleJitterAmt = rngRange(rng, -params.scaleJitter, params.scaleJitter);
-            placements.push({
-              x,
-              y,
-              rotationDeg: jitter(rng, angle + 90, params.rotationJitter * 0.3),
-              scale: Math.max(0.3, scale * (1 + scaleJitterAmt)),
-              colorSeed: colorSeed++,
-            });
-          }
-        }
-        // Center accent motif.
-        placements.push({
-          x: cx,
-          y: cy,
-          rotationDeg: jitter(rng, 0, params.rotationJitter),
-          scale: 0.9,
-          colorSeed: colorSeed++,
+        const members = generateCluster('radial', rng, {
+          baseRadius: medallionRadius,
+          rotationJitter: params.rotationJitter * 0.3,
+          scaleJitter: params.scaleJitter,
+          memberCount: fold,
         });
+        for (const m of members) {
+          const outwardDeg = m.role === 'hero' ? m.rotationDeg : (Math.atan2(m.dy, m.dx) * 180) / Math.PI + 90;
+          placements.push({
+            x: wrapCoord(cx + m.dx, params.tileSize),
+            y: wrapCoord(cy + m.dy, params.tileSize),
+            rotationDeg: jitter(rng, outwardDeg, params.rotationJitter * 0.3),
+            scale: Math.max(0.2, m.scaleMul),
+            colorSeed: colorSeed++,
+            role: m.role,
+          });
+        }
       }
     }
     return placements;

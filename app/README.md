@@ -9,6 +9,15 @@ This app lives alongside the original static-site prototype in the repo
 root (`/index.html`, `/js`, `/css`); the two are independent and this one
 does not replace it.
 
+A parallel, data-first foundation (JSON Schemas, editable trend/marketplace/
+style-DNA/pattern-grammar/motif-grammar/color-role data, a validation
+engine, and a query/service layer — not yet wired into this app's UI or SVG
+generation) lives under `src/schemas/`, `src/trend-packs/`,
+`src/marketplaces/`, `src/style-dna/`, `src/pattern-grammar/`,
+`src/motif-grammar/`, `src/color-roles/`, `src/validators/`, and
+`src/services/`. See [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md)
+for its architecture, schema reference, and developer guide.
+
 ## Run it
 
 ```bash
@@ -16,7 +25,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-check + production build to dist/
 npm run lint
-npm test         # vitest run — 98 tests, see "Testing" below
+npm test         # vitest run — 1047 tests, see "Testing" below
 ```
 
 ## How a pattern is built
@@ -611,19 +620,41 @@ untouched — this is an additive, opt-in pipeline.
   scoring engine doesn't duplicate it — `qualityScore.ts` now imports from
   here too, with zero change to its own six-number output (verified by the
   existing `qualityScore.test.ts` still passing unchanged).
-- `engine/scoring.ts` — `computeMetrics(tileData)` returns 19 metrics
+- `engine/scoring.ts` — `computeMetrics(tileData)` returns 24 metrics
   (composition, spacing, quadrant/horizontal/vertical balance, visual
   center offset, occupancy ratio, density variance, **largest empty
   region**, hierarchy, scale/rotation diversity, color balance, palette
   contrast — real relative-luminance range across the actual palette
   colors, not a placeholder — overlap quality, **hero separation**, edge
   density, adjacency repetition, seamless integrity, SVG technical
-  health), each 0-100 and derived purely from `extractInstances`/
-  `tileData.colors`/the serialized SVG string. `findNearest` computes the
-  nearest-neighbor distance/instance for every motif *once* per
-  `computeMetrics` call and is shared by spacing, overlap quality,
-  adjacency repetition and hero separation (previously each of those ran
-  its own duplicate O(n^2) pass).
+  health, **flow coherence**, **rhythm regularity**, **motif shape
+  diversity**, **corner continuity**), each 0-100 and derived purely from
+  `extractInstances`/`tileData.colors`/the serialized SVG string.
+  `findNearest` computes the nearest-neighbor distance/instance for every
+  motif *once* per `computeMetrics` call and is shared by spacing, overlap
+  quality, adjacency repetition and hero separation (previously each of
+  those ran its own duplicate O(n^2) pass).
+  - **SVG Intelligence Engine Phase 3** (real, non-proxy geometry — the
+    previous versions of these four were documented averages of
+    *unrelated* metrics, not actual measurements): `flowCoherence` walks a
+    greedy nearest-neighbor chain through every motif instance and
+    averages the cosine similarity of consecutive direction vectors — a
+    pattern whose motifs read as flowing in a consistent direction scores
+    high, a scattered cloud scores low. `rhythmRegularity` bins the
+    nearest-neighbor spacing distances into a histogram and scores by
+    Shannon-entropy peakiness — evenly-spaced motifs produce a tight
+    histogram (high score), chaotic spacing spreads flat (low score).
+    `motifShapeDiversity` builds a rotation/scale/position/color-invariant
+    "shape signature" per motif (its path command-letter sequence, or a
+    recursive signature for `<g>` groups) and scores the Shannon entropy
+    of the signature distribution — this is the first metric that can
+    tell "the same shape spun around" from "a genuinely different shape",
+    which `scaleDiversity`/`rotationDiversity` alone cannot. `cornerContinuity`
+    compares motif density in the four tile-corner regions (where the
+    seamless wrap-clone creates a compositional seam) against the tile's
+    overall average density. All four are wired into
+    `QUALITY_PRESET_WEIGHTS` for every preset and into two new
+    `SOFT_PENALTY_RULES` (`cornerDeadZone`, `repetitiveMotifShapes`).
   - `largestEmptyRegion` — a periodic (tile-wrap-aware) flood fill over the
     coarse occupancy grid finds the single largest contiguous empty
     region; only penalizes once it gets large relative to the tile (some
@@ -710,6 +741,90 @@ Weight Solver, Flow/Rhythm Engines, real Cluster objects, Asset DNA, Shape
 Grammar, Motif Family Generator, Pattern Evolution, Auto Improve, SVG
 Beautifier, Designer Assistant, category-specific scoring — see
 `docs/USER_GUIDE.md`'s v1.28 changelog for the full list).
+
+## SVG Optimizer (`engine/svgOptimizer.ts`)
+
+SVG Intelligence Engine Phase 3. Runs automatically on every real download —
+`export/svgExporter.ts`'s `buildSingleTileSvg` and `buildTiledSvg` both call
+`optimizeSvgTree` before serializing (once per tile, before the 3×3 cloning
+loop, not 9 times redundantly). It performs two lossless structural
+cleanups, nothing else:
+
+- **Collapses redundant `<g>` wrappers**: a `<g>` whose *only* attribute is
+  `transform`, wrapping exactly one `<g>` child, is collapsed into that
+  child — but only when the outer `<g>` has no `id`/`data-role`/`clip-path`
+  of its own, so `motif-N` and `layer-*` identity (what Affinity Designer's
+  layers panel and this app's own geometry parsing rely on) is never
+  touched. Transforms are combined by **string concatenation**
+  (`"translate(1 0) rotate(5)"`), not matrix reconstruction — SVG 1.1 §7.6
+  defines a `transform` attribute's function list as exactly equivalent to
+  nesting two elements with one function each, so concatenation is lossless
+  by spec, and it also means the optimizer's output stays parseable by
+  `svgGeometry.ts`'s own regex-based transform extraction (a matrix-
+  reconstructed `matrix(...)` string would not have been).
+- **Strips identity transforms**: any `transform` attribute that resolves
+  to the identity matrix (e.g. a leftover `translate(0 0)`) is removed.
+
+Both passes only touch `<g>`/attribute structure — path `d` geometry,
+colors, and node ordering are never modified, and precision was already
+rounded once at generation time (`svgAst.ts`'s `round()`), so there is no
+re-rounding to do. Measured on real generated tiles across the app's
+categories, the optimizer's node-count reduction ranges roughly 2-17%
+depending on how deeply layouts nest their placement groups, averaging
+around 5-6%. `optimizeSvgTree(root)` returns both the optimized tree and an
+`OptimizationReport` (`nodesBefore`/`nodesAfter`/`nodesRemoved`/
+`reductionPercent`/`groupsCollapsed`/`transformsStripped`) for callers that
+want the numbers, not just the smaller tree.
+
+**Not wired in yet**: the core `buildTile()` pipeline itself (left
+untouched — dozens of existing tests assert its exact output structure,
+and preview must stay pixel-identical to what a subsequent optimized export
+produces) and Collection Studio's asset SVGs (`collection/
+collectionGenerator.ts` serializes its own asset SVGs on a separate path
+that doesn't currently route through the exporter — a Phase 4 item, not a
+regression, since Collection assets didn't go through any optimizer before
+this phase either).
+
+## Cluster Composition Engine — Project Phoenix V2 (`engine/clusterEngine.ts`, `engine/heroComplexity.ts`, extends `layouts/scatter.ts` + `layouts/toss.ts` + `layouts/bouquet.ts` + `engine/scoring.ts`)
+
+Replaces "scatter individual motifs independently" — literally true of
+`scatter.ts`'s pre-Phoenix implementation, and a gap `engine/styleDna.ts`'s
+own module comment already named ("the roadmap's Cluster Engine... [does]
+not exist yet") — with a real Cluster Composition Engine. Full
+architecture, all 8 named archetypes, the Hero Motif Complexity detail
+overlay, and the 12-penalty Quality Inspector are documented in
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md);
+summary:
+
+- **`engine/clusterEngine.ts`** — `generateCluster` builds one hero +
+  an archetype-shaped ring of secondary/filler/accent members (Bouquet,
+  Radial, Cascade, Editorial, Organic Scatter, S-Curve, Diagonal,
+  Asymmetric), with ~30% of members deliberately pulled into a real
+  overlap band and both angle and radius jittered so spacing is never
+  equal. `evaluateCluster` scores real cohesion (isolation + mechanical-
+  uniformity penalties); `buildClusterPlacements` retries a cluster up to
+  3 times against that score before accepting the best attempt. `scatter.ts`
+  and `toss.ts` now route through it (same `PatternLayout` id/label/
+  interface — no UI change); `bouquet.ts` was unified onto the same shared
+  engine instead of keeping its own bespoke duplicate.
+- **`engine/heroComplexity.ts`** — a generator-agnostic detail overlay
+  (inner ring, texture lines, nested contour) applied universally from one
+  integration point in `tile.ts`, scaled by hierarchy role (hero 100%,
+  secondary 55%, filler/accent 0%) — real, measurable extra node geometry
+  on hero motifs, tuned to stay within the Candidate Engine's node budget
+  even for the heaviest layout/category combinations.
+- **Bug fix**: `heroFlow`/`heroScatter`/`densePremium`/`bouquet` build
+  their own hero/secondary/filler tiers internally but never wrote
+  `Placement.role` onto the result — every hero those layouts produced was
+  silently untagged in the exported SVG. Fixed for all four.
+- **`engine/scoring.ts`** gained 5 new real metrics (`heroDetailRatio`,
+  `isolationScore`, `clusterCohesion`, `gridAppearanceScore`,
+  `spacingUniformity`) and the brief's 12 named `SOFT_PENALTY_RULES` at
+  their exact point values (Zero Motif Overlap -20, Hero Insufficient
+  Detail -15, Equal Spacing Detected -15, Too Many Isolated Objects -10,
+  Weak Hierarchy -15, Low Cluster Cohesion -15, Repeated Motif Orientation
+  -10, Grid Appearance -20, Visual Dead Zones -10, Monotonous Scale -10,
+  Low Motif Diversity -10, Mechanical Composition -20).
 
 ## Trend Intelligence Engine (`engine/trendEngine.ts`, `engine/colorAnalysis.ts`)
 
@@ -1117,6 +1232,110 @@ second Collection is generated. `CollectionWorkspace.tsx` was deleted, not
 kept alongside it — see the Project Studio Engine section for the full
 Playwright verification.
 
+## Commercial Collection Engine — Phase 4 (`collection/colorStory.ts`, `collection/productTargets.ts`, `collection/motifReuse.ts`, `palettes/colorTransform.ts`, `trend/collectionPlan.ts`, extends `collection/collectionGenerator.ts` + `collection/collectionScore.ts`)
+
+Extends the Collection Studio Engine above (unmodified generation
+algorithms — this phase adds coordination and planning around it, it does
+not rebuild it) with a real Color Story Engine, real Product Targets, two
+new coordinated asset types, guaranteed per-asset layout diversity, and a
+Design-Spec-driven Collection Planner. Full architecture, algorithms, JSON
+schemas, and test coverage in
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md); summary:
+
+- **Color Story Engine** (`palettes/colorTransform.ts` + `collection/colorStory.ts`)
+  — `buildColorStory(colors)` derives all 10 named variants (Original/
+  Light/Dark/Spring/Summer/Autumn/Winter/Monochrome/Muted/Bold) from one
+  base color set via real HSL math (hue rotation + saturation/lightness
+  adjustment per variant, standard "4-season color analysis" convention),
+  never a re-roll — every variant keeps the same color count and
+  background/accent ordering as the input.
+- **Product Targets** (`collection/productTargets.ts`) — `evaluateProductTargets`
+  scores all 10 named product uses (Wallpaper/Fabric/Wrapping Paper/Gift
+  Wrap/Packaging/Notebook Covers/Stationery/Home Decor/Textile/Digital
+  Paper) against real signals (keyword-intent matches, well-suited
+  categories, tile-size/density fit), each score traceable to the rules
+  that actually fired — no invented "AI confidence".
+- **Two new coordinated assets** (`collection/collectionGenerator.ts`,
+  `COLLECTION_SCHEMA_VERSION` 2 → 3, additive) — **Background Texture**
+  (a subtle, low-contrast wash using the Color Story Engine's own "Light"
+  variant of the collection's real resolved colors) and **Individual
+  Motifs** (6 of the collection's own hero motifs, each exported
+  standalone, reusing — not regenerating — the existing Spot Motif set).
+- **Layout Variation** — every pattern-type asset (Hero/Secondary/Blender/
+  Mini/Stripe/Background Texture) is now guaranteed a genuinely distinct
+  layout (`allocateLayout`); Mini Pattern no longer silently inherits
+  whichever layout Hero Pattern picked.
+- **Motif Consistency** — `verifyConsistency` now optionally checks that
+  every factory-generated motif (border/corner/spot/decorative) shares one
+  motif family, not just the 5 core pattern assets.
+- **Collection Score** (`collection/collectionScore.ts`) gained two real
+  dimensions — **Layout Diversity** (distinct-layout fraction across
+  `patternTiles`) and **Motif Shape Diversity** (Shannon-entropy diversity
+  of shape-topology signatures pooled across the whole collection, reusing
+  `engine/svgGeometry.ts`'s `extractMotifShapeSignatures` from the SVG
+  Intelligence Engine) — `overall` is now a 7-dimension average, and
+  `REQUIRED_ASSET_TYPES` grew to the 12 core creative asset types.
+- **Collection Planner** (`trend/collectionPlan.ts`) — `buildCollectionPlan`
+  assembles Section 1's Collection Plan (name/theme/category/marketplace/
+  Style DNA/Color Story/recommended product uses/size/version) straight
+  from a Design Specification, no generated collection required.
+  `buildCollectionSpecification` assembles the full Section 7 Collection
+  Specification JSON (metadata/assets/colorVariants/layoutVariants/
+  motifRelationships/marketplaceTargets/commercialNotes) from a spec +
+  its generated collection. `buildCollectionPreviewMetadata` (Section 8)
+  and `prepareCollectionExport` (Section 10 — structured data only, no zip/
+  download logic added) round out the module.
+- **Backward compatibility**: `GeneratedCollection.patternTiles` (the new
+  field these scores/plans read) is additive; `patternParams`'s fixed
+  5-element hero/secondary/blender/mini/stripe order
+  `components/ProjectPanel.tsx` indexes into is untouched.
+  `project/projectManager.ts`'s `normalizeProject` was extended to
+  backfill `patternTiles` (via a real `buildTile` reconstruction from the
+  always-present `patternParams`) for collections persisted before this
+  phase, the same "fill in fields added after the record could already be
+  on disk" convention `designSpecs` already established.
+- **Deliberately not built this phase** (per the brief's own
+  constraints): no new UI (`components/CollectionWorkspace.tsx`-equivalent
+  for the planner does not exist; every addition is DOM-free
+  engine/orchestration code, consistent with the SVG Intelligence Engine
+  Phase 3 precedent of staying engine-only when a brief doesn't explicitly
+  ask for UI), no actual export/zip wiring for Section 10 (structured data
+  only, as instructed), no SEO, no Prompt Factory, no SVG generation
+  algorithm changes.
+
+**Phase 4b** (a follow-up, more detailed brief for the same milestone,
+`COLLECTION_SCHEMA_VERSION` 3 → 4, additive) closed the remaining gaps:
+
+- **Color Story Engine** grew from 10 to 13 variants — added **Earth
+  Tone**, **Luxury**, **Pastel**.
+- **Two more coordinated assets** — **Dense Pattern** and **Airy Pattern**,
+  built from the already-registered `densePremium`/`airy` layouts (Project
+  PHOENIX's Cluster Composition Engine), rounding Section 2's asset list
+  out to all 12 named kinds. `REQUIRED_ASSET_TYPES` grew to 14.
+- **Motif Reuse Engine** (`collection/motifReuse.ts`, new) — Border,
+  Corner, and part of the Decorative Elements Sheet now draw from one real
+  shared `fillerMotifPool` instead of 3 independently-generated sets, and
+  `engine/borderCornerAssets.ts`'s builders now report the real rotation/
+  scale variant each placement got. `GeneratedCollection.motifReuse` and
+  `CollectionSpecification.motifVariants` surface the report (shared hero
+  motifs / shared leaves / shared fillers / shared decorative elements,
+  reuse ratio).
+- **Collection Plan gained a plural `marketplaceTargets` field** (Section
+  1's own field, previously only computed on the Specification/Export-prep
+  level), and **Collection Preview Metadata gained Section 10's remaining
+  fields** — `coverAssetId`, `assetOrder`, `paletteStory`, `layoutStory`,
+  `motifFamily` description — all real, fact-derived data.
+- **Collection size actually scales generation now** (Section 12) — the
+  Design Spec's own `collection.size` is wired into `generateCollection`,
+  which pads Individual Motif count reuse-first (already-generated,
+  unused-so-far motif pools before any new geometry) up to a 100-asset
+  cap, without ever shrinking the required structural asset types.
+- **Deliberately not built in 4b either**: no new `LayoutId`s for Section
+  5's Editorial/Organic Scatter/Diagonal strategies (already real, one
+  layer down, as Cluster Composition Engine archetypes — adding new
+  standalone layout ids would duplicate engine work outside this
+  milestone's remit), no UI, no export wiring beyond what already existed.
+
 ## Stock Submission Center (`metadata/contributorLinks.ts`, `metadata/submissionCenter.ts`, `components/StockSubmissionCenter.tsx`)
 
 Turns the SEO page into a full pre-flight checklist for actually submitting
@@ -1472,9 +1691,368 @@ project mutation already uses).
   pulls the real generated title and Clear correctly reverts to it, zero
   console errors throughout.
 
+## Marketplace Intelligence Engine — Phase 5 (`metadata/readinessScore.ts`, `trend/seoHintEngine.ts`, extends `metadata/marketplaceProfiles.ts` + `metadata/contributorLinks.ts` + `metadata/marketplaceValidation.ts` + `metadata/exportPackage.ts` + `trend/collectionPlan.ts`)
+
+Closes the remaining gaps in the Marketplace Profile System above against
+a more detailed brief for the same territory. Full architecture,
+algorithms, JSON schemas, and test coverage in
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md); summary:
+
+- **Profiles are now real, editable JSON — no hardcoded marketplace logic**
+  (`src/marketplaces/*.json`) — `metadata/marketplaceProfiles.ts` now
+  *builds* `MARKETPLACE_PROFILES` from that JSON instead of a hardcoded TS
+  object literal, closing a gap Design Intelligence Core Phase 1's own
+  report had flagged as a "Phase 2 recommendation." Every existing
+  consumer (SEO generation, validation, filenames, export packages, UI)
+  keeps working unchanged — only the data source moved.
+- **Profile Content grows to all 17 named fields** — added Help/
+  Guidelines/Submission/Analytics/Support URLs (previously only
+  Contributor Portal existed), Collection Naming Rules, Supported File
+  Types, Preview Requirements, and a real Category Mapping (Shutterstock
+  only, ported from its own pre-existing table; every other marketplace
+  honestly falls back to `defaultCategory` rather than a fabricated
+  mapping).
+- **Validation grows from 4 to all 9 named fields** — Collection Name,
+  Asset Name, Preview, Export Package, and Display validation added
+  (`metadata/marketplaceValidation.ts`), plus a third `'suggestion'`
+  severity tier alongside error/warning.
+- **SEO Hint Engine** (`trend/seoHintEngine.ts`, new) — deliberately
+  distinct from the final SEO generators above: runs from a Design
+  Specification alone, before any pattern is generated, and returns
+  candidate keyword pools/target ranges/advisory notes, never one
+  committed answer ("do not generate final SEO yet" from the brief,
+  taken literally).
+- **Contributor Center grows from 1 to all 6 named link types** (Portal/
+  Submission/Analytics/Help/Guidelines/Support) — `metadata/
+  contributorLinks.ts`'s new `MARKETPLACE_LINK_SETS`, rendered in the
+  existing Stock Readiness cards with the same honest unverified-URL
+  marker the original Contributor Portal link already used.
+- **Marketplace Package Profile** (`buildMarketplacePackageProfile` in
+  `metadata/exportPackage.ts`) — structured required-files/supported-
+  formats/preview-requirements metadata for a future export engine, no
+  export/zip logic added.
+- **Readiness Score** (`metadata/readinessScore.ts`, new) — one real,
+  per-marketplace score across all 5 named dimensions (SEO/filename/
+  metadata/marketplace-compatibility/commercial readiness), assembled
+  from data the existing SEO/validation/hard-reject modules already
+  compute.
+- **Collection-aware filenames** (`buildCollectionMarketplaceFilenames`
+  in `trend/collectionPlan.ts`) — a marketplace-optimized, deduped
+  filename for every pattern-type asset in an already-generated
+  Collection, consuming the Collection Specification per the brief's
+  explicit instruction.
+- **Deliberately not built this phase**: no upload automation anywhere
+  (every new link just opens in a new tab, same as the pre-existing
+  Contributor Portal link), no SVG Engine changes, no new marketplaces
+  beyond the existing 6.
+
+## Design Workbench — Phase 6 (dockable multi-panel workspace, `components/workbench/*`, `workbench/workspaceSettings.ts`, `workbench/globalSearch.ts`)
+
+Restructures the Phase 3 Design Workbench shell into a dockable
+multi-panel workspace and integrates every engine built in the
+intervening phases (Trend Library, Marketplace Intelligence, Collection
+Engine, Prompt Factory, Cluster Composition/Overlap Engine) into one
+place. Full architecture and scope decisions in
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md)'s Phase 6 addendum;
+summary:
+
+- **Resizable, hideable panels** — real pointer-drag sidebar resize
+  (`ResizeHandle.tsx`) and per-panel hide/restore
+  (`PanelVisibilityBar.tsx`) across 11 dockable panels, backed by one
+  serializable `WorkspaceSettings` object, persisted and
+  exportable/importable as JSON.
+- **Project Explorer** (`ProjectExplorer.tsx`, new) — browses Projects →
+  Collections/Assets, Trend Packs, and Marketplace Profiles in one tree,
+  with real HTML5 drag-and-drop to apply a Trend Pack to the current
+  spec.
+- **Marketplace Panel** (`MarketplacePanel.tsx`, new) — the first UI
+  consumer of Phase 5's Readiness Score and SEO Hint engines, both
+  previously unused by any component: Readiness Score, Validation, SEO
+  Hints, Filename Hints, Submission Checklist, Contributor Links.
+- **Quality Panel** (`QualityPanel.tsx`, new) — all 6 named quality
+  dimensions including a new `overlap` field (a real 1:1 read of the
+  Overlap Engine's `overlapQuality`) plus a new rule-based
+  `buildQualityRecommendations` engine turning weak dimensions into
+  actionable advice.
+- **Prompt Panel** (`PromptPanel.tsx`, new) — the existing Prompt Factory
+  promoted out of Live Preview into its own dockable panel; no new prompt
+  logic.
+- **Design Inspector** gains Hierarchy/Flow/Rhythm controls and a
+  read-only Cluster Archetype info line (no fabricated editable control
+  for data the engine doesn't expose as a spec field).
+- **Live Preview** gains a Pattern Repeat tab (real 3×3 tiled SVG
+  seamlessness check).
+- **Global Search** (`globalSearch.ts` + `GlobalSearchBar.tsx`, new) —
+  searches Projects, Collections, Motifs, Trend Packs, and Marketplace
+  Profiles from their existing registries/state.
+- **Import/Export** gains Workspace Settings export/import, Collection
+  Specification export, and Marketplace Profile export/validate-import.
+- **Performance**: the four Phase-6-only panels are `React.lazy`-loaded;
+  Project Explorer paginates its Projects/Trend Packs lists.
+- **Deliberately not built this phase**: no floating/rearrangeable
+  docking system (scoped to resizable + hide/restore instead), no
+  editable Cluster Settings control, no live registration of an imported
+  Marketplace Profile (validate-and-inspect only — the profile registry
+  is a static build-time array).
+
+## Design Knowledge Engine — Phase 6.5 (`src/knowledge/*`)
+
+Centralizes structured design knowledge under `src/knowledge/` so every
+engine can consume one consistent API instead of importing 7+ different
+`services/*`/data-library paths directly. Full architecture, schema, and
+scope decisions in
+[`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md); summary:
+
+- **10 knowledge domains, all thin facades over already-real engines** —
+  `style/`, `motif/`, `palette/`, `composition/`, `pattern/`,
+  `collection/`, `marketplace/` wrap Style DNA, Motif/Pattern Grammar,
+  Color Roles/Color Story, Flow/Rhythm/Cluster Engine/Layouts, Collection
+  Plan/Product Targets, and Marketplace Profiles respectively — no
+  business logic moved, no rules duplicated. `composition/` is now also
+  the single source of truth for `LAYOUT_CLUSTER_ARCHETYPES`, removing a
+  hand-copied duplicate that used to live inside `PropertyInspector.tsx`.
+- **Design Rules** (`rules/rejectRules.json`, new) — the Candidate
+  Engine's hard-reject node-count threshold, externalized from a bare
+  TypeScript literal into editable JSON; `engine/candidateEngine.ts` now
+  reads `HARD_NODE_BUDGET` from `knowledge/rules` instead of hardcoding it.
+- **Recommendation Engine** (`recommendation/`, new) — a real aggregator
+  over 4 previously-independent recommenders (Style DNA export
+  recommendation, Product Targets, Trend Pack Auto-match, Quality Loop
+  recommendations), with optional Learning-History-based personalization.
+  Never hardcodes a recommendation.
+- **Learning History** (`history/`, new) — usage-frequency tracking for
+  Style DNA/Palette/Motif categories, recent collections, disable/clear/
+  export/import — distinct from `workbench/workbenchFavorites.ts`'s
+  explicit starring. `DesignWorkbench.tsx` records usage on every spec
+  change and on "Generate Collection".
+- **Validation** (`validation.ts`, new) — `validateAllKnowledge()` runs
+  every real knowledge file through its existing JSON Schema validator in
+  one call; `validateKnowledgeRelationships()` is a genuinely new check
+  that every cross-domain id reference (Style DNA → Palette/Motif/Layout/
+  Hierarchy, Motif Grammar → Pattern Grammar, etc.) actually resolves.
+- **Two new JSON Schemas** (`rejectRules.schema.json`,
+  `learningHistory.schema.json`) registered in the same
+  `validators/index.ts` `SCHEMA_REGISTRY` every other domain already uses
+  — no second validation engine.
+- **Deliberately not built this phase**: no UI panel (the brief explicitly
+  asks not to move business logic into the UI — this is a backend/
+  architecture milestone), no live registration path for an imported
+  Marketplace Profile (unchanged from Phase 6 — still validate-only).
+
+## Design Critic & Art Direction Engine — Phase 7 (`src/critic/*`)
+
+Reviews an already-generated tile like an experienced surface pattern
+designer and turns that review into scores, named problems, and
+recommendations. Full architecture and scope decisions in
+[`DESIGN_CRITIC.md`](./DESIGN_CRITIC.md); summary:
+
+- **Design Critique** (`designCritique.ts`) — 11 named dimensions
+  (Composition/Hierarchy/Balance/Rhythm/Flow/Cluster Quality/Negative
+  Space/Overlap/Repeat Quality/Motif Diversity/Commercial Readiness) +
+  overall, reshaped from the existing `DesignSpecQualityReport` +
+  `CompositionMetrics` — no new scoring math.
+- **Visual Analysis** (`visualAnalysis.ts`) — 10 detectors (Weak Hero,
+  Crowded Areas, Dead Space, Mechanical Spacing, Grid Appearance, Weak
+  Clusters, Low Detail, Repeated Rotation, Repeated Scale, Weak Flow); 7
+  reuse existing `CompositionMetrics` thresholds, 3 are new detectors
+  built directly on real per-instance geometry.
+- **Penalty System** (`problems.ts`) — severity-banded (high/medium/low)
+  filter over the existing `SOFT_PENALTY_RULES` (19 named, exact-point
+  rules) — no duplicate penalty logic.
+- **Art Direction Engine** (`artDirection.ts`) — one recommendation rule
+  per visual issue; only proposes a `DesignSpecification` patch when a
+  real field lever exists (e.g. Increase Hero Detail, Reduce Density,
+  Rotate Leaves, Improve Rhythm), otherwise advisory-only.
+- **Style Coach** (`styleCoach.ts`) — 7 categories (Luxury/Minimal/
+  Botanical/Kids/Scandinavian/Retro/Editorial), grounded in real
+  `knowledge/style` records, not hand-written copy.
+- **Collection Critic** (`collectionCritic.ts`) — thin wrap of
+  `collection/collectionScore.ts`; Thai issue strings preserved verbatim.
+- **Design Report** (`designReport.ts`) — aggregates the above into
+  Problems/Recommendations/Expected Improvements/Priority order.
+- **Improvement Loop** (`improvementLoop.ts`) — the only module that
+  mutates a spec: Evaluate -> Recommend -> Patch -> Re-generate ->
+  Evaluate Again, up to 3 rounds, with guards against a grid-layout
+  rhythm-patch dead end and against ever returning a round whose winning
+  candidate got hard-rejected by the patch it just applied.
+- **Quality Gate** (`qualityGate.ts`) — fails on an unmet commercial bar,
+  any high-severity problem, or overall score below 50; wired into
+  `LivePreviewPanel.tsx`'s "Download Marketplace Package" and "Generate
+  Collection" actions via a `window.confirm` the designer can override.
+- **New UI**: `components/workbench/DesignCriticPanel.tsx` — a dockable
+  Critic tab reusing the same `qualityResult` the Quality Panel computes.
+
+## Design Evolution Engine — Phase 8 (`src/evolution/*`)
+
+A genetic-algorithm-style layer that generates a population of Design
+Specification variants from one starting spec, scores them with the real
+Design Critic, and evolves that population across generations toward
+higher measurable quality. Full architecture, algorithms, and empirical
+verification in [`DESIGN_EVOLUTION_ENGINE.md`](./DESIGN_EVOLUTION_ENGINE.md);
+summary:
+
+- **Candidate Generator** (`candidateGenerator.ts`) — configurable
+  population size; candidate 0 is always the untouched seed spec
+  (elitism baseline), every other candidate carries 1+ real mutations.
+- **Mutation Engine** (`mutationEngine.ts`) — 6 named operators
+  (cluster density, motif scale, overlap, hierarchy, palette weighting,
+  negative space), each patching one real spec field, bounded to real
+  reference data (`HIERARCHY_PRESETS`) where one exists. `styleDnaId` is
+  never touched by any operator.
+- **Crossover Engine** (`crossoverEngine.ts`) — 4 trait groups
+  (composition, palette, cluster, motif), each taken wholly from one
+  parent, never blended field-by-field within a group.
+- **Fitness Evaluation** (`fitnessEvaluation.ts`) — scores every
+  candidate via the real Design Critic (Phase 7), never a second scoring
+  implementation; transparent 11-dimension critique travels with every
+  score, and a real hard-reject sentinel (`fitness.rejected`) is surfaced
+  explicitly rather than hidden behind a suspicious `-1`.
+- **Selection Strategy** (`selectionStrategy.ts`) — elitist, tournament,
+  and roulette-wheel algorithms, all configurable.
+- **Diversity Control** (`diversityControl.ts`) — candidate similarity
+  measured with the real `workbench/jsonDiff.ts` diff utility; near-
+  duplicates are pruned with a soft top-up so pruning can never stall
+  evolution below the target population size.
+- **Evolution Timeline** (`evolutionTimeline.ts`) — one record per
+  generation, with `compareGenerations` for a real field-level diff
+  between any two generations' best candidates.
+- **Design DNA** (`types.ts`) — every candidate's lineage (parent ids,
+  applied mutations, crossover record) travels with it.
+- **Stopping Conditions** (`stoppingConditions.ts`) — quality threshold,
+  max generations (always enforced), wall-clock budget, and evaluation
+  budget, each independently configurable.
+- **Empirically verified convergence**: elitism makes the timeline's
+  best score structurally non-decreasing (a provable guarantee, not a
+  hope); a real empirical run also found and now tests a genuine
+  recovery from a fully hard-rejected generation 0 to a real 46/100
+  candidate by generation 1.
+- **New UI**: `components/workbench/EvolutionPanel.tsx` — a dockable
+  Evolution tab with population/generation/selection controls, a
+  browsable timeline, and an "Apply Winning Design" action.
+
+## Asset Ecosystem Engine — Phase 9 (`src/assets/*`)
+
+Turns already-generated Collection geometry into reusable, first-class
+Asset records — searchable, scoreable, relatable, and remixable
+independently of the Collection they came from. Full architecture,
+schema, and empirical findings in
+[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md); summary:
+
+- **Asset Extraction** (`extraction.ts`) — 9 kinds (Hero Motif, Leaf,
+  Flower, Branch, Texture, Border, Frame, Icon, Decorative Shape) from a
+  real `GeneratedCollection`; Border/Frame assets are reconstructed
+  byte-identically from the Collection's own real seed derivation and
+  `buildBorderStrip`/`buildCornerUnit` calls — no duplicate SVG
+  generation logic.
+- **Asset Metadata** (`types.ts`) — id/name/family/Style DNA/complexity/
+  pattern types/compatibility/editable/version, all sourced from real
+  `FactoryMotif`/`knowledge/*` data, never fabricated.
+- **Asset Relationships** (`relationships.ts`) — 5 types
+  (flowerToLeaf, leafToBranch, borderToCorner, collectionToAsset,
+  sameFamily), all derived from real fields; flowerToLeaf/leafToBranch
+  are pool-wide (cross-collection) since a single generator category
+  can never span two families.
+- **Asset Variants** (`variants.ts`) — 7 reusable variants (Outline,
+  Filled, Minimal, Detailed, Bold, Monoline, Vintage); `detailed` reuses
+  the real Hero Motif Complexity engine, `vintage` reuses the real color
+  transform utilities.
+- **Smart Search** (`search.ts`) — by keyword, family, kind, Style DNA,
+  marketplace, color, pattern type, and complexity range.
+- **Smart Recommendation** (`recommendation.ts`) — reuses the Design
+  Knowledge Engine's real family-combination compatibility data, never a
+  second compatibility scheme.
+- **Asset Collections** (`library.ts` + `storage/assetStore.ts`) —
+  Favorites and Packs (Collections/Templates) in `localStorage`, plus a
+  full IndexedDB-backed Asset Library (`storage/db.ts` bumped to
+  `DB_VERSION: 3`) that persists extracted assets across sessions and
+  future Collections.
+- **SVG Decomposition** (`decomposition.ts`) — splits a rendered tile
+  into per-instance editable assets, maintaining full SVG editability.
+- **Quality Score** (`qualityScore.ts`) — Reusability, Complexity (reused
+  verbatim), Commercial Usefulness, Compatibility, and Overall, all
+  0-100 and scaled against real Design Knowledge Engine denominators.
+- **New JSON Schema** (`asset.schema.json`) registered in the same
+  `validators/index.ts` `SCHEMA_REGISTRY` every other domain uses, plus
+  `assets/validation.ts` for schema + cross-domain relationship
+  integrity checks.
+- **New UI**: `components/workbench/AssetLibraryPanel.tsx` — a dockable
+  "🗃 Assets" tab to extract, browse, search, favorite, and vary assets,
+  with real Quality Score, Relationships, and Recommendation panels for
+  the selected asset.
+
+## Composition Intelligence Foundation V2 — Build 001 (`src/engine/*`, `src/critic/*`)
+
+A focused visual-quality upgrade to the placement/composition pipeline —
+no new features, panels, or generators. Full architecture, empirical
+before/after comparison, and design decisions in
+[`COMPOSITION_ENGINE_V2.md`](./COMPOSITION_ENGINE_V2.md) and
+[`../docs/BUILD_REPORT.md`](../docs/BUILD_REPORT.md); summary:
+
+- **Pattern Physics** (`engine/patternPhysics.ts`, new) — every placement
+  attracts toward its nearest strictly-more-important hierarchy role
+  (hero > secondary > filler > accent), bounded to a real local radius
+  derived from the pattern's own median spacing.
+- **Flow Engine, made real** (`compositionIntelligence.ts`'s
+  `applyFlowBias`) — `flowProfile` (calm/directional/dynamic) now
+  genuinely biases placement position, not only rotation jitter as
+  before.
+- **Negative Space, finer-grained** (`applyNegativeSpaceCorrection`) — the
+  same weighted-redistribution mechanism the existing balance correction
+  used, reused at a finer 4x4 grid resolution to catch localized holes a
+  coarse 2x2 split missed.
+- **Layer Priority** (`hierarchy.ts`'s `sortByLayerPriority`) — a real bug
+  fix: hero motifs are now guaranteed to paint last (on top), never buried
+  under a later-drawn secondary/filler motif at an overlap point.
+- **Silhouette Check** (`critic/visualAnalysis.ts`'s
+  `detectFragmentedSilhouette`) — the Design Critic's 11th visual-analysis
+  detector: does the pattern read as one cohesive shape from a distance,
+  or as fragmented confetti, via a motif-size-scaled occupancy grid.
+- **`REGULAR_LATTICE_LAYOUTS`** (`grid`/`gridMinimal`/`halfDrop`/`brick`/
+  `stripe`) opt out of the new passes entirely — an empirical before/after
+  comparison found these deliberately regular layouts' near-ceiling flow
+  scores measurably hurt (not helped) by flow-bias/negative-space/
+  attraction, so only the original balance/rhythm passes apply to them.
+- **Style DNA wiring**: `clusterStyle`/`clusterDensity`/`flowProfile` now
+  drive real `attractionStrength`/`flowBiasStrength` values instead of an
+  indirect balance-correction proxy; a stale comment describing the
+  Cluster Engine as not yet existing was corrected.
+- **Empirically measured, not assumed**: a real before/after comparison
+  across 30 generated scenarios found `spacingUniformity` +6.9,
+  `gridAppearanceScore` +3.6, and fragmented-silhouette incidence 8/30 ->
+  6/30 — alongside a small, honestly-reported tradeoff (`largestEmptyRegion`
+  -3.5) documented in [`../docs/KNOWN_ISSUES.md`](../docs/KNOWN_ISSUES.md)
+  rather than hidden.
+
 ## Testing
 
-`npm test` runs `vitest run` — 608 tests across 42 files:
+`npm test` runs `vitest run` — 1301 tests (jsdom environment, component
+tests use React Testing Library) across 107 files. The list below predates
+the Design Intelligence Core, Design Workbench (Phase 3 and Phase 6), SVG
+Intelligence Engine Phase 3, Commercial Collection Engine Phase 4 (+ 4b),
+Project Phoenix V2, Marketplace Intelligence Engine Phase 5, Design
+Knowledge Engine Phase 6.5, Design Critic Phase 7, Design Evolution
+Engine Phase 8, Asset Ecosystem Engine Phase 9, and Composition
+Intelligence Foundation V2 Build 001 milestones and
+covers the original engine/metadata/trend suites in detail; see
+[`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md),
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md),
+[`DESIGN_KNOWLEDGE_ENGINE.md`](./DESIGN_KNOWLEDGE_ENGINE.md),
+[`SVG_INTELLIGENCE_ENGINE.md`](./SVG_INTELLIGENCE_ENGINE.md),
+[`COLLECTION_ENGINE.md`](./COLLECTION_ENGINE.md),
+[`CLUSTER_COMPOSITION_ENGINE.md`](./CLUSTER_COMPOSITION_ENGINE.md),
+[`MARKETPLACE_INTELLIGENCE.md`](./MARKETPLACE_INTELLIGENCE.md),
+[`ASSET_ECOSYSTEM_ENGINE.md`](./ASSET_ECOSYSTEM_ENGINE.md), and
+[`COMPOSITION_ENGINE_V2.md`](./COMPOSITION_ENGINE_V2.md) for
+what their own test suites (`schemas/validators/services`, `workbench/` +
+`components/workbench/`, `engine/svgOptimizer.test.ts` +
+`engine/scoring.test.ts` + `engine/styleDna.test.ts`,
+`palettes/colorTransform.test.ts` + `collection/colorStory.test.ts` +
+`collection/productTargets.test.ts` + `collection/motifReuse.test.ts` +
+`trend/collectionPlan.test.ts`, `engine/clusterEngine.test.ts` +
+`engine/heroComplexity.test.ts`, and `metadata/marketplaceProfiles.test.ts` +
+`metadata/marketplaceValidation.test.ts` + `metadata/contributorLinks.test.ts` +
+`metadata/readinessScore.test.ts` + `trend/seoHintEngine.test.ts`
+respectively) cover:
 
 - `engine/rng.test.ts` — seeded reproducibility, range bounds.
 - `engine/hierarchy.test.ts` — role-distribution matches configured
@@ -2009,7 +2587,17 @@ the same graceful-degradation convention `filenameEngine.ts`'s
 `resolveFilenameTemplate` uses. `buildPrompt`/`buildAllPrompts` resolve
 one platform / every platform in one call.
 
-### UI — the Trend Intelligence Studio page (`components/TrendStudioPanel.tsx`)
+### UI — the original Trend Intelligence Studio page (superseded by the Design Workbench)
+
+> **Superseded**: this single-file panel (`components/TrendStudioPanel.tsx`)
+> was replaced by the modular Design Workbench
+> (`components/workbench/DesignWorkbench.tsx` + its subcomponents — see
+> [`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md)) and the file has been
+> deleted. Every generator this section describes (`buildDesignSpecification`,
+> `buildTileFromDesignSpec`, `buildDesignSpecSeo`, `buildPrompt`,
+> `buildDesignSpecPackageTextFiles`) is unchanged and still what the new UI
+> calls — this section is kept as a historical record of how the feature
+> originally shipped, not a description of the current UI.
 
 The first UI for this whole milestone, closing the loop Sections 1/6/13
 asked for: every generator above (`buildDesignSpecification`,
@@ -2201,9 +2789,13 @@ src/
     svgAst.ts       SvgNode builder + serializer + path-building helpers
     tile.ts         combines layout + generator + wrap/clip into one tile
     defaults.ts     default & randomized GenerateParams
+    svgOptimizer.ts SVG Intelligence Engine Phase 3: lossless node-count optimizer (runs at export)
+    clusterEngine.ts Project Phoenix V2: Cluster Composition Engine (8 archetypes, generate/evaluate/place/connect)
+    heroComplexity.ts Project Phoenix V2: generator-agnostic hero-motif detail overlay
   generators/       one file per pattern category
   layouts/          one file per placement strategy
   palettes/         flat-design color palettes
+    colorTransform.ts   Commercial Collection Engine Phase 4: hex<->HSL math (Color Story Engine's building block)
   export/
     svgExporter.ts    single-tile / pre-tiled SVG string builders + download
     previewMarkup.ts  <pattern>-based markup for on-screen preview/thumbnails
@@ -2214,7 +2806,10 @@ src/
     styleDnaStore.ts    localStorage-backed custom Style DNA + favorites
   collection/
     collectionGenerator.ts   Collection Studio Engine: builds a full Collection (assets + manifest)
-    collectionScore.ts       5-dimension Collection Score (consistency + commercial readiness)
+    collectionScore.ts       7-dimension Collection Score (consistency + diversity + commercial readiness)
+    colorStory.ts            Phase 4/4b: 13 named palette variants (Light/Dark/seasons/Monochrome/Muted/Bold/Earth Tone/Luxury/Pastel)
+    productTargets.ts        Phase 4: real rule-based scoring of the 10 named product uses
+    motifReuse.ts            Phase 4b: Motif Reuse Engine — shared-motif reporting across assets
   project/
     projectTypes.ts        Project/ProjectCollectionEntry/ProjectExportHistoryEntry types
     projectManager.ts      pure Project CRUD + legacy-data migration
@@ -2223,13 +2818,14 @@ src/
     projectJson.ts         Project JSON export/import
   metadata/
     shutterstock.ts         per-site SEO metadata (title/description/keywords)
-    contributorLinks.ts     Contributor Portal config: one entry per stock site
+    contributorLinks.ts     Contributor Center: all 6 link types (Portal/Submission/Analytics/Help/Guidelines/Support) per marketplace
     submissionCenter.ts     submission checklist + SEO analyzer + stock readiness
-    marketplaceProfiles.ts  Marketplace Profile System: per-marketplace rules config
+    marketplaceProfiles.ts  Marketplace Profile System: per-marketplace rules, loaded from ../marketplaces/*.json (Phase 5)
     filenameEngine.ts       marketplace-specific filename templates + dedupe
     marketplaceSeo.ts       generates one marketplace's Title/Description/Keywords/Filename
-    marketplaceValidation.ts validates generated SEO against a marketplace's own rules
-    exportPackage.ts        builds a marketplace's Export Package text/JSON files
+    marketplaceValidation.ts validates generated SEO against a marketplace's own rules (9 fields, Phase 5)
+    exportPackage.ts        builds a marketplace's Export Package text/JSON files + Package Profile (Phase 5)
+    readinessScore.ts       Phase 5: unified 5-dimension Readiness Score per marketplace
   trend/
     designSpecTypes.ts      Design Specification JSON schema + Keyword Bundle types
     keywordMap.ts            keyword -> engine signal config (palette/motif/Style DNA/mood hints)
@@ -2243,15 +2839,67 @@ src/
     promptTemplates.ts       Prompt Factory: AI prompt templates for 7 platforms
     designSpecQuality.ts     Design Quality auto-improve loop (reuses the Candidate Engine)
     designSpecCollection.ts  Collection Generator, driven directly by a Design Spec
+    collectionPlan.ts        Phase 4/4b/5 Collection Planner: Plan/Specification JSON/preview metadata/export prep/marketplace filenames
+    seoHintEngine.ts         Phase 5: SEO Hint Engine — non-final marketplace-specific suggestions from a Design Spec alone
   components/
     ControlPanel.tsx
     StyleDnaPanel.tsx
     StockSubmissionCenter.tsx
     MarketplaceProfileSelector.tsx
-    TrendStudioPanel.tsx
     ProjectBar.tsx
     ProjectDashboard.tsx
     ProjectPanel.tsx
     PreviewCanvas.tsx
     Gallery.tsx
+    workbench/             Design Workbench — see DESIGN_WORKBENCH.md
+      DesignWorkbench.tsx
+      TrendStudioForm.tsx
+      DesignSpecPanel.tsx
+      JsonTreeView.tsx
+      PropertyInspector.tsx
+      ValidationPanel.tsx
+      LivePreviewPanel.tsx
+      HistoryPanel.tsx
+      FavoritesPanel.tsx
+      ImportExportBar.tsx
+      ResizeHandle.tsx       Phase 6: real pointer-drag sidebar resize
+      PanelVisibilityBar.tsx Phase 6: panel hide/restore chips
+      GlobalSearchBar.tsx    Phase 6: Section 9 Global Search UI
+      ProjectExplorer.tsx    Phase 6: Section 2 Project Explorer panel
+      MarketplacePanel.tsx   Phase 6: Section 5 Marketplace Panel
+      PromptPanel.tsx        Phase 6: Section 6 Prompt Panel
+      QualityPanel.tsx       Phase 6: Section 7 Quality Panel
+      workbench.css
+```
+
+### Design Intelligence Core (data + validation layer, consumed by the Design Workbench)
+
+See [`DESIGN_INTELLIGENCE_CORE.md`](./DESIGN_INTELLIGENCE_CORE.md) for the
+full architecture/schema/developer-guide writeup and
+[`DESIGN_WORKBENCH.md`](./DESIGN_WORKBENCH.md) for how the Design
+Workbench UI consumes it (via `services/*` and `validators/*`). Folder
+summary:
+
+```
+src/
+  schemas/            10 JSON Schema (draft-07 subset) documents
+  trend-packs/         Trend Pack data (JSON) + index.ts loader
+  marketplaces/         Marketplace Profile data (JSON) + index.ts loader — Phase 5:
+                        the real, single source of truth metadata/marketplaceProfiles.ts
+                        now builds MARKETPLACE_PROFILES from (no longer a parallel mirror)
+  style-dna/            Style DNA data (JSON) + index.ts loader
+  pattern-grammar/      Pattern Grammar Library (JSON, new) + index.ts loader
+  motif-grammar/        Motif Grammar Library (JSON, new) + index.ts loader
+  color-roles/          Color Role System + palette mirror (JSON, new) + index.ts loader
+  validators/           JSON Schema validation engine + schema registry +
+                         relationship/marketplace-compatibility validator
+  services/              Query/lookup layer + Keyword Bundle Engine
+  workbench/              Design Workbench's pure logic layer — see
+                          DESIGN_WORKBENCH.md
+  knowledge/              Design Knowledge Engine — see
+                          DESIGN_KNOWLEDGE_ENGINE.md
+    style/ motif/ palette/ composition/ pattern/ collection/
+    marketplace/ rules/ recommendation/ history/  (10 domains)
+    index.ts               Top-level barrel
+    validation.ts          Cross-domain validation
 ```

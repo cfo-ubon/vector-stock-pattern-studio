@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "marketplaceProfile.schema.json",
+  "title": "MarketplaceProfile",
+  "description": "Per-marketplace Title/Description/Keyword/Filename/Category/Export-Package rules. Mirrors app/src/metadata/marketplaceProfiles.ts's MarketplaceProfile TypeScript type.",
+  "type": "object",
+  "required": [
+    "id", "label", "future", "contributorUrl", "contributorUrlVerified",
+    "titleRules", "descriptionRules", "keywordRules", "filenameRules",
+    "defaultCategory", "exportPackageFiles",
+    "links", "collectionNamingRules", "supportedFileTypes", "previewRequirements"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "enum": ["shutterstock", "adobestock", "freepik", "creativefabrica", "creativemarket", "etsy"] },
+    "label": { "type": "string", "minLength": 1 },
+    "future": { "type": "boolean" },
+    "contributorUrl": { "type": "string", "minLength": 1 },
+    "contributorUrlVerified": { "type": "boolean" },
+    "titleRules": {
+      "type": "object",
+      "required": ["minLength", "maxLength"],
+      "additionalProperties": false,
+      "properties": {
+        "minLength": { "type": "integer", "minimum": 0 },
+        "maxLength": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "descriptionRules": {
+      "type": "object",
+      "required": ["required", "minLength", "maxLength"],
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean" },
+        "minLength": { "type": "integer", "minimum": 0 },
+        "maxLength": { "type": "integer", "minimum": 0 },
+        "practicalCeiling": { "type": "boolean" }
+      }
+    },
+    "keywordRules": {
+      "type": "object",
+      "required": ["minCount", "maxCount", "termLabel"],
+      "additionalProperties": false,
+      "properties": {
+        "minCount": { "type": "integer", "minimum": 0 },
+        "maxCount": { "type": "integer", "minimum": 1 },
+        "maxKeywordLength": { "type": "integer", "minimum": 1 },
+        "termLabel": { "type": "string", "enum": ["keywords", "tags"] }
+      }
+    },
+    "filenameRules": {
+      "type": "object",
+      "required": ["template", "maxLength", "extension"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "type": "string", "minLength": 1 },
+        "maxLength": { "type": "integer", "minimum": 1 },
+        "extension": { "type": "string", "enum": ["svg", "eps"] }
+      }
+    },
+    "defaultCategory": { "type": "string", "minLength": 1 },
+    "exportPackageFiles": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "links": {
+      "type": "object",
+      "required": ["portal", "submission", "analytics", "help", "guidelines", "support"],
+      "additionalProperties": false,
+      "properties": {
+        "portal": { "$ref": "#/definitions/linkEntry" },
+        "submission": { "$ref": "#/definitions/linkEntry" },
+        "analytics": { "$ref": "#/definitions/linkEntry" },
+        "help": { "$ref": "#/definitions/linkEntry" },
+        "guidelines": { "$ref": "#/definitions/linkEntry" },
+        "support": { "$ref": "#/definitions/linkEntry" }
+      }
+    },
+    "collectionNamingRules": {
+      "type": "object",
+      "required": ["template", "maxLength"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "type": "string", "minLength": 1 },
+        "maxLength": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "supportedFileTypes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "previewRequirements": {
+      "type": "object",
+      "required": ["minWidth", "minHeight", "format", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "minWidth": { "type": "integer", "minimum": 1 },
+        "minHeight": { "type": "integer", "minimum": 1 },
+        "format": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "categoryMapping": {
+      "type": "object"
+    }
+  },
+  "definitions": {
+    "linkEntry": {
+      "type": "object",
+      "required": ["url", "verified"],
+      "additionalProperties": false,
+      "properties": {
+        "url": { "type": "string", "minLength": 1 },
+        "verified": { "type": "boolean" }
+      }
+    }
+  }
+}

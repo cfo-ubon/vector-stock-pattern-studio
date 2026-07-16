@@ -16,6 +16,14 @@ export interface MotifInstance {
    * shape/variant identity (generators don't expose which internal variant
    * they drew), just "the Nth placement", used for id-uniqueness checks. */
   index: number;
+  /** Node count of a single wrap-clone copy's own subtree (Project Phoenix
+   * V2, Section 8) — real, structural detail measurement used by
+   * `scoring.ts`'s `heroDetailRatio`. Deliberately counts *one* copy's
+   * children, not the whole `motif-N` group (which repeats the identical
+   * subtree up to 9 times for wrap-cloning) — counting the whole group
+   * would just measure "how many tile-edge copies this placement needed",
+   * not the motif's own complexity. */
+  nodeCount: number;
 }
 
 export function findPatternLayer(svg: SvgNode): SvgNode | undefined {
@@ -43,7 +51,9 @@ function extractPrimaryInstance(motifGroup: SvgNode, tileSize: number, index: nu
   const inRange = candidates.find((c) => c.x >= -0.01 && c.x <= tileSize + 0.01 && c.y >= -0.01 && c.y <= tileSize + 0.01);
   const chosen = inRange ?? candidates[0];
   const role = motifGroup.attrs?.['data-role'] as MotifInstance['role'] | undefined;
-  return { ...chosen, role, index };
+  const firstCopy = (motifGroup.children ?? [])[0];
+  const nodeCount = firstCopy ? countNodes(firstCopy) : 0;
+  return { ...chosen, role, index, nodeCount };
 }
 
 export function extractInstances(tileData: TileData): MotifInstance[] {
@@ -96,4 +106,64 @@ export function gridCoverage(instances: Array<{ x: number; y: number }>, tileSiz
 
 export function countNodes(node: SvgNode): number {
   return 1 + (node.children ?? []).reduce((sum, c) => sum + countNodes(c), 0);
+}
+
+/** Same wrap-aware "shortest path between a and b" `periodicDist` computes,
+ * but returning the offset vector itself (not just its length) — needed
+ * anywhere the *direction* between two periodically-wrapped points matters
+ * (e.g. Flow Score's direction-coherence walk), not just the distance. */
+export function periodicOffset(a: { x: number; y: number }, b: { x: number; y: number }, tileSize: number): { dx: number; dy: number } {
+  let bestDx = 0;
+  let bestDy = 0;
+  let best = Infinity;
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      const ddx = b.x + dx * tileSize - a.x;
+      const ddy = b.y + dy * tileSize - a.y;
+      const d = Math.hypot(ddx, ddy);
+      if (d < best) {
+        best = d;
+        bestDx = ddx;
+        bestDy = ddy;
+      }
+    }
+  }
+  return { dx: bestDx, dy: bestDy };
+}
+
+/** A rotation/scale/position/color-invariant fingerprint of one node's
+ * *shape topology* — a path's sequence of command letters (M/L/C/Q/A/Z,
+ * numbers stripped) and, for a group, the same recursively over its
+ * children. Two motifs built from a different number of petals, a
+ * different silhouette, or an extra decorative flourish get different
+ * signatures; two instances of literally the same shape at different
+ * rotation/scale/position get the *same* signature — which is exactly the
+ * "is this actually a different motif, or the same one just spun around"
+ * distinction `rotationDiversity`/`scaleDiversity` alone can't make. */
+function shapeSignature(node: SvgNode): string {
+  if (node.tag === 'path') {
+    const d = String(node.attrs?.d ?? '');
+    const commands = d.match(/[MLCQAZmlcqaz]/g) ?? [];
+    return `path:${commands.join('').toUpperCase()}`;
+  }
+  if (node.tag === 'g') {
+    return `g[${(node.children ?? []).map(shapeSignature).join(',')}]`;
+  }
+  return node.tag;
+}
+
+/** One shape signature per motif (its first/primary wrap instance — every
+ * wrap-clone of the same motif is geometrically identical content, just
+ * translated, so sampling one is sufficient and cheap). Used by
+ * `scoring.ts`'s `motifShapeDiversity` metric. */
+export function extractMotifShapeSignatures(tileData: TileData): string[] {
+  const groups = findMotifGroups(tileData.svg);
+  const signatures: string[] = [];
+  for (const group of groups) {
+    const firstInstance = (group.children ?? [])[0];
+    if (!firstInstance) continue;
+    const sig = (firstInstance.children ?? []).map(shapeSignature).join('|');
+    if (sig) signatures.push(sig);
+  }
+  return signatures;
 }

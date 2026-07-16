@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "patternGrammar.schema.json",
+  "title": "PatternGrammar",
+  "description": "Composition-level rules for one Composition Style — which layouts/hierarchy/density/negative-space/flow/rhythm combinations are valid together, plus named constraint rules a Design Specification using this style should satisfy. New in Design Intelligence Core Phase 1 — formalizes what was previously an implicit lookup table inside trend/designIntelligence.ts (COMPOSITION_STYLE_TO_HIERARCHY etc.) as externally-editable data.",
+  "type": "object",
+  "required": [
+    "id", "label", "description", "compatibleLayouts", "hierarchyPreset",
+    "densityRange", "negativeSpaceRange", "compatibleFlowProfiles",
+    "compatibleRhythmProfiles", "rules"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "enum": ["airy", "balanced", "dense", "editorial", "maximalist", "minimal"] },
+    "label": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "compatibleLayouts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["grid", "brick", "radial", "scatter", "halfDrop", "heroFlow", "heroScatter", "sCurve", "bouquet", "airy", "toss", "densePremium", "gridMinimal", "stripe"]
+      }
+    },
+    "hierarchyPreset": { "type": "string", "enum": ["heroFocus", "balancedEditorial", "denseLayered", "airyPremium", "ditsyFloral", "allOverTextile", "minimalRepeat"] },
+    "densityRange": { "$ref": "#/definitions/range01" },
+    "negativeSpaceRange": { "$ref": "#/definitions/range01" },
+    "compatibleFlowProfiles": { "type": "array", "minItems": 1, "items": { "type": "string", "enum": ["calm", "directional", "dynamic"] } },
+    "compatibleRhythmProfiles": { "type": "array", "minItems": 1, "items": { "type": "string", "enum": ["regular", "organic", "syncopated"] } },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "severity"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "enum": ["error", "warning"] }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "range01": {
+      "type": "object",
+      "required": ["min", "max"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "number", "minimum": 0, "maximum": 1 },
+        "max": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

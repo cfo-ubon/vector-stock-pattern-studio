@@ -1,0 +1,13 @@
+{
+  "id": "animalprint",
+  "label": "Animal Print",
+  "family": "background",
+  "defaultMotifSize": 75,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "maximalist"],
+  "rules": []
+}

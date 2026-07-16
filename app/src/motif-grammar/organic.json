@@ -1,0 +1,13 @@
+{
+  "id": "organic",
+  "label": "Abstract Organic",
+  "family": "background",
+  "defaultMotifSize": 65,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["airy", "balanced", "minimal"],
+  "rules": []
+}

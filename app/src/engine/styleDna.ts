@@ -1,9 +1,15 @@
 import type { GenerateParams, LayoutId } from './types';
+import type { CompositionZone } from './compositionZones';
+import type { ClusterArchetype } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { GENERATORS } from '../generators';
 import { GROWTH_PRESETS } from '../generators/growth';
-import { createRng, rngPick, randomSeed } from './rng';
+import type { BotanicalFamily } from '../generators/botanicalFamilies';
+import { createRng, randomSeed } from './rng';
 import type { StockSiteId } from '../metadata/shutterstock';
+import type { ProductUseId } from '../collection/productTargets';
+import { computeDesignKnowledgeProfile, resolveDesignRules } from './designKnowledge';
+import { weightedPickPreferred } from './designerBrain';
 
 // Style DNA Engine — turns "category + layout + palette + density + hierarchy
 // + flow + overlap + cluster" (a dozen separate manual choices) into ONE
@@ -15,17 +21,21 @@ import type { StockSiteId } from '../metadata/shutterstock';
 // (create/duplicate/rename/delete/export/import/favorite, see
 // storage/styleDnaStore.ts).
 //
-// Scope note: the roadmap's Cluster Engine (Phase 3), Pattern Evolution
-// (Phase 6), Botanical Geometry (Phase 4) and a dedicated Designer Assistant
-// (Phase 8) do not exist yet, and the project's own rule is to never build
-// ahead of the current phase. `clusterStyle`/`clusterDensity` are therefore
-// approximated today through the real levers that already exist
-// (overlapAmount + Composition Intelligence's balanceStrength) rather than a
-// true clustering placement algorithm, and `botanicalGrowthPreset` is stored/
-// round-tripped as a reserved, informational field (it does not yet steer
-// which botanical shape variant is drawn — that requires a hook into
-// generators/botanical.ts that belongs to Phase 4). Every other field maps to
-// a real, already-implemented engine parameter and visibly changes the
+// Scope note: `botanicalGrowthPreset` is stored/round-tripped as a reserved,
+// informational field — it does not yet steer which botanical shape variant
+// is drawn (that requires a hook into generators/botanical.ts no phase has
+// built yet). `clusterStyle`/`clusterDensity` previously had the same
+// reserved status (this comment used to say the Cluster Engine "doesn't
+// exist yet"), but Project Phoenix V2 shipped a real one
+// (`engine/clusterEngine.ts`) and Composition Intelligence Foundation V2
+// (Build 001) connected it here: `clusterStyle`/`clusterDensity` now also
+// drive real Pattern Physics attraction strength (Section 8,
+// `engine/patternPhysics.ts`) on top of the balance-correction proxy they
+// already fed — see `CLUSTER_ATTRACTION_STRENGTH` below. `flowProfile` used
+// to only resolve to `rotationJitter` (spin, not placement); it now also
+// drives `compositionIntelligence.flowBiasStrength` (Section 5, a real
+// placement bias — see `FLOW_BIAS_STRENGTH` below). Every other field maps
+// to a real, already-implemented engine parameter and visibly changes the
 // generated SVG.
 
 export const STYLE_DNA_SCHEMA_VERSION = 1;
@@ -45,6 +55,17 @@ export interface StyleDnaExportRecommendation {
   /** Site ids matching the app's own per-site SEO panel (metadata/*.ts) —
    * never invented names outside what the app actually supports. */
   recommendedSites: StockSiteId[];
+  /** Build 005, Section 8 (Commercial Knowledge architecture): which of
+   * the app's own 10 named Product Uses (collection/productTargets.ts —
+   * the same real, rule-based taxonomy `evaluateProductTargets` already
+   * scores collections against) this style's own declared design
+   * identity is curated toward, first = best fit. Architecture only, per
+   * the brief — a hand-authored editorial judgment matching each style's
+   * own description, the same convention `recommendedSites` already
+   * established, not a computed/measured score (no scoring loop exists
+   * yet; wiring `evaluateProductTargets` itself against a style's
+   * generated output is future work, not this section's). */
+  bestProductTargets?: ProductUseId[];
 }
 
 export interface StyleDna {
@@ -59,6 +80,38 @@ export interface StyleDna {
   categories: string[];
   /** Preferred layouts, first = primary/default. */
   layouts: LayoutId[];
+  /** Build 003, Part 7 (Style Grammar): the composition zones (see
+   * engine/compositionZones.ts) this style's own "design language" tends
+   * toward, first = primary/default — same `pickPreferred` mechanism as
+   * `categories`/`layouts`/`paletteIds`. Optional and omittable: a style
+   * with no particular compositional identity just leaves every
+   * zone-picking layout on its existing random pick. */
+  preferredZones?: CompositionZone[];
+  /** Build 004, Section 9 (Style DNA botanical grammar): the Botanical
+   * Families (see generators/botanicalFamilies.ts) this style's own
+   * botanical vocabulary draws from — same `pickPreferred` mechanism as
+   * `categories`/`layouts`/`paletteIds`/`preferredZones`. Only meaningful
+   * for a style whose `categories` includes `'botanical'` (every other
+   * generator ignores the resolved family hint); omitted for non-botanical
+   * styles rather than set to a value nothing ever reads. */
+  preferredFamilies?: BotanicalFamily[];
+  /** Build 004, Section 9: this style's own cluster-archetype preference,
+   * passed straight through (as a pool, not narrowed to one pick — see
+   * GenerateParams.clusterArchetypes) to whichever cluster-based layout the
+   * style resolves to. Only meaningful for a style whose `layouts` include
+   * a cluster-aware layout that actually consults it (`scatter`,
+   * `heroScatter` — see LAYOUT_CLUSTER_ARCHETYPES in knowledge/composition);
+   * `bouquet`/`airy`'s own archetype IS their identity and is deliberately
+   * never overridden. */
+  preferredClusterArchetypes?: ClusterArchetype[];
+  /** Build 004, Section 9 (Premium Hero Builder): true for a style whose
+   * own "design language" wants a hero built as a full multi-part bouquet
+   * (generators/premiumHero.ts) rather than one independent variant.
+   * Deliberately false/omitted for styles the brief explicitly describes
+   * as spare/minimal (Minimal Botanical's "simple silhouettes, few
+   * elements") or non-botanical (the hero's active generator has to be the
+   * botanical one for this to have any effect at all). */
+  premiumHero?: boolean;
   /** Named hierarchy profile — references the existing HIERARCHY_PRESETS
    * table (hero/secondary/filler/accent ratios + scales) instead of
    * duplicating those 8 numbers per style. */
@@ -92,6 +145,16 @@ const COMPLEXITY_ROTATION_BUMP: Record<MotifComplexity, number> = { simple: 0, m
 const COMPLEXITY_COLOR_COUNT: Record<MotifComplexity, number> = { simple: 3, moderate: 4, intricate: 5 };
 export const RHYTHM_STRENGTH: Record<RhythmProfile, number> = { regular: 0.15, organic: 0.4, syncopated: 0.6 };
 const CLUSTER_BALANCE_STRENGTH: Record<ClusterStyle, number> = { none: 0.6, loose: 0.5, tight: 0.25, bouquet: 0.2 };
+// Composition Intelligence Foundation V2 (Build 001) — real Pattern
+// Physics (Section 8) strength per cluster style: a "bouquet"/"tight"
+// identity means members should read as pulled toward their hero, so
+// attraction is strongest there; "none" still gets a small baseline pull
+// (isolated decorative objects are never the goal) rather than 0.
+const CLUSTER_ATTRACTION_STRENGTH: Record<ClusterStyle, number> = { none: 0.2, loose: 0.35, tight: 0.55, bouquet: 0.6 };
+// Real Flow Engine (Section 5) placement-bias strength per flow profile —
+// "calm" resolves to 0 regardless (applyFlowBias treats profile 'calm' as
+// a no-op anyway; the 0 here just keeps this table self-documenting).
+const FLOW_BIAS_STRENGTH: Record<FlowProfile, number> = { calm: 0, directional: 0.3, dynamic: 0.4 };
 const COLOR_STRATEGY_STORY: Record<ColorStrategy, boolean> = {
   dominantDuo: true,
   fullPalette: false,
@@ -120,152 +183,164 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
   editorialBotanical: {
     id: 'editorialBotanical', label: 'Editorial Botanical',
     description: 'Clean, directional botanical layout with generous quiet space for editorial/print use.',
-    categories: ['botanical'], layouts: ['heroFlow', 'sCurve'], hierarchyPreset: 'balancedEditorial',
+    categories: ['botanical'], layouts: ['heroFlow', 'sCurve'], preferredZones: ['editorial', 'sCurve', 'diagonal'], hierarchyPreset: 'balancedEditorial',
+    preferredFamilies: ['magnolia', 'anemone', 'tulip'], premiumHero: true,
     density: 0.5, negativeSpace: 0.2, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'laurel', colorStrategy: 'dominantDuo',
     paletteIds: ['pastel-dream', 'sage-terracotta'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['stationery', 'digitalPaper'] },
   },
   luxuryFloral: {
     id: 'luxuryFloral', label: 'Luxury Floral',
     description: 'Large hero blooms in a hand-tied bouquet arrangement with jewel-tone richness.',
-    categories: ['botanical'], layouts: ['bouquet', 'heroScatter'], hierarchyPreset: 'heroFocus',
+    categories: ['botanical'], layouts: ['bouquet', 'heroScatter'], preferredZones: ['goldenRatio', 'diagonal', 'offset'], hierarchyPreset: 'heroFocus',
+    preferredFamilies: ['rose', 'peony', 'magnolia', 'hydrangea'], preferredClusterArchetypes: ['sprayBouquet', 'bouquet'], premiumHero: true,
     density: 0.55, negativeSpace: 0.15, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'bouquet', clusterDensity: 0.6,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'eucalyptus', colorStrategy: 'highContrast',
     paletteIds: ['jewel-tones', 'blush-gold'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   scandinavianOrganic: {
     id: 'scandinavianOrganic', label: 'Scandinavian Organic',
     description: 'Airy, restrained organic shapes with a muted coastal-neutral palette.',
-    categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], hierarchyPreset: 'airyPremium',
+    categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], preferredZones: ['wave', 'offset', 'centerFocus'], hierarchyPreset: 'airyPremium',
+    preferredFamilies: ['eucalyptus', 'olive', 'fern'], preferredClusterArchetypes: ['organicScatter', 'diagonal'],
     density: 0.32, negativeSpace: 0.5, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', colorStrategy: 'monochromeAccent',
     paletteIds: ['coastal-neutral', 'monochrome-blue'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['homeDecor', 'digitalPaper'] },
   },
   minimalBotanical: {
     id: 'minimalBotanical', label: 'Minimal Botanical',
     description: 'A single restrained botanical silhouette repeated on a strict minimal grid.',
-    categories: ['botanical'], layouts: ['gridMinimal', 'grid'], hierarchyPreset: 'minimalRepeat',
+    categories: ['botanical'], layouts: ['gridMinimal', 'grid'], preferredZones: ['centerFocus', 'cornerFlow'], hierarchyPreset: 'minimalRepeat',
+    preferredFamilies: ['eucalyptus', 'olive'],
     density: 0.3, negativeSpace: 0.45, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', botanicalGrowthPreset: 'laurel', colorStrategy: 'monochromeAccent',
     paletteIds: ['mono-charcoal', 'coastal-neutral'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['stationery', 'notebookCovers'] },
   },
   vintageHerbarium: {
     id: 'vintageHerbarium', label: 'Vintage Herbarium',
     description: 'Pressed-specimen scatter in muted earth tones, full-palette botanical variety.',
-    categories: ['botanical'], layouts: ['scatter', 'halfDrop'], hierarchyPreset: 'allOverTextile',
+    categories: ['botanical'], layouts: ['scatter', 'halfDrop'], preferredZones: ['offset', 'wave', 'editorial'], hierarchyPreset: 'allOverTextile',
+    preferredFamilies: ['herb', 'wildflower', 'fern'], preferredClusterArchetypes: ['organicScatter', 'wildCluster'],
     density: 0.45, negativeSpace: 0.25, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'sage', colorStrategy: 'fullPalette',
     paletteIds: ['earth-tone', 'terracotta'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['stationery', 'wrappingPaper'] },
   },
   darkBotanical: {
     id: 'darkBotanical', label: 'Dark Botanical',
     description: 'Moody midnight palette, tightly clustered hero foliage, dimensional depth.',
-    categories: ['botanical'], layouts: ['bouquet', 'sCurve'], hierarchyPreset: 'heroFocus',
+    categories: ['botanical'], layouts: ['bouquet', 'sCurve'], preferredZones: ['radial', 'diagonal', 'centerFocus'], hierarchyPreset: 'heroFocus',
+    preferredFamilies: ['fern', 'magnolia', 'berryBranch'], premiumHero: true,
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.55,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'fern', colorStrategy: 'highContrast',
     paletteIds: ['midnight-botanical'], backgroundStrategy: 'darkMoody', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   modernTropical: {
     id: 'modernTropical', label: 'Modern Tropical',
     description: 'Bold, dynamic tropical foliage with citrus/ocean contrast and syncopated rhythm.',
-    categories: ['tropical'], layouts: ['heroScatter', 'toss'], hierarchyPreset: 'heroFocus',
+    categories: ['tropical'], layouts: ['heroScatter', 'toss'], preferredZones: ['zFlow', 'wave', 'diagonal'], hierarchyPreset: 'heroFocus',
+    preferredClusterArchetypes: ['cornerCluster', 'sprayBouquet'],
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.15,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'intricate', colorStrategy: 'highContrast',
     paletteIds: ['citrus-pop', 'ocean-breeze'], backgroundStrategy: 'richContrast', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['fabric', 'textile'] },
   },
   boutiquePackaging: {
     id: 'boutiquePackaging', label: 'Boutique Packaging',
     description: 'Clean stripe/grid geometry sized for small-scale packaging and labels.',
-    categories: ['geometric', 'damask'], layouts: ['stripe', 'gridMinimal'], hierarchyPreset: 'allOverTextile',
+    categories: ['geometric', 'damask'], layouts: ['stripe', 'gridMinimal'], preferredZones: ['cornerFlow', 'centerFocus', 'diagonal'], hierarchyPreset: 'allOverTextile',
     density: 0.5, negativeSpace: 0.1, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.15,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
     paletteIds: ['blush-gold', 'mono-charcoal'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['packaging', 'giftWrap'] },
   },
   luxuryWallpaper: {
     id: 'luxuryWallpaper', label: 'Luxury Wallpaper',
     description: 'Dense, richly layered damask at wallpaper scale with jewel-tone depth.',
-    categories: ['damask'], layouts: ['densePremium', 'halfDrop'], hierarchyPreset: 'denseLayered',
+    categories: ['damask'], layouts: ['densePremium', 'halfDrop'], preferredZones: ['diagonal', 'wave', 'zFlow'], hierarchyPreset: 'denseLayered',
     density: 0.65, negativeSpace: 0, overlapMode: 'dense', overlapAmount: 0.3,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.6,
     motifComplexity: 'intricate', colorStrategy: 'highContrast',
     paletteIds: ['jewel-tones', 'midnight-botanical'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1800, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1800, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   premiumTextile: {
     id: 'premiumTextile', label: 'Premium Textile',
     description: 'Half-drop damask/paisley weave, full palette, sized for yardage/upholstery.',
-    categories: ['damask', 'paisley'], layouts: ['halfDrop', 'brick'], hierarchyPreset: 'allOverTextile',
+    categories: ['damask', 'paisley'], layouts: ['halfDrop', 'brick'], preferredZones: ['diagonal', 'offset', 'wave'], hierarchyPreset: 'allOverTextile',
     density: 0.55, negativeSpace: 0.05, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', colorStrategy: 'fullPalette',
     paletteIds: ['sage-terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativefabrica', 'adobestock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativefabrica', 'adobestock'], bestProductTargets: ['fabric', 'textile'] },
   },
   kidsPlayful: {
     id: 'kidsPlayful', label: 'Kids Playful',
     description: 'Bright, bouncy toss/scatter of simple friendly shapes with candy-shop color.',
-    categories: ['cute'], layouts: ['toss', 'scatter'], hierarchyPreset: 'ditsyFloral',
+    categories: ['cute'], layouts: ['toss', 'scatter'], preferredZones: ['offset', 'zFlow', 'wave'], hierarchyPreset: 'ditsyFloral',
+    preferredClusterArchetypes: ['wildCluster', 'organicScatter'],
     density: 0.55, negativeSpace: 0.1, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'simple', colorStrategy: 'fullPalette',
     paletteIds: ['candy-shop', 'vibrant-pop'], backgroundStrategy: 'minimalLight', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['shutterstock', 'freepik'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['shutterstock', 'freepik'], bestProductTargets: ['stationery', 'giftWrap'] },
   },
   retroOrganic: {
     id: 'retroOrganic', label: 'Retro Organic',
     description: 'Sun-bleached retro palette flowing through soft organic silhouettes.',
-    categories: ['retro', 'organic'], layouts: ['heroFlow', 'scatter'], hierarchyPreset: 'balancedEditorial',
+    categories: ['retro', 'organic'], layouts: ['heroFlow', 'scatter'], preferredZones: ['wave', 'sCurve', 'diagonal'], hierarchyPreset: 'balancedEditorial',
+    preferredClusterArchetypes: ['diagonal', 'organicScatter'],
     density: 0.5, negativeSpace: 0.15, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', colorStrategy: 'highContrast',
     paletteIds: ['retro-sunset', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['shutterstock', 'adobestock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['shutterstock', 'adobestock'], bestProductTargets: ['wrappingPaper', 'homeDecor'] },
   },
   organicAbstract: {
     id: 'organicAbstract', label: 'Organic Abstract',
     description: 'Loose abstract organic scatter with syncopated rhythm and full palette range.',
-    categories: ['organic'], layouts: ['scatter', 'airy'], hierarchyPreset: 'minimalRepeat',
+    categories: ['organic'], layouts: ['scatter', 'airy'], preferredZones: ['offset', 'radial', 'wave'], hierarchyPreset: 'minimalRepeat',
+    preferredClusterArchetypes: ['wildCluster', 'organicScatter'],
     density: 0.4, negativeSpace: 0.35, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'intricate', colorStrategy: 'fullPalette',
     paletteIds: ['ocean-breeze', 'lavender-fields'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['digitalPaper', 'homeDecor'] },
   },
   bohoFloral: {
     id: 'bohoFloral', label: 'Boho Floral',
     description: 'Warm terracotta boho motifs tossed with botanical accents, dense and layered.',
-    categories: ['boho', 'botanical'], layouts: ['toss', 'scatter'], hierarchyPreset: 'denseLayered',
+    categories: ['boho', 'botanical'], layouts: ['toss', 'scatter'], preferredZones: ['diagonal', 'zFlow', 'offset'], hierarchyPreset: 'denseLayered',
+    preferredFamilies: ['wildflower', 'daisy', 'cosmos', 'lavender'], preferredClusterArchetypes: ['sprayBouquet', 'organicScatter'], premiumHero: true,
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.45,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'leafyBranch', colorStrategy: 'fullPalette',
     paletteIds: ['terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['fabric', 'wrappingPaper'] },
   },
   softWatercolorInspired: {
     id: 'softWatercolorInspired', label: 'Soft Watercolor Inspired (Vector only)',
     description: 'A watercolor *feel* built entirely from flat vector fills and soft color blending — no raster texture, no bitmap brush strokes; airy negative space and a soft two-tone palette do the work.',
-    categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], hierarchyPreset: 'airyPremium',
+    categories: ['organic', 'botanical'], layouts: ['airy', 'scatter'], preferredZones: ['centerFocus', 'wave', 'offset'], hierarchyPreset: 'airyPremium',
+    preferredFamilies: ['cosmos', 'anemone', 'hydrangea'], preferredClusterArchetypes: ['organicScatter', 'asymmetric'],
     density: 0.35, negativeSpace: 0.4, overlapMode: 'subtle', overlapAmount: 0.15,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.25,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
     paletteIds: ['pastel-dream', 'lavender-fields'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['stationery', 'digitalPaper'] },
   },
 };
 
@@ -295,6 +370,11 @@ export type StyleDnaResolvedFields = Pick<
   | 'tileSize'
   | 'patternScale'
   | 'styleDnaId'
+  | 'compositionZone'
+  | 'botanicalFamily'
+  | 'clusterArchetypes'
+  | 'premiumHero'
+  | 'designRules'
 >;
 
 /** Deterministically picks one entry from a Style DNA's preferred list using
@@ -305,7 +385,10 @@ export type StyleDnaResolvedFields = Pick<
 function pickPreferred<T>(list: T[], dnaId: string, seed: string, salt: string): T {
   if (list.length === 1) return list[0];
   const rng = createRng(`styledna::${dnaId}::${salt}::${seed}`);
-  return rngPick(rng, list);
+  // Build 005, Section 6 (Designer Brain): favors the list's own
+  // documented "primary/default" (first) entry instead of an equal
+  // coin-flip among every option — see designerBrain.ts's own doc comment.
+  return weightedPickPreferred(rng, list);
 }
 
 /** Resolves a Style DNA into the concrete GenerateParams patch. Every field
@@ -315,6 +398,12 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
   const categoryId = pickPreferred(dna.categories, dna.id, seed, 'category');
   const layoutId = pickPreferred(dna.layouts, dna.id, seed, 'layout');
   const paletteId = pickPreferred(dna.paletteIds, dna.id, seed, 'palette');
+  const compositionZone = dna.preferredZones?.length
+    ? pickPreferred(dna.preferredZones, dna.id, seed, 'zone')
+    : undefined;
+  const botanicalFamily = dna.preferredFamilies?.length
+    ? pickPreferred(dna.preferredFamilies, dna.id, seed, 'family')
+    : undefined;
   const generator = GENERATORS[categoryId];
   const depth = DEPTH_SHADOW[dna.svgDepthMode];
 
@@ -337,10 +426,22 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     compositionIntelligence: {
       balanceStrength: CLUSTER_BALANCE_STRENGTH[dna.clusterStyle] * (1 - dna.clusterDensity * 0.4),
       rhythmStrength: RHYTHM_STRENGTH[dna.rhythmProfile],
+      attractionStrength: CLUSTER_ATTRACTION_STRENGTH[dna.clusterStyle] * (0.6 + dna.clusterDensity * 0.4),
+      negativeSpaceStrength: 0.2 + dna.negativeSpace * 0.5,
+      flowProfile: dna.flowProfile,
+      flowBiasStrength: FLOW_BIAS_STRENGTH[dna.flowProfile],
     },
     tileSize: dna.exportRecommendation.tileSize,
     patternScale: dna.exportRecommendation.patternScale,
     styleDnaId: dna.id,
+    compositionZone,
+    botanicalFamily,
+    clusterArchetypes: dna.preferredClusterArchetypes,
+    premiumHero: dna.premiumHero,
+    // Build 005, Sections 1-2 (Design Knowledge + Design Rule Engine):
+    // every Style DNA now generates using its own real, computed rules —
+    // see engine/designKnowledge.ts.
+    designRules: resolveDesignRules(computeDesignKnowledgeProfile(dna)),
   };
 }
 
@@ -379,6 +480,33 @@ export function computeStyleDrift(params: GenerateParams, dna: StyleDna): StyleD
  * for the current seed. */
 export function resetToStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFields {
   return resolveStyleDna(dna, seed);
+}
+
+/** Style DNA Enforcement (SVG Intelligence Engine Phase 3, Section 12) —
+ * `computeStyleDrift` above already checks whether the *input params*
+ * (category/layout/palette/...) still match what the style would resolve
+ * to; this checks something `computeStyleDrift` can't: whether the
+ * *rendered geometry* actually reads as consistent with the style's own
+ * declared intent, using metrics `engine/scoring.ts`'s `computeMetrics`
+ * already measured from the real tile (no second scoring pass here).
+ * Two real signals, averaged:
+ *  - density match: measured `occupancyRatio` (0-100, real grid-coverage
+ *    fraction) vs. the style's declared `density` (0-1) — a "minimal"
+ *    style whose actual output reads as densely packed has drifted from
+ *    its own identity regardless of which category/layout produced it.
+ *  - complexity match: measured `rotationDiversity` (0-100) vs. what the
+ *    style's declared `motifComplexity` predicts (`intricate` styles are
+ *    expected to show more placement variation than `simple` ones, per
+ *    this same file's own `COMPLEXITY_ROTATION_BUMP` table).
+ * Deliberately two signals, not an invented ten — an honest, narrower
+ * real measurement beats a wider fabricated one (see this milestone's
+ * "never generate fake scores" requirement). */
+export function computeStyleDnaConsistency(metrics: { occupancyRatio: number; rotationDiversity: number }, dna: StyleDna): number {
+  const densityMatch = 100 - Math.abs(metrics.occupancyRatio - dna.density * 100);
+  const expectedRotationDiversity = { simple: 30, moderate: 55, intricate: 80 }[dna.motifComplexity];
+  const complexityMatch = 100 - Math.abs(metrics.rotationDiversity - expectedRotationDiversity);
+  const clamp = (n: number) => Math.max(0, Math.min(100, n));
+  return Math.round((clamp(densityMatch) + clamp(complexityMatch)) / 2);
 }
 
 /** True when every category/layout/palette a Style DNA references actually

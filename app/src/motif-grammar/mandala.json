@@ -1,0 +1,15 @@
+{
+  "id": "mandala",
+  "label": "Mandala",
+  "family": "decorative",
+  "defaultMotifSize": 90,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "maximalist", "editorial"],
+  "rules": [
+    { "id": "mandala-radial-node-budget", "description": "Mandala's radial ring construction is node-heavy by nature — dense/maximalist composition + radial layout is the combination most likely to exceed the SVG Engine's hard node budget (documented finding from the v1.35 SVG structural audit).", "severity": "warning" }
+  ]
+}

@@ -1,5 +1,6 @@
 import type { Project, ProjectExport } from './projectTypes';
 import { PROJECT_SCHEMA_VERSION } from './projectTypes';
+import { normalizeProject } from './projectManager';
 
 // Project JSON — "Everything must save inside one project": a Project's
 // full state (concept, moodboard, Style DNA id, every collection's full
@@ -42,5 +43,5 @@ export function importProjectJson(json: string): ImportResult {
   if (!valid) {
     return { ok: false, error: 'ไฟล์นี้ไม่ใช่ Project JSON ที่ถูกต้อง' };
   }
-  return { ok: true, project: project as Project };
+  return { ok: true, project: normalizeProject(project as Project) };
 }

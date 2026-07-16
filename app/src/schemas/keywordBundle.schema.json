@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "keywordBundle.schema.json",
+  "title": "KeywordBundle",
+  "description": "Market Research input: primary/secondary keywords plus targeting context. Mirrors app/src/trend/designSpecTypes.ts's KeywordBundle TypeScript type.",
+  "type": "object",
+  "required": [
+    "primaryKeyword", "secondaryKeywords", "marketplace", "season", "audience",
+    "commercialCategory", "patternType", "paletteDirection", "difficulty", "collectionSize"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "primaryKeyword": { "type": "string", "minLength": 1 },
+    "secondaryKeywords": { "type": "array", "items": { "type": "string" } },
+    "marketplace": { "type": "string", "enum": ["shutterstock", "adobestock", "freepik", "creativefabrica", "creativemarket", "etsy"] },
+    "season": { "type": "string", "enum": ["spring", "summer", "autumn", "winter", "yearRound"] },
+    "audience": { "type": "string" },
+    "commercialCategory": { "type": "string" },
+    "styleDnaId": { "type": "string" },
+    "patternType": { "type": "string", "minLength": 1 },
+    "paletteDirection": { "type": "string" },
+    "difficulty": { "type": "string", "enum": ["simple", "moderate", "complex"] },
+    "collectionSize": { "type": "integer", "minimum": 1 }
+  }
+}

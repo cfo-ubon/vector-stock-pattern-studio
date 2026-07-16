@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "minPaletteColors": 4,
+  "roles": [
+    { "id": "background", "label": "Background", "required": true, "paletteIndex": 0, "description": "The tile's base fill — always the palette's first, lightest/background-friendly color." },
+    { "id": "primary", "label": "Primary", "required": true, "paletteIndex": 1, "description": "The dominant motif accent color, used most often by hero/secondary motifs." },
+    { "id": "secondary", "label": "Secondary", "required": true, "paletteIndex": 2, "description": "The supporting accent color, used for secondary/filler motifs." },
+    { "id": "accent", "label": "Accent", "required": true, "paletteIndex": 3, "description": "The pop/highlight color — used sparingly for emphasis." }
+  ]
+}

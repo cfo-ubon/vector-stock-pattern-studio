@@ -37,6 +37,23 @@ export interface Motif {
   radius: number;
 }
 
+/** Build 004, Section 1 (Botanical DNA Engine foundation): optional hints a
+ * caller can pass to `createMotif` so a generator that understands a real
+ * botanical taxonomy (see `generators/botanical.ts`'s `Variant` tagging,
+ * added in Section 2) can pick a role- and family-appropriate shape instead
+ * of a flat random pick over its whole variant pool. `family`/`part` are
+ * loose strings rather than the real `BotanicalFamily`/`BotanicalPart`
+ * unions (introduced in Sections 2-3) so this interface doesn't force every
+ * one of the 15 pattern categories to import botanical-specific types they
+ * have no use for. Every existing generator ignores hints it doesn't
+ * understand — this field is purely additive, so all non-botanical
+ * categories behave identically to before it existed. */
+export interface MotifCreateHints {
+  role?: string;
+  family?: string;
+  part?: string;
+}
+
 /** A generator produces one random motif each time it's called, drawing
  * from its own pool of shape variants. Implementations live in /generators. */
 export interface PatternGenerator {
@@ -73,7 +90,7 @@ export interface PatternGenerator {
    * are broken if every square gets an independent random color instead of
    * strictly alternating. Those generators read `colorSeed % 2` (etc.) to
    * get that positional alternation; everyone else can ignore the param. */
-  createMotif(rng: Rng, colors: string[], size: number, colorSeed?: number): Motif;
+  createMotif(rng: Rng, colors: string[], size: number, colorSeed?: number, hints?: MotifCreateHints): Motif;
 }
 
 /** Where a motif instance is placed within the tile, before wrap cloning. */
@@ -118,6 +135,16 @@ export interface LayoutParams {
   radialSymmetry: number; // 1 = off, N = N-fold rotational symmetry
   /** From the active generator's `disableGridRhythm` — see PatternGenerator. */
   disableGridRhythm: boolean;
+  /** Build 003, Part 7 (Style Grammar) — see GenerateParams.compositionZone.
+   * Layouts that pick a composition zone use this when set instead of a
+   * random pick, so a Style DNA preset's own zone preference actually
+   * reaches the layout that places anchors. */
+  preferredZone?: import('./compositionZones').CompositionZone;
+  /** Build 004, Section 9 (Style DNA botanical grammar) — see
+   * GenerateParams.clusterArchetypes. Cluster-based layouts that pick among
+   * several archetypes use this directly (no further random narrowing) when
+   * set, instead of their own hardcoded default pool. */
+  preferredClusterArchetypes?: import('./clusterEngine').ClusterArchetype[];
 }
 
 export interface PatternLayout {
@@ -218,6 +245,41 @@ export interface GenerateParams {
    * these params doesn't require re-resolving the style. Undefined for
    * every pattern created before Style DNA existed. */
   styleDnaId?: string;
+  /** Build 003, Part 7 (Style Grammar): a Style DNA preset's preferred
+   * composition zone (see engine/compositionZones.ts), resolved once per
+   * seed the same way categoryId/layoutId/paletteId already are — so each
+   * preset's own "design language" includes a real compositional identity,
+   * not just density/palette/rotation numbers. Undefined (no Style DNA
+   * applied, or the style has no zone preference) means every zone-picking
+   * layout falls back to its existing random pick. */
+  compositionZone?: import('./compositionZones').CompositionZone;
+  /** Build 004, Section 9 (Style DNA botanical grammar): a Style DNA
+   * preset's preferred Botanical Family (see generators/botanicalFamilies.ts),
+   * resolved once per seed the same way compositionZone already is.
+   * Undefined means every botanical variant pick stays a plain,
+   * family-unrestricted random pick, identical to every pattern generated
+   * before this field existed. */
+  botanicalFamily?: import('../generators/botanicalFamilies').BotanicalFamily;
+  /** Build 004, Section 9: a Style DNA preset's preferred cluster-archetype
+   * pool — passed straight through to whichever cluster-based layout the
+   * style resolves to (see LayoutParams.preferredClusterArchetypes).
+   * Undefined = every layout's own existing default/random pick. */
+  clusterArchetypes?: import('./clusterEngine').ClusterArchetype[];
+  /** Build 004, Section 9 (Premium Hero Builder): when true and a hero
+   * placement's active generator is the botanical one, the hero is
+   * assembled as a full multi-part bouquet (generators/premiumHero.ts)
+   * instead of one independent variant. Undefined/false leaves every hero
+   * placement completely unaffected — the default for every style that
+   * doesn't explicitly opt in. */
+  premiumHero?: boolean;
+  /** Build 005, Section 2 (Design Rule Engine): the concrete generation
+   * rules `engine/designKnowledge.ts` resolves from the active Style
+   * DNA's own Design Knowledge Profile (Section 1) — consumed by
+   * `buildPremiumHero` so a style's own hero-count/bouquet-size/stem-
+   * length/leaf-density knowledge genuinely shapes the assembled hero.
+   * Undefined = every existing default (no Style DNA active, or a style
+   * whose resolved rules happen to be the same as the defaults). */
+  designRules?: import('./designKnowledge').DesignGenerationRules;
   seed: string;
 }
 

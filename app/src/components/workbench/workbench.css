@@ -1,0 +1,897 @@
+/* Design Workbench (Phase 3) — layout, tabs, tree/history/favorites
+ * widgets, and a light/dark theme scoped to `.design-workbench`. The rest
+ * of the app is dark-only via App.css's global `:root` variables (--bg,
+ * --panel, --panel-alt, --border, --text, --text-dim, --accent) — every
+ * reused global class (.btn, .marketplace-*, .metadata-*, .trend-studio-*,
+ * .json-tree*, .collection-asset-*) reads those same variable names, so
+ * overriding them here at `.design-workbench[data-theme='light']` makes
+ * every reused class light-theme-aware automatically, with no per-class
+ * overrides needed — CSS custom properties resolve via the DOM ancestor
+ * chain, not by which selector originally declared the `var(...)` usage. */
+
+.design-workbench {
+  padding: 1rem 1.5rem 2rem;
+  color: var(--text);
+}
+
+.design-workbench[data-theme='light'] {
+  --bg: #f5f6f9;
+  --panel: #ffffff;
+  --panel-alt: #eef0f5;
+  --border: #d7dbe4;
+  --text: #1b1e27;
+  --text-dim: #5b6172;
+  --accent: #3f66c9;
+  --accent-strong: #2f4fa8;
+  background: var(--bg);
+}
+
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Global Search (Phase 6, Section 9) */
+
+.workbench-global-search {
+  position: relative;
+  flex: 1 1 320px;
+  max-width: 480px;
+}
+
+.workbench-global-search input[type='search'] {
+  width: 100%;
+}
+
+.workbench-global-search-results {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  list-style: none;
+  padding: 0.25rem;
+  max-height: 320px;
+  overflow-y: auto;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.workbench-global-search-results button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.82rem;
+}
+
+.workbench-global-search-results button:hover {
+  background: var(--panel-alt);
+}
+
+.workbench-global-search-type {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.workbench-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.workbench-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .workbench-layout {
+    grid-template-columns: 1fr;
+  }
+  .workbench-sidebar {
+    max-height: none;
+  }
+}
+
+.workbench-sidebar {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  position: sticky;
+  top: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .workbench-sidebar {
+    position: static;
+  }
+}
+
+.workbench-main {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  min-height: 400px;
+}
+
+.workbench-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  text-align: center;
+  color: var(--text-dim);
+  padding: 2rem;
+}
+
+.workbench-collapsible summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.25rem 0;
+}
+
+.workbench-view-switch {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.workbench-view-switch--wrap {
+  flex-wrap: wrap;
+}
+
+.workbench-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.workbench-tab:hover {
+  color: var(--text);
+}
+
+.workbench-tab.active {
+  background: var(--panel-alt);
+  border-color: var(--border);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.workbench-tab:focus-visible,
+.design-workbench .btn:focus-visible,
+.workbench-star:focus-visible,
+.design-workbench input:focus-visible,
+.design-workbench select:focus-visible,
+.design-workbench textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.workbench-spec-panel-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.workbench-spec-panel-tools {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.workbench-spec-panel-tools input[type='search'] {
+  min-width: 180px;
+}
+
+/* JSON Tree — context menu + search highlight */
+
+.json-tree-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.35rem;
+}
+
+.json-tree-menu-trigger {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0 0.3rem;
+  visibility: hidden;
+}
+
+.json-tree-leaf:hover .json-tree-menu-trigger,
+.json-tree-branch:hover > .json-tree-toggle + .json-tree-menu .json-tree-menu-trigger,
+.json-tree-menu-trigger:focus {
+  visibility: visible;
+}
+
+.json-tree-menu-popup {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.json-tree-menu-popup button {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.json-tree-menu-popup button:hover {
+  background: var(--panel-alt);
+}
+
+.json-tree-highlight {
+  background: #ffd166;
+  color: #1b1e27;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* Inspector View (Section 2, read-only) */
+
+.workbench-inspector-view section {
+  margin-bottom: 0.75rem;
+}
+
+.workbench-inspector-view h4 {
+  margin: 0 0 0.35rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.workbench-inspector-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.15rem 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.85rem;
+}
+
+.workbench-inspector-label {
+  color: var(--text-dim);
+}
+
+/* Property Inspector (Section 3, editable) */
+
+.workbench-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.workbench-inspector-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.workbench-inspector-field-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.workbench-motif-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.workbench-motif-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.workbench-motif-remove {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  margin-left: 0.3rem;
+  font-weight: 700;
+}
+
+.workbench-motif-add {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.workbench-quality-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+/* Validation Panel (Section 4) */
+
+.workbench-validation-group {
+  margin-bottom: 0.75rem;
+}
+
+.workbench-validation-group h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* History Panel (Section 6) */
+
+.workbench-history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.workbench-snapshot-form {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.workbench-snapshot-form input,
+.workbench-snapshot-form select {
+  flex: 1;
+}
+
+.workbench-snapshot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.workbench-snapshot-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--panel-alt);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.workbench-snapshot-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.workbench-compare-selectors {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.workbench-compare-selectors select {
+  flex: 1;
+}
+
+.workbench-diff-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.workbench-diff-entry {
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  background: var(--panel-alt);
+}
+
+.workbench-diff-entry--added {
+  border-left: 3px solid #4caf50;
+}
+
+.workbench-diff-entry--removed {
+  border-left: 3px solid #e05252;
+}
+
+.workbench-diff-entry--changed {
+  border-left: 3px solid #e0a552;
+}
+
+.workbench-diff-before {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.workbench-diff-after {
+  color: var(--accent);
+}
+
+/* Favorites Panel (Section 8) */
+
+.workbench-favorites-panel details {
+  margin-bottom: 0.5rem;
+}
+
+.workbench-favorites-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.25rem 0;
+}
+
+.workbench-favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.workbench-favorites-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.workbench-star {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 1rem;
+}
+
+.workbench-star.active {
+  color: #f5c542;
+}
+
+/* Import/Export Bar (Section 9) */
+
+.workbench-import-export-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.workbench-hidden-file-input {
+  display: none;
+}
+
+/* Project panel (Section 7) */
+
+.workbench-project-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Panel Visibility Bar (Phase 6, Section 1) */
+
+.workbench-panel-visibility-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.workbench-panel-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.workbench-panel-chip:hover {
+  border-color: var(--accent);
+}
+
+.workbench-panel-chip--hidden {
+  color: var(--text-dim);
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* Resize Handle (Phase 6, Section 1) */
+
+.workbench-resize-handle {
+  width: 10px;
+  cursor: col-resize;
+  align-self: stretch;
+  position: relative;
+  touch-action: none;
+}
+
+.workbench-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.workbench-resize-handle:hover::after,
+.workbench-resize-handle:focus-visible::after {
+  background: var(--accent);
+}
+
+.workbench-resize-handle:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 1100px) {
+  .workbench-resize-handle {
+    display: none;
+  }
+}
+
+/* Quality / Readiness score grids — shared by QualityPanel and
+ * MarketplacePanel (Phase 6, Sections 5 and 7). */
+
+.workbench-quality-scores {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+}
+
+.workbench-quality-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--panel-alt);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  border-left: 3px solid var(--border);
+}
+
+.workbench-score--good {
+  border-left-color: #4caf50;
+}
+
+.workbench-score--ok {
+  border-left-color: #e0a552;
+}
+
+.workbench-score--low {
+  border-left-color: #e05252;
+}
+
+/* Quality Panel (Phase 6, Section 7) */
+
+.workbench-quality-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Marketplace Panel (Phase 6, Section 5) */
+
+.workbench-marketplace-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-contributor-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Prompt Panel (Phase 6, Section 6) */
+
+.workbench-prompt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Project Explorer (Phase 6, Sections 1, 2) */
+
+.workbench-project-explorer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.workbench-explorer-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.workbench-explorer-drop-zone--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--panel-alt);
+}
+
+.workbench-explorer-tree {
+  max-height: 260px;
+}
+
+.workbench-explorer-nested {
+  flex-direction: column;
+  align-items: stretch !important;
+}
+
+.workbench-explorer-row {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+.workbench-explorer-row:hover {
+  background: var(--panel-alt);
+}
+
+.workbench-explorer-row--selected {
+  border-color: var(--border);
+  background: var(--panel-alt);
+}
+
+.workbench-explorer-row--active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.workbench-explorer-row--draggable {
+  cursor: grab;
+}
+
+/* Design Critic Panel (Phase 7) */
+
+.workbench-critic-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-critic-issue--detected {
+  color: #e0a552;
+}
+
+.workbench-critic-severity {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 0.3rem;
+}
+
+.workbench-critic-severity--high {
+  background: rgba(224, 82, 82, 0.18);
+  color: #e05252;
+}
+
+.workbench-critic-severity--medium {
+  background: rgba(224, 165, 82, 0.18);
+  color: #e0a552;
+}
+
+.workbench-critic-severity--low {
+  background: rgba(153, 153, 153, 0.18);
+  color: var(--text-dim);
+}
+
+.workbench-critic-recommendation {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+/* Evolution Panel (Phase 8) */
+
+.workbench-evolution-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-evolution-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.workbench-evolution-config label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.workbench-evolution-dna {
+  border-top: 1px solid var(--border);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+.workbench-evolution-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.workbench-evolution-generation-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.workbench-evolution-generation-chip--active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.workbench-evolution-candidate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.workbench-evolution-candidate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.15rem 0.3rem;
+}
+
+.workbench-evolution-candidate--best {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.workbench-evolution-candidate--rejected {
+  color: #e05252;
+}
+
+/* Asset Library Panel (Phase 9) */
+
+.workbench-asset-library-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.workbench-asset-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.workbench-asset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.workbench-asset-row-button {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.workbench-asset-row-button:hover {
+  background: var(--panel-alt);
+}
+
+.workbench-asset-row--active .workbench-asset-row-button {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .design-workbench * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "luxuryWallpaper",
+  "label": "Luxury Wallpaper",
+  "description": "Dense, richly layered damask at wallpaper scale with jewel-tone depth.",
+  "categories": ["damask"],
+  "layouts": ["densePremium", "halfDrop"],
+  "hierarchyPreset": "denseLayered",
+  "density": 0.65,
+  "negativeSpace": 0,
+  "overlapMode": "dense",
+  "overlapAmount": 0.3,
+  "flowProfile": "directional",
+  "rhythmProfile": "organic",
+  "clusterStyle": "tight",
+  "clusterDensity": 0.6,
+  "motifComplexity": "intricate",
+  "colorStrategy": "highContrast",
+  "paletteIds": ["jewel-tones", "midnight-botanical"],
+  "backgroundStrategy": "richContrast",
+  "svgDepthMode": "dimensional",
+  "exportRecommendation": { "tileSize": 1800, "patternScale": 1, "recommendedSites": ["adobestock", "creativemarket"] }
+}

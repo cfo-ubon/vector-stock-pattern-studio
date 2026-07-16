@@ -1,0 +1,20 @@
+{
+  "id": "2026-Q1",
+  "label": "2026 Q1 — Quiet Luxury Botanical",
+  "season": "winter",
+  "theme": "Quiet Luxury Botanical",
+  "mood": "elevated, calm, refined",
+  "commercialUses": ["wallpaper", "stationery", "packaging"],
+  "paletteDirection": "muted green",
+  "popularMotifs": ["botanical"],
+  "suggestedLayouts": ["airy", "scatter"],
+  "negativeSpace": 0.4,
+  "compositionStyle": "airy",
+  "styleDnaId": "luxuryFloral",
+  "colorRoles": { "background": "#F6F4EF", "primary": "#7C9A92", "secondary": "#A9BBA6", "accent": "#4E6E64" },
+  "patternTypes": ["botanical"],
+  "collectionRecommendations": {
+    "size": 8,
+    "assetTypes": ["heroPattern", "secondaryPattern", "miniPattern", "stripePattern", "borderPattern", "cornerPattern", "spotMotifSheet"]
+  }
+}

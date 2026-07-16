@@ -1,0 +1,23 @@
+{
+  "id": "editorialBotanical",
+  "label": "Editorial Botanical",
+  "description": "Clean, directional botanical layout with generous quiet space for editorial/print use.",
+  "categories": ["botanical"],
+  "layouts": ["heroFlow", "sCurve"],
+  "hierarchyPreset": "balancedEditorial",
+  "density": 0.5,
+  "negativeSpace": 0.2,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.1,
+  "flowProfile": "directional",
+  "rhythmProfile": "regular",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.3,
+  "motifComplexity": "moderate",
+  "botanicalGrowthPreset": "laurel",
+  "colorStrategy": "dominantDuo",
+  "paletteIds": ["pastel-dream", "sage-terracotta"],
+  "backgroundStrategy": "minimalLight",
+  "svgDepthMode": "soft",
+  "exportRecommendation": { "tileSize": 1400, "patternScale": 1, "recommendedSites": ["adobestock", "shutterstock"] }
+}

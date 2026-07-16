@@ -1,0 +1,15 @@
+{
+  "id": "geometric",
+  "label": "Geometric",
+  "family": "geometric",
+  "defaultMotifSize": 60,
+  "complexityLevels": ["simple", "moderate", "intricate"],
+  "roles": ["hero", "secondary", "filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["minimal", "balanced", "dense"],
+  "rules": [
+    { "id": "geometric-rotation-caution", "description": "High rotation jitter on strict geometric shapes can read as misaligned rather than intentional — keep rotationJitter modest for a minimal composition.", "severity": "warning" }
+  ]
+}

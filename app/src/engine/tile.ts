@@ -5,9 +5,101 @@ import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
-import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS } from './hierarchy';
+import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS, REGULAR_LATTICE_LAYOUTS, sortByLayerPriority } from './hierarchy';
 import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
+import { applyHeroDetailOverlay } from './heroComplexity';
+import { countNodes } from './svgGeometry';
+import { buildPremiumHero } from '../generators/premiumHero';
+
+// Build 002, Section 10 — Performance and SVG Safety. A real safety margin
+// under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
+// deliberately well under it, not "7898/8000 and call it healthy". This is
+// the *only* generation-time safety net: the Candidate Engine's own
+// reject-and-retry only runs in pool-generation mode (`generateBest`),
+// never for a single direct `buildTile()` call, which is exactly the path
+// every layout/generator combination goes through at least once.
+//
+// Deliberately measures the REAL, already-built per-instance node cost
+// (summed from the actual `motifGroups`/`shadowGroups` SvgNode trees) rather
+// than estimating it from one sampled reference motif — some categories
+// (botanical's growth-variant system especially) swing widely in per-motif
+// node count from one random draw to the next, so a single-sample estimate
+// is not a reliable predictor of the *tile's own* real average and would
+// either under- or over-thin. Using the real measured total means this pass
+// is a strict no-op for every tile that doesn't need it (the overwhelming
+// majority) and thins to a provably accurate target on the ones that do.
+const NODE_BUDGET_SAFETY_MARGIN = 6000;
+
+/** Evenly spaced (never random) selection of `count` values out of `pool`,
+ * so thinning stays deterministic and spatially representative — shared by
+ * both the ordinary (thin non-protected instances only) and the rare
+ * (protected instances alone exceed budget) node-budget-safety cases below. */
+function evenStrideSelect(pool: number[], count: number): number[] {
+  if (count >= pool.length) return pool;
+  const stride = pool.length / count;
+  const out: number[] = [];
+  for (let i = 0; i < count; i++) out.push(pool[Math.min(pool.length - 1, Math.floor(i * stride))]);
+  return out;
+}
+
+// Same coarse 8x8 grid every coverage/density/corner metric in `scoring.ts`
+// measures (gridCoverage/computeCornerContinuity/computeEdgeDensity) — see
+// `stratifiedSelect` below for why thinning distributes proportionally
+// across every cell instead of exempting the 4 corner blocks outright: an
+// absolute exemption preserves the corner blocks' *raw count* while every
+// other cell gets cut, which pushes the corner-vs-overall density *ratio*
+// (computeCornerContinuity's real measurement, and computeEdgeDensity's
+// border/interior ratio) just as far out of balance in the other direction
+// — corners end up over-represented once the tile-wide average has been
+// cut hard. Keeping every cell's survivor count proportional to its own
+// original share is what actually preserves the ratio these metrics check.
+function gridCellOf(p: Placement, tileSize: number, gridN: number): number {
+  const cell = tileSize / gridN;
+  const gx = Math.min(gridN - 1, Math.floor((((p.x % tileSize) + tileSize) % tileSize) / cell));
+  const gy = Math.min(gridN - 1, Math.floor((((p.y % tileSize) + tileSize) % tileSize) / cell));
+  return gy * gridN + gx;
+}
+
+/** Selects `count` survivors out of `indices` (indices into `placements`)
+ * spread proportionally across the same coarse 8x8 spatial grid every
+ * coverage/density/corner metric in `scoring.ts` measures, rather than a
+ * blind stride over array/generation order. A severe cut (this pass only
+ * ever fires when the real node count is already well over budget, often
+ * needing to keep well under a third of placements) can otherwise empty out
+ * whole regions of the tile purely by chance of which *index* happened to
+ * survive the stride — this tile's own real spatial layout decides survivor
+ * counts instead, so occupancy/edge-density/corner-continuity stay
+ * representative of the original composition even under a heavy cut. Uses
+ * the Largest Remainder Method so per-cell survivor counts sum to exactly
+ * `count`. */
+function stratifiedSelect(indices: number[], placements: Placement[], tileSize: number, count: number): number[] {
+  if (count >= indices.length) return indices;
+  const gridN = 8;
+  const byCell = new Map<number, number[]>();
+  for (const i of indices) {
+    const cell = gridCellOf(placements[i], tileSize, gridN);
+    let bucket = byCell.get(cell);
+    if (!bucket) {
+      bucket = [];
+      byCell.set(cell, bucket);
+    }
+    bucket.push(i);
+  }
+  const cells = [...byCell.entries()];
+  const shareRaw = cells.map(([, idxs]) => (idxs.length / indices.length) * count);
+  const shareFloor = shareRaw.map(Math.floor);
+  let remaining = count - shareFloor.reduce((a, b) => a + b, 0);
+  const remainders = shareRaw.map((s, i) => ({ i, frac: s - shareFloor[i] })).sort((a, b) => b.frac - a.frac);
+  for (const { i } of remainders) {
+    if (remaining <= 0) break;
+    shareFloor[i]++;
+    remaining--;
+  }
+  const out: number[] = [];
+  cells.forEach(([, idxs], i) => out.push(...evenStrideSelect(idxs, Math.min(shareFloor[i], idxs.length))));
+  return out;
+}
 
 const WRAP_OFFSETS = [-1, 0, 1];
 
@@ -144,6 +236,8 @@ export function buildTile(params: GenerateParams): TileData {
       mirror: params.mirror,
       radialSymmetry: params.radialSymmetry,
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
+      preferredZone: params.compositionZone,
+      preferredClusterArchetypes: params.clusterArchetypes,
     },
     rng,
   );
@@ -166,9 +260,26 @@ export function buildTile(params: GenerateParams): TileData {
   // consumption, so it never affects seed determinism upstream or
   // downstream; undefined params is a strict no-op (see
   // engine/compositionIntelligence.ts).
+  // Composition Intelligence V2's flow-bias/negative-space/attraction
+  // passes exist to make organic or scattered compositions read as more
+  // intentional — for a strict, evenly-spaced lattice layout (Grid, Grid
+  // Minimal) the "flaw" they'd correct is the deliberate point of the
+  // layout, so only the original V1 fields (balance/rhythm, neither of
+  // which ever fired on a genuinely regular grid) apply there.
+  const effectiveCompositionIntelligence =
+    params.compositionIntelligence && REGULAR_LATTICE_LAYOUTS.has(params.layoutId)
+      ? { balanceStrength: params.compositionIntelligence.balanceStrength, rhythmStrength: params.compositionIntelligence.rhythmStrength }
+      : params.compositionIntelligence;
   const refinedPlacements = params.compositionIntelligence
-    ? applyCompositionIntelligence(roledPlacements, tileSize, params.compositionIntelligence)
+    ? applyCompositionIntelligence(roledPlacements, tileSize, effectiveCompositionIntelligence)
     : roledPlacements;
+
+  // Layer Priority (Composition Intelligence Foundation V2, Section 2): a
+  // stable sort so higher-priority roles (hero) always paint last, i.e. on
+  // top. A no-op for every placement with no role — a stable sort of an
+  // all-equal-priority array never reorders — so patterns that never opted
+  // into the Hierarchy Engine are unaffected.
+  const paintOrderedPlacements = sortByLayerPriority(refinedPlacements);
 
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
@@ -188,12 +299,43 @@ export function buildTile(params: GenerateParams): TileData {
   const useHighlight = !!params.flatHighlight;
   const highlightColor = blendHex('#ffffff', 0.6, backgroundColor);
 
-  const motifGroups: SvgNode[] = refinedPlacements.map((placement, index) => {
+  // Build 004, Section 9 fix: a cluster-based layout (bouquet/heroScatter)
+  // can place MANY hero-role anchors across one tile (one per cluster, not
+  // one "the" hero for the whole tile) -- assembling every single one as a
+  // full multi-part bouquet was measured to balloon the tile's real node
+  // count past NODE_BUDGET_SAFETY_MARGIN below, triggering that budget's
+  // own "protect every hero, drop everything else" thinning so hard it
+  // gutted the whole composition (quadrant balance collapsing from ~95 to
+  // ~0 in the frozen quality harness). A premium hero is meant to be a
+  // real centerpiece object, not a repeated-many-times motif, so only the
+  // first few hero placements encountered get the full assembly; any
+  // further ones fall back to the plain single-variant path exactly as
+  // before this feature existed.
+  const MAX_PREMIUM_HEROES_PER_TILE = 3;
+  let premiumHeroesBuilt = 0;
+
+  const motifGroups: SvgNode[] = paintOrderedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.
     const motifColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
-    const motif = generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed);
+    // Build 004, Section 1: threads the placement's real hierarchy role into
+    // createMotif so a botanical-aware generator can pick a role-appropriate
+    // shape (Section 2+) instead of a flat random pick — every other
+    // generator still ignores this hint exactly as before. Section 9 adds
+    // the preferred Botanical Family (see engine/styleDna.ts) the same way.
+    // Build 004, Section 9 (Premium Hero Builder): a hero placement whose
+    // active generator is the botanical one gets assembled as a full
+    // multi-part bouquet instead of one independent variant, when the
+    // resolved Style DNA opts in — undefined/false `premiumHero` (every
+    // style that doesn't declare it, and every pattern with no Style DNA
+    // applied) leaves this exactly the single createMotif call it always was.
+    const usePremiumHero =
+      !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
+    if (usePremiumHero) premiumHeroesBuilt++;
+    const motif = usePremiumHero
+      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily, designRules: params.designRules })
+      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: params.botanicalFamily });
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
@@ -201,10 +343,24 @@ export function buildTile(params: GenerateParams): TileData {
     // computed straight from the shape's own coordinates can't be wrong in
     // that direction, so take whichever is larger.
     const safeRadius = Math.max(motif.radius, computeBoundingRadius(motif.node));
+    // Hero Motif Complexity (Project Phoenix V2, Section 3): hero/secondary
+    // placements get a real, bounded detail overlay (inner ring, texture
+    // lines, decorative dots, nested contour) layered onto the generator's
+    // own shape — filler/accent/unroled placements pass through unchanged.
+    // Every overlay primitive stays within `safeRadius`, computed above
+    // from the *undetailed* shape, so the wrap-inclusion bound below still
+    // holds without needing to re-measure after the overlay is added. A
+    // premium hero already applies its own Micro Details overlay
+    // internally, so it isn't run through this a second time.
+    const detailedNode = usePremiumHero ? motif.node : applyHeroDetailOverlay(
+      motif.node,
+      { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length, relativeScale: placement.scale },
+      rng,
+    );
     // The shadow copy extends the reach of a placement — include its
     // offset in the wrap-inclusion test so edge shadows stay seamless too.
     const effectiveRadius = safeRadius * placement.scale + (useShadow ? Math.hypot(shadowDx, shadowDy) : 0);
-    const shadowNode = useShadow ? recolorNode(motif.node, shadowColor) : null;
+    const shadowNode = useShadow ? recolorNode(detailedNode, shadowColor) : null;
     const highlightNode = useHighlight
       ? h('g', { transform: `translate(${round(-safeRadius * 0.3)} ${round(-safeRadius * 0.32)}) rotate(-28)` }, [
           h('ellipse', { cx: 0, cy: 0, rx: round(safeRadius * 0.3), ry: round(safeRadius * 0.18), fill: highlightColor }),
@@ -233,7 +389,7 @@ export function buildTile(params: GenerateParams): TileData {
           shadowInstances.push(h('g', { transform: placeTransform(shadowDx, shadowDy) }, [shadowNode]));
         }
         instances.push(
-          h('g', { transform: placeTransform(0, 0) }, highlightNode ? [motif.node, highlightNode] : [motif.node]),
+          h('g', { transform: placeTransform(0, 0) }, highlightNode ? [detailedNode, highlightNode] : [detailedNode]),
         );
       }
     }
@@ -246,13 +402,79 @@ export function buildTile(params: GenerateParams): TileData {
     return h('g', { id: `motif-${index + 1}`, ...(placement.role ? { 'data-role': placement.role } : {}) }, instances);
   });
 
-  // Filler goes behind everything except the background; built last so its
-  // rng draws never shift the main pattern for an existing seed.
+  // Filler goes behind everything except the background; built right after
+  // the motif/shadow layers (still before the Section 10 budget check
+  // below) so its own real node count is included in that check, but after
+  // every motif's own rng draws so enabling/disabling it never shifts the
+  // main pattern for a given seed — thinning the motif/shadow layers below
+  // is a pure post-hoc filter that consumes no rng, so this ordering still
+  // preserves that guarantee exactly.
   const fillerStyle = params.fillerStyle ?? 'none';
+  const fillerLayer = fillerStyle !== 'none' ? buildFillerLayer(fillerStyle, rng, useStory ? storyColors : colors, tileSize) : null;
+  const fixedOverheadNodeCount = (fillerLayer ? countNodes(fillerLayer) : 0) + 4; // + defs/clipPath/background/tile-content wrapper
+
+  // Build 002, Section 10: check the REAL, already-built node count of the
+  // whole tile (motif + shadow + filler + fixed structural overhead)
+  // against the safety margin and thin the motif/shadow layers only if it's
+  // actually exceeded — see NODE_BUDGET_SAFETY_MARGIN's own doc comment for
+  // why this measures the real total rather than estimating it up front.
+  // Filler/background overhead is left untouched by thinning (it doesn't
+  // scale with placement count and isn't tied to any role/hierarchy
+  // decision), so only the motif+shadow budget is reduced to compensate.
+  //
+  // Cost is split by role rather than using one blended average: hero
+  // instances are drawn at a much larger scale (more wrap-clone copies
+  // near tile edges) plus the Hero Complexity detail overlay, so they cost
+  // far more per instance than the many small filler/accent instances that
+  // dominate a blended average — spending that whole blended average on
+  // "keep every hero, fill the rest with non-heroes" would systematically
+  // overshoot the budget by however much heroes cost above average.
+  const shadowByIndex = new Map<number, SvgNode>();
+  for (const g of shadowGroups) {
+    const m = /^shadow-(\d+)$/.exec(String(g.attrs?.id ?? ''));
+    if (m) shadowByIndex.set(Number(m[1]) - 1, g);
+  }
+  const perIndexCost = paintOrderedPlacements.map((_, i) => countNodes(motifGroups[i]) + (shadowByIndex.has(i) ? countNodes(shadowByIndex.get(i)!) : 0));
+  const realInstanceNodeCount = perIndexCost.reduce((a, b) => a + b, 0);
+  const instanceBudget = NODE_BUDGET_SAFETY_MARGIN - fixedOverheadNodeCount;
+  let finalMotifGroups = motifGroups;
+  let finalShadowGroups = shadowGroups;
+  if (realInstanceNodeCount > instanceBudget && paintOrderedPlacements.length > 0) {
+    const protectedIndices: number[] = [];
+    const thinnableIndices: number[] = [];
+    paintOrderedPlacements.forEach((p, i) => (p.role === 'hero' ? protectedIndices : thinnableIndices).push(i));
+    const protectedCost = protectedIndices.reduce((sum, i) => sum + perIndexCost[i], 0);
+
+    let keptIndices: Set<number>;
+    if (protectedCost >= instanceBudget) {
+      // Even every hero instance alone exceeds the budget — the rare edge
+      // case where the layout's own hero count/scale is the problem, not
+      // the filler layer. Thin the hero set itself (evenly, not randomly)
+      // rather than silently leaving the tile over budget.
+      const protectedAvg = protectedCost / protectedIndices.length;
+      const protectedTarget = Math.max(1, Math.floor(instanceBudget / protectedAvg));
+      keptIndices = new Set(stratifiedSelect(protectedIndices, paintOrderedPlacements, tileSize, protectedTarget));
+    } else {
+      const thinnableCost = realInstanceNodeCount - protectedCost;
+      const thinnableAvg = thinnableIndices.length > 0 ? thinnableCost / thinnableIndices.length : 0;
+      const remainingBudget = instanceBudget - protectedCost;
+      const thinnableTarget = thinnableAvg > 0 ? Math.max(0, Math.floor(remainingBudget / thinnableAvg)) : thinnableIndices.length;
+      keptIndices = new Set([...protectedIndices, ...stratifiedSelect(thinnableIndices, paintOrderedPlacements, tileSize, thinnableTarget)]);
+    }
+
+    if (keptIndices.size < paintOrderedPlacements.length) {
+      finalMotifGroups = motifGroups.filter((_, i) => keptIndices.has(i));
+      finalShadowGroups = shadowGroups.filter((g) => {
+        const m = /^shadow-(\d+)$/.exec(String(g.attrs?.id ?? ''));
+        return m ? keptIndices.has(Number(m[1]) - 1) : true;
+      });
+    }
+  }
+
   const patternLayers: SvgNode[] = [];
-  if (fillerStyle !== 'none') patternLayers.push(buildFillerLayer(fillerStyle, rng, useStory ? storyColors : colors, tileSize));
-  if (shadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, shadowGroups));
-  patternLayers.push(...motifGroups);
+  if (fillerLayer) patternLayers.push(fillerLayer);
+  if (finalShadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, finalShadowGroups));
+  patternLayers.push(...finalMotifGroups);
 
   // Style DNA metadata: Affinity Designer and every SVG viewer show unknown
   // data-* attributes as harmless metadata (same convention already used for

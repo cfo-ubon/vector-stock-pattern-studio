@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "trendPack.schema.json",
+  "title": "TrendPack",
+  "description": "One quarterly market-intelligence pack (Trend Library). Mirrors app/src/trend/trendPacks.ts's TrendPack TypeScript type.",
+  "type": "object",
+  "required": [
+    "id", "label", "season", "theme", "mood", "commercialUses", "paletteDirection",
+    "popularMotifs", "suggestedLayouts", "negativeSpace", "compositionStyle",
+    "styleDnaId", "colorRoles", "patternTypes", "collectionRecommendations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "label": { "type": "string", "minLength": 1 },
+    "season": { "type": "string", "enum": ["spring", "summer", "autumn", "winter", "yearRound"] },
+    "theme": { "type": "string", "minLength": 1 },
+    "mood": { "type": "string", "minLength": 1 },
+    "commercialUses": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "paletteDirection": { "type": "string", "minLength": 1 },
+    "popularMotifs": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "suggestedLayouts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "negativeSpace": { "type": "number", "minimum": 0, "maximum": 1 },
+    "compositionStyle": { "type": "string", "enum": ["airy", "balanced", "dense", "editorial", "maximalist", "minimal"] },
+    "styleDnaId": { "type": "string", "minLength": 1 },
+    "colorRoles": {
+      "type": "object",
+      "required": ["background", "primary", "secondary", "accent"],
+      "additionalProperties": false,
+      "properties": {
+        "background": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "primary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "patternTypes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "collectionRecommendations": {
+      "type": "object",
+      "required": ["size", "assetTypes"],
+      "additionalProperties": false,
+      "properties": {
+        "size": { "type": "integer", "minimum": 1 },
+        "assetTypes": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    }
+  }
+}

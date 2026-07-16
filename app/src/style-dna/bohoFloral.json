@@ -1,0 +1,23 @@
+{
+  "id": "bohoFloral",
+  "label": "Boho Floral",
+  "description": "Warm terracotta boho motifs tossed with botanical accents, dense and layered.",
+  "categories": ["boho", "botanical"],
+  "layouts": ["toss", "scatter"],
+  "hierarchyPreset": "denseLayered",
+  "density": 0.55,
+  "negativeSpace": 0.1,
+  "overlapMode": "natural",
+  "overlapAmount": 0.2,
+  "flowProfile": "dynamic",
+  "rhythmProfile": "organic",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.45,
+  "motifComplexity": "intricate",
+  "botanicalGrowthPreset": "leafyBranch",
+  "colorStrategy": "fullPalette",
+  "paletteIds": ["terracotta", "autumn-harvest"],
+  "backgroundStrategy": "neutralPaper",
+  "svgDepthMode": "soft",
+  "exportRecommendation": { "tileSize": 1400, "patternScale": 1, "recommendedSites": ["creativemarket", "creativefabrica"] }
+}

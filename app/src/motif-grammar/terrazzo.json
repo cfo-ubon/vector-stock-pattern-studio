@@ -1,0 +1,16 @@
+{
+  "id": "terrazzo",
+  "label": "Terrazzo",
+  "family": "background",
+  "defaultMotifSize": 35,
+  "recommendedDensity": 0.85,
+  "complexityLevels": ["simple", "moderate"],
+  "roles": ["filler", "accent"],
+  "rotationAllowed": true,
+  "mirrorAllowed": true,
+  "disableGridRhythm": false,
+  "compatiblePatternGrammars": ["dense", "minimal"],
+  "rules": [
+    { "id": "terrazzo-no-hero-role", "description": "Terrazzo is a field pattern of scattered chips — a 'hero' role assignment has no visual effect and should be avoided.", "severity": "warning" }
+  ]
+}

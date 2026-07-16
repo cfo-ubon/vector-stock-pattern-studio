@@ -8,10 +8,11 @@
 
 export const DB_NAME = 'vsp-db';
 // v1 (v1.11): 'saved' store only. v2 (Project Studio Engine): adds
-// 'projects'.
-export const DB_VERSION = 2;
+// 'projects'. v3 (Asset Ecosystem Engine, Phase 9): adds 'assets'.
+export const DB_VERSION = 3;
 export const SAVED_STORE = 'saved';
 export const PROJECTS_STORE = 'projects';
+export const ASSETS_STORE = 'assets';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -23,6 +24,7 @@ export function openDb(): Promise<IDBDatabase> {
         const db = req.result;
         if (!db.objectStoreNames.contains(SAVED_STORE)) db.createObjectStore(SAVED_STORE, { keyPath: 'id' });
         if (!db.objectStoreNames.contains(PROJECTS_STORE)) db.createObjectStore(PROJECTS_STORE, { keyPath: 'id' });
+        if (!db.objectStoreNames.contains(ASSETS_STORE)) db.createObjectStore(ASSETS_STORE, { keyPath: 'metadata.id' });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);

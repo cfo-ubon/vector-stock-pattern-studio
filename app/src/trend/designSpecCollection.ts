@@ -41,5 +41,9 @@ export function buildCollectionFromDesignSpec(spec: DesignSpecification, seed: s
   const baseParams = buildGenerateParamsFromDesignSpec(spec, seed);
   const styleDna = resolveDesignSpecStyleDna(spec, customStyleDna);
   const collectionName = buildDesignSpecCollectionName(spec);
-  return generateCollection(baseParams, styleDna, collectionName);
+  // Section 12 — the Design Spec's own requested `collection.size` now
+  // actually scales the generated asset count (previously tracked as
+  // metadata only, never wired into generation — see collectionGenerator.ts's
+  // `generateCollection` for the reuse-first scaling strategy).
+  return generateCollection(baseParams, styleDna, collectionName, spec.collection.size);
 }

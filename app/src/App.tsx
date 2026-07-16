@@ -2,8 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GenerateParams } from './engine/types';
 import { buildTile } from './engine/tile';
 import { defaultParams, randomizedParams } from './engine/defaults';
-import { randomSeed } from './engine/rng';
+import { randomSeed, createRng } from './engine/rng';
+import { assignPortfolioDiversity } from './engine/portfolioVariety';
+import { HIERARCHY_PRESETS } from './engine/hierarchy';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
+import { buildTileWithHeroRetry } from './engine/heroDetector';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
@@ -47,7 +50,7 @@ import { ProjectDashboard } from './components/ProjectDashboard';
 import { ProjectPanel } from './components/ProjectPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
-import { TrendStudioPanel } from './components/TrendStudioPanel';
+import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -166,7 +169,10 @@ function App() {
   }, []);
 
   const handleGenerate = useCallback(() => {
-    const next = buildTile(params);
+    // Build 003, Part 11 (Hero Detector): analyzes the real Hero
+    // Visibility Score right after generation and regenerates from a
+    // derived sub-seed if it's poor — see engine/heroDetector.ts.
+    const next = buildTileWithHeroRetry(params).tileData;
     setTileData(next);
     const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: next, createdAt: Date.now() };
     setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
@@ -184,16 +190,46 @@ function App() {
   // hierarchy/etc. per item — so the 9 patterns explore that style's own
   // family of looks and genuinely read as one collection, rather than 9
   // unrelated random patterns. No style active = unchanged prior behavior.
+  //
+  // Build 003, Part 13 (Portfolio Variety): each variant's own independent
+  // random Composition Zone pick (see engine/compositionZones.ts) has no
+  // memory of what earlier items in this same batch already chose — with a
+  // Style DNA active, `preferredZones` pools are only 2-3 zones, so 9
+  // independent draws very plausibly repeat the same whole-tile composition
+  // more than once.
+  //
+  // Build 004, Section 11 (Portfolio Diversity Engine V2): generalizes that
+  // same shuffled-bag guarantee across every other named diversity
+  // dimension that has a real, directly overridable `GenerateParams` field
+  // — Botanical Family, Cluster/Bouquet Type, and Hero Structure, alongside
+  // the original Composition Zone — via `assignPortfolioDiversity`
+  // (engine/portfolioVariety.ts). Each is narrowed to the active Style
+  // DNA's own preference pool when one is set, the same way `zoneCandidates`
+  // already did, so a batch still explores that style's own family of looks
+  // rather than the engine's full unrestricted range.
   const handleGenerateBatch = useCallback(() => {
     const activeDna = params.styleDnaId
       ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
       : undefined;
+    const diversityRng = createRng(randomSeed());
+    const batch = assignPortfolioDiversity(diversityRng, 9, {
+      compositionZones: activeDna?.preferredZones?.length ? activeDna.preferredZones : undefined,
+      botanicalFamilies: activeDna?.preferredFamilies?.length ? activeDna.preferredFamilies : undefined,
+      clusterTypes: activeDna?.preferredClusterArchetypes?.length ? activeDna.preferredClusterArchetypes : undefined,
+    });
     const items: GalleryItem[] = [];
     let latest = tileData;
     for (let i = 0; i < 9; i++) {
       const seed = randomSeed();
-      const variantParams = activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed };
-      const data = buildTile(variantParams);
+      const variantParams = {
+        ...(activeDna ? { ...params, ...resolveStyleDna(activeDna, seed), seed } : { ...randomizedParams(params), seed }),
+        compositionZone: batch[i].compositionZone,
+        botanicalFamily: batch[i].botanicalFamily,
+        clusterArchetypes: [batch[i].clusterType],
+        hierarchy: HIERARCHY_PRESETS[batch[i].heroStructure].value,
+      };
+      // Build 003, Part 11 (Hero Detector): see handleGenerate above.
+      const data = buildTileWithHeroRetry(variantParams).tileData;
       latest = data;
       items.push({ id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
     }
@@ -901,12 +937,16 @@ function App() {
         onOpenTrendStudio={() => setView('trendStudio')}
       />
       {view === 'trendStudio' ? (
-        <TrendStudioPanel
+        <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
           onDownloadPackage={handleDownloadDesignSpecPackage}
           onGenerateCollection={handleGenerateCollectionFromDesignSpec}
           collectionStatus={collectionStatus}
+          activeProject={projects.find((p) => p.id === activeProjectId) ?? null}
+          onSaveProject={(updated) => updateProject(updated.id, () => updated)}
           onClose={() => setView('editor')}
+          allProjects={projects}
+          onSwitchProject={handleSwitchProject}
         />
       ) : view === 'dashboard' ? (
         <ProjectDashboard

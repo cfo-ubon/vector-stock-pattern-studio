@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { MARKETPLACE_PROFILES, MARKETPLACE_LIST } from './marketplaceProfiles';
+import { MARKETPLACE_PROFILES, MARKETPLACE_LIST, resolveMarketplaceCategory } from './marketplaceProfiles';
 import { STOCK_SITES } from './shutterstock';
+import { MARKETPLACE_DATA } from '../marketplaces';
+import { validateMarketplaceProfileData } from '../validators';
 
 describe('marketplaceProfiles: profile selection', () => {
   it('defines exactly the 6 supported marketplaces (5 live + Etsy future-ready)', () => {
@@ -60,5 +62,76 @@ describe('marketplaceProfiles: profile selection', () => {
     expect(MARKETPLACE_PROFILES.creativefabrica.keywordRules.maxCount).toBe(20);
     expect(MARKETPLACE_PROFILES.creativemarket.titleRules.maxLength).toBe(150);
     expect(MARKETPLACE_PROFILES.creativemarket.keywordRules.maxCount).toBe(20);
+  });
+});
+
+describe('marketplaceProfiles: Marketplace Intelligence Engine Phase 5, Section 9 ("no hardcoded marketplace logic")', () => {
+  it('MARKETPLACE_PROFILES is built from the real editable JSON under src/marketplaces/, not a second hardcoded copy', () => {
+    expect(MARKETPLACE_LIST.length).toBe(MARKETPLACE_DATA.length);
+    for (const data of MARKETPLACE_DATA) {
+      const profile = MARKETPLACE_PROFILES[data.id as keyof typeof MARKETPLACE_PROFILES];
+      expect(profile.label).toBe(data.label);
+      expect(profile.titleRules).toEqual(data.titleRules);
+      expect(profile.contributorUrl).toBe(data.links.portal.url);
+      expect(profile.contributorUrlVerified).toBe(data.links.portal.verified);
+    }
+  });
+
+  it('every marketplace JSON file passes its own JSON Schema', () => {
+    for (const data of MARKETPLACE_DATA) {
+      const issues = validateMarketplaceProfileData(data);
+      expect(issues, JSON.stringify(issues)).toEqual([]);
+    }
+  });
+});
+
+describe('marketplaceProfiles: Section 6, Contributor Center (6 link types)', () => {
+  it('every profile defines all 6 named link types with a real url + verified flag', () => {
+    for (const profile of MARKETPLACE_LIST) {
+      for (const key of ['portal', 'submission', 'analytics', 'help', 'guidelines', 'support'] as const) {
+        expect(profile.links[key].url.length, `${profile.id}.${key}`).toBeGreaterThan(0);
+        expect(typeof profile.links[key].verified).toBe('boolean');
+      }
+    }
+  });
+});
+
+describe('marketplaceProfiles: Section 2, Collection Naming / Supported File Types / Preview Requirements', () => {
+  it('every profile defines collectionNamingRules with a real template + maxLength', () => {
+    for (const profile of MARKETPLACE_LIST) {
+      expect(profile.collectionNamingRules.template).toContain('{primaryKeyword}');
+      expect(profile.collectionNamingRules.maxLength).toBeGreaterThan(0);
+    }
+  });
+
+  it('every profile lists at least svg and eps among its supported file types', () => {
+    for (const profile of MARKETPLACE_LIST) {
+      expect(profile.supportedFileTypes).toContain('svg');
+      expect(profile.supportedFileTypes).toContain('eps');
+    }
+  });
+
+  it('every profile defines real, positive preview dimension requirements', () => {
+    for (const profile of MARKETPLACE_LIST) {
+      expect(profile.previewRequirements.minWidth).toBeGreaterThan(0);
+      expect(profile.previewRequirements.minHeight).toBeGreaterThan(0);
+      expect(profile.previewRequirements.notes.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('resolveMarketplaceCategory (Section 2, Category Mapping)', () => {
+  it('Shutterstock resolves a real, verified per-category mapping (ported from shutterstock.ts)', () => {
+    expect(resolveMarketplaceCategory(MARKETPLACE_PROFILES.shutterstock, 'botanical')).toBe('Nature');
+    expect(resolveMarketplaceCategory(MARKETPLACE_PROFILES.shutterstock, 'mandala')).toBe('Arts');
+  });
+
+  it('falls back to defaultCategory for a marketplace with no categoryMapping', () => {
+    expect(MARKETPLACE_PROFILES.adobestock.categoryMapping).toBeUndefined();
+    expect(resolveMarketplaceCategory(MARKETPLACE_PROFILES.adobestock, 'botanical')).toBe(MARKETPLACE_PROFILES.adobestock.defaultCategory);
+  });
+
+  it('falls back to defaultCategory for an engine category not in the mapping, even for Shutterstock', () => {
+    expect(resolveMarketplaceCategory(MARKETPLACE_PROFILES.shutterstock, 'not-a-real-category')).toBe(MARKETPLACE_PROFILES.shutterstock.defaultCategory);
   });
 });

@@ -4,6 +4,7 @@ import { serialize } from './svgAst';
 import { extractInstances, countNodes } from './svgGeometry';
 import { computeMetrics, computeOverallScore, type CompositionMetrics, type QualityPresetId } from './scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './styleDna';
+import { getHardNodeBudget } from '../knowledge/rules';
 
 // Composition Candidate Engine — replaces the old "generate once -> render"
 // pipeline for the new "Generate Best" flow: build a deterministic pool of
@@ -39,7 +40,9 @@ export function deriveSeed(baseSeed: string, purpose: string, index: number): st
   return `${baseSeed}::${purpose}::${index}`;
 }
 
-const HARD_NODE_BUDGET = 8000;
+// Sourced from the Design Knowledge Engine (Phase 6.5) — see
+// knowledge/rules/rejectRules.json for the editable data this reads.
+const HARD_NODE_BUDGET = getHardNodeBudget();
 
 export interface HardRejectResult {
   rejected: boolean;
