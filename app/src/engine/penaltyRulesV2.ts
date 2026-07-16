@@ -3,6 +3,16 @@ import { SOFT_PENALTY_RULES } from './scoring';
 import type { LayoutEvaluationClass } from './layoutEvaluation';
 import { isRepeatProduct, type ProductUseId } from '../collection/productTargets';
 
+/** Build 013, Section 2 (Frozen Evaluation Baseline): this module (Penalty
+ * System V2) had never carried an explicit version number before — Build
+ * 013's baseline manifest needs one real, machine-readable value to pin
+ * "which scoring behavior produced this portfolio" against, alongside the
+ * already-real `STYLE_SCHEMA_VERSION`/`SPECIES_SCHEMA_VERSION`. `2` reflects
+ * this module's own name (Build 012 shipped it as "Penalty System V2" —
+ * see this file's own header comment); bump it only if `PENALTY_RULES_V2`'s
+ * applicability rules or rule set genuinely change again. */
+export const PENALTY_SYSTEM_VERSION = 2;
+
 // Build 012, Section 5 (Penalty System V2). BUILD_012_AUDIT.md's empirical
 // bias measurement (Finding 1: 300-tile sample split by layout class) found
 // 8 of the original 18 `SOFT_PENALTY_RULES` (engine/scoring.ts) fire at a

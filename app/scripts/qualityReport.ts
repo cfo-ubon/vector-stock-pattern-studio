@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { defaultParams } from '../src/engine/defaults';
-import type { GenerateParams, LayoutId } from '../src/engine/types';
+import type { GenerateParams, LayoutId, TileData } from '../src/engine/types';
 import { computeOverallScore, computeHeroVisibilityScore, SOFT_PENALTY_RULES, type CompositionMetrics } from '../src/engine/scoring';
 import { computePatternBeautyScore } from '../src/engine/patternBeautyScore';
 import { computePatternReadability, type PatternReadabilityResult } from '../src/engine/patternReadability';
@@ -150,7 +150,16 @@ export interface EvalResult {
   commercialAppealScoreV2: CommercialAppealScoreV2;
 }
 
-export function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
+/** Build 013, Section 4 (Large Portfolio Generation): the Portfolio
+ * Intelligence generation script needs the raw `TileData` too (for the
+ * similarity fingerprint's shape-signature component, `src/portfolio/
+ * fingerprint.ts`) — `evaluate()`'s own public contract (just `EvalResult`)
+ * stays exactly as every existing caller/test already depends on; this
+ * sibling function factors out the identical computation once and adds the
+ * tile alongside it, so a portfolio-generation caller never pays for a
+ * second `buildTileWithHeroRetry` call just to get the SVG tree `evaluate()`
+ * already had in hand internally. */
+export function evaluateWithTile(label: string, params: GenerateParams, styleDnaId?: string): { result: EvalResult; tile: TileData } {
   // Build 003, Part 11 (Hero Detector): measures the real, shipped
   // behavior — see engine/heroDetector.ts — rather than a raw single
   // buildTile call the app itself no longer makes for a fresh generation.
@@ -203,7 +212,7 @@ export function evaluate(label: string, params: GenerateParams, styleDnaId?: str
   // Build 011, Section 9 (Commercial Appeal Score V2).
   const commercialAppealScoreV2 = computeCommercialAppealScoreV2({ critique: commercialPatternCritique, heroVisibility });
 
-  return {
+  const result: EvalResult = {
     label,
     layoutId: params.layoutId,
     categoryId: params.categoryId,
@@ -228,6 +237,13 @@ export function evaluate(label: string, params: GenerateParams, styleDnaId?: str
     illustrationQualityV2,
     premiumHeroArchetypes: tile.premiumHeroArchetypes,
   };
+  return { result, tile };
+}
+
+/** Original public entrypoint, unchanged in behavior/shape for every
+ * existing caller — now a one-line wrapper over `evaluateWithTile`. */
+export function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
+  return evaluateWithTile(label, params, styleDnaId).result;
 }
 
 // ---- Frozen 30-scenario suite ----
