@@ -52,15 +52,29 @@ Build-numbered, forward-looking. Each entry is either shipped
   (Flower Center Generator), Commercial Pattern Critic (8 named
   commercial-feeling dimensions), 300-pattern Large Portfolio Evaluation.
   See `docs/build_reports/BUILD_006_REPORT.md`.
+- **Build 007 — Master Botanical Illustration Engine**: Flower Anatomy
+  Engine (real per-species sepal/filament/bloom-stage data, two-tier
+  petal hierarchy replacing the generic single-ring bloom), Leaf Anatomy
+  Engine (real per-species ovate/serrated + pinnate-vein leaves in the
+  premium hero, closing the gap where hero foliage was less detailed than
+  ordinary filler leaves), Premium Bouquet Designer refinements (real
+  filler-flower-vs-berry choice from the companion's own botanical role),
+  Botanical Gesture Engine (seeded foliage-base lean), Petal Variation
+  Library (6 named petal silhouettes), Luxury Detailing (berry highlight
+  caps), Commercial Composition Review (`buildTileWithCommercialRetry`,
+  botanical-category regenerate-on-failure using the real Pattern Beauty
+  Score composite), Illustration Quality Score V2 (bouquet/gesture/leaf/
+  flower realism + premium feel, all measured from real SVG structure).
+  See `docs/build_reports/BUILD_007_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_006_REPORT.md` §10 for the current list)
+## Recommended Next Build (see `docs/build_reports/BUILD_007_REPORT.md` §10 for the current list)
 
-Build 006's own report has the up-to-date, evidence-based recommendation
-list (style-fit-aware Commercial Pattern Critic variant, root-causing the
-Species Diversity dip, tracking real marketplace performance data once
-available, expanding the companion-species taxonomy). The section below
-is kept for history but reflects Build 001.1's own state, not the
-current one.
+Build 007's own report has the up-to-date, evidence-based recommendation
+list (extend Flower Anatomy data to spray-role species, wire the Petal
+Variation Library into the remaining ring-based flowers, root-cause the
+small `repeatedScale` uptick, a genuinely coordinated Gesture Engine
+across cluster placement). The section below is kept for history but
+reflects Build 001.1's own state, not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 

@@ -13,6 +13,7 @@ import { evaluateProductTargets } from '../src/collection/productTargets';
 import { countNodes } from '../src/engine/svgGeometry';
 import { GENERATORS } from '../src/generators';
 import { computeBotanicalBeautyMetrics } from '../src/engine/botanicalBeautyMetrics';
+import { computeIllustrationQualityV2, type IllustrationQualityV2 } from '../src/engine/illustrationQualityV2';
 import {
   computeIllustrationQuality,
   computeVisualRichness,
@@ -113,6 +114,10 @@ interface EvalResult {
   botanicalFamily?: BotanicalFamily;
   illustrationQuality?: number;
   visualRichness?: number;
+  /** Build 007, Section 8 (Illustration Quality Score V2): same category
+   * gating as illustrationQuality/visualRichness above -- only meaningful
+   * for a botanical tile. */
+  illustrationQualityV2?: IllustrationQualityV2;
   /** Build 006, Section 8: always computed (unlike illustrationQuality/
    * visualRichness, no category-gating needed — every dimension here
    * already handles a missing botanical input honestly). */
@@ -149,11 +154,13 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
 
   let illustrationQuality: number | undefined;
   let visualRichness: number | undefined;
+  let illustrationQualityV2: IllustrationQualityV2 | undefined;
   let botanicalMetrics: ReturnType<typeof computeBotanicalBeautyMetrics> | undefined;
   if (params.categoryId === 'botanical') {
     botanicalMetrics = computeBotanicalBeautyMetrics(tile, metrics);
     illustrationQuality = computeIllustrationQuality(botanicalMetrics);
     visualRichness = computeVisualRichness(botanicalMetrics);
+    illustrationQualityV2 = computeIllustrationQualityV2(tile, metrics, botanicalMetrics);
   }
 
   // Build 006, Section 8 (Commercial Pattern Critic): reuses the exact
@@ -190,6 +197,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     botanicalFamily: params.botanicalFamily,
     illustrationQuality,
     visualRichness,
+    illustrationQualityV2,
   };
 }
 
@@ -290,6 +298,20 @@ function aggregateMetrics(results: EvalResult[]) {
   if (withIllustrationQuality.length > 0) {
     perMetric.illustrationQuality = stats(withIllustrationQuality.map((r) => r.illustrationQuality!));
     perMetric.visualRichness = stats(withIllustrationQuality.map((r) => r.visualRichness!));
+  }
+  // Build 007, Section 8 (Illustration Quality Score V2): same category
+  // gating; only the sub-dimensions genuinely new to this build get their
+  // own reported stat (botanicalRealism/illustrationQuality/silhouetteQuality
+  // already have a home above/elsewhere -- listing them again here would be
+  // a duplicate report, not new information).
+  const withIllustrationQualityV2 = results.filter((r) => r.illustrationQualityV2 !== undefined);
+  if (withIllustrationQualityV2.length > 0) {
+    perMetric.illustrationQualityV2Overall = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.overall));
+    perMetric.bouquetQuality = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.bouquetQuality));
+    perMetric.gestureQuality = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.gestureQuality));
+    perMetric.leafRealism = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.leafRealism));
+    perMetric.flowerRealism = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.flowerRealism));
+    perMetric.premiumFeel = stats(withIllustrationQualityV2.map((r) => r.illustrationQualityV2!.premiumFeel));
   }
   // Build 006, Section 8/1: always present (unlike illustrationQuality),
   // no category filter needed.
@@ -436,6 +458,11 @@ function main() {
   if (report.portfolio.aggregate.illustrationQuality) {
     console.log(`Portfolio Illustration Quality mean=${report.portfolio.aggregate.illustrationQuality.mean} (botanical results only, n=${report.portfolio.aggregate.illustrationQuality.n})`);
     console.log(`Portfolio Visual Richness mean=${report.portfolio.aggregate.visualRichness.mean}`);
+  }
+  if (report.portfolio.aggregate.illustrationQualityV2Overall) {
+    console.log(`Portfolio Illustration Quality V2 overall mean=${report.portfolio.aggregate.illustrationQualityV2Overall.mean} (botanical results only, n=${report.portfolio.aggregate.illustrationQualityV2Overall.n})`);
+    console.log(`Portfolio Bouquet/Gesture/Leaf/Flower Realism means=${report.portfolio.aggregate.bouquetQuality.mean}/${report.portfolio.aggregate.gestureQuality.mean}/${report.portfolio.aggregate.leafRealism.mean}/${report.portfolio.aggregate.flowerRealism.mean}`);
+    console.log(`Portfolio Premium Feel mean=${report.portfolio.aggregate.premiumFeel.mean}`);
   }
   console.log(`Portfolio Commercial Style Fit mean=${report.portfolio.aggregate.commercialStyleFit.mean}`);
   console.log(`Portfolio Luxury/Editorial/Premium Feeling means=${report.portfolio.aggregate.luxuryFeeling.mean}/${report.portfolio.aggregate.editorialFeeling.mean}/${report.portfolio.aggregate.premiumFeeling.mean}`);

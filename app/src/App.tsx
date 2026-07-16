@@ -6,7 +6,7 @@ import { randomSeed, createRng } from './engine/rng';
 import { assignPortfolioDiversity } from './engine/portfolioVariety';
 import { HIERARCHY_PRESETS } from './engine/hierarchy';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
-import { buildTileWithHeroRetry } from './engine/heroDetector';
+import { buildTileWithHeroRetry, buildTileWithCommercialRetry } from './engine/heroDetector';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
@@ -77,6 +77,18 @@ function saveGallery(items: GalleryItem[]) {
   } catch {
     // localStorage full or unavailable — gallery just stays session-only.
   }
+}
+
+// Build 007, Section 7 (Commercial Composition Review): a botanical
+// generation gets the broader Pattern Beauty Score-based retry (bouquet
+// balance/silhouette/negative space/rhythm/repetition/commercial appeal,
+// see engine/heroDetector.ts's `buildTileWithCommercialRetry`); every other
+// category keeps the original Hero-Visibility-only retry unchanged, since
+// this build's own mandate is the botanical illustration engine, not a
+// revisit of every category's retry cadence.
+function buildTileForGenerate(params: GenerateParams) {
+  const isBotanical = params.categoryId === 'botanical' || (params.mixCategoryIds?.includes('botanical') ?? false);
+  return isBotanical ? buildTileWithCommercialRetry(params) : buildTileWithHeroRetry(params);
 }
 
 // Collection Studio Engine — which zip folder each asset type's SVG lands
@@ -172,7 +184,13 @@ function App() {
     // Build 003, Part 11 (Hero Detector): analyzes the real Hero
     // Visibility Score right after generation and regenerates from a
     // derived sub-seed if it's poor — see engine/heroDetector.ts.
-    const next = buildTileWithHeroRetry(params).tileData;
+    // Build 007, Section 7 (Commercial Composition Review): a botanical
+    // generation additionally gets the broader Pattern Beauty Score check
+    // (bouquet balance/silhouette/negative space/rhythm/repetition/
+    // commercial appeal) -- scoped to `botanical` specifically since that's
+    // this build's own mandate, rather than changing retry behavior for
+    // every other category no one asked to revisit.
+    const next = buildTileForGenerate(params).tileData;
     setTileData(next);
     const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: next, createdAt: Date.now() };
     setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
@@ -228,8 +246,9 @@ function App() {
         clusterArchetypes: [batch[i].clusterType],
         hierarchy: HIERARCHY_PRESETS[batch[i].heroStructure].value,
       };
-      // Build 003, Part 11 (Hero Detector): see handleGenerate above.
-      const data = buildTileWithHeroRetry(variantParams).tileData;
+      // Build 003, Part 11 (Hero Detector) / Build 007, Section 7
+      // (Commercial Composition Review): see handleGenerate above.
+      const data = buildTileForGenerate(variantParams).tileData;
       latest = data;
       items.push({ id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
     }

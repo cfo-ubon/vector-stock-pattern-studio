@@ -5,7 +5,7 @@ import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 import { pinnateVeins } from './shared';
 import { smoothPathD, wobbleEnvelope, radialAsymmetry, tangentToUpAngleDeg, type Pt } from '../engine/curveEngine';
 import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growth';
-import { organicPetalPath, petalRing } from './petals';
+import { organicPetalPath, petalRing, layeredPetalRing } from './petals';
 import { BOTANICAL_FAMILIES, type BotanicalFamily } from './botanicalFamilies';
 import { BOTANICAL_PARTS, shapeCategoryForPart, type BotanicalPart, type PartShapeCategory } from './botanicalParts';
 import { palmFrond, monsteraLeaf } from './tropical';
@@ -30,8 +30,11 @@ type Variant = (rng: Rng, colors: string[], size: number) => { node: ReturnType<
 // leaf" rather than a flat almond icon.
 
 /** Pointed-tip ovate leaf: asymmetric taper (fuller below center, tapered
- * base) built from four cubic segments for a natural curve. */
-function ovateLeafPath(length: number, width: number): string {
+ * base) built from four cubic segments for a natural curve. Exported for
+ * `generators/leafAnatomy.ts` (Build 007, Section 2), which reuses this
+ * exact shape as one of its real per-species leaf silhouettes rather than
+ * re-deriving the same ovate curve a second time. */
+export function ovateLeafPath(length: number, width: number): string {
   const h2 = length / 2;
   const w = width / 2;
   const wy = -h2 * 0.12; // widest point sits slightly below center
@@ -49,7 +52,7 @@ function ovateLeafPath(length: number, width: number): string {
  * segments (a jagged edge reads correctly even without curves — real leaf
  * teeth are sharp, so this is a deliberate exception to "smooth curves
  * everywhere"). */
-function serratedLeafPath(length: number, width: number, rng: Rng): string {
+export function serratedLeafPath(length: number, width: number, rng: Rng): string {
   const h2 = length / 2;
   const w = width / 2;
   const teeth = rngInt(rng, 9, 13);
@@ -88,25 +91,41 @@ const singleLeaf: Variant = (rng, colors, size) => {
   return { node, radius: length * 0.55 };
 };
 
+// Build 007, Section 1 (Flower Anatomy Engine): this was the app's own
+// "generic star-shaped flower" the brief warns against by name -- a single
+// flat ring of petals around a bare circle, used as the untagged fallback
+// bloom across most families with no dedicated species variant. A real
+// flower has petal HIERARCHY (an outer whorl plus a smaller inner whorl,
+// interleaved, not stacked), so this now uses `layeredPetalRing` (see
+// petals.ts) instead of one flat ring -- genuinely different geometry, not
+// a re-labeled single ring. `openness` (a real bloom-stage value, seeded
+// per instance) makes the inner whorl read anywhere from "just starting to
+// open" to "fully open", the same natural variety a bouquet's blooms show
+// at different ages instead of every bloom looking identically staged.
 const flowerBloom: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const petals = rngInt(rng, 5, 7);
+  const outerCount = rngInt(rng, 5, 7);
+  const innerCount = rngInt(rng, 4, 6);
   const petalColor = rngPick(rng, accentColors(colors));
+  const innerColor = rngPick(rng, accentColors(colors));
   const centerColor = rngPick(rng, accentColors(colors));
-  const petalLen = r * 0.85;
-  const petalNodes = petalRing(rng, {
-    count: petals,
-    distance: 0,
-    length: petalLen,
-    width: petalLen * 0.5,
-    color: petalColor,
+  const openness = rngRange(rng, 0.4, 1);
+  const { outer, inner } = layeredPetalRing(rng, {
+    outerCount,
+    innerCount,
+    outerLength: r * 0.85,
+    outerWidth: r * 0.85 * 0.5,
+    innerScale: 0.58,
+    outerColor: petalColor,
+    innerColor,
     curvature: 0.55,
-    angleJitter: 5,
-    scaleJitter: 0.07,
+    openness,
+    variants: ['rounded', 'rounded', 'pointed', 'folded'],
   });
   const node = h('g', {}, [
-    h('g', { 'data-part': 'petals-outer' }, petalNodes),
-    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })]),
+    h('g', { 'data-part': 'petals-outer' }, outer),
+    h('g', { 'data-part': 'petals-inner' }, inner),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: centerColor })]),
   ]);
   return { node, radius: r * 1.05 };
 };
@@ -691,6 +710,10 @@ const anemoneFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 6, 8);
   const petalLen = r * rngRange(rng, 0.7, 0.85);
+  // Build 007, Section 5 (Petal Variation Library): an anemone's own soft,
+  // slightly irregular petals read correctly as a real mix of rounded and
+  // occasionally folded/curled shapes -- not every petal in the ring
+  // sharing one identical curvature.
   const petalNodes = petalRing(rng, {
     count: petals,
     distance: 0,
@@ -700,6 +723,7 @@ const anemoneFlower: Variant = (rng, colors, size) => {
     curvature: 0.65,
     angleJitter: 5,
     scaleJitter: 0.07,
+    variants: ['rounded', 'rounded', 'folded', 'curled'],
   });
   const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.14), fill: blendHex('#1a1006', 0.6, centerColor) })];
   const stamens = rngInt(rng, 10, 14);
@@ -725,6 +749,9 @@ const daisyFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 12, 16);
   const petalLen = r * 0.9;
+  // Build 007, Section 5: a real daisy ring is mostly uniform pointed
+  // petals with the occasional weathered/immature one mixed in -- a
+  // genuine field daisy is never perfectly identical petal-for-petal.
   const petalNodes = petalRing(rng, {
     count: petals,
     distance: r * 0.12,
@@ -734,6 +761,7 @@ const daisyFlower: Variant = (rng, colors, size) => {
     curvature: 0.2,
     angleJitter: 3,
     scaleJitter: 0.05,
+    variants: ['pointed', 'pointed', 'pointed', 'damaged', 'immature'],
   });
   const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })];
   const dots = rngInt(rng, 10, 14);
@@ -1119,18 +1147,30 @@ const lavenderSpike: Variant = (rng, colors, size) => {
 };
 
 /** A small tight cluster of round berries at one point along a stem. */
+// Build 007, Section 6 (Luxury Detailing): a real berry "cap" -- a small
+// bright highlight dot offset toward one corner of each berry, the flat
+// specular read every glossy real berry (holly, rosehip) has and a flat
+// solid circle doesn't. Cheap by design (one extra circle per berry, same
+// node-budget discipline `calyxBase`/`flowerCenterDetail` already
+// established) -- adds real dimensional detail without adding clutter
+// (it's a single small dot, not a second shape).
 function berryCluster(rng: Rng, color: string, r: number): ReturnType<typeof h>[] {
   const count = rngInt(rng, 3, 5);
   const berries: ReturnType<typeof h>[] = [];
+  const highlightColor = blendHex('#ffffff', 0.55, color);
   for (let i = 0; i < count; i++) {
     const angle = rngRange(rng, 0, Math.PI * 2);
     const dist = rngRange(rng, 0, r * 0.55);
+    const berryR = r * rngRange(rng, 0.85, 1);
+    const cx = Math.cos(angle) * dist;
+    const cy = Math.sin(angle) * dist * 0.85;
+    berries.push(h('circle', { cx: round(cx), cy: round(cy), r: round(berryR), fill: color }));
     berries.push(
       h('circle', {
-        cx: round(Math.cos(angle) * dist),
-        cy: round(Math.sin(angle) * dist * 0.85),
-        r: round(r * rngRange(rng, 0.85, 1)),
-        fill: color,
+        cx: round(cx - berryR * 0.32),
+        cy: round(cy - berryR * 0.32),
+        r: round(berryR * 0.24),
+        fill: highlightColor,
       }),
     );
   }

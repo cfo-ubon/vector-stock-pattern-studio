@@ -81,10 +81,17 @@ export function calyxBase(rng: Rng, opts: { color: string; flowerRadius: number;
  * node-budget discipline `calyxBase` already established. */
 export function flowerCenterDetail(
   rng: Rng,
-  opts: { filamentColor: string; discColor: string; flowerRadius: number; filamentCount?: number },
+  opts: { filamentColor: string; discColor: string; flowerRadius: number; filamentCount?: number; openness?: number },
 ): ReturnType<typeof h> {
-  const { filamentColor, discColor, flowerRadius: r, filamentCount = 6 } = opts;
-  const filamentLen = r * 0.22;
+  const { filamentColor, discColor, flowerRadius: r, filamentCount = 6, openness = 1 } = opts;
+  // Build 007, Section 1 (Flower Anatomy Engine): `openness` is a real
+  // "bloom stage" read -- a bloom just starting to open has short filaments
+  // clustered close around a larger, still-mostly-closed disc; a fully
+  // open bloom has long, spread filaments around a smaller disc. Defaults
+  // to 1 (unchanged from pre-Build-007 behavior) so every existing caller
+  // is byte-identical.
+  const filamentLen = r * 0.22 * (0.45 + 0.55 * openness);
+  const discRadius = r * (0.12 + 0.05 * (1 - openness));
   const parts: ReturnType<typeof h>[] = [];
   for (let i = 0; i < filamentCount; i++) {
     const angle = (360 / filamentCount) * i + rngRange(rng, -10, 10);
@@ -96,6 +103,6 @@ export function flowerCenterDetail(
       ]),
     );
   }
-  parts.push(h('circle', { cx: 0, cy: 0, r: round(r * 0.12), fill: discColor }));
+  parts.push(h('circle', { cx: 0, cy: 0, r: round(discRadius), fill: discColor }));
   return h('g', { 'data-part': 'flower-center' }, parts);
 }

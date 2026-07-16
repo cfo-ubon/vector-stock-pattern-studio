@@ -8,6 +8,8 @@ import { calyxBase, flowerCenterDetail } from './shared';
 import { botanicalGenerator } from './botanical';
 import { BOTANICAL_SPECIES, pickCompanionFamily, type BotanicalFamily } from './botanicalFamilies';
 import { illustrationTemplateForSpecies } from './illustrationFamily';
+import { leafAnatomyFor, anatomicalLeafNode, pickLeafEdge } from './leafAnatomy';
+import { flowerAnatomyFor, rollOpenness } from './flowerAnatomy';
 import type { DesignGenerationRules } from '../engine/designKnowledge';
 
 // Build 004, Section 8 (Premium Hero Builder): "Heroes should become
@@ -36,9 +38,6 @@ import type { DesignGenerationRules } from '../engine/designKnowledge';
 // silhouettes, few elements"), so which presets opt into a premium hero is
 // Section 9's job (Style DNA botanical grammar), not this section's.
 
-function simpleLeafPath(len: number, width: number): string {
-  return `M 0 0 Q ${round(width / 2)} ${round(-len * 0.4)} 0 ${round(-len)} Q ${round(-width / 2)} ${round(-len * 0.4)} 0 0 Z`;
-}
 
 // Build 006, Section 2 (Luxury Bouquet Composer): "current heroes still
 // feel procedural" -- one real, measurable driver is that every non-hero
@@ -143,11 +142,19 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   const leafPreset = species ? GROWTH_PRESETS[species.growthPreset] : GROWTH_PRESETS.leafyBranch;
   const leaves = growLeaves(rng, stem, leafPreset);
   const leafColor = rngPick(rng, accents);
+  const leafVeinColor = rngPick(rng, accents);
   const leafDensityScale = (species?.leafDensityScale ?? 1) * (designRules?.leafDensityMultiplier ?? 1);
+  // Build 007, Section 2 (Leaf Anatomy Engine): a real per-species leaf
+  // silhouette (ovate/serrated + pinnate venation, see leafAnatomy.ts)
+  // instead of the previous flat, vein-less `simpleLeafPath` teardrop --
+  // the hero's own leaves are the most visible foliage in the whole tile,
+  // so this is the highest-leverage place to close the anatomy gap.
+  const heroLeafAnatomy = leafAnatomyFor(family);
   const leafNodes = leaves.map((leaf) => {
     const leafLen = size * rngRange(rng, 0.12, 0.18) * leaf.scale * leafDensityScale;
+    const profile = { ...heroLeafAnatomy, edge: pickLeafEdge(rng, heroLeafAnatomy) };
     return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
-      h('path', { d: simpleLeafPath(leafLen, leafLen * 0.5), fill: leafColor }),
+      anatomicalLeafNode(rng, leafColor, leafVeinColor, leafLen, profile),
     ]);
   });
 
@@ -177,10 +184,12 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     const sprigStem = generateStem(rng, size * 0.22 * stemLengthScale, rngRange(rng, 0.05, 0.1));
     const sprigLeaves = growLeaves(rng, sprigStem, companionPreset).slice(0, 3);
     const sprigColor = rngPick(rng, accents);
+    const sprigVeinColor = rngPick(rng, accents);
+    const sprigLeafAnatomy = leafAnatomyFor(companionFamily);
     const sprigNodes = sprigLeaves.map((leaf) => {
       const leafLen = size * rngRange(rng, 0.08, 0.12) * leaf.scale;
       return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
-        h('path', { d: simpleLeafPath(leafLen, leafLen * 0.5), fill: sprigColor }),
+        anatomicalLeafNode(rng, sprigColor, sprigVeinColor, leafLen, sprigLeafAnatomy),
       ]);
     });
     if (sprigNodes.length > 0) {
@@ -195,12 +204,27 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     }
   }
 
+  // Build 007, Section 4 (Botanical Gesture Engine): the stem spline
+  // already curves (S/C sway) and leaves already bend along its local
+  // tangent -- but the whole foliage base still always grows dead
+  // vertical, with no overall lean. A real cut stem in a bouquet leans a
+  // few degrees off-vertical as a matter of how it was gathered/placed,
+  // not just curving in place -- a small seeded rotation of the entire
+  // stem+leaves+companion-foliage group gives the hero a real "growing in
+  // a direction" read instead of a perfectly upright silhouette every time.
+  const gestureLean = rngRange(rng, -7, 7);
   const parts = [
-    h('g', { 'data-part': 'stem' }, [
-      h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.02), 'stroke-linecap': 'round' }),
-    ]),
-    h('g', { 'data-part': 'leaves' }, leafNodes),
-    ...(companionFoliageNode ? [companionFoliageNode] : []),
+    h(
+      'g',
+      { 'data-part': 'gesture-lean', transform: `rotate(${round(gestureLean)})` },
+      [
+        h('g', { 'data-part': 'stem' }, [
+          h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.02), 'stroke-linecap': 'round' }),
+        ]),
+        h('g', { 'data-part': 'leaves' }, leafNodes),
+        ...(companionFoliageNode ? [companionFoliageNode] : []),
+      ],
+    ),
   ];
 
   // Build 005, Section 5 (Illustration Family Engine): which named part
@@ -240,7 +264,14 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       // whose hero part is a real flower -- a foliage `branch` hero has no
       // sepal base to draw.
       if (template.usesCalyx) {
-        calyx = calyxBase(rng, { color: rngPick(rng, accents), flowerRadius: sub.radius });
+        // Build 007, Section 1 (Flower Anatomy Engine): real per-species
+        // sepal/filament counts and a bloom-stage roll within that
+        // species' own natural openness range, instead of one constant
+        // (sepalCount=5, filamentCount=6, fully-open) applied to every
+        // hero species alike.
+        const anatomy = flowerAnatomyFor(family);
+        const openness = rollOpenness(rng, anatomy);
+        calyx = calyxBase(rng, { color: rngPick(rng, accents), flowerRadius: sub.radius, sepalCount: anatomy.sepalCount });
         // Build 006, Section 7 (Premium SVG Detail): a real Flower Center
         // (stamens + anther dots + disc), reserved for the same hero-scale,
         // real-flower templates the Calyx already is -- the exact same
@@ -249,6 +280,8 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
           filamentColor: rngPick(rng, accents),
           discColor: rngPick(rng, accents),
           flowerRadius: sub.radius,
+          filamentCount: anatomy.filamentCount,
+          openness,
         });
       }
     } else if (member.role === 'secondary') {
@@ -256,7 +289,20 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.55, colorSeed++, { role: 'secondary', part, family });
     } else if (member.role === 'filler') {
-      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: template.fillerPart, family: fillerFamily });
+      // Build 007, Section 3 (Premium Bouquet Designer, "filler flowers,
+      // berry balance"): the `bouquet` template used to force EVERY filler
+      // member to a berry part regardless of what the companion species
+      // actually is -- a Rose paired with Baby's-Breath (a real filler-role
+      // species with no berries at all) still drew a berry. Now a
+      // companion whose own real `bouquetRole` is genuinely `'filler'`
+      // (Baby's Breath, Cosmos, Wildflower) draws as a small filler flower
+      // instead, while a companion that IS a real berry species
+      // (`berryBranch`, `bouquetRole: 'supporting'`) keeps the berry --
+      // "which filler reads correctly" now follows the companion's own
+      // real botanical role instead of one constant for every pairing.
+      const companionIsFillerFlower = fillerFamily ? BOTANICAL_SPECIES[fillerFamily].bouquetRole === 'filler' : false;
+      const fillerPart = companionIsFillerFlower ? 'secondaryFlower' : template.fillerPart;
+      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: fillerPart, family: fillerFamily });
     } else {
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: template.accentPart, family: fillerFamily });
     }

@@ -97,8 +97,10 @@ function clamp01to100(n: number): number {
 }
 
 /** Depth-first collection of every descendant (including the node itself)
- * whose `data-part` attribute matches `part`. */
-function findDataPartNodes(node: SvgNode, part: string): SvgNode[] {
+ * whose `data-part` attribute matches `part`. Exported for
+ * `illustrationQualityV2.ts` (Build 007, Section 8), which reuses this
+ * exact traversal rather than re-deriving it. */
+export function findDataPartNodes(node: SvgNode, part: string): SvgNode[] {
   const found: SvgNode[] = [];
   if (node.attrs?.['data-part'] === part) found.push(node);
   for (const child of node.children ?? []) found.push(...findDataPartNodes(child, part));
@@ -109,7 +111,7 @@ function findDataPartNodes(node: SvgNode, part: string): SvgNode[] {
  * every wrap-around repeat of that instance shares — reusing
  * `svgGeometry.ts`'s own exported `findMotifGroups` rather than
  * re-deriving which top-level nodes are motifs. */
-function primaryMotifNodes(tile: TileData): SvgNode[] {
+export function primaryMotifNodes(tile: TileData): SvgNode[] {
   return findMotifGroups(tile.svg)
     .map((g) => (g.children ?? [])[0])
     .filter((n): n is SvgNode => n !== undefined);
