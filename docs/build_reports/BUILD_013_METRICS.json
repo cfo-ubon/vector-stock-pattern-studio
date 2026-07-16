@@ -1,0 +1,3929 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-16T19:59:19.566Z",
+  "analyzedAt": "2026-07-16T19:59:38.772Z",
+  "baseline": {
+    "capturedAt": "2026-07-16T19:59:19.566Z",
+    "label": "Build 012 — Evaluation Intelligence Engine V3",
+    "knowledgeVersion": "1.0",
+    "styleSchemaVersion": "1.0",
+    "speciesSchemaVersion": "1.0",
+    "penaltySystemVersion": 2,
+    "evaluatorCommit": "cd99eacb836f7f30206dd2db950c01c6b0c45889",
+    "generatorCommit": "cd99eacb836f7f30206dd2db950c01c6b0c45889",
+    "seedPolicy": {
+      "prefix": "p13",
+      "description": "p13-<styleId>-<1..N>, deterministic, documented distribution in scripts/portfolioGenerate.ts"
+    },
+    "portfolioSchemaVersion": 1
+  },
+  "totalPatterns": 5000,
+  "distribution": {
+    "editorialBotanical": 334,
+    "luxuryFloral": 334,
+    "scandinavianOrganic": 334,
+    "minimalBotanical": 334,
+    "vintageHerbarium": 334,
+    "darkBotanical": 333,
+    "modernTropical": 333,
+    "boutiquePackaging": 333,
+    "luxuryWallpaper": 333,
+    "premiumTextile": 333,
+    "kidsPlayful": 333,
+    "retroOrganic": 333,
+    "organicAbstract": 333,
+    "bohoFloral": 333,
+    "softWatercolorInspired": 333
+  },
+  "perPresetSummary": [
+    {
+      "styleDnaId": "organicAbstract",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 88.19,
+      "confidence": "high",
+      "coefficientOfVariation": 0.01
+    },
+    {
+      "styleDnaId": "modernTropical",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 87.42,
+      "confidence": "high",
+      "coefficientOfVariation": 0.015
+    },
+    {
+      "styleDnaId": "retroOrganic",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 86.91,
+      "confidence": "high",
+      "coefficientOfVariation": 0.05
+    },
+    {
+      "styleDnaId": "softWatercolorInspired",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 85.66,
+      "confidence": "high",
+      "coefficientOfVariation": 0.059
+    },
+    {
+      "styleDnaId": "luxuryWallpaper",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 85.16,
+      "confidence": "high",
+      "coefficientOfVariation": 0.016
+    },
+    {
+      "styleDnaId": "kidsPlayful",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 84.99,
+      "confidence": "high",
+      "coefficientOfVariation": 0.009
+    },
+    {
+      "styleDnaId": "bohoFloral",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 84.78,
+      "confidence": "high",
+      "coefficientOfVariation": 0.029
+    },
+    {
+      "styleDnaId": "scandinavianOrganic",
+      "count": 334,
+      "avgAbsoluteCommercialQualityV2": 83.51,
+      "confidence": "high",
+      "coefficientOfVariation": 0.073
+    },
+    {
+      "styleDnaId": "vintageHerbarium",
+      "count": 334,
+      "avgAbsoluteCommercialQualityV2": 82.95,
+      "confidence": "high",
+      "coefficientOfVariation": 0.05
+    },
+    {
+      "styleDnaId": "editorialBotanical",
+      "count": 334,
+      "avgAbsoluteCommercialQualityV2": 80.59,
+      "confidence": "high",
+      "coefficientOfVariation": 0.131
+    },
+    {
+      "styleDnaId": "premiumTextile",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 80.4,
+      "confidence": "high",
+      "coefficientOfVariation": 0.016
+    },
+    {
+      "styleDnaId": "darkBotanical",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 80.09,
+      "confidence": "high",
+      "coefficientOfVariation": 0.144
+    },
+    {
+      "styleDnaId": "boutiquePackaging",
+      "count": 333,
+      "avgAbsoluteCommercialQualityV2": 78.8,
+      "confidence": "high",
+      "coefficientOfVariation": 0.05
+    },
+    {
+      "styleDnaId": "minimalBotanical",
+      "count": 334,
+      "avgAbsoluteCommercialQualityV2": 77.11,
+      "confidence": "high",
+      "coefficientOfVariation": 0.056
+    },
+    {
+      "styleDnaId": "luxuryFloral",
+      "count": 334,
+      "avgAbsoluteCommercialQualityV2": 75.78,
+      "confidence": "medium",
+      "coefficientOfVariation": 0.248
+    }
+  ],
+  "duplicateCounts": {
+    "exactDuplicate": 0,
+    "deterministicDuplicate": 0,
+    "nearDuplicate": 1
+  },
+  "clusters": [
+    {
+      "clusterId": 1,
+      "label": "Editorial Botanical — organic layouts — mid tier (n=112, avg 76.54)",
+      "styleDnaId": "editorialBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 112,
+      "avgCompositeRankScore": 76.54,
+      "avgAbsoluteCommercialQualityV2": 86.9,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 112
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 74
+        },
+        {
+          "value": "repeatedScale",
+          "count": 33
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 112
+        },
+        {
+          "value": "strongHeroDetail",
+          "count": 112
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 112
+        }
+      ],
+      "samplePatternIds": [
+        "editorialBotanical@p13-editorialBotanical-269",
+        "editorialBotanical@p13-editorialBotanical-326",
+        "editorialBotanical@p13-editorialBotanical-333",
+        "editorialBotanical@p13-editorialBotanical-5",
+        "editorialBotanical@p13-editorialBotanical-60"
+      ]
+    },
+    {
+      "clusterId": 4,
+      "label": "Luxury Floral — organic layouts — mid tier (n=112, avg 76.31)",
+      "styleDnaId": "luxuryFloral",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 112,
+      "avgCompositeRankScore": 76.31,
+      "avgAbsoluteCommercialQualityV2": 85.44,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 112
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 109
+        },
+        {
+          "value": "repeatedScale",
+          "count": 51
+        },
+        {
+          "value": "weakHierarchy",
+          "count": 6
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 112
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 112
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 112
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryFloral@p13-luxuryFloral-226",
+        "luxuryFloral@p13-luxuryFloral-272",
+        "luxuryFloral@p13-luxuryFloral-39",
+        "luxuryFloral@p13-luxuryFloral-67",
+        "luxuryFloral@p13-luxuryFloral-78"
+      ]
+    },
+    {
+      "clusterId": 7,
+      "label": "Scandinavian Organic — organic layouts — mid tier (n=112, avg 71.59)",
+      "styleDnaId": "scandinavianOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 112,
+      "avgCompositeRankScore": 71.59,
+      "avgAbsoluteCommercialQualityV2": 85.79,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 64
+        },
+        {
+          "value": "greetingCard",
+          "count": 48
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 44
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 8
+        },
+        {
+          "value": "heroInsufficientDetail",
+          "count": 1
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 112
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 112
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 68
+        }
+      ],
+      "samplePatternIds": [
+        "scandinavianOrganic@p13-scandinavianOrganic-193",
+        "scandinavianOrganic@p13-scandinavianOrganic-202",
+        "scandinavianOrganic@p13-scandinavianOrganic-209",
+        "scandinavianOrganic@p13-scandinavianOrganic-220",
+        "scandinavianOrganic@p13-scandinavianOrganic-225"
+      ]
+    },
+    {
+      "clusterId": 10,
+      "label": "Minimal Botanical — lattice layouts — mid tier (n=112, avg 75.41)",
+      "styleDnaId": "minimalBotanical",
+      "layoutClass": "lattice",
+      "scoreBand": "mid",
+      "size": 112,
+      "avgCompositeRankScore": 75.41,
+      "avgAbsoluteCommercialQualityV2": 79.13,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 111
+        },
+        {
+          "value": "fabric",
+          "count": 1
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 30
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 112
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 112
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 110
+        }
+      ],
+      "samplePatternIds": [
+        "minimalBotanical@p13-minimalBotanical-331",
+        "minimalBotanical@p13-minimalBotanical-211",
+        "minimalBotanical@p13-minimalBotanical-305",
+        "minimalBotanical@p13-minimalBotanical-321",
+        "minimalBotanical@p13-minimalBotanical-65"
+      ]
+    },
+    {
+      "clusterId": 0,
+      "label": "Editorial Botanical — organic layouts — top tier (n=111, avg 79.1)",
+      "styleDnaId": "editorialBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 79.1,
+      "avgAbsoluteCommercialQualityV2": 87.42,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 78
+        },
+        {
+          "value": "repeatedScale",
+          "count": 42
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "editorialBotanical@p13-editorialBotanical-74",
+        "editorialBotanical@p13-editorialBotanical-243",
+        "editorialBotanical@p13-editorialBotanical-203",
+        "editorialBotanical@p13-editorialBotanical-263",
+        "editorialBotanical@p13-editorialBotanical-190"
+      ]
+    },
+    {
+      "clusterId": 2,
+      "label": "Editorial Botanical — organic layouts — bottom tier (n=111, avg 68.51)",
+      "styleDnaId": "editorialBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 68.51,
+      "avgAbsoluteCommercialQualityV2": 67.38,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "largeEmptyHole",
+          "count": 102
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 22
+        },
+        {
+          "value": "zeroMotifOverlap",
+          "count": 10
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "editorialBotanical@p13-editorialBotanical-125",
+        "editorialBotanical@p13-editorialBotanical-136",
+        "editorialBotanical@p13-editorialBotanical-206",
+        "editorialBotanical@p13-editorialBotanical-216",
+        "editorialBotanical@p13-editorialBotanical-123"
+      ]
+    },
+    {
+      "clusterId": 3,
+      "label": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+      "styleDnaId": "luxuryFloral",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 79.4,
+      "avgAbsoluteCommercialQualityV2": 88.05,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 111
+        },
+        {
+          "value": "repeatedScale",
+          "count": 26
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryFloral@p13-luxuryFloral-319",
+        "luxuryFloral@p13-luxuryFloral-64",
+        "luxuryFloral@p13-luxuryFloral-108",
+        "luxuryFloral@p13-luxuryFloral-90",
+        "luxuryFloral@p13-luxuryFloral-297"
+      ]
+    },
+    {
+      "clusterId": 5,
+      "label": "Luxury Floral — organic layouts — bottom tier (n=111, avg 69.67)",
+      "styleDnaId": "luxuryFloral",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 69.67,
+      "avgAbsoluteCommercialQualityV2": 53.76,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 110
+        },
+        {
+          "value": "weakHierarchy",
+          "count": 92
+        },
+        {
+          "value": "equalSpacingDetected",
+          "count": 40
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryFloral@p13-luxuryFloral-33",
+        "luxuryFloral@p13-luxuryFloral-76",
+        "luxuryFloral@p13-luxuryFloral-191",
+        "luxuryFloral@p13-luxuryFloral-89",
+        "luxuryFloral@p13-luxuryFloral-295"
+      ]
+    },
+    {
+      "clusterId": 6,
+      "label": "Scandinavian Organic — organic layouts — top tier (n=111, avg 72.99)",
+      "styleDnaId": "scandinavianOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 72.99,
+      "avgAbsoluteCommercialQualityV2": 86.8,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 57
+        },
+        {
+          "value": "greetingCard",
+          "count": 54
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 54
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 8
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongHierarchy",
+          "count": 82
+        }
+      ],
+      "samplePatternIds": [
+        "scandinavianOrganic@p13-scandinavianOrganic-219",
+        "scandinavianOrganic@p13-scandinavianOrganic-171",
+        "scandinavianOrganic@p13-scandinavianOrganic-91",
+        "scandinavianOrganic@p13-scandinavianOrganic-304",
+        "scandinavianOrganic@p13-scandinavianOrganic-25"
+      ]
+    },
+    {
+      "clusterId": 8,
+      "label": "Scandinavian Organic — organic layouts — bottom tier (n=111, avg 69.16)",
+      "styleDnaId": "scandinavianOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 69.16,
+      "avgAbsoluteCommercialQualityV2": 77.92,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 77
+        },
+        {
+          "value": "wallpaper",
+          "count": 34
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "heroInsufficientDetail",
+          "count": 53
+        },
+        {
+          "value": "lowStyleFitQuality",
+          "count": 50
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 4
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 68
+        }
+      ],
+      "samplePatternIds": [
+        "scandinavianOrganic@p13-scandinavianOrganic-311",
+        "scandinavianOrganic@p13-scandinavianOrganic-324",
+        "scandinavianOrganic@p13-scandinavianOrganic-325",
+        "scandinavianOrganic@p13-scandinavianOrganic-86",
+        "scandinavianOrganic@p13-scandinavianOrganic-138"
+      ]
+    },
+    {
+      "clusterId": 9,
+      "label": "Minimal Botanical — lattice layouts — top tier (n=111, avg 79.75)",
+      "styleDnaId": "minimalBotanical",
+      "layoutClass": "lattice",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 79.75,
+      "avgAbsoluteCommercialQualityV2": 73.82,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 111
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongStyleFitQuality",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "minimalBotanical@p13-minimalBotanical-251",
+        "minimalBotanical@p13-minimalBotanical-95",
+        "minimalBotanical@p13-minimalBotanical-316",
+        "minimalBotanical@p13-minimalBotanical-6",
+        "minimalBotanical@p13-minimalBotanical-49"
+      ]
+    },
+    {
+      "clusterId": 11,
+      "label": "Minimal Botanical — lattice layouts — bottom tier (n=111, avg 69.51)",
+      "styleDnaId": "minimalBotanical",
+      "layoutClass": "lattice",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 69.51,
+      "avgAbsoluteCommercialQualityV2": 78.36,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 77
+        },
+        {
+          "value": "greetingCard",
+          "count": 34
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 26
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 108
+        }
+      ],
+      "samplePatternIds": [
+        "minimalBotanical@p13-minimalBotanical-202",
+        "minimalBotanical@p13-minimalBotanical-30",
+        "minimalBotanical@p13-minimalBotanical-61",
+        "minimalBotanical@p13-minimalBotanical-160",
+        "minimalBotanical@p13-minimalBotanical-41"
+      ]
+    },
+    {
+      "clusterId": 18,
+      "label": "Dark Botanical — organic layouts — top tier (n=111, avg 74.94)",
+      "styleDnaId": "darkBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 74.94,
+      "avgAbsoluteCommercialQualityV2": 85.36,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 94
+        },
+        {
+          "value": "repeatedScale",
+          "count": 44
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 107
+        }
+      ],
+      "samplePatternIds": [
+        "darkBotanical@p13-darkBotanical-161",
+        "darkBotanical@p13-darkBotanical-239",
+        "darkBotanical@p13-darkBotanical-187",
+        "darkBotanical@p13-darkBotanical-1",
+        "darkBotanical@p13-darkBotanical-96"
+      ]
+    },
+    {
+      "clusterId": 19,
+      "label": "Dark Botanical — organic layouts — mid tier (n=111, avg 71.76)",
+      "styleDnaId": "darkBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 71.76,
+      "avgAbsoluteCommercialQualityV2": 86.14,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 100
+        },
+        {
+          "value": "repeatedScale",
+          "count": 83
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 110
+        }
+      ],
+      "samplePatternIds": [
+        "darkBotanical@p13-darkBotanical-232",
+        "darkBotanical@p13-darkBotanical-270",
+        "darkBotanical@p13-darkBotanical-329",
+        "darkBotanical@p13-darkBotanical-14",
+        "darkBotanical@p13-darkBotanical-20"
+      ]
+    },
+    {
+      "clusterId": 20,
+      "label": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+      "styleDnaId": "darkBotanical",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 65.59,
+      "avgAbsoluteCommercialQualityV2": 68.76,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 60
+        },
+        {
+          "value": "zeroMotifOverlap",
+          "count": 38
+        },
+        {
+          "value": "repeatedScale",
+          "count": 28
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 108
+        }
+      ],
+      "samplePatternIds": [
+        "darkBotanical@p13-darkBotanical-290",
+        "darkBotanical@p13-darkBotanical-76",
+        "darkBotanical@p13-darkBotanical-106",
+        "darkBotanical@p13-darkBotanical-162",
+        "darkBotanical@p13-darkBotanical-258"
+      ]
+    },
+    {
+      "clusterId": 21,
+      "label": "Modern Tropical — organic layouts — top tier (n=111, avg 69.86)",
+      "styleDnaId": "modernTropical",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 69.86,
+      "avgAbsoluteCommercialQualityV2": 88.07,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "repeatedScale",
+          "count": 4
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "modernTropical@p13-modernTropical-78",
+        "modernTropical@p13-modernTropical-150",
+        "modernTropical@p13-modernTropical-184",
+        "modernTropical@p13-modernTropical-106",
+        "modernTropical@p13-modernTropical-192"
+      ]
+    },
+    {
+      "clusterId": 22,
+      "label": "Modern Tropical — organic layouts — mid tier (n=111, avg 69.31)",
+      "styleDnaId": "modernTropical",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 69.31,
+      "avgAbsoluteCommercialQualityV2": 87.57,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "repeatedScale",
+          "count": 1
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "modernTropical@p13-modernTropical-264",
+        "modernTropical@p13-modernTropical-266",
+        "modernTropical@p13-modernTropical-271",
+        "modernTropical@p13-modernTropical-277",
+        "modernTropical@p13-modernTropical-282"
+      ]
+    },
+    {
+      "clusterId": 23,
+      "label": "Modern Tropical — organic layouts — bottom tier (n=111, avg 68.58)",
+      "styleDnaId": "modernTropical",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 68.58,
+      "avgAbsoluteCommercialQualityV2": 86.62,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "heroInsufficientDetail",
+          "count": 2
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "modernTropical@p13-modernTropical-37",
+        "modernTropical@p13-modernTropical-45",
+        "modernTropical@p13-modernTropical-49",
+        "modernTropical@p13-modernTropical-65",
+        "modernTropical@p13-modernTropical-76"
+      ]
+    },
+    {
+      "clusterId": 24,
+      "label": "Boutique Packaging — lattice layouts — top tier (n=111, avg 79.27)",
+      "styleDnaId": "boutiquePackaging",
+      "layoutClass": "lattice",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 79.27,
+      "avgAbsoluteCommercialQualityV2": 80.95,
+      "dominantProductTargets": [
+        {
+          "value": "packaging",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 36
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "boutiquePackaging@p13-boutiquePackaging-224",
+        "boutiquePackaging@p13-boutiquePackaging-114",
+        "boutiquePackaging@p13-boutiquePackaging-330",
+        "boutiquePackaging@p13-boutiquePackaging-94",
+        "boutiquePackaging@p13-boutiquePackaging-35"
+      ]
+    },
+    {
+      "clusterId": 25,
+      "label": "Boutique Packaging — lattice layouts — mid tier (n=111, avg 75.86)",
+      "styleDnaId": "boutiquePackaging",
+      "layoutClass": "lattice",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 75.86,
+      "avgAbsoluteCommercialQualityV2": 78.06,
+      "dominantProductTargets": [
+        {
+          "value": "packaging",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 65
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "boutiquePackaging@p13-boutiquePackaging-102",
+        "boutiquePackaging@p13-boutiquePackaging-189",
+        "boutiquePackaging@p13-boutiquePackaging-221",
+        "boutiquePackaging@p13-boutiquePackaging-256",
+        "boutiquePackaging@p13-boutiquePackaging-11"
+      ]
+    },
+    {
+      "clusterId": 26,
+      "label": "Boutique Packaging — lattice layouts — bottom tier (n=111, avg 72.65)",
+      "styleDnaId": "boutiquePackaging",
+      "layoutClass": "lattice",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 72.65,
+      "avgAbsoluteCommercialQualityV2": 77.37,
+      "dominantProductTargets": [
+        {
+          "value": "packaging",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 66
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "boutiquePackaging@p13-boutiquePackaging-147",
+        "boutiquePackaging@p13-boutiquePackaging-148",
+        "boutiquePackaging@p13-boutiquePackaging-166",
+        "boutiquePackaging@p13-boutiquePackaging-212",
+        "boutiquePackaging@p13-boutiquePackaging-213"
+      ]
+    },
+    {
+      "clusterId": 33,
+      "label": "Premium Textile — lattice layouts — top tier (n=111, avg 77.6)",
+      "styleDnaId": "premiumTextile",
+      "layoutClass": "lattice",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 77.6,
+      "avgAbsoluteCommercialQualityV2": 81.23,
+      "dominantProductTargets": [
+        {
+          "value": "textile",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "premiumTextile@p13-premiumTextile-250",
+        "premiumTextile@p13-premiumTextile-20",
+        "premiumTextile@p13-premiumTextile-179",
+        "premiumTextile@p13-premiumTextile-23",
+        "premiumTextile@p13-premiumTextile-122"
+      ]
+    },
+    {
+      "clusterId": 34,
+      "label": "Premium Textile — lattice layouts — mid tier (n=111, avg 76.69)",
+      "styleDnaId": "premiumTextile",
+      "layoutClass": "lattice",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 76.69,
+      "avgAbsoluteCommercialQualityV2": 81,
+      "dominantProductTargets": [
+        {
+          "value": "textile",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "premiumTextile@p13-premiumTextile-103",
+        "premiumTextile@p13-premiumTextile-110",
+        "premiumTextile@p13-premiumTextile-113",
+        "premiumTextile@p13-premiumTextile-123",
+        "premiumTextile@p13-premiumTextile-127"
+      ]
+    },
+    {
+      "clusterId": 35,
+      "label": "Premium Textile — lattice layouts — bottom tier (n=111, avg 75.19)",
+      "styleDnaId": "premiumTextile",
+      "layoutClass": "lattice",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 75.19,
+      "avgAbsoluteCommercialQualityV2": 78.95,
+      "dominantProductTargets": [
+        {
+          "value": "textile",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongProductFit",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "premiumTextile@p13-premiumTextile-120",
+        "premiumTextile@p13-premiumTextile-151",
+        "premiumTextile@p13-premiumTextile-170",
+        "premiumTextile@p13-premiumTextile-199",
+        "premiumTextile@p13-premiumTextile-236"
+      ]
+    },
+    {
+      "clusterId": 36,
+      "label": "Kids Playful — organic layouts — top tier (n=111, avg 71.61)",
+      "styleDnaId": "kidsPlayful",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 71.61,
+      "avgAbsoluteCommercialQualityV2": 85.6,
+      "dominantProductTargets": [
+        {
+          "value": "giftWrap",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 110
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "kidsPlayful@p13-kidsPlayful-54",
+        "kidsPlayful@p13-kidsPlayful-147",
+        "kidsPlayful@p13-kidsPlayful-228",
+        "kidsPlayful@p13-kidsPlayful-248",
+        "kidsPlayful@p13-kidsPlayful-257"
+      ]
+    },
+    {
+      "clusterId": 37,
+      "label": "Kids Playful — organic layouts — mid tier (n=111, avg 71)",
+      "styleDnaId": "kidsPlayful",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 71,
+      "avgAbsoluteCommercialQualityV2": 84.99,
+      "dominantProductTargets": [
+        {
+          "value": "giftWrap",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 111
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "kidsPlayful@p13-kidsPlayful-80",
+        "kidsPlayful@p13-kidsPlayful-82",
+        "kidsPlayful@p13-kidsPlayful-87",
+        "kidsPlayful@p13-kidsPlayful-95",
+        "kidsPlayful@p13-kidsPlayful-106"
+      ]
+    },
+    {
+      "clusterId": 38,
+      "label": "Kids Playful — organic layouts — bottom tier (n=111, avg 70.32)",
+      "styleDnaId": "kidsPlayful",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 70.32,
+      "avgAbsoluteCommercialQualityV2": 84.39,
+      "dominantProductTargets": [
+        {
+          "value": "giftWrap",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 104
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "kidsPlayful@p13-kidsPlayful-292",
+        "kidsPlayful@p13-kidsPlayful-299",
+        "kidsPlayful@p13-kidsPlayful-300",
+        "kidsPlayful@p13-kidsPlayful-317",
+        "kidsPlayful@p13-kidsPlayful-3"
+      ]
+    },
+    {
+      "clusterId": 39,
+      "label": "Retro Organic — organic layouts — top tier (n=111, avg 75.73)",
+      "styleDnaId": "retroOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 75.73,
+      "avgAbsoluteCommercialQualityV2": 89.19,
+      "dominantProductTargets": [
+        {
+          "value": "giftWrap",
+          "count": 59
+        },
+        {
+          "value": "wallpaper",
+          "count": 52
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 77
+        },
+        {
+          "value": "repeatedScale",
+          "count": 45
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "retroOrganic@p13-retroOrganic-326",
+        "retroOrganic@p13-retroOrganic-222",
+        "retroOrganic@p13-retroOrganic-75",
+        "retroOrganic@p13-retroOrganic-56",
+        "retroOrganic@p13-retroOrganic-149"
+      ]
+    },
+    {
+      "clusterId": 40,
+      "label": "Retro Organic — organic layouts — mid tier (n=111, avg 71.99)",
+      "styleDnaId": "retroOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 71.99,
+      "avgAbsoluteCommercialQualityV2": 86.77,
+      "dominantProductTargets": [
+        {
+          "value": "giftWrap",
+          "count": 60
+        },
+        {
+          "value": "wallpaper",
+          "count": 51
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 27
+        },
+        {
+          "value": "repeatedScale",
+          "count": 16
+        },
+        {
+          "value": "heroInsufficientDetail",
+          "count": 10
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "retroOrganic@p13-retroOrganic-295",
+        "retroOrganic@p13-retroOrganic-305",
+        "retroOrganic@p13-retroOrganic-79",
+        "retroOrganic@p13-retroOrganic-155",
+        "retroOrganic@p13-retroOrganic-175"
+      ]
+    },
+    {
+      "clusterId": 41,
+      "label": "Retro Organic — organic layouts — bottom tier (n=111, avg 70.66)",
+      "styleDnaId": "retroOrganic",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 70.66,
+      "avgAbsoluteCommercialQualityV2": 84.77,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 65
+        },
+        {
+          "value": "giftWrap",
+          "count": 46
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 16
+        },
+        {
+          "value": "heroInsufficientDetail",
+          "count": 15
+        },
+        {
+          "value": "repeatedScale",
+          "count": 10
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "retroOrganic@p13-retroOrganic-290",
+        "retroOrganic@p13-retroOrganic-292",
+        "retroOrganic@p13-retroOrganic-327",
+        "retroOrganic@p13-retroOrganic-9",
+        "retroOrganic@p13-retroOrganic-27"
+      ]
+    },
+    {
+      "clusterId": 42,
+      "label": "Organic Abstract — organic layouts — top tier (n=111, avg 72.66)",
+      "styleDnaId": "organicAbstract",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 72.66,
+      "avgAbsoluteCommercialQualityV2": 88.68,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 1
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "organicAbstract@p13-organicAbstract-56",
+        "organicAbstract@p13-organicAbstract-81",
+        "organicAbstract@p13-organicAbstract-95",
+        "organicAbstract@p13-organicAbstract-212",
+        "organicAbstract@p13-organicAbstract-226"
+      ]
+    },
+    {
+      "clusterId": 43,
+      "label": "Organic Abstract — organic layouts — mid tier (n=111, avg 72.01)",
+      "styleDnaId": "organicAbstract",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 72.01,
+      "avgAbsoluteCommercialQualityV2": 88.35,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "organicAbstract@p13-organicAbstract-30",
+        "organicAbstract@p13-organicAbstract-35",
+        "organicAbstract@p13-organicAbstract-47",
+        "organicAbstract@p13-organicAbstract-54",
+        "organicAbstract@p13-organicAbstract-61"
+      ]
+    },
+    {
+      "clusterId": 44,
+      "label": "Organic Abstract — organic layouts — bottom tier (n=111, avg 71.16)",
+      "styleDnaId": "organicAbstract",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 71.16,
+      "avgAbsoluteCommercialQualityV2": 87.52,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHeroDetail",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "organicAbstract@p13-organicAbstract-238",
+        "organicAbstract@p13-organicAbstract-258",
+        "organicAbstract@p13-organicAbstract-261",
+        "organicAbstract@p13-organicAbstract-273",
+        "organicAbstract@p13-organicAbstract-279"
+      ]
+    },
+    {
+      "clusterId": 45,
+      "label": "Boho Floral — organic layouts — top tier (n=111, avg 73)",
+      "styleDnaId": "bohoFloral",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 73,
+      "avgAbsoluteCommercialQualityV2": 87.25,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 3
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "bohoFloral@p13-bohoFloral-23",
+        "bohoFloral@p13-bohoFloral-173",
+        "bohoFloral@p13-bohoFloral-44",
+        "bohoFloral@p13-bohoFloral-161",
+        "bohoFloral@p13-bohoFloral-199"
+      ]
+    },
+    {
+      "clusterId": 46,
+      "label": "Boho Floral — organic layouts — mid tier (n=111, avg 70.34)",
+      "styleDnaId": "bohoFloral",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 70.34,
+      "avgAbsoluteCommercialQualityV2": 85.26,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 67
+        },
+        {
+          "value": "greetingCard",
+          "count": 44
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "bohoFloral@p13-bohoFloral-327",
+        "bohoFloral@p13-bohoFloral-20",
+        "bohoFloral@p13-bohoFloral-59",
+        "bohoFloral@p13-bohoFloral-68",
+        "bohoFloral@p13-bohoFloral-79"
+      ]
+    },
+    {
+      "clusterId": 47,
+      "label": "Boho Floral — organic layouts — bottom tier (n=111, avg 68.09)",
+      "styleDnaId": "bohoFloral",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 68.09,
+      "avgAbsoluteCommercialQualityV2": 81.82,
+      "dominantProductTargets": [
+        {
+          "value": "fabric",
+          "count": 111
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 111
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        }
+      ],
+      "samplePatternIds": [
+        "bohoFloral@p13-bohoFloral-89",
+        "bohoFloral@p13-bohoFloral-116",
+        "bohoFloral@p13-bohoFloral-137",
+        "bohoFloral@p13-bohoFloral-150",
+        "bohoFloral@p13-bohoFloral-182"
+      ]
+    },
+    {
+      "clusterId": 48,
+      "label": "Soft Watercolor Inspired (Vector only) — organic layouts — top tier (n=111, avg 71.9)",
+      "styleDnaId": "softWatercolorInspired",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 111,
+      "avgCompositeRankScore": 71.9,
+      "avgAbsoluteCommercialQualityV2": 87.76,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 65
+        },
+        {
+          "value": "greetingCard",
+          "count": 46
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 13
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 12
+        },
+        {
+          "value": "repeatedScale",
+          "count": 6
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 85
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 75
+        }
+      ],
+      "samplePatternIds": [
+        "softWatercolorInspired@p13-softWatercolorInspired-53",
+        "softWatercolorInspired@p13-softWatercolorInspired-41",
+        "softWatercolorInspired@p13-softWatercolorInspired-208",
+        "softWatercolorInspired@p13-softWatercolorInspired-72",
+        "softWatercolorInspired@p13-softWatercolorInspired-145"
+      ]
+    },
+    {
+      "clusterId": 49,
+      "label": "Soft Watercolor Inspired (Vector only) — organic layouts — mid tier (n=111, avg 70.74)",
+      "styleDnaId": "softWatercolorInspired",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 111,
+      "avgCompositeRankScore": 70.74,
+      "avgAbsoluteCommercialQualityV2": 87.51,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 83
+        },
+        {
+          "value": "greetingCard",
+          "count": 28
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "lowStyleFitQuality",
+          "count": 32
+        },
+        {
+          "value": "fragmentedSilhouette",
+          "count": 1
+        },
+        {
+          "value": "repeatedScale",
+          "count": 1
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongHeroDetail",
+          "count": 73
+        },
+        {
+          "value": "strongHierarchy",
+          "count": 70
+        }
+      ],
+      "samplePatternIds": [
+        "softWatercolorInspired@p13-softWatercolorInspired-217",
+        "softWatercolorInspired@p13-softWatercolorInspired-244",
+        "softWatercolorInspired@p13-softWatercolorInspired-259",
+        "softWatercolorInspired@p13-softWatercolorInspired-262",
+        "softWatercolorInspired@p13-softWatercolorInspired-274"
+      ]
+    },
+    {
+      "clusterId": 50,
+      "label": "Soft Watercolor Inspired (Vector only) — organic layouts — bottom tier (n=111, avg 68.27)",
+      "styleDnaId": "softWatercolorInspired",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 111,
+      "avgCompositeRankScore": 68.27,
+      "avgAbsoluteCommercialQualityV2": 81.71,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 44
+        },
+        {
+          "value": "greetingCard",
+          "count": 43
+        },
+        {
+          "value": "fabric",
+          "count": 24
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "heroInsufficientDetail",
+          "count": 35
+        },
+        {
+          "value": "lowStyleFitQuality",
+          "count": 23
+        },
+        {
+          "value": "repeatedScale",
+          "count": 4
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongThumbnailImpact",
+          "count": 111
+        },
+        {
+          "value": "strongHierarchy",
+          "count": 74
+        },
+        {
+          "value": "strongMotifDiversity",
+          "count": 54
+        }
+      ],
+      "samplePatternIds": [
+        "softWatercolorInspired@p13-softWatercolorInspired-100",
+        "softWatercolorInspired@p13-softWatercolorInspired-129",
+        "softWatercolorInspired@p13-softWatercolorInspired-135",
+        "softWatercolorInspired@p13-softWatercolorInspired-189",
+        "softWatercolorInspired@p13-softWatercolorInspired-200"
+      ]
+    },
+    {
+      "clusterId": 13,
+      "label": "Vintage Herbarium — organic layouts — mid tier (n=59, avg 70.89)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 59,
+      "avgCompositeRankScore": 70.89,
+      "avgAbsoluteCommercialQualityV2": 85.92,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 59
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 59
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 59
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 59
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-180",
+        "vintageHerbarium@p13-vintageHerbarium-193",
+        "vintageHerbarium@p13-vintageHerbarium-250",
+        "vintageHerbarium@p13-vintageHerbarium-255",
+        "vintageHerbarium@p13-vintageHerbarium-261"
+      ]
+    },
+    {
+      "clusterId": 31,
+      "label": "Luxury Wallpaper — lattice layouts — mid tier (n=59, avg 77.1)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "lattice",
+      "scoreBand": "mid",
+      "size": 59,
+      "avgCompositeRankScore": 77.1,
+      "avgAbsoluteCommercialQualityV2": 84.07,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 59
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 59
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 59
+        },
+        {
+          "value": "strongProductFit",
+          "count": 59
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-126",
+        "luxuryWallpaper@p13-luxuryWallpaper-135",
+        "luxuryWallpaper@p13-luxuryWallpaper-137",
+        "luxuryWallpaper@p13-luxuryWallpaper-143",
+        "luxuryWallpaper@p13-luxuryWallpaper-147"
+      ]
+    },
+    {
+      "clusterId": 12,
+      "label": "Vintage Herbarium — organic layouts — top tier (n=58, avg 71.68)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 58,
+      "avgCompositeRankScore": 71.68,
+      "avgAbsoluteCommercialQualityV2": 86.48,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 58
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 58
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 58
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 58
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-279",
+        "vintageHerbarium@p13-vintageHerbarium-220",
+        "vintageHerbarium@p13-vintageHerbarium-79",
+        "vintageHerbarium@p13-vintageHerbarium-158",
+        "vintageHerbarium@p13-vintageHerbarium-10"
+      ]
+    },
+    {
+      "clusterId": 14,
+      "label": "Vintage Herbarium — organic layouts — bottom tier (n=58, avg 68.74)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 58,
+      "avgCompositeRankScore": 68.74,
+      "avgAbsoluteCommercialQualityV2": 78.71,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 58
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "heroInsufficientDetail",
+          "count": 26
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 58
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 58
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 58
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-184",
+        "vintageHerbarium@p13-vintageHerbarium-234",
+        "vintageHerbarium@p13-vintageHerbarium-239",
+        "vintageHerbarium@p13-vintageHerbarium-302",
+        "vintageHerbarium@p13-vintageHerbarium-45"
+      ]
+    },
+    {
+      "clusterId": 30,
+      "label": "Luxury Wallpaper — lattice layouts — top tier (n=57, avg 77.42)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "lattice",
+      "scoreBand": "top",
+      "size": 57,
+      "avgCompositeRankScore": 77.42,
+      "avgAbsoluteCommercialQualityV2": 84.19,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 57
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 57
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 57
+        },
+        {
+          "value": "strongProductFit",
+          "count": 57
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-31",
+        "luxuryWallpaper@p13-luxuryWallpaper-60",
+        "luxuryWallpaper@p13-luxuryWallpaper-165",
+        "luxuryWallpaper@p13-luxuryWallpaper-12",
+        "luxuryWallpaper@p13-luxuryWallpaper-92"
+      ]
+    },
+    {
+      "clusterId": 32,
+      "label": "Luxury Wallpaper — lattice layouts — bottom tier (n=57, avg 76.73)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "lattice",
+      "scoreBand": "bottom",
+      "size": 57,
+      "avgCompositeRankScore": 76.73,
+      "avgAbsoluteCommercialQualityV2": 83.82,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 57
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 57
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 57
+        },
+        {
+          "value": "strongProductFit",
+          "count": 57
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-256",
+        "luxuryWallpaper@p13-luxuryWallpaper-257",
+        "luxuryWallpaper@p13-luxuryWallpaper-264",
+        "luxuryWallpaper@p13-luxuryWallpaper-276",
+        "luxuryWallpaper@p13-luxuryWallpaper-284"
+      ]
+    },
+    {
+      "clusterId": 28,
+      "label": "Luxury Wallpaper — organic layouts — mid tier (n=54, avg 76.7)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "organic",
+      "scoreBand": "mid",
+      "size": 54,
+      "avgCompositeRankScore": 76.7,
+      "avgAbsoluteCommercialQualityV2": 86.39,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 54
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 4
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 54
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 54
+        },
+        {
+          "value": "strongProductFit",
+          "count": 54
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-273",
+        "luxuryWallpaper@p13-luxuryWallpaper-275",
+        "luxuryWallpaper@p13-luxuryWallpaper-298",
+        "luxuryWallpaper@p13-luxuryWallpaper-320",
+        "luxuryWallpaper@p13-luxuryWallpaper-327"
+      ]
+    },
+    {
+      "clusterId": 15,
+      "label": "Vintage Herbarium — lattice layouts — top tier (n=53, avg 73.22)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "lattice",
+      "scoreBand": "top",
+      "size": 53,
+      "avgCompositeRankScore": 73.22,
+      "avgAbsoluteCommercialQualityV2": 82.58,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 53
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 53
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 53
+        },
+        {
+          "value": "strongFlowCoherence",
+          "count": 53
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-254",
+        "vintageHerbarium@p13-vintageHerbarium-23",
+        "vintageHerbarium@p13-vintageHerbarium-186",
+        "vintageHerbarium@p13-vintageHerbarium-43",
+        "vintageHerbarium@p13-vintageHerbarium-236"
+      ]
+    },
+    {
+      "clusterId": 16,
+      "label": "Vintage Herbarium — lattice layouts — mid tier (n=53, avg 71.93)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "lattice",
+      "scoreBand": "mid",
+      "size": 53,
+      "avgCompositeRankScore": 71.93,
+      "avgAbsoluteCommercialQualityV2": 82.08,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 53
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 53
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 53
+        },
+        {
+          "value": "strongFlowCoherence",
+          "count": 53
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-289",
+        "vintageHerbarium@p13-vintageHerbarium-323",
+        "vintageHerbarium@p13-vintageHerbarium-327",
+        "vintageHerbarium@p13-vintageHerbarium-34",
+        "vintageHerbarium@p13-vintageHerbarium-130"
+      ]
+    },
+    {
+      "clusterId": 17,
+      "label": "Vintage Herbarium — lattice layouts — bottom tier (n=53, avg 70.28)",
+      "styleDnaId": "vintageHerbarium",
+      "layoutClass": "lattice",
+      "scoreBand": "bottom",
+      "size": 53,
+      "avgCompositeRankScore": 70.28,
+      "avgAbsoluteCommercialQualityV2": 81.64,
+      "dominantProductTargets": [
+        {
+          "value": "greetingCard",
+          "count": 35
+        },
+        {
+          "value": "fabric",
+          "count": 18
+        }
+      ],
+      "dominantFailureModes": [],
+      "dominantStrengthTags": [
+        {
+          "value": "strongPaletteContrast",
+          "count": 53
+        },
+        {
+          "value": "strongThumbnailImpact",
+          "count": 53
+        },
+        {
+          "value": "strongFlowCoherence",
+          "count": 53
+        }
+      ],
+      "samplePatternIds": [
+        "vintageHerbarium@p13-vintageHerbarium-31",
+        "vintageHerbarium@p13-vintageHerbarium-77",
+        "vintageHerbarium@p13-vintageHerbarium-114",
+        "vintageHerbarium@p13-vintageHerbarium-116",
+        "vintageHerbarium@p13-vintageHerbarium-185"
+      ]
+    },
+    {
+      "clusterId": 27,
+      "label": "Luxury Wallpaper — organic layouts — top tier (n=53, avg 77.35)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "organic",
+      "scoreBand": "top",
+      "size": 53,
+      "avgCompositeRankScore": 77.35,
+      "avgAbsoluteCommercialQualityV2": 87.3,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 53
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 2
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 53
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 53
+        },
+        {
+          "value": "strongProductFit",
+          "count": 53
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-195",
+        "luxuryWallpaper@p13-luxuryWallpaper-122",
+        "luxuryWallpaper@p13-luxuryWallpaper-13",
+        "luxuryWallpaper@p13-luxuryWallpaper-59",
+        "luxuryWallpaper@p13-luxuryWallpaper-332"
+      ]
+    },
+    {
+      "clusterId": 29,
+      "label": "Luxury Wallpaper — organic layouts — bottom tier (n=53, avg 76.08)",
+      "styleDnaId": "luxuryWallpaper",
+      "layoutClass": "organic",
+      "scoreBand": "bottom",
+      "size": 53,
+      "avgCompositeRankScore": 76.08,
+      "avgAbsoluteCommercialQualityV2": 85.45,
+      "dominantProductTargets": [
+        {
+          "value": "wallpaper",
+          "count": 53
+        }
+      ],
+      "dominantFailureModes": [
+        {
+          "value": "fragmentedSilhouette",
+          "count": 8
+        }
+      ],
+      "dominantStrengthTags": [
+        {
+          "value": "strongHierarchy",
+          "count": 53
+        },
+        {
+          "value": "strongPaletteContrast",
+          "count": 53
+        },
+        {
+          "value": "strongProductFit",
+          "count": 53
+        }
+      ],
+      "samplePatternIds": [
+        "luxuryWallpaper@p13-luxuryWallpaper-164",
+        "luxuryWallpaper@p13-luxuryWallpaper-187",
+        "luxuryWallpaper@p13-luxuryWallpaper-198",
+        "luxuryWallpaper@p13-luxuryWallpaper-201",
+        "luxuryWallpaper@p13-luxuryWallpaper-202"
+      ]
+    }
+  ],
+  "successFindings": {
+    "top10": [
+      {
+        "trait": "layoutId",
+        "value": "stripe",
+        "occurrences": 74,
+        "subgroupSize": 530,
+        "populationFraction": 0.032,
+        "subgroupFraction": 0.14,
+        "lift": 4.36,
+        "confidence": "medium",
+        "reason": "74 samples, but coverage is only 69% of the relevant taxonomy."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "rose",
+        "occurrences": 72,
+        "subgroupSize": 530,
+        "populationFraction": 0.031,
+        "subgroupFraction": 0.136,
+        "lift": 4.35,
+        "confidence": "medium",
+        "reason": "72 samples, but coverage is only 67% of the relevant taxonomy."
+      },
+      {
+        "trait": "layoutId",
+        "value": "gridMinimal",
+        "occurrences": 150,
+        "subgroupSize": 530,
+        "populationFraction": 0.068,
+        "subgroupFraction": 0.283,
+        "lift": 4.16,
+        "confidence": "medium",
+        "reason": "150 samples, but coverage is only 69% of the relevant taxonomy."
+      },
+      {
+        "trait": "strengthTag",
+        "value": "strongStyleFitQuality",
+        "occurrences": 254,
+        "subgroupSize": 530,
+        "populationFraction": 0.129,
+        "subgroupFraction": 0.479,
+        "lift": 3.72,
+        "confidence": "high",
+        "reason": "Strong signal across 254 samples (coefficient of variation 0.01, coverage 100%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "peony",
+        "occurrences": 24,
+        "subgroupSize": 530,
+        "populationFraction": 0.012,
+        "subgroupFraction": 0.045,
+        "lift": 3.71,
+        "confidence": "low",
+        "reason": "Sample size 24 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "goldenRatio",
+        "occurrences": 64,
+        "subgroupSize": 530,
+        "populationFraction": 0.033,
+        "subgroupFraction": 0.121,
+        "lift": 3.66,
+        "confidence": "high",
+        "reason": "Strong signal across 64 samples (coefficient of variation 0.02, coverage 100%)."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "cornerFlow",
+        "occurrences": 106,
+        "subgroupSize": 530,
+        "populationFraction": 0.061,
+        "subgroupFraction": 0.2,
+        "lift": 3.26,
+        "confidence": "high",
+        "reason": "Strong signal across 106 samples (coefficient of variation 0.01, coverage 100%)."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "minimalBotanical",
+        "occurrences": 115,
+        "subgroupSize": 530,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.217,
+        "lift": 3.25,
+        "confidence": "medium",
+        "reason": "115 samples, but coverage is only 53% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "editorialBotanical",
+        "occurrences": 114,
+        "subgroupSize": 530,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.215,
+        "lift": 3.22,
+        "confidence": "medium",
+        "reason": "114 samples, but coverage is only 53% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "luxuryFloral",
+        "occurrences": 113,
+        "subgroupSize": 530,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.213,
+        "lift": 3.19,
+        "confidence": "medium",
+        "reason": "113 samples, but coverage is only 53% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "boutiquePackaging",
+        "occurrences": 109,
+        "subgroupSize": 530,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.206,
+        "lift": 3.09,
+        "confidence": "medium",
+        "reason": "109 samples, but coverage is only 53% of the relevant taxonomy."
+      },
+      {
+        "trait": "productTarget",
+        "value": "packaging",
+        "occurrences": 109,
+        "subgroupSize": 530,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.206,
+        "lift": 3.09,
+        "confidence": "high",
+        "reason": "Strong signal across 109 samples (coefficient of variation 0.01, coverage 100%)."
+      },
+      {
+        "trait": "layoutId",
+        "value": "heroFlow",
+        "occurrences": 105,
+        "subgroupSize": 530,
+        "populationFraction": 0.069,
+        "subgroupFraction": 0.198,
+        "lift": 2.89,
+        "confidence": "medium",
+        "reason": "105 samples, but coverage is only 69% of the relevant taxonomy."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "tulip",
+        "occurrences": 27,
+        "subgroupSize": 530,
+        "populationFraction": 0.018,
+        "subgroupFraction": 0.051,
+        "lift": 2.77,
+        "confidence": "low",
+        "reason": "Sample size 27 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "fragmentedSilhouette",
+        "occurrences": 367,
+        "subgroupSize": 530,
+        "populationFraction": 0.253,
+        "subgroupFraction": 0.692,
+        "lift": 2.73,
+        "confidence": "medium",
+        "reason": "367 samples, but coverage is only 20% of the relevant taxonomy."
+      }
+    ],
+    "top5": [
+      {
+        "trait": "layoutId",
+        "value": "gridMinimal",
+        "occurrences": 112,
+        "subgroupSize": 273,
+        "populationFraction": 0.068,
+        "subgroupFraction": 0.41,
+        "lift": 6.03,
+        "confidence": "medium",
+        "reason": "112 samples, but coverage is only 54% of the relevant taxonomy."
+      },
+      {
+        "trait": "layoutId",
+        "value": "stripe",
+        "occurrences": 49,
+        "subgroupSize": 273,
+        "populationFraction": 0.032,
+        "subgroupFraction": 0.179,
+        "lift": 5.61,
+        "confidence": "medium",
+        "reason": "49 samples, but coverage is only 54% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "minimalBotanical",
+        "occurrences": 94,
+        "subgroupSize": 273,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.344,
+        "lift": 5.15,
+        "confidence": "medium",
+        "reason": "94 samples, but coverage is only 47% of the relevant taxonomy."
+      },
+      {
+        "trait": "strengthTag",
+        "value": "strongStyleFitQuality",
+        "occurrences": 170,
+        "subgroupSize": 273,
+        "populationFraction": 0.129,
+        "subgroupFraction": 0.623,
+        "lift": 4.83,
+        "confidence": "high",
+        "reason": "Strong signal across 170 samples (coefficient of variation 0.01, coverage 100%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "rose",
+        "occurrences": 40,
+        "subgroupSize": 273,
+        "populationFraction": 0.031,
+        "subgroupFraction": 0.147,
+        "lift": 4.7,
+        "confidence": "medium",
+        "reason": "40 samples, but coverage is only 67% of the relevant taxonomy."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "cornerFlow",
+        "occurrences": 73,
+        "subgroupSize": 273,
+        "populationFraction": 0.061,
+        "subgroupFraction": 0.267,
+        "lift": 4.36,
+        "confidence": "high",
+        "reason": "Strong signal across 73 samples (coefficient of variation 0.01, coverage 90%)."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "boutiquePackaging",
+        "occurrences": 67,
+        "subgroupSize": 273,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.245,
+        "lift": 3.69,
+        "confidence": "medium",
+        "reason": "67 samples, but coverage is only 47% of the relevant taxonomy."
+      },
+      {
+        "trait": "productTarget",
+        "value": "packaging",
+        "occurrences": 67,
+        "subgroupSize": 273,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.245,
+        "lift": 3.69,
+        "confidence": "high",
+        "reason": "Strong signal across 67 samples (coefficient of variation 0.01, coverage 83%)."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "goldenRatio",
+        "occurrences": 31,
+        "subgroupSize": 273,
+        "populationFraction": 0.033,
+        "subgroupFraction": 0.114,
+        "lift": 3.44,
+        "confidence": "high",
+        "reason": "Strong signal across 31 samples (coefficient of variation 0.01, coverage 90%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "olive",
+        "occurrences": 42,
+        "subgroupSize": 273,
+        "populationFraction": 0.048,
+        "subgroupFraction": 0.154,
+        "lift": 3.18,
+        "confidence": "medium",
+        "reason": "42 samples, but coverage is only 67% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "luxuryFloral",
+        "occurrences": 56,
+        "subgroupSize": 273,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.205,
+        "lift": 3.07,
+        "confidence": "medium",
+        "reason": "56 samples, but coverage is only 47% of the relevant taxonomy."
+      },
+      {
+        "trait": "failureMode",
+        "value": "fragmentedSilhouette",
+        "occurrences": 209,
+        "subgroupSize": 273,
+        "populationFraction": 0.253,
+        "subgroupFraction": 0.766,
+        "lift": 3.02,
+        "confidence": "medium",
+        "reason": "209 samples, but coverage is only 20% of the relevant taxonomy."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "eucalyptus",
+        "occurrences": 52,
+        "subgroupSize": 273,
+        "populationFraction": 0.068,
+        "subgroupFraction": 0.19,
+        "lift": 2.8,
+        "confidence": "medium",
+        "reason": "52 samples, but coverage is only 67% of the relevant taxonomy."
+      },
+      {
+        "trait": "layoutId",
+        "value": "heroScatter",
+        "occurrences": 49,
+        "subgroupSize": 273,
+        "populationFraction": 0.069,
+        "subgroupFraction": 0.179,
+        "lift": 2.62,
+        "confidence": "medium",
+        "reason": "49 samples, but coverage is only 54% of the relevant taxonomy."
+      },
+      {
+        "trait": "colorStrategy",
+        "value": "monochromeAccent",
+        "occurrences": 94,
+        "subgroupSize": 273,
+        "populationFraction": 0.134,
+        "subgroupFraction": 0.344,
+        "lift": 2.58,
+        "confidence": "high",
+        "reason": "Strong signal across 94 samples (coefficient of variation 0.01, coverage 100%)."
+      }
+    ],
+    "top1": [
+      {
+        "trait": "botanicalFamily",
+        "value": "rose",
+        "occurrences": 16,
+        "subgroupSize": 53,
+        "populationFraction": 0.031,
+        "subgroupFraction": 0.302,
+        "lift": 9.68,
+        "confidence": "low",
+        "reason": "Sample size 16 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "goldenRatio",
+        "occurrences": 11,
+        "subgroupSize": 53,
+        "populationFraction": 0.033,
+        "subgroupFraction": 0.208,
+        "lift": 6.29,
+        "confidence": "low",
+        "reason": "Sample size 11 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "luxuryFloral",
+        "occurrences": 22,
+        "subgroupSize": 53,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.415,
+        "lift": 6.21,
+        "confidence": "low",
+        "reason": "Sample size 22 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "strengthTag",
+        "value": "strongStyleFitQuality",
+        "occurrences": 40,
+        "subgroupSize": 53,
+        "populationFraction": 0.129,
+        "subgroupFraction": 0.755,
+        "lift": 5.86,
+        "confidence": "high",
+        "reason": "Strong signal across 40 samples (coefficient of variation 0.01, coverage 100%)."
+      },
+      {
+        "trait": "layoutId",
+        "value": "heroScatter",
+        "occurrences": 20,
+        "subgroupSize": 53,
+        "populationFraction": 0.069,
+        "subgroupFraction": 0.377,
+        "lift": 5.5,
+        "confidence": "low",
+        "reason": "Sample size 20 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "tulip",
+        "occurrences": 4,
+        "subgroupSize": 53,
+        "populationFraction": 0.018,
+        "subgroupFraction": 0.075,
+        "lift": 4.1,
+        "confidence": "low",
+        "reason": "Sample size 4 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "editorialBotanical",
+        "occurrences": 14,
+        "subgroupSize": 53,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.264,
+        "lift": 3.95,
+        "confidence": "low",
+        "reason": "Sample size 14 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "editorial",
+        "occurrences": 7,
+        "subgroupSize": 53,
+        "populationFraction": 0.034,
+        "subgroupFraction": 0.132,
+        "lift": 3.86,
+        "confidence": "low",
+        "reason": "Sample size 7 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "layoutId",
+        "value": "stripe",
+        "occurrences": 6,
+        "subgroupSize": 53,
+        "populationFraction": 0.032,
+        "subgroupFraction": 0.113,
+        "lift": 3.54,
+        "confidence": "low",
+        "reason": "Sample size 6 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "bouquet",
+        "occurrences": 18,
+        "subgroupSize": 53,
+        "populationFraction": 0.1,
+        "subgroupFraction": 0.34,
+        "lift": 3.39,
+        "confidence": "low",
+        "reason": "Sample size 18 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "asymmetric",
+        "occurrences": 6,
+        "subgroupSize": 53,
+        "populationFraction": 0.035,
+        "subgroupFraction": 0.113,
+        "lift": 3.2,
+        "confidence": "low",
+        "reason": "Sample size 6 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "fragmentedSilhouette",
+        "occurrences": 43,
+        "subgroupSize": 53,
+        "populationFraction": 0.253,
+        "subgroupFraction": 0.811,
+        "lift": 3.2,
+        "confidence": "medium",
+        "reason": "43 samples, but coverage is only 20% of the relevant taxonomy."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "magnolia",
+        "occurrences": 10,
+        "subgroupSize": 53,
+        "populationFraction": 0.06,
+        "subgroupFraction": 0.189,
+        "lift": 3.12,
+        "confidence": "low",
+        "reason": "Sample size 10 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "peony",
+        "occurrences": 2,
+        "subgroupSize": 53,
+        "populationFraction": 0.012,
+        "subgroupFraction": 0.038,
+        "lift": 3.09,
+        "confidence": "low",
+        "reason": "Sample size 2 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "layoutId",
+        "value": "gridMinimal",
+        "occurrences": 11,
+        "subgroupSize": 53,
+        "populationFraction": 0.068,
+        "subgroupFraction": 0.208,
+        "lift": 3.05,
+        "confidence": "low",
+        "reason": "Sample size 11 is below the 30-observation floor for a generalizable finding."
+      }
+    ]
+  },
+  "failureFindings": {
+    "bottom10": [
+      {
+        "trait": "failureMode",
+        "value": "gridAppearance",
+        "occurrences": 1,
+        "subgroupSize": 502,
+        "populationFraction": 0,
+        "subgroupFraction": 0.002,
+        "lift": 9.96,
+        "confidence": "low",
+        "reason": "Sample size 1 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "zeroMotifOverlap",
+        "occurrences": 44,
+        "subgroupSize": 502,
+        "populationFraction": 0.01,
+        "subgroupFraction": 0.088,
+        "lift": 9.13,
+        "confidence": "high",
+        "reason": "Strong signal across 44 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "lowClusterCohesion",
+        "occurrences": 19,
+        "subgroupSize": 502,
+        "populationFraction": 0.005,
+        "subgroupFraction": 0.038,
+        "lift": 7.57,
+        "confidence": "low",
+        "reason": "Sample size 19 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "heroInsufficientDetail",
+        "occurrences": 112,
+        "subgroupSize": 502,
+        "populationFraction": 0.03,
+        "subgroupFraction": 0.223,
+        "lift": 7.44,
+        "confidence": "high",
+        "reason": "Strong signal across 112 samples (coefficient of variation 0.03, coverage 100%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "largeEmptyHole",
+        "occurrences": 65,
+        "subgroupSize": 502,
+        "populationFraction": 0.022,
+        "subgroupFraction": 0.129,
+        "lift": 5.94,
+        "confidence": "high",
+        "reason": "Strong signal across 65 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "clusterType",
+        "value": "sprayBouquet",
+        "occurrences": 102,
+        "subgroupSize": 502,
+        "populationFraction": 0.036,
+        "subgroupFraction": 0.203,
+        "lift": 5.71,
+        "confidence": "high",
+        "reason": "Strong signal across 102 samples (coefficient of variation 0.01, coverage 89%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "equalSpacingDetected",
+        "occurrences": 21,
+        "subgroupSize": 502,
+        "populationFraction": 0.009,
+        "subgroupFraction": 0.042,
+        "lift": 4.55,
+        "confidence": "low",
+        "reason": "Sample size 21 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "weakHierarchy",
+        "occurrences": 50,
+        "subgroupSize": 502,
+        "populationFraction": 0.023,
+        "subgroupFraction": 0.1,
+        "lift": 4.37,
+        "confidence": "high",
+        "reason": "Strong signal across 50 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "lavender",
+        "occurrences": 17,
+        "subgroupSize": 502,
+        "populationFraction": 0.008,
+        "subgroupFraction": 0.034,
+        "lift": 4.03,
+        "confidence": "low",
+        "reason": "Sample size 17 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "layoutId",
+        "value": "sCurve",
+        "occurrences": 125,
+        "subgroupSize": 502,
+        "populationFraction": 0.065,
+        "subgroupFraction": 0.249,
+        "lift": 3.85,
+        "confidence": "high",
+        "reason": "Strong signal across 125 samples (coefficient of variation 0.05, coverage 77%)."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "bohoFloral",
+        "occurrences": 102,
+        "subgroupSize": 502,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.203,
+        "lift": 3.05,
+        "confidence": "medium",
+        "reason": "102 samples, but coverage is only 73% of the relevant taxonomy."
+      },
+      {
+        "trait": "productTarget",
+        "value": "fabric",
+        "occurrences": 349,
+        "subgroupSize": 502,
+        "populationFraction": 0.26,
+        "subgroupFraction": 0.695,
+        "lift": 2.68,
+        "confidence": "high",
+        "reason": "Strong signal across 349 samples (coefficient of variation 0.04, coverage 83%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "berryBranch",
+        "occurrences": 23,
+        "subgroupSize": 502,
+        "populationFraction": 0.017,
+        "subgroupFraction": 0.046,
+        "lift": 2.66,
+        "confidence": "low",
+        "reason": "Sample size 23 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "layoutId",
+        "value": "grid",
+        "occurrences": 42,
+        "subgroupSize": 502,
+        "populationFraction": 0.033,
+        "subgroupFraction": 0.084,
+        "lift": 2.5,
+        "confidence": "high",
+        "reason": "Strong signal across 42 samples (coefficient of variation 0.01, coverage 77%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "wildflower",
+        "occurrences": 66,
+        "subgroupSize": 502,
+        "populationFraction": 0.053,
+        "subgroupFraction": 0.131,
+        "lift": 2.47,
+        "confidence": "high",
+        "reason": "Strong signal across 66 samples (coefficient of variation 0.01, coverage 100%)."
+      }
+    ],
+    "bottom5": [
+      {
+        "trait": "failureMode",
+        "value": "gridAppearance",
+        "occurrences": 1,
+        "subgroupSize": 226,
+        "populationFraction": 0,
+        "subgroupFraction": 0.004,
+        "lift": 22.12,
+        "confidence": "low",
+        "reason": "Sample size 1 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "zeroMotifOverlap",
+        "occurrences": 43,
+        "subgroupSize": 226,
+        "populationFraction": 0.01,
+        "subgroupFraction": 0.19,
+        "lift": 19.82,
+        "confidence": "high",
+        "reason": "Strong signal across 43 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "lowClusterCohesion",
+        "occurrences": 18,
+        "subgroupSize": 226,
+        "populationFraction": 0.005,
+        "subgroupFraction": 0.08,
+        "lift": 15.93,
+        "confidence": "low",
+        "reason": "Sample size 18 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "heroInsufficientDetail",
+        "occurrences": 69,
+        "subgroupSize": 226,
+        "populationFraction": 0.03,
+        "subgroupFraction": 0.305,
+        "lift": 10.18,
+        "confidence": "high",
+        "reason": "Strong signal across 69 samples (coefficient of variation 0.03, coverage 100%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "largeEmptyHole",
+        "occurrences": 48,
+        "subgroupSize": 226,
+        "populationFraction": 0.022,
+        "subgroupFraction": 0.212,
+        "lift": 9.74,
+        "confidence": "high",
+        "reason": "Strong signal across 48 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "equalSpacingDetected",
+        "occurrences": 17,
+        "subgroupSize": 226,
+        "populationFraction": 0.009,
+        "subgroupFraction": 0.075,
+        "lift": 8.18,
+        "confidence": "low",
+        "reason": "Sample size 17 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "weakHierarchy",
+        "occurrences": 38,
+        "subgroupSize": 226,
+        "populationFraction": 0.023,
+        "subgroupFraction": 0.168,
+        "lift": 7.37,
+        "confidence": "high",
+        "reason": "Strong signal across 38 samples (coefficient of variation 0.04, coverage 100%)."
+      },
+      {
+        "trait": "layoutId",
+        "value": "sCurve",
+        "occurrences": 93,
+        "subgroupSize": 226,
+        "populationFraction": 0.065,
+        "subgroupFraction": 0.412,
+        "lift": 6.37,
+        "confidence": "medium",
+        "reason": "93 samples, but coverage is only 62% of the relevant taxonomy."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "berryBranch",
+        "occurrences": 16,
+        "subgroupSize": 226,
+        "populationFraction": 0.017,
+        "subgroupFraction": 0.071,
+        "lift": 4.12,
+        "confidence": "low",
+        "reason": "Sample size 16 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "darkBotanical",
+        "occurrences": 61,
+        "subgroupSize": 226,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.27,
+        "lift": 4.05,
+        "confidence": "medium",
+        "reason": "61 samples, but coverage is only 67% of the relevant taxonomy."
+      },
+      {
+        "trait": "clusterType",
+        "value": "cascade",
+        "occurrences": 24,
+        "subgroupSize": 226,
+        "populationFraction": 0.029,
+        "subgroupFraction": 0.106,
+        "lift": 3.69,
+        "confidence": "low",
+        "reason": "Sample size 24 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "rose",
+        "occurrences": 21,
+        "subgroupSize": 226,
+        "populationFraction": 0.031,
+        "subgroupFraction": 0.093,
+        "lift": 2.98,
+        "confidence": "low",
+        "reason": "Sample size 21 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "fern",
+        "occurrences": 44,
+        "subgroupSize": 226,
+        "populationFraction": 0.066,
+        "subgroupFraction": 0.195,
+        "lift": 2.95,
+        "confidence": "high",
+        "reason": "Strong signal across 44 samples (coefficient of variation 0.05, coverage 100%)."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "tulip",
+        "occurrences": 12,
+        "subgroupSize": 226,
+        "populationFraction": 0.018,
+        "subgroupFraction": 0.053,
+        "lift": 2.89,
+        "confidence": "low",
+        "reason": "Sample size 12 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "radial",
+        "occurrences": 34,
+        "subgroupSize": 226,
+        "populationFraction": 0.052,
+        "subgroupFraction": 0.15,
+        "lift": 2.87,
+        "confidence": "high",
+        "reason": "Strong signal across 34 samples (coefficient of variation 0.05, coverage 100%)."
+      }
+    ],
+    "bottom1": [
+      {
+        "trait": "failureMode",
+        "value": "zeroMotifOverlap",
+        "occurrences": 32,
+        "subgroupSize": 53,
+        "populationFraction": 0.01,
+        "subgroupFraction": 0.604,
+        "lift": 62.89,
+        "confidence": "high",
+        "reason": "Strong signal across 32 samples (coefficient of variation 0.03, coverage 80%)."
+      },
+      {
+        "trait": "failureMode",
+        "value": "lowClusterCohesion",
+        "occurrences": 10,
+        "subgroupSize": 53,
+        "populationFraction": 0.005,
+        "subgroupFraction": 0.189,
+        "lift": 37.74,
+        "confidence": "low",
+        "reason": "Sample size 10 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "failureMode",
+        "value": "largeEmptyHole",
+        "occurrences": 14,
+        "subgroupSize": 53,
+        "populationFraction": 0.022,
+        "subgroupFraction": 0.264,
+        "lift": 12.12,
+        "confidence": "low",
+        "reason": "Sample size 14 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "layoutId",
+        "value": "sCurve",
+        "occurrences": 41,
+        "subgroupSize": 53,
+        "populationFraction": 0.065,
+        "subgroupFraction": 0.774,
+        "lift": 11.97,
+        "confidence": "medium",
+        "reason": "41 samples, but coverage is only 31% of the relevant taxonomy."
+      },
+      {
+        "trait": "styleDnaId",
+        "value": "darkBotanical",
+        "occurrences": 36,
+        "subgroupSize": 53,
+        "populationFraction": 0.067,
+        "subgroupFraction": 0.679,
+        "lift": 10.2,
+        "confidence": "medium",
+        "reason": "36 samples, but coverage is only 27% of the relevant taxonomy."
+      },
+      {
+        "trait": "failureMode",
+        "value": "weakHierarchy",
+        "occurrences": 11,
+        "subgroupSize": 53,
+        "populationFraction": 0.023,
+        "subgroupFraction": 0.208,
+        "lift": 9.1,
+        "confidence": "low",
+        "reason": "Sample size 11 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "berryBranch",
+        "occurrences": 8,
+        "subgroupSize": 53,
+        "populationFraction": 0.017,
+        "subgroupFraction": 0.151,
+        "lift": 8.78,
+        "confidence": "low",
+        "reason": "Sample size 8 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "compositionZone",
+        "value": "radial",
+        "occurrences": 21,
+        "subgroupSize": 53,
+        "populationFraction": 0.052,
+        "subgroupFraction": 0.396,
+        "lift": 7.56,
+        "confidence": "low",
+        "reason": "Sample size 21 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "fern",
+        "occurrences": 21,
+        "subgroupSize": 53,
+        "populationFraction": 0.066,
+        "subgroupFraction": 0.396,
+        "lift": 6,
+        "confidence": "low",
+        "reason": "Sample size 21 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "cascade",
+        "occurrences": 8,
+        "subgroupSize": 53,
+        "populationFraction": 0.029,
+        "subgroupFraction": 0.151,
+        "lift": 5.24,
+        "confidence": "low",
+        "reason": "Sample size 8 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "editorial",
+        "occurrences": 8,
+        "subgroupSize": 53,
+        "populationFraction": 0.034,
+        "subgroupFraction": 0.151,
+        "lift": 4.41,
+        "confidence": "low",
+        "reason": "Sample size 8 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "clusterType",
+        "value": "bouquet",
+        "occurrences": 22,
+        "subgroupSize": 53,
+        "populationFraction": 0.1,
+        "subgroupFraction": 0.415,
+        "lift": 4.14,
+        "confidence": "low",
+        "reason": "Sample size 22 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "heroStructure",
+        "value": "heroFocus",
+        "occurrences": 42,
+        "subgroupSize": 53,
+        "populationFraction": 0.2,
+        "subgroupFraction": 0.792,
+        "lift": 3.96,
+        "confidence": "medium",
+        "reason": "42 samples, but coverage is only 43% of the relevant taxonomy."
+      },
+      {
+        "trait": "failureMode",
+        "value": "heroInsufficientDetail",
+        "occurrences": 6,
+        "subgroupSize": 53,
+        "populationFraction": 0.03,
+        "subgroupFraction": 0.113,
+        "lift": 3.77,
+        "confidence": "low",
+        "reason": "Sample size 6 is below the 30-observation floor for a generalizable finding."
+      },
+      {
+        "trait": "botanicalFamily",
+        "value": "magnolia",
+        "occurrences": 11,
+        "subgroupSize": 53,
+        "populationFraction": 0.06,
+        "subgroupFraction": 0.208,
+        "lift": 3.44,
+        "confidence": "low",
+        "reason": "Sample size 11 is below the 30-observation floor for a generalizable finding."
+      }
+    ]
+  },
+  "build014Recommendation": {
+    "failureMode": "zeroMotifOverlap",
+    "action": "Allow controlled motif overlap for depth",
+    "affectedPatternCount": 44,
+    "affectedShare": 0.9,
+    "lift": 9.13,
+    "confidence": "high",
+    "evidence": "zeroMotifOverlap appears in 9% of the bottom decile vs 1% portfolio-wide (44 of 502 bottom-decile patterns), lift 9.13x.",
+    "rationale": "Strong signal across 44 samples (coefficient of variation 0.04, coverage 100%). This is the highest-lift, high-confidence failure mechanism found across the 5,000-pattern portfolio — Build 014 should target \"Allow controlled motif overlap for depth\" specifically for the affected layout/style combinations rather than a broad re-tune."
+  },
+  "portfolioConfidence": {
+    "tier": "high",
+    "coefficientOfVariation": 0.05141496054663555,
+    "reason": "Strong signal across 5000 samples (coefficient of variation 0.05, coverage 100%)."
+  },
+  "evaluatorConfidenceCounts": {
+    "high": 4899,
+    "medium": 101,
+    "low": 0
+  },
+  "samples": {
+    "top10ByOverall": [
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-319",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 84,
+        "percentileOverall": 100,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-64",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 83,
+        "percentileOverall": 100,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-108",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82.8,
+        "percentileOverall": 100,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-90",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82.6,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-297",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82.6,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "editorialBotanical@p13-editorialBotanical-74",
+        "styleDnaId": "editorialBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "greetingCard",
+        "compositeRankScore": 82.2,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 84,
+        "failureModes": [],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Editorial Botanical — organic layouts — top tier (n=111, avg 79.1)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "editorialBotanical@p13-editorialBotanical-243",
+        "styleDnaId": "editorialBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "greetingCard",
+        "compositeRankScore": 82,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 84,
+        "failureModes": [],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Editorial Botanical — organic layouts — top tier (n=111, avg 79.1)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-29",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 89,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-110",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 89,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-279",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "heroScatter",
+        "productTarget": "fabric",
+        "compositeRankScore": 82,
+        "percentileOverall": 99.9,
+        "percentileBucket": "top1",
+        "absoluteCommercialQualityV2": 90,
+        "failureModes": [
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongStyleFitQuality",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — top tier (n=111, avg 79.4)",
+        "evaluatorConfidence": "high"
+      }
+    ],
+    "bottom10ByOverall": [
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-273",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 57,
+        "percentileOverall": 0,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 44,
+        "failureModes": [
+          "zeroMotifOverlap"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "medium"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-296",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 57,
+        "percentileOverall": 0,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 47,
+        "failureModes": [
+          "zeroMotifOverlap"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "medium"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-241",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 57.2,
+        "percentileOverall": 0,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 26,
+        "failureModes": [
+          "largeEmptyHole",
+          "equalSpacingDetected",
+          "weakHierarchy",
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-65",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 58.4,
+        "percentileOverall": 0.1,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 46,
+        "failureModes": [
+          "largeEmptyHole",
+          "zeroMotifOverlap",
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-324",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 58.6,
+        "percentileOverall": 0.1,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 47,
+        "failureModes": [
+          "largeEmptyHole",
+          "zeroMotifOverlap"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-316",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "bouquet",
+        "productTarget": "fabric",
+        "compositeRankScore": 58.8,
+        "percentileOverall": 0.1,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 36,
+        "failureModes": [
+          "heroInsufficientDetail",
+          "weakHierarchy",
+          "lowClusterCohesion",
+          "repeatedScale",
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — bottom tier (n=111, avg 69.67)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-148",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 58.8,
+        "percentileOverall": 0.1,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 56,
+        "failureModes": [
+          "zeroMotifOverlap"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "high"
+      },
+      {
+        "patternId": "luxuryFloral@p13-luxuryFloral-164",
+        "styleDnaId": "luxuryFloral",
+        "layoutId": "bouquet",
+        "productTarget": "fabric",
+        "compositeRankScore": 59.2,
+        "percentileOverall": 0.2,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 40,
+        "failureModes": [
+          "weakHierarchy",
+          "lowClusterCohesion",
+          "repeatedScale",
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Luxury Floral — organic layouts — bottom tier (n=111, avg 69.67)",
+        "evaluatorConfidence": "medium"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-104",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 59.2,
+        "percentileOverall": 0.2,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 49,
+        "failureModes": [
+          "zeroMotifOverlap",
+          "fragmentedSilhouette"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity",
+          "strongFlowCoherence"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "medium"
+      },
+      {
+        "patternId": "darkBotanical@p13-darkBotanical-125",
+        "styleDnaId": "darkBotanical",
+        "layoutId": "sCurve",
+        "productTarget": "fabric",
+        "compositeRankScore": 59.6,
+        "percentileOverall": 0.2,
+        "percentileBucket": "bottom1",
+        "absoluteCommercialQualityV2": 56,
+        "failureModes": [
+          "zeroMotifOverlap"
+        ],
+        "strengthTags": [
+          "strongHierarchy",
+          "strongHeroDetail",
+          "strongPaletteContrast",
+          "strongThumbnailImpact",
+          "strongMotifDiversity"
+        ],
+        "clusterLabel": "Dark Botanical — organic layouts — bottom tier (n=111, avg 65.59)",
+        "evaluatorConfidence": "high"
+      }
+    ]
+  }
+}

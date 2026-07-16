@@ -11,3 +11,7 @@ dist-ssr
 # BUILD_013_REPORT.md, sampled contact sheets) are committed.
 docs/build_reports/baselines/BUILD_013_portfolio_raw.json
 docs/build_reports/baselines/BUILD_013_portfolio_checkpoint.json
+# The uncurated contact sheet embeds 60 full-detail SVGs inline (~23MB) —
+# reproducible any time via `npx tsx scripts/portfolioVisuals.ts`; only its
+# small manifest.json (which pattern IDs/scores were sampled) is committed.
+docs/build_reports/build_013_visuals/uncurated_contact_sheet.html

@@ -68,7 +68,10 @@ function main() {
   const __dirname = __dirnameFromUrl();
   const baselinesDir = path.resolve(__dirname, '../../docs/build_reports/baselines');
   const rawPath = path.join(baselinesDir, 'BUILD_013_portfolio_raw.json');
-  const metricsPath = path.join(baselinesDir, 'BUILD_013_METRICS.json');
+  // Committed alongside BUILD_013_REPORT.md, matching Build 012's own
+  // `docs/build_reports/BUILD_012_METRICS.json` convention — not under
+  // `baselines/` (that directory holds gitignored/large working data).
+  const metricsPath = path.resolve(__dirname, '../../docs/build_reports/BUILD_013_METRICS.json');
 
   console.log(`Reading ${rawPath}...`);
   const manifest: PortfolioManifest = JSON.parse(fs.readFileSync(rawPath, 'utf-8'));

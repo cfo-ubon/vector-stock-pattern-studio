@@ -1,0 +1,482 @@
+[
+  {
+    "patternId": "editorialBotanical@p13-editorialBotanical-1",
+    "styleDnaId": "editorialBotanical",
+    "layoutId": "sCurve",
+    "percentileOverall": 8.8,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 68
+  },
+  {
+    "patternId": "editorialBotanical@p13-editorialBotanical-84",
+    "styleDnaId": "editorialBotanical",
+    "layoutId": "heroFlow",
+    "percentileOverall": 93.9,
+    "percentileBucket": "top10",
+    "absoluteCommercialQualityV2": 89
+  },
+  {
+    "patternId": "editorialBotanical@p13-editorialBotanical-167",
+    "styleDnaId": "editorialBotanical",
+    "layoutId": "heroFlow",
+    "percentileOverall": 74.1,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 92
+  },
+  {
+    "patternId": "editorialBotanical@p13-editorialBotanical-250",
+    "styleDnaId": "editorialBotanical",
+    "layoutId": "heroFlow",
+    "percentileOverall": 81.7,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "editorialBotanical@p13-editorialBotanical-333",
+    "styleDnaId": "editorialBotanical",
+    "layoutId": "heroFlow",
+    "percentileOverall": 90.4,
+    "percentileBucket": "top10",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "luxuryFloral@p13-luxuryFloral-82",
+    "styleDnaId": "luxuryFloral",
+    "layoutId": "heroScatter",
+    "percentileOverall": 99.8,
+    "percentileBucket": "top1",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "luxuryFloral@p13-luxuryFloral-165",
+    "styleDnaId": "luxuryFloral",
+    "layoutId": "heroScatter",
+    "percentileOverall": 98.9,
+    "percentileBucket": "top5",
+    "absoluteCommercialQualityV2": 89
+  },
+  {
+    "patternId": "luxuryFloral@p13-luxuryFloral-248",
+    "styleDnaId": "luxuryFloral",
+    "layoutId": "heroScatter",
+    "percentileOverall": 69.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 52
+  },
+  {
+    "patternId": "luxuryFloral@p13-luxuryFloral-331",
+    "styleDnaId": "luxuryFloral",
+    "layoutId": "bouquet",
+    "percentileOverall": 5.7,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 42
+  },
+  {
+    "patternId": "scandinavianOrganic@p13-scandinavianOrganic-80",
+    "styleDnaId": "scandinavianOrganic",
+    "layoutId": "airy",
+    "percentileOverall": 5.1,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 69
+  },
+  {
+    "patternId": "scandinavianOrganic@p13-scandinavianOrganic-163",
+    "styleDnaId": "scandinavianOrganic",
+    "layoutId": "scatter",
+    "percentileOverall": 7.8,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 72
+  },
+  {
+    "patternId": "scandinavianOrganic@p13-scandinavianOrganic-246",
+    "styleDnaId": "scandinavianOrganic",
+    "layoutId": "scatter",
+    "percentileOverall": 60.9,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 86
+  },
+  {
+    "patternId": "scandinavianOrganic@p13-scandinavianOrganic-329",
+    "styleDnaId": "scandinavianOrganic",
+    "layoutId": "scatter",
+    "percentileOverall": 20.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 72
+  },
+  {
+    "patternId": "minimalBotanical@p13-minimalBotanical-78",
+    "styleDnaId": "minimalBotanical",
+    "layoutId": "gridMinimal",
+    "percentileOverall": 98.5,
+    "percentileBucket": "top5",
+    "absoluteCommercialQualityV2": 73
+  },
+  {
+    "patternId": "minimalBotanical@p13-minimalBotanical-161",
+    "styleDnaId": "minimalBotanical",
+    "layoutId": "grid",
+    "percentileOverall": 65.8,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 82
+  },
+  {
+    "patternId": "minimalBotanical@p13-minimalBotanical-244",
+    "styleDnaId": "minimalBotanical",
+    "layoutId": "gridMinimal",
+    "percentileOverall": 97.5,
+    "percentileBucket": "top5",
+    "absoluteCommercialQualityV2": 74
+  },
+  {
+    "patternId": "minimalBotanical@p13-minimalBotanical-327",
+    "styleDnaId": "minimalBotanical",
+    "layoutId": "gridMinimal",
+    "percentileOverall": 97.5,
+    "percentileBucket": "top5",
+    "absoluteCommercialQualityV2": 74
+  },
+  {
+    "patternId": "vintageHerbarium@p13-vintageHerbarium-76",
+    "styleDnaId": "vintageHerbarium",
+    "layoutId": "halfDrop",
+    "percentileOverall": 59.6,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 83
+  },
+  {
+    "patternId": "vintageHerbarium@p13-vintageHerbarium-159",
+    "styleDnaId": "vintageHerbarium",
+    "layoutId": "scatter",
+    "percentileOverall": 22.8,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 85
+  },
+  {
+    "patternId": "vintageHerbarium@p13-vintageHerbarium-242",
+    "styleDnaId": "vintageHerbarium",
+    "layoutId": "scatter",
+    "percentileOverall": 29.9,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 85
+  },
+  {
+    "patternId": "vintageHerbarium@p13-vintageHerbarium-325",
+    "styleDnaId": "vintageHerbarium",
+    "layoutId": "scatter",
+    "percentileOverall": 40.5,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "darkBotanical@p13-darkBotanical-74",
+    "styleDnaId": "darkBotanical",
+    "layoutId": "bouquet",
+    "percentileOverall": 43.8,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 86
+  },
+  {
+    "patternId": "darkBotanical@p13-darkBotanical-157",
+    "styleDnaId": "darkBotanical",
+    "layoutId": "bouquet",
+    "percentileOverall": 33.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "darkBotanical@p13-darkBotanical-240",
+    "styleDnaId": "darkBotanical",
+    "layoutId": "sCurve",
+    "percentileOverall": 6.9,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 79
+  },
+  {
+    "patternId": "darkBotanical@p13-darkBotanical-323",
+    "styleDnaId": "darkBotanical",
+    "layoutId": "bouquet",
+    "percentileOverall": 40.5,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 85
+  },
+  {
+    "patternId": "modernTropical@p13-modernTropical-73",
+    "styleDnaId": "modernTropical",
+    "layoutId": "heroScatter",
+    "percentileOverall": 16.3,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "modernTropical@p13-modernTropical-156",
+    "styleDnaId": "modernTropical",
+    "layoutId": "heroScatter",
+    "percentileOverall": 16.3,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "modernTropical@p13-modernTropical-239",
+    "styleDnaId": "modernTropical",
+    "layoutId": "heroScatter",
+    "percentileOverall": 14.7,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "modernTropical@p13-modernTropical-322",
+    "styleDnaId": "modernTropical",
+    "layoutId": "heroScatter",
+    "percentileOverall": 19.7,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 89
+  },
+  {
+    "patternId": "boutiquePackaging@p13-boutiquePackaging-72",
+    "styleDnaId": "boutiquePackaging",
+    "layoutId": "gridMinimal",
+    "percentileOverall": 20.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 74
+  },
+  {
+    "patternId": "boutiquePackaging@p13-boutiquePackaging-155",
+    "styleDnaId": "boutiquePackaging",
+    "layoutId": "stripe",
+    "percentileOverall": 83.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 82
+  },
+  {
+    "patternId": "boutiquePackaging@p13-boutiquePackaging-238",
+    "styleDnaId": "boutiquePackaging",
+    "layoutId": "stripe",
+    "percentileOverall": 97.5,
+    "percentileBucket": "top5",
+    "absoluteCommercialQualityV2": 84
+  },
+  {
+    "patternId": "boutiquePackaging@p13-boutiquePackaging-321",
+    "styleDnaId": "boutiquePackaging",
+    "layoutId": "gridMinimal",
+    "percentileOverall": 55.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 75
+  },
+  {
+    "patternId": "luxuryWallpaper@p13-luxuryWallpaper-71",
+    "styleDnaId": "luxuryWallpaper",
+    "layoutId": "halfDrop",
+    "percentileOverall": 86.2,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 84
+  },
+  {
+    "patternId": "luxuryWallpaper@p13-luxuryWallpaper-154",
+    "styleDnaId": "luxuryWallpaper",
+    "layoutId": "halfDrop",
+    "percentileOverall": 87.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 84
+  },
+  {
+    "patternId": "luxuryWallpaper@p13-luxuryWallpaper-237",
+    "styleDnaId": "luxuryWallpaper",
+    "layoutId": "densePremium",
+    "percentileOverall": 75.6,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 86
+  },
+  {
+    "patternId": "luxuryWallpaper@p13-luxuryWallpaper-320",
+    "styleDnaId": "luxuryWallpaper",
+    "layoutId": "densePremium",
+    "percentileOverall": 83.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "premiumTextile@p13-premiumTextile-70",
+    "styleDnaId": "premiumTextile",
+    "layoutId": "halfDrop",
+    "percentileOverall": 87.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 81
+  },
+  {
+    "patternId": "premiumTextile@p13-premiumTextile-153",
+    "styleDnaId": "premiumTextile",
+    "layoutId": "brick",
+    "percentileOverall": 87.9,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 81
+  },
+  {
+    "patternId": "premiumTextile@p13-premiumTextile-236",
+    "styleDnaId": "premiumTextile",
+    "layoutId": "brick",
+    "percentileOverall": 75.6,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 81
+  },
+  {
+    "patternId": "premiumTextile@p13-premiumTextile-319",
+    "styleDnaId": "premiumTextile",
+    "layoutId": "brick",
+    "percentileOverall": 92.6,
+    "percentileBucket": "top10",
+    "absoluteCommercialQualityV2": 81
+  },
+  {
+    "patternId": "kidsPlayful@p13-kidsPlayful-69",
+    "styleDnaId": "kidsPlayful",
+    "layoutId": "scatter",
+    "percentileOverall": 33.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 86
+  },
+  {
+    "patternId": "kidsPlayful@p13-kidsPlayful-152",
+    "styleDnaId": "kidsPlayful",
+    "layoutId": "toss",
+    "percentileOverall": 27.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 84
+  },
+  {
+    "patternId": "kidsPlayful@p13-kidsPlayful-235",
+    "styleDnaId": "kidsPlayful",
+    "layoutId": "toss",
+    "percentileOverall": 27.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 85
+  },
+  {
+    "patternId": "kidsPlayful@p13-kidsPlayful-318",
+    "styleDnaId": "kidsPlayful",
+    "layoutId": "scatter",
+    "percentileOverall": 27.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 84
+  },
+  {
+    "patternId": "retroOrganic@p13-retroOrganic-68",
+    "styleDnaId": "retroOrganic",
+    "layoutId": "scatter",
+    "percentileOverall": 33.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 85
+  },
+  {
+    "patternId": "retroOrganic@p13-retroOrganic-151",
+    "styleDnaId": "retroOrganic",
+    "layoutId": "heroFlow",
+    "percentileOverall": 86.2,
+    "percentileBucket": "other",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "retroOrganic@p13-retroOrganic-234",
+    "styleDnaId": "retroOrganic",
+    "layoutId": "scatter",
+    "percentileOverall": 33.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "retroOrganic@p13-retroOrganic-317",
+    "styleDnaId": "retroOrganic",
+    "layoutId": "heroFlow",
+    "percentileOverall": 67.8,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 89
+  },
+  {
+    "patternId": "organicAbstract@p13-organicAbstract-67",
+    "styleDnaId": "organicAbstract",
+    "layoutId": "scatter",
+    "percentileOverall": 43.8,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "organicAbstract@p13-organicAbstract-150",
+    "styleDnaId": "organicAbstract",
+    "layoutId": "airy",
+    "percentileOverall": 50.3,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "organicAbstract@p13-organicAbstract-233",
+    "styleDnaId": "organicAbstract",
+    "layoutId": "scatter",
+    "percentileOverall": 55.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 89
+  },
+  {
+    "patternId": "organicAbstract@p13-organicAbstract-316",
+    "styleDnaId": "organicAbstract",
+    "layoutId": "airy",
+    "percentileOverall": 55.4,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "bohoFloral@p13-bohoFloral-66",
+    "styleDnaId": "bohoFloral",
+    "layoutId": "scatter",
+    "percentileOverall": 8.8,
+    "percentileBucket": "bottom10",
+    "absoluteCommercialQualityV2": 83
+  },
+  {
+    "patternId": "bohoFloral@p13-bohoFloral-149",
+    "styleDnaId": "bohoFloral",
+    "layoutId": "toss",
+    "percentileOverall": 57.6,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "bohoFloral@p13-bohoFloral-232",
+    "styleDnaId": "bohoFloral",
+    "layoutId": "scatter",
+    "percentileOverall": 62.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "bohoFloral@p13-bohoFloral-315",
+    "styleDnaId": "bohoFloral",
+    "layoutId": "scatter",
+    "percentileOverall": 53.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 87
+  },
+  {
+    "patternId": "softWatercolorInspired@p13-softWatercolorInspired-65",
+    "styleDnaId": "softWatercolorInspired",
+    "layoutId": "airy",
+    "percentileOverall": 53.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "softWatercolorInspired@p13-softWatercolorInspired-148",
+    "styleDnaId": "softWatercolorInspired",
+    "layoutId": "airy",
+    "percentileOverall": 53.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  },
+  {
+    "patternId": "softWatercolorInspired@p13-softWatercolorInspired-231",
+    "styleDnaId": "softWatercolorInspired",
+    "layoutId": "scatter",
+    "percentileOverall": 27.2,
+    "percentileBucket": "middle50",
+    "absoluteCommercialQualityV2": 88
+  }
+]

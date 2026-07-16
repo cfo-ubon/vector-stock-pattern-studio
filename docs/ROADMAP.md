@@ -184,7 +184,33 @@ Build-numbered, forward-looking. Each entry is either shipped
   (delta = 0) before and after — direct proof of a bias fix, not score
   inflation. See `docs/build_reports/BUILD_012_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_012_REPORT.md` for the current list)
+- **Build 013 — Portfolio Intelligence & Self-Improvement Engine**: a
+  read-only analysis layer (`src/portfolio/`) built on top of Build 012's
+  now-trustworthy evaluator — no new generation, no scoring changes, no
+  score inflation. Generated a genuinely uncurated 5,000-pattern portfolio
+  (334/333 per preset, deterministic `p13-<styleId>-<n>` seeds, checkpoint/
+  resume every 500 patterns), then computed: multi-signal ranking and
+  percentiles (`ranking.ts`), evidence-based success/failure trait discovery
+  with real lift and confidence (`successFailure.ts`), bucketed near-
+  duplicate detection (`fingerprint.ts`/`duplicates.ts` — 0 exact/
+  deterministic duplicates, 1 near-duplicate across all 5,000), segment
+  clustering by declared preset/layout-class/measured-score band
+  (`clustering.ts`), and a single evidence-driven Build 014 recommendation
+  (`recommendations.ts`). Confirmed Build 012's fix held at scale: the 3
+  previously-broken presets (Minimal Botanical 77.1, Premium Textile 80.4,
+  Boutique Packaging 78.8 mean Absolute Commercial Quality) now sit inside
+  the healthy 75-88 range alongside all 12 other presets — no preset
+  requires special-casing. See `docs/build_reports/BUILD_013_REPORT.md`.
+
+## Recommended Next Build (see `docs/build_reports/BUILD_013_REPORT.md` for the current list)
+
+Build 013's own report has the current, evidence-based Build 014
+recommendation, derived from the highest-lift failure-mode finding across
+the full 5,000-pattern portfolio (`zeroMotifOverlap`, 9.1x lift in the
+bottom decile, High confidence). The section below is kept for history but
+reflects Build 012's own state, not the current one.
+
+## Recommended Next Build (superseded — see below for Build 012's own list)
 
 Build 012 fixed the evaluation-layer bias Build 011.5 diagnosed. With the
 scoring layer now trustworthy across every preset, the natural next step is
