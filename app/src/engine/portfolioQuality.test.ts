@@ -3,8 +3,16 @@ import { defaultParams } from './defaults';
 import { buildTile } from './tile';
 import { computeMetrics } from './scoring';
 import { computeBotanicalBeautyMetrics } from './botanicalBeautyMetrics';
-import { computeIllustrationQuality, computeVisualRichness, computeSpeciesDiversity } from './portfolioQuality';
+import {
+  computeIllustrationQuality,
+  computeVisualRichness,
+  computeSpeciesDiversity,
+  computeCompositionDiversity,
+  computeClusterDiversity,
+  computeHeroDiversity,
+} from './portfolioQuality';
 import { BOTANICAL_FAMILIES } from '../generators/botanicalFamilies';
+import type { LayoutId } from './types';
 
 describe('computeIllustrationQuality / computeVisualRichness (Build 005, Section 9)', () => {
   it('produces values in [0, 100] for a real tile', () => {
@@ -53,5 +61,58 @@ describe('computeSpeciesDiversity (Build 005, Section 9)', () => {
     const withUndefined = computeSpeciesDiversity([BOTANICAL_FAMILIES[0], undefined, BOTANICAL_FAMILIES[1]]);
     const withoutUndefined = computeSpeciesDiversity([BOTANICAL_FAMILIES[0], BOTANICAL_FAMILIES[1]]);
     expect(withUndefined).toBe(withoutUndefined);
+  });
+});
+
+describe('computeCompositionDiversity (Build 006, Section 9)', () => {
+  it('returns 0 for an empty list or a zero total', () => {
+    expect(computeCompositionDiversity([], 14)).toBe(0);
+    expect(computeCompositionDiversity(['grid'], 0)).toBe(0);
+  });
+
+  it('returns 100 when every distinct layout in the total is used', () => {
+    expect(computeCompositionDiversity(['grid', 'brick'], 2)).toBe(100);
+  });
+
+  it('ignores duplicates and returns a proportional fraction', () => {
+    const layouts: LayoutId[] = ['grid', 'grid', 'brick', 'radial'];
+    expect(computeCompositionDiversity(layouts, 14)).toBe(Math.round((3 / 14) * 100));
+  });
+});
+
+describe('computeClusterDiversity (Build 006, Section 9)', () => {
+  it('returns 0 for an empty or all-undefined list', () => {
+    expect(computeClusterDiversity([])).toBe(0);
+    expect(computeClusterDiversity([undefined, undefined])).toBe(0);
+  });
+
+  it('returns 100 when species spanning all 3 illustration templates are used (statement/filler-companion/foliageOnly)', () => {
+    // rose -> bouquet template (usesCalyx), a filler-role species -> spray,
+    // a foliageOnly species -> branch -- real BOTANICAL_SPECIES roles.
+    expect(computeClusterDiversity(['rose', 'cosmos', 'eucalyptus'])).toBe(100);
+  });
+
+  it('returns a proportional fraction for species that only ever resolve to 1 template', () => {
+    // rose and peony are both bouquetRole "statement" -> both resolve to
+    // the same 'bouquet' template.
+    expect(computeClusterDiversity(['rose', 'peony'])).toBe(Math.round((1 / 3) * 100));
+  });
+});
+
+describe('computeHeroDiversity (Build 006, Section 9)', () => {
+  it('returns 0 for an empty or all-undefined list', () => {
+    expect(computeHeroDiversity([])).toBe(0);
+    expect(computeHeroDiversity([undefined])).toBe(0);
+  });
+
+  it('returns a proportional fraction based on distinct silhouettes, not distinct species', () => {
+    // rose and ranunculus are both silhouette "layered" -- 2 species, 1 silhouette.
+    expect(computeHeroDiversity(['rose', 'ranunculus'])).toBe(Math.round((1 / 8) * 100));
+  });
+
+  it('a wider silhouette spread scores higher than a narrow one for the same species count', () => {
+    const narrow = computeHeroDiversity(['rose', 'ranunculus']); // both layered
+    const wide = computeHeroDiversity(['rose', 'lavender']); // layered + spiky
+    expect(wide).toBeGreaterThan(narrow);
   });
 });

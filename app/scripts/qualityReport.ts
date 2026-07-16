@@ -13,8 +13,18 @@ import { evaluateProductTargets } from '../src/collection/productTargets';
 import { countNodes } from '../src/engine/svgGeometry';
 import { GENERATORS } from '../src/generators';
 import { computeBotanicalBeautyMetrics } from '../src/engine/botanicalBeautyMetrics';
-import { computeIllustrationQuality, computeVisualRichness, computeSpeciesDiversity } from '../src/engine/portfolioQuality';
+import {
+  computeIllustrationQuality,
+  computeVisualRichness,
+  computeSpeciesDiversity,
+  computeCompositionDiversity,
+  computeClusterDiversity,
+  computeHeroDiversity,
+} from '../src/engine/portfolioQuality';
 import type { BotanicalFamily } from '../src/generators/botanicalFamilies';
+import { LAYOUTS } from '../src/layouts';
+import { evaluateCommercialPatternCritique, type CommercialPatternCritique } from '../src/critic/commercialPatternCritic';
+import { computeCommercialStyleAnalysis, type CommercialStyleAnalysis } from '../src/engine/commercialStyleAnalysis';
 
 // Build 002, Section 1 — Reporting Harness Foundation. A permanent,
 // committed, re-runnable measurement tool (not a throwaway scratch
@@ -103,6 +113,14 @@ interface EvalResult {
   botanicalFamily?: BotanicalFamily;
   illustrationQuality?: number;
   visualRichness?: number;
+  /** Build 006, Section 8: always computed (unlike illustrationQuality/
+   * visualRichness, no category-gating needed — every dimension here
+   * already handles a missing botanical input honestly). */
+  commercialPatternCritique: CommercialPatternCritique;
+  /** Build 006, Section 1: same "always real, never padded" convention —
+   * `computeCommercialStyleAnalysis` itself only scores dimensions whose
+   * real input was actually provided. */
+  commercialStyleAnalysis: CommercialStyleAnalysis;
 }
 
 function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
@@ -131,11 +149,26 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
 
   let illustrationQuality: number | undefined;
   let visualRichness: number | undefined;
+  let botanicalMetrics: ReturnType<typeof computeBotanicalBeautyMetrics> | undefined;
   if (params.categoryId === 'botanical') {
-    const botanical = computeBotanicalBeautyMetrics(tile, metrics);
-    illustrationQuality = computeIllustrationQuality(botanical);
-    visualRichness = computeVisualRichness(botanical);
+    botanicalMetrics = computeBotanicalBeautyMetrics(tile, metrics);
+    illustrationQuality = computeIllustrationQuality(botanicalMetrics);
+    visualRichness = computeVisualRichness(botanicalMetrics);
   }
+
+  // Build 006, Section 8 (Commercial Pattern Critic): reuses the exact
+  // same keywordText convention this file's own pre-existing
+  // productTargetFit block already established (Style DNA label when one
+  // was used, else the plain category label) — never a fabricated intent
+  // string.
+  const keywordText = styleDnaId ? STYLE_DNA_PRESETS[styleDnaId].label : params.categoryId;
+  const commercialPatternCritique = evaluateCommercialPatternCritique({
+    metrics, categoryId: params.categoryId, tileSize: params.tileSize, density: params.density, keywordText, heroVisibility, botanical: botanicalMetrics,
+  });
+  // Build 006, Section 1 (Commercial Style Analysis Engine).
+  const commercialStyleAnalysis = computeCommercialStyleAnalysis({
+    metrics, heroVisibility, botanical: botanicalMetrics, visualRichness,
+  });
 
   return {
     label,
@@ -147,6 +180,8 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     absoluteCommercialQuality,
     heroVisibility,
     patternBeautyScore,
+    commercialPatternCritique,
+    commercialStyleAnalysis,
     readability,
     nodeCount,
     issues,
@@ -212,6 +247,26 @@ function runPortfolio(): { results: EvalResult[]; droppedPairs: Array<{ styleId:
   return { results, droppedPairs };
 }
 
+// ---- Build 006, Section 9: frozen 300-pattern Large Portfolio ----
+// 15 STYLE_DNA_PRESETS x 20 fixed seeds = exactly 300, no trimming needed
+// (unlike the 100-pattern portfolio's 105->100 trim) -- reuses the exact
+// same `buildPortfolioParams`/`evaluate` pipeline, just over more seeds,
+// so every number here is directly comparable to the 100-pattern
+// portfolio's own numbers. Gated behind an explicit CLI flag (see `main`)
+// since it roughly triples this script's own runtime -- routine label runs
+// (Sections 1-8's own before/after passes) don't pay for it.
+const LARGE_PORTFOLIO_SEEDS = Array.from({ length: 20 }, (_, i) => `l-${i + 1}`);
+
+function buildLargePortfolioPairs(): Array<{ styleId: string; seed: string }> {
+  const all: Array<{ styleId: string; seed: string }> = [];
+  for (const styleId of STYLE_IDS) for (const seed of LARGE_PORTFOLIO_SEEDS) all.push({ styleId, seed });
+  return all;
+}
+
+function runLargePortfolio(): EvalResult[] {
+  return buildLargePortfolioPairs().map(({ styleId, seed }) => evaluate(`${styleId}@${seed}`, buildPortfolioParams(styleId, seed), styleId));
+}
+
 // ---- Aggregation ----
 function aggregateMetrics(results: EvalResult[]) {
   const perMetric: Record<string, ReturnType<typeof stats>> = {};
@@ -235,6 +290,20 @@ function aggregateMetrics(results: EvalResult[]) {
   if (withIllustrationQuality.length > 0) {
     perMetric.illustrationQuality = stats(withIllustrationQuality.map((r) => r.illustrationQuality!));
     perMetric.visualRichness = stats(withIllustrationQuality.map((r) => r.visualRichness!));
+  }
+  // Build 006, Section 8/1: always present (unlike illustrationQuality),
+  // no category filter needed.
+  perMetric.luxuryFeeling = stats(results.map((r) => r.commercialPatternCritique.luxuryFeeling));
+  perMetric.editorialFeeling = stats(results.map((r) => r.commercialPatternCritique.editorialFeeling));
+  perMetric.premiumFeeling = stats(results.map((r) => r.commercialPatternCritique.premiumFeeling));
+  perMetric.fabricFeeling = stats(results.map((r) => r.commercialPatternCritique.fabricFeeling));
+  perMetric.wallpaperFeeling = stats(results.map((r) => r.commercialPatternCritique.wallpaperFeeling));
+  perMetric.giftWrapFeeling = stats(results.map((r) => r.commercialPatternCritique.giftWrapFeeling));
+  perMetric.visualStory = stats(results.map((r) => r.commercialPatternCritique.visualStory));
+  perMetric.commercialStyleFit = stats(results.map((r) => r.commercialStyleAnalysis.overallFit));
+  const withBotanicalRealism = results.filter((r) => r.commercialPatternCritique.botanicalRealism !== undefined);
+  if (withBotanicalRealism.length > 0) {
+    perMetric.botanicalRealism = stats(withBotanicalRealism.map((r) => r.commercialPatternCritique.botanicalRealism!));
   }
   return perMetric;
 }
@@ -280,10 +349,17 @@ const NODE_BUDGET = 8000;
 
 function main() {
   const outArg = process.argv[2] ?? 'baseline';
+  // Build 006, Section 9: `large` as a 3rd CLI arg opts into the
+  // 300-pattern Large Portfolio Evaluation on top of the existing
+  // scenario suite + 100-pattern portfolio -- opt-in because it roughly
+  // triples this script's runtime, and Sections 1-8's own before/after
+  // passes don't need it.
+  const runLarge = process.argv[3] === 'large';
   const startedAt = Date.now();
 
   const scenarioResults = runScenarioSuite();
   const { results: portfolioResults, droppedPairs } = runPortfolio();
+  const largePortfolioResults = runLarge ? runLargePortfolio() : undefined;
   const elapsedMs = Date.now() - startedAt;
 
   const report = {
@@ -321,6 +397,24 @@ function main() {
       // Botanical Species taxonomy this 100-pattern run actually used.
       speciesDiversity: computeSpeciesDiversity(portfolioResults.map((r) => r.botanicalFamily)),
     },
+    // Build 006, Section 9 (Large Portfolio Evaluation): undefined unless
+    // invoked with the `large` CLI flag -- every field here is a real
+    // measurement over the actual 300-pattern run, never fabricated or
+    // interpolated from the 100-pattern portfolio's own numbers.
+    largePortfolio: largePortfolioResults && {
+      seeds: LARGE_PORTFOLIO_SEEDS,
+      styleIds: STYLE_IDS,
+      count: largePortfolioResults.length,
+      aggregate: aggregateMetrics(largePortfolioResults),
+      namedPenaltyRates: namedPenaltyRates(largePortfolioResults),
+      visualIssueRates: visualIssueRates(largePortfolioResults),
+      byStyleDna: breakdownBy(largePortfolioResults, (r) => r.styleDnaId ?? 'unknown'),
+      nodeBudgetFailures: largePortfolioResults.filter((r) => r.nodeCount > NODE_BUDGET).map((r) => ({ label: r.label, nodeCount: r.nodeCount })),
+      speciesDiversity: computeSpeciesDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
+      compositionDiversity: computeCompositionDiversity(largePortfolioResults.map((r) => r.layoutId), Object.keys(LAYOUTS).length),
+      clusterDiversity: computeClusterDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
+      heroDiversity: computeHeroDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
+    },
   };
 
   const __filename = fileURLToPath(import.meta.url);
@@ -342,6 +436,14 @@ function main() {
   if (report.portfolio.aggregate.illustrationQuality) {
     console.log(`Portfolio Illustration Quality mean=${report.portfolio.aggregate.illustrationQuality.mean} (botanical results only, n=${report.portfolio.aggregate.illustrationQuality.n})`);
     console.log(`Portfolio Visual Richness mean=${report.portfolio.aggregate.visualRichness.mean}`);
+  }
+  console.log(`Portfolio Commercial Style Fit mean=${report.portfolio.aggregate.commercialStyleFit.mean}`);
+  console.log(`Portfolio Luxury/Editorial/Premium Feeling means=${report.portfolio.aggregate.luxuryFeeling.mean}/${report.portfolio.aggregate.editorialFeeling.mean}/${report.portfolio.aggregate.premiumFeeling.mean}`);
+  if (report.largePortfolio) {
+    console.log(`Large Portfolio (n=${report.largePortfolio.count}): Absolute Commercial Quality mean=${report.largePortfolio.aggregate.absoluteCommercialQuality.mean}`);
+    console.log(`Large Portfolio Commercial Style Fit mean=${report.largePortfolio.aggregate.commercialStyleFit.mean}`);
+    console.log(`Large Portfolio Species/Composition/Cluster/Hero Diversity=${report.largePortfolio.speciesDiversity}%/${report.largePortfolio.compositionDiversity}%/${report.largePortfolio.clusterDiversity}%/${report.largePortfolio.heroDiversity}%`);
+    console.log(`Large Portfolio nodeCount mean=${report.largePortfolio.aggregate.nodeCount.mean}`);
   }
   console.log(`Generation time: ${elapsedMs}ms`);
 }

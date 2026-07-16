@@ -19,6 +19,48 @@ Build-numbered, forward-looking. Each entry is either shipped
   Readability (thumbnail/zoom), Commercial Validation (8 named scores),
   100-pattern Visual Portfolio Review, 3 new Design Critic recommendation
   rules. See `docs/BUILD_REPORT.md`.
+- **Build 002 — Composition Quality V3**: Palette/Color Intelligence
+  redesign, Thumbnail Hero Legibility, Scale Diversity fix, Semantic
+  Cluster coverage to 9/14 layouts, Design Critic calibration, Product
+  Targeting, Commercial Score integrity split, a 2nd Flow architecture,
+  SVG safety margin. See `docs/build_reports/BUILD_002_REPORT.md`.
+- **Build 003 — Composition Intelligence V4**: Composition Zone Engine,
+  Rotation Angle Families, Rhythm Density Bands, Hero-Hero Repulsion,
+  hero-size-aware negative space, Style Grammar zone preferences, Hero
+  Detector regenerate-on-failure, Pattern Beauty Score, Portfolio Variety
+  tracking. See `docs/build_reports/BUILD_003_REPORT.md`.
+- **Build 004 — Botanical DNA Engine**: real Botanical Family taxonomy (12
+  families), Botanical Cluster Generator archetypes, Leaf Intelligence,
+  cluster-level Stem Engine, Natural Rotation Engine, Premium Hero
+  Builder, Style DNA botanical grammar, Botanical Beauty Metrics V2,
+  Portfolio Diversity Engine V2. See `docs/build_reports/BUILD_004_REPORT.md`.
+- **Build 005 — Design Knowledge Engine**: Design Knowledge/Rule Engine
+  (per-style design language → generation rules), Premium SVG
+  Illustration Engine (Petal/Calyx Generators, petal asymmetry), Botanical
+  Species Engine (18 species incl. Rose/Protea/Tropical Leaf),
+  Illustration Family Engine, Designer Brain (weighted preferred-list
+  picks), Premium Detail System, Commercial Knowledge architecture
+  (product-target metadata per style). See
+  `docs/build_reports/BUILD_005_REPORT.md`.
+- **Build 006 — Commercial Art Director Engine**: Commercial Style
+  Analysis Engine (10 real benchmark bands), Luxury Bouquet Composer
+  (companion-foliage sprig + visual-weight balancing), Natural Botanical
+  Relationships (real per-species companion pairing + Baby's Breath, 19th
+  species), Commercial Color Story Engine (8 named professional color
+  stories), Negative Space Designer (per-product-target spacing),
+  Luxury Repetition Engine (hero-bouquet mirroring), Premium SVG Detail
+  (Flower Center Generator), Commercial Pattern Critic (8 named
+  commercial-feeling dimensions), 300-pattern Large Portfolio Evaluation.
+  See `docs/build_reports/BUILD_006_REPORT.md`.
+
+## Recommended Next Build (see `docs/build_reports/BUILD_006_REPORT.md` §10 for the current list)
+
+Build 006's own report has the up-to-date, evidence-based recommendation
+list (style-fit-aware Commercial Pattern Critic variant, root-causing the
+Species Diversity dip, tracking real marketplace performance data once
+available, expanding the companion-species taxonomy). The section below
+is kept for history but reflects Build 001.1's own state, not the
+current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 
