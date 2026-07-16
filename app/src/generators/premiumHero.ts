@@ -4,7 +4,7 @@ import { rngPick, rngRange, rngInt, rngBool } from '../engine/rng';
 import { generateCluster, type ClusterMember } from '../engine/clusterEngine';
 import { applyHeroDetailOverlay } from '../engine/heroComplexity';
 import { generateStem, growLeaves, GROWTH_PRESETS } from './growth';
-import { calyxBase } from './shared';
+import { calyxBase, flowerCenterDetail } from './shared';
 import { botanicalGenerator } from './botanical';
 import { BOTANICAL_SPECIES, pickCompanionFamily, type BotanicalFamily } from './botanicalFamilies';
 import { illustrationTemplateForSpecies } from './illustrationFamily';
@@ -221,6 +221,7 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   for (const member of balancedMembers) {
     let sub: Motif;
     let calyx: ReturnType<typeof h> | undefined;
+    let centerDetail: ReturnType<typeof h> | undefined;
     // Build 006, Section 3: filler/accent members (berries, tiny accents)
     // draw from the real companion species when one exists -- a Rose
     // hero's berry filler is a genuine Berry Branch, not another rose --
@@ -238,7 +239,18 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       // stay calyx-free to keep them cheap). Only drawn for templates
       // whose hero part is a real flower -- a foliage `branch` hero has no
       // sepal base to draw.
-      if (template.usesCalyx) calyx = calyxBase(rng, { color: rngPick(rng, accents), flowerRadius: sub.radius });
+      if (template.usesCalyx) {
+        calyx = calyxBase(rng, { color: rngPick(rng, accents), flowerRadius: sub.radius });
+        // Build 006, Section 7 (Premium SVG Detail): a real Flower Center
+        // (stamens + anther dots + disc), reserved for the same hero-scale,
+        // real-flower templates the Calyx already is -- the exact same
+        // node-budget gating `calyxBase` established in Build 005.
+        centerDetail = flowerCenterDetail(rng, {
+          filamentColor: rngPick(rng, accents),
+          discColor: rngPick(rng, accents),
+          flowerRadius: sub.radius,
+        });
+      }
     } else if (member.role === 'secondary') {
       secondaryToggle++;
       const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
@@ -262,7 +274,7 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
         {
           transform: `translate(${round(member.dx)} ${round(member.dy)}) rotate(${round(member.rotationDeg)}) scale(${round(member.scaleMul * mirror)} ${round(member.scaleMul)})`,
         },
-        calyx ? [calyx, sub.node] : [sub.node],
+        calyx ? [calyx, sub.node, ...(centerDetail ? [centerDetail] : [])] : [sub.node, ...(centerDetail ? [centerDetail] : [])],
       ),
     );
   }

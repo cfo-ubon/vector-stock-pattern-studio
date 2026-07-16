@@ -152,6 +152,19 @@ describe('buildPremiumHero', () => {
     }
   });
 
+  it('Build 006, Section 7: the hero-role sub-part gets a real Flower Center (data-part="flower-center") whenever it gets a Calyx', () => {
+    let sawCenter = false;
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-center-${i}`), { colors: COLORS, size: 120 });
+      const svg = serialize(hero.node);
+      if (svg.includes('data-part="calyx"')) {
+        expect(svg).toContain('data-part="flower-center"');
+        sawCenter = true;
+      }
+    }
+    expect(sawCenter).toBe(true);
+  });
+
   it('every one of the 19 named species (including the new babysBreath) produces valid output when explicitly requested', () => {
     for (const family of BOTANICAL_FAMILIES) {
       for (let i = 0; i < 3; i++) {
