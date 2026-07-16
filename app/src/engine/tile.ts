@@ -11,6 +11,7 @@ import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
 import { buildPremiumHero } from '../generators/premiumHero';
+import { resolveNegativeSpaceForProduct } from './negativeSpaceDesigner';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -223,7 +224,13 @@ export function buildTile(params: GenerateParams): TileData {
   // math individually. Both default to 0, so effectiveDensity ===
   // params.density exactly when neither is set — zero behavior change for
   // every pattern saved before these controls existed.
-  const spacingAdjust = (params.overlapAmount ?? 0) - (params.negativeSpace ?? 0);
+  // Build 006, Section 5 (Negative Space Designer): resolves the real
+  // per-product nudge on top of the user's own `negativeSpace` dial before
+  // it enters the existing spacing-adjust pipeline -- `productTarget`
+  // undefined reproduces `params.negativeSpace` exactly (see
+  // `resolveNegativeSpaceForProduct`'s own doc comment).
+  const effectiveNegativeSpace = resolveNegativeSpaceForProduct(params.negativeSpace ?? 0, params.productTarget);
+  const spacingAdjust = (params.overlapAmount ?? 0) - effectiveNegativeSpace;
   const effectiveDensity = Math.max(0, Math.min(1, params.density + spacingAdjust * 0.4));
 
   const placements: Placement[] = layout.generate(

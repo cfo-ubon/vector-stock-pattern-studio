@@ -221,6 +221,14 @@ export interface GenerateParams {
    * behavior. Applied after negativeSpace in the same spacing-multiplier
    * pipeline; the two partially offset if both are set. */
   overlapAmount?: number;
+  /** Build 006, Section 5 (Negative Space Designer): which real commercial
+   * product this tile targets (see collection/productTargets.ts) — when
+   * set, nudges the *effective* negative space up or down for that
+   * product's own real spacing convention (see
+   * engine/negativeSpaceDesigner.ts) on top of (never replacing) the
+   * `negativeSpace` field above. Undefined = no nudge, zero behavior
+   * change from every pre-Build-006 pattern/preset/test. */
+  productTarget?: import('../collection/productTargets').ProductUseId;
   /** Named Art Direction preset id applied (informational — the preset's
    * resolved values are written into the other fields above, so replaying
    * these params doesn't require re-resolving the preset). Undefined when

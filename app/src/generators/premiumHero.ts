@@ -1,12 +1,12 @@
 import type { Motif, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
-import { rngPick, rngRange, rngInt } from '../engine/rng';
-import { generateCluster } from '../engine/clusterEngine';
+import { rngPick, rngRange, rngInt, rngBool } from '../engine/rng';
+import { generateCluster, type ClusterMember } from '../engine/clusterEngine';
 import { applyHeroDetailOverlay } from '../engine/heroComplexity';
 import { generateStem, growLeaves, GROWTH_PRESETS } from './growth';
 import { calyxBase } from './shared';
 import { botanicalGenerator } from './botanical';
-import { BOTANICAL_SPECIES, type BotanicalFamily } from './botanicalFamilies';
+import { BOTANICAL_SPECIES, pickCompanionFamily, type BotanicalFamily } from './botanicalFamilies';
 import { illustrationTemplateForSpecies } from './illustrationFamily';
 import type { DesignGenerationRules } from '../engine/designKnowledge';
 
@@ -38,6 +38,36 @@ import type { DesignGenerationRules } from '../engine/designKnowledge';
 
 function simpleLeafPath(len: number, width: number): string {
   return `M 0 0 Q ${round(width / 2)} ${round(-len * 0.4)} 0 ${round(-len)} Q ${round(-width / 2)} ${round(-len * 0.4)} 0 0 Z`;
+}
+
+// Build 006, Section 2 (Luxury Bouquet Composer): "current heroes still
+// feel procedural" -- one real, measurable driver is that every non-hero
+// member draws at whatever scale the cluster archetype's own jitter
+// happened to roll, with nothing checking whether the resulting bouquet
+// still reads as "one dominant flower plus real supporting detail" versus
+// "several members all competing for attention." This gives "visual
+// weight" an honest, computable meaning (a role-weighted sum of rendered
+// scale, never the hero's own role) and only intervenes -- shrinking every
+// non-hero member by one shared factor, never reordering or hiding any of
+// them -- when that sum would out-weigh the hero itself. A typical
+// generateCluster('bouquet', ...) roll never approaches the cap (verified
+// empirically before shipping), so this is a real ceiling for the
+// occasional outlier roll, not a change that fires on every hero.
+const ROLE_VISUAL_WEIGHT: Record<string, number> = { hero: 4, secondary: 2, filler: 1, accent: 0.5 };
+const MAX_SUPPORT_WEIGHT_RATIO = 0.9;
+
+function balanceVisualWeight(members: ClusterMember[]): ClusterMember[] {
+  const heroWeight = members
+    .filter((m) => m.role === 'hero')
+    .reduce((sum, m) => sum + ROLE_VISUAL_WEIGHT.hero * m.scaleMul, 0);
+  if (heroWeight <= 0) return members;
+  const supportWeight = members
+    .filter((m) => m.role !== 'hero')
+    .reduce((sum, m) => sum + (ROLE_VISUAL_WEIGHT[m.role] ?? 1) * m.scaleMul, 0);
+  const cap = heroWeight * MAX_SUPPORT_WEIGHT_RATIO;
+  if (supportWeight <= cap || supportWeight <= 0) return members;
+  const shrink = cap / supportWeight;
+  return members.map((m) => (m.role === 'hero' ? m : { ...m, scaleMul: m.scaleMul * shrink }));
 }
 
 export interface PremiumHeroOptions {
@@ -121,11 +151,56 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     ]);
   });
 
+  // Build 006, Section 3 (Natural Botanical Relationships): a real
+  // companion species -- picked ONCE per hero, not once per member, so the
+  // whole bouquet commits to one coherent pairing (e.g. every berry/tiny
+  // accent in a Rose hero reads as the SAME real companion, not a
+  // different random species each time) -- used below for the filler/
+  // accent roles (berries, tiny accents) and the foliage sprig, matching
+  // the brief's own example (rose paired with eucalyptus/baby's-breath/
+  // berries) instead of every role in the bouquet forcing the single
+  // hero `family`.
+  const companionFamily = pickCompanionFamily(rng, family);
+
+  // Build 006, Section 2 (Luxury Bouquet Composer): "branch rhythm" -- a
+  // second, shorter companion-foliage sprig bound alongside the primary
+  // stem, the way a real florist's bouquet binds foliage stems of
+  // deliberately varied length together, not just one flower's own leaves.
+  // Kept small on purpose (a "sprig", capped at 3 leaves) -- this is
+  // additive hero-level detail (already the most affordable detail budget,
+  // Section 7's own node-budget convention), not a second full branch.
+  // Only drawn when a real, distinct companion exists (a species with no
+  // companion list reproduces pre-Build-006 output exactly).
+  let companionFoliageNode: ReturnType<typeof h> | undefined;
+  if (companionFamily && companionFamily !== family) {
+    const companionPreset = GROWTH_PRESETS[BOTANICAL_SPECIES[companionFamily].growthPreset];
+    const sprigStem = generateStem(rng, size * 0.22 * stemLengthScale, rngRange(rng, 0.05, 0.1));
+    const sprigLeaves = growLeaves(rng, sprigStem, companionPreset).slice(0, 3);
+    const sprigColor = rngPick(rng, accents);
+    const sprigNodes = sprigLeaves.map((leaf) => {
+      const leafLen = size * rngRange(rng, 0.08, 0.12) * leaf.scale;
+      return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
+        h('path', { d: simpleLeafPath(leafLen, leafLen * 0.5), fill: sprigColor }),
+      ]);
+    });
+    if (sprigNodes.length > 0) {
+      companionFoliageNode = h(
+        'g',
+        {
+          'data-part': 'companion-foliage',
+          transform: `translate(${round(rngRange(rng, -size * 0.15, size * 0.15))} ${round(rngRange(rng, -size * 0.1, size * 0.05))}) rotate(${round(rngRange(rng, -25, 25))})`,
+        },
+        sprigNodes,
+      );
+    }
+  }
+
   const parts = [
     h('g', { 'data-part': 'stem' }, [
       h('path', { d: stem.path, fill: 'none', stroke: stemColor, 'stroke-width': round(size * 0.02), 'stroke-linecap': 'round' }),
     ]),
     h('g', { 'data-part': 'leaves' }, leafNodes),
+    ...(companionFoliageNode ? [companionFoliageNode] : []),
   ];
 
   // Build 005, Section 5 (Illustration Family Engine): which named part
@@ -135,11 +210,24 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // every family regardless of whether it even has those parts.
   const template = illustrationTemplateForSpecies(species);
 
+  // Build 006, Section 2: real "visual weight" balancing (see
+  // `balanceVisualWeight`'s own doc comment) -- a no-op for the ordinary
+  // roll, a real cap for the occasional one where support members would
+  // otherwise out-weigh the hero.
+  const balancedMembers = balanceVisualWeight(members);
+
   let secondaryToggle = 0;
   let colorSeed = 1;
-  for (const member of members) {
+  for (const member of balancedMembers) {
     let sub: Motif;
     let calyx: ReturnType<typeof h> | undefined;
+    // Build 006, Section 3: filler/accent members (berries, tiny accents)
+    // draw from the real companion species when one exists -- a Rose
+    // hero's berry filler is a genuine Berry Branch, not another rose --
+    // while hero/secondary stay on the hero's own species (a bouquet's
+    // secondary blooms are more of the SAME flower, a real construction
+    // choice, not a species swap).
+    const fillerFamily = companionFamily ?? family;
     if (member.role === 'hero') {
       sub = botanicalGenerator.createMotif(rng, colors, size, colorSeed++, { role: 'hero', part: template.heroPart, family });
       // Build 005, Section 3 (Premium SVG Illustration Engine): a real
@@ -156,20 +244,30 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.55, colorSeed++, { role: 'secondary', part, family });
     } else if (member.role === 'filler') {
-      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: template.fillerPart, family });
+      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: template.fillerPart, family: fillerFamily });
     } else {
-      sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: template.accentPart, family });
+      sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: template.accentPart, family: fillerFamily });
     }
+    // Build 006, Section 6 (Luxury Repetition Engine): a real 50/50
+    // horizontal mirror for non-hero members -- the hero flower's own
+    // silhouette stays unmirrored (it's the one shape a viewer is meant to
+    // recognize consistently), but secondary/filler/accent members
+    // mirroring breaks up "the exact same shape, same orientation,
+    // repeated" -- a real, measurable contributor to the `repeatedScale`/
+    // visible-cluster-repetition read a seamless tile can fall into.
+    const mirror = member.role !== 'hero' && rngBool(rng, 0.5) ? -1 : 1;
     parts.push(
       h(
         'g',
-        { transform: `translate(${round(member.dx)} ${round(member.dy)}) rotate(${round(member.rotationDeg)}) scale(${round(member.scaleMul)})` },
+        {
+          transform: `translate(${round(member.dx)} ${round(member.dy)}) rotate(${round(member.rotationDeg)}) scale(${round(member.scaleMul * mirror)} ${round(member.scaleMul)})`,
+        },
         calyx ? [calyx, sub.node] : [sub.node],
       ),
     );
   }
 
-  const reach = members.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
+  const reach = balancedMembers.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
   const baseRadius = Math.max(size * 0.55, reach);
 
   const assembled = h('g', { 'data-part': 'premium-hero' }, parts);

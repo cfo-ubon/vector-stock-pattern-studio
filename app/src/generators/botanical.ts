@@ -1268,7 +1268,7 @@ export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
   label: 'Botanical / Floral',
   description:
-    'Flat minimal leaves, blooms, buds and leafy branches — 29 variants across 18 named botanical species (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb, ranunculus, protea, tropical leaf), built on a shared curve-quality and botanical-growth engine.',
+    "Flat minimal leaves, blooms, buds and leafy branches — 29 variants across 19 named botanical species (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb, ranunculus, protea, tropical leaf, baby's breath), built on a shared curve-quality and botanical-growth engine.",
   defaultMotifSize: 70,
   createMotif(rng: Rng, colors: string[], size: number, _colorSeed?: number, hints?: MotifCreateHints): Motif {
     const pool = poolForHints(hints);

@@ -267,3 +267,20 @@ describe('buildTile: Style DNA metadata', () => {
     expect(svg).toMatch(/data-style-dna-name="myCustomStyle"/);
   });
 });
+
+describe('buildTile: Negative Space Designer (Build 006, Section 5)', () => {
+  it('omitting productTarget reproduces the exact prior output (backward compatible)', () => {
+    const withField = buildTile({ ...defaultParams(), negativeSpace: 0.2, seed: 'negspace-product-none' });
+    const without = { ...defaultParams(), negativeSpace: 0.2, seed: 'negspace-product-none' } as GenerateParams;
+    delete without.productTarget;
+    const alsoWithout = buildTile(without);
+    expect(serialize(withField.svg)).toBe(serialize(alsoWithout.svg));
+  });
+
+  it('a giftWrap productTarget genuinely changes the generated tile vs. no productTarget', () => {
+    const base = { ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, negativeSpace: 0.2, seed: 'negspace-product-giftwrap' };
+    const plain = buildTile(base);
+    const giftWrap = buildTile({ ...base, productTarget: 'giftWrap' as const });
+    expect(serialize(plain.svg)).not.toBe(serialize(giftWrap.svg));
+  });
+});

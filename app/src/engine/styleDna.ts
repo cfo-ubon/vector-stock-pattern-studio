@@ -199,7 +199,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.55, negativeSpace: 0.15, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'bouquet', clusterDensity: 0.6,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'eucalyptus', colorStrategy: 'highContrast',
-    paletteIds: ['jewel-tones', 'blush-gold'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
+    paletteIds: ['jewel-tones', 'blush-gold', 'luxury-wedding'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
     exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   scandinavianOrganic: {
@@ -210,7 +210,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.32, negativeSpace: 0.5, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', colorStrategy: 'monochromeAccent',
-    paletteIds: ['coastal-neutral', 'monochrome-blue'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
+    paletteIds: ['coastal-neutral', 'monochrome-blue', 'scandinavian-calm'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
     exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['homeDecor', 'digitalPaper'] },
   },
   minimalBotanical: {
@@ -232,7 +232,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.45, negativeSpace: 0.25, overlapMode: 'none', overlapAmount: 0,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'sage', colorStrategy: 'fullPalette',
-    paletteIds: ['earth-tone', 'terracotta'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
+    paletteIds: ['earth-tone', 'terracotta', 'french-vintage'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
     exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['stationery', 'wrappingPaper'] },
   },
   darkBotanical: {
@@ -243,7 +243,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.55,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'fern', colorStrategy: 'highContrast',
-    paletteIds: ['midnight-botanical'], backgroundStrategy: 'darkMoody', svgDepthMode: 'dimensional',
+    paletteIds: ['midnight-botanical', 'dark-floral'], backgroundStrategy: 'darkMoody', svgDepthMode: 'dimensional',
     exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   modernTropical: {
@@ -284,7 +284,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.55, negativeSpace: 0.05, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', colorStrategy: 'fullPalette',
-    paletteIds: ['sage-terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
+    paletteIds: ['sage-terracotta', 'autumn-harvest', 'english-garden'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
     exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativefabrica', 'adobestock'], bestProductTargets: ['fabric', 'textile'] },
   },
   kidsPlayful: {
@@ -306,7 +306,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.5, negativeSpace: 0.15, overlapMode: 'subtle', overlapAmount: 0.1,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', colorStrategy: 'highContrast',
-    paletteIds: ['retro-sunset', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
+    paletteIds: ['retro-sunset', 'autumn-harvest', 'muted-autumn'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
     exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['shutterstock', 'adobestock'], bestProductTargets: ['wrappingPaper', 'homeDecor'] },
   },
   organicAbstract: {
@@ -328,7 +328,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.55, negativeSpace: 0.1, overlapMode: 'natural', overlapAmount: 0.2,
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.45,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'leafyBranch', colorStrategy: 'fullPalette',
-    paletteIds: ['terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
+    paletteIds: ['terracotta', 'autumn-harvest', 'desert-botanical'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
     exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['fabric', 'wrappingPaper'] },
   },
   softWatercolorInspired: {
@@ -339,7 +339,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     density: 0.35, negativeSpace: 0.4, overlapMode: 'subtle', overlapAmount: 0.15,
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.25,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
-    paletteIds: ['pastel-dream', 'lavender-fields'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
+    paletteIds: ['pastel-dream', 'lavender-fields', 'soft-cottage'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
     exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['stationery', 'digitalPaper'] },
   },
 };

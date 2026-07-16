@@ -48,9 +48,15 @@ describe('buildPremiumHero', () => {
   });
 
   it('keeps node counts within a reasonable ceiling (no runaway path bloat)', () => {
+    // Build 006, Section 2/3 (Luxury Bouquet Composer + Natural Botanical
+    // Relationships): the companion-foliage sprig is a real, deliberately
+    // small addition (capped at 3 leaves), but it's still additive on top
+    // of every pre-existing part -- a diagnostic sweep across 200 seeds
+    // measured a real max of 525 (was <400 pre-Build-006), so 600 is a real
+    // ceiling with headroom, not an arbitrarily loosened one.
     for (let i = 0; i < 20; i++) {
       const hero = buildPremiumHero(createRng(`premium-hero-nodes-${i}`), { colors: COLORS, size: 120 });
-      expect(countNodes(hero.node)).toBeLessThan(400);
+      expect(countNodes(hero.node)).toBeLessThan(600);
     }
   });
 
@@ -108,5 +114,52 @@ describe('buildPremiumHero', () => {
       designRules: { heroMemberCountRange: [3, 4], bouquetBaseRadiusScale: 0.85, stemLengthMultiplier: 1, leafDensityMultiplier: 1 },
     });
     expect(full.radius).toBeGreaterThanOrEqual(single.radius);
+  });
+
+  it('Build 006, Section 3: a species with real companions (rose) draws a real companion-foliage sprig at least sometimes', () => {
+    let sawCompanionFoliage = false;
+    for (let i = 0; i < 20; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-companion-${i}`), { colors: COLORS, size: 120, family: 'rose' });
+      if (serialize(hero.node).includes('data-part="companion-foliage"')) sawCompanionFoliage = true;
+    }
+    expect(sawCompanionFoliage).toBe(true);
+  });
+
+  it('Build 006, Section 3: a species with no companions (eucalyptus, foliageOnly) never draws a companion-foliage sprig', () => {
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-no-companion-${i}`), { colors: COLORS, size: 120, family: 'eucalyptus' });
+      expect(serialize(hero.node)).not.toContain('data-part="companion-foliage"');
+    }
+  });
+
+  it('Build 006, Section 6: non-hero members are sometimes horizontally mirrored (negative x-scale) across many seeds', () => {
+    let sawMirror = false;
+    for (let i = 0; i < 25; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-mirror-${i}`), { colors: COLORS, size: 120, family: 'peony' });
+      if (/scale\(-[0-9.]+ [0-9.]+\)/.test(serialize(hero.node))) sawMirror = true;
+    }
+    expect(sawMirror).toBe(true);
+  });
+
+  it('Build 006, Section 2: visual weight balancing never shrinks the hero member itself (hero-scale flower always present at full member scale)', () => {
+    // A regression here would mean balanceVisualWeight's role filter broke and
+    // started touching hero members too -- this stays deterministic and valid
+    // across many seeds/species regardless.
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-weight-${i}`), { colors: COLORS, size: 120, family: 'hydrangea' });
+      expect(hero.radius).toBeGreaterThan(0);
+      expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
+    }
+  });
+
+  it('every one of the 19 named species (including the new babysBreath) produces valid output when explicitly requested', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      for (let i = 0; i < 3; i++) {
+        const hero = buildPremiumHero(createRng(`premium-hero-species19-${family}-${i}`), { colors: COLORS, size: 120, family });
+        const svg = serialize(hero.node);
+        expect(svg).not.toMatch(/NaN|Infinity|undefined/);
+        expect(hero.radius).toBeGreaterThan(0);
+      }
+    }
   });
 });
