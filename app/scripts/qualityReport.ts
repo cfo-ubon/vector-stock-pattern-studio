@@ -12,6 +12,9 @@ import { STYLE_DNA_PRESETS, resolveStyleDna, computeStyleDnaConsistency } from '
 import { evaluateProductTargets } from '../src/collection/productTargets';
 import { countNodes } from '../src/engine/svgGeometry';
 import { GENERATORS } from '../src/generators';
+import { computeBotanicalBeautyMetrics } from '../src/engine/botanicalBeautyMetrics';
+import { computeIllustrationQuality, computeVisualRichness, computeSpeciesDiversity } from '../src/engine/portfolioQuality';
+import type { BotanicalFamily } from '../src/generators/botanicalFamilies';
 
 // Build 002, Section 1 — Reporting Harness Foundation. A permanent,
 // committed, re-runnable measurement tool (not a throwaway scratch
@@ -94,6 +97,12 @@ interface EvalResult {
   issues: Record<VisualIssueId, boolean>;
   styleFitQuality?: number;
   productTargetFit?: number;
+  /** Build 005, Section 9: only meaningful for the botanical generator —
+   * undefined for every other category, same convention as
+   * GenerateParams.botanicalFamily itself. */
+  botanicalFamily?: BotanicalFamily;
+  illustrationQuality?: number;
+  visualRichness?: number;
 }
 
 function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
@@ -120,7 +129,33 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     productTargetFit = Math.round(evaluations.reduce((a, e) => a + e.score, 0) / evaluations.length);
   }
 
-  return { label, layoutId: params.layoutId, categoryId: params.categoryId, seed: params.seed, styleDnaId, metrics, absoluteCommercialQuality, heroVisibility, patternBeautyScore, readability, nodeCount, issues, styleFitQuality, productTargetFit };
+  let illustrationQuality: number | undefined;
+  let visualRichness: number | undefined;
+  if (params.categoryId === 'botanical') {
+    const botanical = computeBotanicalBeautyMetrics(tile, metrics);
+    illustrationQuality = computeIllustrationQuality(botanical);
+    visualRichness = computeVisualRichness(botanical);
+  }
+
+  return {
+    label,
+    layoutId: params.layoutId,
+    categoryId: params.categoryId,
+    seed: params.seed,
+    styleDnaId,
+    metrics,
+    absoluteCommercialQuality,
+    heroVisibility,
+    patternBeautyScore,
+    readability,
+    nodeCount,
+    issues,
+    styleFitQuality,
+    productTargetFit,
+    botanicalFamily: params.botanicalFamily,
+    illustrationQuality,
+    visualRichness,
+  };
 }
 
 // ---- Frozen 30-scenario suite ----
@@ -194,6 +229,12 @@ function aggregateMetrics(results: EvalResult[]) {
   if (withStyleFit.length > 0) {
     perMetric.styleFitQuality = stats(withStyleFit.map((r) => r.styleFitQuality!));
     perMetric.productTargetFit = stats(withStyleFit.map((r) => r.productTargetFit!));
+  }
+  // Build 005, Section 9: only botanical-category results carry these.
+  const withIllustrationQuality = results.filter((r) => r.illustrationQuality !== undefined);
+  if (withIllustrationQuality.length > 0) {
+    perMetric.illustrationQuality = stats(withIllustrationQuality.map((r) => r.illustrationQuality!));
+    perMetric.visualRichness = stats(withIllustrationQuality.map((r) => r.visualRichness!));
   }
   return perMetric;
 }
@@ -274,6 +315,11 @@ function main() {
       byCategory: breakdownBy(portfolioResults, (r) => r.categoryId),
       results: portfolioResults,
       nodeBudgetFailures: portfolioResults.filter((r) => r.nodeCount > NODE_BUDGET).map((r) => ({ label: r.label, nodeCount: r.nodeCount })),
+      // Build 005, Section 9: a real portfolio-level statistic (see
+      // engine/portfolioQuality.ts's own doc comment on why this can't be
+      // a per-tile number) -- what fraction of the engine's 18-family
+      // Botanical Species taxonomy this 100-pattern run actually used.
+      speciesDiversity: computeSpeciesDiversity(portfolioResults.map((r) => r.botanicalFamily)),
     },
   };
 
@@ -292,6 +338,11 @@ function main() {
   console.log(`Portfolio Pattern Beauty Score mean=${report.portfolio.aggregate.patternBeautyScore.mean}`);
   console.log(`Portfolio Readability@200px mean=${report.portfolio.aggregate.readabilityThumbnail200.mean}`);
   console.log(`Portfolio repeatedScale rate=${report.portfolio.visualIssueRates.repeatedScale}%`);
+  console.log(`Portfolio Species Diversity=${report.portfolio.speciesDiversity}%`);
+  if (report.portfolio.aggregate.illustrationQuality) {
+    console.log(`Portfolio Illustration Quality mean=${report.portfolio.aggregate.illustrationQuality.mean} (botanical results only, n=${report.portfolio.aggregate.illustrationQuality.n})`);
+    console.log(`Portfolio Visual Richness mean=${report.portfolio.aggregate.visualRichness.mean}`);
+  }
   console.log(`Generation time: ${elapsedMs}ms`);
 }
 
