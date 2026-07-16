@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createRng } from './rng';
 import { countNodes } from './svgGeometry';
-import { h } from './svgAst';
+import { h, serialize } from './svgAst';
 import { applyHeroDetailOverlay, detailLevelForRole } from './heroComplexity';
 
 const BASE_MOTIF = h('g', {}, [h('circle', { cx: 0, cy: 0, r: 30, fill: '#FF0000' })]);
@@ -25,6 +25,23 @@ describe('detailLevelForRole', () => {
 
   it('an undefined role gets no boost', () => {
     expect(detailLevelForRole(undefined)).toBe(0);
+  });
+
+  it('Build 011, Section 6: filler stays 0 when detailDistribution is left unset (backward compatible)', () => {
+    expect(detailLevelForRole('filler')).toBe(0);
+    expect(detailLevelForRole('filler', false)).toBe(0);
+  });
+
+  it('Build 011, Section 6: filler gets a small nonzero level when detailDistribution is true, still far below secondary', () => {
+    const filler = detailLevelForRole('filler', true);
+    expect(filler).toBeGreaterThan(0);
+    expect(filler).toBeLessThan(detailLevelForRole('secondary', true));
+  });
+
+  it('Build 011, Section 6: detailDistribution never changes hero/secondary/accent levels', () => {
+    expect(detailLevelForRole('hero', true)).toBe(detailLevelForRole('hero', false));
+    expect(detailLevelForRole('secondary', true)).toBe(detailLevelForRole('secondary', false));
+    expect(detailLevelForRole('accent', true)).toBe(detailLevelForRole('accent', false));
   });
 });
 
@@ -119,5 +136,34 @@ describe('applyHeroDetailOverlay', () => {
   it('handles a single-color palette without throwing', () => {
     const rng = createRng('overlay-single-color');
     expect(() => applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 30, colors: ['#FFFFFF'] }, rng)).not.toThrow();
+  });
+
+  it('Build 011, Section 6: filler stays a strict no-op when detailDistribution is left unset, even across many seeds', () => {
+    for (let i = 0; i < 30; i++) {
+      const rng = createRng(`filler-distribution-unset-${i}`);
+      const result = applyHeroDetailOverlay(BASE_MOTIF, { role: 'filler', radius: 30, colors: COLORS }, rng);
+      expect(result).toBe(BASE_MOTIF);
+    }
+  });
+
+  it('Build 011, Section 6: filler gets real, measurable overlay geometry for at least one seed when detailDistribution is true', () => {
+    let foundOverlay = false;
+    for (let i = 0; i < 60 && !foundOverlay; i++) {
+      const rng = createRng(`filler-distribution-on-${i}`);
+      const result = applyHeroDetailOverlay(BASE_MOTIF, { role: 'filler', radius: 30, colors: COLORS, detailDistribution: true }, rng);
+      if (result !== BASE_MOTIF) foundOverlay = true;
+    }
+    expect(foundOverlay).toBe(true);
+  });
+
+  it('Build 011, Section 6: a filler overlay (when it fires) never includes the hero-only primitives (decorative dots, nested contour, accent arc)', () => {
+    for (let i = 0; i < 60; i++) {
+      const rng = createRng(`filler-distribution-shape-${i}`);
+      const result = applyHeroDetailOverlay(BASE_MOTIF, { role: 'filler', radius: 30, colors: COLORS, detailDistribution: true }, rng);
+      if (result === BASE_MOTIF) continue;
+      const svg = serialize(result);
+      expect(svg).not.toContain('<polygon'); // buildNestedContour
+      expect(svg).not.toContain('<path'); // buildAccentArc
+    }
   });
 });

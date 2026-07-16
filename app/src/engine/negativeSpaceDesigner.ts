@@ -1,6 +1,8 @@
 import type { ProductUseId } from '../collection/productTargets';
 import type { CompositionIntelligenceParams } from './compositionIntelligence';
 import type { CompositionZone } from './compositionZones';
+import type { LayoutId } from './types';
+import { HIERARCHY_PRESETS } from './hierarchy';
 
 // Build 006, Section 5 (Negative Space Designer): the brief asks for
 // negative space to become "intentional" -- detect the product a pattern
@@ -101,6 +103,17 @@ export interface ProductSpacingStrategy {
    * mechanisms are already reachable (a premium hero, or a cluster-based
    * layout already calling `buildClusterPlacements`). */
   professionalRules?: boolean;
+  /** Build 011, Section 2 (Luxury Negative Space Engine): a product's own
+   * preference for the Artistic Balance Engine (`compositionIntelligence.ts`
+   * §1, `computePerceivedWeight`) -- only takes effect where
+   * `compositionIntelligence` is already active for this generation, the
+   * same "only where the underlying mechanism is already reachable"
+   * convention every other field here follows. A focal-object product's
+   * whole spacing philosophy already leans on a real hero moment reading as
+   * genuinely heavier (depth, rhythm, rule-of-odds); perceptually-weighted
+   * balance correction reinforces that same read instead of treating the
+   * hero as just another scaled shape. */
+  artisticBalance?: boolean;
 }
 
 const IDENTITY_SPACING_STRATEGY: ProductSpacingStrategy = { rhythmMultiplier: 1, clusterLooseness: 0, preferredZones: [] };
@@ -122,11 +135,11 @@ const PRODUCT_SPACING_STRATEGY: Record<ProductUseId, ProductSpacingStrategy> = {
   // Composition zone-wise, a skeleton that frames one clear focal point.
   // Real depth-plane separation and the Premium Rhythm/Professional Rules
   // bundle all reinforce that same single-deliberate-moment read.
-  giftWrap: { rhythmMultiplier: 0.85, clusterLooseness: 0.25, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true },
-  wrappingPaper: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true },
-  packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'], depthStrength: 0.3, premiumRhythm: true, professionalRules: true },
+  giftWrap: { rhythmMultiplier: 0.85, clusterLooseness: 0.25, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true, artisticBalance: true },
+  wrappingPaper: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true, artisticBalance: true },
+  packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'], depthStrength: 0.3, premiumRhythm: true, professionalRules: true, artisticBalance: true },
   notebookCovers: { rhythmMultiplier: 0.9, clusterLooseness: 0.1, preferredZones: ['goldenRatio', 'centerFocus'], depthStrength: 0.3, premiumRhythm: true },
-  stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'], depthStrength: 0.35, premiumRhythm: true, professionalRules: true },
+  stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'], depthStrength: 0.35, premiumRhythm: true, professionalRules: true, artisticBalance: true },
 };
 
 /** `productTarget` undefined returns the identity strategy -- a pure
@@ -208,4 +221,56 @@ export function resolvePremiumRhythmForProduct(productTarget?: ProductUseId): bo
 export function resolveProfessionalRulesForProduct(productTarget?: ProductUseId): boolean | undefined {
   if (productTarget === undefined) return undefined;
   return resolveSpacingStrategyForProduct(productTarget).professionalRules;
+}
+
+/** Build 011, Section 2 (Luxury Negative Space Engine): the product's own
+ * preferred Artistic Balance Engine setting -- callers use this as
+ * `ci.artisticBalance ?? resolveArtisticBalanceForProduct(productTarget)`,
+ * only where `compositionIntelligence` is already active (see
+ * `ProductSpacingStrategy.artisticBalance`'s own doc comment). `undefined`
+ * means no product-driven preference. */
+export function resolveArtisticBalanceForProduct(productTarget?: ProductUseId): boolean | undefined {
+  if (productTarget === undefined) return undefined;
+  return resolveSpacingStrategyForProduct(productTarget).artisticBalance;
+}
+
+/** Build 011, Section 4 (Editorial Layout Intelligence): the brief asks for
+ * a per-product layout archetype ("which layouts + visual hierarchy suit
+ * Wallpaper/Luxury textile/Gift wrap/Packaging/Greeting card") -- this is,
+ * structurally, exactly what a Style DNA preset already declares
+ * (`layouts` + `hierarchyPreset`), so this table is populated verbatim from
+ * the one existing preset that already targets each product best, not
+ * invented: `wallpaper` from `luxuryWallpaper`
+ * (knowledge/registry/data/styles/luxuryWallpaper.json), `fabric`/`textile`
+ * from `premiumTextile`, `giftWrap`/`packaging` from `boutiquePackaging`,
+ * `stationery` (the established Greeting Card mapping, see
+ * `BUILD_010_AUDIT.md`'s "Real taxonomy reuse") from `editorialBotanical`.
+ * Products with no honest best-fit preset (homeDecor, digitalPaper,
+ * wrappingPaper, notebookCovers) are deliberately absent rather than
+ * assigned an invented combination -- `resolveLayoutArchetypeForProduct`
+ * returns `undefined` for them, the same "flag, don't invent" discipline
+ * `resolveCompositionZoneForProduct` already established. */
+export interface LayoutArchetype {
+  layouts: LayoutId[];
+  hierarchyPreset: keyof typeof HIERARCHY_PRESETS;
+}
+
+const LAYOUT_ARCHETYPE_FOR_PRODUCT: Partial<Record<ProductUseId, LayoutArchetype>> = {
+  wallpaper: { layouts: ['densePremium', 'halfDrop'], hierarchyPreset: 'denseLayered' },
+  fabric: { layouts: ['halfDrop', 'brick'], hierarchyPreset: 'allOverTextile' },
+  textile: { layouts: ['halfDrop', 'brick'], hierarchyPreset: 'allOverTextile' },
+  giftWrap: { layouts: ['stripe', 'gridMinimal'], hierarchyPreset: 'allOverTextile' },
+  packaging: { layouts: ['stripe', 'gridMinimal'], hierarchyPreset: 'allOverTextile' },
+  stationery: { layouts: ['heroFlow', 'sCurve'], hierarchyPreset: 'balancedEditorial' },
+};
+
+/** A real, deterministic layout+hierarchy fallback for a caller with a
+ * `productTarget` but no Style-DNA-resolved `layoutId`/`hierarchy` of its
+ * own -- the same "product's own best fit, only when nothing more specific
+ * already chose" convention `resolveCompositionZoneForProduct` established.
+ * `productTarget` undefined, or a product with no declared archetype,
+ * returns `undefined` -- never invents one. */
+export function resolveLayoutArchetypeForProduct(productTarget?: ProductUseId): LayoutArchetype | undefined {
+  if (productTarget === undefined) return undefined;
+  return LAYOUT_ARCHETYPE_FOR_PRODUCT[productTarget];
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { hexToHsl, meanHue, circularHueDistance, colorSetStats } from './colorAnalysis';
+import { hexToHsl, meanHue, circularHueDistance, colorSetStats, computePaletteEnergy, computeDominantAccentIndex } from './colorAnalysis';
 
 describe('hexToHsl', () => {
   it('converts known primary colors correctly', () => {
@@ -62,5 +62,66 @@ describe('colorSetStats', () => {
   it('is deterministic', () => {
     const colors = ['#f4ede4', '#c9a86c', '#7c8a5f', '#a94438'];
     expect(colorSetStats(colors)).toEqual(colorSetStats(colors));
+  });
+});
+
+describe('computePaletteEnergy (Build 011, Section 1/3)', () => {
+  it('returns 0 for a flat, unsaturated, single-lightness-band palette', () => {
+    expect(computePaletteEnergy(['#808080', '#808080', '#808080'])).toBe(0);
+  });
+
+  it('returns a high value for a maximally saturated, high-contrast palette', () => {
+    const energy = computePaletteEnergy(['#ffffff', '#ff0000', '#800000']);
+    expect(energy).toBeGreaterThan(0.6);
+  });
+
+  it('a more saturated palette scores higher than a desaturated one at the same lightness', () => {
+    const vivid = computePaletteEnergy(['#ffffff', '#ff0000']);
+    const muted = computePaletteEnergy(['#ffffff', '#a08080']);
+    expect(vivid).toBeGreaterThan(muted);
+  });
+
+  it('a wider lightness spread scores higher than a narrow one at the same saturation', () => {
+    const wide = computePaletteEnergy(['#ffffff', '#330000', '#ff9999']);
+    const narrow = computePaletteEnergy(['#ffffff', '#ee8888', '#ff9999']);
+    expect(wide).toBeGreaterThan(narrow);
+  });
+
+  it('is bounded to [0, 1]', () => {
+    const energy = computePaletteEnergy(['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffffff']);
+    expect(energy).toBeGreaterThanOrEqual(0);
+    expect(energy).toBeLessThanOrEqual(1);
+  });
+
+  it('treats a single-color array as its own accent (no background to exclude)', () => {
+    expect(computePaletteEnergy(['#ff0000'])).toBeGreaterThan(0);
+  });
+
+  it('is deterministic', () => {
+    const colors = ['#f4ede4', '#c9a86c', '#7c8a5f', '#a94438'];
+    expect(computePaletteEnergy(colors)).toBe(computePaletteEnergy(colors));
+  });
+});
+
+describe('computeDominantAccentIndex (Build 011, Section 3: Color Harmony Intelligence)', () => {
+  it('returns 0 for a single-accent or accent-less palette', () => {
+    expect(computeDominantAccentIndex(['#000000'])).toBe(0);
+    expect(computeDominantAccentIndex(['#000000', '#ff0000'])).toBe(0);
+  });
+
+  it('picks the most saturated accent among several', () => {
+    // background + 3 accents: dull, vivid, medium.
+    const colors = ['#ffffff', '#a08080', '#ff0000', '#c08080'];
+    expect(computeDominantAccentIndex(colors)).toBe(1); // index into colors.slice(1) -> '#ff0000'
+  });
+
+  it('breaks ties toward the first occurrence', () => {
+    const colors = ['#ffffff', '#ff0000', '#00ff00'];
+    expect(computeDominantAccentIndex(colors)).toBe(0);
+  });
+
+  it('is deterministic', () => {
+    const colors = ['#f4ede4', '#c9a86c', '#7c8a5f', '#a94438'];
+    expect(computeDominantAccentIndex(colors)).toBe(computeDominantAccentIndex(colors));
   });
 });

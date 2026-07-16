@@ -4,6 +4,7 @@ import { COMPOSITION_ZONES, type CompositionZone } from './compositionZones';
 import { CLUSTER_ARCHETYPES } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { BOTANICAL_FAMILIES } from '../generators/botanicalFamilies';
+import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import { LAYOUT_LIST } from '../layouts';
 import { assignBatchCompositionZones, assignBatchValues, assignPortfolioDiversity } from './portfolioVariety';
 
@@ -118,7 +119,7 @@ describe('assignBatchValues (Build 004, Section 11 — generic shuffled bag)', (
 });
 
 describe('assignPortfolioDiversity (Build 004, Section 11)', () => {
-  it('assigns every one of the 8 dimensions a valid value from its default pool for each of count items', () => {
+  it('assigns every one of the 9 dimensions a valid value from its default pool for each of count items', () => {
     const rng = createRng('portfolio-diversity-defaults');
     const assignments = assignPortfolioDiversity(rng, 9);
     expect(assignments.length).toBe(9);
@@ -131,6 +132,7 @@ describe('assignPortfolioDiversity (Build 004, Section 11)', () => {
       expect(COMPOSITION_ZONES).toContain(a.compositionZone);
       expect(['dominantDuo', 'fullPalette', 'monochromeAccent', 'highContrast']).toContain(a.colorHarmony);
       expect(LAYOUT_LIST.map((l) => l.id)).toContain(a.layoutSkeleton);
+      expect(HERO_ARCHETYPE_POOL).toContain(a.heroSilhouette);
     }
   });
 
@@ -138,8 +140,8 @@ describe('assignPortfolioDiversity (Build 004, Section 11)', () => {
     const rng = createRng('portfolio-diversity-no-repeat');
     const assignments = assignPortfolioDiversity(rng, 9);
     // Every default pool used here has >= 9 candidates except clusterType/
-    // botanicalFamily/layoutSkeleton, which are still checked against their
-    // own real pool size rather than assumed to be >= 9.
+    // botanicalFamily/layoutSkeleton/heroSilhouette, which are still checked
+    // against their own real pool size rather than assumed to be >= 9.
     const checkNoRepeat = <K extends keyof (typeof assignments)[number]>(key: K, poolSize: number) => {
       const values = assignments.map((a) => a[key]);
       const uniqueInFirstCycle = new Set(values.slice(0, poolSize));
@@ -148,19 +150,23 @@ describe('assignPortfolioDiversity (Build 004, Section 11)', () => {
     checkNoRepeat('botanicalFamily', BOTANICAL_FAMILIES.length);
     checkNoRepeat('clusterType', CLUSTER_ARCHETYPES.length);
     checkNoRepeat('compositionZone', COMPOSITION_ZONES.length);
+    checkNoRepeat('heroSilhouette', HERO_ARCHETYPE_POOL.length);
   });
 
   it('respects narrowed candidate pools (e.g. a Style DNA preset preference) rather than falling back to the full default set', () => {
     const rng = createRng('portfolio-diversity-narrowed');
     const narrowFamilies = BOTANICAL_FAMILIES.slice(0, 2);
     const narrowClusters = CLUSTER_ARCHETYPES.slice(0, 2);
+    const narrowHeroSilhouettes = HERO_ARCHETYPE_POOL.slice(0, 2);
     const assignments = assignPortfolioDiversity(rng, 9, {
       botanicalFamilies: narrowFamilies,
       clusterTypes: narrowClusters,
+      heroSilhouettes: narrowHeroSilhouettes,
     });
     for (const a of assignments) {
       expect(narrowFamilies).toContain(a.botanicalFamily);
       expect(narrowClusters).toContain(a.clusterType);
+      expect(narrowHeroSilhouettes).toContain(a.heroSilhouette);
     }
   });
 

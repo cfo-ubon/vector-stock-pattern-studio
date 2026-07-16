@@ -22,6 +22,7 @@ import {
   STYLE_DNA_SCHEMA_VERSION,
   type StyleDna,
 } from './styleDna';
+import { TREND_PRESETS, computeTrendFit } from './trendEngine';
 
 const PALETTE_IDS = new Set(PALETTES.map((p) => p.id));
 
@@ -226,6 +227,52 @@ describe('Style DNA: Natural Asymmetry Engine wiring (Build 009, Section 5)', ()
   });
 });
 
+describe('Style DNA: Color Harmony Intelligence wiring (Build 011, Section 3)', () => {
+  it('resolves colorHarmonyBias: true universally, for every preset', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'color-harmony-bias-check');
+      expect(patch.colorHarmonyBias).toBe(true);
+    }
+  });
+
+  it('every preset still resolves to a buildable tile with colorHarmonyBias active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'color-harmony-bias-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'color-harmony-bias-build-check' })).not.toThrow();
+    }
+  });
+});
+
+describe('Style DNA: Commercial Trend Engine cross-reference (Build 011, Section 7)', () => {
+  it('every declared trendPresetId points at a real, existing TREND_PRESETS entry', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.trendPresetId === undefined) continue;
+      expect(TREND_PRESETS[dna.trendPresetId]).toBeDefined();
+    }
+  });
+
+  it('the 3 honest cross-references identified by the audit are wired', () => {
+    expect(STYLE_DNA_PRESETS.darkBotanical.trendPresetId).toBe('darkAcademiaBotanical');
+    expect(STYLE_DNA_PRESETS.minimalBotanical.trendPresetId).toBe('cleanScandiMinimal');
+    expect(STYLE_DNA_PRESETS.vintageHerbarium.trendPresetId).toBe('vintageBotanical');
+  });
+
+  it('a Style-DNA-originated tile can be scored against its cross-referenced trend signature without throwing', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.trendPresetId === undefined) continue;
+      const patch = resolveStyleDna(dna, `trend-crossref-${dna.id}`);
+      const tile = buildTile({ ...defaultParams(), ...patch, seed: `trend-crossref-${dna.id}` });
+      expect(() => computeTrendFit(tile, dna.trendPresetId!)).not.toThrow();
+      const fit = computeTrendFit(tile, dna.trendPresetId!);
+      expect(fit).not.toBeNull();
+    }
+  });
+
+  it('leaves trendPresetId undefined for every style with no genuine structural counterpart (e.g. bohoFloral)', () => {
+    expect(STYLE_DNA_PRESETS.bohoFloral.trendPresetId).toBeUndefined();
+  });
+});
+
 describe('Style DNA: Signature Style Engine (Build 010, Section 8)', () => {
   it('a heroFocus preset resolves a real depthStrength; a non-heroFocus preset resolves undefined', () => {
     const heroFocusIds = STYLE_DNA_LIST.filter((d) => d.hierarchyPreset === 'heroFocus').map((d) => d.id);
@@ -253,6 +300,17 @@ describe('Style DNA: Signature Style Engine (Build 010, Section 8)', () => {
       } else {
         expect(patch.professionalRules).toBeUndefined();
         expect(patch.hierarchy!.premiumRhythm).toBeUndefined();
+      }
+    }
+  });
+
+  it('Build 011, Section 1: a premiumHero preset also resolves compositionIntelligence.artisticBalance=true; a non-premiumHero preset resolves undefined', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'artistic-balance-check');
+      if (dna.premiumHero) {
+        expect(patch.compositionIntelligence!.artisticBalance).toBe(true);
+      } else {
+        expect(patch.compositionIntelligence!.artisticBalance).toBeUndefined();
       }
     }
   });

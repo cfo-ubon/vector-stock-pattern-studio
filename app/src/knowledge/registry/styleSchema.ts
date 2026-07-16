@@ -22,7 +22,7 @@ export const STYLE_SCHEMA_VERSION = '1.0';
  * module's own tests to assert every `StyleDna` field is accounted for
  * (no field silently uncategorized). */
 export const STYLE_SCHEMA_FIELD_CATEGORIES = {
-  identity: ['id', 'label', 'description', 'custom'],
+  identity: ['id', 'label', 'description', 'custom', 'trendPresetId'],
   designPhilosophy: ['motifComplexity', 'rhythmProfile', 'colorStrategy', 'backgroundStrategy', 'svgDepthMode'],
   heroStrategy: ['hierarchyPreset', 'premiumHero', 'preferredFamilies'],
   clusterStrategy: ['clusterStyle', 'clusterDensity', 'preferredClusterArchetypes'],

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { Placement } from './types';
 import {
   computeWeight,
+  computePerceivedWeight,
   applyBalanceCorrection,
   applyGridBalanceCorrection,
   applyNegativeSpaceCorrection,
@@ -39,6 +40,42 @@ describe('computeWeight', () => {
   it('treats an unset role as neutral (same as scale^2 alone)', () => {
     const noRole = computeWeight(makePlacement(0, 0, { scale: 1.5 }));
     expect(noRole).toBeCloseTo(1.5 * 1.5, 5);
+  });
+});
+
+describe('computePerceivedWeight (Build 011, Section 1: Artistic Balance Engine)', () => {
+  it('matches computeWeight exactly when paletteEnergy is undefined and role has no detail level', () => {
+    const filler = makePlacement(0, 0, { scale: 1, role: 'filler' });
+    expect(computePerceivedWeight(filler)).toBeCloseTo(computeWeight(filler), 10);
+  });
+
+  it('a hero reads heavier than plain computeWeight due to detail density, even with no paletteEnergy', () => {
+    const hero = makePlacement(0, 0, { scale: 1, role: 'hero' });
+    expect(computePerceivedWeight(hero)).toBeGreaterThan(computeWeight(hero));
+  });
+
+  it('a higher paletteEnergy makes a hero/secondary placement read heavier', () => {
+    const hero = makePlacement(0, 0, { scale: 1, role: 'hero' });
+    const low = computePerceivedWeight(hero, 0);
+    const high = computePerceivedWeight(hero, 1);
+    expect(high).toBeGreaterThan(low);
+  });
+
+  it('paletteEnergy does not affect filler/accent (neutral background roles)', () => {
+    const filler = makePlacement(0, 0, { scale: 1, role: 'filler' });
+    const accent = makePlacement(0, 0, { scale: 1, role: 'accent' });
+    expect(computePerceivedWeight(filler, 0)).toBeCloseTo(computePerceivedWeight(filler, 1), 10);
+    expect(computePerceivedWeight(accent, 0)).toBeCloseTo(computePerceivedWeight(accent, 1), 10);
+  });
+
+  it('still orders hero > secondary > filler > accent at equal scale/paletteEnergy', () => {
+    const hero = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'hero' }), 0.5);
+    const secondary = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'secondary' }), 0.5);
+    const filler = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'filler' }), 0.5);
+    const accent = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'accent' }), 0.5);
+    expect(hero).toBeGreaterThan(secondary);
+    expect(secondary).toBeGreaterThan(filler);
+    expect(filler).toBeGreaterThan(accent);
   });
 });
 
@@ -226,6 +263,39 @@ describe('applyCompositionIntelligence', () => {
     const withEyeFlow = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, eyeFlowPath: 'sCurve', eyeFlowStrength: 0.5 });
     expect(withEyeFlow).not.toEqual(without);
   });
+
+  it('Build 011 Section 1: artisticBalance/paletteEnergy are a strict no-op when left unset', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15, { role: i % 3 === 0 ? 'hero' : 'filler' }));
+    const withoutFlag = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const explicitlyUnset = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, artisticBalance: undefined, paletteEnergy: undefined });
+    expect(explicitlyUnset).toEqual(withoutFlag);
+  });
+
+  it('Build 011 Section 1: enabling artisticBalance with a high paletteEnergy can flip which cell reads as heaviest, visibly changing the result', () => {
+    // 3 fillers alone outweigh 1 hero under plain computeWeight (2.55 vs
+    // 2.535), so the default pass evicts a filler from the filler-heavy
+    // cell. Once the hero's real perceived weight (detail density + this
+    // tile's own color energy) is factored in, the hero cell becomes the
+    // heavier one instead, and the hero itself is what gets moved — a real,
+    // observable behavior change, not just a magnitude tweak that happens
+    // to net out the same.
+    const placements: Placement[] = [
+      makePlacement(60, 60, { role: 'filler' }),
+      makePlacement(70, 70, { role: 'filler' }),
+      makePlacement(80, 80, { role: 'filler' }),
+      makePlacement(900, 60, { role: 'hero', scale: 1.3 }),
+    ];
+    const minimalParams = { balanceStrength: 1, rhythmStrength: 0 };
+    const without = applyCompositionIntelligence(placements, TILE, minimalParams);
+    const withArtisticBalance = applyCompositionIntelligence(placements, TILE, { ...minimalParams, artisticBalance: true, paletteEnergy: 1 });
+    expect(withArtisticBalance).not.toEqual(without);
+    const hero = placements[3];
+    const heroMovedOnlyWithArtisticBalance = withArtisticBalance[3].x !== hero.x || withArtisticBalance[3].y !== hero.y;
+    const heroMovedByDefault = without[3].x !== hero.x || without[3].y !== hero.y;
+    expect(heroMovedOnlyWithArtisticBalance).toBe(true);
+    expect(heroMovedByDefault).toBe(false);
+  });
 });
 
 describe('applyGridBalanceCorrection', () => {
@@ -259,6 +329,32 @@ describe('applyGridBalanceCorrection', () => {
     const a = applyGridBalanceCorrection(placements, TILE, 4, 0.6);
     const b = applyGridBalanceCorrection(placements, TILE, 4, 0.6);
     expect(a).toEqual(b);
+  });
+
+  it('Build 011, Section 1: an explicit weightFn changes which placement is judged heaviest', () => {
+    const placements: Placement[] = [
+      makePlacement(60, 60, { role: 'hero' }),
+      makePlacement(70, 70, { role: 'filler' }),
+      makePlacement(900, 60, { role: 'accent' }),
+      makePlacement(900, 900, { role: 'accent' }),
+    ];
+    // Default computeWeight: hero (1.5) > filler (0.85), so the redistribution
+    // pass moves the *lighter* filler out of the overloaded cell first.
+    const defaultResult = applyGridBalanceCorrection(placements, TILE, 2, 1);
+    const filler = placements[1];
+    const fillerMoved = defaultResult[1].x !== filler.x || defaultResult[1].y !== filler.y;
+    expect(fillerMoved).toBe(true);
+    const hero = placements[0];
+    const heroUnmovedByDefault = defaultResult[0].x === hero.x && defaultResult[0].y === hero.y;
+    expect(heroUnmovedByDefault).toBe(true);
+
+    // An inverted weightFn (hero reads as lightest) moves the hero instead —
+    // proof `weightFn` genuinely replaces `computeWeight`, not just an inert
+    // parameter.
+    const invertedWeightFn = (p: Placement) => (p.role === 'hero' ? 0.1 : 2);
+    const invertedResult = applyGridBalanceCorrection(placements, TILE, 2, 1, invertedWeightFn);
+    const heroMovedWhenInverted = invertedResult[0].x !== hero.x || invertedResult[0].y !== hero.y;
+    expect(heroMovedWhenInverted).toBe(true);
   });
 });
 

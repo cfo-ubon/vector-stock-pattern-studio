@@ -2,6 +2,7 @@
   "id": "minimalBotanical",
   "label": "Minimal Botanical",
   "description": "A single restrained botanical silhouette repeated on a strict minimal grid.",
+  "trendPresetId": "cleanScandiMinimal",
   "categories": [
     "botanical"
   ],

@@ -171,3 +171,104 @@ export function computeSignatureFingerprintDistinctness(fingerprints: SignatureF
   }
   return totalPairs === 0 ? 0 : Math.round((distinctPairs / totalPairs) * 100);
 }
+
+// Build 011, Section 8 (Portfolio Consistency Engine): the brief asks
+// whether 1000 generated images "feel like one premium brand" -- the
+// opposite question from Section 5's Silhouette Diversity / this file's
+// own `computeSignatureFingerprintDistinctness` above (which measure
+// whether *different* presets stay genuinely distinct from each other).
+// Here the question is whether *the same* preset's own many independent
+// generations stay tight around one coherent quality/character, or
+// visibly scatter -- reusing the exact "coefficient of variation,
+// inverted" idiom `scoring.ts`'s own `computeSpacing` already established
+// (low variance relative to the mean = high consistency), applied to a
+// small set of already-real headline commercial metrics instead of
+// inventing a new "brand consistency" concept from scratch.
+
+function coefficientOfVariation(values: number[]): number {
+  if (values.length < 2) return 0;
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  if (mean <= 0) return 0;
+  const variance = values.reduce((a, v) => a + (v - mean) ** 2, 0) / values.length;
+  return Math.sqrt(variance) / mean;
+}
+
+export interface PortfolioConsistencySample {
+  absoluteCommercialQuality: number;
+  luxuryCompositionOverall: number;
+  luxuryFeeling: number;
+  /** Optional per-tile Style DNA drift-vs-intent score
+   * (`computeStyleDnaConsistency`, `styleDna.ts`) -- folded in as a second,
+   * genuinely different signal alongside cross-tile spread: low spread
+   * between tiles isn't really "one coherent brand" if every tile also
+   * drifted equally far from what that brand's own Style DNA declared.
+   * Omitted for a portfolio with no active Style DNA (no drift-vs-intent
+   * concept applies without one). */
+  styleDnaConsistency?: number;
+}
+
+/** How tightly one preset's own portfolio slice of `samples` clusters
+ * around a shared quality/character, 0-100 (100 = every sample reads
+ * identically, following the same scale `computeSpacing` uses for its own
+ * inverted coefficient-of-variation). Requires >= 2 samples to have any
+ * spread to measure at all; a single-tile "portfolio" trivially reads as
+ * 100 (nothing for it to disagree with). When at least one sample supplies
+ * `styleDnaConsistency`, the mean of those per-tile drift-vs-intent scores
+ * is averaged in as a second real signal; otherwise this is the spread
+ * score alone. */
+export function computePortfolioConsistency(samples: PortfolioConsistencySample[]): number {
+  if (samples.length < 2) return 100;
+  const cvs = [
+    coefficientOfVariation(samples.map((s) => s.absoluteCommercialQuality)),
+    coefficientOfVariation(samples.map((s) => s.luxuryCompositionOverall)),
+    coefficientOfVariation(samples.map((s) => s.luxuryFeeling)),
+  ];
+  const meanCv = cvs.reduce((a, b) => a + b, 0) / cvs.length;
+  const spreadConsistency = Math.max(0, Math.min(100, 100 - meanCv * 100));
+  const driftScores = samples.map((s) => s.styleDnaConsistency).filter((v): v is number => v !== undefined);
+  if (driftScores.length === 0) return Math.round(spreadConsistency);
+  const meanDrift = driftScores.reduce((a, b) => a + b, 0) / driftScores.length;
+  return Math.round((spreadConsistency + meanDrift) / 2);
+}
+
+export interface SequentialDriftResult {
+  /** Mean of the first half of the ordered sequence. */
+  firstHalfMean: number;
+  /** Mean of the second half. */
+  secondHalfMean: number;
+  /** |secondHalfMean - firstHalfMean| as a fraction of the overall mean
+   * (0 = no shift). */
+  driftMagnitude: number;
+  /** True once `driftMagnitude` crosses 0.15 (a 15% relative shift between
+   * halves) -- the same order of magnitude `scoring.ts`'s own
+   * `computeSpacingUniformity` uses (0.35 coefficient-of-variation) to mark
+   * "a real, noticeable effect" rather than ordinary sample noise. */
+  driftDetected: boolean;
+}
+
+/** Build 011, Section 8's other genuinely missing half: every existing
+ * quality measurement in this codebase is a flat, order-independent
+ * aggregate over a sample -- nothing asks "does quality/character degrade
+ * or wander as you generate seed 1 through seed 1000, in that order."
+ * `orderedValues` should be one already-real headline metric (e.g.
+ * `absoluteCommercialQuality`) taken in actual generation order; this
+ * compares the sequence's first half against its second half -- a real,
+ * honest first-vs-second-half comparison, not a fabricated "trend score".
+ * Fewer than 4 samples has no meaningful half-vs-half comparison to make. */
+export function detectSequentialStyleDrift(orderedValues: number[]): SequentialDriftResult {
+  if (orderedValues.length < 4) {
+    return { firstHalfMean: 0, secondHalfMean: 0, driftMagnitude: 0, driftDetected: false };
+  }
+  const mean = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const mid = Math.floor(orderedValues.length / 2);
+  const firstHalfMean = mean(orderedValues.slice(0, mid));
+  const secondHalfMean = mean(orderedValues.slice(mid));
+  const overallMean = mean(orderedValues);
+  const driftMagnitude = overallMean > 0 ? Math.abs(secondHalfMean - firstHalfMean) / overallMean : 0;
+  return {
+    firstHalfMean: Math.round(firstHalfMean),
+    secondHalfMean: Math.round(secondHalfMean),
+    driftMagnitude: Math.round(driftMagnitude * 1000) / 1000,
+    driftDetected: driftMagnitude > 0.15,
+  };
+}

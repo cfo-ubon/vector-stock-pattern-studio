@@ -46,8 +46,23 @@ const ROLE_DETAIL_LEVEL: Record<MotifRole, number> = {
   accent: 0,
 };
 
-export function detailLevelForRole(role: MotifRole | undefined): number {
-  return role ? ROLE_DETAIL_LEVEL[role] : 0;
+/** Build 011, Section 6 (Premium Detail Distribution): the brief's "hero
+ * highest, secondary medium, background simplified" implies background
+ * (filler) still carries *some* detail, just clearly less than secondary —
+ * a flat 0 makes filler indistinguishable from accent, i.e. "simplified"
+ * reads as "featureless" instead. Opt-in via `detailDistribution` (below)
+ * so every existing caller/preset that never sets it keeps the exact prior
+ * two-tier behavior. */
+const ROLE_DETAIL_LEVEL_DISTRIBUTED: Record<MotifRole, number> = {
+  hero: 100,
+  secondary: 55,
+  filler: 15,
+  accent: 0,
+};
+
+export function detailLevelForRole(role: MotifRole | undefined, distributed?: boolean): number {
+  if (!role) return 0;
+  return (distributed ? ROLE_DETAIL_LEVEL_DISTRIBUTED : ROLE_DETAIL_LEVEL)[role];
 }
 
 /** A concentric ring outline just inside the motif's own bounding radius —
@@ -175,6 +190,12 @@ export interface HeroComplexityOptions {
    * end. Undefined leaves the pre-existing role-only behavior unchanged
    * (every caller that predates this option). */
   relativeScale?: number;
+  /** Build 011, Section 6 (Premium Detail Distribution): selects
+   * `ROLE_DETAIL_LEVEL_DISTRIBUTED` (filler gets a small nonzero level)
+   * instead of the original flat `ROLE_DETAIL_LEVEL` (filler always 0).
+   * Undefined/false reproduces the exact prior two-tier behavior — a
+   * strict no-op for every caller/preset that doesn't set it. */
+  detailDistribution?: boolean;
 }
 
 /** 1.0 at a baseline (unscaled) placement, growing toward 1.25 for a
@@ -215,7 +236,7 @@ function densityDamping(instanceCount: number | undefined): number {
  * the aggregate visual effect — a real ring/vein/contour on every hero,
  * lighter but still real texture on every secondary — reads clearly. */
 export function applyHeroDetailOverlay(motifNode: SvgNode, opts: HeroComplexityOptions, rng: Rng): SvgNode {
-  const level = detailLevelForRole(opts.role);
+  const level = detailLevelForRole(opts.role, opts.detailDistribution);
   if (level <= 0 || opts.radius <= 0) return motifNode;
   const accents = opts.colors.length > 1 ? opts.colors.slice(1) : opts.colors;
   const color = rngPick(rng, accents);

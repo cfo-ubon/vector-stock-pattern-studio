@@ -7,6 +7,8 @@ import {
   resolveDepthStrengthForProduct,
   resolvePremiumRhythmForProduct,
   resolveProfessionalRulesForProduct,
+  resolveArtisticBalanceForProduct,
+  resolveLayoutArchetypeForProduct,
 } from './negativeSpaceDesigner';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import { DEFAULT_COMPOSITION_INTELLIGENCE } from './compositionIntelligence';
@@ -193,5 +195,46 @@ describe('resolveProfessionalRulesForProduct (Build 010, Section 7)', () => {
   it('is undefined for repeat-forward products', () => {
     expect(resolveProfessionalRulesForProduct('wallpaper')).toBeUndefined();
     expect(resolveProfessionalRulesForProduct('fabric')).toBeUndefined();
+  });
+});
+
+describe('resolveArtisticBalanceForProduct (Build 011, Section 2: Luxury Negative Space Engine)', () => {
+  it('returns undefined when productTarget is undefined', () => {
+    expect(resolveArtisticBalanceForProduct(undefined)).toBeUndefined();
+  });
+
+  it('is true for the strongest focal-object products (giftWrap/wrappingPaper/packaging/stationery)', () => {
+    expect(resolveArtisticBalanceForProduct('giftWrap')).toBe(true);
+    expect(resolveArtisticBalanceForProduct('wrappingPaper')).toBe(true);
+    expect(resolveArtisticBalanceForProduct('packaging')).toBe(true);
+    expect(resolveArtisticBalanceForProduct('stationery')).toBe(true);
+  });
+
+  it('is undefined for repeat-forward products and notebookCovers', () => {
+    expect(resolveArtisticBalanceForProduct('wallpaper')).toBeUndefined();
+    expect(resolveArtisticBalanceForProduct('fabric')).toBeUndefined();
+    expect(resolveArtisticBalanceForProduct('notebookCovers')).toBeUndefined();
+  });
+});
+
+describe('resolveLayoutArchetypeForProduct (Build 011, Section 4: Editorial Layout Intelligence)', () => {
+  it('returns undefined when productTarget is undefined', () => {
+    expect(resolveLayoutArchetypeForProduct(undefined)).toBeUndefined();
+  });
+
+  it('resolves the real archetype from each product\'s own best-fit Style DNA preset', () => {
+    expect(resolveLayoutArchetypeForProduct('wallpaper')).toEqual({ layouts: ['densePremium', 'halfDrop'], hierarchyPreset: 'denseLayered' });
+    expect(resolveLayoutArchetypeForProduct('fabric')).toEqual({ layouts: ['halfDrop', 'brick'], hierarchyPreset: 'allOverTextile' });
+    expect(resolveLayoutArchetypeForProduct('textile')).toEqual({ layouts: ['halfDrop', 'brick'], hierarchyPreset: 'allOverTextile' });
+    expect(resolveLayoutArchetypeForProduct('giftWrap')).toEqual({ layouts: ['stripe', 'gridMinimal'], hierarchyPreset: 'allOverTextile' });
+    expect(resolveLayoutArchetypeForProduct('packaging')).toEqual({ layouts: ['stripe', 'gridMinimal'], hierarchyPreset: 'allOverTextile' });
+    expect(resolveLayoutArchetypeForProduct('stationery')).toEqual({ layouts: ['heroFlow', 'sCurve'], hierarchyPreset: 'balancedEditorial' });
+  });
+
+  it('returns undefined for products with no honest best-fit preset (never invents one)', () => {
+    expect(resolveLayoutArchetypeForProduct('homeDecor')).toBeUndefined();
+    expect(resolveLayoutArchetypeForProduct('digitalPaper')).toBeUndefined();
+    expect(resolveLayoutArchetypeForProduct('wrappingPaper')).toBeUndefined();
+    expect(resolveLayoutArchetypeForProduct('notebookCovers')).toBeUndefined();
   });
 });

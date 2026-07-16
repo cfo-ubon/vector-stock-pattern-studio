@@ -24,11 +24,14 @@ import {
   computeHeroDiversity,
   computeHeroArchetypeDiversity,
   computeSignatureFingerprintDistinctness,
+  computePortfolioConsistency,
+  detectSequentialStyleDrift,
 } from '../src/engine/portfolioQuality';
 import type { BotanicalFamily } from '../src/generators/botanicalFamilies';
 import { LAYOUTS } from '../src/layouts';
 import { evaluateCommercialPatternCritique, type CommercialPatternCritique } from '../src/critic/commercialPatternCritic';
 import { computeCommercialStyleAnalysis, type CommercialStyleAnalysis } from '../src/engine/commercialStyleAnalysis';
+import { computeCommercialAppealScoreV2, type CommercialAppealScoreV2 } from '../src/critic/commercialAppealScore';
 
 // Build 002, Section 1 — Reporting Harness Foundation. A permanent,
 // committed, re-runnable measurement tool (not a throwaway scratch
@@ -138,6 +141,13 @@ interface EvalResult {
    * -- every dimension already handles a missing hero honestly (see
    * `computeGoldenBalance`'s own doc comment). */
   luxuryComposition: LuxuryCompositionScore;
+  /** Build 011, Section 9 (Commercial Appeal Score V2): the umbrella
+   * combining all 6 brief-named commercial-evaluation dimensions from
+   * already-real sub-scores this tile already computed above.
+   * `collectionConsistency` stays undefined here (a single-tile
+   * evaluation, not a portfolio one) -- see runConsistencyPortfolio below
+   * for where that 6th dimension gets attached at the portfolio level. */
+  commercialAppealScoreV2: CommercialAppealScoreV2;
 }
 
 function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
@@ -190,6 +200,8 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
   });
   // Build 009, Section 7 (Luxury Composition Rules).
   const luxuryComposition = computeLuxuryCompositionScore(extractInstances(tile), params.tileSize, metrics);
+  // Build 011, Section 9 (Commercial Appeal Score V2).
+  const commercialAppealScoreV2 = computeCommercialAppealScoreV2({ critique: commercialPatternCritique, heroVisibility });
 
   return {
     label,
@@ -204,6 +216,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     commercialPatternCritique,
     commercialStyleAnalysis,
     luxuryComposition,
+    commercialAppealScoreV2,
     readability,
     nodeCount,
     issues,
@@ -333,6 +346,57 @@ function runXlPortfolio(): { results: EvalResult[]; droppedPairs: Array<{ styleI
   return { results, droppedPairs };
 }
 
+// ---- Build 011, Section 8/10: frozen 1000-pattern Consistency Portfolio ----
+// The brief asks specifically for a "1000 Pattern Consistency Portfolio" —
+// a fourth, additive tier (same "extend, don't redefine" discipline the
+// 500-pattern XL Portfolio above already established over the 300-pattern
+// Large Portfolio) whose whole purpose is answering Section 8's own brief
+// question per preset: "do these many independent generations of one
+// Style DNA preset feel like one coherent premium brand?" — not just a
+// bigger sample for the same aggregate stats every other tier already
+// reports. 15 STYLE_DNA_PRESETS x 67 seeds = 1005, trimmed to the first
+// 1000 in preset-major order, the same trim/droppedPairs convention every
+// other tier already uses.
+const CONSISTENCY_PORTFOLIO_SEEDS = Array.from({ length: 67 }, (_, i) => `c-${i + 1}`);
+
+function buildConsistencyPortfolioPairs(): Array<{ styleId: string; seed: string }> {
+  const all: Array<{ styleId: string; seed: string }> = [];
+  for (const styleId of STYLE_IDS) for (const seed of CONSISTENCY_PORTFOLIO_SEEDS) all.push({ styleId, seed });
+  return all;
+}
+
+function runConsistencyPortfolio(): { results: EvalResult[]; droppedPairs: Array<{ styleId: string; seed: string }> } {
+  const allPairs = buildConsistencyPortfolioPairs();
+  const kept = allPairs.slice(0, 1000);
+  const droppedPairs = allPairs.slice(1000);
+  const results = kept.map(({ styleId, seed }) => evaluate(`${styleId}@${seed}`, buildPortfolioParams(styleId, seed), styleId));
+  return { results, droppedPairs };
+}
+
+/** Per-preset Portfolio Consistency (`computePortfolioConsistency`,
+ * engine/portfolioQuality.ts) and Sequential Style Drift
+ * (`detectSequentialStyleDrift`) over one preset's own slice of the
+ * Consistency Portfolio -- `CONSISTENCY_PORTFOLIO_SEEDS`' fixed `c-1..c-N`
+ * ordering is the real generation order `detectSequentialStyleDrift`
+ * compares first-half-vs-second-half over, not an arbitrary resort. */
+function computeConsistencyByStyleDna(results: EvalResult[]) {
+  const groups = groupBy(results, (r) => r.styleDnaId ?? 'unknown');
+  const out: Record<string, { consistency: number; drift: ReturnType<typeof detectSequentialStyleDrift>; n: number }> = {};
+  for (const [styleId, items] of Object.entries(groups) as Array<[string, EvalResult[]]>) {
+    const consistency = computePortfolioConsistency(
+      items.map((r) => ({
+        absoluteCommercialQuality: r.absoluteCommercialQuality,
+        luxuryCompositionOverall: r.luxuryComposition.overall,
+        luxuryFeeling: r.commercialPatternCritique.luxuryFeeling,
+        styleDnaConsistency: r.styleFitQuality,
+      })),
+    );
+    const drift = detectSequentialStyleDrift(items.map((r) => r.absoluteCommercialQuality));
+    out[styleId] = { consistency, drift, n: items.length };
+  }
+  return out;
+}
+
 // ---- Aggregation ----
 function aggregateMetrics(results: EvalResult[]) {
   const perMetric: Record<string, ReturnType<typeof stats>> = {};
@@ -395,6 +459,11 @@ function aggregateMetrics(results: EvalResult[]) {
   if (withBotanicalRealism.length > 0) {
     perMetric.botanicalRealism = stats(withBotanicalRealism.map((r) => r.commercialPatternCritique.botanicalRealism!));
   }
+  // Build 011, Section 9 (Commercial Appeal Score V2): always present, same
+  // "no category gating" convention as commercialPatternCritique/luxuryComposition above.
+  perMetric.commercialAppealScoreV2 = stats(results.map((r) => r.commercialAppealScoreV2.overall));
+  perMetric.shelfImpact = stats(results.map((r) => r.commercialAppealScoreV2.shelfImpact));
+  perMetric.productSuitability = stats(results.map((r) => r.commercialAppealScoreV2.productSuitability));
   return perMetric;
 }
 
@@ -449,6 +518,10 @@ function main() {
   // Evaluation instead of (not in addition to -- keeps runtime bounded the
   // same way `large` already does) the 300-pattern one.
   const runXl = process.argv[3] === 'xl';
+  // Build 011, Section 10: `consistency` opts into the 1000-pattern
+  // Consistency Portfolio instead of (same mutually-exclusive-tier
+  // convention as `large`/`xl`) the other two.
+  const runConsistency = process.argv[3] === 'consistency';
   const startedAt = Date.now();
 
   const scenarioResults = runScenarioSuite();
@@ -456,6 +529,8 @@ function main() {
   const largePortfolioResults = runLarge ? runLargePortfolio() : undefined;
   const xlPortfolio = runXl ? runXlPortfolio() : undefined;
   const xlPortfolioResults = xlPortfolio?.results;
+  const consistencyPortfolio = runConsistency ? runConsistencyPortfolio() : undefined;
+  const consistencyPortfolioResults = consistencyPortfolio?.results;
   // Build 010, Section 9: a preset-level statistic (like speciesDiversity,
   // this can't be a per-tile number -- see computeSignatureFingerprintDistinctness's
   // own doc comment), computed once over all 15 STYLE_DNA_PRESETS regardless
@@ -546,6 +621,27 @@ function main() {
       heroDiversity: computeHeroDiversity(xlPortfolioResults.map((r) => r.botanicalFamily)),
       heroArchetypeDiversity: computeHeroArchetypeDiversity(xlPortfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
     },
+    // Build 011, Section 8/10 (Portfolio Consistency Engine / 1000-pattern
+    // Consistency Portfolio): undefined unless invoked with the
+    // `consistency` CLI flag -- same "always a real measurement over the
+    // actual run, never fabricated" convention as largePortfolio/xlPortfolio
+    // above. `byStyleDna` is this tier's own headline result: per-preset
+    // Portfolio Consistency + Sequential Style Drift, the two new Section 8
+    // measurements this build shipped.
+    consistencyPortfolio: consistencyPortfolioResults && {
+      seeds: CONSISTENCY_PORTFOLIO_SEEDS,
+      styleIds: STYLE_IDS,
+      count: consistencyPortfolioResults.length,
+      droppedPairs: consistencyPortfolio!.droppedPairs,
+      aggregate: aggregateMetrics(consistencyPortfolioResults),
+      namedPenaltyRates: namedPenaltyRates(consistencyPortfolioResults),
+      visualIssueRates: visualIssueRates(consistencyPortfolioResults),
+      byStyleDna: computeConsistencyByStyleDna(consistencyPortfolioResults),
+      nodeBudgetFailures: consistencyPortfolioResults.filter((r) => r.nodeCount > NODE_BUDGET).map((r) => ({ label: r.label, nodeCount: r.nodeCount })),
+      speciesDiversity: computeSpeciesDiversity(consistencyPortfolioResults.map((r) => r.botanicalFamily)),
+      compositionDiversity: computeCompositionDiversity(consistencyPortfolioResults.map((r) => r.layoutId), Object.keys(LAYOUTS).length),
+      heroArchetypeDiversity: computeHeroArchetypeDiversity(consistencyPortfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
+    },
   };
 
   const __filename = fileURLToPath(import.meta.url);
@@ -578,6 +674,7 @@ function main() {
   console.log(`Portfolio Commercial Style Fit mean=${report.portfolio.aggregate.commercialStyleFit.mean}`);
   console.log(`Portfolio Luxury/Editorial/Premium Feeling means=${report.portfolio.aggregate.luxuryFeeling.mean}/${report.portfolio.aggregate.editorialFeeling.mean}/${report.portfolio.aggregate.premiumFeeling.mean}`);
   console.log(`Portfolio Luxury Composition overall mean=${report.portfolio.aggregate.luxuryComposition.mean}`);
+  console.log(`Portfolio Commercial Appeal Score V2 overall mean=${report.portfolio.aggregate.commercialAppealScoreV2.mean}`);
   if (report.largePortfolio) {
     console.log(`Large Portfolio (n=${report.largePortfolio.count}): Absolute Commercial Quality mean=${report.largePortfolio.aggregate.absoluteCommercialQuality.mean}`);
     console.log(`Large Portfolio Commercial Style Fit mean=${report.largePortfolio.aggregate.commercialStyleFit.mean}`);
@@ -593,6 +690,15 @@ function main() {
     console.log(`XL Portfolio Species/Composition/Cluster/Hero Diversity=${report.xlPortfolio.speciesDiversity}%/${report.xlPortfolio.compositionDiversity}%/${report.xlPortfolio.clusterDiversity}%/${report.xlPortfolio.heroDiversity}%`);
     console.log(`XL Portfolio Hero Archetype Diversity=${report.xlPortfolio.heroArchetypeDiversity}%`);
     console.log(`XL Portfolio nodeCount mean=${report.xlPortfolio.aggregate.nodeCount.mean}`);
+  }
+  if (report.consistencyPortfolio) {
+    console.log(`Consistency Portfolio (n=${report.consistencyPortfolio.count}): Absolute Commercial Quality mean=${report.consistencyPortfolio.aggregate.absoluteCommercialQuality.mean}`);
+    console.log(`Consistency Portfolio Commercial Appeal Score V2 overall mean=${report.consistencyPortfolio.aggregate.commercialAppealScoreV2.mean}`);
+    const perPreset = Object.entries(report.consistencyPortfolio.byStyleDna);
+    const meanConsistency = Math.round(perPreset.reduce((a, [, v]) => a + v.consistency, 0) / perPreset.length);
+    const driftedPresets = perPreset.filter(([, v]) => v.drift.driftDetected).map(([id]) => id);
+    console.log(`Consistency Portfolio mean Portfolio Consistency across ${perPreset.length} presets=${meanConsistency}`);
+    console.log(`Consistency Portfolio presets with detected sequential style drift=${driftedPresets.length > 0 ? driftedPresets.join(', ') : 'none'}`);
   }
   console.log(`Generation time: ${elapsedMs}ms`);
 }

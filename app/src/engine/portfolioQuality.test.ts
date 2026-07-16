@@ -12,7 +12,10 @@ import {
   computeHeroDiversity,
   computeHeroArchetypeDiversity,
   computeSignatureFingerprintDistinctness,
+  computePortfolioConsistency,
+  detectSequentialStyleDrift,
   type SignatureFingerprint,
+  type PortfolioConsistencySample,
 } from './portfolioQuality';
 import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import { BOTANICAL_FAMILIES } from '../generators/botanicalFamilies';
@@ -188,5 +191,88 @@ describe('computeSignatureFingerprintDistinctness (Build 010, Section 9: Commerc
       return { depthStrength: patch.depthStrength, professionalRules: patch.professionalRules, premiumRhythm: patch.hierarchy?.premiumRhythm };
     });
     expect(computeSignatureFingerprintDistinctness(fingerprints)).toBeGreaterThan(0);
+  });
+});
+
+describe('computePortfolioConsistency (Build 011, Section 8: Portfolio Consistency Engine)', () => {
+  const sample = (overrides: Partial<PortfolioConsistencySample> = {}): PortfolioConsistencySample => ({
+    absoluteCommercialQuality: 80,
+    luxuryCompositionOverall: 75,
+    luxuryFeeling: 70,
+    ...overrides,
+  });
+
+  it('returns 100 for fewer than 2 samples (nothing to disagree with itself)', () => {
+    expect(computePortfolioConsistency([])).toBe(100);
+    expect(computePortfolioConsistency([sample()])).toBe(100);
+  });
+
+  it('scores identical samples at (or extremely near) 100', () => {
+    const samples = Array.from({ length: 20 }, () => sample());
+    expect(computePortfolioConsistency(samples)).toBeGreaterThanOrEqual(99);
+  });
+
+  it('scores a widely scattered set of samples lower than a tight set', () => {
+    const tight = [sample({ absoluteCommercialQuality: 78 }), sample({ absoluteCommercialQuality: 80 }), sample({ absoluteCommercialQuality: 82 })];
+    const scattered = [sample({ absoluteCommercialQuality: 20 }), sample({ absoluteCommercialQuality: 80 }), sample({ absoluteCommercialQuality: 140 })];
+    expect(computePortfolioConsistency(scattered)).toBeLessThan(computePortfolioConsistency(tight));
+  });
+
+  it('every score is within [0, 100]', () => {
+    const wild = [sample({ absoluteCommercialQuality: 1 }), sample({ absoluteCommercialQuality: 99, luxuryCompositionOverall: 1, luxuryFeeling: 99 }), sample({ absoluteCommercialQuality: 50 })];
+    const score = computePortfolioConsistency(wild);
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
+  it('folds in styleDnaConsistency as a second signal when supplied, lowering the score when drift-vs-intent is poor', () => {
+    const samples = Array.from({ length: 5 }, () => sample());
+    const withGoodDrift = samples.map((s) => ({ ...s, styleDnaConsistency: 95 }));
+    const withPoorDrift = samples.map((s) => ({ ...s, styleDnaConsistency: 20 }));
+    expect(computePortfolioConsistency(withPoorDrift)).toBeLessThan(computePortfolioConsistency(withGoodDrift));
+  });
+
+  it('is unaffected by styleDnaConsistency when omitted from every sample (no active Style DNA)', () => {
+    const samples = [sample({ absoluteCommercialQuality: 70 }), sample({ absoluteCommercialQuality: 90 })];
+    const withoutDrift = computePortfolioConsistency(samples);
+    const withUndefinedDrift = computePortfolioConsistency(samples.map((s) => ({ ...s, styleDnaConsistency: undefined })));
+    expect(withUndefinedDrift).toBe(withoutDrift);
+  });
+});
+
+describe('detectSequentialStyleDrift (Build 011, Section 8: Portfolio Consistency Engine)', () => {
+  it('reports no drift for fewer than 4 samples', () => {
+    const result = detectSequentialStyleDrift([80, 82, 78]);
+    expect(result.driftDetected).toBe(false);
+    expect(result.driftMagnitude).toBe(0);
+  });
+
+  it('reports no drift when the sequence stays flat', () => {
+    const flat = Array.from({ length: 20 }, () => 80);
+    const result = detectSequentialStyleDrift(flat);
+    expect(result.driftDetected).toBe(false);
+    expect(result.driftMagnitude).toBe(0);
+  });
+
+  it('detects drift when the second half is meaningfully lower than the first', () => {
+    const declining = [...Array(10).fill(90), ...Array(10).fill(60)];
+    const result = detectSequentialStyleDrift(declining);
+    expect(result.driftDetected).toBe(true);
+    expect(result.firstHalfMean).toBeGreaterThan(result.secondHalfMean);
+  });
+
+  it('does not flag a small, ordinary fluctuation as drift', () => {
+    const mild = [78, 81, 79, 82, 80, 79, 81, 80];
+    const result = detectSequentialStyleDrift(mild);
+    expect(result.driftDetected).toBe(false);
+  });
+
+  it('is order-dependent (reversing the sequence flips which half reads higher)', () => {
+    const declining = [...Array(10).fill(90), ...Array(10).fill(60)];
+    const rising = [...declining].reverse();
+    const declineResult = detectSequentialStyleDrift(declining);
+    const riseResult = detectSequentialStyleDrift(rising);
+    expect(declineResult.firstHalfMean).toBeGreaterThan(declineResult.secondHalfMean);
+    expect(riseResult.secondHalfMean).toBeGreaterThan(riseResult.firstHalfMean);
   });
 });

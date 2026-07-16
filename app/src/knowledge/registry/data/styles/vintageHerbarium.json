@@ -2,6 +2,7 @@
   "id": "vintageHerbarium",
   "label": "Vintage Herbarium",
   "description": "Pressed-specimen scatter in muted earth tones, full-palette botanical variety.",
+  "trendPresetId": "vintageBotanical",
   "categories": [
     "botanical"
   ],

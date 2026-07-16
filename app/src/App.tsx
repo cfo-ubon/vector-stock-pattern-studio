@@ -245,6 +245,12 @@ function App() {
         botanicalFamily: batch[i].botanicalFamily,
         clusterArchetypes: [batch[i].clusterType],
         hierarchy: HIERARCHY_PRESETS[batch[i].heroStructure].value,
+        // Build 011, Section 5 (Silhouette Intelligence): forces this
+        // variant's own premium hero (when one gets built) toward the
+        // batch's shuffled-bag silhouette pick instead of an independent
+        // random roll, so a 9-item batch doesn't visibly repeat the same
+        // hero arrangement back-to-back.
+        heroArchetype: batch[i].heroSilhouette,
       };
       // Build 003, Part 11 (Hero Detector) / Build 007, Section 7
       // (Commercial Composition Review): see handleGenerate above.

@@ -190,6 +190,24 @@ export interface GenerateParams {
    * with the remaining colors appearing only as occasional pops — the way
    * designers actually build a coherent colorway. Undefined = on. */
   colorStory?: boolean;
+  /** Build 011, Section 3 (Color Harmony Intelligence): when true (and
+   * `colorStory` is active), the tile's first "dominant" story color is the
+   * real, computed most-saturated accent in the resolved palette
+   * (`computeDominantAccentIndex`) instead of a uniformly random pick — the
+   * same accent tends to lead across repeated generations of one palette,
+   * reading as a genuine dominant-color decision rather than equal-odds
+   * coloring. The second story color still rolls randomly (a real
+   * supporting/pop color, not a second fixed dominant). Undefined/false
+   * reproduces the exact prior fully-random 2-index pick. */
+  colorHarmonyBias?: boolean;
+  /** Build 011, Section 6 (Premium Detail Distribution): when true, the
+   * Hero Complexity overlay (`heroComplexity.ts`'s
+   * `applyHeroDetailOverlay`) uses `ROLE_DETAIL_LEVEL_DISTRIBUTED` — filler
+   * gets a small nonzero detail level (still far below secondary) instead
+   * of the original flat 0 — so "background" reads as simplified rather
+   * than fully featureless. Undefined/false reproduces the exact prior
+   * hero/secondary-only detail behavior. */
+  detailDistribution?: boolean;
   /** Background filler layer: tiny dots/rings/plus/diamond accents
    * scattered between the main motifs — the professional surface-design
    * touch that makes a pattern read as "designed" instead of icons on an
@@ -292,6 +310,16 @@ export interface GenerateParams {
    * placement completely unaffected — the default for every style that
    * doesn't explicitly opt in. */
   premiumHero?: boolean;
+  /** Build 011, Section 5 (Silhouette Intelligence): forces a premium
+   * hero's own internal arrangement archetype (`PremiumHeroOptions.archetype`,
+   * `generators/premiumHero.ts`) instead of leaving `resolveHeroArchetype`'s
+   * weighted roll unconstrained — the real hook a batch-level caller (see
+   * `assignPortfolioDiversity`'s new `heroSilhouette` dimension,
+   * `engine/portfolioVariety.ts`) uses to guarantee a shuffled-bag spread of
+   * hero silhouettes across many generations instead of an independent
+   * random roll each time. Undefined lets the roll happen exactly as
+   * before this field existed. */
+  heroArchetype?: import('./clusterEngine').ClusterArchetype;
   /** Build 005, Section 2 (Design Rule Engine): the concrete generation
    * rules `engine/designKnowledge.ts` resolves from the active Style
    * DNA's own Design Knowledge Profile (Section 1) — consumed by

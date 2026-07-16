@@ -138,6 +138,16 @@ export interface StyleDna {
   backgroundStrategy: BackgroundStrategy;
   svgDepthMode: SvgDepthMode;
   exportRecommendation: StyleDnaExportRecommendation;
+  /** Build 011, Section 7 (Commercial Trend Engine): the `TREND_PRESETS`
+   * (`trendEngine.ts`) id this style structurally corresponds to, when one
+   * genuinely does — set only for the honest close/exact matches
+   * identified by BUILD_011_AUDIT.md §7 (`darkBotanical`→
+   * `darkAcademiaBotanical`, `minimalBotanical`→`cleanScandiMinimal`,
+   * `vintageHerbarium`→`vintageBotanical`), never a forced pairing. Lets
+   * `computeTrendFit`'s real signature-matching apply to a Style-DNA-
+   * originated tile without merging the two resolution mechanisms.
+   * Omitted for every style with no genuine structural counterpart. */
+  trendPresetId?: string;
 }
 
 // Exported (not just module-private) so other modules that resolve a
@@ -240,6 +250,7 @@ export type StyleDnaResolvedFields = Pick<
   | 'paletteId'
   | 'colorCount'
   | 'colorStory'
+  | 'colorHarmonyBias'
   | 'density'
   | 'negativeSpace'
   | 'overlapAmount'
@@ -336,6 +347,15 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
   // Every other preset resolves both to undefined, an exact no-op.
   const depthStrength = dna.hierarchyPreset === 'heroFocus' ? 0.3 : undefined;
   const professionalRules = dna.premiumHero ? true : undefined;
+  // Build 011, Section 1 (Artistic Balance Engine): the same `premiumHero`
+  // signal that already opts a preset into the Professional Illustrator
+  // Rules also opts it into perceptually-weighted balance correction — a
+  // style sophisticated enough to assemble a real bouquet hero is exactly
+  // the one whose balance should read as "this hero's real weight" rather
+  // than a flat scale²×role proxy. Every other preset resolves to
+  // `undefined`, a strict no-op (see `compositionIntelligence.ts`'s own
+  // doc comment on `artisticBalance`).
+  const artisticBalance = dna.premiumHero ? true : undefined;
 
   return {
     categoryId,
@@ -344,6 +364,12 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     paletteId,
     colorCount: COMPLEXITY_COLOR_COUNT[dna.motifComplexity] + (COLOR_STRATEGY_COUNT[dna.colorStrategy] - 4),
     colorStory: COLOR_STRATEGY_STORY[dna.colorStrategy],
+    // Build 011, Section 3 (Color Harmony Intelligence): universal, like
+    // Build 009's `asymmetryDirection` -- every Style DNA preset gets a
+    // real, computed dominant-accent lead instead of an equal-odds random
+    // pick, the same "avoid equal-distribution coloring" principle applied
+    // across the whole preset library, not opt-in per style.
+    colorHarmonyBias: true,
     density: dna.density,
     negativeSpace: dna.negativeSpace,
     overlapAmount: dna.overlapAmount,
@@ -375,6 +401,7 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
       // to read as "the supporting texture leans one way", not a redesign.
       asymmetryDirection,
       asymmetryStrength: 0.2,
+      artisticBalance,
     },
     tileSize: dna.exportRecommendation.tileSize,
     patternScale: dna.exportRecommendation.patternScale,

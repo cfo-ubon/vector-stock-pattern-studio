@@ -3,6 +3,7 @@ import { periodicDist, periodicOffset } from './svgGeometry';
 import { applyAttraction } from './patternPhysics';
 import type { FlowProfile } from './styleDna';
 import { applyEyeFlow, type EyeFlowPath } from './eyeFlowEngine';
+import { detailLevelForRole } from './heroComplexity';
 
 // Composition Intelligence Engine (Roadmap Phase 2; extended to V2 by
 // Composition Intelligence Foundation V2, Build 001) — where the Scoring
@@ -55,6 +56,16 @@ export interface CompositionIntelligenceParams {
   /** 0 = no asymmetry nudge, 1 = strongest (still bounded/subtle by
    * design). 0/undefined = no-op. */
   asymmetryStrength?: number;
+  /** Build 011, Section 1 (Artistic Balance Engine) — when true, balance
+   * and negative-space correction use `computePerceivedWeight` (visual
+   * mass + detail density + this tile's own color energy) in place of the
+   * plain scale²×role `computeWeight`. Undefined/false reproduces the
+   * exact prior `computeWeight`-only behavior — a strict no-op. */
+  artisticBalance?: boolean;
+  /** The tile's own real, measured palette energy (`computePaletteEnergy`,
+   * 0-1) — only consulted when `artisticBalance` is true. Supplied by
+   * `tile.ts` from the actual resolved colors, never invented. */
+  paletteEnergy?: number;
 }
 
 export const DEFAULT_COMPOSITION_INTELLIGENCE: CompositionIntelligenceParams = {
@@ -75,6 +86,57 @@ const ROLE_WEIGHT: Record<string, number> = { hero: 1.5, secondary: 1.15, filler
 export function computeWeight(p: Placement): number {
   const bump = p.role ? (ROLE_WEIGHT[p.role] ?? 1) : 1;
   return p.scale * p.scale * bump;
+}
+
+/** Build 011, Section 1 (Artistic Balance Engine): the audit
+ * (`BUILD_011_AUDIT.md` §1) found every one of the brief's five named
+ * factors ("visual mass, silhouette complexity, color dominance, detail
+ * density, negative-space influence") already has a real measurement
+ * somewhere in this codebase, but `computeWeight` above — the one number
+ * that actually *moves* placements during balance correction — only ever
+ * factored in scale and role. This is a genuine, scoped richer weight,
+ * not a parallel module:
+ *
+ * - **Visual mass**: `computeWeight`'s own `scale² × ROLE_WEIGHT` term,
+ *   unchanged, reused as the base.
+ * - **Detail density**: `detailLevelForRole` (`heroComplexity.ts`) is the
+ *   real, already-shipped "how much extra detail this role gets" value
+ *   (hero 100, secondary 55, filler/accent 0) — a hero motif that will
+ *   actually render richer detail reads as genuinely heavier, not just
+ *   larger.
+ * - **Color dominance**: reuses `paletteEnergy` (`computePaletteEnergy`,
+ *   `colorAnalysis.ts`), the tile's own real, measured saturation/
+ *   contrast score. This is deliberately a *tile-level* modulation, not a
+ *   per-placement one — investigation during this build found individual
+ *   placement colors aren't actually knowable at this pipeline stage (most
+ *   generators pick their motif's color randomly *inside* `createMotif`,
+ *   which runs later, per-placement, well after this pass reorders
+ *   anything — see `tile.ts`'s own `storyOrDefaultColors` roll). Applying a
+ *   fabricated per-placement color guess here would be exactly the kind of
+ *   invented number this build explicitly rules out; a real, tile-wide
+ *   "how visually loud is the palette this tile will actually use" signal
+ *   is the honest alternative, applied only to hero/secondary (the roles a
+ *   dominant color choice is meant to reinforce, not filler/accent, whose
+ *   color role is neutral background texture).
+ * - **Silhouette complexity** and **negative-space influence** are
+ *   deliberately *not* folded in here — see the audit's own §1 finding:
+ *   real per-instance shape complexity (node count) doesn't exist until
+ *   after `createMotif` runs, past this pass; and negative-space influence
+ *   is already intrinsic to the grid-redistribution mechanism itself (a
+ *   cell's aggregate weight already reflects local negative space — that
+ *   is what moves placements into an underweighted cell). Inventing a
+ *   second, redundant "negative space subscore" here would double-count
+ *   the same signal the redistribution loop already acts on.
+ *
+ * `paletteEnergy` undefined reproduces `computeWeight`'s own scale/role-only
+ * value exactly (color term defaults to 1) — a strict no-op for any caller
+ * that doesn't pass it. */
+export function computePerceivedWeight(p: Placement, paletteEnergy?: number): number {
+  const base = computeWeight(p);
+  const detailFactor = 1 + (detailLevelForRole(p.role) / 100) * 0.15;
+  const isDominantRole = p.role === 'hero' || p.role === 'secondary';
+  const colorFactor = isDominantRole && paletteEnergy !== undefined ? 1 + paletteEnergy * 0.15 : 1;
+  return base * detailFactor * colorFactor;
 }
 
 /** Which cell of an `gridN` x `gridN` grid (x-major, wrap-aware) a point
@@ -116,10 +178,16 @@ function moveIntoCell(p: { x: number; y: number }, tileSize: number, gridN: numb
  * holes a 2x2 split averages away) — one mechanism, two resolutions,
  * rather than duplicated logic for what the brief treats as two named
  * concepts. */
-export function applyGridBalanceCorrection(placements: Placement[], tileSize: number, gridN: number, strength: number): Placement[] {
+export function applyGridBalanceCorrection(
+  placements: Placement[],
+  tileSize: number,
+  gridN: number,
+  strength: number,
+  weightFn: (p: Placement) => number = computeWeight,
+): Placement[] {
   if (strength <= 0 || placements.length < 4) return placements;
 
-  const weights = placements.map(computeWeight);
+  const weights = placements.map(weightFn);
   const numCells = gridN * gridN;
   const cellWeights = new Array(numCells).fill(0);
   const cellIndex = placements.map((p, i) => {
@@ -168,8 +236,13 @@ export function applyGridBalanceCorrection(placements: Placement[], tileSize: nu
 /** Macro-level composition-weight balance across a 2x2 split of the tile —
  * unchanged behavior from Composition Intelligence Engine V1, now a thin
  * wrapper over the shared `applyGridBalanceCorrection`. */
-export function applyBalanceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
-  return applyGridBalanceCorrection(placements, tileSize, 2, strength);
+export function applyBalanceCorrection(
+  placements: Placement[],
+  tileSize: number,
+  strength: number,
+  weightFn?: (p: Placement) => number,
+): Placement[] {
+  return applyGridBalanceCorrection(placements, tileSize, 2, strength, weightFn);
 }
 
 /** Section 6, Negative Space Engine — the same weighted-redistribution
@@ -193,8 +266,13 @@ export function applyBalanceCorrection(placements: Placement[], tileSize: number
  * directions — see git history / BUILD_REPORT.md for the empirical data;
  * neither moved the metric and one introduced a new `fragmentedSilhouette`
  * regression, so the pipeline order below is unchanged from Build 001.) */
-export function applyNegativeSpaceCorrection(placements: Placement[], tileSize: number, strength: number): Placement[] {
-  return applyGridBalanceCorrection(placements, tileSize, 8, strength);
+export function applyNegativeSpaceCorrection(
+  placements: Placement[],
+  tileSize: number,
+  strength: number,
+  weightFn?: (p: Placement) => number,
+): Placement[] {
+  return applyGridBalanceCorrection(placements, tileSize, 8, strength, weightFn);
 }
 
 export type FlowBiasProfile = FlowProfile;
@@ -390,9 +468,16 @@ export function applyCompositionIntelligence(
     params.asymmetryDirection && params.asymmetryStrength
       ? applyControlledAsymmetry(eyeFlowed, tileSize, params.asymmetryDirection, params.asymmetryStrength)
       : eyeFlowed;
-  const balanced = applyBalanceCorrection(asymmetric, tileSize, params.balanceStrength);
+  // Build 011, Section 1 (Artistic Balance Engine): both correction passes
+  // share one weight function so "how heavy does a placement really read"
+  // stays consistent between the macro (2x2) and meso (8x8) resolutions —
+  // undefined/false `artisticBalance` selects the exact prior `computeWeight`
+  // reference, so `weightFn` is `undefined` and both calls fall through to
+  // their own default parameter, byte-identical to pre-Build-011 behavior.
+  const weightFn = params.artisticBalance ? (p: Placement) => computePerceivedWeight(p, params.paletteEnergy) : undefined;
+  const balanced = applyBalanceCorrection(asymmetric, tileSize, params.balanceStrength, weightFn);
   const spaced = params.negativeSpaceStrength
-    ? applyNegativeSpaceCorrection(balanced, tileSize, params.negativeSpaceStrength)
+    ? applyNegativeSpaceCorrection(balanced, tileSize, params.negativeSpaceStrength, weightFn)
     : balanced;
   const attracted = params.attractionStrength
     ? applyAttraction(spaced, tileSize, params.attractionStrength)
