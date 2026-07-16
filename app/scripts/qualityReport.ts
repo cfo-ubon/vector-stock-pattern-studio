@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { defaultParams } from '../src/engine/defaults';
 import type { GenerateParams, LayoutId } from '../src/engine/types';
@@ -73,7 +73,7 @@ import { computeCommercialAppealScoreV2, type CommercialAppealScoreV2 } from '..
 // engine/scoring.ts) — not a new number invented for this report.
 const METRIC_FAILURE_FLOOR = 50;
 
-function stats(values: number[]) {
+export function stats(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b);
   const n = sorted.length;
   const at = (p: number) => (n === 0 ? 0 : sorted[Math.min(n - 1, Math.max(0, Math.floor(p * (n - 1))))]);
@@ -99,7 +99,7 @@ const PRINCIPAL_METRIC_KEYS: Array<keyof CompositionMetrics> = [
   'heroDetailRatio', 'isolationScore', 'clusterCohesion', 'gridAppearanceScore', 'spacingUniformity',
 ];
 
-interface EvalResult {
+export interface EvalResult {
   label: string;
   layoutId: LayoutId;
   categoryId: string;
@@ -150,7 +150,7 @@ interface EvalResult {
   commercialAppealScoreV2: CommercialAppealScoreV2;
 }
 
-function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
+export function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
   // Build 003, Part 11 (Hero Detector): measures the real, shipped
   // behavior — see engine/heroDetector.ts — rather than a raw single
   // buildTile call the app itself no longer makes for a fresh generation.
@@ -262,7 +262,7 @@ function runScenarioSuite(): EvalResult[] {
 
 // ---- Frozen 100-pattern portfolio ----
 const PORTFOLIO_SEEDS = ['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'p-7'];
-const STYLE_IDS = Object.keys(STYLE_DNA_PRESETS);
+export const STYLE_IDS = Object.keys(STYLE_DNA_PRESETS);
 
 function buildPortfolioPairs(): Array<{ styleId: string; seed: string }> {
   const all: Array<{ styleId: string; seed: string }> = [];
@@ -270,7 +270,7 @@ function buildPortfolioPairs(): Array<{ styleId: string; seed: string }> {
   return all;
 }
 
-function buildPortfolioParams(styleId: string, seed: string): GenerateParams {
+export function buildPortfolioParams(styleId: string, seed: string): GenerateParams {
   const dna = STYLE_DNA_PRESETS[styleId];
   const resolved = resolveStyleDna(dna, seed);
   return { ...defaultParams(), ...resolved, seed };
@@ -284,7 +284,7 @@ function buildPortfolioParams(styleId: string, seed: string): GenerateParams {
 // computed once per preset (any fixed seed) rather than once per
 // portfolio/large-portfolio tile, following `computeSignatureFingerprintDistinctness`'s
 // own doc comment on what it measures.
-function computeSignatureFingerprints() {
+export function computeSignatureFingerprints() {
   return STYLE_IDS.map((styleId) => {
     const patch = resolveStyleDna(STYLE_DNA_PRESETS[styleId], 'signature-fingerprint-check');
     return { depthStrength: patch.depthStrength, professionalRules: patch.professionalRules, premiumRhythm: patch.hierarchy?.premiumRhythm };
@@ -379,7 +379,7 @@ function runConsistencyPortfolio(): { results: EvalResult[]; droppedPairs: Array
  * Consistency Portfolio -- `CONSISTENCY_PORTFOLIO_SEEDS`' fixed `c-1..c-N`
  * ordering is the real generation order `detectSequentialStyleDrift`
  * compares first-half-vs-second-half over, not an arbitrary resort. */
-function computeConsistencyByStyleDna(results: EvalResult[]) {
+export function computeConsistencyByStyleDna(results: EvalResult[]) {
   const groups = groupBy(results, (r) => r.styleDnaId ?? 'unknown');
   const out: Record<string, { consistency: number; drift: ReturnType<typeof detectSequentialStyleDrift>; n: number }> = {};
   for (const [styleId, items] of Object.entries(groups) as Array<[string, EvalResult[]]>) {
@@ -398,7 +398,7 @@ function computeConsistencyByStyleDna(results: EvalResult[]) {
 }
 
 // ---- Aggregation ----
-function aggregateMetrics(results: EvalResult[]) {
+export function aggregateMetrics(results: EvalResult[]) {
   const perMetric: Record<string, ReturnType<typeof stats>> = {};
   for (const key of PRINCIPAL_METRIC_KEYS) {
     perMetric[key] = stats(results.map((r) => r.metrics[key]));
@@ -467,7 +467,7 @@ function aggregateMetrics(results: EvalResult[]) {
   return perMetric;
 }
 
-function namedPenaltyRates(results: EvalResult[]) {
+export function namedPenaltyRates(results: EvalResult[]) {
   const rates: Record<string, number> = {};
   for (const rule of SOFT_PENALTY_RULES) {
     const triggered = results.filter((r) => rule.check(r.metrics)).length;
@@ -476,7 +476,7 @@ function namedPenaltyRates(results: EvalResult[]) {
   return rates;
 }
 
-function visualIssueRates(results: EvalResult[]) {
+export function visualIssueRates(results: EvalResult[]) {
   const rates: Record<string, number> = {};
   const ids = Object.keys(results[0]?.issues ?? {}) as VisualIssueId[];
   for (const id of ids) {
@@ -495,7 +495,7 @@ function groupBy<T, K extends string>(items: T[], keyFn: (t: T) => K): Record<K,
   return out;
 }
 
-function breakdownBy<K extends string>(results: EvalResult[], keyFn: (r: EvalResult) => K) {
+export function breakdownBy<K extends string>(results: EvalResult[], keyFn: (r: EvalResult) => K) {
   const groups = groupBy(results, keyFn);
   const out: Record<string, ReturnType<typeof aggregateMetrics> & { namedPenaltyRates: Record<string, number>; visualIssueRates: Record<string, number>; n: number }> = {};
   for (const [k, items] of Object.entries(groups) as Array<[string, EvalResult[]]>) {
@@ -504,7 +504,7 @@ function breakdownBy<K extends string>(results: EvalResult[], keyFn: (r: EvalRes
   return out;
 }
 
-const NODE_BUDGET = 8000;
+export const NODE_BUDGET = 8000;
 
 function main() {
   const outArg = process.argv[2] ?? 'baseline';
@@ -703,4 +703,12 @@ function main() {
   console.log(`Generation time: ${elapsedMs}ms`);
 }
 
-main();
+// Build 011.5: guarded so other scripts (e.g. commercialRealityCheck.ts)
+// can import this module's evaluation pipeline (evaluate/EvalResult/stats/
+// aggregateMetrics/etc.) without triggering a full report run as a side
+// effect of the import — main() only fires when this file is the actual
+// entrypoint (`tsx scripts/qualityReport.ts ...`), exactly as before for
+// every existing invocation.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  main();
+}
