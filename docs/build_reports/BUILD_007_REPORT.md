@@ -121,10 +121,10 @@ scripts/qualityReport.ts   + illustrationQualityV2 wiring
 - Every existing test file left unmodified except where a real, measured
   new capability needed its own new assertions (no test was edited to
   paper over a behavior change).
-- Full suite: **151 test files, 1804 tests, all passing** (up from
-  Build 006's 151/1797 — 2 new test files' worth of assertions, no file
-  count change since both new suites landed inside existing/adjacent
-  files rather than new top-level files needing separate registration).
+- Full suite: **152 test files, 1810 tests, all passing** (up from
+  Build 006's 151/1797 — 1 new test file (`illustrationQualityV2.test.ts`,
+  6 tests) plus 7 new assertions extending the existing
+  `heroDetector.test.ts`).
 - `npx tsc -b`: clean. `npm run lint` (oxlint): clean.
 
 ## 6. Commercial Quality — Before/After (100-pattern portfolio, n=100)
@@ -269,7 +269,7 @@ this preset prefers has a `FLOWER_ANATOMY` entry with `usesCalyx: true`.
 
 | Criterion | Status |
 |---|---|
-| All tests pass | ✅ 151/151 files, 1804/1804 tests |
+| All tests pass | ✅ 152/152 files, 1810/1810 tests |
 | TypeScript clean | ✅ `npx tsc -b` clean |
 | Lint clean | ✅ `npm run lint` (oxlint) clean |
 | Preserve all Build 006 capabilities | ✅ every existing test file's behavior unchanged; new code is additive-only |
