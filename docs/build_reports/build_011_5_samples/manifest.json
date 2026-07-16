@@ -1,0 +1,362 @@
+[
+  {
+    "styleId": "editorialBotanical",
+    "label": "Editorial Botanical",
+    "role": "best",
+    "seed": "cr-41",
+    "svgFile": "editorialBotanical_best.svg",
+    "htmlFile": "editorialBotanical_best.html"
+  },
+  {
+    "styleId": "editorialBotanical",
+    "label": "Editorial Botanical",
+    "role": "median",
+    "seed": "cr-3",
+    "svgFile": "editorialBotanical_median.svg",
+    "htmlFile": "editorialBotanical_median.html"
+  },
+  {
+    "styleId": "editorialBotanical",
+    "label": "Editorial Botanical",
+    "role": "worst",
+    "seed": "cr-52",
+    "svgFile": "editorialBotanical_worst.svg",
+    "htmlFile": "editorialBotanical_worst.html"
+  },
+  {
+    "styleId": "luxuryFloral",
+    "label": "Luxury Floral",
+    "role": "best",
+    "seed": "cr-60",
+    "svgFile": "luxuryFloral_best.svg",
+    "htmlFile": "luxuryFloral_best.html"
+  },
+  {
+    "styleId": "luxuryFloral",
+    "label": "Luxury Floral",
+    "role": "median",
+    "seed": "cr-17",
+    "svgFile": "luxuryFloral_median.svg",
+    "htmlFile": "luxuryFloral_median.html"
+  },
+  {
+    "styleId": "luxuryFloral",
+    "label": "Luxury Floral",
+    "role": "worst",
+    "seed": "cr-34",
+    "svgFile": "luxuryFloral_worst.svg",
+    "htmlFile": "luxuryFloral_worst.html"
+  },
+  {
+    "styleId": "scandinavianOrganic",
+    "label": "Scandinavian Organic",
+    "role": "best",
+    "seed": "cr-91",
+    "svgFile": "scandinavianOrganic_best.svg",
+    "htmlFile": "scandinavianOrganic_best.html"
+  },
+  {
+    "styleId": "scandinavianOrganic",
+    "label": "Scandinavian Organic",
+    "role": "median",
+    "seed": "cr-44",
+    "svgFile": "scandinavianOrganic_median.svg",
+    "htmlFile": "scandinavianOrganic_median.html"
+  },
+  {
+    "styleId": "scandinavianOrganic",
+    "label": "Scandinavian Organic",
+    "role": "worst",
+    "seed": "cr-23",
+    "svgFile": "scandinavianOrganic_worst.svg",
+    "htmlFile": "scandinavianOrganic_worst.html"
+  },
+  {
+    "styleId": "minimalBotanical",
+    "label": "Minimal Botanical",
+    "role": "best",
+    "seed": "cr-64",
+    "svgFile": "minimalBotanical_best.svg",
+    "htmlFile": "minimalBotanical_best.html"
+  },
+  {
+    "styleId": "minimalBotanical",
+    "label": "Minimal Botanical",
+    "role": "median",
+    "seed": "cr-58",
+    "svgFile": "minimalBotanical_median.svg",
+    "htmlFile": "minimalBotanical_median.html"
+  },
+  {
+    "styleId": "minimalBotanical",
+    "label": "Minimal Botanical",
+    "role": "worst",
+    "seed": "cr-2",
+    "svgFile": "minimalBotanical_worst.svg",
+    "htmlFile": "minimalBotanical_worst.html"
+  },
+  {
+    "styleId": "vintageHerbarium",
+    "label": "Vintage Herbarium",
+    "role": "best",
+    "seed": "cr-98",
+    "svgFile": "vintageHerbarium_best.svg",
+    "htmlFile": "vintageHerbarium_best.html"
+  },
+  {
+    "styleId": "vintageHerbarium",
+    "label": "Vintage Herbarium",
+    "role": "median",
+    "seed": "cr-21",
+    "svgFile": "vintageHerbarium_median.svg",
+    "htmlFile": "vintageHerbarium_median.html"
+  },
+  {
+    "styleId": "vintageHerbarium",
+    "label": "Vintage Herbarium",
+    "role": "worst",
+    "seed": "cr-3",
+    "svgFile": "vintageHerbarium_worst.svg",
+    "htmlFile": "vintageHerbarium_worst.html"
+  },
+  {
+    "styleId": "darkBotanical",
+    "label": "Dark Botanical",
+    "role": "best",
+    "seed": "cr-89",
+    "svgFile": "darkBotanical_best.svg",
+    "htmlFile": "darkBotanical_best.html"
+  },
+  {
+    "styleId": "darkBotanical",
+    "label": "Dark Botanical",
+    "role": "median",
+    "seed": "cr-29",
+    "svgFile": "darkBotanical_median.svg",
+    "htmlFile": "darkBotanical_median.html"
+  },
+  {
+    "styleId": "darkBotanical",
+    "label": "Dark Botanical",
+    "role": "worst",
+    "seed": "cr-9",
+    "svgFile": "darkBotanical_worst.svg",
+    "htmlFile": "darkBotanical_worst.html"
+  },
+  {
+    "styleId": "modernTropical",
+    "label": "Modern Tropical",
+    "role": "best",
+    "seed": "cr-99",
+    "svgFile": "modernTropical_best.svg",
+    "htmlFile": "modernTropical_best.html"
+  },
+  {
+    "styleId": "modernTropical",
+    "label": "Modern Tropical",
+    "role": "median",
+    "seed": "cr-8",
+    "svgFile": "modernTropical_median.svg",
+    "htmlFile": "modernTropical_median.html"
+  },
+  {
+    "styleId": "modernTropical",
+    "label": "Modern Tropical",
+    "role": "worst",
+    "seed": "cr-44",
+    "svgFile": "modernTropical_worst.svg",
+    "htmlFile": "modernTropical_worst.html"
+  },
+  {
+    "styleId": "boutiquePackaging",
+    "label": "Boutique Packaging",
+    "role": "best",
+    "seed": "cr-54",
+    "svgFile": "boutiquePackaging_best.svg",
+    "htmlFile": "boutiquePackaging_best.html"
+  },
+  {
+    "styleId": "boutiquePackaging",
+    "label": "Boutique Packaging",
+    "role": "median",
+    "seed": "cr-80",
+    "svgFile": "boutiquePackaging_median.svg",
+    "htmlFile": "boutiquePackaging_median.html"
+  },
+  {
+    "styleId": "boutiquePackaging",
+    "label": "Boutique Packaging",
+    "role": "worst",
+    "seed": "cr-69",
+    "svgFile": "boutiquePackaging_worst.svg",
+    "htmlFile": "boutiquePackaging_worst.html"
+  },
+  {
+    "styleId": "luxuryWallpaper",
+    "label": "Luxury Wallpaper",
+    "role": "best",
+    "seed": "cr-92",
+    "svgFile": "luxuryWallpaper_best.svg",
+    "htmlFile": "luxuryWallpaper_best.html"
+  },
+  {
+    "styleId": "luxuryWallpaper",
+    "label": "Luxury Wallpaper",
+    "role": "median",
+    "seed": "cr-31",
+    "svgFile": "luxuryWallpaper_median.svg",
+    "htmlFile": "luxuryWallpaper_median.html"
+  },
+  {
+    "styleId": "luxuryWallpaper",
+    "label": "Luxury Wallpaper",
+    "role": "worst",
+    "seed": "cr-16",
+    "svgFile": "luxuryWallpaper_worst.svg",
+    "htmlFile": "luxuryWallpaper_worst.html"
+  },
+  {
+    "styleId": "premiumTextile",
+    "label": "Premium Textile",
+    "role": "best",
+    "seed": "cr-89",
+    "svgFile": "premiumTextile_best.svg",
+    "htmlFile": "premiumTextile_best.html"
+  },
+  {
+    "styleId": "premiumTextile",
+    "label": "Premium Textile",
+    "role": "median",
+    "seed": "cr-27",
+    "svgFile": "premiumTextile_median.svg",
+    "htmlFile": "premiumTextile_median.html"
+  },
+  {
+    "styleId": "premiumTextile",
+    "label": "Premium Textile",
+    "role": "worst",
+    "seed": "cr-5",
+    "svgFile": "premiumTextile_worst.svg",
+    "htmlFile": "premiumTextile_worst.html"
+  },
+  {
+    "styleId": "kidsPlayful",
+    "label": "Kids Playful",
+    "role": "best",
+    "seed": "cr-95",
+    "svgFile": "kidsPlayful_best.svg",
+    "htmlFile": "kidsPlayful_best.html"
+  },
+  {
+    "styleId": "kidsPlayful",
+    "label": "Kids Playful",
+    "role": "median",
+    "seed": "cr-57",
+    "svgFile": "kidsPlayful_median.svg",
+    "htmlFile": "kidsPlayful_median.html"
+  },
+  {
+    "styleId": "kidsPlayful",
+    "label": "Kids Playful",
+    "role": "worst",
+    "seed": "cr-3",
+    "svgFile": "kidsPlayful_worst.svg",
+    "htmlFile": "kidsPlayful_worst.html"
+  },
+  {
+    "styleId": "retroOrganic",
+    "label": "Retro Organic",
+    "role": "best",
+    "seed": "cr-55",
+    "svgFile": "retroOrganic_best.svg",
+    "htmlFile": "retroOrganic_best.html"
+  },
+  {
+    "styleId": "retroOrganic",
+    "label": "Retro Organic",
+    "role": "median",
+    "seed": "cr-81",
+    "svgFile": "retroOrganic_median.svg",
+    "htmlFile": "retroOrganic_median.html"
+  },
+  {
+    "styleId": "retroOrganic",
+    "label": "Retro Organic",
+    "role": "worst",
+    "seed": "cr-22",
+    "svgFile": "retroOrganic_worst.svg",
+    "htmlFile": "retroOrganic_worst.html"
+  },
+  {
+    "styleId": "organicAbstract",
+    "label": "Organic Abstract",
+    "role": "best",
+    "seed": "cr-99",
+    "svgFile": "organicAbstract_best.svg",
+    "htmlFile": "organicAbstract_best.html"
+  },
+  {
+    "styleId": "organicAbstract",
+    "label": "Organic Abstract",
+    "role": "median",
+    "seed": "cr-71",
+    "svgFile": "organicAbstract_median.svg",
+    "htmlFile": "organicAbstract_median.html"
+  },
+  {
+    "styleId": "organicAbstract",
+    "label": "Organic Abstract",
+    "role": "worst",
+    "seed": "cr-41",
+    "svgFile": "organicAbstract_worst.svg",
+    "htmlFile": "organicAbstract_worst.html"
+  },
+  {
+    "styleId": "bohoFloral",
+    "label": "Boho Floral",
+    "role": "best",
+    "seed": "cr-100",
+    "svgFile": "bohoFloral_best.svg",
+    "htmlFile": "bohoFloral_best.html"
+  },
+  {
+    "styleId": "bohoFloral",
+    "label": "Boho Floral",
+    "role": "median",
+    "seed": "cr-8",
+    "svgFile": "bohoFloral_median.svg",
+    "htmlFile": "bohoFloral_median.html"
+  },
+  {
+    "styleId": "bohoFloral",
+    "label": "Boho Floral",
+    "role": "worst",
+    "seed": "cr-1",
+    "svgFile": "bohoFloral_worst.svg",
+    "htmlFile": "bohoFloral_worst.html"
+  },
+  {
+    "styleId": "softWatercolorInspired",
+    "label": "Soft Watercolor Inspired (Vector only)",
+    "role": "best",
+    "seed": "cr-100",
+    "svgFile": "softWatercolorInspired_best.svg",
+    "htmlFile": "softWatercolorInspired_best.html"
+  },
+  {
+    "styleId": "softWatercolorInspired",
+    "label": "Soft Watercolor Inspired (Vector only)",
+    "role": "median",
+    "seed": "cr-57",
+    "svgFile": "softWatercolorInspired_median.svg",
+    "htmlFile": "softWatercolorInspired_median.html"
+  },
+  {
+    "styleId": "softWatercolorInspired",
+    "label": "Soft Watercolor Inspired (Vector only)",
+    "role": "worst",
+    "seed": "cr-88",
+    "svgFile": "softWatercolorInspired_worst.svg",
+    "htmlFile": "softWatercolorInspired_worst.html"
+  }
+]

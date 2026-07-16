@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { serialize } from '../src/engine/svgAst';
-import { buildPortfolioParams, STYLE_IDS } from './qualityReport';
+import { buildPortfolioParams } from './qualityReport';
 
 // Build 011.5: renders the exact best/median/worst tile (by Absolute
 // Commercial Quality, as picked by commercialRealityCheck.ts's own
@@ -49,13 +49,19 @@ for (const summary of report.presetSummaries as Array<{ styleId: string; label: 
     const htmlFile = `${fileBase}.html`;
     fs.writeFileSync(path.join(outDir, svgFile), svgMarkup);
 
+    // `serialize(tileData.svg)` returns only the inner `<g id="tile-content">`
+    // group (no root <svg>/viewBox) -- a bare <g> outside an <svg> context
+    // renders as nothing in a plain HTML page, so this wraps 9 translated
+    // copies inside one real <svg viewBox> element (the same 3x3-repeat
+    // convention `PreviewCanvas.tsx` already uses for its own seamless-tile
+    // preview) rather than emitting 9 separate <svg> tags.
     const tileSize = params.tileSize;
+    const cells = [0, 1, 2].flatMap((row) => [0, 1, 2].map((col) => `<g transform="translate(${col * tileSize} ${row * tileSize})">${svgMarkup}</g>`)).join('');
+    const DISPLAY_SIZE = 1000;
     const html = `<!doctype html><html><head><meta charset="utf-8"><style>
       body { margin: 0; background: #fff; }
-      .grid { display: grid; grid-template-columns: repeat(3, ${tileSize}px); width: ${tileSize * 3}px; }
-      .grid svg { display: block; width: ${tileSize}px; height: ${tileSize}px; }
     </style></head><body>
-      <div class="grid">${Array.from({ length: 9 }, () => svgMarkup).join('')}</div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${tileSize * 3} ${tileSize * 3}" width="${DISPLAY_SIZE}" height="${DISPLAY_SIZE}">${cells}</svg>
     </body></html>`;
     fs.writeFileSync(path.join(outDir, htmlFile), html);
 
