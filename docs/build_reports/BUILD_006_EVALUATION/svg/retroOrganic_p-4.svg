@@ -1,0 +1,1733 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="3000" height="3000" viewBox="0 0 1400 1400">
+  <g id="tile-content" data-style-dna-id="retroOrganic" data-style-dna-name="Retro Organic" data-style-dna-version="1">
+    <defs>
+      <clipPath id="tile-clip">
+        <rect x="0" y="0" width="1400" height="1400" />
+      </clipPath>
+    </defs>
+    <g id="layer-background">
+      <rect x="0" y="0" width="1400" height="1400" fill="#FFF1E0" />
+    </g>
+    <g id="layer-pattern" clip-path="url(#tile-clip)">
+      <g id="layer-filler">
+        <polygon points="1093.47,1300.629 1101.522,1308.681 1093.47,1316.733 1085.417,1308.681" fill="#fddac1" />
+        <polygon points="1174.017,1254.51 1185.006,1265.499 1174.017,1276.488 1163.028,1265.499" fill="#c4b7bc" />
+        <circle cx="270.707" cy="539.186" r="5.815" fill="none" stroke="#c4b7bc" stroke-width="3.554" />
+        <polygon points="263.018,323.766 270.644,331.392 263.018,339.018 255.392,331.392" fill="#c4b7bc" />
+        <circle cx="302.196" cy="217.576" r="11.91" fill="none" stroke="#fddac1" stroke-width="7.279" />
+        <circle cx="1214.786" cy="868.657" r="10.462" fill="#c4b7bc" />
+        <g transform="translate(1258.074 281.258) rotate(68)">
+          <rect x="-10.833" y="-3.25" width="21.665" height="6.5" fill="#fddac1" />
+          <rect x="-3.25" y="-10.833" width="6.5" height="21.665" fill="#fddac1" />
+        </g>
+        <circle cx="565.804" cy="1276.046" r="10.797" fill="none" stroke="#c4b7bc" stroke-width="6.598" />
+        <circle cx="1080.683" cy="404.713" r="9.498" fill="#fddac1" />
+        <circle cx="219.866" cy="1043.874" r="10.691" fill="none" stroke="#fddac1" stroke-width="6.533" />
+        <polygon points="912.191,981.25 922.066,991.125 912.191,1001 902.316,991.125" fill="#fddac1" />
+        <polygon points="23.081,295.988 34.164,307.07 23.081,318.153 11.999,307.07" fill="#c4b7bc" />
+        <polygon points="1423.081,295.988 1434.164,307.07 1423.081,318.153 1411.999,307.07" fill="#c4b7bc" />
+        <polygon points="913.797,567.785 926.403,580.392 913.797,592.998 901.19,580.392" fill="#fddac1" />
+        <polygon points="1239.79,733.989 1250.495,744.695 1239.79,755.4 1229.084,744.695" fill="#fddac1" />
+        <circle cx="1190.586" cy="33.786" r="8.593" fill="#fddac1" />
+        <polygon points="882.987,1280.059 894.917,1291.989 882.987,1303.918 871.058,1291.989" fill="#c4b7bc" />
+        <polygon points="120.809,390.289 128.942,398.422 120.809,406.556 112.675,398.422" fill="#fddac1" />
+        <circle cx="853.775" cy="632.445" r="8.289" fill="none" stroke="#fddac1" stroke-width="5.066" />
+        <circle cx="60.368" cy="586.547" r="8.656" fill="none" stroke="#fddac1" stroke-width="5.29" />
+        <circle cx="705.531" cy="1075.87" r="9.388" fill="none" stroke="#fddac1" stroke-width="5.737" />
+        <circle cx="630.95" cy="402.895" r="12.076" fill="#fddac1" />
+        <circle cx="477.463" cy="-7.671" r="9.67" fill="none" stroke="#c4b7bc" stroke-width="5.909" />
+        <circle cx="477.463" cy="1392.329" r="9.67" fill="none" stroke="#c4b7bc" stroke-width="5.909" />
+        <circle cx="994.405" cy="-0.182" r="7.785" fill="none" stroke="#c4b7bc" stroke-width="4.758" />
+        <circle cx="994.405" cy="1399.818" r="7.785" fill="none" stroke="#c4b7bc" stroke-width="4.758" />
+        <polygon points="1091.013,267.856 1100.596,277.438 1091.013,287.02 1081.431,277.438" fill="#fddac1" />
+        <circle cx="23.358" cy="721.775" r="11.233" fill="#fddac1" />
+        <circle cx="1423.358" cy="721.775" r="11.233" fill="#fddac1" />
+        <g transform="translate(1236.052 583.453) rotate(42)">
+          <rect x="-8.328" y="-2.498" width="16.656" height="4.997" fill="#c4b7bc" />
+          <rect x="-2.498" y="-8.328" width="4.997" height="16.656" fill="#c4b7bc" />
+        </g>
+        <polygon points="29.946,169.016 38,177.07 29.946,185.123 21.893,177.07" fill="#fddac1" />
+        <g transform="translate(1141.806 1182.243) rotate(52)">
+          <rect x="-10.908" y="-3.272" width="21.816" height="6.545" fill="#fddac1" />
+          <rect x="-3.272" y="-10.908" width="6.545" height="21.816" fill="#fddac1" />
+        </g>
+        <circle cx="1087.613" cy="871.319" r="8.614" fill="none" stroke="#c4b7bc" stroke-width="5.264" />
+        <polygon points="526.878,1028.479 536.18,1037.781 526.878,1047.083 517.576,1037.781" fill="#fddac1" />
+        <polygon points="149.727,713.376 156.634,720.283 149.727,727.19 142.82,720.283" fill="#fddac1" />
+        <polygon points="348.304,512.686 357.597,521.979 348.304,531.272 339.011,521.979" fill="#fddac1" />
+        <circle cx="717.967" cy="268.545" r="7.395" fill="none" stroke="#fddac1" stroke-width="4.519" />
+        <polygon points="778.892,54.112 789.807,65.027 778.892,75.943 767.977,65.027" fill="#fddac1" />
+        <circle cx="321.62" cy="939.459" r="8.122" fill="none" stroke="#c4b7bc" stroke-width="4.963" />
+        <circle cx="940.826" cy="94.385" r="11.959" fill="none" stroke="#fddac1" stroke-width="7.309" />
+        <polygon points="131.205,1290.191 140.349,1299.336 131.205,1308.481 122.06,1299.336" fill="#c4b7bc" />
+        <circle cx="428.058" cy="780.721" r="10.562" fill="none" stroke="#c4b7bc" stroke-width="6.455" />
+        <circle cx="824.865" cy="177.943" r="7.386" fill="#c4b7bc" />
+        <circle cx="394.966" cy="149.46" r="8.258" fill="none" stroke="#fddac1" stroke-width="5.047" />
+        <circle cx="846.629" cy="446.904" r="8.249" fill="#c4b7bc" />
+        <circle cx="1285.995" cy="475.974" r="13.271" fill="#c4b7bc" />
+        <polygon points="274.513,706.672 286.735,718.894 274.513,731.116 262.292,718.894" fill="#fddac1" />
+        <circle cx="189.548" cy="1129.102" r="9.073" fill="none" stroke="#c4b7bc" stroke-width="5.544" />
+        <circle cx="1182.342" cy="401.656" r="6.319" fill="#fddac1" />
+        <polygon points="1307.565,127.686 1314.393,134.513 1307.565,141.341 1300.738,134.513" fill="#c4b7bc" />
+        <circle cx="1310.518" cy="1282.312" r="9.545" fill="#c4b7bc" />
+        <circle cx="710.766" cy="450.041" r="7.501" fill="none" stroke="#fddac1" stroke-width="4.584" />
+        <circle cx="414.855" cy="475.434" r="10.042" fill="#c4b7bc" />
+        <circle cx="866.152" cy="1103.512" r="9.209" fill="none" stroke="#c4b7bc" stroke-width="5.628" />
+        <circle cx="431.653" cy="598.259" r="11.592" fill="none" stroke="#fddac1" stroke-width="7.084" />
+        <polygon points="1145.832,690.477 1152.417,697.062 1145.832,703.647 1139.247,697.062" fill="#fddac1" />
+        <circle cx="1307.099" cy="367.508" r="8.449" fill="#c4b7bc" />
+        <g transform="translate(302.118 113.318) rotate(5)">
+          <rect x="-8.962" y="-2.689" width="17.925" height="5.377" fill="#c4b7bc" />
+          <rect x="-2.689" y="-8.962" width="5.377" height="17.925" fill="#c4b7bc" />
+        </g>
+        <circle cx="739.886" cy="633.231" r="11.318" fill="none" stroke="#fddac1" stroke-width="6.917" />
+        <g transform="translate(1021.64 786.169) rotate(9)">
+          <rect x="-7.002" y="-2.101" width="14.004" height="4.201" fill="#fddac1" />
+          <rect x="-2.101" y="-7.002" width="4.201" height="14.004" fill="#fddac1" />
+        </g>
+        <g transform="translate(542.566 447.18) rotate(38)">
+          <rect x="-8.556" y="-2.567" width="17.113" height="5.134" fill="#c4b7bc" />
+          <rect x="-2.567" y="-8.556" width="5.134" height="17.113" fill="#c4b7bc" />
+        </g>
+        <g transform="translate(1275.046 1353.563) rotate(27)">
+          <rect x="-8.588" y="-2.576" width="17.176" height="5.153" fill="#c4b7bc" />
+          <rect x="-2.576" y="-8.588" width="5.153" height="17.176" fill="#c4b7bc" />
+        </g>
+        <circle cx="776.318" cy="959.089" r="12.46" fill="#fddac1" />
+        <circle cx="1370.971" cy="5.414" r="11.229" fill="#c4b7bc" />
+        <circle cx="1370.971" cy="1405.414" r="11.229" fill="#c4b7bc" />
+        <circle cx="633.874" cy="507.03" r="10.946" fill="none" stroke="#c4b7bc" stroke-width="6.689" />
+        <circle cx="1173.689" cy="225.79" r="8.832" fill="#fddac1" />
+        <circle cx="79.983" cy="39.79" r="11.272" fill="none" stroke="#fddac1" stroke-width="6.888" />
+        <circle cx="76.831" cy="1060.369" r="5.683" fill="none" stroke="#fddac1" stroke-width="3.473" />
+        <circle cx="26.906" cy="1142.892" r="8.249" fill="none" stroke="#fddac1" stroke-width="5.041" />
+        <circle cx="1157.43" cy="529.711" r="10.889" fill="none" stroke="#fddac1" stroke-width="6.655" />
+        <polygon points="362.551,1074.588 372.246,1084.283 362.551,1093.977 352.857,1084.283" fill="#c4b7bc" />
+        <circle cx="877.646" cy="1383.791" r="6.368" fill="none" stroke="#c4b7bc" stroke-width="3.892" />
+        <polygon points="990.323,489.967 998.545,498.188 990.323,506.409 982.102,498.188" fill="#fddac1" />
+        <polygon points="641.114,1187.5 654.348,1200.734 641.114,1213.968 627.88,1200.734" fill="#fddac1" />
+        <circle cx="683.853" cy="29.312" r="8.038" fill="#c4b7bc" />
+        <polygon points="365.609,681.639 375.339,691.369 365.609,701.099 355.879,691.369" fill="#c4b7bc" />
+        <g transform="translate(271.856 453.514) rotate(57)">
+          <rect x="-10.982" y="-3.295" width="21.965" height="6.589" fill="#fddac1" />
+          <rect x="-3.295" y="-10.982" width="6.589" height="21.965" fill="#fddac1" />
+        </g>
+        <polygon points="1269.63,41.521 1276.562,48.453 1269.63,55.385 1262.699,48.453" fill="#c4b7bc" />
+        <g transform="translate(271.832 1270.128) rotate(16)">
+          <rect x="-6.428" y="-1.928" width="12.855" height="3.857" fill="#fddac1" />
+          <rect x="-1.928" y="-6.428" width="3.857" height="12.855" fill="#fddac1" />
+        </g>
+        <g transform="translate(952.263 1066.474) rotate(4)">
+          <rect x="-12.612" y="-3.784" width="25.223" height="7.567" fill="#c4b7bc" />
+          <rect x="-3.784" y="-12.612" width="7.567" height="25.223" fill="#c4b7bc" />
+        </g>
+        <polygon points="490.921,111.98 501.814,122.873 490.921,133.766 480.028,122.873" fill="#c4b7bc" />
+        <g transform="translate(414.032 1155.38) rotate(57)">
+          <rect x="-11.033" y="-3.31" width="22.065" height="6.62" fill="#c4b7bc" />
+          <rect x="-3.31" y="-11.033" width="6.62" height="22.065" fill="#c4b7bc" />
+        </g>
+        <circle cx="453.705" cy="381.694" r="8.178" fill="none" stroke="#fddac1" stroke-width="4.998" />
+        <g transform="translate(1338.683 792.58) rotate(3)">
+          <rect x="-7.258" y="-2.177" width="14.516" height="4.355" fill="#c4b7bc" />
+          <rect x="-2.177" y="-7.258" width="4.355" height="14.516" fill="#c4b7bc" />
+        </g>
+        <polygon points="1329.883,1007.216 1338.858,1016.191 1329.883,1025.167 1320.907,1016.191" fill="#fddac1" />
+        <circle cx="1095.543" cy="1003.869" r="6.369" fill="none" stroke="#c4b7bc" stroke-width="3.892" />
+        <g transform="translate(38.42 388.195) rotate(11)">
+          <rect x="-7.829" y="-2.349" width="15.658" height="4.697" fill="#fddac1" />
+          <rect x="-2.349" y="-7.829" width="4.697" height="15.658" fill="#fddac1" />
+        </g>
+        <g transform="translate(1094.764 174.539) rotate(66)">
+          <rect x="-10.197" y="-3.059" width="20.394" height="6.118" fill="#c4b7bc" />
+          <rect x="-3.059" y="-10.197" width="6.118" height="20.394" fill="#c4b7bc" />
+        </g>
+        <polygon points="1017.802,1188.066 1027.951,1198.215 1017.802,1208.363 1007.653,1198.215" fill="#fddac1" />
+        <polygon points="590.027,809.383 601.386,820.742 590.027,832.101 578.668,820.742" fill="#fddac1" />
+        <polygon points="695.001,856.942 703.107,865.048 695.001,873.153 686.896,865.048" fill="#fddac1" />
+        <polygon points="530.165,724.53 541.55,735.915 530.165,747.3 518.78,735.915" fill="#c4b7bc" />
+        <circle cx="115.338" cy="1219.532" r="8.527" fill="none" stroke="#c4b7bc" stroke-width="5.211" />
+        <circle cx="538.726" cy="305.645" r="7.98" fill="#fddac1" />
+        <polygon points="766.455,1368.848 773.505,1375.898 766.455,1382.948 759.406,1375.898" fill="#fddac1" />
+        <polygon points="203.146,60.069 215.907,72.83 203.146,85.591 190.385,72.83" fill="#fddac1" />
+        <circle cx="167.414" cy="304.763" r="7.792" fill="none" stroke="#fddac1" stroke-width="4.762" />
+        <g transform="translate(519.02 588.543) rotate(11)">
+          <rect x="-6.78" y="-2.034" width="13.561" height="4.068" fill="#c4b7bc" />
+          <rect x="-2.034" y="-6.78" width="4.068" height="13.561" fill="#c4b7bc" />
+        </g>
+        <circle cx="814.295" cy="1187.298" r="5.814" fill="none" stroke="#c4b7bc" stroke-width="3.553" />
+        <circle cx="82.421" cy="902.734" r="9.61" fill="none" stroke="#c4b7bc" stroke-width="5.873" />
+        <circle cx="333.126" cy="1184.817" r="7.145" fill="#c4b7bc" />
+        <polygon points="734.267,140.86 745.41,152.003 734.267,163.145 723.125,152.003" fill="#c4b7bc" />
+        <circle cx="10.557" cy="943.704" r="11.314" fill="#fddac1" />
+        <circle cx="1410.557" cy="943.704" r="11.314" fill="#fddac1" />
+        <circle cx="1231.384" cy="1076.817" r="9.404" fill="none" stroke="#fddac1" stroke-width="5.747" />
+        <polygon points="1308.439,636.126 1320.823,648.51 1308.439,660.894 1296.055,648.51" fill="#fddac1" />
+        <g transform="translate(208.74 775.427) rotate(72)">
+          <rect x="-9.307" y="-2.792" width="18.614" height="5.584" fill="#c4b7bc" />
+          <rect x="-2.792" y="-9.307" width="5.584" height="18.614" fill="#c4b7bc" />
+        </g>
+        <polygon points="449.39,970.445 459.877,980.931 449.39,991.418 438.903,980.931" fill="#c4b7bc" />
+        <g transform="translate(1212.674 120.029) rotate(68)">
+          <rect x="-7.677" y="-2.303" width="15.354" height="4.606" fill="#fddac1" />
+          <rect x="-2.303" y="-7.677" width="4.606" height="15.354" fill="#fddac1" />
+        </g>
+        <g transform="translate(894.847 841.168) rotate(2)">
+          <rect x="-9.944" y="-2.983" width="19.887" height="5.966" fill="#fddac1" />
+          <rect x="-2.983" y="-9.944" width="5.966" height="19.887" fill="#fddac1" />
+        </g>
+        <g transform="translate(850.662 289.103) rotate(48)">
+          <rect x="-8.674" y="-2.602" width="17.349" height="5.205" fill="#fddac1" />
+          <rect x="-2.602" y="-8.674" width="5.205" height="17.349" fill="#fddac1" />
+        </g>
+        <polygon points="1252.992,955.373 1264.863,967.244 1252.992,979.115 1241.121,967.244" fill="#fddac1" />
+        <polygon points="90.515,805.984 99.256,814.725 90.515,823.467 81.773,814.725" fill="#c4b7bc" />
+        <circle cx="143.75" cy="500.662" r="10.271" fill="none" stroke="#fddac1" stroke-width="6.277" />
+        <circle cx="446.537" cy="870.387" r="8.943" fill="#fddac1" />
+        <circle cx="760.741" cy="1259.228" r="9.381" fill="none" stroke="#c4b7bc" stroke-width="5.733" />
+        <circle cx="594.149" cy="37.319" r="6.224" fill="none" stroke="#fddac1" stroke-width="3.804" />
+        <circle cx="749.617" cy="526.601" r="9.774" fill="#c4b7bc" />
+        <circle cx="852.111" cy="367.448" r="11.05" fill="none" stroke="#c4b7bc" stroke-width="6.753" />
+        <polygon points="838.304,896.63 845.772,904.098 838.304,911.565 830.837,904.098" fill="#c4b7bc" />
+        <g transform="translate(311.801 1366.414) rotate(52)">
+          <rect x="-12.085" y="-3.625" width="24.169" height="7.251" fill="#fddac1" />
+          <rect x="-3.625" y="-12.085" width="7.251" height="24.169" fill="#fddac1" />
+        </g>
+        <circle cx="691.986" cy="770.615" r="9.825" fill="#c4b7bc" />
+        <circle cx="975.48" cy="399.373" r="9.434" fill="none" stroke="#c4b7bc" stroke-width="5.765" />
+        <polygon points="575.269,1136.294 585.606,1146.631 575.269,1156.968 564.932,1146.631" fill="#fddac1" />
+        <g transform="translate(383.281 264.221) rotate(22)">
+          <rect x="-6.672" y="-2.001" width="13.343" height="4.003" fill="#c4b7bc" />
+          <rect x="-2.001" y="-6.672" width="4.003" height="13.343" fill="#c4b7bc" />
+        </g>
+        <circle cx="190.479" cy="601.634" r="7.534" fill="#fddac1" />
+        <circle cx="202.55" cy="1365.069" r="10.113" fill="none" stroke="#fddac1" stroke-width="6.18" />
+        <polygon points="214.299,890.641 221.786,898.128 214.299,905.615 206.812,898.128" fill="#c4b7bc" />
+      </g>
+      <g id="motif-1" data-role="accent">
+        <g transform="translate(237.003 723.475) rotate(34.372) scale(0.2)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#2E2360" stroke-width="10.763" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#F7A072" stroke-width="10.763" />
+          </g>
+          <g transform="translate(-21.204 -22.617) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="21.204" ry="12.722" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-2" data-role="accent">
+        <g transform="translate(436.432 903.842) rotate(165.226) scale(0.2)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-3" data-role="accent">
+        <g transform="translate(817.299 817.005) rotate(181.1) scale(0.211)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+            <path d="M 0 14.7 C -21 0 -11.9 -15.4 0 -4.9 C 11.9 -15.4 21 0 0 14.7 Z" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-4" data-role="accent">
+        <g transform="translate(1081.66 1028.174) rotate(268.142) scale(0.2)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#F7A072" stroke-width="5.381" />
+            <path d="M -24.937 12.25 A 24.938 24.938 0 0 1 24.938 12.25" fill="none" stroke="#EF6F6C" stroke-width="5.381" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#6A3E7A" stroke-width="5.381" />
+            <path d="M -11.812 12.25 A 11.813 11.813 0 0 1 11.813 12.25" fill="none" stroke="#2E2360" stroke-width="5.381" />
+          </g>
+          <g transform="translate(-20.397 -21.756) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="20.397" ry="12.238" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-5" data-role="accent">
+        <g transform="translate(1390.864 943.257) rotate(50.085) scale(0.2)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-6" data-role="filler">
+        <g transform="translate(476.297 932.644) rotate(169.639) scale(0.522)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#2E2360" stroke-width="10.763" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#F7A072" stroke-width="10.763" />
+          </g>
+          <g transform="translate(-21.204 -22.617) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="21.204" ry="12.722" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-7" data-role="filler">
+        <g transform="translate(751.106 848.348) rotate(266.617) scale(0.459)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-8" data-role="filler">
+        <g transform="translate(1010.457 1044.492) rotate(29.789) scale(0.386)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(30)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(60)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(90)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(120)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(150)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(210)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(240)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(270)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(300)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(330)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-9" data-role="filler">
+        <g transform="translate(836.026 1118.377) rotate(328.085) scale(0.297)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-10" data-role="filler">
+        <g transform="translate(387.697 358.133) rotate(91.843) scale(0.368)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-11" data-role="filler">
+        <g transform="translate(1181.066 850.278) rotate(270.293) scale(0.424)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(27.692)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(55.385)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(83.077)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(110.769)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(138.462)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(166.154)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(193.846)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(221.538)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(249.231)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(276.923)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(304.615)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(332.308)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#F7A072" />
+            <circle cx="0" cy="0" r="9.8" fill="none" stroke="#FFF1E0" stroke-width="2.1" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-12" data-role="filler">
+        <g transform="translate(453.322 1112.734) rotate(283.02) scale(0.54)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-13" data-role="filler">
+        <g transform="translate(1264.15 960.593) rotate(185.464) scale(0.459)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(51.429)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(102.857)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(154.286)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(205.714)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(257.143)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(308.571)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#2E2360" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-14" data-role="filler">
+        <g transform="translate(1259.156 610.705) rotate(39.869) scale(0.544)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(45)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(90)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(135)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(225)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(270)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(315)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#EF6F6C" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-15" data-role="filler">
+        <g transform="translate(241.262 128.781) rotate(36.227) scale(0.335)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(27.692)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(55.385)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(83.077)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(110.769)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(138.462)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(166.154)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(193.846)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(221.538)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(249.231)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(276.923)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(304.615)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(332.308)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#2E2360" />
+            <circle cx="0" cy="0" r="9.8" fill="none" stroke="#FFF1E0" stroke-width="2.1" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-16" data-role="filler">
+        <g transform="translate(882.052 1091.802) rotate(351.976) scale(0.38)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(25.714)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(51.429)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(77.143)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(102.857)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(128.571)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(154.286)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(180)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(205.714)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(231.429)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(257.143)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(282.857)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(308.571)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(334.286)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#F7A072" />
+            <circle cx="0" cy="0" r="9.8" fill="none" stroke="#FFF1E0" stroke-width="2.1" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-17" data-role="filler">
+        <g transform="translate(1305.769 1254.044) rotate(126.227) scale(0.512)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-18" data-role="filler">
+        <g transform="translate(45.447 905.308) rotate(22.709) scale(0.428)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-19" data-role="filler">
+        <g transform="translate(188.97 1100.666) rotate(295.651) scale(0.454)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#2E2360" stroke-width="10.763" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#F7A072" stroke-width="10.763" />
+          </g>
+          <g transform="translate(-21.204 -22.617) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="21.204" ry="12.722" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-20" data-role="filler">
+        <g transform="translate(651.06 352.552) rotate(77.164) scale(0.523)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-21" data-role="filler">
+        <g transform="translate(631.14 589.416) rotate(7.836) scale(0.322)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-22" data-role="filler">
+        <g transform="translate(113.681 1287.095) rotate(181.562) scale(0.292)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-23" data-role="filler">
+        <g transform="translate(1242.58 208.452) rotate(66.965) scale(0.55)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-24" data-role="filler">
+        <g transform="translate(725.564 1054.757) rotate(314.49) scale(0.482)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-25" data-role="filler">
+        <g transform="translate(1334.889 510.093) rotate(236.526) scale(0.287)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+            <path d="M 0 14.7 C -21 0 -11.9 -15.4 0 -4.9 C 11.9 -15.4 21 0 0 14.7 Z" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-26" data-role="filler">
+        <g transform="translate(313.545 51.358) rotate(191.571) scale(0.416)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-27" data-role="filler">
+        <g transform="translate(1018.154 948.713) rotate(167.344) scale(0.253)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-28" data-role="filler">
+        <g transform="translate(18.011 447.401) rotate(321.603) scale(0.475)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(22.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(45)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(67.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(90)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(112.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(135)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(157.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(202.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(225)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(247.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(270)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(292.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(315)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(337.5)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#2E2360" />
+            <circle cx="0" cy="0" r="9.8" fill="none" stroke="#FFF1E0" stroke-width="2.1" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-29" data-role="filler">
+        <g transform="translate(954.931 802.445) rotate(292.574) scale(0.376)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-30" data-role="filler">
+        <g transform="translate(46.827 753.657) rotate(229.077) scale(0.524)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#6A3E7A" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-31" data-role="filler">
+        <g transform="translate(648.694 1248.19) rotate(50.79) scale(0.452)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(51.429)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(102.857)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(154.286)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(205.714)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(257.143)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(308.571)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#F7A072" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-32" data-role="filler">
+        <g transform="translate(761.927 827.581) rotate(22.124) scale(0.273)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-33" data-role="filler">
+        <g transform="translate(501.136 256.01) rotate(304.343) scale(0.418)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-34" data-role="filler">
+        <g transform="translate(204.752 667.03) rotate(246.779) scale(0.313)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(51.429)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(102.857)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(154.286)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(205.714)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(257.143)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(308.571)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#2E2360" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-35" data-role="filler">
+        <g transform="translate(1076.497 1237.132) rotate(302.524) scale(0.422)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-36" data-role="filler">
+        <g transform="translate(921.481 1340.985) rotate(126.847) scale(0.427)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(60)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(120)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(240)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(300)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#2E2360" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-37" data-role="filler">
+        <g transform="translate(1129.338 1112.214) rotate(131.436) scale(0.375)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-38" data-role="filler">
+        <g transform="translate(877.01 910.918) rotate(207.529) scale(0.3)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-39" data-role="filler">
+        <g transform="translate(365.633 981.982) rotate(19.071) scale(0.547)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-40" data-role="filler">
+        <g transform="translate(589.726 818.578) rotate(219.596) scale(0.392)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(60)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(120)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(180)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(240)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(300)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#F7A072" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-41" data-role="filler">
+        <g transform="translate(279.174 275.943) rotate(194.714) scale(0.323)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#6A3E7A" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-42" data-role="filler">
+        <g transform="translate(48.336 269.731) rotate(351.842) scale(0.352)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#6A3E7A" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-43" data-role="filler">
+        <g transform="translate(555.708 1187.465) rotate(15.545) scale(0.507)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(51.429)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(102.857)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(154.286)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(205.714)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(257.143)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(308.571)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#F7A072" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-44" data-role="filler">
+        <g transform="translate(1155.008 179.761) rotate(12.746) scale(0.498)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 -5.833 Q -17.5 -14.933 0 -5.833 Q 17.5 3.267 35 -5.833" fill="none" stroke="#EF6F6C" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 5.833 Q -17.5 -3.267 0 5.833 Q 17.5 14.933 35 5.833" fill="none" stroke="#6A3E7A" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-45" data-role="filler">
+        <g transform="translate(132.701 734.15) rotate(89.546) scale(0.433)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+            <path d="M 0 14.7 C -21 0 -11.9 -15.4 0 -4.9 C 11.9 -15.4 21 0 0 14.7 Z" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-46" data-role="filler">
+        <g transform="translate(804.373 644.778) rotate(179.632) scale(0.404)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-47" data-role="filler">
+        <g transform="translate(686.857 223.005) rotate(82.382) scale(0.523)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-48" data-role="filler">
+        <g transform="translate(874.025 66.695) rotate(-3.429) scale(0.506)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#EF6F6C" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-49" data-role="filler">
+        <g transform="translate(663.279 673.517) rotate(24.67) scale(0.426)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-50" data-role="filler">
+        <g transform="translate(165.128 311.173) rotate(77.866) scale(0.322)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+            <path d="M 0 14.7 C -21 0 -11.9 -15.4 0 -4.9 C 11.9 -15.4 21 0 0 14.7 Z" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-51" data-role="filler">
+        <g transform="translate(314.653 509.234) rotate(210.222) scale(0.318)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-52" data-role="filler">
+        <g transform="translate(1352.167 950.211) rotate(264.453) scale(0.384)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-53" data-role="filler">
+        <g transform="translate(916.543 808.065) rotate(-10.274) scale(0.439)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-54" data-role="filler">
+        <g transform="translate(344.693 632.088) rotate(184.862) scale(0.492)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(45)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(90)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(135)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(225)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(270)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <g transform="rotate(315)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#2E2360" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-55" data-role="filler">
+        <g transform="translate(1231.26 123.659) rotate(344.22) scale(0.457)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#2E2360" stroke-width="10.763" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#F7A072" stroke-width="10.763" />
+          </g>
+          <g transform="translate(-21.204 -22.617) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="21.204" ry="12.722" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-56" data-role="filler">
+        <g transform="translate(572.725 1365.996) rotate(25.748) scale(0.488)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-57" data-role="filler">
+        <g transform="translate(490.79 923.778) rotate(189.876) scale(0.45)">
+          <g>
+            <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-58" data-role="filler">
+        <g transform="translate(1045.95 702.515) rotate(243.15) scale(0.452)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-59" data-role="filler">
+        <g transform="translate(467.174 453.091) rotate(244.995) scale(0.451)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#F7A072" stroke-width="7.175" />
+            <path d="M -22.75 12.25 A 22.75 22.75 0 0 1 22.75 12.25" fill="none" stroke="#EF6F6C" stroke-width="7.175" />
+            <path d="M -14 12.25 A 14 14 0 0 1 14 12.25" fill="none" stroke="#6A3E7A" stroke-width="7.175" />
+          </g>
+          <g transform="translate(-20.666 -22.043) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="20.666" ry="12.399" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-60" data-role="filler">
+        <g transform="translate(1377.693 1346.431) rotate(96.12) scale(0.457)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-61" data-role="filler">
+        <g transform="translate(493.318 1269.303) rotate(185.809) scale(0.402)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(25.714)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(51.429)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(77.143)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(102.857)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(128.571)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(154.286)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(180)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(205.714)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(231.429)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(257.143)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(282.857)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(308.571)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(334.286)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-62" data-role="filler">
+        <g transform="translate(290.984 1119.397) rotate(309.777) scale(0.25)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-63" data-role="filler">
+        <g transform="translate(431.602 1360.781) rotate(351.002) scale(0.341)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-64" data-role="filler">
+        <g transform="translate(1164.628 1073.808) rotate(177.61) scale(0.417)">
+          <g>
+            <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-65" data-role="filler">
+        <g transform="translate(1107.362 260.561) rotate(162.887) scale(0.507)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#2E2360" stroke-width="10.763" />
+            <path d="M -18.375 12.25 A 18.375 18.375 0 0 1 18.375 12.25" fill="none" stroke="#F7A072" stroke-width="10.763" />
+          </g>
+          <g transform="translate(-21.204 -22.617) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="21.204" ry="12.722" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-66" data-role="filler">
+        <g transform="translate(189 198.714) rotate(67.172) scale(0.522)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(27.692)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(55.385)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(83.077)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(110.769)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(138.462)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(166.154)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(193.846)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(221.538)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(249.231)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(276.923)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(304.615)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(332.308)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-67" data-role="filler">
+        <g transform="translate(790.93 593.384) rotate(305.942) scale(0.574)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(30)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(60)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(90)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(120)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(150)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(180)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(210)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(240)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(270)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(300)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <g transform="rotate(330)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#2E2360" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#2E2360" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-68" data-role="filler">
+        <g transform="translate(792.125 901.847) rotate(273.506) scale(0.359)">
+          <g>
+            <g>
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(24)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(48)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(72)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(96)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(120)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(144)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(168)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(192)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(216)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(240)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(264)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(288)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(312)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <g transform="rotate(336)">
+              <polygon points="0,-19.25 1.75,-32.2 -1.75,-32.2" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="15.75" fill="#F7A072" />
+          </g>
+          <g transform="translate(-10.185 -10.864) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.185" ry="6.111" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-69" data-role="filler">
+        <g transform="translate(527.311 329.677) rotate(164.002) scale(0.451)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#2E2360" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#F7A072" />
+            <circle cx="-9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="0" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="9.625" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-70" data-role="secondary">
+        <g transform="translate(139.391 639.124) rotate(268.421) scale(0.771)">
+          <g>
+            <g>
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(51.429)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(102.857)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(154.286)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(205.714)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(257.143)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <g transform="rotate(308.571)">
+              <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="11.9" fill="#2E2360" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-71" data-role="secondary">
+        <g transform="translate(415.089 917.165) rotate(53.766) scale(0.579)">
+          <g>
+            <g>
+              <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+              <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#2E2360" />
+              <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+              <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            </g>
+            <g>
+              <line x1="6.062" y1="5.827" x2="21.646" y2="20.809" stroke="#F7A072" stroke-width="0.561" stroke-linecap="round" />
+              <line x1="-6.085" y1="-5.803" x2="-21.729" y2="-20.722" stroke="#F7A072" stroke-width="0.561" stroke-linecap="round" />
+            </g>
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-72" data-role="secondary">
+        <g transform="translate(714.867 889.219) rotate(36.618) scale(0.494)">
+          <g>
+            <path d="M -28 -1.75 A 28 28 0 0 1 28 -1.75 Z" fill="#F7A072" />
+            <path d="M -7.7 -1.75 L -5.6 26.25 Q 0 31.5 5.6 26.25 L 7.7 -1.75 Z" fill="#EF6F6C" />
+            <circle cx="-6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+            <circle cx="6.417" cy="-13.3" r="3.15" fill="#FFF1E0" />
+          </g>
+          <g transform="translate(-16.816 -17.937) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="16.816" ry="10.09" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-73" data-role="secondary">
+        <g transform="translate(424.592 286.988) rotate(175.2) scale(0.599)">
+          <g>
+            <g>
+              <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#F7A072" />
+            </g>
+            <circle cx="0" cy="0" r="23.516" fill="none" stroke="#F7A072" stroke-width="0.613" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-74" data-role="secondary">
+        <g transform="translate(1261.847 451.601) rotate(274.143) scale(0.478)">
+          <g>
+            <path d="M -31.5 12.25 A 31.5 31.5 0 0 1 31.5 12.25" fill="none" stroke="#F7A072" stroke-width="7.175" />
+            <path d="M -22.75 12.25 A 22.75 22.75 0 0 1 22.75 12.25" fill="none" stroke="#EF6F6C" stroke-width="7.175" />
+            <path d="M -14 12.25 A 14 14 0 0 1 14 12.25" fill="none" stroke="#6A3E7A" stroke-width="7.175" />
+          </g>
+          <g transform="translate(-20.666 -22.043) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="20.666" ry="12.399" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-75" data-role="hero">
+        <g transform="translate(134.326 628.312) rotate(28.372) scale(1.411)">
+          <g>
+            <g>
+              <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#EF6F6C" />
+            </g>
+            <circle cx="0" cy="0" r="21.666" fill="none" stroke="#EF6F6C" stroke-width="0.77" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-76" data-role="hero">
+        <g transform="translate(415.783 889.579) rotate(34.487) scale(1.391)">
+          <g>
+            <g>
+              <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+              <path d="M -35 -5.833 Q -17.5 -14.933 0 -5.833 Q 17.5 3.267 35 -5.833" fill="none" stroke="#EF6F6C" stroke-width="6.3" stroke-linecap="round" />
+              <path d="M -35 5.833 Q -17.5 -3.267 0 5.833 Q 17.5 14.933 35 5.833" fill="none" stroke="#6A3E7A" stroke-width="6.3" stroke-linecap="round" />
+              <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#2E2360" stroke-width="6.3" stroke-linecap="round" />
+            </g>
+            <circle cx="0" cy="0" r="28.445" fill="none" stroke="#2E2360" stroke-width="0.93" />
+            <polygon points="17.15,0 -8.575,14.852 -8.575,-14.852" fill="none" stroke="#2E2360" stroke-width="0.592" transform="rotate(115.475)" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-77" data-role="hero">
+        <g transform="translate(695.997 888.854) rotate(-11.176) scale(1.394)">
+          <g>
+            <g>
+              <path d="M 0 24.5 C -35 0.7 -19.25 -25.2 0 -8.4 C 19.25 -25.2 35 0.7 0 24.5 Z" fill="#6A3E7A" />
+            </g>
+            <circle cx="0" cy="0" r="24.681" fill="none" stroke="#6A3E7A" stroke-width="0.77" />
+            <path d="M -14.771 15.857 A 21.671 21.671 0 0 1 -20.941 -5.578" fill="none" stroke="#6A3E7A" stroke-width="0.56" stroke-linecap="round" />
+          </g>
+          <g transform="translate(-10.502 -11.202) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="10.502" ry="6.301" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-78" data-role="hero">
+        <g transform="translate(428.399 299.671) rotate(-34.116) scale(1.76)">
+          <g>
+            <g>
+              <g>
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(51.429)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(102.857)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(154.286)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(205.714)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(257.143)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <g transform="rotate(308.571)">
+                <circle cx="0" cy="-18.2" r="11.9" fill="#F7A072" />
+              </g>
+              <circle cx="0" cy="0" r="11.9" fill="#F7A072" />
+            </g>
+            <polygon points="14.236,0 -7.118,12.328 -7.118,-12.328" fill="none" stroke="#F7A072" stroke-width="0.466" transform="rotate(133.779)" />
+          </g>
+          <g transform="translate(-9.975 -10.64) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="9.975" ry="5.985" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-79" data-role="hero">
+        <g transform="translate(1256.823 466.116) rotate(-15.793) scale(1.447)">
+          <g>
+            <g>
+              <path d="M -35 -17.5 Q -17.5 -26.6 0 -17.5 Q 17.5 -8.4 35 -17.5" fill="none" stroke="#F7A072" stroke-width="6.3" stroke-linecap="round" />
+              <path d="M -35 0 Q -17.5 -9.1 0 0 Q 17.5 9.1 35 0" fill="none" stroke="#EF6F6C" stroke-width="6.3" stroke-linecap="round" />
+              <path d="M -35 17.5 Q -17.5 8.4 0 17.5 Q 17.5 26.6 35 17.5" fill="none" stroke="#6A3E7A" stroke-width="6.3" stroke-linecap="round" />
+            </g>
+            <circle cx="0" cy="0" r="27.545" fill="none" stroke="#EF6F6C" stroke-width="0.93" />
+            <g>
+              <line x1="-2.251" y1="-5.929" x2="-9.374" y2="-24.696" stroke="#EF6F6C" stroke-width="0.423" stroke-linecap="round" />
+              <line x1="5.974" y1="2.129" x2="24.883" y2="8.867" stroke="#EF6F6C" stroke-width="0.423" stroke-linecap="round" />
+              <line x1="-4.072" y1="4.863" x2="-16.959" y2="20.253" stroke="#EF6F6C" stroke-width="0.423" stroke-linecap="round" />
+            </g>
+            <g>
+              <circle cx="24.744" cy="19.512" r="2.114" fill="#EF6F6C" />
+              <circle cx="-19.512" cy="24.744" r="2.114" fill="#EF6F6C" />
+              <circle cx="-24.744" cy="-19.512" r="2.114" fill="#EF6F6C" />
+              <circle cx="19.512" cy="-24.744" r="2.114" fill="#EF6F6C" />
+            </g>
+            <polygon points="20.561,0 0,20.561 -20.561,0 0,-20.561" fill="none" stroke="#EF6F6C" stroke-width="0.592" transform="rotate(4.905)" />
+          </g>
+          <g transform="translate(-12.684 -13.53) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="12.684" ry="7.611" fill="#fff9f3" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

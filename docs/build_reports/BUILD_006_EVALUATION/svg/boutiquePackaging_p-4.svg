@@ -1,0 +1,1085 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="3000" height="3000" viewBox="0 0 1200 1200">
+  <g id="tile-content" data-style-dna-id="boutiquePackaging" data-style-dna-name="Boutique Packaging" data-style-dna-version="1">
+    <defs>
+      <clipPath id="tile-clip">
+        <rect x="0" y="0" width="1200" height="1200" />
+      </clipPath>
+    </defs>
+    <g id="layer-background">
+      <rect x="0" y="0" width="1200" height="1200" fill="#FFF8F2" />
+    </g>
+    <g id="layer-pattern" clip-path="url(#tile-clip)">
+      <g id="layer-filler">
+        <circle cx="357.853" cy="102.289" r="6.82" fill="#dfccc1" />
+        <polygon points="340.492,780.65 349.615,789.772 340.492,798.895 331.37,789.772" fill="#fcebe8" />
+        <polygon points="27.36,315.986 38.228,326.855 27.36,337.724 16.491,326.855" fill="#dfccc1" />
+        <g transform="translate(786.601 956.91) rotate(63)">
+          <rect x="-9.874" y="-2.962" width="19.747" height="5.924" fill="#dfccc1" />
+          <rect x="-2.962" y="-9.874" width="5.924" height="19.747" fill="#dfccc1" />
+        </g>
+        <circle cx="317.255" cy="1121.894" r="6.716" fill="#dfccc1" />
+        <polygon points="931.267,441.434 939.155,449.322 931.267,457.209 923.38,449.322" fill="#fcebe8" />
+        <polygon points="880.99,241.405 887.327,247.742 880.99,254.079 874.653,247.742" fill="#dfccc1" />
+        <circle cx="1136.918" cy="470.08" r="10.937" fill="#fcebe8" />
+        <circle cx="809.46" cy="373.094" r="8.11" fill="#fcebe8" />
+        <circle cx="563.694" cy="335.595" r="9.01" fill="none" stroke="#fcebe8" stroke-width="5.506" />
+        <circle cx="320.257" cy="338.929" r="10.23" fill="none" stroke="#dfccc1" stroke-width="6.252" />
+        <g transform="translate(135.602 552.292) rotate(89)">
+          <rect x="-7.894" y="-2.368" width="15.788" height="4.736" fill="#fcebe8" />
+          <rect x="-2.368" y="-7.894" width="4.736" height="15.788" fill="#fcebe8" />
+        </g>
+        <circle cx="687.096" cy="659.864" r="6.589" fill="#fcebe8" />
+        <circle cx="97.341" cy="428.758" r="7.901" fill="#fcebe8" />
+        <polygon points="1041.502,223.912 1051.969,234.379 1041.502,244.845 1031.035,234.379" fill="#fcebe8" />
+        <circle cx="704.681" cy="555.634" r="9.848" fill="#dfccc1" />
+        <g transform="translate(642.987 334.723) rotate(17)">
+          <rect x="-7.637" y="-2.291" width="15.274" height="4.582" fill="#dfccc1" />
+          <rect x="-2.291" y="-7.637" width="4.582" height="15.274" fill="#dfccc1" />
+        </g>
+        <circle cx="256.617" cy="289.861" r="5.111" fill="none" stroke="#fcebe8" stroke-width="3.123" />
+        <g transform="translate(311.633 13.003) rotate(6)">
+          <rect x="-9.426" y="-2.828" width="18.853" height="5.656" fill="#dfccc1" />
+          <rect x="-2.828" y="-9.426" width="5.656" height="18.853" fill="#dfccc1" />
+        </g>
+        <g transform="translate(311.633 1213.003) rotate(6)">
+          <rect x="-9.426" y="-2.828" width="18.853" height="5.656" fill="#dfccc1" />
+          <rect x="-2.828" y="-9.426" width="5.656" height="18.853" fill="#dfccc1" />
+        </g>
+        <circle cx="31.317" cy="675.108" r="6.587" fill="#fcebe8" />
+        <g transform="translate(894.17 799.758) rotate(11)">
+          <rect x="-8.746" y="-2.624" width="17.492" height="5.248" fill="#dfccc1" />
+          <rect x="-2.624" y="-8.746" width="5.248" height="17.492" fill="#dfccc1" />
+        </g>
+        <circle cx="635.142" cy="248.036" r="5.436" fill="none" stroke="#dfccc1" stroke-width="3.322" />
+        <g transform="translate(986.97 1136.686) rotate(28)">
+          <rect x="-10.512" y="-3.154" width="21.024" height="6.307" fill="#fcebe8" />
+          <rect x="-3.154" y="-10.512" width="6.307" height="21.024" fill="#fcebe8" />
+        </g>
+        <polygon points="171.614,691.985 177.19,697.561 171.614,703.137 166.038,697.561" fill="#fcebe8" />
+        <g transform="translate(162.111 1112.301) rotate(4)">
+          <rect x="-8.481" y="-2.544" width="16.962" height="5.089" fill="#dfccc1" />
+          <rect x="-2.544" y="-8.481" width="5.089" height="16.962" fill="#dfccc1" />
+        </g>
+        <circle cx="609.482" cy="592.228" r="5.487" fill="#fcebe8" />
+        <circle cx="582.116" cy="790.079" r="7.303" fill="#fcebe8" />
+        <g transform="translate(150.431 1021.527) rotate(33)">
+          <rect x="-7.121" y="-2.136" width="14.243" height="4.273" fill="#fcebe8" />
+          <rect x="-2.136" y="-7.121" width="4.273" height="14.243" fill="#fcebe8" />
+        </g>
+        <circle cx="743.995" cy="325.699" r="5.976" fill="#fcebe8" />
+        <polygon points="652.98,1042.566 661.344,1050.929 652.98,1059.293 644.617,1050.929" fill="#fcebe8" />
+        <g transform="translate(948.905 954.729) rotate(28)">
+          <rect x="-10.896" y="-3.269" width="21.791" height="6.537" fill="#fcebe8" />
+          <rect x="-3.269" y="-10.896" width="6.537" height="21.791" fill="#fcebe8" />
+        </g>
+        <circle cx="637.921" cy="908.976" r="7.119" fill="none" stroke="#fcebe8" stroke-width="4.351" />
+        <circle cx="1019.427" cy="415.351" r="10.129" fill="#fcebe8" />
+        <circle cx="505.73" cy="1005.306" r="10.165" fill="none" stroke="#fcebe8" stroke-width="6.212" />
+        <polygon points="971.882,699.21 979.934,707.262 971.882,715.314 963.831,707.262" fill="#fcebe8" />
+        <circle cx="587.48" cy="161.528" r="6.975" fill="#fcebe8" />
+        <g transform="translate(635.656 513.417) rotate(40)">
+          <rect x="-10.159" y="-3.048" width="20.318" height="6.095" fill="#fcebe8" />
+          <rect x="-3.048" y="-10.159" width="6.095" height="20.318" fill="#fcebe8" />
+        </g>
+        <g transform="translate(780.542 618.207) rotate(50)">
+          <rect x="-6.759" y="-2.028" width="13.518" height="4.055" fill="#fcebe8" />
+          <rect x="-2.028" y="-6.759" width="4.055" height="13.518" fill="#fcebe8" />
+        </g>
+        <circle cx="451.811" cy="1079.054" r="5.897" fill="#fcebe8" />
+        <polygon points="1069.086,1157.3 1080.142,1168.356 1069.086,1179.411 1058.03,1168.356" fill="#fcebe8" />
+        <circle cx="280.96" cy="975.04" r="7.316" fill="#dfccc1" />
+        <g transform="translate(318.88 702.877) rotate(61)">
+          <rect x="-11.201" y="-3.36" width="22.402" height="6.721" fill="#fcebe8" />
+          <rect x="-3.36" y="-11.201" width="6.721" height="22.402" fill="#fcebe8" />
+        </g>
+        <polygon points="790.187,864.655 800.223,874.691 790.187,884.727 780.151,874.691" fill="#dfccc1" />
+        <polygon points="162.246,110.458 169.819,118.031 162.246,125.604 154.673,118.031" fill="#dfccc1" />
+        <polygon points="741.895,66.292 748.262,72.66 741.895,79.028 735.527,72.66" fill="#dfccc1" />
+        <circle cx="834.859" cy="125.176" r="6.785" fill="#fcebe8" />
+        <g transform="translate(154.58 786.914) rotate(42)">
+          <rect x="-11.279" y="-3.384" width="22.557" height="6.767" fill="#dfccc1" />
+          <rect x="-3.384" y="-11.279" width="6.767" height="22.557" fill="#dfccc1" />
+        </g>
+        <circle cx="1067.036" cy="112.842" r="7.978" fill="none" stroke="#dfccc1" stroke-width="4.875" />
+        <circle cx="985.902" cy="608.587" r="9.944" fill="#dfccc1" />
+        <g transform="translate(1103.713 1084.912) rotate(30)">
+          <rect x="-7.418" y="-2.225" width="14.835" height="4.451" fill="#dfccc1" />
+          <rect x="-2.225" y="-7.418" width="4.451" height="14.835" fill="#dfccc1" />
+        </g>
+        <polygon points="959.463,144.013 969.761,154.312 959.463,164.61 949.165,154.312" fill="#dfccc1" />
+        <g transform="translate(202.885 352.658) rotate(88)">
+          <rect x="-10.047" y="-3.014" width="20.094" height="6.028" fill="#dfccc1" />
+          <rect x="-3.014" y="-10.047" width="6.028" height="20.094" fill="#dfccc1" />
+        </g>
+        <circle cx="1032.553" cy="844.566" r="6.782" fill="none" stroke="#fcebe8" stroke-width="4.144" />
+        <circle cx="535.764" cy="1080.206" r="4.973" fill="none" stroke="#dfccc1" stroke-width="3.039" />
+        <polygon points="901.436,1128.852 908.78,1136.195 901.436,1143.539 894.093,1136.195" fill="#dfccc1" />
+        <circle cx="842.354" cy="1017.946" r="10.138" fill="#fcebe8" />
+        <circle cx="136.33" cy="40.073" r="10.153" fill="none" stroke="#dfccc1" stroke-width="6.205" />
+        <circle cx="1157.756" cy="977.802" r="7.272" fill="none" stroke="#fcebe8" stroke-width="4.444" />
+        <g transform="translate(188.617 203.842) rotate(85)">
+          <rect x="-5.608" y="-1.682" width="11.215" height="3.365" fill="#fcebe8" />
+          <rect x="-1.682" y="-5.608" width="3.365" height="11.215" fill="#fcebe8" />
+        </g>
+        <polygon points="51.899,795.336 60.561,803.998 51.899,812.66 43.236,803.998" fill="#fcebe8" />
+        <g transform="translate(117.692 921.757) rotate(54)">
+          <rect x="-10.32" y="-3.096" width="20.64" height="6.192" fill="#fcebe8" />
+          <rect x="-3.096" y="-10.32" width="6.192" height="20.64" fill="#fcebe8" />
+        </g>
+        <polygon points="1172.791,1165.925 1178.446,1171.579 1172.791,1177.234 1167.137,1171.579" fill="#dfccc1" />
+        <polygon points="-3.998,71.268 6.366,81.632 -3.998,91.996 -14.362,81.632" fill="#dfccc1" />
+        <polygon points="1196.002,71.268 1206.366,81.632 1196.002,91.996 1185.638,81.632" fill="#dfccc1" />
+        <g transform="translate(454.388 213.829) rotate(3)">
+          <rect x="-10.843" y="-3.253" width="21.687" height="6.506" fill="#dfccc1" />
+          <rect x="-3.253" y="-10.843" width="6.506" height="21.687" fill="#dfccc1" />
+        </g>
+        <g transform="translate(836.986 561.343) rotate(68)">
+          <rect x="-8.236" y="-2.471" width="16.472" height="4.942" fill="#fcebe8" />
+          <rect x="-2.471" y="-8.236" width="4.942" height="16.472" fill="#fcebe8" />
+        </g>
+        <circle cx="406.568" cy="532.811" r="6.737" fill="none" stroke="#fcebe8" stroke-width="4.117" />
+        <circle cx="931.647" cy="367.801" r="6.062" fill="none" stroke="#dfccc1" stroke-width="3.705" />
+        <circle cx="861.675" cy="675.301" r="6.332" fill="none" stroke="#dfccc1" stroke-width="3.87" />
+        <g transform="translate(594.618 33.039) rotate(6)">
+          <rect x="-6.541" y="-1.962" width="13.082" height="3.925" fill="#dfccc1" />
+          <rect x="-1.962" y="-6.541" width="3.925" height="13.082" fill="#dfccc1" />
+        </g>
+        <circle cx="479.469" cy="799.39" r="7.697" fill="#dfccc1" />
+        <circle cx="420.319" cy="933.468" r="9.964" fill="none" stroke="#dfccc1" stroke-width="6.089" />
+        <polygon points="345.069,221.087 353.115,229.133 345.069,237.179 337.024,229.133" fill="#fcebe8" />
+        <polygon points="1106.342,898.806 1115.139,907.603 1106.342,916.4 1097.545,907.603" fill="#fcebe8" />
+        <g transform="translate(439.349 17.034) rotate(24)">
+          <rect x="-9.755" y="-2.927" width="19.51" height="5.853" fill="#fcebe8" />
+          <rect x="-2.927" y="-9.755" width="5.853" height="19.51" fill="#fcebe8" />
+        </g>
+        <g transform="translate(439.349 1217.034) rotate(24)">
+          <rect x="-9.755" y="-2.927" width="19.51" height="5.853" fill="#fcebe8" />
+          <rect x="-2.927" y="-9.755" width="5.853" height="19.51" fill="#fcebe8" />
+        </g>
+        <polygon points="1051.062,724.206 1057.213,730.357 1051.062,736.509 1044.91,730.357" fill="#fcebe8" />
+        <polygon points="1034.728,944.092 1042.139,951.503 1034.728,958.914 1027.317,951.503" fill="#dfccc1" />
+        <polygon points="1094.865,569.358 1101.929,576.422 1094.865,583.486 1087.802,576.422" fill="#dfccc1" />
+        <g transform="translate(750.666 487.633) rotate(37)">
+          <rect x="-7.849" y="-2.355" width="15.698" height="4.709" fill="#dfccc1" />
+          <rect x="-2.355" y="-7.849" width="4.709" height="15.698" fill="#dfccc1" />
+        </g>
+        <circle cx="307.262" cy="866.459" r="9.482" fill="none" stroke="#fcebe8" stroke-width="5.794" />
+        <circle cx="1155.988" cy="644.595" r="8.026" fill="none" stroke="#dfccc1" stroke-width="4.905" />
+        <circle cx="390.422" cy="443.233" r="8.233" fill="none" stroke="#fcebe8" stroke-width="5.031" />
+        <g transform="translate(233.916 633.336) rotate(14)">
+          <rect x="-7.975" y="-2.392" width="15.95" height="4.785" fill="#fcebe8" />
+          <rect x="-2.392" y="-7.975" width="4.785" height="15.95" fill="#fcebe8" />
+        </g>
+        <polygon points="922.906,1020.879 932.382,1030.354 922.906,1039.83 913.431,1030.354" fill="#fcebe8" />
+        <circle cx="721.225" cy="1154.525" r="9.564" fill="none" stroke="#dfccc1" stroke-width="5.845" />
+        <circle cx="302.227" cy="553.552" r="11.297" fill="#fcebe8" />
+        <circle cx="762.332" cy="233.425" r="7.976" fill="#fcebe8" />
+        <g transform="translate(127.527 310.726) rotate(24)">
+          <rect x="-6.706" y="-2.012" width="13.412" height="4.024" fill="#dfccc1" />
+          <rect x="-2.012" y="-6.706" width="4.024" height="13.412" fill="#dfccc1" />
+        </g>
+        <circle cx="519.494" cy="911.166" r="11.275" fill="#fcebe8" />
+        <g transform="translate(16.35 495.073) rotate(76)">
+          <rect x="-7.922" y="-2.377" width="15.845" height="4.753" fill="#dfccc1" />
+          <rect x="-2.377" y="-7.922" width="4.753" height="15.845" fill="#dfccc1" />
+        </g>
+        <g transform="translate(1216.35 495.073) rotate(76)">
+          <rect x="-7.922" y="-2.377" width="15.845" height="4.753" fill="#dfccc1" />
+          <rect x="-2.377" y="-7.922" width="4.753" height="15.845" fill="#dfccc1" />
+        </g>
+        <circle cx="232.035" cy="462.16" r="9.912" fill="#dfccc1" />
+      </g>
+      <g id="motif-1" data-role="accent">
+        <g transform="translate(1061.538 75) rotate(-8.115) scale(0.307)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 0 Q -15 -8.4 0 0 Q 15 8.4 30 0" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-2" data-role="accent">
+        <g transform="translate(1158 75) rotate(4.43) scale(0.313)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#F6C9CE" />
+          <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-3" data-role="accent">
+        <g transform="translate(92.308 225) rotate(186.51) scale(0.378)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#8C5A44" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="0" x2="30" y2="0" stroke="#8C5A44" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#8C5A44" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-4" data-role="accent">
+        <g transform="translate(461.538 525) rotate(173.916) scale(0.246)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-5" data-role="accent">
+        <g transform="translate(646.154 525) rotate(182.065) scale(0.279)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-6" data-role="accent">
+        <g transform="translate(969.231 675) rotate(2.849) scale(0.264)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 0 Q -15 -8.4 0 0 Q 15 8.4 30 0" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-7" data-role="accent">
+        <g transform="translate(92.308 825) rotate(187.29) scale(0.228)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+          <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-8" data-role="accent">
+        <g transform="translate(692.308 975) rotate(6.252) scale(0.283)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 0 Q -15 -8.4 0 0 Q 15 8.4 30 0" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-9" data-role="accent">
+        <g transform="translate(876.923 975) rotate(11.97) scale(0.371)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-10" data-role="accent">
+        <g transform="translate(1107.692 1125) rotate(171.315) scale(0.341)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="-15" x2="30" y2="-15" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="0" x2="30" y2="0" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="15" x2="30" y2="15" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-11" data-role="filler">
+        <g transform="translate(46.154 75) rotate(8.246) scale(0.808)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 -10 Q -15 -18.4 0 -10 Q 15 -1.6 30 -10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 10 Q -15 1.6 0 10 Q 15 18.4 30 10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-12" data-role="filler">
+        <g transform="translate(226.615 75) rotate(-4.807) scale(0.775)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 -10 Q -15 -18.4 0 -10 Q 15 -1.6 30 -10" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 10 Q -15 1.6 0 10 Q 15 18.4 30 10" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-13" data-role="filler">
+        <g transform="translate(600 75) rotate(-9.882) scale(0.486)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 0 Q -15 -8.4 0 0 Q 15 8.4 30 0" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#8C5A44" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-14" data-role="filler">
+        <g transform="translate(184.615 225) rotate(170.962) scale(0.694)">
+          <polygon points="21.213,21.213 -21.213,21.213 -21.213,-21.213 21.213,-21.213" fill="#F6C9CE" />
+          <polygon points="10.607,10.607 -10.607,10.607 -10.607,-10.607 10.607,-10.607" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-15" data-role="filler">
+        <g transform="translate(276.923 225) rotate(182.948) scale(0.769)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#8C5A44" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="6" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-16" data-role="filler">
+        <g transform="translate(549.692 225) rotate(188.593) scale(0.717)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#F6C9CE" />
+          <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-17" data-role="filler">
+        <g transform="translate(1015.385 225) rotate(185.033) scale(0.751)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#8C5A44" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#D4A85A" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#D4A85A" />
+          <circle cx="0" cy="0" r="6" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-18" data-role="filler">
+        <g transform="translate(0 225) rotate(182.151) scale(0.724)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+          <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#8C5A44" />
+        </g>
+        <g transform="translate(1200 225) rotate(182.151) scale(0.724)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+          <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-19" data-role="filler">
+        <g transform="translate(46.154 375) rotate(2.524) scale(0.516)">
+          <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#D4A85A" />
+          <polygon points="16.5,0 8.25,14.289 -8.25,14.289 -16.5,0 -8.25,-14.289 8.25,-14.289" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-20" data-role="filler">
+        <g transform="translate(692.308 375) rotate(2.58) scale(0.617)">
+          <circle cx="0" cy="0" r="30" fill="#D4A85A" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-21" data-role="filler">
+        <g transform="translate(876.923 375) rotate(-8.245) scale(0.627)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-22" data-role="filler">
+        <g transform="translate(549.692 525) rotate(175.006) scale(0.556)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-23" data-role="filler">
+        <g transform="translate(830.769 525) rotate(180.717) scale(0.612)">
+          <polygon points="30,0 0,30 -30,0 0,-30" fill="#8C5A44" />
+          <polygon points="15,0 0,15 -15,0 0,-15" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-24" data-role="filler">
+        <g transform="translate(923.077 525) rotate(172.814) scale(0.566)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#8C5A44" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="8.58" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-25" data-role="filler">
+        <g transform="translate(138.462 675) rotate(-8.668) scale(0.459)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#F6C9CE" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-26" data-role="filler">
+        <g transform="translate(323.077 675) rotate(-8.462) scale(0.586)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-27" data-role="filler">
+        <g transform="translate(692.308 675) rotate(6.449) scale(0.472)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#D4A85A" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-28" data-role="filler">
+        <g transform="translate(784.615 675) rotate(-7.43) scale(0.569)">
+          <polygon points="30,0 0,30 -30,0 0,-30" fill="#8C5A44" />
+          <polygon points="15,0 0,15 -15,0 0,-15" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-29" data-role="filler">
+        <g transform="translate(184.615 825) rotate(174.05) scale(0.63)">
+          <polygon points="30,0 0,30 -30,0 0,-30" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-30" data-role="filler">
+        <g transform="translate(369.231 825) rotate(186.889) scale(0.797)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="20" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="10" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-31" data-role="filler">
+        <g transform="translate(461.538 825) rotate(184.584) scale(0.69)">
+          <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+          <polygon points="16.5,0 8.25,14.289 -8.25,14.289 -16.5,0 -8.25,-14.289 8.25,-14.289" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-32" data-role="filler">
+        <g transform="translate(923.077 825) rotate(178.549) scale(0.591)">
+          <polygon points="30,0 0,30 -30,0 0,-30" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-33" data-role="filler">
+        <g transform="translate(1107.692 825) rotate(174.246) scale(0.631)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="15" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-34" data-role="filler">
+        <g transform="translate(0 825) rotate(183.474) scale(0.783)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="6" fill="#F6C9CE" />
+        </g>
+        <g transform="translate(1200 825) rotate(183.474) scale(0.783)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="6" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-35" data-role="filler">
+        <g transform="translate(46.154 975) rotate(-2.02) scale(0.624)">
+          <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-36" data-role="filler">
+        <g transform="translate(138.462 975) rotate(6.714) scale(0.696)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-37" data-role="filler">
+        <g transform="translate(323.077 975) rotate(-1.954) scale(0.617)">
+          <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+          <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-38" data-role="filler">
+        <g transform="translate(92.308 1125) rotate(171.013) scale(0.53)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="-10" x2="30" y2="-10" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="10" x2="30" y2="10" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-39" data-role="filler">
+        <g transform="translate(276.923 1125) rotate(182.687) scale(0.642)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+          <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-40" data-role="filler">
+        <g transform="translate(461.538 1125) rotate(175.629) scale(0.656)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="10.288" cy="12.9" r="5.4" fill="#F6C9CE" />
+          <circle cx="-3.672" cy="16.086" r="5.4" fill="#F6C9CE" />
+          <circle cx="-14.866" cy="7.159" r="5.4" fill="#8C5A44" />
+          <circle cx="-14.866" cy="-7.159" r="5.4" fill="#8C5A44" />
+          <circle cx="-3.672" cy="-16.086" r="5.4" fill="#F6C9CE" />
+          <circle cx="10.288" cy="-12.9" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="6" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-41" data-role="secondary">
+        <g transform="translate(138.462 75) rotate(8.63) scale(1.006)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="21.428" fill="none" stroke="#F6C9CE" stroke-width="0.525" />
+          <g>
+            <line x1="2.85" y1="3.483" x2="12.782" y2="15.621" stroke="#F6C9CE" stroke-width="0.3" stroke-linecap="round" />
+            <line x1="-2.94" y1="-3.407" x2="-13.187" y2="-15.28" stroke="#F6C9CE" stroke-width="0.3" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-42" data-role="secondary">
+        <g transform="translate(323.077 75) rotate(7.915) scale(0.977)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="8.25" cy="14.289" r="5.4" fill="#8C5A44" />
+          <circle cx="-8.25" cy="14.289" r="5.4" fill="#8C5A44" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#8C5A44" />
+          <circle cx="-8.25" cy="-14.289" r="5.4" fill="#F6C9CE" />
+          <circle cx="8.25" cy="-14.289" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="6" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-43" data-role="secondary">
+        <g transform="translate(415.385 75) rotate(0.435) scale(0.954)">
+          <polygon points="21.213,21.213 -21.213,21.213 -21.213,-21.213 21.213,-21.213" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-44" data-role="secondary">
+        <g transform="translate(503.538 75) rotate(-2.445) scale(0.829)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="15" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-45" data-role="secondary">
+        <g transform="translate(692.308 75) rotate(-5.468) scale(0.845)">
+          <polygon points="21.213,21.213 -21.213,21.213 -21.213,-21.213 21.213,-21.213" fill="#8C5A44" />
+          <polygon points="10.607,10.607 -10.607,10.607 -10.607,-10.607 10.607,-10.607" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-46" data-role="secondary">
+        <g transform="translate(784.615 75) rotate(-5.684) scale(1.058)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="15" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-47" data-role="secondary">
+        <g transform="translate(876.923 75) rotate(2.467) scale(0.915)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#F6C9CE" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#F6C9CE" />
+          </g>
+          <g>
+            <line x1="-0.067" y1="-4.607" x2="-0.248" y2="-17.167" stroke="#F6C9CE" stroke-width="0.307" stroke-linecap="round" />
+            <line x1="0.029" y1="4.608" x2="0.107" y2="17.168" stroke="#F6C9CE" stroke-width="0.307" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-48" data-role="secondary">
+        <g transform="translate(969.231 75) rotate(-1.108) scale(0.98)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="35.191" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-49" data-role="secondary">
+        <g transform="translate(369.231 225) rotate(169.534) scale(1.243)">
+          <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-50" data-role="secondary">
+        <g transform="translate(461.538 225) rotate(190.519) scale(1.025)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#D4A85A" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="40.383" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-51" data-role="secondary">
+        <g transform="translate(646.154 225) rotate(189.348) scale(0.878)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="20" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="10" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-52" data-role="secondary">
+        <g transform="translate(738.462 225) rotate(168.075) scale(1.124)">
+          <g>
+            <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+            <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="33.733" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+          <g>
+            <line x1="-7.978" y1="-4.166" x2="-33.575" y2="-17.534" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+            <line x1="8.37" y1="3.308" x2="35.227" y2="13.92" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-53" data-role="secondary">
+        <g transform="translate(830.769 225) rotate(190.854) scale(0.855)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#8C5A44" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="6" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-54" data-role="secondary">
+        <g transform="translate(923.077 225) rotate(177.807) scale(0.838)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="-10" x2="30" y2="-10" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="10" x2="30" y2="10" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-55" data-role="secondary">
+        <g transform="translate(1107.692 225) rotate(169.758) scale(0.955)">
+          <g>
+            <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+            <path d="M -30 -10 Q -15 -18.4 0 -10 Q 15 -1.6 30 -10" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+            <path d="M -30 10 Q -15 1.6 0 10 Q 15 18.4 30 10" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+            <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#F6C9CE" stroke-width="4.2" stroke-linecap="round" />
+          </g>
+          <g>
+            <line x1="5.866" y1="3.194" x2="21.987" y2="11.974" stroke="#8C5A44" stroke-width="0.445" stroke-linecap="round" />
+            <line x1="-5.863" y1="-3.199" x2="-21.977" y2="-11.992" stroke="#8C5A44" stroke-width="0.445" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-56" data-role="secondary">
+        <g transform="translate(138.462 375) rotate(1.485) scale(0.796)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-57" data-role="secondary">
+        <g transform="translate(226.615 375) rotate(11.798) scale(1.005)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <g>
+            <line x1="-5.392" y1="-7.206" x2="-21.265" y2="-28.419" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+            <line x1="5.927" y1="6.773" x2="23.374" y2="26.711" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-58" data-role="secondary">
+        <g transform="translate(323.077 375) rotate(6.081) scale(1.058)">
+          <g>
+            <circle cx="16.5" cy="0" r="5.4" fill="#8C5A44" />
+            <circle cx="10.288" cy="12.9" r="5.4" fill="#F6C9CE" />
+            <circle cx="-3.672" cy="16.086" r="5.4" fill="#F6C9CE" />
+            <circle cx="-14.866" cy="7.159" r="5.4" fill="#F6C9CE" />
+            <circle cx="-14.866" cy="-7.159" r="5.4" fill="#F6C9CE" />
+            <circle cx="-3.672" cy="-16.086" r="5.4" fill="#F6C9CE" />
+            <circle cx="10.288" cy="-12.9" r="5.4" fill="#D4A85A" />
+            <circle cx="0" cy="0" r="6" fill="#D4A85A" />
+          </g>
+          <circle cx="0" cy="0" r="18.199" fill="none" stroke="#D4A85A" stroke-width="0.551" />
+        </g>
+      </g>
+      <g id="motif-59" data-role="secondary">
+        <g transform="translate(415.385 375) rotate(-0.395) scale(1.059)">
+          <polygon points="30,0 0,30 -30,0 0,-30" fill="#F6C9CE" />
+          <polygon points="15,0 0,15 -15,0 0,-15" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-60" data-role="secondary">
+        <g transform="translate(503.538 375) rotate(4.525) scale(0.772)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-61" data-role="secondary">
+        <g transform="translate(600 375) rotate(-3.128) scale(1.093)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="-15" x2="30" y2="-15" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="0" x2="30" y2="0" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="15" x2="30" y2="15" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-62" data-role="secondary">
+        <g transform="translate(784.615 375) rotate(2.04) scale(1.132)">
+          <g>
+            <polygon points="30,0 0,30 -30,0 0,-30" fill="#D4A85A" />
+          </g>
+          <circle cx="0" cy="0" r="17.927" fill="none" stroke="#8C5A44" stroke-width="0.536" />
+        </g>
+      </g>
+      <g id="motif-63" data-role="secondary">
+        <g transform="translate(969.231 375) rotate(-9.789) scale(0.84)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+            <polygon points="16.5,0 8.25,14.289 -8.25,14.289 -16.5,0 -8.25,-14.289 8.25,-14.289" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="20.781" fill="none" stroke="#8C5A44" stroke-width="0.525" />
+        </g>
+      </g>
+      <g id="motif-64" data-role="secondary">
+        <g transform="translate(1061.538 375) rotate(3.793) scale(0.853)">
+          <g>
+            <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+            <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#8C5A44" />
+          </g>
+          <g>
+            <line x1="-4.056" y1="-2.423" x2="-15.354" y2="-9.171" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="3.724" y1="2.909" x2="14.094" y2="11.009" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-65" data-role="secondary">
+        <g transform="translate(-42 375) rotate(8.242) scale(0.998)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 -10 Q -15 -18.4 0 -10 Q 15 -1.6 30 -10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 10 Q -15 1.6 0 10 Q 15 18.4 30 10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+        <g transform="translate(1158 375) rotate(8.242) scale(0.998)">
+          <path d="M -30 -30 Q -15 -38.4 0 -30 Q 15 -21.6 30 -30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 -10 Q -15 -18.4 0 -10 Q 15 -1.6 30 -10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 10 Q -15 1.6 0 10 Q 15 18.4 30 10" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+          <path d="M -30 30 Q -15 21.6 0 30 Q 15 38.4 30 30" fill="none" stroke="#D4A85A" stroke-width="4.2" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-66" data-role="secondary">
+        <g transform="translate(92.308 525) rotate(173.803) scale(1.015)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#F6C9CE" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#F6C9CE" />
+            <circle cx="0" cy="0" r="8.58" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="19.665" fill="none" stroke="#8C5A44" stroke-width="0.538" />
+        </g>
+      </g>
+      <g id="motif-67" data-role="secondary">
+        <g transform="translate(184.615 525) rotate(186.131) scale(1.145)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#8C5A44" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#8C5A44" />
+            <circle cx="0" cy="0" r="8.58" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="18.386" fill="none" stroke="#F6C9CE" stroke-width="0.538" />
+        </g>
+      </g>
+      <g id="motif-68" data-role="secondary">
+        <g transform="translate(276.923 525) rotate(188.001) scale(0.894)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-69" data-role="secondary">
+        <g transform="translate(369.231 525) rotate(178.45) scale(0.898)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+            <circle cx="0" cy="0" r="15" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="19.797" fill="none" stroke="#F6C9CE" stroke-width="0.525" />
+          <g>
+            <line x1="0.061" y1="4.5" x2="0.21" y2="15.471" stroke="#F6C9CE" stroke-width="0.3" stroke-linecap="round" />
+            <line x1="0.557" y1="-4.465" x2="1.914" y2="-15.354" stroke="#F6C9CE" stroke-width="0.3" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-70" data-role="secondary">
+        <g transform="translate(738.462 525) rotate(174.385) scale(0.963)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <circle cx="0" cy="0" r="20" fill="#F6C9CE" />
+            <circle cx="0" cy="0" r="10" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="20.607" fill="none" stroke="#8C5A44" stroke-width="0.525" />
+        </g>
+      </g>
+      <g id="motif-71" data-role="secondary">
+        <g transform="translate(1015.385 525) rotate(190.792) scale(0.958)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#8C5A44" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-72" data-role="secondary">
+        <g transform="translate(1107.692 525) rotate(181.561) scale(1.11)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+            <polygon points="16.5,0 8.25,14.289 -8.25,14.289 -16.5,0 -8.25,-14.289 8.25,-14.289" fill="#D4A85A" />
+          </g>
+          <circle cx="0" cy="0" r="19.336" fill="none" stroke="#D4A85A" stroke-width="0.525" />
+        </g>
+      </g>
+      <g id="motif-73" data-role="secondary">
+        <g transform="translate(0 525) rotate(179.86) scale(1.11)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+        </g>
+        <g transform="translate(1200 525) rotate(179.86) scale(1.11)">
+          <circle cx="0" cy="0" r="30" fill="#F6C9CE" />
+          <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-74" data-role="secondary">
+        <g transform="translate(46.154 675) rotate(-10.065) scale(1.026)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#D4A85A" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#D4A85A" />
+          <circle cx="0" cy="0" r="8.58" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-75" data-role="secondary">
+        <g transform="translate(415.385 675) rotate(-7.442) scale(1.152)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-76" data-role="secondary">
+        <g transform="translate(600 675) rotate(-2.877) scale(0.85)">
+          <g>
+            <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#F6C9CE" />
+            <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="36.92" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-77" data-role="secondary">
+        <g transform="translate(876.923 675) rotate(-3.492) scale(1.165)">
+          <g>
+            <polygon points="21.213,21.213 -21.213,21.213 -21.213,-21.213 21.213,-21.213" fill="#F6C9CE" />
+            <polygon points="10.607,10.607 -10.607,10.607 -10.607,-10.607 10.607,-10.607" fill="#D4A85A" />
+          </g>
+          <circle cx="0" cy="0" r="20.755" fill="none" stroke="#D4A85A" stroke-width="0.536" />
+        </g>
+      </g>
+      <g id="motif-78" data-role="secondary">
+        <g transform="translate(1061.538 675) rotate(9.972) scale(1.122)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+          <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-79" data-role="secondary">
+        <g transform="translate(1158 675) rotate(6.691) scale(1.123)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#F6C9CE" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#F6C9CE" />
+            <circle cx="0" cy="0" r="8.58" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="17.811" fill="none" stroke="#8C5A44" stroke-width="0.538" />
+          <g>
+            <line x1="4.562" y1="-0.644" x2="19.882" y2="-2.805" stroke="#8C5A44" stroke-width="0.307" stroke-linecap="round" />
+            <line x1="-4.547" y1="0.746" x2="-19.814" y2="3.25" stroke="#8C5A44" stroke-width="0.307" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-80" data-role="secondary">
+        <g transform="translate(276.923 825) rotate(174.174) scale(1.142)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#8C5A44" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="19.677" fill="none" stroke="#F6C9CE" stroke-width="0.538" />
+        </g>
+      </g>
+      <g id="motif-81" data-role="secondary">
+        <g transform="translate(549.692 825) rotate(188.289) scale(1.326)">
+          <g>
+            <circle cx="16.5" cy="0" r="5.4" fill="#F6C9CE" />
+            <circle cx="10.288" cy="12.9" r="5.4" fill="#8C5A44" />
+            <circle cx="-3.672" cy="16.086" r="5.4" fill="#8C5A44" />
+            <circle cx="-14.866" cy="7.159" r="5.4" fill="#8C5A44" />
+            <circle cx="-14.866" cy="-7.159" r="5.4" fill="#F6C9CE" />
+            <circle cx="-3.672" cy="-16.086" r="5.4" fill="#F6C9CE" />
+            <circle cx="10.288" cy="-12.9" r="5.4" fill="#8C5A44" />
+            <circle cx="0" cy="0" r="6" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="20.006" fill="none" stroke="#8C5A44" stroke-width="0.551" />
+        </g>
+      </g>
+      <g id="motif-82" data-role="secondary">
+        <g transform="translate(646.154 825) rotate(179.145) scale(1.082)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="15" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-83" data-role="secondary">
+        <g transform="translate(830.769 825) rotate(177.83) scale(0.916)">
+          <rect x="-6.6" y="-30" width="13.2" height="60" fill="#D4A85A" />
+          <rect x="-30" y="-6.6" width="60" height="13.2" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-84" data-role="secondary">
+        <g transform="translate(1015.385 825) rotate(189.346) scale(1.222)">
+          <circle cx="16.5" cy="0" r="5.4" fill="#D4A85A" />
+          <circle cx="0" cy="16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="-16.5" cy="0" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="-16.5" r="5.4" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="6" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-85" data-role="secondary">
+        <g transform="translate(226.615 975) rotate(-5.932) scale(1.146)">
+          <polygon points="21.213,21.213 -21.213,21.213 -21.213,-21.213 21.213,-21.213" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-86" data-role="secondary">
+        <g transform="translate(415.385 975) rotate(9.781) scale(0.828)">
+          <g>
+            <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+            <line x1="-30" y1="0" x2="30" y2="0" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+            <line x1="-30" y1="30" x2="30" y2="30" stroke="#F6C9CE" stroke-width="4.8" stroke-linecap="round" />
+          </g>
+          <g>
+            <line x1="5.617" y1="-3.696" x2="20.606" y2="-13.561" stroke="#8C5A44" stroke-width="0.448" stroke-linecap="round" />
+            <line x1="-6.153" y1="2.712" x2="-22.572" y2="9.95" stroke="#8C5A44" stroke-width="0.448" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-87" data-role="secondary">
+        <g transform="translate(503.538 975) rotate(7.06) scale(0.883)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+          </g>
+          <g>
+            <line x1="6.985" y1="5.675" x2="29.981" y2="24.357" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+            <line x1="-7.088" y1="-5.546" x2="-30.421" y2="-23.805" stroke="#F6C9CE" stroke-width="0.6" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-88" data-role="secondary">
+        <g transform="translate(600 975) rotate(-8.29) scale(1.16)">
+          <g>
+            <polygon points="0,-30 25.981,15 -25.981,15" fill="#D4A85A" />
+          </g>
+          <circle cx="0" cy="0" r="19.986" fill="none" stroke="#D4A85A" stroke-width="0.551" />
+        </g>
+      </g>
+      <g id="motif-89" data-role="secondary">
+        <g transform="translate(784.615 975) rotate(-1.823) scale(0.755)">
+          <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="15" fill="#F6C9CE" />
+        </g>
+      </g>
+      <g id="motif-90" data-role="secondary">
+        <g transform="translate(969.231 975) rotate(-11.433) scale(1.095)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="21.534" fill="none" stroke="#8C5A44" stroke-width="0.525" />
+        </g>
+      </g>
+      <g id="motif-91" data-role="secondary">
+        <g transform="translate(1061.538 975) rotate(4.35) scale(0.99)">
+          <g>
+            <polygon points="0,-30 25.981,15 -25.981,15" fill="#F6C9CE" />
+          </g>
+          <g>
+            <line x1="-2.761" y1="-3.835" x2="-11.134" y2="-15.464" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="3.383" y1="3.298" x2="13.645" y2="13.301" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-92" data-role="secondary">
+        <g transform="translate(-42 975) rotate(4.872) scale(1.244)">
+          <g>
+            <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+            <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="34.772" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+        <g transform="translate(1158 975) rotate(4.872) scale(1.244)">
+          <g>
+            <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#8C5A44" />
+            <path d="M -18 30 L -18 0 A 18 18 0 0 1 18 0 L 18 30 Z" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="34.772" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-93" data-role="secondary">
+        <g transform="translate(184.615 1125) rotate(168.677) scale(0.976)">
+          <g>
+            <path d="M -30 30 L -30 0 A 30 30 0 0 1 30 0 L 30 30 Z" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="38.598" fill="none" stroke="#D4A85A" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-94" data-role="secondary">
+        <g transform="translate(369.231 1125) rotate(176.147) scale(0.973)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#F6C9CE" />
+          <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#D4A85A" />
+        </g>
+      </g>
+      <g id="motif-95" data-role="secondary">
+        <g transform="translate(549.692 1125) rotate(173.623) scale(0.805)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="33.962" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-96" data-role="secondary">
+        <g transform="translate(646.154 1125) rotate(181.106) scale(0.847)">
+          <line x1="-30" y1="-30" x2="30" y2="-30" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="-15" x2="30" y2="-15" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="0" x2="30" y2="0" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="15" x2="30" y2="15" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+          <line x1="-30" y1="30" x2="30" y2="30" stroke="#D4A85A" stroke-width="4.8" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-97" data-role="secondary">
+        <g transform="translate(738.462 1125) rotate(168.266) scale(1.121)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="38.717" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-98" data-role="secondary">
+        <g transform="translate(830.769 1125) rotate(189.346) scale(0.947)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="40.224" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-99" data-role="secondary">
+        <g transform="translate(1015.385 -75) rotate(174.629) scale(1.361)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="37.757" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+        <g transform="translate(1015.385 1125) rotate(174.629) scale(1.361)">
+          <g>
+            <circle cx="0" cy="0" r="30" fill="#8C5A44" />
+            <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="37.757" fill="none" stroke="#F6C9CE" stroke-width="1.05" />
+        </g>
+      </g>
+      <g id="motif-100" data-role="hero">
+        <g transform="translate(226.615 675) rotate(-3.245) scale(1.118)">
+          <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+          <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#8C5A44" />
+        </g>
+      </g>
+      <g id="motif-101" data-role="hero">
+        <g transform="translate(503.538 675) rotate(-4.552) scale(1.521)">
+          <g>
+            <rect x="-6.6" y="-30" width="13.2" height="60" fill="#8C5A44" />
+            <rect x="-30" y="-6.6" width="60" height="13.2" fill="#8C5A44" />
+          </g>
+          <circle cx="0" cy="0" r="20.714" fill="none" stroke="#F6C9CE" stroke-width="0.676" />
+          <g>
+            <line x1="4.359" y1="-1.493" x2="17.588" y2="-6.024" stroke="#F6C9CE" stroke-width="0.307" stroke-linecap="round" />
+            <line x1="-1.304" y1="4.419" x2="-5.261" y2="17.831" stroke="#F6C9CE" stroke-width="0.307" stroke-linecap="round" />
+            <line x1="-3.784" y1="-2.629" x2="-15.267" y2="-10.608" stroke="#F6C9CE" stroke-width="0.307" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-102" data-role="hero">
+        <g transform="translate(738.462 825) rotate(170.027) scale(1.594)">
+          <g>
+            <polygon points="0,-30 25.981,15 -25.981,15" fill="#8C5A44" />
+            <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="19.501" fill="none" stroke="#F6C9CE" stroke-width="0.693" />
+          <g>
+            <line x1="-1.881" y1="-4.334" x2="-6.928" y2="-15.959" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="4.719" y1="0.244" x2="17.374" y2="0.898" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="-2.933" y1="3.705" x2="-10.799" y2="13.64" stroke="#F6C9CE" stroke-width="0.315" stroke-linecap="round" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-103" data-role="hero">
+        <g transform="translate(923.077 1125) rotate(177.442) scale(1.148)">
+          <g>
+            <polygon points="0,-30 25.981,15 -25.981,15" fill="#D4A85A" />
+            <polygon points="0,26.7 -16.887,-2.55 16.887,-2.55" fill="#8C5A44" />
+          </g>
+          <g>
+            <line x1="2.114" y1="4.226" x2="7.17" y2="14.333" stroke="#8C5A44" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="-4.686" y1="-0.602" x2="-15.896" y2="-2.044" stroke="#8C5A44" stroke-width="0.315" stroke-linecap="round" />
+            <line x1="2.54" y1="-3.984" x2="8.615" y2="-13.515" stroke="#8C5A44" stroke-width="0.315" stroke-linecap="round" />
+          </g>
+          <path d="M 19.33 4.737 A 19.902 19.902 0 0 1 5.727 19.061" fill="none" stroke="#8C5A44" stroke-width="0.504" stroke-linecap="round" />
+        </g>
+      </g>
+      <g id="motif-104" data-role="hero">
+        <g transform="translate(0 1125) rotate(186.783) scale(1.514)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="18.509" fill="none" stroke="#8C5A44" stroke-width="0.66" />
+          <g>
+            <circle cx="-5.315" cy="22.733" r="1.5" fill="#8C5A44" />
+            <circle cx="-17.03" cy="-15.97" r="1.5" fill="#8C5A44" />
+            <circle cx="22.345" cy="-6.764" r="1.5" fill="#8C5A44" />
+          </g>
+        </g>
+        <g transform="translate(1200 1125) rotate(186.783) scale(1.514)">
+          <g>
+            <polygon points="30,0 15,25.981 -15,25.981 -30,0 -15,-25.981 15,-25.981" fill="#F6C9CE" />
+          </g>
+          <circle cx="0" cy="0" r="18.509" fill="none" stroke="#8C5A44" stroke-width="0.66" />
+          <g>
+            <circle cx="-5.315" cy="22.733" r="1.5" fill="#8C5A44" />
+            <circle cx="-17.03" cy="-15.97" r="1.5" fill="#8C5A44" />
+            <circle cx="22.345" cy="-6.764" r="1.5" fill="#8C5A44" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
