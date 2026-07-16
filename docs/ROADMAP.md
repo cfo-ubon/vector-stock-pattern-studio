@@ -106,14 +106,33 @@ Build-numbered, forward-looking. Each entry is either shipped
   every mechanism is really wired end to end). See
   `docs/build_reports/BUILD_009_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_009_REPORT.md` §15 for the current list)
+- **Build 010 — Signature Composition & Commercial Story Engine**:
+  Signature Bouquet Composer (`applyGatherPoint` convergence toward the
+  hero's own stem base), Visual Story Flow Engine (role-weighted Eye Flow
+  pull), Multi-layer Depth Engine (EPS-safe solid-color recede cue),
+  Botanical Relationship Engine V2 (real per-companion spatial habit —
+  trailing/nesting/climbing), Premium Rhythm Engine (hierarchy-level
+  size cadence), Professional Illustrator Rules (rule of odds, tangent-
+  avoidance margin), Product-aware Composition Engine (depth/rhythm/rules
+  product fallbacks), Signature Style Engine (per-preset fingerprint
+  derived from existing `hierarchyPreset`/`premiumHero` fields),
+  Commercial Validation Suite (`computeSignatureFingerprintDistinctness`).
+  Every mechanism opt-in/additive, verified byte-identical-by-default via
+  no-op tests. Measured against the Build 009 baseline across a new
+  500-pattern XL Portfolio (plus the existing 30/100-pattern suites):
+  zero regressions, zero node-budget failures across 630 measured
+  patterns; one honestly-reported trade-off (the "rule of odds" targets
+  the non-hero member count, so the hero-inclusive cluster size is always
+  even, not odd — see the report for the low-cost fix). See
+  `docs/build_reports/BUILD_010_REPORT.md`.
 
-Build 009's own report has the up-to-date, evidence-based recommendation
-list (unify `FlowProfile`/`CompositionZone`, wire `secondaryHeroBoost`
-into a real Style DNA preset, a UI producer for `productTarget` on
-single-tile generation, a dedicated product-aware portfolio harness). The
-section below is kept for history but reflects Build 001.1's own state,
-not the current one.
+## Recommended Next Build (see `docs/build_reports/BUILD_010_REPORT.md` §16 for the current list)
+
+Build 010's own report has the up-to-date, evidence-based recommendation
+list (fix the rule-of-odds hero-inclusive count, a dedicated product-aware
+portfolio harness, unify `FlowProfile`/`CompositionZone`, wire Premium
+Rhythm into more presets directly). The section below is kept for history
+but reflects Build 001.1's own state, not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 
