@@ -6,6 +6,7 @@ import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import { BOTANICAL_SPECIES } from '../generators/botanicalFamilies';
+import { HIERARCHY_PRESETS } from './hierarchy';
 import {
   STYLE_DNA_PRESETS,
   STYLE_DNA_LIST,
@@ -221,6 +222,53 @@ describe('Style DNA: Natural Asymmetry Engine wiring (Build 009, Section 5)', ()
     for (const dna of STYLE_DNA_LIST) {
       const patch = resolveStyleDna(dna, 'asymmetry-build-check');
       expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'asymmetry-build-check' })).not.toThrow();
+    }
+  });
+});
+
+describe('Style DNA: Signature Style Engine (Build 010, Section 8)', () => {
+  it('a heroFocus preset resolves a real depthStrength; a non-heroFocus preset resolves undefined', () => {
+    const heroFocusIds = STYLE_DNA_LIST.filter((d) => d.hierarchyPreset === 'heroFocus').map((d) => d.id);
+    const nonHeroFocusIds = STYLE_DNA_LIST.filter((d) => d.hierarchyPreset !== 'heroFocus').map((d) => d.id);
+    expect(heroFocusIds.length).toBeGreaterThan(0);
+    expect(nonHeroFocusIds.length).toBeGreaterThan(0);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-depth-check');
+      if (dna.hierarchyPreset === 'heroFocus') {
+        expect(patch.depthStrength).toBeGreaterThan(0);
+      } else {
+        expect(patch.depthStrength).toBeUndefined();
+      }
+    }
+  });
+
+  it('a premiumHero preset resolves professionalRules=true and hierarchy.premiumRhythm=true; a non-premiumHero preset resolves both undefined', () => {
+    const premiumHeroIds = STYLE_DNA_LIST.filter((d) => d.premiumHero).map((d) => d.id);
+    expect(premiumHeroIds.length).toBeGreaterThan(0);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-rhythm-check');
+      if (dna.premiumHero) {
+        expect(patch.professionalRules).toBe(true);
+        expect(patch.hierarchy!.premiumRhythm).toBe(true);
+      } else {
+        expect(patch.professionalRules).toBeUndefined();
+        expect(patch.hierarchy!.premiumRhythm).toBeUndefined();
+      }
+    }
+  });
+
+  it('does not mutate the shared HIERARCHY_PRESETS object when merging premiumRhythm', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    expect(dna.premiumHero).toBe(true);
+    const before = HIERARCHY_PRESETS[dna.hierarchyPreset].value.premiumRhythm;
+    resolveStyleDna(dna, 'signature-no-mutate-check');
+    expect(HIERARCHY_PRESETS[dna.hierarchyPreset].value.premiumRhythm).toBe(before);
+  });
+
+  it('every preset still resolves to a buildable tile with the signature fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'signature-build-check' })).not.toThrow();
     }
   });
 });

@@ -82,6 +82,25 @@ export interface ProductSpacingStrategy {
   rhythmMultiplier: number;
   clusterLooseness: number;
   preferredZones: CompositionZone[];
+  /** Build 010, Section 7 (Product-aware Composition Engine): a product's
+   * own preferred Multi-layer Depth Engine strength (`engine/depthEngine.ts`
+   * §3) -- undefined means this product declares no preference (identity,
+   * no depth-plane color shift). A focal-object product benefits from real
+   * foreground/background separation around its one hero moment; a
+   * repeat-forward all-over product wants every motif reading at the same
+   * visual plane, so depth stays off. */
+  depthStrength?: number;
+  /** Build 010, Section 7: a product's own preference for the Premium
+   * Rhythm Engine (`engine/hierarchy.ts` §5, `HierarchyParams.premiumRhythm`)
+   * -- only takes effect when hierarchy is already configured for this
+   * generation (see `resolvePremiumRhythmForProduct`'s own doc comment). */
+  premiumRhythm?: boolean;
+  /** Build 010, Section 7: a product's own preference for the Professional
+   * Illustrator Rules bundle (`engine/clusterEngine.ts` §6,
+   * `preferOddCount` + `avoidTangents`) -- only takes effect where those
+   * mechanisms are already reachable (a premium hero, or a cluster-based
+   * layout already calling `buildClusterPlacements`). */
+  professionalRules?: boolean;
 }
 
 const IDENTITY_SPACING_STRATEGY: ProductSpacingStrategy = { rhythmMultiplier: 1, clusterLooseness: 0, preferredZones: [] };
@@ -90,6 +109,9 @@ const PRODUCT_SPACING_STRATEGY: Record<ProductUseId, ProductSpacingStrategy> = {
   // Repeat-forward uses: a steadier rhythm and slightly tighter clusters --
   // an all-over busy field rather than isolated focal moments. Composition
   // zone-wise, an all-over skeleton with no single dominant focal point.
+  // No depth-plane separation or extra "designed" polish -- an all-over
+  // repeat wants every motif reading at the same plane, not one drawing
+  // the eye more than another.
   wallpaper: { rhythmMultiplier: 1.15, clusterLooseness: -0.1, preferredZones: ['offset', 'wave'] },
   fabric: { rhythmMultiplier: 1.1, clusterLooseness: -0.05, preferredZones: ['offset', 'diagonal'] },
   textile: { rhythmMultiplier: 1.1, clusterLooseness: -0.05, preferredZones: ['offset', 'wave'] },
@@ -98,11 +120,13 @@ const PRODUCT_SPACING_STRATEGY: Record<ProductUseId, ProductSpacingStrategy> = {
   // Focal-object uses: more organic rhythm variation and real cluster
   // isolation so a hero motif reads as one deliberate gift-worthy moment.
   // Composition zone-wise, a skeleton that frames one clear focal point.
-  giftWrap: { rhythmMultiplier: 0.85, clusterLooseness: 0.25, preferredZones: ['centerFocus', 'goldenRatio'] },
-  wrappingPaper: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['centerFocus', 'goldenRatio'] },
-  packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'] },
-  notebookCovers: { rhythmMultiplier: 0.9, clusterLooseness: 0.1, preferredZones: ['goldenRatio', 'centerFocus'] },
-  stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'] },
+  // Real depth-plane separation and the Premium Rhythm/Professional Rules
+  // bundle all reinforce that same single-deliberate-moment read.
+  giftWrap: { rhythmMultiplier: 0.85, clusterLooseness: 0.25, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true },
+  wrappingPaper: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.4, premiumRhythm: true, professionalRules: true },
+  packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'], depthStrength: 0.3, premiumRhythm: true, professionalRules: true },
+  notebookCovers: { rhythmMultiplier: 0.9, clusterLooseness: 0.1, preferredZones: ['goldenRatio', 'centerFocus'], depthStrength: 0.3, premiumRhythm: true },
+  stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'], depthStrength: 0.35, premiumRhythm: true, professionalRules: true },
 };
 
 /** `productTarget` undefined returns the identity strategy -- a pure
@@ -147,4 +171,41 @@ export function applyProductSpacingStrategy(
 export function resolveCompositionZoneForProduct(productTarget?: ProductUseId): CompositionZone | undefined {
   if (productTarget === undefined) return undefined;
   return resolveSpacingStrategyForProduct(productTarget).preferredZones[0];
+}
+
+/** Build 010, Section 7 (Product-aware Composition Engine): the product's
+ * own preferred Multi-layer Depth Engine strength -- callers use this as
+ * `params.depthStrength ?? resolveDepthStrengthForProduct(params.productTarget) ?? 0`,
+ * the same "product's own best fit, only when nothing more specific
+ * already chose" fallback Build 008B/009 already established. `undefined`
+ * (no productTarget, or a product with no declared preference) means no
+ * product-driven depth. */
+export function resolveDepthStrengthForProduct(productTarget?: ProductUseId): number | undefined {
+  if (productTarget === undefined) return undefined;
+  return resolveSpacingStrategyForProduct(productTarget).depthStrength;
+}
+
+/** Build 010, Section 7: the product's own preferred Premium Rhythm Engine
+ * setting -- meaningful only where `HierarchyParams` is already resolved
+ * for this generation (see `resolveStyleDna`'s own hierarchy wiring); it
+ * never turns hierarchy on by itself. `undefined` means no product-driven
+ * preference. */
+export function resolvePremiumRhythmForProduct(productTarget?: ProductUseId): boolean | undefined {
+  if (productTarget === undefined) return undefined;
+  return resolveSpacingStrategyForProduct(productTarget).premiumRhythm;
+}
+
+/** Build 010, Section 7: the product's own preferred Professional
+ * Illustrator Rules setting -- reaches `buildPremiumHero`'s own "rule of
+ * odds" member-count roll (`tile.ts` threads this into `preferOddCount`
+ * whenever a premium hero is already being built). The touching-tangent
+ * half of `ProductSpacingStrategy.professionalRules` (`avoidTangents`) is
+ * exposed here for a future caller that threads `productTarget` through
+ * `buildClusterPlacements` directly -- no layout does that yet, so it isn't
+ * wired past this resolver in this build (same "not yet wired" honesty
+ * `premiumHero.ts`'s own Build 004 doc comment already models). `undefined`
+ * means no product-driven preference. */
+export function resolveProfessionalRulesForProduct(productTarget?: ProductUseId): boolean | undefined {
+  if (productTarget === undefined) return undefined;
+  return resolveSpacingStrategyForProduct(productTarget).professionalRules;
 }

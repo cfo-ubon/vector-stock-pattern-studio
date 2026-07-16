@@ -29,6 +29,18 @@ function wrappedDelta(a: number, b: number, tileSize: number): number {
   return d;
 }
 
+/** Build 010, Section 6 (Professional Illustrator Rules): the pre-Build-010
+ * resolve pushed a colliding pair to exactly `required` apart — the
+ * mathematical boundary between "colliding" and "clear," which visually
+ * reads as an accidental tangent (two shapes just barely touching at one
+ * point) rather than either a deliberately separated or deliberately
+ * overlapping pair. `marginMul` (>1) widens the target separation past
+ * that boundary so a resolved pair lands with real, visible clearance
+ * instead of sitting exactly on it. Default `1` reproduces the exact
+ * pre-Build-010 boundary-distance behavior — a strict no-op for every
+ * caller that doesn't opt in. */
+export const TANGENT_AVOIDANCE_MARGIN = 1.08;
+
 /** Pushes any pair of anchors apart whose *actual* required separation —
  * based on their real, post-size-rhythm `sizeMul`s, not the average used
  * when anchors were first placed — exceeds their current distance. Purely
@@ -40,6 +52,7 @@ export function resolveClusterCollisions(
   baseRadius: number,
   minDistMul: number,
   tileSize: number,
+  marginMul = 1,
 ): SizedPoint[] {
   const result = points.map((p) => ({ ...p }));
   for (let iter = 0; iter < REPULSION_ITERATIONS; iter++) {
@@ -48,7 +61,7 @@ export function resolveClusterCollisions(
       for (let j = i + 1; j < result.length; j++) {
         const a = result[i];
         const b = result[j];
-        const required = baseRadius * minDistMul * ((a.sizeMul + b.sizeMul) * 0.5);
+        const required = baseRadius * minDistMul * ((a.sizeMul + b.sizeMul) * 0.5) * marginMul;
         const dx = wrappedDelta(a.x, b.x, tileSize);
         const dy = wrappedDelta(a.y, b.y, tileSize);
         const dist = Math.sqrt(dx * dx + dy * dy);

@@ -4,6 +4,9 @@ import {
   resolveSpacingStrategyForProduct,
   applyProductSpacingStrategy,
   resolveCompositionZoneForProduct,
+  resolveDepthStrengthForProduct,
+  resolvePremiumRhythmForProduct,
+  resolveProfessionalRulesForProduct,
 } from './negativeSpaceDesigner';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import { DEFAULT_COMPOSITION_INTELLIGENCE } from './compositionIntelligence';
@@ -139,5 +142,56 @@ describe('resolveCompositionZoneForProduct (Build 009, Section 8: Product-aware 
 
   it('is deterministic (pure function, no rng)', () => {
     expect(resolveCompositionZoneForProduct('giftWrap')).toBe(resolveCompositionZoneForProduct('giftWrap'));
+  });
+});
+
+describe('resolveDepthStrengthForProduct (Build 010, Section 7: Product-aware Composition Engine)', () => {
+  it('returns undefined when productTarget is undefined', () => {
+    expect(resolveDepthStrengthForProduct(undefined)).toBeUndefined();
+  });
+
+  it('returns undefined for repeat-forward products (no depth-plane preference)', () => {
+    expect(resolveDepthStrengthForProduct('wallpaper')).toBeUndefined();
+    expect(resolveDepthStrengthForProduct('fabric')).toBeUndefined();
+  });
+
+  it('returns a real (0, 1] strength for focal-object products', () => {
+    for (const id of ['giftWrap', 'wrappingPaper', 'packaging', 'notebookCovers', 'stationery'] as const) {
+      const strength = resolveDepthStrengthForProduct(id);
+      expect(strength).toBeGreaterThan(0);
+      expect(strength!).toBeLessThanOrEqual(1);
+    }
+  });
+});
+
+describe('resolvePremiumRhythmForProduct (Build 010, Section 7)', () => {
+  it('returns undefined when productTarget is undefined', () => {
+    expect(resolvePremiumRhythmForProduct(undefined)).toBeUndefined();
+  });
+
+  it('is true for focal-object products', () => {
+    expect(resolvePremiumRhythmForProduct('giftWrap')).toBe(true);
+    expect(resolvePremiumRhythmForProduct('stationery')).toBe(true);
+  });
+
+  it('is undefined for repeat-forward products', () => {
+    expect(resolvePremiumRhythmForProduct('wallpaper')).toBeUndefined();
+  });
+});
+
+describe('resolveProfessionalRulesForProduct (Build 010, Section 7)', () => {
+  it('returns undefined when productTarget is undefined', () => {
+    expect(resolveProfessionalRulesForProduct(undefined)).toBeUndefined();
+  });
+
+  it('is true for the strongest focal-object products (giftWrap/wrappingPaper/stationery)', () => {
+    expect(resolveProfessionalRulesForProduct('giftWrap')).toBe(true);
+    expect(resolveProfessionalRulesForProduct('wrappingPaper')).toBe(true);
+    expect(resolveProfessionalRulesForProduct('stationery')).toBe(true);
+  });
+
+  it('is undefined for repeat-forward products', () => {
+    expect(resolveProfessionalRulesForProduct('wallpaper')).toBeUndefined();
+    expect(resolveProfessionalRulesForProduct('fabric')).toBeUndefined();
   });
 });

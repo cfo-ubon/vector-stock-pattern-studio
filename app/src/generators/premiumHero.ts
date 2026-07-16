@@ -1,7 +1,7 @@
 import type { Motif, Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
 import { rngPick, rngRange, rngInt, rngBool } from '../engine/rng';
-import { generateCluster, type ClusterMember, type ClusterArchetype } from '../engine/clusterEngine';
+import { generateCluster, rollPreferOdd, type ClusterMember, type ClusterArchetype } from '../engine/clusterEngine';
 import { applyHeroDetailOverlay } from '../engine/heroComplexity';
 import { generateStem, growLeaves, GROWTH_PRESETS } from './growth';
 import { calyxBase, flowerCenterDetail } from './shared';
@@ -12,7 +12,7 @@ import { illustrationTemplateForSpecies, type IllustrationTemplate } from './ill
 import { leafAnatomyFor, anatomicalLeafNode, pickLeafEdge } from './leafAnatomy';
 import { flowerAnatomyFor, rollOpenness } from './flowerAnatomy';
 import type { DesignGenerationRules } from '../engine/designKnowledge';
-import type { CompanionRole } from '../knowledge/registry/speciesSchema';
+import type { CompanionRole, SpatialRelationship } from '../knowledge/registry/speciesSchema';
 
 // Build 004, Section 8 (Premium Hero Builder): "Heroes should become
 // botanical bouquets. Instead of one flower, construct Hero Flower +
@@ -149,6 +149,63 @@ export function applyHeroFraming(members: ClusterMember[], size: number, archety
   return result;
 }
 
+/** Build 010, Section 1 (Signature Bouquet Composer): every existing pass
+ * over a premium hero's cluster members (balance/framing/angular coverage)
+ * positions each member relative to the hero's own *center* -- none of them
+ * visually ties a member to the hero's own stem, so a bouquet still reads as
+ * "several independently-drawn objects clustered near a point" rather than
+ * "one bouquet, gathered." A real cut-flower bouquet reads as designed
+ * specifically because every stem visually converges at one gather point
+ * (roughly where a florist's hand or ribbon would be) before spreading into
+ * blooms. `generateStem`'s own control points span symmetrically from
+ * `-length/2` to `+length/2` around the hero's local origin, so
+ * `+length/2` (`size * 0.2` for the default `stemLengthScale`) is a real,
+ * already-drawn reference point on the hero's own stem, not an invented
+ * one. A small, bounded pull of each non-hero member's rolled anchor toward
+ * that point -- run before `applyHeroFraming`'s push-away, so the two never
+ * fight -- keeps every archetype's own overall silhouette (bouquet's
+ * circular spread, cascade's vertical line, ...) intact while adding a real
+ * "everything gathers near the base" read. `strength` of 0 (or an empty
+ * member list) is an exact no-op, byte-identical to pre-Build-010 output. */
+const GATHER_POINT_Y_FRACTION = 0.2;
+const GATHER_PULL_STRENGTH = 0.14;
+
+export function applyGatherPoint(members: ClusterMember[], size: number, strength = GATHER_PULL_STRENGTH): ClusterMember[] {
+  if (strength <= 0) return members;
+  const gatherY = size * GATHER_POINT_Y_FRACTION;
+  return members.map((m) => {
+    if (m.role === 'hero') return m;
+    return { ...m, dx: m.dx + (0 - m.dx) * strength, dy: m.dy + (gatherY - m.dy) * strength };
+  });
+}
+
+/** Build 010, Section 4 (Botanical Relationship Engine V2): the audit found
+ * `SpeciesCompanion` only ever encoded WHICH part a companion draws
+ * (foliage/filler/berry role) — nothing gave that companion a real spatial
+ * habit relative to the hero, so a Rose's eucalyptus foliage and its
+ * baby's-breath filler sat at the exact same kind of generic cluster-
+ * archetype offset. `spatialRelationship` (see speciesSchema.ts) now
+ * carries a real botanical spatial bias per companion: `'trailing'` pulls
+ * a filler/accent member further from the hero (drapes past its
+ * footprint, the way wispy eucalyptus/olive/herb foliage genuinely
+ * hangs), `'nesting'` pulls it closer in (tucked behind/among the hero,
+ * the way a filler flower or berry cluster nestles), `'climbing'` pulls
+ * it toward the hero's own vertical stem axis (dx toward 0, as if
+ * wrapping the stem). Runs strictly additive, after `applyHeroFraming`'s
+ * push-away has already established real clearance — this only nudges
+ * *within* that safe zone, never re-introduces crowding. Only filler/
+ * accent members are touched (secondary stays the hero's own species, per
+ * the existing convention below); undefined/`'none'` is a no-op. */
+export function applyCompanionSpatialBias(members: ClusterMember[], relationship: SpatialRelationship | undefined, strength = 0.2): ClusterMember[] {
+  if (!relationship || relationship === 'none') return members;
+  return members.map((m) => {
+    if (m.role !== 'filler' && m.role !== 'accent') return m;
+    if (relationship === 'trailing') return { ...m, dx: m.dx * (1 + strength), dy: m.dy * (1 + strength) };
+    if (relationship === 'nesting') return { ...m, dx: m.dx * (1 - strength), dy: m.dy * (1 - strength) };
+    return { ...m, dx: m.dx * (1 - strength) };
+  });
+}
+
 function balanceVisualWeight(members: ClusterMember[], premiumScore?: number): ClusterMember[] {
   const heroWeight = members
     .filter((m) => m.role === 'hero')
@@ -241,6 +298,11 @@ export interface PremiumHeroOptions {
    * internal arrangement archetype instead of the default weighted roll
    * (see `resolveHeroArchetype`) -- undefined lets the roll happen. */
   archetype?: ClusterArchetype;
+  /** Build 010, Section 6 (Professional Illustrator Rules, "rule of
+   * odds"): biases this hero's own member-count roll toward an odd total
+   * (see `rollPreferOdd`) instead of the plain `rngInt` roll -- undefined/
+   * false reproduces the exact prior roll. */
+  preferOddCount?: boolean;
 }
 
 /** Assembles one hero as a real multi-part botanical bouquet: a grown stem
@@ -250,7 +312,7 @@ export interface PremiumHeroOptions {
  * archetype's own arrangement math. Deterministic for a given rng
  * sequence. */
 export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
-  const { colors, size, family, designRules, archetype } = opts;
+  const { colors, size, family, designRules, archetype, preferOddCount } = opts;
   const accents = colors.length > 1 ? colors.slice(1) : colors;
 
   // A hero placement is already positioned by its OWN layout's spacing math
@@ -272,11 +334,17 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   const memberCountRange = designRules?.heroMemberCountRange ?? [4, 6];
   const baseRadiusScale = designRules?.bouquetBaseRadiusScale ?? 1;
   const resolvedArchetype = resolveHeroArchetype(rng, archetype);
+  // Build 010, Section 6 (Professional Illustrator Rules, "rule of odds"):
+  // see `rollPreferOdd`'s own doc comment -- undefined/false `preferOddCount`
+  // reproduces the exact prior `rngInt` roll.
+  const rolledMemberCount = preferOddCount
+    ? rollPreferOdd(rng, memberCountRange[0], memberCountRange[1])
+    : rngInt(rng, memberCountRange[0], memberCountRange[1]);
   const members = generateCluster(resolvedArchetype, rng, {
     baseRadius: size * 0.2 * baseRadiusScale,
     rotationJitter: 12,
     scaleJitter: 0.15,
-    memberCount: rngInt(rng, memberCountRange[0], memberCountRange[1]),
+    memberCount: rolledMemberCount,
   });
 
   // Kept short (a plain hero variant's own stems are similarly compact) --
@@ -404,14 +472,29 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // otherwise out-weigh the hero.
   const balancedMembers = balanceVisualWeight(members, species?.premiumScore);
 
+  // Build 010, Section 1 (Signature Bouquet Composer): see
+  // `applyGatherPoint`'s own doc comment -- a bounded pull toward the hero's
+  // own stem-base point, run before the push-away below so the two passes
+  // never fight (gather first, then re-establish clearance).
+  const gatheredMembers = applyGatherPoint(balancedMembers, size);
+
   // Build 009, Section 4 (Hero Framing Engine): see `applyHeroFraming`'s own
   // doc comment -- push-away against crowding the hero, plus (for `bouquet`
   // only) a bounded nudge toward more even angular framing coverage.
-  const framedMembers = applyHeroFraming(balancedMembers, size, resolvedArchetype);
+  const framedMembers = applyHeroFraming(gatheredMembers, size, resolvedArchetype);
+
+  // Build 010, Section 4 (Botanical Relationship Engine V2): the real
+  // companion entry's own `spatialRelationship` (see speciesSchema.ts) --
+  // looked up once here (reused below for `resolveFillerPart` too) so the
+  // position bias and the part-selection logic always agree on which
+  // companion pairing is active. See `applyCompanionSpatialBias`'s own doc
+  // comment; undefined/'none' is a no-op.
+  const companionEntry = species?.companions.find((c) => c.family === companionFamily);
+  const spatiallyBiasedMembers = applyCompanionSpatialBias(framedMembers, companionEntry?.spatialRelationship);
 
   let secondaryToggle = 0;
   let colorSeed = 1;
-  for (const member of framedMembers) {
+  for (const member of spatiallyBiasedMembers) {
     let sub: Motif;
     let calyx: ReturnType<typeof h> | undefined;
     let centerDetail: ReturnType<typeof h> | undefined;
@@ -458,7 +541,6 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
       const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.55, colorSeed++, { role: 'secondary', part, family });
     } else if (member.role === 'filler') {
-      const companionEntry = species?.companions.find((c) => c.family === companionFamily);
       const fillerPart = resolveFillerPart(template, companionEntry?.role, fillerFamily);
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: fillerPart, family: fillerFamily });
     } else {
@@ -483,7 +565,7 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     );
   }
 
-  const reach = framedMembers.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
+  const reach = spatiallyBiasedMembers.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
   const baseRadius = Math.max(size * 0.55, reach);
 
   const assembled = h('g', { 'data-part': 'premium-hero' }, parts);

@@ -11,8 +11,16 @@ import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
 import { buildPremiumHero } from '../generators/premiumHero';
-import { resolveNegativeSpaceForProduct, applyProductSpacingStrategy, resolveCompositionZoneForProduct } from './negativeSpaceDesigner';
+import {
+  resolveNegativeSpaceForProduct,
+  applyProductSpacingStrategy,
+  resolveCompositionZoneForProduct,
+  resolveDepthStrengthForProduct,
+  resolvePremiumRhythmForProduct,
+  resolveProfessionalRulesForProduct,
+} from './negativeSpaceDesigner';
 import { speciesForProductTarget } from '../generators/botanicalFamilies';
+import { applyDepthColorShift } from './depthEngine';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -277,9 +285,18 @@ export function buildTile(params: GenerateParams): TileData {
   // already-large hero motif by heroScale a second time. Undefined
   // params.hierarchy (the default for every pre-existing saved pattern)
   // means this is a no-op and `placements` passes through unchanged.
+  // Build 010, Section 7 (Product-aware Composition Engine): a product's
+  // own Premium Rhythm Engine preference only takes effect when hierarchy
+  // is already configured (see `resolvePremiumRhythmForProduct`'s own doc
+  // comment) -- it never turns hierarchy on by itself, and an explicit
+  // `hierarchy.premiumRhythm` always wins over the product fallback.
+  const effectiveHierarchy =
+    params.hierarchy && params.hierarchy.premiumRhythm === undefined
+      ? { ...params.hierarchy, premiumRhythm: resolvePremiumRhythmForProduct(params.productTarget) }
+      : params.hierarchy;
   const roledPlacements =
-    params.hierarchy && !HIERARCHY_EXEMPT_LAYOUTS.has(params.layoutId)
-      ? applyHierarchy(placements, params.hierarchy, rng)
+    effectiveHierarchy && !HIERARCHY_EXEMPT_LAYOUTS.has(params.layoutId)
+      ? applyHierarchy(placements, effectiveHierarchy, rng)
       : placements;
 
   // Composition Intelligence Engine: a deterministic geometry-only pass
@@ -356,7 +373,18 @@ export function buildTile(params: GenerateParams): TileData {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.
-    const motifColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
+    const storyOrDefaultColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
+    // Build 010, Section 3 (Multi-layer Depth Engine): a real background-
+    // receding color shift for filler/accent roles only — see
+    // engine/depthEngine.ts's own doc comment. `params.depthStrength`
+    // undefined/0 is a strict no-op (same array reference), so every
+    // pattern that doesn't opt in keeps its exact original motif colors.
+    // Build 010, Section 7 (Product-aware Composition Engine): a product's
+    // own depth-strength preference only fills in when the caller never set
+    // one explicitly -- see `resolveDepthStrengthForProduct`'s own doc
+    // comment.
+    const effectiveDepthStrength = params.depthStrength ?? resolveDepthStrengthForProduct(params.productTarget) ?? 0;
+    const motifColors = applyDepthColorShift(storyOrDefaultColors, placement.role, effectiveDepthStrength);
     // Build 004, Section 1: threads the placement's real hierarchy role into
     // createMotif so a botanical-aware generator can pick a role-appropriate
     // shape (Section 2+) instead of a flat random pick — every other
@@ -371,8 +399,18 @@ export function buildTile(params: GenerateParams): TileData {
     const usePremiumHero =
       !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
     if (usePremiumHero) premiumHeroesBuilt++;
+    // Build 010, Section 7: a product's own Professional Illustrator Rules
+    // preference reaches the premium hero's own member-count/tangent
+    // resolution only where that hero is already being built (see
+    // `resolveProfessionalRulesForProduct`'s own doc comment).
     const motif = usePremiumHero
-      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: effectiveBotanicalFamily, designRules: params.designRules })
+      ? buildPremiumHero(rng, {
+          colors: motifColors,
+          size: effectiveMotifSize,
+          family: effectiveBotanicalFamily,
+          designRules: params.designRules,
+          preferOddCount: params.professionalRules ?? resolveProfessionalRulesForProduct(params.productTarget),
+        })
       : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: effectiveBotanicalFamily });
     if (motif.heroArchetype) premiumHeroArchetypesUsed.push(motif.heroArchetype);
     // Never trust the generator's hand-estimated radius alone — a motif

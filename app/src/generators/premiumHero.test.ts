@@ -2,7 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { createRng } from '../engine/rng';
 import { serialize } from '../engine/svgAst';
 import type { SvgNode } from '../engine/types';
-import { buildPremiumHero, resolveFillerPart, supportWeightRatio, resolveHeroArchetype, applyHeroFraming, HERO_ARCHETYPE_POOL } from './premiumHero';
+import {
+  buildPremiumHero,
+  resolveFillerPart,
+  supportWeightRatio,
+  resolveHeroArchetype,
+  applyHeroFraming,
+  applyGatherPoint,
+  applyCompanionSpatialBias,
+  HERO_ARCHETYPE_POOL,
+} from './premiumHero';
 import type { ClusterMember } from '../engine/clusterEngine';
 import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES } from './botanicalFamilies';
 import { ILLUSTRATION_TEMPLATES } from './illustrationFamily';
@@ -399,5 +408,107 @@ describe('applyHeroFraming (Build 009, Section 4: Hero Framing Engine)', () => {
     const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: size, dy: 0 })];
     const result = applyHeroFraming(members, size, 'bouquet');
     expect(result[1]).toEqual(members[1]);
+  });
+});
+
+describe('applyGatherPoint (Build 010, Section 1: Signature Bouquet Composer)', () => {
+  const size = 120;
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 0, dy: 0, rotationDeg: 0, scaleMul: 1, role: 'secondary', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op for the hero member itself', () => {
+    const hero = member({ role: 'hero', dx: 0, dy: 0 });
+    const [result] = applyGatherPoint([hero], size);
+    expect(result).toEqual(hero);
+  });
+
+  it('is a strict no-op at strength 0 (byte-identical to pre-Build-010 output)', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: 40, dy: -30 })];
+    const result = applyGatherPoint(members, size, 0);
+    expect(result).toEqual(members);
+  });
+
+  it('pulls a non-hero member closer to the gather point (0, size * 0.2)', () => {
+    const gatherY = size * 0.2;
+    const far = member({ role: 'secondary', dx: 60, dy: -50 });
+    const [, result] = applyGatherPoint([member({ role: 'hero' }), far], size);
+    const distBefore = Math.hypot(far.dx - 0, far.dy - gatherY);
+    const distAfter = Math.hypot(result.dx - 0, result.dy - gatherY);
+    expect(distAfter).toBeLessThan(distBefore);
+  });
+
+  it('is a bounded pull, not a snap to the gather point', () => {
+    const far = member({ role: 'filler', dx: 60, dy: -50 });
+    const [, result] = applyGatherPoint([member({ role: 'hero' }), far], size);
+    expect(result.dx).not.toBeCloseTo(0, 5);
+    expect(result.dy).not.toBeCloseTo(size * 0.2, 5);
+  });
+
+  it('a larger strength pulls closer to the gather point than a smaller one', () => {
+    const far = member({ role: 'accent', dx: 60, dy: -50 });
+    const gatherY = size * 0.2;
+    const [, weak] = applyGatherPoint([member({ role: 'hero' }), far], size, 0.05);
+    const [, strong] = applyGatherPoint([member({ role: 'hero' }), far], size, 0.3);
+    const distWeak = Math.hypot(weak.dx, weak.dy - gatherY);
+    const distStrong = Math.hypot(strong.dx, strong.dy - gatherY);
+    expect(distStrong).toBeLessThan(distWeak);
+  });
+
+  it('is deterministic and pure (does not mutate the input array)', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: 10, dy: 10 })];
+    const snapshot = JSON.parse(JSON.stringify(members));
+    applyGatherPoint(members, size);
+    expect(members).toEqual(snapshot);
+  });
+});
+
+describe('applyCompanionSpatialBias (Build 010, Section 4: Botanical Relationship Engine V2)', () => {
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 40, dy: -30, rotationDeg: 0, scaleMul: 1, role: 'filler', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op (same reference) when relationship is undefined', () => {
+    const members = [member()];
+    expect(applyCompanionSpatialBias(members, undefined)).toBe(members);
+  });
+
+  it("is a no-op (same reference) when relationship is 'none'", () => {
+    const members = [member()];
+    expect(applyCompanionSpatialBias(members, 'none')).toBe(members);
+  });
+
+  it('only touches filler/accent members, leaving hero/secondary untouched', () => {
+    const hero = member({ role: 'hero' });
+    const secondary = member({ role: 'secondary' });
+    const [heroResult, secondaryResult] = applyCompanionSpatialBias([hero, secondary], 'trailing');
+    expect(heroResult).toEqual(hero);
+    expect(secondaryResult).toEqual(secondary);
+  });
+
+  it('trailing pulls a filler/accent member further from the hero center', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'trailing');
+    expect(Math.hypot(result.dx, result.dy)).toBeGreaterThan(Math.hypot(original.dx, original.dy));
+  });
+
+  it('nesting pulls a filler/accent member closer to the hero center', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'nesting');
+    expect(Math.hypot(result.dx, result.dy)).toBeLessThan(Math.hypot(original.dx, original.dy));
+  });
+
+  it('climbing pulls dx toward 0 (aligns along the vertical stem axis) without changing dy', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'climbing');
+    expect(Math.abs(result.dx)).toBeLessThan(Math.abs(original.dx));
+    expect(result.dy).toBe(original.dy);
+  });
+
+  it('is deterministic and pure (does not mutate the input array)', () => {
+    const members = [member({ role: 'accent' })];
+    const snapshot = JSON.parse(JSON.stringify(members));
+    applyCompanionSpatialBias(members, 'trailing');
+    expect(members).toEqual(snapshot);
   });
 });

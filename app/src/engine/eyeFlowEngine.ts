@@ -100,13 +100,36 @@ function skeletonPoints(path: EyeFlowPath): Array<[number, number]> {
   }
 }
 
+/** Build 010, Section 2 (Visual Story Flow Engine): the audit
+ * (docs/build_reports/BUILD_010_AUDIT.md) found `applyEyeFlow` already pulls
+ * *every* placement in the tile toward one shared skeleton — genuinely
+ * whole-tile, not "just one cluster" — but applies one uniform pull
+ * fraction regardless of role, so hero/secondary/filler/accent placements
+ * all snap toward the path with equal force. A real "story" reads as a
+ * sequence: the eye should land on the hero hardest, then be guided along
+ * the skeleton, with filler/accent trailing off in importance — reusing the
+ * exact hierarchy Build 009 already assigns as the story's own foreground/
+ * background emphasis, rather than inventing a fourth eye-path taxonomy.
+ * An unroled placement (`role` undefined — a layout with no hierarchy
+ * configured) keeps the original uniform multiplier of 1, so every
+ * pre-Build-010 caller that never threads roles through stays unaffected. */
+const STORY_ROLE_PULL_MULTIPLIER: Record<'hero' | 'secondary' | 'filler' | 'accent', number> = {
+  hero: 1.3,
+  secondary: 1,
+  filler: 0.65,
+  accent: 0.45,
+};
+
 /** Pulls every placement a bounded fraction toward its own nearest point on
  * `path`'s real skeleton (wrap-aware, via `periodicOffset`) — the Eye Flow
  * Engine's placement-level bias. `wallpaper` and a non-positive `strength`
  * are both strict no-ops (return `placements` unchanged, same array
  * reference), matching every other optional Composition Intelligence pass:
  * a params object that never sets `eyeFlowPath`/`eyeFlowStrength`
- * reproduces prior output byte-for-byte. */
+ * reproduces prior output byte-for-byte. Build 010, Section 2 additionally
+ * scales each placement's own pull by its role (see
+ * `STORY_ROLE_PULL_MULTIPLIER`'s doc comment) so the whole-tile pull reads
+ * as an intentional story sequence rather than a uniform field. */
 export function applyEyeFlow(placements: Placement[], tileSize: number, path: EyeFlowPath, strength: number): Placement[] {
   if (strength <= 0 || path === 'wallpaper' || placements.length === 0) return placements;
   const anchors = skeletonPoints(path).map(([nx, ny]) => ({ x: nx * tileSize, y: ny * tileSize }));
@@ -126,7 +149,8 @@ export function applyEyeFlow(placements: Placement[], tileSize: number, path: Ey
         bestDy = dy;
       }
     }
-    return { ...p, x: p.x + bestDx * pullFrac, y: p.y + bestDy * pullFrac };
+    const roleMul = p.role ? (STORY_ROLE_PULL_MULTIPLIER[p.role] ?? 1) : 1;
+    return { ...p, x: p.x + bestDx * pullFrac * roleMul, y: p.y + bestDy * pullFrac * roleMul };
   });
 }
 

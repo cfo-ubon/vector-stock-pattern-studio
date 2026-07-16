@@ -300,6 +300,24 @@ export interface GenerateParams {
    * Undefined = every existing default (no Style DNA active, or a style
    * whose resolved rules happen to be the same as the defaults). */
   designRules?: import('./designKnowledge').DesignGenerationRules;
+  /** Build 010, Section 3 (Multi-layer Depth Engine, 0..1): blends filler/
+   * accent motifs' own colors toward the background color (see
+   * engine/depthEngine.ts's `applyDepthColorShift`), giving the tile a real
+   * background-reading plane distinct from hero/secondary's foreground —
+   * expressed as a solid pre-blended color (this codebase's EPS-safe
+   * convention forbids real opacity/blur), not transparency. Undefined/0 =
+   * every motif's colors are completely unaffected, identical to every
+   * pattern generated before this field existed. */
+  depthStrength?: number;
+  /** Build 010, Section 7/8: this generation's own Professional Illustrator
+   * Rules preference (rule of odds — see `generators/premiumHero.ts`'s
+   * `preferOddCount`), reaching `buildPremiumHero` whenever a premium hero
+   * is actually built. Explicit here always wins over
+   * `resolveProfessionalRulesForProduct`'s product fallback (Section 7);
+   * a Style DNA preset's own signature (Section 8) sets this directly for
+   * every style that opts into `premiumHero`. Undefined = every pre-
+   * Build-010 pattern's exact prior member-count roll. */
+  professionalRules?: boolean;
   seed: string;
 }
 

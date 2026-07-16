@@ -258,6 +258,8 @@ export type StyleDnaResolvedFields = Pick<
   | 'clusterArchetypes'
   | 'premiumHero'
   | 'designRules'
+  | 'depthStrength'
+  | 'professionalRules'
 >;
 
 /** Deterministically picks one entry from a Style DNA's preferred list using
@@ -314,6 +316,27 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
   // decision, not left to whichever way the layout happened to lean.
   const asymmetryDirection = pickPreferred(ASYMMETRY_DIRECTIONS, dna.id, seed, 'asymmetryDirection');
 
+  // Build 010, Section 8 (Signature Style Engine): the audit found no
+  // fingerprint to build until Sections 1-7's own new fields existed --
+  // now that they do, every style's real, already-declared `hierarchyPreset`
+  // and `premiumHero` dimensions double as its compositional signature
+  // rather than inventing 15 new hand-authored values from scratch (the
+  // same "reuse an already-real declared dimension" discipline Build 008B's
+  // `premiumScore` reuse for `supportWeightRatio` already established). A
+  // `heroFocus` preset (the styles whose whole hierarchy already exists to
+  // make one hero dominate -- darkBotanical/luxuryFloral/modernTropical)
+  // gets real depth-plane separation reinforcing that same dominant-hero
+  // read (Build 010, Section 3). A `premiumHero: true` preset (the styles
+  // that already assemble a real multi-part bouquet hero -- bohoFloral/
+  // darkBotanical/editorialBotanical/luxuryFloral) additionally opts into
+  // the Premium Rhythm Engine and the Professional Illustrator Rules'
+  // rule-of-odds (Build 010, Sections 5/6) -- a style sophisticated enough
+  // to build a real bouquet hero is exactly the one that should read as
+  // deliberately rhythmic and naturally-grouped, not the generic default.
+  // Every other preset resolves both to undefined, an exact no-op.
+  const depthStrength = dna.hierarchyPreset === 'heroFocus' ? 0.3 : undefined;
+  const professionalRules = dna.premiumHero ? true : undefined;
+
   return {
     categoryId,
     motifSize: generator ? generator.defaultMotifSize : 70,
@@ -329,7 +352,10 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     fillerStyle: BACKGROUND_FILLER[dna.backgroundStrategy],
     flatShadow: depth.flatShadow,
     flatHighlight: depth.flatHighlight,
-    hierarchy: HIERARCHY_PRESETS[dna.hierarchyPreset].value,
+    // Build 010, Section 8 (Signature Style Engine): `premiumRhythm` merged
+    // in (never mutating the shared preset object) only for `premiumHero`
+    // styles -- see `professionalRules`'s own doc comment above for why.
+    hierarchy: dna.premiumHero ? { ...HIERARCHY_PRESETS[dna.hierarchyPreset].value, premiumRhythm: true } : HIERARCHY_PRESETS[dna.hierarchyPreset].value,
     compositionIntelligence: {
       balanceStrength: CLUSTER_BALANCE_STRENGTH[dna.clusterStyle] * (1 - dna.clusterDensity * 0.4),
       rhythmStrength: RHYTHM_STRENGTH[dna.rhythmProfile],
@@ -361,6 +387,8 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     // every Style DNA now generates using its own real, computed rules —
     // see engine/designKnowledge.ts.
     designRules: resolveDesignRules(computeDesignKnowledgeProfile(dna)),
+    depthStrength,
+    professionalRules,
   };
 }
 

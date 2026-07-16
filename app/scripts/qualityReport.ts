@@ -23,6 +23,7 @@ import {
   computeClusterDiversity,
   computeHeroDiversity,
   computeHeroArchetypeDiversity,
+  computeSignatureFingerprintDistinctness,
 } from '../src/engine/portfolioQuality';
 import type { BotanicalFamily } from '../src/generators/botanicalFamilies';
 import { LAYOUTS } from '../src/layouts';
@@ -262,6 +263,21 @@ function buildPortfolioParams(styleId: string, seed: string): GenerateParams {
   return { ...defaultParams(), ...resolved, seed };
 }
 
+// Build 010, Section 9 (Commercial Validation Suite): the Signature Style
+// Engine's (Section 8) 3 new resolved fields (depthStrength/
+// professionalRules/hierarchy.premiumRhythm) are all derived deterministically
+// from each Style DNA preset's own already-declared `hierarchyPreset`/
+// `premiumHero` fields (see styleDna.ts) -- not seed-dependent -- so this is
+// computed once per preset (any fixed seed) rather than once per
+// portfolio/large-portfolio tile, following `computeSignatureFingerprintDistinctness`'s
+// own doc comment on what it measures.
+function computeSignatureFingerprints() {
+  return STYLE_IDS.map((styleId) => {
+    const patch = resolveStyleDna(STYLE_DNA_PRESETS[styleId], 'signature-fingerprint-check');
+    return { depthStrength: patch.depthStrength, professionalRules: patch.professionalRules, premiumRhythm: patch.hierarchy?.premiumRhythm };
+  });
+}
+
 function runPortfolio(): { results: EvalResult[]; droppedPairs: Array<{ styleId: string; seed: string }> } {
   const allPairs = buildPortfolioPairs();
   const kept = allPairs.slice(0, 100);
@@ -288,6 +304,33 @@ function buildLargePortfolioPairs(): Array<{ styleId: string; seed: string }> {
 
 function runLargePortfolio(): EvalResult[] {
   return buildLargePortfolioPairs().map(({ styleId, seed }) => evaluate(`${styleId}@${seed}`, buildPortfolioParams(styleId, seed), styleId));
+}
+
+// ---- Build 010, Section 10: frozen 500-pattern XL Portfolio ----
+// The brief asks specifically for a 500-pattern evaluation (larger than
+// Build 006-009's own established 300-pattern Large Portfolio, which stays
+// exactly as-is above so every prior build's stored baseline JSON remains
+// comparable to future `large` runs) -- this is an additive third tier,
+// not a resize of the existing one, following the exact same "extend,
+// don't redefine" discipline this whole build applied to every reused
+// engine. 15 STYLE_DNA_PRESETS x 34 seeds = 510, deterministically trimmed
+// to the first 500 in preset-major order -- the exact same trim/
+// droppedPairs convention `runPortfolio` already established for its own
+// 105->100 trim, never silently dropped.
+const XL_PORTFOLIO_SEEDS = Array.from({ length: 34 }, (_, i) => `xl-${i + 1}`);
+
+function buildXlPortfolioPairs(): Array<{ styleId: string; seed: string }> {
+  const all: Array<{ styleId: string; seed: string }> = [];
+  for (const styleId of STYLE_IDS) for (const seed of XL_PORTFOLIO_SEEDS) all.push({ styleId, seed });
+  return all;
+}
+
+function runXlPortfolio(): { results: EvalResult[]; droppedPairs: Array<{ styleId: string; seed: string }> } {
+  const allPairs = buildXlPortfolioPairs();
+  const kept = allPairs.slice(0, 500);
+  const droppedPairs = allPairs.slice(500);
+  const results = kept.map(({ styleId, seed }) => evaluate(`${styleId}@${seed}`, buildPortfolioParams(styleId, seed), styleId));
+  return { results, droppedPairs };
 }
 
 // ---- Aggregation ----
@@ -402,17 +445,34 @@ function main() {
   // triples this script's runtime, and Sections 1-8's own before/after
   // passes don't need it.
   const runLarge = process.argv[3] === 'large';
+  // Build 010, Section 10: `xl` opts into the 500-pattern XL Portfolio
+  // Evaluation instead of (not in addition to -- keeps runtime bounded the
+  // same way `large` already does) the 300-pattern one.
+  const runXl = process.argv[3] === 'xl';
   const startedAt = Date.now();
 
   const scenarioResults = runScenarioSuite();
   const { results: portfolioResults, droppedPairs } = runPortfolio();
   const largePortfolioResults = runLarge ? runLargePortfolio() : undefined;
+  const xlPortfolio = runXl ? runXlPortfolio() : undefined;
+  const xlPortfolioResults = xlPortfolio?.results;
+  // Build 010, Section 9: a preset-level statistic (like speciesDiversity,
+  // this can't be a per-tile number -- see computeSignatureFingerprintDistinctness's
+  // own doc comment), computed once over all 15 STYLE_DNA_PRESETS regardless
+  // of portfolio size.
+  const signatureFingerprintDistinctness = computeSignatureFingerprintDistinctness(computeSignatureFingerprints());
   const elapsedMs = Date.now() - startedAt;
 
   const report = {
     generatedAt: new Date().toISOString(),
     label: outArg,
     generationTimeMs: elapsedMs,
+    // Build 010, Section 9 (Commercial Validation Suite): fraction of all
+    // pairs among the 15 real Style DNA presets whose Signature Style Engine
+    // fingerprint (depthStrength/professionalRules/premiumRhythm) genuinely
+    // differs -- see computeSignatureFingerprintDistinctness's own doc
+    // comment for what 0/100 mean.
+    signatureFingerprintDistinctness,
     scenarioSuite: {
       seeds: SCENARIO_SEEDS,
       scenarios: SCENARIO_SUITE,
@@ -466,6 +526,26 @@ function main() {
       heroDiversity: computeHeroDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
       heroArchetypeDiversity: computeHeroArchetypeDiversity(largePortfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
     },
+    // Build 010, Section 10 (500-pattern Portfolio Evaluation): undefined
+    // unless invoked with the `xl` CLI flag -- same "always a real
+    // measurement over the actual run, never fabricated" convention as
+    // largePortfolio above.
+    xlPortfolio: xlPortfolioResults && {
+      seeds: XL_PORTFOLIO_SEEDS,
+      styleIds: STYLE_IDS,
+      count: xlPortfolioResults.length,
+      droppedPairs: xlPortfolio!.droppedPairs,
+      aggregate: aggregateMetrics(xlPortfolioResults),
+      namedPenaltyRates: namedPenaltyRates(xlPortfolioResults),
+      visualIssueRates: visualIssueRates(xlPortfolioResults),
+      byStyleDna: breakdownBy(xlPortfolioResults, (r) => r.styleDnaId ?? 'unknown'),
+      nodeBudgetFailures: xlPortfolioResults.filter((r) => r.nodeCount > NODE_BUDGET).map((r) => ({ label: r.label, nodeCount: r.nodeCount })),
+      speciesDiversity: computeSpeciesDiversity(xlPortfolioResults.map((r) => r.botanicalFamily)),
+      compositionDiversity: computeCompositionDiversity(xlPortfolioResults.map((r) => r.layoutId), Object.keys(LAYOUTS).length),
+      clusterDiversity: computeClusterDiversity(xlPortfolioResults.map((r) => r.botanicalFamily)),
+      heroDiversity: computeHeroDiversity(xlPortfolioResults.map((r) => r.botanicalFamily)),
+      heroArchetypeDiversity: computeHeroArchetypeDiversity(xlPortfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
+    },
   };
 
   const __filename = fileURLToPath(import.meta.url);
@@ -476,6 +556,7 @@ function main() {
   fs.writeFileSync(outPath, JSON.stringify(report, null, 2));
 
   console.log(`Wrote ${outPath}`);
+  console.log(`Signature Fingerprint Distinctness (15 Style DNA presets)=${signatureFingerprintDistinctness}%`);
   console.log(`Scenario suite (n=${scenarioResults.length}): Absolute Commercial Quality mean=${report.scenarioSuite.aggregate.absoluteCommercialQuality.mean}, median=${report.scenarioSuite.aggregate.absoluteCommercialQuality.median}`);
   console.log(`Portfolio (n=${portfolioResults.length}): Absolute Commercial Quality mean=${report.portfolio.aggregate.absoluteCommercialQuality.mean}, median=${report.portfolio.aggregate.absoluteCommercialQuality.median}`);
   console.log(`Portfolio Palette Contrast mean=${report.portfolio.aggregate.paletteContrast.mean}`);
@@ -503,6 +584,15 @@ function main() {
     console.log(`Large Portfolio Species/Composition/Cluster/Hero Diversity=${report.largePortfolio.speciesDiversity}%/${report.largePortfolio.compositionDiversity}%/${report.largePortfolio.clusterDiversity}%/${report.largePortfolio.heroDiversity}%`);
     console.log(`Large Portfolio Hero Archetype Diversity=${report.largePortfolio.heroArchetypeDiversity}%`);
     console.log(`Large Portfolio nodeCount mean=${report.largePortfolio.aggregate.nodeCount.mean}`);
+  }
+  if (report.xlPortfolio) {
+    console.log(`XL Portfolio (n=${report.xlPortfolio.count}): Absolute Commercial Quality mean=${report.xlPortfolio.aggregate.absoluteCommercialQuality.mean}`);
+    console.log(`XL Portfolio Commercial Style Fit mean=${report.xlPortfolio.aggregate.commercialStyleFit.mean}`);
+    console.log(`XL Portfolio Luxury/Editorial/Premium Feeling means=${report.xlPortfolio.aggregate.luxuryFeeling.mean}/${report.xlPortfolio.aggregate.editorialFeeling.mean}/${report.xlPortfolio.aggregate.premiumFeeling.mean}`);
+    console.log(`XL Portfolio Luxury Composition overall mean=${report.xlPortfolio.aggregate.luxuryComposition.mean}`);
+    console.log(`XL Portfolio Species/Composition/Cluster/Hero Diversity=${report.xlPortfolio.speciesDiversity}%/${report.xlPortfolio.compositionDiversity}%/${report.xlPortfolio.clusterDiversity}%/${report.xlPortfolio.heroDiversity}%`);
+    console.log(`XL Portfolio Hero Archetype Diversity=${report.xlPortfolio.heroArchetypeDiversity}%`);
+    console.log(`XL Portfolio nodeCount mean=${report.xlPortfolio.aggregate.nodeCount.mean}`);
   }
   console.log(`Generation time: ${elapsedMs}ms`);
 }

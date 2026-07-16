@@ -4,7 +4,7 @@ import { defaultParams } from './defaults';
 import { serialize } from './svgAst';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
-import { HIERARCHY_PRESETS } from './hierarchy';
+import { HIERARCHY_PRESETS, DEFAULT_HIERARCHY } from './hierarchy';
 import { extractInstances } from './svgGeometry';
 import type { GenerateParams } from './types';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
@@ -330,5 +330,63 @@ describe('buildTile: Product-aware Species Selection (Build 008B, Section 8)', (
         buildTile({ ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, productTarget, seed: `product-species-${productTarget}` }),
       ).not.toThrow();
     }
+  });
+});
+
+describe('buildTile: Product-aware Composition Engine (Build 010, Section 7)', () => {
+  it('omitting productTarget with hierarchy configured reproduces the exact prior output (backward compatible)', () => {
+    const withField = buildTile({
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, hierarchy: DEFAULT_HIERARCHY, seed: 'product-rhythm-none',
+    });
+    const without = {
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, hierarchy: DEFAULT_HIERARCHY, seed: 'product-rhythm-none',
+    } as GenerateParams;
+    delete without.productTarget;
+    const alsoWithout = buildTile(without);
+    expect(serialize(withField.svg)).toBe(serialize(alsoWithout.svg));
+  });
+
+  it('a giftWrap productTarget with hierarchy configured genuinely changes the tile vs. no productTarget (premiumRhythm fallback)', () => {
+    const base = { ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const, hierarchy: DEFAULT_HIERARCHY, seed: 'product-rhythm-giftwrap' };
+    const plain = buildTile(base);
+    const giftWrap = buildTile({ ...base, productTarget: 'giftWrap' as const });
+    expect(serialize(plain.svg)).not.toBe(serialize(giftWrap.svg));
+  });
+
+  it('an explicit hierarchy.premiumRhythm always wins over the product fallback', () => {
+    // Every other product-sensitive dimension is pinned identically in both
+    // variants (same discipline as the depthStrength isolation test below)
+    // so this isolates premiumRhythm specifically.
+    const shared = {
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
+      botanicalFamily: 'olive' as const, compositionIntelligence: undefined, compositionZone: 'diagonal' as const,
+      hierarchy: { ...DEFAULT_HIERARCHY, premiumRhythm: false }, depthStrength: 0, negativeSpace: 1,
+      seed: 'product-rhythm-explicit',
+    };
+    const explicit = buildTile({ ...shared, productTarget: 'giftWrap' as const });
+    const explicitNoProduct = buildTile(shared);
+    expect(serialize(explicit.svg)).toBe(serialize(explicitNoProduct.svg));
+  });
+
+  it('an explicit params.depthStrength always wins over the product fallback', () => {
+    // Every other product-sensitive dimension (botanicalFamily, composition
+    // zone/intelligence, hierarchy.premiumRhythm) is pinned identically in
+    // both variants so this isolates depthStrength specifically -- the same
+    // "pin everything else, vary one dimension" approach the botanicalFamily
+    // no-op test above already established.
+    const shared = {
+      ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
+      botanicalFamily: 'olive' as const, compositionIntelligence: undefined, compositionZone: 'diagonal' as const,
+      hierarchy: { ...DEFAULT_HIERARCHY, premiumRhythm: false }, depthStrength: 0,
+      // Pinned at the [0, 1] clamp ceiling so Build 006's own
+      // resolveNegativeSpaceForProduct adjustment (a real, separate,
+      // pre-existing productTarget effect) clamps to the same value with
+      // or without productTarget -- isolating depthStrength specifically.
+      negativeSpace: 1,
+      seed: 'product-depth-explicit',
+    };
+    const explicit = buildTile({ ...shared, productTarget: 'giftWrap' as const });
+    const explicitNoProduct = buildTile(shared);
+    expect(serialize(explicit.svg)).toBe(serialize(explicitNoProduct.svg));
   });
 });

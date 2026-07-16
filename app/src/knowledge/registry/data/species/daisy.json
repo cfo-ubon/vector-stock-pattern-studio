@@ -37,17 +37,20 @@
     {
       "family": "wildflower",
       "role": "filler",
-      "strength": 0.7
+      "strength": 0.7,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "babysBreath",
       "role": "filler",
-      "strength": 0.75
+      "strength": 0.75,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "herb",
       "role": "foliage",
-      "strength": 0.55
+      "strength": 0.55,
+      "spatialRelationship": "trailing"
     }
   ],
   "usageProfiles": [

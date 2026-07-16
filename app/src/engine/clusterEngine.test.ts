@@ -12,6 +12,7 @@ import {
   pickArchetypePool,
   buildClusterStem,
   __clusterStemTestables,
+  rollPreferOdd,
   type ClusterMember,
   type StemTopology,
 } from './clusterEngine';
@@ -117,6 +118,58 @@ describe('generateCluster', () => {
     const rng = createRng('cluster-count');
     const members = generateCluster('radial', rng, { ...opts, memberCount: 6 });
     expect(members.length).toBe(7); // hero + 6
+  });
+
+  it('preferOddCount biases the default-range roll toward an odd non-hero member count', () => {
+    for (let i = 0; i < 30; i++) {
+      const rng = createRng(`cluster-odd-${i}`);
+      const members = generateCluster('bouquet', rng, { ...opts, preferOddCount: true });
+      expect((members.length - 1) % 2).toBe(1);
+    }
+  });
+
+  it('preferOddCount is a no-op when memberCount is explicit', () => {
+    const rng = createRng('cluster-odd-explicit');
+    const members = generateCluster('bouquet', rng, { ...opts, memberCount: 6, preferOddCount: true });
+    expect(members.length).toBe(7); // hero + 6, even total honored verbatim
+  });
+
+  it('preferOddCount undefined/false reproduces the exact prior roll', () => {
+    const withoutFlag = generateCluster('bouquet', createRng('cluster-odd-compat'), opts);
+    const explicitFalse = generateCluster('bouquet', createRng('cluster-odd-compat'), { ...opts, preferOddCount: false });
+    expect(withoutFlag).toEqual(explicitFalse);
+  });
+});
+
+describe('rollPreferOdd (Build 010, Section 6: Professional Illustrator Rules, "rule of odds")', () => {
+  it('always returns a value within [lo, hi]', () => {
+    for (let i = 0; i < 50; i++) {
+      const n = rollPreferOdd(createRng(`odd-range-${i}`), 4, 6);
+      expect(n).toBeGreaterThanOrEqual(4);
+      expect(n).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it('always returns an odd value when the range contains at least one odd number', () => {
+    for (let i = 0; i < 50; i++) {
+      const n = rollPreferOdd(createRng(`odd-parity-${i}`), 4, 6);
+      expect(n % 2).toBe(1);
+    }
+  });
+
+  it('falls back to -1 at the range ceiling when +1 would exceed hi', () => {
+    // [2, 4]: a roll of 2 nudges to 3 (+1); a roll of 4 can't go to 5
+    // (exceeds hi) so it falls back to 3 (-1); a roll of 3 stays 3 — every
+    // outcome in this range is exactly 3.
+    for (let i = 0; i < 50; i++) {
+      expect(rollPreferOdd(createRng(`odd-ceiling-${i}`), 2, 4)).toBe(3);
+    }
+  });
+
+  it('is deterministic for the same rng sequence', () => {
+    const a = rollPreferOdd(createRng('odd-det'), 4, 10);
+    const b = rollPreferOdd(createRng('odd-det'), 4, 10);
+    expect(a).toBe(b);
   });
 });
 
@@ -259,6 +312,12 @@ describe('placeClusterAnchors', () => {
     const a = placeClusterAnchors(1200, 150, createRng('anchors-det'));
     const b = placeClusterAnchors(1200, 150, createRng('anchors-det'));
     expect(a).toEqual(b);
+  });
+
+  it('avoidTangents undefined/false reproduces the exact prior anchor placement', () => {
+    const withoutFlag = placeClusterAnchors(1200, 150, createRng('anchors-tangent-compat'), undefined);
+    const explicitFalse = placeClusterAnchors(1200, 150, createRng('anchors-tangent-compat'), undefined, false);
+    expect(withoutFlag).toEqual(explicitFalse);
   });
 });
 

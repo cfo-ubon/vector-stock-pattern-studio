@@ -39,17 +39,20 @@
     {
       "family": "eucalyptus",
       "role": "foliage",
-      "strength": 0.85
+      "strength": 0.85,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "fern",
       "role": "foliage",
-      "strength": 0.7
+      "strength": 0.7,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "berryBranch",
       "role": "accentBerry",
-      "strength": 0.55
+      "strength": 0.55,
+      "spatialRelationship": "nesting"
     }
   ],
   "usageProfiles": [

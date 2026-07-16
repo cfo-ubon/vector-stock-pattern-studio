@@ -1,5 +1,5 @@
 import type { Placement, Rng } from './types';
-import { rngRange } from './rng';
+import { rngRange, rngInt } from './rng';
 
 export type MotifRole = 'hero' | 'secondary' | 'filler' | 'accent';
 
@@ -34,6 +34,19 @@ export interface HierarchyParams {
    * `undefined`/`0` (every `HIERARCHY_PRESETS` entry, every pre-Build-009
    * saved pattern) is a strict no-op, reproducing prior output exactly. */
   secondaryHeroBoost?: number;
+  /** Build 010, Section 5 (Premium Rhythm Engine): the audit found
+   * `engine/clusterEngine.ts`'s `SIZE_RHYTHM` already gives cluster
+   * anchors a real, deliberate non-monotonic large/medium/small alternating
+   * sequence (not pure randomness) — but that reach stops at cluster-based
+   * layouts. Non-clustered layouts (grid/scatter/toss/halfDrop) only ever
+   * got a genuinely random +/-22% wobble per instance. `true` applies the
+   * exact same "fixed non-monotonic cycle + randomized per-role start
+   * offset + small residual jitter" idiom here too (see
+   * `PREMIUM_RHYTHM_STEPS`), so each role's own instances read as a
+   * deliberate rhythm rather than statistical noise. Undefined/false is a
+   * strict no-op — every pre-Build-010 pattern (and every `HIERARCHY_PRESETS`
+   * entry, none of which set this) reproduces the exact prior random wobble. */
+  premiumRhythm?: boolean;
 }
 
 export const DEFAULT_HIERARCHY: HierarchyParams = {
@@ -153,6 +166,14 @@ export function sortByLayerPriority(placements: Placement[]): Placement[] {
     .map((e) => e.p);
 }
 
+/** Build 010, Section 5 (Premium Rhythm Engine): the same "fixed,
+ * deliberately non-monotonic cycle, never two equal steps in a row" idiom
+ * as `clusterEngine.ts`'s `SIZE_RHYTHM`, rescaled to stay inside the
+ * existing +/-22% wobble band (values in [0.8, 1.2]) so opting in changes
+ * *which* pattern the per-instance scale follows, not the overall spread
+ * every `HierarchyParams` scale band already assumes. */
+const PREMIUM_RHYTHM_STEPS = [1.18, 0.88, 1.05, 0.94];
+
 function normalizeRatios(h: HierarchyParams): [number, number, number, number] {
   const sum = h.heroRatio + h.secondaryRatio + h.fillerRatio + h.accentRatio;
   if (sum <= 0) return [0, 1, 0, 0];
@@ -165,6 +186,22 @@ function normalizeRatios(h: HierarchyParams): [number, number, number, number] {
  * already produced rather than replacing it. */
 export function applyHierarchy(placements: Placement[], hierarchy: HierarchyParams, rng: Rng): Placement[] {
   const [heroP, secondaryP, fillerP] = normalizeRatios(hierarchy);
+  // Build 010, Section 5: a randomized per-role start offset into
+  // PREMIUM_RHYTHM_STEPS, resolved once per tile — rolled unconditionally
+  // (a fixed rng-consumption shape whether or not the flag ends up true
+  // downstream) would shift every other generation's rng stream, so this
+  // stays strictly inside the `premiumRhythm` branch, matching the same
+  // "no rng cost unless the feature is on" convention every other optional
+  // pass in this file already follows.
+  const rhythmOffsets = hierarchy.premiumRhythm
+    ? {
+        hero: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        secondary: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        filler: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        accent: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+      }
+    : undefined;
+  const rhythmCounts: Record<MotifRole, number> = { hero: 0, secondary: 0, filler: 0, accent: 0 };
   const roled = placements.map((p) => {
     const t = rng();
     let role: MotifRole;
@@ -182,20 +219,33 @@ export function applyHierarchy(placements: Placement[], hierarchy: HierarchyPara
       role = 'accent';
       mul = hierarchy.accentScale;
     }
-    // Build 002, Section 4 (Scale Diversity): a real, wide per-instance
-    // spread within each role's own scale band, not just cosmetic noise —
-    // the old +/-6% wobble left same-role motifs (often 30%+ of a tile's
-    // placements, e.g. DEFAULT_HIERARCHY's 38% secondary / 35% filler)
-    // clustered tightly enough around one multiplier to dominate a single
-    // bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat detector
-    // (SCALE_REPEAT_THRESHOLD 0.5) on almost every real generation — exactly
-    // the repeatedScale flag rate this section measured at 32% portfolio-
-    // wide. +/-22% keeps every role's own band comfortably separated from
-    // its neighbors (hero/secondary/filler/accent multipliers are spaced far
-    // enough apart across every HIERARCHY_PRESETS entry that +/-22% never
-    // makes two roles' ranges overlap), while spreading each role's own
-    // instances across roughly 2 of the detector's 8 buckets instead of 1.
-    const wobble = 1 + rngRange(rng, -0.22, 0.22);
+    let wobble: number;
+    if (rhythmOffsets) {
+      // Build 010, Section 5 (Premium Rhythm Engine): each role tracks its
+      // own position in the shared non-monotonic cycle (not a tile-wide
+      // index), so a role's own instances read as a deliberate rhythm
+      // regardless of how the other roles happen to interleave with it —
+      // a small residual jitter (+/-5%, well inside the step-to-step gaps)
+      // keeps instances from looking mechanically identical within a step.
+      const idx = (rhythmCounts[role] + rhythmOffsets[role]) % PREMIUM_RHYTHM_STEPS.length;
+      rhythmCounts[role]++;
+      wobble = PREMIUM_RHYTHM_STEPS[idx] * (1 + rngRange(rng, -0.05, 0.05));
+    } else {
+      // Build 002, Section 4 (Scale Diversity): a real, wide per-instance
+      // spread within each role's own scale band, not just cosmetic noise —
+      // the old +/-6% wobble left same-role motifs (often 30%+ of a tile's
+      // placements, e.g. DEFAULT_HIERARCHY's 38% secondary / 35% filler)
+      // clustered tightly enough around one multiplier to dominate a single
+      // bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat detector
+      // (SCALE_REPEAT_THRESHOLD 0.5) on almost every real generation — exactly
+      // the repeatedScale flag rate this section measured at 32% portfolio-
+      // wide. +/-22% keeps every role's own band comfortably separated from
+      // its neighbors (hero/secondary/filler/accent multipliers are spaced far
+      // enough apart across every HIERARCHY_PRESETS entry that +/-22% never
+      // makes two roles' ranges overlap), while spreading each role's own
+      // instances across roughly 2 of the detector's 8 buckets instead of 1.
+      wobble = 1 + rngRange(rng, -0.22, 0.22);
+    }
     return { ...p, role, scale: Math.max(0.05, p.scale * mul * wobble) };
   });
   return promoteSecondaryHero(roled, hierarchy);

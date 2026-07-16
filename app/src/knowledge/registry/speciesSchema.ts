@@ -34,6 +34,18 @@ export const SPECIES_SCHEMA_VERSION = '1.0';
 
 export type CompanionRole = 'foliage' | 'filler' | 'accentBerry';
 
+/** Build 010, Section 4 (Botanical Relationship Engine V2): `CompanionRole`
+ * only ever said WHICH part a companion draws (foliage/filler/berry) — real
+ * florist companions also have a real spatial habit relative to the hero
+ * stem, which nothing before this build encoded. `'trailing'` (e.g. a
+ * wispy/airy companion draping past the hero's own footprint), `'nesting'`
+ * (a filler/berry companion tucked in close, behind or among the hero's own
+ * blooms), `'climbing'` (a companion that wraps/aligns along the hero's own
+ * vertical stem axis), or `'none'`/undefined (no spatial bias — the exact
+ * pre-Build-010 behavior). See `generators/premiumHero.ts`'s
+ * `applyCompanionSpatialBias` for the consumer. */
+export type SpatialRelationship = 'trailing' | 'nesting' | 'climbing' | 'none';
+
 export interface SpeciesCompanion {
   family: BotanicalFamily;
   role: CompanionRole;
@@ -41,6 +53,9 @@ export interface SpeciesCompanion {
    * used as the real weight in `pickCompanionFamily`'s roll (Section 2),
    * replacing the old uniform random pick across a flat list. */
   strength: number;
+  /** Build 010, Section 4: optional — undefined/`'none'` reproduces every
+   * pre-Build-010 companion's exact behavior (no spatial bias). */
+  spatialRelationship?: SpatialRelationship;
 }
 
 export type UsageProfileId =
@@ -166,6 +181,12 @@ export function validateSpeciesRecord(record: unknown): SpeciesValidationResult 
       }
       if (typeof companion?.strength !== 'number' || (companion.strength as number) < 0 || (companion.strength as number) > 1) {
         issues.push({ field: `companions[${i}].strength`, message: 'Must be a number in [0, 1].' });
+      }
+      if (companion?.spatialRelationship !== undefined && !['trailing', 'nesting', 'climbing', 'none'].includes(companion.spatialRelationship as string)) {
+        issues.push({
+          field: `companions[${i}].spatialRelationship`,
+          message: `If present, must be one of [trailing, nesting, climbing, none], got ${JSON.stringify(companion.spatialRelationship)}.`,
+        });
       }
     });
   }

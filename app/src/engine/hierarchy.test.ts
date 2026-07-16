@@ -53,6 +53,44 @@ describe('applyHierarchy', () => {
   });
 });
 
+describe('applyHierarchy premiumRhythm (Build 010, Section 5: Premium Rhythm Engine)', () => {
+  it('is a strict no-op (byte-identical scale sequence) when premiumRhythm is undefined', () => {
+    const withoutFlag = applyHierarchy(makePlacements(200), DEFAULT_HIERARCHY, createRng('rhythm-noop'));
+    const explicitFalse = applyHierarchy(makePlacements(200), { ...DEFAULT_HIERARCHY, premiumRhythm: false }, createRng('rhythm-noop'));
+    expect(withoutFlag.map((p) => p.scale)).toEqual(explicitFalse.map((p) => p.scale));
+  });
+
+  it('still scales each role by roughly its configured multiplier when enabled', () => {
+    const rng = createRng('rhythm-scale');
+    const placements = makePlacements(2000);
+    const roled = applyHierarchy(placements, { ...DEFAULT_HIERARCHY, premiumRhythm: true }, rng);
+    const byRole = { hero: [] as number[], secondary: [] as number[], filler: [] as number[], accent: [] as number[] };
+    for (const p of roled) byRole[p.role as keyof typeof byRole].push(p.scale);
+    const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+    expect(avg(byRole.hero)).toBeCloseTo(DEFAULT_HIERARCHY.heroScale, 0);
+    expect(avg(byRole.filler)).toBeCloseTo(DEFAULT_HIERARCHY.fillerScale, 0);
+    expect(avg(byRole.accent)).toBeCloseTo(DEFAULT_HIERARCHY.accentScale, 0);
+  });
+
+  it('produces a deliberate non-monotonic sequence per role (not every consecutive same-role scale is equal)', () => {
+    const rng = createRng('rhythm-sequence');
+    const placements = makePlacements(500);
+    const roled = applyHierarchy(placements, { ...DEFAULT_HIERARCHY, premiumRhythm: true }, rng);
+    const fillerScales = roled.filter((p) => p.role === 'filler').map((p) => p.scale);
+    expect(fillerScales.length).toBeGreaterThan(4);
+    // At least 2 distinct rounded scale values should appear (a real
+    // alternating cycle, not one flat repeated value).
+    const distinct = new Set(fillerScales.map((s) => Math.round(s * 100)));
+    expect(distinct.size).toBeGreaterThan(1);
+  });
+
+  it('is deterministic for the same seed', () => {
+    const a = applyHierarchy(makePlacements(100), { ...DEFAULT_HIERARCHY, premiumRhythm: true }, createRng('rhythm-det'));
+    const b = applyHierarchy(makePlacements(100), { ...DEFAULT_HIERARCHY, premiumRhythm: true }, createRng('rhythm-det'));
+    expect(a.map((p) => p.scale)).toEqual(b.map((p) => p.scale));
+  });
+});
+
 describe('promoteSecondaryHero (via applyHierarchy secondaryHeroBoost)', () => {
   it('is a strict no-op when secondaryHeroBoost is unset', () => {
     const rngA = createRng('secondary-hero-noop');

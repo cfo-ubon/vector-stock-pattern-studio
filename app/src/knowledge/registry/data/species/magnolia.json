@@ -38,12 +38,14 @@
     {
       "family": "olive",
       "role": "foliage",
-      "strength": 0.7
+      "strength": 0.7,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "fern",
       "role": "foliage",
-      "strength": 0.6
+      "strength": 0.6,
+      "spatialRelationship": "nesting"
     }
   ],
   "usageProfiles": [

@@ -11,10 +11,13 @@ import {
   computeClusterDiversity,
   computeHeroDiversity,
   computeHeroArchetypeDiversity,
+  computeSignatureFingerprintDistinctness,
+  type SignatureFingerprint,
 } from './portfolioQuality';
 import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import { BOTANICAL_FAMILIES } from '../generators/botanicalFamilies';
 import type { LayoutId } from './types';
+import { STYLE_DNA_LIST, resolveStyleDna } from './styleDna';
 
 describe('computeIllustrationQuality / computeVisualRichness (Build 005, Section 9)', () => {
   it('produces values in [0, 100] for a real tile', () => {
@@ -138,5 +141,52 @@ describe('computeHeroArchetypeDiversity (Build 009, Section 6: Silhouette Optimi
     const two = computeHeroArchetypeDiversity(['bouquet', 'cascade']);
     expect(oneOnly).toBeGreaterThan(0);
     expect(two).toBeGreaterThan(oneOnly);
+  });
+});
+
+describe('computeSignatureFingerprintDistinctness (Build 010, Section 9: Commercial Validation Suite)', () => {
+  function fp(overrides: Partial<SignatureFingerprint> = {}): SignatureFingerprint {
+    return { depthStrength: undefined, professionalRules: undefined, premiumRhythm: undefined, ...overrides };
+  }
+
+  it('returns 0 for fewer than 2 fingerprints', () => {
+    expect(computeSignatureFingerprintDistinctness([])).toBe(0);
+    expect(computeSignatureFingerprintDistinctness([fp()])).toBe(0);
+  });
+
+  it('returns 0 when every fingerprint is identical (the failure mode the audit warned against)', () => {
+    const all = Array.from({ length: 15 }, () => fp());
+    expect(computeSignatureFingerprintDistinctness(all)).toBe(0);
+  });
+
+  it('returns 100 when every pair of fingerprints differs', () => {
+    const distinct = [
+      fp({ depthStrength: 0.3, professionalRules: true, premiumRhythm: true }),
+      fp({ depthStrength: undefined, professionalRules: undefined, premiumRhythm: undefined }),
+      fp({ depthStrength: 0.1, professionalRules: false, premiumRhythm: false }),
+    ];
+    expect(computeSignatureFingerprintDistinctness(distinct)).toBe(100);
+  });
+
+  it('a mixed set (some distinct, some identical) scores strictly between 0 and 100', () => {
+    const mixed = [
+      fp({ depthStrength: 0.3, professionalRules: true, premiumRhythm: true }),
+      fp({ depthStrength: 0.3, professionalRules: true, premiumRhythm: true }),
+      fp({ depthStrength: undefined, professionalRules: undefined, premiumRhythm: undefined }),
+    ];
+    const score = computeSignatureFingerprintDistinctness(mixed);
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThan(100);
+  });
+
+  it("the real 15 built-in Style DNA presets' resolved signatures score well above 0", () => {
+    // Reuses this build's own real resolution logic (Section 8) rather than
+    // hand-constructed fixtures, so this is a genuine end-to-end honesty
+    // check, not just a unit test of the aggregator in isolation.
+    const fingerprints = STYLE_DNA_LIST.map((dna) => {
+      const patch = resolveStyleDna(dna, 'signature-fingerprint-real-check');
+      return { depthStrength: patch.depthStrength, professionalRules: patch.professionalRules, premiumRhythm: patch.hierarchy?.premiumRhythm };
+    });
+    expect(computeSignatureFingerprintDistinctness(fingerprints)).toBeGreaterThan(0);
   });
 });

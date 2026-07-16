@@ -39,22 +39,26 @@
     {
       "family": "cosmos",
       "role": "filler",
-      "strength": 0.75
+      "strength": 0.75,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "babysBreath",
       "role": "filler",
-      "strength": 0.8
+      "strength": 0.8,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "herb",
       "role": "foliage",
-      "strength": 0.6
+      "strength": 0.6,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "lavender",
       "role": "filler",
-      "strength": 0.55
+      "strength": 0.55,
+      "spatialRelationship": "nesting"
     }
   ],
   "usageProfiles": [

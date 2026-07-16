@@ -37,17 +37,20 @@
     {
       "family": "olive",
       "role": "foliage",
-      "strength": 0.7
+      "strength": 0.7,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "herb",
       "role": "foliage",
-      "strength": 0.65
+      "strength": 0.65,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "wildflower",
       "role": "filler",
-      "strength": 0.5
+      "strength": 0.5,
+      "spatialRelationship": "nesting"
     }
   ],
   "usageProfiles": [

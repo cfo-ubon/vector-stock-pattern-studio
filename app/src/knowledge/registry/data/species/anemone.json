@@ -39,17 +39,20 @@
     {
       "family": "olive",
       "role": "foliage",
-      "strength": 0.75
+      "strength": 0.75,
+      "spatialRelationship": "trailing"
     },
     {
       "family": "fern",
       "role": "foliage",
-      "strength": 0.65
+      "strength": 0.65,
+      "spatialRelationship": "nesting"
     },
     {
       "family": "babysBreath",
       "role": "filler",
-      "strength": 0.7
+      "strength": 0.7,
+      "spatialRelationship": "nesting"
     }
   ],
   "usageProfiles": [

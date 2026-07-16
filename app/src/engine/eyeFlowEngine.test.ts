@@ -71,6 +71,37 @@ describe('applyEyeFlow', () => {
   });
 });
 
+describe('applyEyeFlow role-weighted pull (Build 010, Section 2: Visual Story Flow Engine)', () => {
+  it('pulls a hero placement further than an accent placement at the same starting position', () => {
+    const hero = makePlacement(10, 10, { role: 'hero' });
+    const accent = makePlacement(10, 10, { role: 'accent' });
+    const [heroResult, accentResult] = applyEyeFlow([hero, accent], TILE, 'diagonal', 1);
+    const heroMove = Math.hypot(heroResult.x - hero.x, heroResult.y - hero.y);
+    const accentMove = Math.hypot(accentResult.x - accent.x, accentResult.y - accent.y);
+    expect(heroMove).toBeGreaterThan(accentMove);
+  });
+
+  it('an unroled placement (role undefined) keeps the original uniform pull', () => {
+    const unroled = makePlacement(10, 10);
+    const secondary = makePlacement(10, 10, { role: 'secondary' });
+    const [unroledResult, secondaryResult] = applyEyeFlow([unroled, secondary], TILE, 'diagonal', 1);
+    expect(Math.hypot(unroledResult.x - unroled.x, unroledResult.y - unroled.y)).toBeCloseTo(
+      Math.hypot(secondaryResult.x - secondary.x, secondaryResult.y - secondary.y),
+      6,
+    );
+  });
+
+  it('orders pull magnitude hero > secondary > filler > accent at the same starting position', () => {
+    const roles = ['hero', 'secondary', 'filler', 'accent'] as const;
+    const placements = roles.map((role) => makePlacement(10, 10, { role }));
+    const results = applyEyeFlow(placements, TILE, 'diagonal', 1);
+    const moves = results.map((p, i) => Math.hypot(p.x - placements[i].x, p.y - placements[i].y));
+    expect(moves[0]).toBeGreaterThan(moves[1]);
+    expect(moves[1]).toBeGreaterThan(moves[2]);
+    expect(moves[2]).toBeGreaterThan(moves[3]);
+  });
+});
+
 describe('mapCompositionZoneToEyeFlow', () => {
   it('maps the 4 zones with a real analog', () => {
     expect(mapCompositionZoneToEyeFlow('sCurve')).toBe('sCurve');
