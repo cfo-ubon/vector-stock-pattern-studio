@@ -1,0 +1,76 @@
+preset,presetLabel,seed,categoryId,layoutId,compositionZone,botanicalFamily,clusterType,colorStory,nodeCount,absoluteCommercialQuality,heroVisibility,patternBeautyScore,illustrationQuality,visualRichness,botanicalRealism,luxuryFeeling,editorialFeeling,premiumFeeling,fabricFeeling,wallpaperFeeling,giftWrapFeeling,visualStory,svgFile,pngFile
+editorialBotanical,Editorial Botanical,p-1,botanical,heroFlow,editorial,magnolia,n/a,pastel-dream,2167,89,90.85,83,51,53,24,78,50,94,65,65,60,59,svg/editorialBotanical_p-1.svg,png/editorialBotanical_p-1.png
+editorialBotanical,Editorial Botanical,p-2,botanical,heroFlow,editorial,anemone,n/a,sage-terracotta,2459,89,100,82,55,56,26,94,52,92,65,65,60,60,svg/editorialBotanical_p-2.svg,png/editorialBotanical_p-2.png
+editorialBotanical,Editorial Botanical,p-3,botanical,sCurve,diagonal,magnolia,n/a,pastel-dream,2975,80,90.85,73,55,56,27,74,48,91,65,65,60,59,svg/editorialBotanical_p-3.svg,png/editorialBotanical_p-3.png
+editorialBotanical,Editorial Botanical,p-4,botanical,heroFlow,sCurve,tulip,n/a,sage-terracotta,2248,89,100,82,58,60,42,98,47,95,65,65,60,56,svg/editorialBotanical_p-4.svg,png/editorialBotanical_p-4.png
+editorialBotanical,Editorial Botanical,p-5,botanical,heroFlow,editorial,magnolia,n/a,pastel-dream,2166,90,90.85,83,52,53,19,77,52,93,65,65,60,60,svg/editorialBotanical_p-5.svg,png/editorialBotanical_p-5.png
+luxuryFloral,Luxury Floral,p-1,botanical,heroScatter,diagonal,magnolia,sprayBouquet,jewel-tones,5830,89,100,81,61,58,27,98,46,95,65,65,40,57,svg/luxuryFloral_p-1.svg,png/luxuryFloral_p-1.png
+luxuryFloral,Luxury Floral,p-2,botanical,heroScatter,goldenRatio,rose,sprayBouquet,blush-gold,5815,88,94.4,81,60,57,27,93,49,92,65,65,40,59,svg/luxuryFloral_p-2.svg,png/luxuryFloral_p-2.png
+luxuryFloral,Luxury Floral,p-3,botanical,bouquet,goldenRatio,rose,sprayBouquet,jewel-tones,5945,86,90.1,77,66,54,21,91,56,89,65,65,40,50,svg/luxuryFloral_p-3.svg,png/luxuryFloral_p-3.png
+luxuryFloral,Luxury Floral,p-4,botanical,heroScatter,goldenRatio,rose,sprayBouquet,jewel-tones,6051,88,98.6,82,65,66,31,96,50,93,65,65,40,62,svg/luxuryFloral_p-4.svg,png/luxuryFloral_p-4.png
+luxuryFloral,Luxury Floral,p-5,botanical,heroScatter,goldenRatio,magnolia,sprayBouquet,jewel-tones,6172,88,100,81,61,57,33,96,50,93,65,65,40,58,svg/luxuryFloral_p-5.svg,png/luxuryFloral_p-5.png
+scandinavianOrganic,Scandinavian Organic,p-1,organic,scatter,wave,eucalyptus,organicScatter,scandinavian-calm,657,88,100,83,,,,99,50,92,50,65,60,60,svg/scandinavianOrganic_p-1.svg,png/scandinavianOrganic_p-1.png
+scandinavianOrganic,Scandinavian Organic,p-2,botanical,scatter,centerFocus,eucalyptus,organicScatter,coastal-neutral,2960,86,87.05,80,43,64,33,78,47,77,65,65,60,57,svg/scandinavianOrganic_p-2.svg,png/scandinavianOrganic_p-2.png
+scandinavianOrganic,Scandinavian Organic,p-3,organic,airy,offset,fern,organicScatter,coastal-neutral,774,87,95.6,79,,,,100,52,92,50,65,60,52,svg/scandinavianOrganic_p-3.svg,png/scandinavianOrganic_p-3.png
+scandinavianOrganic,Scandinavian Organic,p-4,organic,airy,centerFocus,fern,organicScatter,coastal-neutral,905,87,96.8,80,,,,99,51,92,50,65,60,53,svg/scandinavianOrganic_p-4.svg,png/scandinavianOrganic_p-4.png
+scandinavianOrganic,Scandinavian Organic,p-5,organic,scatter,wave,fern,organicScatter,coastal-neutral,832,89,100,83,,,,99,50,91,50,65,60,59,svg/scandinavianOrganic_p-5.svg,png/scandinavianOrganic_p-5.png
+minimalBotanical,Minimal Botanical,p-1,botanical,gridMinimal,cornerFlow,olive,n/a,coastal-neutral,696,4,89,67,49,46,44,93,87,86,65,65,60,73,svg/minimalBotanical_p-1.svg,png/minimalBotanical_p-1.png
+minimalBotanical,Minimal Botanical,p-2,botanical,grid,centerFocus,eucalyptus,n/a,mono-charcoal,1507,30,64.30000000000001,78,45,70,38,69,84,73,65,65,45,75,svg/minimalBotanical_p-2.svg,png/minimalBotanical_p-2.png
+minimalBotanical,Minimal Botanical,p-3,botanical,grid,cornerFlow,eucalyptus,n/a,mono-charcoal,1514,46,88.6,79,43,79,31,100,87,92,65,65,60,72,svg/minimalBotanical_p-3.svg,png/minimalBotanical_p-3.png
+minimalBotanical,Minimal Botanical,p-4,botanical,gridMinimal,centerFocus,eucalyptus,n/a,mono-charcoal,514,35,89.8,64,43,39,36,93,67,86,65,65,60,59,svg/minimalBotanical_p-4.svg,png/minimalBotanical_p-4.png
+minimalBotanical,Minimal Botanical,p-5,botanical,grid,centerFocus,eucalyptus,n/a,coastal-neutral,1369,30,68.1,79,42,71,33,72,84,75,65,65,45,77,svg/minimalBotanical_p-5.svg,png/minimalBotanical_p-5.png
+vintageHerbarium,Vintage Herbarium,p-1,botanical,halfDrop,offset,wildflower,organicScatter,terracotta,3548,47,76.45,81,50,73,45,84,91,84,65,65,60,77,svg/vintageHerbarium_p-1.svg,png/vintageHerbarium_p-1.png
+vintageHerbarium,Vintage Herbarium,p-2,botanical,scatter,offset,herb,organicScatter,french-vintage,4388,72,79,80,51,59,49,75,47,78,65,65,60,56,svg/vintageHerbarium_p-2.svg,png/vintageHerbarium_p-2.png
+vintageHerbarium,Vintage Herbarium,p-3,botanical,halfDrop,editorial,herb,organicScatter,earth-tone,3394,47,82.5,82,52,74,53,88,90,87,65,65,60,80,svg/vintageHerbarium_p-3.svg,png/vintageHerbarium_p-3.png
+vintageHerbarium,Vintage Herbarium,p-4,botanical,halfDrop,wave,herb,organicScatter,earth-tone,3521,47,77.55,82,49,72,42,81,91,82,65,65,60,82,svg/vintageHerbarium_p-4.svg,png/vintageHerbarium_p-4.png
+vintageHerbarium,Vintage Herbarium,p-5,botanical,scatter,wave,wildflower,organicScatter,french-vintage,5900,86,89.15,81,49,56,41,86,46,82,65,65,60,56,svg/vintageHerbarium_p-5.svg,png/vintageHerbarium_p-5.png
+darkBotanical,Dark Botanical,p-1,botanical,bouquet,radial,fern,n/a,midnight-botanical,5780,88,92.3,82,58,59,32,91,50,90,65,65,40,61,svg/darkBotanical_p-1.svg,png/darkBotanical_p-1.png
+darkBotanical,Dark Botanical,p-2,botanical,bouquet,centerFocus,berryBranch,n/a,dark-floral,5743,89,93.5,82,59,61,30,92,51,90,65,65,40,57,svg/darkBotanical_p-2.svg,png/darkBotanical_p-2.png
+darkBotanical,Dark Botanical,p-3,botanical,bouquet,diagonal,berryBranch,n/a,dark-floral,6012,88,85.15,80,65,56,45,85,49,86,65,65,40,53,svg/darkBotanical_p-3.svg,png/darkBotanical_p-3.png
+darkBotanical,Dark Botanical,p-4,botanical,sCurve,radial,berryBranch,n/a,dark-floral,5319,58,100,73,62,72,39,92,44,89,65,65,40,60,svg/darkBotanical_p-4.svg,png/darkBotanical_p-4.png
+darkBotanical,Dark Botanical,p-5,botanical,bouquet,radial,berryBranch,n/a,midnight-botanical,6318,87,88.8,81,64,57,35,82,49,84,65,65,40,59,svg/darkBotanical_p-5.svg,png/darkBotanical_p-5.png
+modernTropical,Modern Tropical,p-1,tropical,heroScatter,zFlow,n/a,cornerCluster,citrus-pop,6006,88,85.65,83,,,,82,49,84,65,65,60,58,svg/modernTropical_p-1.svg,png/modernTropical_p-1.png
+modernTropical,Modern Tropical,p-2,tropical,heroScatter,zFlow,n/a,cornerCluster,citrus-pop,5982,88,83.55,84,,,,80,53,83,65,65,60,60,svg/modernTropical_p-2.svg,png/modernTropical_p-2.png
+modernTropical,Modern Tropical,p-3,tropical,heroScatter,zFlow,n/a,cornerCluster,citrus-pop,5887,87,82.5,82,,,,77,50,81,65,65,60,58,svg/modernTropical_p-3.svg,png/modernTropical_p-3.png
+modernTropical,Modern Tropical,p-4,tropical,toss,zFlow,n/a,cornerCluster,ocean-breeze,5989,88,83.55,83,,,,80,51,83,65,65,60,60,svg/modernTropical_p-4.svg,png/modernTropical_p-4.png
+modernTropical,Modern Tropical,p-5,tropical,toss,diagonal,n/a,cornerCluster,ocean-breeze,6012,87,83.9,81,,,,79,48,83,65,65,60,57,svg/modernTropical_p-5.svg,png/modernTropical_p-5.png
+boutiquePackaging,Boutique Packaging,p-1,damask,stripe,cornerFlow,n/a,n/a,blush-gold,850,46,75.55000000000001,81,,,,82,94,86,50,65,60,80,svg/boutiquePackaging_p-1.svg,png/boutiquePackaging_p-1.png
+boutiquePackaging,Boutique Packaging,p-2,geometric,stripe,cornerFlow,n/a,n/a,blush-gold,897,49,88.8,81,,,,95,88,94,50,50,75,76,svg/boutiquePackaging_p-2.svg,png/boutiquePackaging_p-2.png
+boutiquePackaging,Boutique Packaging,p-3,damask,gridMinimal,centerFocus,n/a,n/a,blush-gold,469,14,67.65,63,,,,71,68,78,50,65,45,58,svg/boutiquePackaging_p-3.svg,png/boutiquePackaging_p-3.png
+boutiquePackaging,Boutique Packaging,p-4,geometric,stripe,cornerFlow,n/a,n/a,blush-gold,889,49,89,80,,,,97,87,95,50,50,75,74,svg/boutiquePackaging_p-4.svg,png/boutiquePackaging_p-4.png
+boutiquePackaging,Boutique Packaging,p-5,geometric,stripe,diagonal,n/a,n/a,blush-gold,896,49,93,81,,,,100,87,97,50,50,75,76,svg/boutiquePackaging_p-5.svg,png/boutiquePackaging_p-5.png
+luxuryWallpaper,Luxury Wallpaper,p-1,damask,densePremium,diagonal,n/a,n/a,midnight-botanical,5904,86,85.65,81,,,,83,50,85,50,100,40,62,svg/luxuryWallpaper_p-1.svg,png/luxuryWallpaper_p-1.png
+luxuryWallpaper,Luxury Wallpaper,p-2,damask,densePremium,diagonal,n/a,n/a,midnight-botanical,5912,85,86.35,81,,,,81,52,83,50,100,40,63,svg/luxuryWallpaper_p-2.svg,png/luxuryWallpaper_p-2.png
+luxuryWallpaper,Luxury Wallpaper,p-3,damask,halfDrop,diagonal,n/a,n/a,jewel-tones,5947,49,86.7,82,,,,85,71,87,50,100,40,77,svg/luxuryWallpaper_p-3.svg,png/luxuryWallpaper_p-3.png
+luxuryWallpaper,Luxury Wallpaper,p-4,damask,densePremium,wave,n/a,n/a,jewel-tones,5897,85,86.7,82,,,,84,51,86,50,100,40,64,svg/luxuryWallpaper_p-4.svg,png/luxuryWallpaper_p-4.png
+luxuryWallpaper,Luxury Wallpaper,p-5,damask,halfDrop,wave,n/a,n/a,midnight-botanical,5663,64,86.7,84,,,,85,71,87,50,100,40,77,svg/luxuryWallpaper_p-5.svg,png/luxuryWallpaper_p-5.png
+premiumTextile,Premium Textile,p-1,paisley,brick,wave,n/a,n/a,sage-terracotta,2285,45,72.4,82,,,,79,97,81,65,50,60,82,svg/premiumTextile_p-1.svg,png/premiumTextile_p-1.png
+premiumTextile,Premium Textile,p-2,paisley,halfDrop,wave,n/a,n/a,english-garden,2392,47,93.45,84,,,,99,97,94,65,50,60,87,svg/premiumTextile_p-2.svg,png/premiumTextile_p-2.png
+premiumTextile,Premium Textile,p-3,paisley,halfDrop,diagonal,n/a,n/a,autumn-harvest,5766,43,74.55,81,,,,78,87,77,65,50,60,80,svg/premiumTextile_p-3.svg,png/premiumTextile_p-3.png
+premiumTextile,Premium Textile,p-4,paisley,brick,offset,n/a,n/a,english-garden,5983,44,79.7,82,,,,82,92,79,65,50,60,84,svg/premiumTextile_p-4.svg,png/premiumTextile_p-4.png
+premiumTextile,Premium Textile,p-5,paisley,brick,diagonal,n/a,n/a,english-garden,6044,44,78.1,82,,,,83,93,80,65,50,60,83,svg/premiumTextile_p-5.svg,png/premiumTextile_p-5.png
+kidsPlayful,Kids Playful,p-1,cute,toss,zFlow,n/a,wildCluster,vibrant-pop,6008,85,88.8,81,,,,87,50,83,50,50,75,59,svg/kidsPlayful_p-1.svg,png/kidsPlayful_p-1.png
+kidsPlayful,Kids Playful,p-2,cute,scatter,zFlow,n/a,wildCluster,vibrant-pop,5914,86,94.05,82,,,,91,48,85,50,50,75,58,svg/kidsPlayful_p-2.svg,png/kidsPlayful_p-2.png
+kidsPlayful,Kids Playful,p-3,cute,scatter,offset,n/a,wildCluster,candy-shop,5926,85,89.1,80,,,,83,48,81,50,50,75,57,svg/kidsPlayful_p-3.svg,png/kidsPlayful_p-3.png
+kidsPlayful,Kids Playful,p-4,cute,scatter,offset,n/a,wildCluster,vibrant-pop,5832,86,89.5,81,,,,88,48,83,50,50,75,58,svg/kidsPlayful_p-4.svg,png/kidsPlayful_p-4.png
+kidsPlayful,Kids Playful,p-5,cute,scatter,offset,n/a,wildCluster,vibrant-pop,5886,85,87.75,81,,,,84,49,80,50,50,75,58,svg/kidsPlayful_p-5.svg,png/kidsPlayful_p-5.png
+retroOrganic,Retro Organic,p-1,organic,scatter,sCurve,n/a,diagonal,retro-sunset,3219,87,96.85,78,,,,94,49,94,50,65,60,57,svg/retroOrganic_p-1.svg,png/retroOrganic_p-1.png
+retroOrganic,Retro Organic,p-2,organic,heroFlow,wave,n/a,diagonal,retro-sunset,814,90,96.15,83,,,,94,50,94,50,65,60,58,svg/retroOrganic_p-2.svg,png/retroOrganic_p-2.png
+retroOrganic,Retro Organic,p-3,retro,scatter,wave,n/a,diagonal,autumn-harvest,4177,88,86.35,81,,,,84,49,88,50,50,75,58,svg/retroOrganic_p-3.svg,png/retroOrganic_p-3.png
+retroOrganic,Retro Organic,p-4,retro,heroFlow,diagonal,n/a,diagonal,retro-sunset,1185,89,81.8,83,,,,77,49,84,50,50,75,57,svg/retroOrganic_p-4.svg,png/retroOrganic_p-4.png
+retroOrganic,Retro Organic,p-5,retro,heroFlow,diagonal,n/a,diagonal,retro-sunset,1392,90,100,83,,,,96,52,95,50,50,75,60,svg/retroOrganic_p-5.svg,png/retroOrganic_p-5.png
+organicAbstract,Organic Abstract,p-1,organic,airy,wave,n/a,wildCluster,ocean-breeze,1564,89,96.2,81,,,,99,51,93,50,65,60,53,svg/organicAbstract_p-1.svg,png/organicAbstract_p-1.png
+organicAbstract,Organic Abstract,p-2,organic,airy,radial,n/a,wildCluster,lavender-fields,1349,88,95.6,80,,,,98,49,93,50,65,60,51,svg/organicAbstract_p-2.svg,png/organicAbstract_p-2.png
+organicAbstract,Organic Abstract,p-3,organic,scatter,offset,n/a,wildCluster,ocean-breeze,1353,88,100,82,,,,96,49,90,50,65,60,58,svg/organicAbstract_p-3.svg,png/organicAbstract_p-3.png
+organicAbstract,Organic Abstract,p-4,organic,scatter,wave,n/a,wildCluster,ocean-breeze,1459,88,100,81,,,,98,45,93,50,65,60,55,svg/organicAbstract_p-4.svg,png/organicAbstract_p-4.png
+organicAbstract,Organic Abstract,p-5,organic,scatter,wave,n/a,wildCluster,ocean-breeze,1667,88,100,81,,,,99,49,93,50,65,60,58,svg/organicAbstract_p-5.svg,png/organicAbstract_p-5.png
+bohoFloral,Boho Floral,p-1,botanical,toss,offset,wildflower,sprayBouquet,desert-botanical,5875,88,90.2,83,50,65,38,89,51,84,65,65,60,60,svg/bohoFloral_p-1.svg,png/bohoFloral_p-1.png
+bohoFloral,Boho Floral,p-2,boho,scatter,diagonal,lavender,sprayBouquet,autumn-harvest,5530,82,89.85,77,,,,86,48,82,65,50,60,57,svg/bohoFloral_p-2.svg,png/bohoFloral_p-2.png
+bohoFloral,Boho Floral,p-3,botanical,toss,diagonal,daisy,sprayBouquet,autumn-harvest,5807,87,91.25,82,47,74,22,87,52,82,65,65,60,59,svg/bohoFloral_p-3.svg,png/bohoFloral_p-3.png
+bohoFloral,Boho Floral,p-4,botanical,toss,diagonal,cosmos,sprayBouquet,terracotta,5983,87,90.55,82,47,56,24,89,51,84,65,65,60,60,svg/bohoFloral_p-4.svg,png/bohoFloral_p-4.png
+bohoFloral,Boho Floral,p-5,boho,scatter,zFlow,wildflower,sprayBouquet,terracotta,5403,82,90.2,77,,,,89,46,84,65,50,60,56,svg/bohoFloral_p-5.svg,png/bohoFloral_p-5.png
+softWatercolorInspired,Soft Watercolor Inspired (Vector only),p-1,botanical,scatter,wave,hydrangea,organicScatter,soft-cottage,6544,88,88.45,82,67,64,23,85,48,84,65,65,60,58,svg/softWatercolorInspired_p-1.svg,png/softWatercolorInspired_p-1.png
+softWatercolorInspired,Soft Watercolor Inspired (Vector only),p-2,botanical,scatter,centerFocus,cosmos,organicScatter,pastel-dream,5823,87,75.8,82,50,68,27,62,48,82,65,65,60,57,svg/softWatercolorInspired_p-2.svg,png/softWatercolorInspired_p-2.png
+softWatercolorInspired,Soft Watercolor Inspired (Vector only),p-3,organic,airy,wave,anemone,organicScatter,lavender-fields,1685,88,94.05000000000001,78,,,,95,51,93,50,65,60,49,svg/softWatercolorInspired_p-3.svg,png/softWatercolorInspired_p-3.png
+softWatercolorInspired,Soft Watercolor Inspired (Vector only),p-4,botanical,scatter,offset,anemone,organicScatter,pastel-dream,4442,89,76.14999999999999,82,49,62,24,64,48,86,65,65,60,58,svg/softWatercolorInspired_p-4.svg,png/softWatercolorInspired_p-4.png
+softWatercolorInspired,Soft Watercolor Inspired (Vector only),p-5,organic,scatter,offset,hydrangea,organicScatter,pastel-dream,1600,89,83.5,81,,,,72,47,91,50,65,60,57,svg/softWatercolorInspired_p-5.svg,png/softWatercolorInspired_p-5.png
