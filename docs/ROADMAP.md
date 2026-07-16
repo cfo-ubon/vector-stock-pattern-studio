@@ -87,15 +87,33 @@ Build-numbered, forward-looking. Each entry is either shipped
   improvement (Leaf Realism +2.6, Premium Feel +1.0), zero regressions,
   zero node-budget failures across 430 measured patterns. See
   `docs/build_reports/BUILD_008B_REPORT.md`.
+- **Build 009 — Commercial Art Director Engine**: Visual Hierarchy Engine
+  V2 (`promoteSecondaryHero` + `computeVisualHierarchyScore`), Eye Flow
+  Engine (6 named placement-level bias paths, additive third mechanism
+  alongside `FlowProfile`/`CompositionZone`), Negative Space Designer V2
+  (per-product spacing/rhythm/cluster-looseness strategy), Hero Framing
+  Engine (`applyHeroFraming` push-away + bouquet angular framing),
+  Natural Asymmetry Engine (`applyControlledAsymmetry`), Silhouette
+  Optimization (`computeHeroArchetypeDiversity`, threads Build 008B's
+  hero-archetype roll through `TileData`), Luxury Composition Rules
+  (7-dimension `engine/luxuryComposition.ts`), Product-aware Composition
+  (`resolveCompositionZoneForProduct`). Every mechanism opt-in/additive,
+  verified byte-identical-by-default via no-op tests. Measured against
+  the Build 008B baseline: zero regressions across the 30/100/300-pattern
+  portfolio (aggregate scores moved <0.5 points — expected, since the
+  frozen harness never sets `productTarget` and several mechanisms are
+  deliberately subtle by design; a supplementary spot-check confirmed
+  every mechanism is really wired end to end). See
+  `docs/build_reports/BUILD_009_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_008B_REPORT.md` §15 for the current list)
+## Recommended Next Build (see `docs/build_reports/BUILD_009_REPORT.md` §15 for the current list)
 
-Build 008B's own report has the up-to-date, evidence-based recommendation
-list (add `crescent`/`wallpaper` cluster archetypes, a real
-portfolio-level hero-silhouette-archetype diversity metric, a UI producer
-for `productTarget` on single-tile generation, reconcile the legacy stale
-Style DNA JSON system). The section below is kept for history but
-reflects Build 001.1's own state, not the current one.
+Build 009's own report has the up-to-date, evidence-based recommendation
+list (unify `FlowProfile`/`CompositionZone`, wire `secondaryHeroBoost`
+into a real Style DNA preset, a UI producer for `productTarget` on
+single-tile generation, a dedicated product-aware portfolio harness). The
+section below is kept for history but reflects Build 001.1's own state,
+not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 
