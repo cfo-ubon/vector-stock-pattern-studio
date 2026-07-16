@@ -4,8 +4,10 @@ import { rngPick, rngRange, rngInt } from '../engine/rng';
 import { generateCluster } from '../engine/clusterEngine';
 import { applyHeroDetailOverlay } from '../engine/heroComplexity';
 import { generateStem, growLeaves, GROWTH_PRESETS } from './growth';
+import { calyxBase } from './shared';
 import { botanicalGenerator } from './botanical';
-import type { BotanicalFamily } from './botanicalFamilies';
+import { BOTANICAL_SPECIES, type BotanicalFamily } from './botanicalFamilies';
+import { illustrationTemplateForSpecies } from './illustrationFamily';
 
 // Build 004, Section 8 (Premium Hero Builder): "Heroes should become
 // botanical bouquets. Instead of one flower, construct Hero Flower +
@@ -76,13 +78,22 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // (confirmed via computeBoundingRadius, which re-measures actual SVG
   // geometry independent of the `radius` estimate below) -- not the
   // cluster member spread, which this function already keeps tight.
-  const stem = generateStem(rng, size * 0.4, rngRange(rng, 0.05, 0.1));
+  // Build 005, Section 4 (Botanical Species Engine): the foliage base
+  // used to be one hardcoded preset regardless of which species the hero
+  // actually is. A species now genuinely drives its own hero's growth --
+  // Eucalyptus/Olive/Fern get their own real leaf arrangement/curvature
+  // instead of every family reading as generic "leafyBranch" foliage, and
+  // `stemLengthScale`/`leafDensityScale` (also real per-species data, not
+  // fabricated multipliers) scale the rendered stem length and leaf size.
+  const species = family ? BOTANICAL_SPECIES[family] : undefined;
+  const stem = generateStem(rng, size * 0.4 * (species?.stemLengthScale ?? 1), rngRange(rng, 0.05, 0.1));
   const stemColor = rngPick(rng, accents);
-  const leafPreset = GROWTH_PRESETS.leafyBranch;
+  const leafPreset = species ? GROWTH_PRESETS[species.growthPreset] : GROWTH_PRESETS.leafyBranch;
   const leaves = growLeaves(rng, stem, leafPreset);
   const leafColor = rngPick(rng, accents);
+  const leafDensityScale = species?.leafDensityScale ?? 1;
   const leafNodes = leaves.map((leaf) => {
-    const leafLen = size * rngRange(rng, 0.12, 0.18) * leaf.scale;
+    const leafLen = size * rngRange(rng, 0.12, 0.18) * leaf.scale * leafDensityScale;
     return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [
       h('path', { d: simpleLeafPath(leafLen, leafLen * 0.5), fill: leafColor }),
     ]);
@@ -95,26 +106,43 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     h('g', { 'data-part': 'leaves' }, leafNodes),
   ];
 
+  // Build 005, Section 5 (Illustration Family Engine): which named part
+  // each cluster role maps to now depends on the species' own real
+  // `bouquetRole` (a full bloom, a loose spray of small flowers, or pure
+  // foliage) instead of one hardcoded flower/bud/berry mapping applied to
+  // every family regardless of whether it even has those parts.
+  const template = illustrationTemplateForSpecies(species);
+
   let secondaryToggle = 0;
   let colorSeed = 1;
   for (const member of members) {
     let sub: Motif;
+    let calyx: ReturnType<typeof h> | undefined;
     if (member.role === 'hero') {
-      sub = botanicalGenerator.createMotif(rng, colors, size, colorSeed++, { role: 'hero', part: 'heroFlower', family });
+      sub = botanicalGenerator.createMotif(rng, colors, size, colorSeed++, { role: 'hero', part: template.heroPart, family });
+      // Build 005, Section 3 (Premium SVG Illustration Engine): a real
+      // Calyx Generator (see shared.ts's `calyxBase`) under the hero
+      // flower -- the sepal detail no prior variant drew, reserved for the
+      // hero-scale sub-part where the extra node cost is affordable (see
+      // Section 7's node-budget guardrails; secondary/filler/accent parts
+      // stay calyx-free to keep them cheap). Only drawn for templates
+      // whose hero part is a real flower -- a foliage `branch` hero has no
+      // sepal base to draw.
+      if (template.usesCalyx) calyx = calyxBase(rng, { color: rngPick(rng, accents), flowerRadius: sub.radius });
     } else if (member.role === 'secondary') {
       secondaryToggle++;
-      const part = secondaryToggle % 2 === 1 ? 'bud' : 'secondaryFlower';
+      const part = secondaryToggle % 2 === 1 ? template.secondaryParts[0] : template.secondaryParts[1];
       sub = botanicalGenerator.createMotif(rng, colors, size * 0.55, colorSeed++, { role: 'secondary', part, family });
     } else if (member.role === 'filler') {
-      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: 'berry', family });
+      sub = botanicalGenerator.createMotif(rng, colors, size * 0.4, colorSeed++, { role: 'filler', part: template.fillerPart, family });
     } else {
-      sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: 'tinyAccent', family });
+      sub = botanicalGenerator.createMotif(rng, colors, size * 0.22, colorSeed++, { role: 'accent', part: template.accentPart, family });
     }
     parts.push(
       h(
         'g',
         { transform: `translate(${round(member.dx)} ${round(member.dy)}) rotate(${round(member.rotationDeg)}) scale(${round(member.scaleMul)})` },
-        [sub.node],
+        calyx ? [calyx, sub.node] : [sub.node],
       ),
     );
   }

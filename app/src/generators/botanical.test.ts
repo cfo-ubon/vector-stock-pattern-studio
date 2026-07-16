@@ -87,7 +87,7 @@ describe('botanicalGenerator', () => {
     expect(pool.length).toBeLessThan(BOTANICAL_VARIANTS.length);
   });
 
-  it('Build 004, Section 2: every one of the 15 named families produces valid output when explicitly requested', () => {
+  it('Build 004, Section 2: every one of the 18 named families produces valid output when explicitly requested', () => {
     for (const family of BOTANICAL_FAMILIES) {
       for (let i = 0; i < 8; i++) {
         const motif = botanicalGenerator.createMotif(createRng(`family-${family}-${i}`), COLORS, 70, 0, { family });
@@ -98,8 +98,8 @@ describe('botanicalGenerator', () => {
     }
   });
 
-  it('Build 004, Section 2: 25 variants are registered (21 original + 4 new: magnolia, hydrangea, lavender, berry branch)', () => {
-    expect(BOTANICAL_VARIANTS.length).toBe(25);
+  it('Build 005, Section 4: 29 variants are registered (25 prior + 4 new: rose, protea, palm frond, monstera leaf)', () => {
+    expect(BOTANICAL_VARIANTS.length).toBe(29);
   });
 
   it('produces valid, finite, non-empty SVG for many seeds', () => {

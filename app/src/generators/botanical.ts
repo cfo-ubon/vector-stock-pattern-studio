@@ -8,6 +8,7 @@ import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growt
 import { organicPetalPath, petalRing } from './petals';
 import { BOTANICAL_FAMILIES, type BotanicalFamily } from './botanicalFamilies';
 import { BOTANICAL_PARTS, shapeCategoryForPart, type BotanicalPart, type PartShapeCategory } from './botanicalParts';
+import { palmFrond, monsteraLeaf } from './tropical';
 
 // Botanical / Floral generator. Flat, minimal leaf/flower/branch shapes —
 // no gradients or texture, matching the flat-illustration look common in
@@ -521,6 +522,111 @@ const ranunculusRosette: Variant = (rng, colors, size) => {
     h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.06), fill: core })]),
   ]);
   return { node, radius: r * 0.95 };
+};
+
+/** Build 005, Section 4 (Botanical Species Engine): a classic Rose bloom —
+ * a tight swirled inner "rolled bud" core (a few tightly-overlapping small
+ * petals right at center, distinct from Ranunculus's uniform tight spiral
+ * all the way out) surrounded by 2-3 looser, larger ruffled outer rings
+ * (distinct from Peony's loose ruffle all the way to the center). Gives
+ * the `'rose'` family its own real geometry instead of sharing
+ * Ranunculus's shape under a second name. */
+const roseFlower: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const color = rngPick(rng, accents);
+  const core = blendHex(color, 0.35, colors[0]);
+  const innerCount = rngInt(rng, 5, 7);
+  const innerPetals = petalRing(rng, {
+    count: innerCount,
+    distance: r * 0.05,
+    length: r * 0.3,
+    width: r * 0.26,
+    color: blendHex(color, 0.6, colors[0]),
+    curvature: 0.85,
+    angleJitter: 6,
+    scaleJitter: 0.08,
+  });
+  const outerPetals: ReturnType<typeof h>[] = [];
+  const ringCount = rngInt(rng, 2, 3);
+  for (let ring = 0; ring < ringCount; ring++) {
+    const t = ringCount > 1 ? ring / (ringCount - 1) : 0;
+    const dist = r * (0.15 + t * 0.55);
+    const len = r * (0.5 + t * 0.35);
+    const count = rngInt(rng, 6, 8) + ring * 2;
+    const tone = blendHex(color, 0.85 - t * 0.2, colors[0]);
+    outerPetals.push(
+      ...petalRing(rng, {
+        count,
+        distance: dist,
+        length: len,
+        width: len * 0.8,
+        color: tone,
+        curvature: 0.6,
+        angleJitter: 5,
+        scaleJitter: 0.07,
+        rotationOffset: rngRange(rng, 0, 360 / count),
+      }),
+    );
+  }
+  const node = h('g', {}, [
+    h('g', { 'data-part': 'petals-outer' }, outerPetals),
+    h('g', { 'data-part': 'petals-inner' }, innerPetals),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.04), fill: core })]),
+  ]);
+  return { node, radius: r * 1.05 };
+};
+
+/** Build 005, Section 4: Protea — a tight upright cone of long, stiff,
+ * pointed, overlapping bracts (built from the same rigid petal shape as
+ * Peony's ruffle with `ruffle=0` for a stiffer, un-ruffled edge) around a
+ * fuzzy pincushion center of radiating bristle strokes — the layered-cone-
+ * plus-fuzzy-center silhouette that reads as recognizably "protea" rather
+ * than a generic large bloom. */
+const proteaFlower: Variant = (rng, colors, size) => {
+  const r = size / 2;
+  const accents = accentColors(colors);
+  const bractColor = rngPick(rng, accents);
+  const centerColor = rngPick(rng, accents);
+  const ringCount = rngInt(rng, 3, 4);
+  const bracts: ReturnType<typeof h>[] = [];
+  for (let ring = 0; ring < ringCount; ring++) {
+    const t = ringCount > 1 ? ring / (ringCount - 1) : 0;
+    const dist = r * (0.1 + t * 0.35);
+    const len = r * (0.55 + t * 0.3);
+    const width = len * 0.32;
+    const count = rngInt(rng, 7, 9);
+    const tone = blendHex(bractColor, 0.75 - t * 0.25, colors[0]);
+    const offset = rngRange(rng, 0, 360 / count);
+    for (let i = 0; i < count; i++) {
+      const angle = (360 / count) * i + offset;
+      bracts.push(
+        h('g', { transform: `rotate(${round(angle)}) translate(0 ${round(-dist)})` }, [
+          h('path', { d: peonyPetalPath(len, width, 0), fill: tone }),
+        ]),
+      );
+    }
+  }
+  const bristleCount = rngInt(rng, 14, 20);
+  const bristles: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < bristleCount; i++) {
+    const angle = (360 / bristleCount) * i + rngRange(rng, -4, 4);
+    const len2 = r * rngRange(rng, 0.12, 0.2);
+    const rad = (angle * Math.PI) / 180;
+    bristles.push(
+      h('line', {
+        x1: 0,
+        y1: 0,
+        x2: round(Math.sin(rad) * len2),
+        y2: round(-Math.cos(rad) * len2),
+        stroke: centerColor,
+        'stroke-width': round(r * 0.02),
+        'stroke-linecap': 'round',
+      }),
+    );
+  }
+  const node = h('g', {}, [h('g', { 'data-part': 'petals-outer' }, bracts), h('g', { 'data-part': 'center' }, bristles)]);
+  return { node, radius: r * 1.1 };
 };
 
 /** Papery petal with a soft crinkled edge — a smooth Catmull-Rom curve
@@ -1070,7 +1176,7 @@ const berryBranch: Variant = (rng, colors, size) => {
 
 interface TaggedVariant {
   variant: Variant;
-  /** Which of the 15 named `BotanicalFamily` values this shape belongs to.
+  /** Which of the 18 named `BotanicalFamily` values this shape belongs to.
    * Left `undefined` for shapes that read fine alongside any species — a
    * plain leaf or generic 5-petal bloom, the way a real arrangement mixes
    * a featured flower with neutral filler greenery — so a family filter
@@ -1094,7 +1200,11 @@ const TAGGED_VARIANTS: TaggedVariant[] = [
   { variant: mapleLeaf, category: 'leaf' },
   { variant: heartLeaf, category: 'leaf' },
   { variant: peonyFlower, family: 'peony', category: 'flower' },
-  { variant: ranunculusRosette, family: 'rose', category: 'flower' },
+  { variant: roseFlower, family: 'rose', category: 'flower' },
+  { variant: ranunculusRosette, family: 'ranunculus', category: 'flower' },
+  { variant: proteaFlower, family: 'protea', category: 'flower' },
+  { variant: palmFrond, family: 'tropicalLeaf', category: 'branch' },
+  { variant: monsteraLeaf, family: 'tropicalLeaf', category: 'leaf' },
   { variant: poppyFlower, family: 'wildflower', category: 'flower' },
   { variant: anemoneFlower, family: 'anemone', category: 'flower' },
   { variant: daisyFlower, family: 'daisy', category: 'flower' },
@@ -1122,7 +1232,7 @@ export const BOTANICAL_VARIANTS = VARIANTS;
  * unfiltered pool, so a family hint genuinely narrows what gets drawn
  * instead of being purely cosmetic. Falls back to the full pool only if a
  * family somehow has zero tagged variants (defensive; doesn't happen for
- * any of the 15 real families today). */
+ * any of the 18 real families today). */
 function poolForFamily(family: BotanicalFamily): Variant[] {
   const matches = TAGGED_VARIANTS.filter((t) => t.family === family || t.family === undefined);
   return matches.length > 0 ? matches.map((t) => t.variant) : VARIANTS;
@@ -1158,7 +1268,7 @@ export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
   label: 'Botanical / Floral',
   description:
-    'Flat minimal leaves, blooms, buds and leafy branches — 25 variants across 15 named botanical families (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb), built on a shared curve-quality and botanical-growth engine.',
+    'Flat minimal leaves, blooms, buds and leafy branches — 29 variants across 18 named botanical species (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb, ranunculus, protea, tropical leaf), built on a shared curve-quality and botanical-growth engine.',
   defaultMotifSize: 70,
   createMotif(rng: Rng, colors: string[], size: number, _colorSeed?: number, hints?: MotifCreateHints): Motif {
     const pool = poolForHints(hints);

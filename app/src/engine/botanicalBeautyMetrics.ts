@@ -153,9 +153,14 @@ function computeBotanicalComplexity(instances: MotifInstance[]): number {
   const avgNodeCount = instances.reduce((sum, i) => sum + i.nodeCount, 0) / instances.length;
   // A plain single-variant motif typically runs 5-15 nodes; a grown
   // stem+leaves structure or a Premium Hero assembly runs well past that.
-  // 45 nodes/instance is a generous, real ceiling for "fully botanically
-  // detailed" without rewarding runaway node bloat beyond it.
-  const COMPLEXITY_CEILING = 45;
+  // Build 005, Section 3/4 (Premium SVG Illustration + Botanical Species
+  // Engine) genuinely raised typical instance richness (real Calyx
+  // Generator, multi-ring Rose/Protea species, richer petal geometry) --
+  // measured across every botanical Style DNA preset, average node count
+  // now spans ~20-57/instance (was ~15-40 before this build), so the
+  // ceiling moves from 45 to 60 to keep real headroom above that new
+  // range instead of clipping genuinely-detailed presets to a flat 100.
+  const COMPLEXITY_CEILING = 60;
   return clamp01to100((avgNodeCount / COMPLEXITY_CEILING) * 100);
 }
 

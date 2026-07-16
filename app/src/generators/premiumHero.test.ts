@@ -54,7 +54,7 @@ describe('buildPremiumHero', () => {
     }
   });
 
-  it('every one of the 15 named families produces valid output when explicitly requested', () => {
+  it('every one of the 18 named families produces valid output when explicitly requested', () => {
     for (const family of BOTANICAL_FAMILIES) {
       for (let i = 0; i < 3; i++) {
         const hero = buildPremiumHero(createRng(`premium-hero-family-${family}-${i}`), { colors: COLORS, size: 120, family });
@@ -68,5 +68,21 @@ describe('buildPremiumHero', () => {
   it('radius accounts for the furthest sub-part, not just the hero flower alone', () => {
     const hero = buildPremiumHero(createRng('premium-hero-radius'), { colors: COLORS, size: 200 });
     expect(hero.radius).toBeGreaterThanOrEqual(200 * 0.55);
+  });
+
+  it('Build 005, Section 3: the hero-role sub-part gets a real Calyx (data-part="calyx") that secondary/filler/accent parts don\'t', () => {
+    let sawCalyx = false;
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-calyx-${i}`), { colors: COLORS, size: 120 });
+      const svg = serialize(hero.node);
+      if (svg.includes('data-part="calyx"')) sawCalyx = true;
+    }
+    expect(sawCalyx).toBe(true);
+  });
+
+  it('Build 005, Section 4: a species with real design data (rose) genuinely changes the assembled hero vs. no family hint', () => {
+    const withFamily = buildPremiumHero(createRng('premium-hero-species-effect'), { colors: COLORS, size: 120, family: 'rose' });
+    const withoutFamily = buildPremiumHero(createRng('premium-hero-species-effect'), { colors: COLORS, size: 120 });
+    expect(serialize(withFamily.node)).not.toBe(serialize(withoutFamily.node));
   });
 });

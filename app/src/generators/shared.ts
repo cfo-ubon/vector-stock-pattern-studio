@@ -1,5 +1,7 @@
+import type { Rng } from '../engine/types';
 import { h, round } from '../engine/svgAst';
 import { blendHex } from '../palettes/palettes';
+import { rngRange } from '../engine/rng';
 
 /** Pinnate venation: one midrib plus branching side-vein pairs — every
  * vein is a solid pre-blended stroke (no SVG opacity), EPS-safe by
@@ -40,4 +42,29 @@ export function pinnateVeins(
     }
   }
   return veins;
+}
+
+/** Build 005, Section 3 (Premium SVG Illustration Engine): a real Calyx
+ * Generator -- the small ring of pointed green sepals every real flower
+ * has directly beneath its petals, where the bloom meets the stem. No
+ * variant in this codebase drew one before (`botanical.ts`'s flowers went
+ * straight from petals to stem with nothing between them); a genuine gap
+ * the brief calls out by name, not a cosmetic add-on. Drawn as a fan of
+ * narrow pointed shapes at the base of a bloom, sized relative to the
+ * flower it sits under, with a small seeded angle/length jitter per sepal
+ * so it reads as grown rather than stamped. Shared (like `pinnateVeins`)
+ * so any hero-flower assembly can add one without duplicating the shape. */
+export function calyxBase(rng: Rng, opts: { color: string; flowerRadius: number; sepalCount?: number }): ReturnType<typeof h> {
+  const { color, flowerRadius: r, sepalCount = 5 } = opts;
+  const sepals: ReturnType<typeof h>[] = [];
+  const len = r * 0.32;
+  const width = r * 0.16;
+  for (let i = 0; i < sepalCount; i++) {
+    const angle = (360 / sepalCount) * i + rngRange(rng, -6, 6);
+    const sepalLen = len * rngRange(rng, 0.85, 1.1);
+    const w = width / 2;
+    const d = `M 0 0 Q ${round(w)} ${round(sepalLen * 0.55)} 0 ${round(sepalLen)} Q ${round(-w)} ${round(sepalLen * 0.55)} 0 0 Z`;
+    sepals.push(h('g', { transform: `rotate(${round(angle)})` }, [h('path', { d, fill: color })]));
+  }
+  return h('g', { 'data-part': 'calyx' }, sepals);
 }
