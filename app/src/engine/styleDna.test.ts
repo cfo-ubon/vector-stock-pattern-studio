@@ -4,6 +4,7 @@ import { buildTile } from './tile';
 import { serialize } from './svgAst';
 import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
+import { PRODUCT_USE_IDS } from '../collection/productTargets';
 import {
   STYLE_DNA_PRESETS,
   STYLE_DNA_LIST,
@@ -424,5 +425,22 @@ describe('Style DNA: compatibility', () => {
   it('rejects a style with an empty categories/layouts/palettes list', () => {
     const bad: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, categories: [] };
     expect(isStyleDnaCompatible(bad, { paletteIds: PALETTE_IDS })).toBe(false);
+  });
+});
+
+describe('Style DNA: Commercial Knowledge architecture (Build 005, Section 8)', () => {
+  it('every built-in preset declares real, valid bestProductTargets', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect(dna.exportRecommendation.bestProductTargets).toBeDefined();
+      for (const target of dna.exportRecommendation.bestProductTargets ?? []) {
+        expect(PRODUCT_USE_IDS).toContain(target);
+      }
+    }
+  });
+
+  it('every preset declares at least one product target', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      expect((dna.exportRecommendation.bestProductTargets ?? []).length).toBeGreaterThan(0);
+    }
   });
 });

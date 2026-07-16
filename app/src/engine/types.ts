@@ -272,6 +272,14 @@ export interface GenerateParams {
    * placement completely unaffected — the default for every style that
    * doesn't explicitly opt in. */
   premiumHero?: boolean;
+  /** Build 005, Section 2 (Design Rule Engine): the concrete generation
+   * rules `engine/designKnowledge.ts` resolves from the active Style
+   * DNA's own Design Knowledge Profile (Section 1) — consumed by
+   * `buildPremiumHero` so a style's own hero-count/bouquet-size/stem-
+   * length/leaf-density knowledge genuinely shapes the assembled hero.
+   * Undefined = every existing default (no Style DNA active, or a style
+   * whose resolved rules happen to be the same as the defaults). */
+  designRules?: import('./designKnowledge').DesignGenerationRules;
   seed: string;
 }
 

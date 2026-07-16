@@ -85,4 +85,28 @@ describe('buildPremiumHero', () => {
     const withoutFamily = buildPremiumHero(createRng('premium-hero-species-effect'), { colors: COLORS, size: 120 });
     expect(serialize(withFamily.node)).not.toBe(serialize(withoutFamily.node));
   });
+
+  it('Build 005, Section 2: designRules genuinely change the assembled hero vs. omitting them', () => {
+    const withRules = buildPremiumHero(createRng('premium-hero-rules-effect'), {
+      colors: COLORS,
+      size: 120,
+      designRules: { heroMemberCountRange: [5, 7], bouquetBaseRadiusScale: 1.2, stemLengthMultiplier: 1.3, leafDensityMultiplier: 1.3 },
+    });
+    const withoutRules = buildPremiumHero(createRng('premium-hero-rules-effect'), { colors: COLORS, size: 120 });
+    expect(serialize(withRules.node)).not.toBe(serialize(withoutRules.node));
+  });
+
+  it('Build 005, Section 2: a "full bouquet" design rule set produces a larger radius than a "single" one, all else equal', () => {
+    const full = buildPremiumHero(createRng('premium-hero-rules-radius'), {
+      colors: COLORS,
+      size: 120,
+      designRules: { heroMemberCountRange: [5, 7], bouquetBaseRadiusScale: 1.2, stemLengthMultiplier: 1, leafDensityMultiplier: 1 },
+    });
+    const single = buildPremiumHero(createRng('premium-hero-rules-radius'), {
+      colors: COLORS,
+      size: 120,
+      designRules: { heroMemberCountRange: [3, 4], bouquetBaseRadiusScale: 0.85, stemLengthMultiplier: 1, leafDensityMultiplier: 1 },
+    });
+    expect(full.radius).toBeGreaterThanOrEqual(single.radius);
+  });
 });

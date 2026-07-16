@@ -8,6 +8,7 @@ import { calyxBase } from './shared';
 import { botanicalGenerator } from './botanical';
 import { BOTANICAL_SPECIES, type BotanicalFamily } from './botanicalFamilies';
 import { illustrationTemplateForSpecies } from './illustrationFamily';
+import type { DesignGenerationRules } from '../engine/designKnowledge';
 
 // Build 004, Section 8 (Premium Hero Builder): "Heroes should become
 // botanical bouquets. Instead of one flower, construct Hero Flower +
@@ -43,6 +44,11 @@ export interface PremiumHeroOptions {
   colors: string[];
   size: number;
   family?: BotanicalFamily;
+  /** Build 005, Section 2 (Design Rule Engine): the active Style DNA's own
+   * resolved generation rules (see engine/designKnowledge.ts) — undefined
+   * (no Style DNA, or one whose rules happen to match the defaults below)
+   * reproduces this function's original Build 004 behavior exactly. */
+  designRules?: DesignGenerationRules;
 }
 
 /** Assembles one hero as a real multi-part botanical bouquet: a grown stem
@@ -52,7 +58,7 @@ export interface PremiumHeroOptions {
  * archetype's own arrangement math. Deterministic for a given rng
  * sequence. */
 export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
-  const { colors, size, family } = opts;
+  const { colors, size, family, designRules } = opts;
   const accents = colors.length > 1 ? colors.slice(1) : colors;
 
   // A hero placement is already positioned by its OWN layout's spacing math
@@ -64,11 +70,20 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // radius close to a plain hero's, so it reads as "one richer object" at
   // the same footprint rather than sprawling into space the outer layout
   // reserved for its other members.
+  // Build 005, Section 2 (Design Rule Engine): `heroMemberCountRange`/
+  // `bouquetBaseRadiusScale` come from the active style's own resolved
+  // Design Knowledge -- a "many hero, full bouquet" style genuinely
+  // assembles a bigger, fuller bouquet than a "few hero, small bouquet"
+  // one, on top of (not instead of) the per-species growth already wired
+  // in Section 4. Undefined `designRules` reproduces the original [4,6]/
+  // 1.0 defaults exactly.
+  const memberCountRange = designRules?.heroMemberCountRange ?? [4, 6];
+  const baseRadiusScale = designRules?.bouquetBaseRadiusScale ?? 1;
   const members = generateCluster('bouquet', rng, {
-    baseRadius: size * 0.2,
+    baseRadius: size * 0.2 * baseRadiusScale,
     rotationJitter: 12,
     scaleJitter: 0.15,
-    memberCount: rngInt(rng, 4, 6),
+    memberCount: rngInt(rng, memberCountRange[0], memberCountRange[1]),
   });
 
   // Kept short (a plain hero variant's own stems are similarly compact) --
@@ -85,13 +100,20 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // instead of every family reading as generic "leafyBranch" foliage, and
   // `stemLengthScale`/`leafDensityScale` (also real per-species data, not
   // fabricated multipliers) scale the rendered stem length and leaf size.
+  // Build 005, Section 2: the style's own `stemLengthMultiplier`/
+  // `leafDensityMultiplier` compound with the species' own scale (Section
+  // 4) rather than replacing it -- a "long stem" style drawing a
+  // naturally long-stemmed species reads longer still, while that same
+  // style forced into a naturally short species still reads longer than
+  // its own "short stem" counterpart would.
   const species = family ? BOTANICAL_SPECIES[family] : undefined;
-  const stem = generateStem(rng, size * 0.4 * (species?.stemLengthScale ?? 1), rngRange(rng, 0.05, 0.1));
+  const stemLengthScale = (species?.stemLengthScale ?? 1) * (designRules?.stemLengthMultiplier ?? 1);
+  const stem = generateStem(rng, size * 0.4 * stemLengthScale, rngRange(rng, 0.05, 0.1));
   const stemColor = rngPick(rng, accents);
   const leafPreset = species ? GROWTH_PRESETS[species.growthPreset] : GROWTH_PRESETS.leafyBranch;
   const leaves = growLeaves(rng, stem, leafPreset);
   const leafColor = rngPick(rng, accents);
-  const leafDensityScale = species?.leafDensityScale ?? 1;
+  const leafDensityScale = (species?.leafDensityScale ?? 1) * (designRules?.leafDensityMultiplier ?? 1);
   const leafNodes = leaves.map((leaf) => {
     const leafLen = size * rngRange(rng, 0.12, 0.18) * leaf.scale * leafDensityScale;
     return h('g', { transform: `translate(${round(leaf.point.x)} ${round(leaf.point.y)}) rotate(${round(leaf.angle)})` }, [

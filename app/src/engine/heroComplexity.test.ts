@@ -83,6 +83,34 @@ describe('applyHeroDetailOverlay', () => {
     }
   });
 
+  it('Build 005, Section 7 (Premium Detail System): a large relativeScale produces more detail on average than a small one, for the same role', () => {
+    let largeTotal = 0;
+    let smallTotal = 0;
+    const trials = 40;
+    for (let i = 0; i < trials; i++) {
+      largeTotal += countNodes(
+        applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 30, colors: COLORS, relativeScale: 2.4 }, createRng(`relscale-large-${i}`)),
+      );
+      smallTotal += countNodes(
+        applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 30, colors: COLORS, relativeScale: 0.3 }, createRng(`relscale-small-${i}`)),
+      );
+    }
+    expect(largeTotal / trials).toBeGreaterThan(smallTotal / trials);
+  });
+
+  it('omitting relativeScale reproduces the exact original role-only behavior', () => {
+    const a = applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 30, colors: COLORS }, createRng('relscale-omit'));
+    const b = applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 30, colors: COLORS, relativeScale: undefined }, createRng('relscale-omit'));
+    expect(a).toEqual(b);
+  });
+
+  it('filler/accent stay a strict no-op regardless of relativeScale (role gate still short-circuits first)', () => {
+    for (const role of ['filler', 'accent'] as const) {
+      const result = applyHeroDetailOverlay(BASE_MOTIF, { role, radius: 30, colors: COLORS, relativeScale: 3 }, createRng(`relscale-noop-${role}`));
+      expect(result).toBe(BASE_MOTIF);
+    }
+  });
+
   it('is a no-op when radius is zero or negative', () => {
     const rng = createRng('overlay-zero-radius');
     expect(applyHeroDetailOverlay(BASE_MOTIF, { role: 'hero', radius: 0, colors: COLORS }, rng)).toBe(BASE_MOTIF);

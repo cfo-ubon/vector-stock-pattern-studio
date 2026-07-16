@@ -5,8 +5,11 @@ import { HIERARCHY_PRESETS } from './hierarchy';
 import { GENERATORS } from '../generators';
 import { GROWTH_PRESETS } from '../generators/growth';
 import type { BotanicalFamily } from '../generators/botanicalFamilies';
-import { createRng, rngPick, randomSeed } from './rng';
+import { createRng, randomSeed } from './rng';
 import type { StockSiteId } from '../metadata/shutterstock';
+import type { ProductUseId } from '../collection/productTargets';
+import { computeDesignKnowledgeProfile, resolveDesignRules } from './designKnowledge';
+import { weightedPickPreferred } from './designerBrain';
 
 // Style DNA Engine — turns "category + layout + palette + density + hierarchy
 // + flow + overlap + cluster" (a dozen separate manual choices) into ONE
@@ -52,6 +55,17 @@ export interface StyleDnaExportRecommendation {
   /** Site ids matching the app's own per-site SEO panel (metadata/*.ts) —
    * never invented names outside what the app actually supports. */
   recommendedSites: StockSiteId[];
+  /** Build 005, Section 8 (Commercial Knowledge architecture): which of
+   * the app's own 10 named Product Uses (collection/productTargets.ts —
+   * the same real, rule-based taxonomy `evaluateProductTargets` already
+   * scores collections against) this style's own declared design
+   * identity is curated toward, first = best fit. Architecture only, per
+   * the brief — a hand-authored editorial judgment matching each style's
+   * own description, the same convention `recommendedSites` already
+   * established, not a computed/measured score (no scoring loop exists
+   * yet; wiring `evaluateProductTargets` itself against a style's
+   * generated output is future work, not this section's). */
+  bestProductTargets?: ProductUseId[];
 }
 
 export interface StyleDna {
@@ -175,7 +189,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'laurel', colorStrategy: 'dominantDuo',
     paletteIds: ['pastel-dream', 'sage-terracotta'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['stationery', 'digitalPaper'] },
   },
   luxuryFloral: {
     id: 'luxuryFloral', label: 'Luxury Floral',
@@ -186,7 +200,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'bouquet', clusterDensity: 0.6,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'eucalyptus', colorStrategy: 'highContrast',
     paletteIds: ['jewel-tones', 'blush-gold'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   scandinavianOrganic: {
     id: 'scandinavianOrganic', label: 'Scandinavian Organic',
@@ -197,7 +211,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', colorStrategy: 'monochromeAccent',
     paletteIds: ['coastal-neutral', 'monochrome-blue'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['homeDecor', 'digitalPaper'] },
   },
   minimalBotanical: {
     id: 'minimalBotanical', label: 'Minimal Botanical',
@@ -208,7 +222,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.1,
     motifComplexity: 'simple', botanicalGrowthPreset: 'laurel', colorStrategy: 'monochromeAccent',
     paletteIds: ['mono-charcoal', 'coastal-neutral'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['stationery', 'notebookCovers'] },
   },
   vintageHerbarium: {
     id: 'vintageHerbarium', label: 'Vintage Herbarium',
@@ -219,7 +233,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', botanicalGrowthPreset: 'sage', colorStrategy: 'fullPalette',
     paletteIds: ['earth-tone', 'terracotta'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['stationery', 'wrappingPaper'] },
   },
   darkBotanical: {
     id: 'darkBotanical', label: 'Dark Botanical',
@@ -230,7 +244,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.55,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'fern', colorStrategy: 'highContrast',
     paletteIds: ['midnight-botanical'], backgroundStrategy: 'darkMoody', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1600, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   modernTropical: {
     id: 'modernTropical', label: 'Modern Tropical',
@@ -241,7 +255,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'intricate', colorStrategy: 'highContrast',
     paletteIds: ['citrus-pop', 'ocean-breeze'], backgroundStrategy: 'richContrast', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'shutterstock'], bestProductTargets: ['fabric', 'textile'] },
   },
   boutiquePackaging: {
     id: 'boutiquePackaging', label: 'Boutique Packaging',
@@ -251,7 +265,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'calm', rhythmProfile: 'regular', clusterStyle: 'none', clusterDensity: 0.15,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
     paletteIds: ['blush-gold', 'mono-charcoal'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['packaging', 'giftWrap'] },
   },
   luxuryWallpaper: {
     id: 'luxuryWallpaper', label: 'Luxury Wallpaper',
@@ -261,7 +275,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'directional', rhythmProfile: 'organic', clusterStyle: 'tight', clusterDensity: 0.6,
     motifComplexity: 'intricate', colorStrategy: 'highContrast',
     paletteIds: ['jewel-tones', 'midnight-botanical'], backgroundStrategy: 'richContrast', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1800, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'] },
+    exportRecommendation: { tileSize: 1800, patternScale: 1, recommendedSites: ['adobestock', 'creativemarket'], bestProductTargets: ['wallpaper', 'homeDecor'] },
   },
   premiumTextile: {
     id: 'premiumTextile', label: 'Premium Textile',
@@ -271,7 +285,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'directional', rhythmProfile: 'regular', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'moderate', colorStrategy: 'fullPalette',
     paletteIds: ['sage-terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativefabrica', 'adobestock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativefabrica', 'adobestock'], bestProductTargets: ['fabric', 'textile'] },
   },
   kidsPlayful: {
     id: 'kidsPlayful', label: 'Kids Playful',
@@ -282,7 +296,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.4,
     motifComplexity: 'simple', colorStrategy: 'fullPalette',
     paletteIds: ['candy-shop', 'vibrant-pop'], backgroundStrategy: 'minimalLight', svgDepthMode: 'dimensional',
-    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['shutterstock', 'freepik'] },
+    exportRecommendation: { tileSize: 1200, patternScale: 1, recommendedSites: ['shutterstock', 'freepik'], bestProductTargets: ['stationery', 'giftWrap'] },
   },
   retroOrganic: {
     id: 'retroOrganic', label: 'Retro Organic',
@@ -293,7 +307,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.35,
     motifComplexity: 'moderate', colorStrategy: 'highContrast',
     paletteIds: ['retro-sunset', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['shutterstock', 'adobestock'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['shutterstock', 'adobestock'], bestProductTargets: ['wrappingPaper', 'homeDecor'] },
   },
   organicAbstract: {
     id: 'organicAbstract', label: 'Organic Abstract',
@@ -304,7 +318,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'dynamic', rhythmProfile: 'syncopated', clusterStyle: 'loose', clusterDensity: 0.3,
     motifComplexity: 'intricate', colorStrategy: 'fullPalette',
     paletteIds: ['ocean-breeze', 'lavender-fields'], backgroundStrategy: 'minimalLight', svgDepthMode: 'flat',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['digitalPaper', 'homeDecor'] },
   },
   bohoFloral: {
     id: 'bohoFloral', label: 'Boho Floral',
@@ -315,7 +329,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'dynamic', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.45,
     motifComplexity: 'intricate', botanicalGrowthPreset: 'leafyBranch', colorStrategy: 'fullPalette',
     paletteIds: ['terracotta', 'autumn-harvest'], backgroundStrategy: 'neutralPaper', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['creativemarket', 'creativefabrica'], bestProductTargets: ['fabric', 'wrappingPaper'] },
   },
   softWatercolorInspired: {
     id: 'softWatercolorInspired', label: 'Soft Watercolor Inspired (Vector only)',
@@ -326,7 +340,7 @@ export const STYLE_DNA_PRESETS: Record<string, StyleDna> = {
     flowProfile: 'calm', rhythmProfile: 'organic', clusterStyle: 'loose', clusterDensity: 0.25,
     motifComplexity: 'moderate', colorStrategy: 'dominantDuo',
     paletteIds: ['pastel-dream', 'lavender-fields'], backgroundStrategy: 'minimalLight', svgDepthMode: 'soft',
-    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'] },
+    exportRecommendation: { tileSize: 1400, patternScale: 1, recommendedSites: ['adobestock', 'freepik'], bestProductTargets: ['stationery', 'digitalPaper'] },
   },
 };
 
@@ -360,6 +374,7 @@ export type StyleDnaResolvedFields = Pick<
   | 'botanicalFamily'
   | 'clusterArchetypes'
   | 'premiumHero'
+  | 'designRules'
 >;
 
 /** Deterministically picks one entry from a Style DNA's preferred list using
@@ -370,7 +385,10 @@ export type StyleDnaResolvedFields = Pick<
 function pickPreferred<T>(list: T[], dnaId: string, seed: string, salt: string): T {
   if (list.length === 1) return list[0];
   const rng = createRng(`styledna::${dnaId}::${salt}::${seed}`);
-  return rngPick(rng, list);
+  // Build 005, Section 6 (Designer Brain): favors the list's own
+  // documented "primary/default" (first) entry instead of an equal
+  // coin-flip among every option — see designerBrain.ts's own doc comment.
+  return weightedPickPreferred(rng, list);
 }
 
 /** Resolves a Style DNA into the concrete GenerateParams patch. Every field
@@ -420,6 +438,10 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     botanicalFamily,
     clusterArchetypes: dna.preferredClusterArchetypes,
     premiumHero: dna.premiumHero,
+    // Build 005, Sections 1-2 (Design Knowledge + Design Rule Engine):
+    // every Style DNA now generates using its own real, computed rules —
+    // see engine/designKnowledge.ts.
+    designRules: resolveDesignRules(computeDesignKnowledgeProfile(dna)),
   };
 }
 

@@ -163,6 +163,29 @@ export interface HeroComplexityOptions {
    * "no damping" — every existing caller/test that never passes this
    * field is completely unaffected. */
   instanceCount?: number;
+  /** Build 005, Section 7 (Premium Detail System): this placement's own
+   * final rendered scale multiplier (`engine/types.ts`'s `Placement.scale`
+   * — already computed by hierarchy/cluster/physics, not a new number).
+   * Refines the role-based `level` continuously by *actual* rendered
+   * size ("zoom level"), not just discrete role tiers — a hero placed
+   * unusually large for its role (a wide scaleJitter roll, a strong
+   * cluster hero scale) gets a real detail boost past its role's own
+   * baseline; one placed unusually small for its role gets pulled back
+   * toward filler-like simplicity, maintaining SVG efficiency at the low
+   * end. Undefined leaves the pre-existing role-only behavior unchanged
+   * (every caller that predates this option). */
+  relativeScale?: number;
+}
+
+/** 1.0 at a baseline (unscaled) placement, growing toward 1.25 for a
+ * large instance and shrinking toward ~0.7-0.9 for a small one — a
+ * continuous, bounded refinement, never a replacement for the role-based
+ * `level` above (a filler/accent placement still gets 0 regardless of
+ * how this factor evaluates; `level <= 0` short-circuits in the caller
+ * before this ever gets multiplied in). */
+function sizeFactorFor(relativeScale: number | undefined): number {
+  if (relativeScale === undefined) return 1;
+  return Math.max(0.7, Math.min(1.25, 0.85 + relativeScale * 0.2));
 }
 
 /** Above this many placements on one tile, a tile-wide "how many heroes
@@ -196,7 +219,7 @@ export function applyHeroDetailOverlay(motifNode: SvgNode, opts: HeroComplexityO
   if (level <= 0 || opts.radius <= 0) return motifNode;
   const accents = opts.colors.length > 1 ? opts.colors.slice(1) : opts.colors;
   const color = rngPick(rng, accents);
-  const levelFrac = level / 100;
+  const levelFrac = (level / 100) * sizeFactorFor(opts.relativeScale);
 
   const damping = densityDamping(opts.instanceCount);
   const overlays: SvgNode[] = [];

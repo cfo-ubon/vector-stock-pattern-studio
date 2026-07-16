@@ -334,7 +334,7 @@ export function buildTile(params: GenerateParams): TileData {
       !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
     if (usePremiumHero) premiumHeroesBuilt++;
     const motif = usePremiumHero
-      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily })
+      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily, designRules: params.designRules })
       : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: params.botanicalFamily });
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
@@ -354,7 +354,7 @@ export function buildTile(params: GenerateParams): TileData {
     // internally, so it isn't run through this a second time.
     const detailedNode = usePremiumHero ? motif.node : applyHeroDetailOverlay(
       motif.node,
-      { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length },
+      { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length, relativeScale: placement.scale },
       rng,
     );
     // The shadow copy extends the reach of a placement — include its
