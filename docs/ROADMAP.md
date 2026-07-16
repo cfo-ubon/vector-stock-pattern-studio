@@ -126,13 +126,43 @@ Build-numbered, forward-looking. Each entry is either shipped
   even, not odd — see the report for the low-cost fix). See
   `docs/build_reports/BUILD_010_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_010_REPORT.md` §16 for the current list)
+- **Build 011 — Artistic Intelligence Engine**: Artistic Balance Engine
+  (`computePerceivedWeight` — perceived visual mass × detail density ×
+  color dominance, replacing plain scale×role weight in balance/negative-
+  space correction), Luxury Negative Space Engine
+  (`resolveArtisticBalanceForProduct`/`resolveLayoutArchetypeForProduct`
+  per product), Color Harmony Intelligence (`computeDominantAccentIndex`
+  drives the Color Story's dominant pick, universal across every Style DNA
+  preset), Editorial Layout Intelligence (`resolveLayoutArchetypeForProduct`,
+  shipped as a standalone tested utility — see the report for the honest
+  scoping trade-off), Silhouette Intelligence (`heroArchetype` reaches the
+  previously-dead-code Premium Hero override + a 9th portfolio diversity
+  dimension), Premium Detail Distribution (`detailDistribution` gives
+  filler a small nonzero detail level instead of a flat 0), Commercial
+  Trend Engine (3 new `TREND_PRESETS` + `StyleDna.trendPresetId`
+  cross-references), Portfolio Consistency Engine
+  (`computePortfolioConsistency` + `detectSequentialStyleDrift`, new), and
+  Commercial Appeal Score V2 (`computeCommercialAppealScoreV2`, a new
+  module combining all 6 brief-named dimensions from existing sub-scores).
+  Every mechanism opt-in/additive, verified byte-identical-by-default via
+  no-op tests. Measured against the Build 010 baseline: the 30-scenario
+  suite is byte-identical, the 100/500-pattern portfolios move under 0.5
+  points on every metric (documented cause: `colorHarmonyBias` becoming
+  universally active in Style DNA resolution shifts the RNG-consumption
+  shape by one draw), zero node-budget failures. A new 1000-pattern
+  Consistency Portfolio measured every preset at 72-87/100 Portfolio
+  Consistency (mean 79) with zero presets showing detected sequential
+  style drift. See `docs/build_reports/BUILD_011_REPORT.md`.
 
-Build 010's own report has the up-to-date, evidence-based recommendation
-list (fix the rule-of-odds hero-inclusive count, a dedicated product-aware
-portfolio harness, unify `FlowProfile`/`CompositionZone`, wire Premium
-Rhythm into more presets directly). The section below is kept for history
-but reflects Build 001.1's own state, not the current one.
+## Recommended Next Build (see `docs/build_reports/BUILD_011_REPORT.md` §16 for the current list)
+
+Build 011's own report has the up-to-date, evidence-based recommendation
+list (wire `resolveLayoutArchetypeForProduct` into a real call site once
+`layoutId` gains an optional state, surface Commercial Appeal Score V2 /
+the Consistency Portfolio's per-preset table in a UI panel, re-run the
+Consistency Portfolio as the standard before/after tier for future Style-
+DNA-touching builds). The section below is kept for history but reflects
+Build 001.1's own state, not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 
