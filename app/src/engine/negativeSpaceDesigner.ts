@@ -37,6 +37,15 @@ const PRODUCT_NEGATIVE_SPACE_ADJUSTMENT: Record<ProductUseId, number> = {
   packaging: 0.05,
   notebookCovers: 0.05,
   stationery: 0.08,
+  // Build 012, Section 4: Greeting Card is a focal-object use exactly like
+  // stationery (same real breathing-room rationale); Poster/Canvas are
+  // single fixed-image wall-art prints with no repeat concern at all, so
+  // they get the most breathing room of any product here -- the whole
+  // composition is meant to read as one deliberate framed piece, not a
+  // repeat texture.
+  greetingCard: 0.08,
+  poster: 0.15,
+  canvas: 0.15,
 };
 
 /** Real per-product negative-space adjustment -- see
@@ -140,6 +149,13 @@ const PRODUCT_SPACING_STRATEGY: Record<ProductUseId, ProductSpacingStrategy> = {
   packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'], depthStrength: 0.3, premiumRhythm: true, professionalRules: true, artisticBalance: true },
   notebookCovers: { rhythmMultiplier: 0.9, clusterLooseness: 0.1, preferredZones: ['goldenRatio', 'centerFocus'], depthStrength: 0.3, premiumRhythm: true },
   stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'], depthStrength: 0.35, premiumRhythm: true, professionalRules: true, artisticBalance: true },
+  // Build 012, Section 4: Greeting Card mirrors stationery's own strategy
+  // (same focal single-card-front use). Poster/Canvas are the most extreme
+  // focal-object case in this table -- one hero composition with maximum
+  // real isolation/depth, no repeat-texture concern of any kind.
+  greetingCard: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'], depthStrength: 0.35, premiumRhythm: true, professionalRules: true, artisticBalance: true },
+  poster: { rhythmMultiplier: 0.8, clusterLooseness: 0.3, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.45, premiumRhythm: true, professionalRules: true, artisticBalance: true },
+  canvas: { rhythmMultiplier: 0.8, clusterLooseness: 0.3, preferredZones: ['centerFocus', 'goldenRatio'], depthStrength: 0.45, premiumRhythm: true, professionalRules: true, artisticBalance: true },
 };
 
 /** `productTarget` undefined returns the identity strategy -- a pure

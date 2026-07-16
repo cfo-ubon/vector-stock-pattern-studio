@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { listStyleKnowledge } from '../style';
 import { DEFAULT_LEARNING_HISTORY, recordStyleDnaUsage, type LearningHistory } from '../history';
 import { TREND_PACK_LIST } from '../../trend/trendPacks';
+import { PRODUCT_USE_IDS } from '../../collection/productTargets';
 import {
   recommendStyleDna,
   recommendPalettesForStyle,
@@ -71,7 +72,7 @@ describe('knowledge/recommendation: recommendMarketplacesForStyle', () => {
 describe('knowledge/recommendation: recommendProductUses', () => {
   it('composes the real Product Targets recommender', () => {
     const { evaluations, recommended } = recommendProductUses({ categoryId: 'botanical', tileSize: 1400, density: 0.5, keywordText: 'wallpaper' }, 3);
-    expect(evaluations.length).toBe(10);
+    expect(evaluations.length).toBe(PRODUCT_USE_IDS.length);
     expect(recommended.length).toBeLessThanOrEqual(3);
   });
 });

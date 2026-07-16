@@ -231,7 +231,7 @@ export function evaluate(label: string, params: GenerateParams, styleDnaId?: str
 }
 
 // ---- Frozen 30-scenario suite ----
-const SCENARIO_SUITE: Array<{ layoutId: LayoutId; categoryId: string }> = [
+export const SCENARIO_SUITE: Array<{ layoutId: LayoutId; categoryId: string }> = [
   { layoutId: 'scatter', categoryId: 'botanical' },
   { layoutId: 'scatter', categoryId: 'geometric' },
   { layoutId: 'bouquet', categoryId: 'botanical' },
@@ -243,9 +243,9 @@ const SCENARIO_SUITE: Array<{ layoutId: LayoutId; categoryId: string }> = [
   { layoutId: 'radial', categoryId: 'mandala' },
   { layoutId: 'airy', categoryId: 'botanical' },
 ];
-const SCENARIO_SEEDS = ['ba-1', 'ba-2', 'ba-3'];
+export const SCENARIO_SEEDS = ['ba-1', 'ba-2', 'ba-3'];
 
-function buildScenarioParams(layoutId: LayoutId, categoryId: string, seed: string): GenerateParams {
+export function buildScenarioParams(layoutId: LayoutId, categoryId: string, seed: string): GenerateParams {
   const generator = GENERATORS[categoryId];
   return { ...defaultParams(), categoryId, layoutId, motifSize: generator.defaultMotifSize, seed };
 }
@@ -330,7 +330,7 @@ function runLargePortfolio(): EvalResult[] {
 // to the first 500 in preset-major order -- the exact same trim/
 // droppedPairs convention `runPortfolio` already established for its own
 // 105->100 trim, never silently dropped.
-const XL_PORTFOLIO_SEEDS = Array.from({ length: 34 }, (_, i) => `xl-${i + 1}`);
+export const XL_PORTFOLIO_SEEDS = Array.from({ length: 34 }, (_, i) => `xl-${i + 1}`);
 
 function buildXlPortfolioPairs(): Array<{ styleId: string; seed: string }> {
   const all: Array<{ styleId: string; seed: string }> = [];

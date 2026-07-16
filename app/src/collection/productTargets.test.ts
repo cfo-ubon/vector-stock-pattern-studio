@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateProductTargets, recommendedProductUses, PRODUCT_USE_IDS } from './productTargets';
+import { evaluateProductTargets, recommendedProductUses, isRepeatProduct, PRODUCT_USE_IDS } from './productTargets';
 
 describe('evaluateProductTargets', () => {
-  it('always returns all 10 product uses', () => {
+  it('always returns all product uses (13, including Build 012 Section 4 additions)', () => {
     const results = evaluateProductTargets({ categoryId: 'botanical', tileSize: 1400, density: 0.5, keywordText: 'luxury botanical' });
     expect(results.map((r) => r.id).sort()).toEqual([...PRODUCT_USE_IDS].sort());
   });
@@ -73,6 +73,43 @@ describe('evaluateProductTargets', () => {
       expect(scoreOf(withHighHeroVisibility)).toBe(scoreOf(withoutHeroVisibility));
       expect(scoreOf(withLowHeroVisibility)).toBe(scoreOf(withoutHeroVisibility));
     });
+  });
+});
+
+describe('Build 012, Section 4: greetingCard/poster/canvas', () => {
+  it('includes all 3 new products in every evaluation, same convention as the original 10', () => {
+    const results = evaluateProductTargets({ categoryId: 'botanical', tileSize: 1400, density: 0.5, keywordText: '' });
+    for (const id of ['greetingCard', 'poster', 'canvas']) {
+      expect(results.some((r) => r.id === id)).toBe(true);
+    }
+  });
+
+  it('an explicit poster keyword match strongly boosts poster to the top', () => {
+    const results = evaluateProductTargets({ categoryId: 'mandala', tileSize: 2000, density: 0.5, keywordText: 'wall art poster' });
+    expect(results[0].id).toBe('poster');
+  });
+
+  it('an explicit canvas keyword match strongly boosts canvas to the top', () => {
+    const results = evaluateProductTargets({ categoryId: 'botanical', tileSize: 2000, density: 0.5, keywordText: 'canvas print for wall decor' });
+    expect(results[0].id).toBe('canvas');
+  });
+
+  it('an explicit greeting card keyword match strongly boosts greetingCard to the top', () => {
+    const results = evaluateProductTargets({ categoryId: 'cute', tileSize: 1200, density: 0.5, keywordText: 'greeting card', heroVisibility: 90 });
+    expect(results[0].id).toBe('greetingCard');
+  });
+});
+
+describe('isRepeatProduct', () => {
+  it('marks poster and canvas as non-repeat products', () => {
+    expect(isRepeatProduct('poster')).toBe(false);
+    expect(isRepeatProduct('canvas')).toBe(false);
+  });
+
+  it('marks every other product (including greetingCard) as a repeat product, preserving prior behavior', () => {
+    for (const id of ['wallpaper', 'fabric', 'wrappingPaper', 'giftWrap', 'packaging', 'notebookCovers', 'stationery', 'homeDecor', 'textile', 'digitalPaper', 'greetingCard']) {
+      expect(isRepeatProduct(id as (typeof PRODUCT_USE_IDS)[number])).toBe(true);
+    }
   });
 });
 

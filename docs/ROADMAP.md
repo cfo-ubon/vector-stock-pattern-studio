@@ -154,7 +154,49 @@ Build-numbered, forward-looking. Each entry is either shipped
   Consistency (mean 79) with zero presets showing detected sequential
   style drift. See `docs/build_reports/BUILD_011_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_011_REPORT.md` §16 for the current list)
+- **Build 011.5 — Commercial Reality Check**: evidence-driven commercial
+  audit (no generation-engine changes) — 1,500-pattern portfolio (100 seeds
+  x 15 presets), full art-director-style dimension mapping, competitor
+  comparison, and a single, precisely-scoped Build 012 recommendation.
+  Headline finding: 3 presets (Minimal Botanical, Boutique Packaging,
+  Premium Textile) scored 31-44 mean Absolute Commercial Quality (92-100%
+  failure rate) despite rendering legitimately well — root-caused to a
+  layout-scoring integrity bug (regular-lattice layouts' own deliberate
+  even spacing/axis alignment triggering soft penalty rules designed for
+  organic layouts). See `docs/build_reports/BUILD_011_5_REPORT.md`.
+
+- **Build 012 — Evaluation Intelligence Engine V3**: fixed Build 011.5's
+  own diagnosed bug. New layout-aware (`engine/layoutEvaluation.ts`),
+  style-aware (`engine/styleEvaluation.ts`), and product-aware
+  (3 new `ProductUseId`s — Greeting Card/Poster/Canvas) evaluation context;
+  Penalty System V2 (`engine/penaltyRulesV2.ts`) gates 8 of the original 18
+  soft-penalty rules to organic-layout-only applicability, each with a
+  documented `reason`/`confidence` derived from measured bias data (not
+  tuned by feel); Commercial Judge V2 (`critic/commercialJudgeV2.ts`) and
+  a full explainability trace (`engine/scoringV2.ts`). Wired into the live
+  "Generate Best" candidate ranking and the Trend Studio quality gate (the
+  latter was a real live bug — lattice-layout patterns could be wrongly
+  blocked from export/SEO/collection generation). Measured against the
+  same 4 frozen tiers Build 011/011.5 established: all 3 target presets
+  recover to 77-80 mean (0% failure, from 31-44/92-100%), the 2 mixed-
+  layout presets recover to 83-85 (0% failure, from 65-70/34-46%), and
+  every one of the other 10 already-healthy presets scores byte-identically
+  (delta = 0) before and after — direct proof of a bias fix, not score
+  inflation. See `docs/build_reports/BUILD_012_REPORT.md`.
+
+## Recommended Next Build (see `docs/build_reports/BUILD_012_REPORT.md` for the current list)
+
+Build 012 fixed the evaluation-layer bias Build 011.5 diagnosed. With the
+scoring layer now trustworthy across every preset, the natural next step is
+extending the same layout/product context this build introduced to the two
+explicitly-scoped-out consumption points (`critic/visualAnalysis.ts`'s own
+duplicate `gridAppearance` visual-issue flag, `metadata/submissionCenter.ts`'s
+checklist display) using the exact same `layoutEvaluationClass` pattern, plus
+Build 011.5's own remaining recommendations for artistic quality (hero-scale-
+dominance gap, botanical-category coverage). The section below is kept for
+history but reflects Build 011's own state, not the current one.
+
+## Recommended Next Build (superseded — see below for Build 011's own list)
 
 Build 011's own report has the up-to-date, evidence-based recommendation
 list (wire `resolveLayoutArchetypeForProduct` into a real call site once

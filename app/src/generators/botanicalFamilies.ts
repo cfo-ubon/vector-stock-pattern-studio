@@ -144,6 +144,15 @@ const PRODUCT_USAGE_PROFILE: Record<ProductUseId, UsageProfileId> = {
   homeDecor: 'wallpaper',
   textile: 'textile',
   digitalPaper: 'minimal',
+  // Build 012, Section 4: Greeting Card now has its own real `ProductUseId`
+  // (Build 011.5 used `stationery` as an honest documented proxy for it —
+  // this maps the real id directly to the matching real usage profile
+  // instead). Poster/Canvas are wall-art display pieces -- the same
+  // hero-driven, single-composition usage profile `editorialBotanical`
+  // already represents.
+  greetingCard: 'greetingCard',
+  poster: 'editorialBotanical',
+  canvas: 'editorialBotanical',
 };
 
 /** Real families that fit `productTarget`'s own mapped usage profile
