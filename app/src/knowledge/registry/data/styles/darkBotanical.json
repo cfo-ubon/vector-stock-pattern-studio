@@ -1,0 +1,53 @@
+{
+  "id": "darkBotanical",
+  "label": "Dark Botanical",
+  "description": "Moody midnight palette, tightly clustered hero foliage, dimensional depth.",
+  "categories": [
+    "botanical"
+  ],
+  "layouts": [
+    "bouquet",
+    "sCurve"
+  ],
+  "preferredZones": [
+    "radial",
+    "diagonal",
+    "centerFocus"
+  ],
+  "hierarchyPreset": "heroFocus",
+  "preferredFamilies": [
+    "fern",
+    "magnolia",
+    "berryBranch"
+  ],
+  "premiumHero": true,
+  "density": 0.55,
+  "negativeSpace": 0.1,
+  "overlapMode": "natural",
+  "overlapAmount": 0.2,
+  "flowProfile": "directional",
+  "rhythmProfile": "organic",
+  "clusterStyle": "tight",
+  "clusterDensity": 0.55,
+  "motifComplexity": "intricate",
+  "botanicalGrowthPreset": "fern",
+  "colorStrategy": "highContrast",
+  "paletteIds": [
+    "midnight-botanical",
+    "dark-floral"
+  ],
+  "backgroundStrategy": "darkMoody",
+  "svgDepthMode": "dimensional",
+  "exportRecommendation": {
+    "tileSize": 1600,
+    "patternScale": 1,
+    "recommendedSites": [
+      "adobestock",
+      "creativemarket"
+    ],
+    "bestProductTargets": [
+      "wallpaper",
+      "homeDecor"
+    ]
+  }
+}

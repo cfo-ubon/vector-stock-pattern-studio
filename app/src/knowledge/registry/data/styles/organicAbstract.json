@@ -1,0 +1,50 @@
+{
+  "id": "organicAbstract",
+  "label": "Organic Abstract",
+  "description": "Loose abstract organic scatter with syncopated rhythm and full palette range.",
+  "categories": [
+    "organic"
+  ],
+  "layouts": [
+    "scatter",
+    "airy"
+  ],
+  "preferredZones": [
+    "offset",
+    "radial",
+    "wave"
+  ],
+  "hierarchyPreset": "minimalRepeat",
+  "preferredClusterArchetypes": [
+    "wildCluster",
+    "organicScatter"
+  ],
+  "density": 0.4,
+  "negativeSpace": 0.35,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.1,
+  "flowProfile": "dynamic",
+  "rhythmProfile": "syncopated",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.3,
+  "motifComplexity": "intricate",
+  "colorStrategy": "fullPalette",
+  "paletteIds": [
+    "ocean-breeze",
+    "lavender-fields"
+  ],
+  "backgroundStrategy": "minimalLight",
+  "svgDepthMode": "flat",
+  "exportRecommendation": {
+    "tileSize": 1400,
+    "patternScale": 1,
+    "recommendedSites": [
+      "adobestock",
+      "freepik"
+    ],
+    "bestProductTargets": [
+      "digitalPaper",
+      "homeDecor"
+    ]
+  }
+}
