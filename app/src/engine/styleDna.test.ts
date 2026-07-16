@@ -161,6 +161,70 @@ describe('Style DNA: Style Grammar zone preferences (Build 003, Part 7)', () => 
   });
 });
 
+describe('Style DNA: Eye Flow Engine wiring (Build 009, Section 2)', () => {
+  it('resolves a matching eyeFlowPath whenever compositionZone lands on one of the 4 mapped zones', () => {
+    const mapped = new Set(['sCurve', 'diagonal', 'editorial', 'goldenRatio']);
+    const expected: Record<string, string> = { sCurve: 'sCurve', diagonal: 'diagonal', editorial: 'editorial', goldenRatio: 'spiral' };
+    for (const dna of STYLE_DNA_LIST) {
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `eyeflow-mapping-${i}`);
+        if (patch.compositionZone && mapped.has(patch.compositionZone)) {
+          expect(patch.compositionIntelligence!.eyeFlowPath).toBe(expected[patch.compositionZone]);
+          expect(patch.compositionIntelligence!.eyeFlowStrength).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('leaves eyeFlowPath undefined for a style with no zone preference', () => {
+    const noZone: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: undefined };
+    const patch = resolveStyleDna(noZone, 'no-zone-eyeflow-check');
+    expect(patch.compositionIntelligence!.eyeFlowPath).toBeUndefined();
+    expect(patch.compositionIntelligence!.eyeFlowStrength).toBeUndefined();
+  });
+
+  it('leaves eyeFlowPath undefined when the resolved zone has no honest Eye Flow analog', () => {
+    const unmapped: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: ['radial'] };
+    const patch = resolveStyleDna(unmapped, 'unmapped-zone-eyeflow-check');
+    expect(patch.compositionZone).toBe('radial');
+    expect(patch.compositionIntelligence!.eyeFlowPath).toBeUndefined();
+  });
+});
+
+describe('Style DNA: Natural Asymmetry Engine wiring (Build 009, Section 5)', () => {
+  it('resolves a real asymmetryDirection + positive asymmetryStrength for every preset', () => {
+    const validDirections = new Set(['left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight']);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'asymmetry-check');
+      expect(validDirections.has(patch.compositionIntelligence!.asymmetryDirection!)).toBe(true);
+      expect(patch.compositionIntelligence!.asymmetryStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same direction', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'asymmetry-determinism-check');
+    const b = resolveStyleDna(dna, 'asymmetry-determinism-check');
+    expect(a.compositionIntelligence!.asymmetryDirection).toBe(b.compositionIntelligence!.asymmetryDirection);
+  });
+
+  it('different seeds explore more than one direction across many draws', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const seen = new Set<string>();
+    for (let i = 0; i < 40; i++) {
+      seen.add(resolveStyleDna(dna, `asymmetry-variety-${i}`).compositionIntelligence!.asymmetryDirection!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('every preset still resolves to a buildable tile with the asymmetry nudge active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'asymmetry-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'asymmetry-build-check' })).not.toThrow();
+    }
+  });
+});
+
 describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
   it('every style whose categories include botanical declares at least one preferred family', () => {
     for (const dna of STYLE_DNA_LIST) {
@@ -234,6 +298,23 @@ describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
     expect(svgOn).not.toBe(svgOff);
     expect(svgOn).toContain('data-part="premium-hero"');
     expect(svgOff).not.toContain('data-part="premium-hero"');
+  });
+
+  it('Build 009, Section 6: a premium hero tile reports real premiumHeroArchetypes on TileData', () => {
+    const on = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-archetype-thread');
+    const tile = buildTile({ ...defaultParams(), ...on, seed: 'premium-hero-archetype-thread' });
+    expect(tile.premiumHeroArchetypes).toBeDefined();
+    expect(tile.premiumHeroArchetypes!.length).toBeGreaterThan(0);
+    const validArchetypes = new Set(['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial']);
+    for (const archetype of tile.premiumHeroArchetypes!) {
+      expect(validArchetypes.has(archetype)).toBe(true);
+    }
+  });
+
+  it('Build 009, Section 6: leaves premiumHeroArchetypes undefined when premiumHero is off', () => {
+    const off = resolveStyleDna({ ...STYLE_DNA_PRESETS.luxuryFloral, premiumHero: false }, 'premium-hero-archetype-off');
+    const tile = buildTile({ ...defaultParams(), ...off, seed: 'premium-hero-archetype-off' });
+    expect(tile.premiumHeroArchetypes).toBeUndefined();
   });
 
   it('a preferred family actually reaches the layout via a real tile build (no throw, botanicalFamily resolved)', () => {

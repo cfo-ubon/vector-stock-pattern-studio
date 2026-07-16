@@ -1,4 +1,6 @@
 import type { ProductUseId } from '../collection/productTargets';
+import type { CompositionIntelligenceParams } from './compositionIntelligence';
+import type { CompositionZone } from './compositionZones';
 
 // Build 006, Section 5 (Negative Space Designer): the brief asks for
 // negative space to become "intentional" -- detect the product a pattern
@@ -45,4 +47,104 @@ export function resolveNegativeSpaceForProduct(baseNegativeSpace: number, produc
   if (productTarget === undefined) return baseNegativeSpace;
   const adjustment = PRODUCT_NEGATIVE_SPACE_ADJUSTMENT[productTarget] ?? 0;
   return Math.max(0, Math.min(1, baseNegativeSpace + adjustment));
+}
+
+/** Build 009, Section 3 (Negative Space Designer V2): the brief asks for
+ * spacing logic that differs per product, not just the single spacing dial
+ * `PRODUCT_NEGATIVE_SPACE_ADJUSTMENT` already nudges. Two more real,
+ * already-implemented dimensions genuinely differ by product the same
+ * design-convention way spacing does: a repeat-forward print (wallpaper/
+ * fabric/textile) wants a *tighter, more consistent rhythm* (so the seam
+ * disappears into a steady overall texture) and slightly *tighter* clusters
+ * (a busier, more all-over field); a focal-object print (gift wrap/
+ * stationery/packaging) wants the opposite -- a bit more organic rhythm
+ * variation is fine (it reads as hand-arranged, not machine-repeated), and
+ * looser clusters so the hero motif gets real isolation to read as the
+ * single gift-worthy moment. `rhythmMultiplier` scales
+ * `compositionIntelligence.rhythmStrength`; `clusterLooseness` (-1..1,
+ * negative = tighter/more attraction, positive = looser/less attraction)
+ * scales `attractionStrength` in the opposite direction. The identity
+ * strategy (1, 0) is a strict no-op.
+ *
+ * Build 009, Section 8 (Product-aware Composition): `preferredZones` (a
+ * real, hand-authored preference over `compositionZones.ts`'s own 10-zone
+ * taxonomy) extends this same per-product strategy object one more
+ * dimension -- the same editorial-judgment convention Build 008B's
+ * `STYLE_USAGE_PROFILE` already established for species selection, applied
+ * here to which composition skeleton a product target favors: a
+ * repeat-forward product wants an all-over skeleton with no single focal
+ * point (`offset`/`wave`), a focal-object product wants a skeleton that
+ * frames one clear hero moment (`centerFocus`/`goldenRatio`/`editorial`).
+ * Ordered most- to least-preferred; only the first entry is used as a
+ * fallback today (see `resolveCompositionZoneForProduct`), but the full
+ * ordering is kept real and available for a future weighted pick. */
+export interface ProductSpacingStrategy {
+  rhythmMultiplier: number;
+  clusterLooseness: number;
+  preferredZones: CompositionZone[];
+}
+
+const IDENTITY_SPACING_STRATEGY: ProductSpacingStrategy = { rhythmMultiplier: 1, clusterLooseness: 0, preferredZones: [] };
+
+const PRODUCT_SPACING_STRATEGY: Record<ProductUseId, ProductSpacingStrategy> = {
+  // Repeat-forward uses: a steadier rhythm and slightly tighter clusters --
+  // an all-over busy field rather than isolated focal moments. Composition
+  // zone-wise, an all-over skeleton with no single dominant focal point.
+  wallpaper: { rhythmMultiplier: 1.15, clusterLooseness: -0.1, preferredZones: ['offset', 'wave'] },
+  fabric: { rhythmMultiplier: 1.1, clusterLooseness: -0.05, preferredZones: ['offset', 'diagonal'] },
+  textile: { rhythmMultiplier: 1.1, clusterLooseness: -0.05, preferredZones: ['offset', 'wave'] },
+  homeDecor: { ...IDENTITY_SPACING_STRATEGY, preferredZones: ['centerFocus', 'goldenRatio'] },
+  digitalPaper: { rhythmMultiplier: 1, clusterLooseness: 0.05, preferredZones: ['wave', 'offset'] },
+  // Focal-object uses: more organic rhythm variation and real cluster
+  // isolation so a hero motif reads as one deliberate gift-worthy moment.
+  // Composition zone-wise, a skeleton that frames one clear focal point.
+  giftWrap: { rhythmMultiplier: 0.85, clusterLooseness: 0.25, preferredZones: ['centerFocus', 'goldenRatio'] },
+  wrappingPaper: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['centerFocus', 'goldenRatio'] },
+  packaging: { rhythmMultiplier: 0.9, clusterLooseness: 0.15, preferredZones: ['centerFocus', 'cornerFlow'] },
+  notebookCovers: { rhythmMultiplier: 0.9, clusterLooseness: 0.1, preferredZones: ['goldenRatio', 'centerFocus'] },
+  stationery: { rhythmMultiplier: 0.85, clusterLooseness: 0.2, preferredZones: ['editorial', 'goldenRatio'] },
+};
+
+/** `productTarget` undefined returns the identity strategy -- a pure
+ * pass-through, matching every other optional product-aware field's
+ * no-op convention. */
+export function resolveSpacingStrategyForProduct(productTarget?: ProductUseId): ProductSpacingStrategy {
+  if (productTarget === undefined) return IDENTITY_SPACING_STRATEGY;
+  return PRODUCT_SPACING_STRATEGY[productTarget] ?? IDENTITY_SPACING_STRATEGY;
+}
+
+/** Applies `resolveSpacingStrategyForProduct`'s rhythm/cluster nudge on top
+ * of an already-resolved `CompositionIntelligenceParams` -- `undefined` ci
+ * or `productTarget` (or a strategy that resolves to the identity) returns
+ * `ci` unchanged (same reference), the same strict no-op convention every
+ * other Composition Intelligence field follows. Clamped to the same [0, 1]
+ * range those fields are already clamped to. */
+export function applyProductSpacingStrategy(
+  ci: CompositionIntelligenceParams | undefined,
+  productTarget?: ProductUseId,
+): CompositionIntelligenceParams | undefined {
+  if (!ci || productTarget === undefined) return ci;
+  const strategy = resolveSpacingStrategyForProduct(productTarget);
+  if (strategy.rhythmMultiplier === 1 && strategy.clusterLooseness === 0) return ci;
+
+  const rhythmStrength = Math.max(0, Math.min(1, ci.rhythmStrength * strategy.rhythmMultiplier));
+  const attractionStrength =
+    ci.attractionStrength === undefined
+      ? undefined
+      : Math.max(0, Math.min(1, ci.attractionStrength * (1 - strategy.clusterLooseness)));
+  return { ...ci, rhythmStrength, attractionStrength };
+}
+
+/** Build 009, Section 8 (Product-aware Composition): the product's own
+ * top preference from `ProductSpacingStrategy.preferredZones` -- a real,
+ * deterministic fallback for callers with a `productTarget` but no
+ * Style-DNA-resolved `compositionZone` of their own (the same "product's
+ * own best fit, only when nothing more specific already chose" convention
+ * `speciesForProductTarget`'s botanical-family fallback already
+ * established in Build 008B, Section 8). `productTarget` undefined, or a
+ * product with no zone preference declared, returns `undefined` -- never
+ * invents a zone. */
+export function resolveCompositionZoneForProduct(productTarget?: ProductUseId): CompositionZone | undefined {
+  if (productTarget === undefined) return undefined;
+  return resolveSpacingStrategyForProduct(productTarget).preferredZones[0];
 }

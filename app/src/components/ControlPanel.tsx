@@ -48,7 +48,7 @@ interface Props {
 
 const MAX_MIX_CATEGORIES = 5;
 
-const HIERARCHY_SLIDERS: Array<{ key: keyof HierarchyParams; label: string; min: number; max: number; step: number }> = [
+const HIERARCHY_SLIDERS: Array<{ key: Exclude<keyof HierarchyParams, 'secondaryHeroBoost'>; label: string; min: number; max: number; step: number }> = [
   { key: 'heroRatio', label: 'Hero proportion', min: 0, max: 0.4, step: 0.01 },
   { key: 'secondaryRatio', label: 'Secondary proportion', min: 0.1, max: 0.7, step: 0.01 },
   { key: 'fillerRatio', label: 'Filler proportion', min: 0, max: 0.6, step: 0.01 },

@@ -73,6 +73,82 @@ export function supportWeightRatio(premiumScore: number | undefined): number {
   return 1.0 - (premiumScore / 100) * 0.3;
 }
 
+/** Build 009, Section 4 (Hero Framing Engine): the exact base sizes each
+ * role's sub-motif is actually drawn at below (`size * 0.55/0.4/0.22` for
+ * secondary/filler/accent) -- reused here so the push-away's minimum
+ * clearance is derived from each member's own real rendered footprint,
+ * never an arbitrary constant. */
+const HERO_FRAME_MEMBER_RENDER_SCALE: Record<'secondary' | 'filler' | 'accent', number> = {
+  secondary: 0.55,
+  filler: 0.4,
+  accent: 0.22,
+};
+
+/** The hero flower's own occupied radius, as a fraction of `size` -- a
+ * conservative floor (well under the hero sub-motif's actual ~size*0.5+
+ * footprint) so genuinely intentional close overlap still survives; this
+ * only ever pushes a member OUT when it would otherwise crowd deep inside
+ * the hero's own silhouette rather than framing it. */
+const HERO_OWN_FOOTPRINT_FRACTION = 0.32;
+
+/** Build 009, Section 4 (Hero Framing Engine): "avoid randomly floating
+ * heroes... every hero should feel intentionally presented" -- two real,
+ * geometric passes over the cluster members `generateCluster` already
+ * produced, applied before they're drawn:
+ *
+ * 1. Push-away: a supporting member whose rolled position lands closer to
+ *    the hero's own center than its real rendered footprint allows would
+ *    visually crowd/bury the hero rather than frame it. Pushed radially
+ *    outward (preserving its own angle -- the archetype's directional
+ *    identity is untouched) to a real minimum clearance derived from the
+ *    hero's own occupied radius plus that member's own base render size
+ *    times its rolled `scaleMul`.
+ * 2. Angular framing: only for `bouquet` -- the one archetype whose entire
+ *    identity is a circular surround of the hero (see
+ *    `HERO_SILHOUETTE_ARCHETYPES`'s own doc comment). Members are nudged a
+ *    bounded fraction toward evenly-spaced angular slots (preserving their
+ *    own relative circular order, and the whole composition's overall
+ *    orientation via `basePhase`) rather than left to the archetype's pure
+ *    per-member random angle roll -- real coverage of the framing zones
+ *    around the hero, not a perfect mechanical fan (the bounded `0.35`
+ *    pull keeps organic jitter, never snapping exactly onto the slot).
+ *    Every other archetype's own axis (cascade's vertical line, diagonal's
+ *    45-degree band, asymmetric's near/far counterweight, ...) IS its real
+ *    framing identity -- forcing even angular coverage there would fight
+ *    Build 008B, Section 7's own silhouette-diversity goal, so this step is
+ *    a no-op for them. */
+export function applyHeroFraming(members: ClusterMember[], size: number, archetype: ClusterArchetype): ClusterMember[] {
+  const pushed = members.map((m) => {
+    if (m.role === 'hero') return m;
+    const dist = Math.hypot(m.dx, m.dy) || 1;
+    const minDist = size * (HERO_OWN_FOOTPRINT_FRACTION + HERO_FRAME_MEMBER_RENDER_SCALE[m.role] * m.scaleMul * 0.4);
+    if (dist >= minDist) return m;
+    const ux = m.dx / dist;
+    const uy = m.dy / dist;
+    return { ...m, dx: ux * minDist, dy: uy * minDist };
+  });
+
+  if (archetype !== 'bouquet') return pushed;
+
+  const supportIndices = pushed.map((_, i) => i).filter((i) => pushed[i].role !== 'hero');
+  if (supportIndices.length < 2) return pushed;
+  const withAngle = supportIndices
+    .map((i) => ({ i, angle: Math.atan2(pushed[i].dy, pushed[i].dx) }))
+    .sort((a, b) => a.angle - b.angle);
+  const targetGap = (Math.PI * 2) / withAngle.length;
+  const basePhase = withAngle[0].angle;
+
+  const result = pushed.slice();
+  withAngle.forEach(({ i, angle }, rank) => {
+    const targetAngle = basePhase + rank * targetGap;
+    const delta = Math.atan2(Math.sin(targetAngle - angle), Math.cos(targetAngle - angle));
+    const newAngle = angle + delta * 0.35;
+    const dist = Math.hypot(pushed[i].dx, pushed[i].dy) || 1;
+    result[i] = { ...pushed[i], dx: Math.cos(newAngle) * dist, dy: Math.sin(newAngle) * dist };
+  });
+  return result;
+}
+
 function balanceVisualWeight(members: ClusterMember[], premiumScore?: number): ClusterMember[] {
   const heroWeight = members
     .filter((m) => m.role === 'hero')
@@ -133,6 +209,15 @@ export function resolveFillerPart(
  * genuinely different shape -- directly the brief's own "avoid repeated
  * circular bouquets" ask, without discarding what already worked. */
 const HERO_SILHOUETTE_ARCHETYPES: ClusterArchetype[] = ['bouquet', 'bouquet', 'bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial'];
+
+/** Build 009, Section 6 (Silhouette Optimization): the real, distinct set
+ * of archetypes `resolveHeroArchetype` can actually return (deduped from
+ * `HERO_SILHOUETTE_ARCHETYPES`'s weighted pool) -- the honest denominator
+ * for a portfolio-level "hero silhouette diversity" measurement (see
+ * `engine/portfolioQuality.ts`'s `computeHeroArchetypeDiversity`), since
+ * the reachable taxonomy for hero assembly is these 5, not the full
+ * 13-value `ClusterArchetype` union. */
+export const HERO_ARCHETYPE_POOL: ClusterArchetype[] = Array.from(new Set(HERO_SILHOUETTE_ARCHETYPES));
 
 /** Resolves which cluster archetype a premium hero's own internal members
  * arrange around -- an explicit `archetype` option always wins (a future
@@ -319,9 +404,14 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
   // otherwise out-weigh the hero.
   const balancedMembers = balanceVisualWeight(members, species?.premiumScore);
 
+  // Build 009, Section 4 (Hero Framing Engine): see `applyHeroFraming`'s own
+  // doc comment -- push-away against crowding the hero, plus (for `bouquet`
+  // only) a bounded nudge toward more even angular framing coverage.
+  const framedMembers = applyHeroFraming(balancedMembers, size, resolvedArchetype);
+
   let secondaryToggle = 0;
   let colorSeed = 1;
-  for (const member of balancedMembers) {
+  for (const member of framedMembers) {
     let sub: Motif;
     let calyx: ReturnType<typeof h> | undefined;
     let centerDetail: ReturnType<typeof h> | undefined;
@@ -393,11 +483,11 @@ export function buildPremiumHero(rng: Rng, opts: PremiumHeroOptions): Motif {
     );
   }
 
-  const reach = balancedMembers.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
+  const reach = framedMembers.slice(1).reduce((max, m) => Math.max(max, Math.hypot(m.dx, m.dy) + size * 0.3 * m.scaleMul), 0);
   const baseRadius = Math.max(size * 0.55, reach);
 
   const assembled = h('g', { 'data-part': 'premium-hero' }, parts);
   const withMicroDetails = applyHeroDetailOverlay(assembled, { role: 'hero', radius: baseRadius, colors }, rng);
 
-  return { node: withMicroDetails, radius: baseRadius };
+  return { node: withMicroDetails, radius: baseRadius, heroArchetype: resolvedArchetype };
 }

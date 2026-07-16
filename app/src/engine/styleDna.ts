@@ -1,5 +1,7 @@
 import type { GenerateParams, LayoutId } from './types';
 import type { CompositionZone } from './compositionZones';
+import { mapCompositionZoneToEyeFlow } from './eyeFlowEngine';
+import { ASYMMETRY_DIRECTIONS } from './compositionIntelligence';
 import type { ClusterArchetype } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { GENERATORS } from '../generators';
@@ -305,6 +307,12 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     : resolveFallbackBotanicalFamily(dna, seed);
   const generator = GENERATORS[categoryId];
   const depth = DEPTH_SHADOW[dna.svgDepthMode];
+  const eyeFlowPath = compositionZone ? mapCompositionZoneToEyeFlow(compositionZone) : undefined;
+  // Build 009, Section 5 (Natural Asymmetry Engine): one deterministic
+  // direction per style+seed (same hash-based `pickPreferred` every other
+  // per-generation choice in this file already uses) -- a real design
+  // decision, not left to whichever way the layout happened to lean.
+  const asymmetryDirection = pickPreferred(ASYMMETRY_DIRECTIONS, dna.id, seed, 'asymmetryDirection');
 
   return {
     categoryId,
@@ -329,6 +337,18 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
       negativeSpaceStrength: 0.2 + dna.negativeSpace * 0.5,
       flowProfile: dna.flowProfile,
       flowBiasStrength: FLOW_BIAS_STRENGTH[dna.flowProfile],
+      // Build 009, Section 2 (Eye Flow Engine): only set for presets whose
+      // real `compositionZone` maps honestly to an Eye Flow path (see
+      // `mapCompositionZoneToEyeFlow`'s own doc comment) -- every other
+      // preset leaves both fields undefined, a strict no-op.
+      eyeFlowPath,
+      eyeFlowStrength: eyeFlowPath ? 0.3 : undefined,
+      // Build 009, Section 5 (Natural Asymmetry Engine): a modest, universal
+      // nudge -- every style gets a real, deliberate lean (see
+      // `asymmetryDirection` above), kept subtle (0.2) since this is meant
+      // to read as "the supporting texture leans one way", not a redesign.
+      asymmetryDirection,
+      asymmetryStrength: 0.2,
     },
     tileSize: dna.exportRecommendation.tileSize,
     patternScale: dna.exportRecommendation.patternScale,

@@ -11,7 +11,7 @@ import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
 import { buildPremiumHero } from '../generators/premiumHero';
-import { resolveNegativeSpaceForProduct } from './negativeSpaceDesigner';
+import { resolveNegativeSpaceForProduct, applyProductSpacingStrategy, resolveCompositionZoneForProduct } from './negativeSpaceDesigner';
 import { speciesForProductTarget } from '../generators/botanicalFamilies';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
@@ -244,6 +244,16 @@ export function buildTile(params: GenerateParams): TileData {
   const effectiveBotanicalFamily =
     params.botanicalFamily ?? (params.productTarget ? speciesForProductTarget(params.productTarget)[0] : undefined);
 
+  // Build 009, Section 8 (Product-aware Composition): a real `productTarget`
+  // with no Style-DNA-resolved `compositionZone` of its own falls back to
+  // that product's own best-fit composition zone (see
+  // `resolveCompositionZoneForProduct`'s own doc comment) -- the same
+  // "product's own best fit, only when nothing more specific already chose"
+  // convention as `effectiveBotanicalFamily` just above. Never overrides an
+  // explicit Style DNA zone choice, and `productTarget` undefined reproduces
+  // `params.compositionZone` exactly.
+  const effectiveCompositionZone = params.compositionZone ?? resolveCompositionZoneForProduct(params.productTarget);
+
   const placements: Placement[] = layout.generate(
     {
       tileSize,
@@ -254,7 +264,7 @@ export function buildTile(params: GenerateParams): TileData {
       mirror: params.mirror,
       radialSymmetry: params.radialSymmetry,
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
-      preferredZone: params.compositionZone,
+      preferredZone: effectiveCompositionZone,
       preferredClusterArchetypes: params.clusterArchetypes,
     },
     rng,
@@ -284,10 +294,15 @@ export function buildTile(params: GenerateParams): TileData {
   // Minimal) the "flaw" they'd correct is the deliberate point of the
   // layout, so only the original V1 fields (balance/rhythm, neither of
   // which ever fired on a genuinely regular grid) apply there.
-  const effectiveCompositionIntelligence =
+  const latticeTrimmedCompositionIntelligence =
     params.compositionIntelligence && REGULAR_LATTICE_LAYOUTS.has(params.layoutId)
       ? { balanceStrength: params.compositionIntelligence.balanceStrength, rhythmStrength: params.compositionIntelligence.rhythmStrength }
       : params.compositionIntelligence;
+  // Build 009, Section 3 (Negative Space Designer V2): the same real
+  // per-product rhythm/cluster-looseness strategy `resolveNegativeSpaceForProduct`
+  // already nudges spacing with -- `productTarget` undefined is a strict
+  // no-op (see `applyProductSpacingStrategy`'s own doc comment).
+  const effectiveCompositionIntelligence = applyProductSpacingStrategy(latticeTrimmedCompositionIntelligence, params.productTarget);
   const refinedPlacements = params.compositionIntelligence
     ? applyCompositionIntelligence(roledPlacements, tileSize, effectiveCompositionIntelligence)
     : roledPlacements;
@@ -331,6 +346,11 @@ export function buildTile(params: GenerateParams): TileData {
   // before this feature existed.
   const MAX_PREMIUM_HEROES_PER_TILE = 3;
   let premiumHeroesBuilt = 0;
+  // Build 009, Section 6 (Silhouette Optimization): collects the real
+  // internal archetype of every premium hero this tile actually builds
+  // (see `Motif.heroArchetype`'s own doc comment) -- stays empty for any
+  // tile with no premium heroes.
+  const premiumHeroArchetypesUsed: string[] = [];
 
   const motifGroups: SvgNode[] = paintOrderedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
@@ -354,6 +374,7 @@ export function buildTile(params: GenerateParams): TileData {
     const motif = usePremiumHero
       ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: effectiveBotanicalFamily, designRules: params.designRules })
       : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: effectiveBotanicalFamily });
+    if (motif.heroArchetype) premiumHeroArchetypesUsed.push(motif.heroArchetype);
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
@@ -517,5 +538,11 @@ export function buildTile(params: GenerateParams): TileData {
     h('g', { id: 'layer-pattern', 'clip-path': 'url(#tile-clip)' }, patternLayers),
   ]);
 
-  return { params, backgroundColor, colors, svg: content };
+  return {
+    params,
+    backgroundColor,
+    colors,
+    svg: content,
+    premiumHeroArchetypes: premiumHeroArchetypesUsed.length > 0 ? premiumHeroArchetypesUsed : undefined,
+  };
 }

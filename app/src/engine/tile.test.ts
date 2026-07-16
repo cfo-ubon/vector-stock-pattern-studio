@@ -303,13 +303,23 @@ describe('buildTile: Product-aware Species Selection (Build 008B, Section 8)', (
   });
 
   it('an explicit botanicalFamily always wins over a productTarget-driven fallback', () => {
+    // Composition Intelligence is disabled and compositionZone pinned equal
+    // in both variants so this test isolates species/family selection
+    // specifically -- productTarget now has two other real, independent
+    // effects: Build 009 Section 3 (a per-product rhythm/cluster-looseness
+    // nudge on compositionIntelligence) and Build 009 Section 8 (a
+    // per-product compositionZone fallback, see
+    // `resolveCompositionZoneForProduct`) -- so the two builds are no
+    // longer expected to be byte-identical SVGs once either pass is active.
     const withFamily = buildTile({
       ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
-      botanicalFamily: 'olive', productTarget: 'wallpaper' as const, seed: 'product-species-explicit-family',
+      botanicalFamily: 'olive', productTarget: 'wallpaper' as const, compositionIntelligence: undefined, compositionZone: 'diagonal',
+      seed: 'product-species-explicit-family',
     });
     const withFamilyNoProduct = buildTile({
       ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
-      botanicalFamily: 'olive', seed: 'product-species-explicit-family',
+      botanicalFamily: 'olive', compositionIntelligence: undefined, compositionZone: 'diagonal',
+      seed: 'product-species-explicit-family',
     });
     expect(serialize(withFamily.svg)).toBe(serialize(withFamilyNoProduct.svg));
   });

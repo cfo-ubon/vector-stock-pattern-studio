@@ -10,7 +10,9 @@ import {
   computeCompositionDiversity,
   computeClusterDiversity,
   computeHeroDiversity,
+  computeHeroArchetypeDiversity,
 } from './portfolioQuality';
+import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import { BOTANICAL_FAMILIES } from '../generators/botanicalFamilies';
 import type { LayoutId } from './types';
 
@@ -114,5 +116,27 @@ describe('computeHeroDiversity (Build 006, Section 9)', () => {
     const narrow = computeHeroDiversity(['rose', 'ranunculus']); // both layered
     const wide = computeHeroDiversity(['rose', 'lavender']); // layered + spiky
     expect(wide).toBeGreaterThan(narrow);
+  });
+});
+
+describe('computeHeroArchetypeDiversity (Build 009, Section 6: Silhouette Optimization)', () => {
+  it('returns 0 for an empty list (nothing exercised, not "fully diverse")', () => {
+    expect(computeHeroArchetypeDiversity([])).toBe(0);
+  });
+
+  it('returns 100 when every reachable archetype in HERO_ARCHETYPE_POOL is used', () => {
+    expect(computeHeroArchetypeDiversity([...HERO_ARCHETYPE_POOL])).toBe(100);
+  });
+
+  it('ignores duplicates and returns a proportional fraction', () => {
+    const archetypes = ['bouquet', 'bouquet', 'cascade'];
+    expect(computeHeroArchetypeDiversity(archetypes)).toBe(Math.round((2 / HERO_ARCHETYPE_POOL.length) * 100));
+  });
+
+  it('a single repeated archetype scores the lowest non-zero fraction', () => {
+    const oneOnly = computeHeroArchetypeDiversity(['bouquet', 'bouquet', 'bouquet']);
+    const two = computeHeroArchetypeDiversity(['bouquet', 'cascade']);
+    expect(oneOnly).toBeGreaterThan(0);
+    expect(two).toBeGreaterThan(oneOnly);
   });
 });

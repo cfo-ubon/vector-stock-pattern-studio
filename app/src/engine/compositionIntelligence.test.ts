@@ -8,6 +8,8 @@ import {
   applyFlowBias,
   applyRhythmSmoothing,
   applyCompositionIntelligence,
+  applyControlledAsymmetry,
+  ASYMMETRY_DIRECTIONS,
   DEFAULT_COMPOSITION_INTELLIGENCE,
 } from './compositionIntelligence';
 
@@ -208,6 +210,22 @@ describe('applyCompositionIntelligence', () => {
     const manual = applyRhythmSmoothing(applyBalanceCorrection(placements, TILE, 0.7), TILE, 0.4);
     expect(viaOrchestrator).toEqual(manual);
   });
+
+  it('Build 009 Section 2: eyeFlowPath/eyeFlowStrength are a strict no-op when left unset', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15));
+    const withoutEyeFlow = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const explicitlyUnset = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, eyeFlowPath: undefined, eyeFlowStrength: undefined });
+    expect(explicitlyUnset).toEqual(withoutEyeFlow);
+  });
+
+  it('Build 009 Section 2: setting eyeFlowPath/eyeFlowStrength visibly changes the result', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15));
+    const without = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const withEyeFlow = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, eyeFlowPath: 'sCurve', eyeFlowStrength: 0.5 });
+    expect(withEyeFlow).not.toEqual(without);
+  });
 });
 
 describe('applyGridBalanceCorrection', () => {
@@ -295,6 +313,82 @@ describe('applyFlowBias', () => {
     const placements = [makePlacement(100, 900), makePlacement(400, 200)];
     const a = applyFlowBias(placements, TILE, 'dynamic', 0.6);
     const b = applyFlowBias(placements, TILE, 'dynamic', 0.6);
+    expect(a).toEqual(b);
+  });
+});
+
+describe('applyControlledAsymmetry (Build 009, Section 5: Natural Asymmetry Engine)', () => {
+  it('is a no-op when strength is 0', () => {
+    const placements = [makePlacement(100, 100, { role: 'filler' })];
+    expect(applyControlledAsymmetry(placements, TILE, 'right', 0)).toBe(placements);
+  });
+
+  it('is a no-op for an empty placement list', () => {
+    expect(applyControlledAsymmetry([], TILE, 'right', 1)).toEqual([]);
+  });
+
+  it('never nudges hero or secondary placements', () => {
+    const hero = makePlacement(500, 500, { role: 'hero' });
+    const secondary = makePlacement(500, 500, { role: 'secondary' });
+    const [resultHero] = applyControlledAsymmetry([hero], TILE, 'right', 1);
+    const [resultSecondary] = applyControlledAsymmetry([secondary], TILE, 'right', 1);
+    expect(resultHero).toEqual(hero);
+    expect(resultSecondary).toEqual(secondary);
+  });
+
+  it('nudges filler/accent/unroled placements in the chosen direction', () => {
+    const filler = makePlacement(500, 500, { role: 'filler' });
+    const accent = makePlacement(500, 500, { role: 'accent' });
+    const unroled = makePlacement(500, 500);
+    const [rFiller] = applyControlledAsymmetry([filler], TILE, 'right', 1);
+    const [rAccent] = applyControlledAsymmetry([accent], TILE, 'right', 1);
+    const [rUnroled] = applyControlledAsymmetry([unroled], TILE, 'right', 1);
+    expect(rFiller.x).toBeGreaterThan(filler.x);
+    expect(rAccent.x).toBeGreaterThan(accent.x);
+    expect(rUnroled.x).toBeGreaterThan(unroled.x);
+  });
+
+  it("moves placements in the direction implied by each named direction's vector", () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    const [right] = applyControlledAsymmetry([p], TILE, 'right', 1);
+    const [left] = applyControlledAsymmetry([p], TILE, 'left', 1);
+    const [top] = applyControlledAsymmetry([p], TILE, 'top', 1);
+    const [bottom] = applyControlledAsymmetry([p], TILE, 'bottom', 1);
+    expect(right.x).toBeGreaterThan(p.x);
+    expect(left.x).toBeLessThan(p.x);
+    expect(top.y).toBeLessThan(p.y);
+    expect(bottom.y).toBeGreaterThan(p.y);
+  });
+
+  it('every real direction produces a nonzero, bounded (subtle) nudge', () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    for (const direction of ASYMMETRY_DIRECTIONS) {
+      const [result] = applyControlledAsymmetry([p], TILE, direction, 1);
+      const dist = Math.hypot(result.x - p.x, result.y - p.y);
+      expect(dist).toBeGreaterThan(0);
+      expect(dist).toBeLessThan(TILE * 0.1);
+    }
+  });
+
+  it('scales the nudge magnitude with strength', () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    const [weak] = applyControlledAsymmetry([p], TILE, 'right', 0.2);
+    const [strong] = applyControlledAsymmetry([p], TILE, 'right', 1);
+    expect(strong.x - p.x).toBeGreaterThan(weak.x - p.x);
+  });
+
+  it('filler moves less than accent for the same strength (a lighter touch on the more prominent role)', () => {
+    const filler = makePlacement(500, 500, { role: 'filler' });
+    const accent = makePlacement(500, 500, { role: 'accent' });
+    const [rFiller] = applyControlledAsymmetry([filler], TILE, 'right', 1);
+    const [rAccent] = applyControlledAsymmetry([accent], TILE, 'right', 1);
+    expect(rFiller.x - filler.x).toBeLessThan(rAccent.x - accent.x);
+  });
+
+  it('is deterministic (pure function, no rng)', () => {
+    const placements = [makePlacement(100, 900, { role: 'accent' }), makePlacement(400, 200, { role: 'filler' })];
+    const a = applyControlledAsymmetry(placements, TILE, 'bottomLeft', 0.6);
+    const b = applyControlledAsymmetry(placements, TILE, 'bottomLeft', 0.6);
     expect(a).toEqual(b);
   });
 });

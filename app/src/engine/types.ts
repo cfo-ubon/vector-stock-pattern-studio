@@ -35,6 +35,18 @@ export interface Motif {
    * around its own origin (0,0). Used to decide which of the 8 neighbour
    * copies could possibly overlap the tile edge. */
   radius: number;
+  /** Build 009, Section 6 (Silhouette Optimization): only set by
+   * `generators/premiumHero.ts`'s `buildPremiumHero` -- the real internal
+   * arrangement archetype (`ClusterArchetype`, see `engine/clusterEngine.ts`)
+   * `resolveHeroArchetype` resolved for this hero, threaded back so
+   * portfolio-level tooling can measure real silhouette diversity (Build
+   * 008B, Section 7's own deferred §15.2 recommendation) instead of only
+   * ever measuring it indirectly. A loose string (not the real
+   * `ClusterArchetype` union) to avoid `types.ts` importing from
+   * `clusterEngine.ts`, the same convention `MotifCreateHints` already
+   * established for `family`/`part`. Every non-premium-hero motif leaves
+   * this undefined. */
+  heroArchetype?: string;
 }
 
 /** Build 004, Section 1 (Botanical DNA Engine foundation): optional hints a
@@ -296,4 +308,9 @@ export interface TileData {
   backgroundColor: string;
   colors: string[];
   svg: SvgNode;
+  /** Build 009, Section 6 (Silhouette Optimization): the real internal
+   * arrangement archetype of every premium hero this tile actually built
+   * (see `Motif.heroArchetype`'s own doc comment) -- empty/undefined for a
+   * tile with no premium heroes, never a fabricated placeholder. */
+  premiumHeroArchetypes?: string[];
 }

@@ -2,6 +2,7 @@ import type { Placement } from './types';
 import { periodicDist, periodicOffset } from './svgGeometry';
 import { applyAttraction } from './patternPhysics';
 import type { FlowProfile } from './styleDna';
+import { applyEyeFlow, type EyeFlowPath } from './eyeFlowEngine';
 
 // Composition Intelligence Engine (Roadmap Phase 2; extended to V2 by
 // Composition Intelligence Foundation V2, Build 001) — where the Scoring
@@ -39,6 +40,21 @@ export interface CompositionIntelligenceParams {
   flowProfile?: FlowProfile;
   /** 0 = no flow bias, 1 = strongest. 0/undefined = no-op. */
   flowBiasStrength?: number;
+  /** Build 009, Section 2 (Eye Flow Engine) — a third, additive eye-path
+   * mechanism alongside `flowProfile` (see `engine/eyeFlowEngine.ts`'s own
+   * doc comment for why this isn't a unification of the two pre-existing
+   * systems). Undefined = no-op, same convention as every other optional
+   * field here. */
+  eyeFlowPath?: EyeFlowPath;
+  /** 0 = no eye-flow pull, 1 = strongest. 0/undefined = no-op. */
+  eyeFlowStrength?: number;
+  /** Build 009, Section 5 (Natural Asymmetry Engine) — which side the
+   * deliberate, bounded mass nudge favors (see `applyControlledAsymmetry`'s
+   * own doc comment). Undefined = no-op. */
+  asymmetryDirection?: AsymmetryDirection;
+  /** 0 = no asymmetry nudge, 1 = strongest (still bounded/subtle by
+   * design). 0/undefined = no-op. */
+  asymmetryStrength?: number;
 }
 
 export const DEFAULT_COMPOSITION_INTELLIGENCE: CompositionIntelligenceParams = {
@@ -230,6 +246,54 @@ export function applyFlowBias(placements: Placement[], tileSize: number, profile
   });
 }
 
+export type AsymmetryDirection = 'left' | 'right' | 'top' | 'bottom' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
+
+const ASYMMETRY_DIRECTION_VECTOR: Record<AsymmetryDirection, [number, number]> = {
+  left: [-1, 0],
+  right: [1, 0],
+  top: [0, -1],
+  bottom: [0, 1],
+  topLeft: [-Math.SQRT1_2, -Math.SQRT1_2],
+  topRight: [Math.SQRT1_2, -Math.SQRT1_2],
+  bottomLeft: [-Math.SQRT1_2, Math.SQRT1_2],
+  bottomRight: [Math.SQRT1_2, Math.SQRT1_2],
+};
+
+export const ASYMMETRY_DIRECTIONS: AsymmetryDirection[] = ['left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
+
+/** Build 009, Section 5 (Natural Asymmetry Engine): `applyBalanceCorrection`
+ * only ever corrects *severe* quadrant imbalance (>0.5) -- everything below
+ * that threshold is left to whatever the layout/hierarchy stage happened to
+ * roll, so "mild asymmetry" is really "unintentional asymmetry", not a
+ * deliberate design choice. This is the opposite move: a real, bounded,
+ * one-sided mass nudge applied on purpose, so the tile's own visual weight
+ * genuinely leans a chosen direction rather than reading as either
+ * perfectly even or accidentally lopsided.
+ *
+ * Deliberately restricted to filler/accent-role placements (and unroled
+ * ones, weighted like filler) -- hero/secondary positions, already the
+ * tile's primary visual-hierarchy decision, are never touched, so the
+ * imbalance this creates is a genuine "supporting texture leans one way"
+ * read, never "the hero got shoved off-center." Pure and rng-free (a
+ * function of each placement's own role/position and the caller-supplied
+ * `direction`), so it composes safely into the pipeline without shifting
+ * any other pass's random stream -- `direction` itself is picked once,
+ * deterministically, per Style DNA (see `styleDna.ts`'s own hash-based
+ * `pickPreferred`), not re-rolled here. */
+export function applyControlledAsymmetry(placements: Placement[], tileSize: number, direction: AsymmetryDirection, strength: number): Placement[] {
+  if (strength <= 0 || placements.length === 0) return placements;
+  const [vx, vy] = ASYMMETRY_DIRECTION_VECTOR[direction];
+  // Bounded on purpose -- a deliberate, subtle lean, never a severe shove
+  // (that's what `applyBalanceCorrection` already guards against on the
+  // opposite side).
+  const pull = tileSize * 0.05 * Math.min(1, strength);
+  return placements.map((p) => {
+    const weight = p.role === 'hero' || p.role === 'secondary' ? 0 : p.role === 'filler' ? 0.6 : 1;
+    if (weight <= 0) return p;
+    return { ...p, x: p.x + vx * pull * weight, y: p.y + vy * pull * weight };
+  });
+}
+
 /** Pulls placements that sit unusually far from their nearest neighbor
  * (isolated outliers that break the pattern's spacing rhythm) a bounded
  * fraction of the way toward that neighbor. Placements whose spacing is
@@ -275,10 +339,16 @@ export function applyRhythmSmoothing(placements: Placement[], tileSize: number, 
 }
 
 /** Orchestrator: flow bias first (a broad directional character for the
- * whole field), then balance correction (macro, region-level), negative
- * space correction (meso, localized holes), pattern physics (micro,
- * role-to-role attraction), and finally rhythm smoothing (fine, neighbor-
- * level polish) — each stage progressively finer-grained than the last.
+ * whole field), then Build 009's Eye Flow Engine pull (`applyEyeFlow` — a
+ * second, independent directional pass, see `engine/eyeFlowEngine.ts`'s own
+ * doc comment for why this composes alongside `flowProfile` rather than
+ * replacing it), then the Natural Asymmetry Engine's deliberate one-sided
+ * nudge (`applyControlledAsymmetry`, filler/accent-only), then balance
+ * correction (macro, region-level — still the backstop against genuinely
+ * severe imbalance), negative space correction (meso, localized holes),
+ * pattern physics (micro, role-to-role attraction), and finally rhythm
+ * smoothing (fine, neighbor-level polish) — each stage progressively
+ * finer-grained than the last.
  * Undefined params is a strict no-op, returning the exact same array
  * reference, so old saved patterns that predate this field reproduce
  * identically; each new V2 field is independently optional so a params
@@ -308,7 +378,19 @@ export function applyCompositionIntelligence(
     params.flowProfile && params.flowBiasStrength
       ? applyFlowBias(placements, tileSize, params.flowProfile, params.flowBiasStrength)
       : placements;
-  const balanced = applyBalanceCorrection(flowed, tileSize, params.balanceStrength);
+  const eyeFlowed =
+    params.eyeFlowPath && params.eyeFlowStrength
+      ? applyEyeFlow(flowed, tileSize, params.eyeFlowPath, params.eyeFlowStrength)
+      : flowed;
+  // Build 009, Section 5 (Natural Asymmetry Engine): applied before balance
+  // correction so a genuinely severe imbalance the nudge happens to create
+  // is still caught by that pass's own >0.5 threshold -- "controlled"
+  // imbalance stays controlled, not just relabeled.
+  const asymmetric =
+    params.asymmetryDirection && params.asymmetryStrength
+      ? applyControlledAsymmetry(eyeFlowed, tileSize, params.asymmetryDirection, params.asymmetryStrength)
+      : eyeFlowed;
+  const balanced = applyBalanceCorrection(asymmetric, tileSize, params.balanceStrength);
   const spaced = params.negativeSpaceStrength
     ? applyNegativeSpaceCorrection(balanced, tileSize, params.negativeSpaceStrength)
     : balanced;

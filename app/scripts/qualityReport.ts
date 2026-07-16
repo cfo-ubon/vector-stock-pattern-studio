@@ -10,7 +10,8 @@ import { computePatternReadability, type PatternReadabilityResult } from '../src
 import { detectVisualIssues, type VisualIssueId } from '../src/critic/visualAnalysis';
 import { STYLE_DNA_PRESETS, resolveStyleDna, computeStyleDnaConsistency } from '../src/engine/styleDna';
 import { evaluateProductTargets } from '../src/collection/productTargets';
-import { countNodes } from '../src/engine/svgGeometry';
+import { countNodes, extractInstances } from '../src/engine/svgGeometry';
+import { computeLuxuryCompositionScore, type LuxuryCompositionScore } from '../src/engine/luxuryComposition';
 import { GENERATORS } from '../src/generators';
 import { computeBotanicalBeautyMetrics } from '../src/engine/botanicalBeautyMetrics';
 import { computeIllustrationQualityV2, type IllustrationQualityV2 } from '../src/engine/illustrationQualityV2';
@@ -21,6 +22,7 @@ import {
   computeCompositionDiversity,
   computeClusterDiversity,
   computeHeroDiversity,
+  computeHeroArchetypeDiversity,
 } from '../src/engine/portfolioQuality';
 import type { BotanicalFamily } from '../src/generators/botanicalFamilies';
 import { LAYOUTS } from '../src/layouts';
@@ -114,6 +116,10 @@ interface EvalResult {
   botanicalFamily?: BotanicalFamily;
   illustrationQuality?: number;
   visualRichness?: number;
+  /** Build 009, Section 6 (Silhouette Optimization): only set for tiles
+   * that actually built one or more premium heroes -- see
+   * `TileData.premiumHeroArchetypes`'s own doc comment. */
+  premiumHeroArchetypes?: string[];
   /** Build 007, Section 8 (Illustration Quality Score V2): same category
    * gating as illustrationQuality/visualRichness above -- only meaningful
    * for a botanical tile. */
@@ -126,6 +132,11 @@ interface EvalResult {
    * `computeCommercialStyleAnalysis` itself only scores dimensions whose
    * real input was actually provided. */
   commercialStyleAnalysis: CommercialStyleAnalysis;
+  /** Build 009, Section 7 (Luxury Composition Rules): always computed,
+   * same "no category gating needed" convention as commercialPatternCritique
+   * -- every dimension already handles a missing hero honestly (see
+   * `computeGoldenBalance`'s own doc comment). */
+  luxuryComposition: LuxuryCompositionScore;
 }
 
 function evaluate(label: string, params: GenerateParams, styleDnaId?: string): EvalResult {
@@ -176,6 +187,8 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
   const commercialStyleAnalysis = computeCommercialStyleAnalysis({
     metrics, heroVisibility, botanical: botanicalMetrics, visualRichness,
   });
+  // Build 009, Section 7 (Luxury Composition Rules).
+  const luxuryComposition = computeLuxuryCompositionScore(extractInstances(tile), params.tileSize, metrics);
 
   return {
     label,
@@ -189,6 +202,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     patternBeautyScore,
     commercialPatternCritique,
     commercialStyleAnalysis,
+    luxuryComposition,
     readability,
     nodeCount,
     issues,
@@ -198,6 +212,7 @@ function evaluate(label: string, params: GenerateParams, styleDnaId?: string): E
     illustrationQuality,
     visualRichness,
     illustrationQualityV2,
+    premiumHeroArchetypes: tile.premiumHeroArchetypes,
   };
 }
 
@@ -323,6 +338,16 @@ function aggregateMetrics(results: EvalResult[]) {
   perMetric.giftWrapFeeling = stats(results.map((r) => r.commercialPatternCritique.giftWrapFeeling));
   perMetric.visualStory = stats(results.map((r) => r.commercialPatternCritique.visualStory));
   perMetric.commercialStyleFit = stats(results.map((r) => r.commercialStyleAnalysis.overallFit));
+  // Build 009, Section 7 (Luxury Composition Rules): always present, same
+  // "no category gating" convention as commercialPatternCritique above.
+  perMetric.luxuryComposition = stats(results.map((r) => r.luxuryComposition.overall));
+  perMetric.goldenBalance = stats(results.map((r) => r.luxuryComposition.goldenBalance));
+  perMetric.breathingRoom = stats(results.map((r) => r.luxuryComposition.breathingRoom));
+  perMetric.clusterRhythm = stats(results.map((r) => r.luxuryComposition.clusterRhythm));
+  perMetric.hierarchyClarity = stats(results.map((r) => r.luxuryComposition.hierarchyClarity));
+  perMetric.heroIsolation = stats(results.map((r) => r.luxuryComposition.heroIsolation));
+  perMetric.elegantOverlap = stats(results.map((r) => r.luxuryComposition.elegantOverlap));
+  perMetric.controlledComplexity = stats(results.map((r) => r.luxuryComposition.controlledComplexity));
   const withBotanicalRealism = results.filter((r) => r.commercialPatternCritique.botanicalRealism !== undefined);
   if (withBotanicalRealism.length > 0) {
     perMetric.botanicalRealism = stats(withBotanicalRealism.map((r) => r.commercialPatternCritique.botanicalRealism!));
@@ -418,6 +443,9 @@ function main() {
       // a per-tile number) -- what fraction of the engine's 18-family
       // Botanical Species taxonomy this 100-pattern run actually used.
       speciesDiversity: computeSpeciesDiversity(portfolioResults.map((r) => r.botanicalFamily)),
+      // Build 009, Section 6 (Silhouette Optimization): directly fulfills
+      // Build 008B, Section 7's own §15.2 deferred recommendation.
+      heroArchetypeDiversity: computeHeroArchetypeDiversity(portfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
     },
     // Build 006, Section 9 (Large Portfolio Evaluation): undefined unless
     // invoked with the `large` CLI flag -- every field here is a real
@@ -436,6 +464,7 @@ function main() {
       compositionDiversity: computeCompositionDiversity(largePortfolioResults.map((r) => r.layoutId), Object.keys(LAYOUTS).length),
       clusterDiversity: computeClusterDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
       heroDiversity: computeHeroDiversity(largePortfolioResults.map((r) => r.botanicalFamily)),
+      heroArchetypeDiversity: computeHeroArchetypeDiversity(largePortfolioResults.flatMap((r) => r.premiumHeroArchetypes ?? [])),
     },
   };
 
@@ -455,6 +484,7 @@ function main() {
   console.log(`Portfolio Readability@200px mean=${report.portfolio.aggregate.readabilityThumbnail200.mean}`);
   console.log(`Portfolio repeatedScale rate=${report.portfolio.visualIssueRates.repeatedScale}%`);
   console.log(`Portfolio Species Diversity=${report.portfolio.speciesDiversity}%`);
+  console.log(`Portfolio Hero Archetype Diversity=${report.portfolio.heroArchetypeDiversity}%`);
   if (report.portfolio.aggregate.illustrationQuality) {
     console.log(`Portfolio Illustration Quality mean=${report.portfolio.aggregate.illustrationQuality.mean} (botanical results only, n=${report.portfolio.aggregate.illustrationQuality.n})`);
     console.log(`Portfolio Visual Richness mean=${report.portfolio.aggregate.visualRichness.mean}`);
@@ -466,10 +496,12 @@ function main() {
   }
   console.log(`Portfolio Commercial Style Fit mean=${report.portfolio.aggregate.commercialStyleFit.mean}`);
   console.log(`Portfolio Luxury/Editorial/Premium Feeling means=${report.portfolio.aggregate.luxuryFeeling.mean}/${report.portfolio.aggregate.editorialFeeling.mean}/${report.portfolio.aggregate.premiumFeeling.mean}`);
+  console.log(`Portfolio Luxury Composition overall mean=${report.portfolio.aggregate.luxuryComposition.mean}`);
   if (report.largePortfolio) {
     console.log(`Large Portfolio (n=${report.largePortfolio.count}): Absolute Commercial Quality mean=${report.largePortfolio.aggregate.absoluteCommercialQuality.mean}`);
     console.log(`Large Portfolio Commercial Style Fit mean=${report.largePortfolio.aggregate.commercialStyleFit.mean}`);
     console.log(`Large Portfolio Species/Composition/Cluster/Hero Diversity=${report.largePortfolio.speciesDiversity}%/${report.largePortfolio.compositionDiversity}%/${report.largePortfolio.clusterDiversity}%/${report.largePortfolio.heroDiversity}%`);
+    console.log(`Large Portfolio Hero Archetype Diversity=${report.largePortfolio.heroArchetypeDiversity}%`);
     console.log(`Large Portfolio nodeCount mean=${report.largePortfolio.aggregate.nodeCount.mean}`);
   }
   console.log(`Generation time: ${elapsedMs}ms`);

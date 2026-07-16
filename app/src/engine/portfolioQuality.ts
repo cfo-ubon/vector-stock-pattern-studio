@@ -1,6 +1,7 @@
 import type { BotanicalBeautyMetrics } from './botanicalBeautyMetrics';
 import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES, BOTANICAL_SILHOUETTES, type BotanicalFamily } from '../generators/botanicalFamilies';
 import { illustrationTemplateForSpecies, type IllustrationTemplateId } from '../generators/illustrationFamily';
+import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import type { LayoutId } from './types';
 
 // Build 005, Section 9 (Quality Validation): the brief asks the 100-
@@ -111,4 +112,29 @@ export function computeHeroDiversity(families: Array<BotanicalFamily | undefined
   );
   if (BOTANICAL_SILHOUETTES.length === 0) return 0;
   return Math.round((silhouettes.size / BOTANICAL_SILHOUETTES.length) * 100);
+}
+
+// Build 009, Section 6 (Silhouette Optimization) -- directly fulfills
+// Build 008B, Section 7's own §15.2 deferred recommendation: "a real
+// portfolio-level hero silhouette diversity metric" for
+// `resolveHeroArchetype`'s roll. `Motif.heroArchetype` (threaded back
+// through `buildPremiumHero` -> `TileData.premiumHeroArchetypes` ->
+// `scripts/qualityReport.ts`) now carries the real archetype every premium
+// hero actually resolved to, so this follows the exact same "fraction of
+// the real, reachable taxonomy a run actually used" convention every other
+// diversity metric in this module already established -- `HERO_ARCHETYPE_POOL`
+// (premiumHero.ts) is the honest denominator (5 reachable archetypes, not
+// the full 13-value `ClusterArchetype` union most of which `resolveHeroArchetype`
+// can never actually return).
+
+/** Fraction (0-100) of the 5 real, reachable hero-assembly archetypes
+ * (`HERO_ARCHETYPE_POOL`) a portfolio run's premium heroes actually used.
+ * `archetypes` is typically every `TileData.premiumHeroArchetypes` entry
+ * flattened across a portfolio run; an empty input (no premium heroes
+ * anywhere in the run) returns 0 rather than a misleading 100 -- nothing
+ * was exercised, so nothing should read as "fully diverse". */
+export function computeHeroArchetypeDiversity(archetypes: string[]): number {
+  if (archetypes.length === 0 || HERO_ARCHETYPE_POOL.length === 0) return 0;
+  const used = new Set(archetypes);
+  return Math.round((used.size / HERO_ARCHETYPE_POOL.length) * 100);
 }

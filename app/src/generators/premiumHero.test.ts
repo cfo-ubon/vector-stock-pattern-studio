@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { createRng } from '../engine/rng';
 import { serialize } from '../engine/svgAst';
 import type { SvgNode } from '../engine/types';
-import { buildPremiumHero, resolveFillerPart, supportWeightRatio, resolveHeroArchetype } from './premiumHero';
+import { buildPremiumHero, resolveFillerPart, supportWeightRatio, resolveHeroArchetype, applyHeroFraming, HERO_ARCHETYPE_POOL } from './premiumHero';
+import type { ClusterMember } from '../engine/clusterEngine';
 import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES } from './botanicalFamilies';
 import { ILLUSTRATION_TEMPLATES } from './illustrationFamily';
 
@@ -297,5 +298,106 @@ describe('resolveHeroArchetype (Build 008B, Section 7: Silhouette Diversity)', (
       expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
       expect(hero.radius).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('HERO_ARCHETYPE_POOL / buildPremiumHero.heroArchetype (Build 009, Section 6: Silhouette Optimization)', () => {
+  it('HERO_ARCHETYPE_POOL is exactly the 5 distinct reachable archetypes', () => {
+    expect(new Set(HERO_ARCHETYPE_POOL)).toEqual(new Set(['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial']));
+    expect(HERO_ARCHETYPE_POOL.length).toBe(5);
+  });
+
+  it('buildPremiumHero threads back the exact archetype resolveHeroArchetype resolved', () => {
+    for (const archetype of HERO_ARCHETYPE_POOL) {
+      const hero = buildPremiumHero(createRng(`premium-hero-thread-${archetype}`), { colors: COLORS, size: 120, family: 'rose', archetype });
+      expect(hero.heroArchetype).toBe(archetype);
+    }
+  });
+
+  it('an unforced roll still returns a real, known archetype in the returned Motif', () => {
+    for (let i = 0; i < 20; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-thread-roll-${i}`), { colors: COLORS, size: 120, family: 'peony' });
+      expect(HERO_ARCHETYPE_POOL).toContain(hero.heroArchetype);
+    }
+  });
+});
+
+describe('applyHeroFraming (Build 009, Section 4: Hero Framing Engine)', () => {
+  const size = 120;
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 0, dy: 0, rotationDeg: 0, scaleMul: 1, role: 'secondary', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op for the hero member itself', () => {
+    const hero = member({ role: 'hero', dx: 0, dy: 0 });
+    const [result] = applyHeroFraming([hero], size, 'bouquet');
+    expect(result).toEqual(hero);
+  });
+
+  it('pushes a supporting member that lands too close to the hero center outward to a real minimum clearance', () => {
+    const tooClose = member({ role: 'secondary', dx: 1, dy: 0, scaleMul: 1 });
+    const [, result] = applyHeroFraming([member({ role: 'hero' }), tooClose], size, 'cascade');
+    expect(Math.hypot(result.dx, result.dy)).toBeGreaterThan(Math.hypot(tooClose.dx, tooClose.dy));
+    // Direction (angle) is preserved -- only distance changes.
+    expect(Math.atan2(result.dy, result.dx)).toBeCloseTo(Math.atan2(tooClose.dy, tooClose.dx), 5);
+  });
+
+  it('leaves a member already at a safe distance untouched', () => {
+    const farEnough = member({ role: 'accent', dx: size * 2, dy: 0, scaleMul: 0.5 });
+    const [, result] = applyHeroFraming([member({ role: 'hero' }), farEnough], size, 'cascade');
+    expect(result).toEqual(farEnough);
+  });
+
+  it('a bigger scaleMul needs more clearance than a smaller one at the same role', () => {
+    const small = member({ role: 'filler', dx: 10, dy: 0, scaleMul: 0.3 });
+    const big = member({ role: 'filler', dx: 10, dy: 0, scaleMul: 1.5 });
+    const [, resultSmall] = applyHeroFraming([member({ role: 'hero' }), small], size, 'cascade');
+    const [, resultBig] = applyHeroFraming([member({ role: 'hero' }), big], size, 'cascade');
+    expect(Math.hypot(resultBig.dx, resultBig.dy)).toBeGreaterThan(Math.hypot(resultSmall.dx, resultSmall.dy));
+  });
+
+  it('only nudges angular position for the bouquet archetype', () => {
+    const members = [
+      member({ role: 'hero' }),
+      member({ role: 'secondary', dx: size, dy: 0, scaleMul: 1 }),
+      member({ role: 'secondary', dx: size * 0.9, dy: size * 0.1, scaleMul: 1 }),
+      member({ role: 'filler', dx: size * 0.8, dy: size * 0.2, scaleMul: 1 }),
+    ];
+    const cascadeResult = applyHeroFraming(members, size, 'cascade');
+    // Non-bouquet archetypes only get the push-away (all already far enough
+    // here), so angles are unchanged.
+    for (let i = 1; i < members.length; i++) {
+      expect(Math.atan2(cascadeResult[i].dy, cascadeResult[i].dx)).toBeCloseTo(Math.atan2(members[i].dy, members[i].dx), 5);
+    }
+    const bouquetResult = applyHeroFraming(members, size, 'bouquet');
+    const anglesChanged = bouquetResult.slice(1).some((m, i) => Math.abs(Math.atan2(m.dy, m.dx) - Math.atan2(members[i + 1].dy, members[i + 1].dx)) > 1e-6);
+    expect(anglesChanged).toBe(true);
+  });
+
+  it('bouquet framing spreads members toward more even angular coverage without changing their distance from the hero', () => {
+    // 4 members bunched tightly into one narrow arc.
+    const angle = (deg: number) => (deg * Math.PI) / 180;
+    const dist = size * 0.8;
+    const members = [
+      member({ role: 'hero' }),
+      member({ role: 'secondary', dx: Math.cos(angle(0)) * dist, dy: Math.sin(angle(0)) * dist }),
+      member({ role: 'secondary', dx: Math.cos(angle(10)) * dist, dy: Math.sin(angle(10)) * dist }),
+      member({ role: 'filler', dx: Math.cos(angle(20)) * dist, dy: Math.sin(angle(20)) * dist }),
+      member({ role: 'accent', dx: Math.cos(angle(30)) * dist, dy: Math.sin(angle(30)) * dist }),
+    ];
+    const result = applyHeroFraming(members, size, 'bouquet');
+    // Distances from the hero are preserved (this pass only rotates).
+    for (let i = 1; i < members.length; i++) {
+      expect(Math.hypot(result[i].dx, result[i].dy)).toBeCloseTo(Math.hypot(members[i].dx, members[i].dy), 5);
+    }
+    const spreadBefore = Math.max(...members.slice(1).map((m) => Math.atan2(m.dy, m.dx))) - Math.min(...members.slice(1).map((m) => Math.atan2(m.dy, m.dx)));
+    const spreadAfter = Math.max(...result.slice(1).map((m) => Math.atan2(m.dy, m.dx))) - Math.min(...result.slice(1).map((m) => Math.atan2(m.dy, m.dx)));
+    expect(spreadAfter).toBeGreaterThan(spreadBefore);
+  });
+
+  it('is a no-op when there are fewer than 2 supporting members for angular framing', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: size, dy: 0 })];
+    const result = applyHeroFraming(members, size, 'bouquet');
+    expect(result[1]).toEqual(members[1]);
   });
 });
