@@ -142,3 +142,58 @@ project suite: 129 files / 1524 tests passing.
 `docs/PERFORMANCE.md`, `docs/ROADMAP.md` (all appended),
 `docs/COMMERCIAL_TARGET.md` (new), plus `docs/USER_GUIDE.md` Thai
 changelog (v1.49).
+
+---
+
+## Portfolio Manager P1 — Core Database and Asset Library
+
+**Goal**: a new offline asset catalog — import, store, browse, search,
+inspect, and safely remove stock-vector source files (SVG/PNG/JSON/EPS/AI/
+JPG) without modifying or degrading the originals. A separate product
+track from the composition-quality builds above (0xx-014); does not touch
+the Generator, the evaluation/scoring engine, or any existing storage
+format.
+
+### Added
+
+- `src/catalog/domain/` — `types.ts` (`PortfolioAsset`, `PortfolioFileRecord`,
+  `WorkflowStatus` orthogonal to archiving), `id.ts` (`VSP-YYYYMMDD-XXXXXX`
+  asset IDs), `hash.ts` (SHA-256 via `crypto.subtle`), `asset.ts`
+  (factory/normalize/validate), `search.ts` (filter/sort/describe).
+- `src/catalog/storage/portfolioStore.ts` — IndexedDB-only persistence
+  (no localStorage fallback, deliberately — see architecture doc), atomic
+  multi-store import/delete transactions.
+- `src/catalog/import/` — `fileValidation.ts`, `basenameGrouping.ts`,
+  `previewSelection.ts`, `jsonCompat.ts` (tolerant multi-shape JSON
+  metadata extraction), `duplicates.ts` (multi-signal duplicate
+  detection), `importPipeline.ts` (orchestrator).
+- `src/catalog/services/` — `dashboard.ts`, `healthCheck.ts` (read-only
+  data-integrity report), `exportAsset.ts` (per-asset ZIP export with
+  hash-integrity verification, reuses `export/zip.ts`).
+- `src/components/portfolio/` — `PortfolioManagerView.tsx` + `PortfolioSidebar.tsx`
+  / `PortfolioGrid.tsx` / `PortfolioThumbnail.tsx` / `PortfolioDetailPanel.tsx`
+  / `PortfolioImportPanel.tsx` / `PortfolioHealthCheckPanel.tsx` /
+  `usePreviewUrl.ts`, wired into `App.tsx`/`ProjectBar.tsx` as a new
+  `🗂 Portfolio Manager` top-level view.
+- `storage/db.ts`: `DB_VERSION` 3 → 4, adds `portfolioAssets` and
+  `portfolioFiles` object stores to the existing shared `onupgradeneeded`
+  handler.
+- `fake-indexeddb` devDependency — gives the vitest/jsdom test environment
+  a real IndexedDB implementation for `catalog/storage/*.test.ts`.
+
+### Tests
+
+110 new tests across 16 files (`catalog/domain`, `catalog/import`,
+`catalog/storage`, `catalog/services`, `components/portfolio`), including
+a 1,000+/1,200-record performance suite for search/filter/sort and grid
+pagination. Full existing suite re-run alongside to confirm zero
+regressions. See `docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md`.
+
+### Documentation
+
+`docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md`,
+`PORTFOLIO_MANAGER_DATA_MODEL.md`, `PORTFOLIO_MANAGER_STORAGE.md`,
+`PORTFOLIO_MANAGER_IMPORT_SPEC.md`, `PORTFOLIO_MANAGER_P1_TEST_REPORT.md`
+(all new), `docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md` (new),
+`docs/ROADMAP.md` (appended), plus `docs/USER_GUIDE.md` Thai feature
+section + changelog (v1.64).

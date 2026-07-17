@@ -2903,3 +2903,38 @@ src/
     index.ts               Top-level barrel
     validation.ts          Cross-domain validation
 ```
+
+## Portfolio Manager P1 (`src/catalog/*`, UI in `src/components/portfolio/*`)
+
+An offline catalog of externally-produced stock-vector source files —
+import, store, browse, search, inspect, and safely remove SVG/PNG/JSON/
+EPS/AI/JPG file sets without ever modifying or recompressing the
+originals. Opened via the **"🗂 Portfolio Manager"** button next to
+Project Dashboard. Separate from `src/portfolio/` (Build 013/014's
+unrelated, read-only Portfolio *Intelligence* Engine over generated-
+pattern batches) and from `src/assets/` (the Asset Ecosystem Engine's
+extracted/editable SVG-AST motifs) — see
+[`docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md`](../docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md)
+for the naming-collision explanation and full layer map. Full docs:
+
+- [`docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md`](../docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md) — layer map, storage-technology rationale, reuse vs new.
+- [`docs/portfolio/PORTFOLIO_MANAGER_DATA_MODEL.md`](../docs/portfolio/PORTFOLIO_MANAGER_DATA_MODEL.md) — `PortfolioAsset`/`PortfolioFileRecord` field reference, asset ID format, workflow-vs-archive separation.
+- [`docs/portfolio/PORTFOLIO_MANAGER_STORAGE.md`](../docs/portfolio/PORTFOLIO_MANAGER_STORAGE.md) — IndexedDB stores, transaction/deletion safety, browser limitations.
+- [`docs/portfolio/PORTFOLIO_MANAGER_IMPORT_SPEC.md`](../docs/portfolio/PORTFOLIO_MANAGER_IMPORT_SPEC.md) — import pipeline, duplicate detection, JSON compatibility, preview selection.
+- [`docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md`](../docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md) — test coverage by category.
+- [`docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md`](../docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md) — sprint report (branch, commit, full results, known limitations, next P2 recommendation).
+
+```
+src/catalog/
+  domain/       PortfolioAsset/PortfolioFileRecord model, IDs, SHA-256 hashing, search/filter/sort
+  storage/      portfolioStore.ts — IndexedDB-only persistence (no localStorage fallback)
+  import/       fileValidation, basenameGrouping, previewSelection, jsonCompat, duplicates, importPipeline
+  services/     dashboard.ts, healthCheck.ts, exportAsset.ts (ZIP export)
+src/components/portfolio/
+  PortfolioManagerView.tsx    top-level container
+  PortfolioSidebar.tsx        dashboard stats + filters
+  PortfolioGrid.tsx           searchable/sortable/paginated thumbnail grid
+  PortfolioDetailPanel.tsx    metadata editing, archive/restore, safe delete
+  PortfolioImportPanel.tsx    drag-and-drop / file-input import + duplicate resolution
+  PortfolioHealthCheckPanel.tsx  read-only data-integrity report
+```

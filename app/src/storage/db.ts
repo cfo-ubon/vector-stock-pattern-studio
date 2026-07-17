@@ -8,11 +8,18 @@
 
 export const DB_NAME = 'vsp-db';
 // v1 (v1.11): 'saved' store only. v2 (Project Studio Engine): adds
-// 'projects'. v3 (Asset Ecosystem Engine, Phase 9): adds 'assets'.
-export const DB_VERSION = 3;
+// 'projects'. v3 (Asset Ecosystem Engine, Phase 9): adds 'assets'. v4
+// (Portfolio Manager P1): adds 'portfolioAssets' (metadata records, no
+// binary bodies, keyed by `assetId` — kept small for fast list/search) and
+// 'portfolioFiles' (imported source file bodies as Blobs, keyed by
+// `fileId`, indexed by `assetId` and `sha256` for orphan/duplicate lookups
+// without a full-store scan).
+export const DB_VERSION = 4;
 export const SAVED_STORE = 'saved';
 export const PROJECTS_STORE = 'projects';
 export const ASSETS_STORE = 'assets';
+export const PORTFOLIO_ASSETS_STORE = 'portfolioAssets';
+export const PORTFOLIO_FILES_STORE = 'portfolioFiles';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -25,6 +32,14 @@ export function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(SAVED_STORE)) db.createObjectStore(SAVED_STORE, { keyPath: 'id' });
         if (!db.objectStoreNames.contains(PROJECTS_STORE)) db.createObjectStore(PROJECTS_STORE, { keyPath: 'id' });
         if (!db.objectStoreNames.contains(ASSETS_STORE)) db.createObjectStore(ASSETS_STORE, { keyPath: 'metadata.id' });
+        if (!db.objectStoreNames.contains(PORTFOLIO_ASSETS_STORE)) {
+          db.createObjectStore(PORTFOLIO_ASSETS_STORE, { keyPath: 'assetId' });
+        }
+        if (!db.objectStoreNames.contains(PORTFOLIO_FILES_STORE)) {
+          const files = db.createObjectStore(PORTFOLIO_FILES_STORE, { keyPath: 'fileId' });
+          files.createIndex('assetId', 'assetId', { unique: false });
+          files.createIndex('sha256', 'sha256', { unique: false });
+        }
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);

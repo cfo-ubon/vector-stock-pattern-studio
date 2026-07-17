@@ -219,7 +219,39 @@ Build-numbered, forward-looking. Each entry is either shipped
   unchanged-or-improved at every regression tier (no regression). See
   `docs/build_reports/BUILD_014_REPORT.md`.
 
-## Recommended Next Build
+- **Portfolio Manager P1 — Core Database and Asset Library**: new offline
+  asset catalog (`src/catalog/`, UI in `src/components/portfolio/`) — import,
+  store, browse, search, inspect, and safely remove stock-vector source
+  files (SVG/PNG/JSON/EPS/AI/JPG) without modifying or degrading the
+  originals. IndexedDB-only storage (no localStorage fallback for the
+  catalog — binary Blob bodies can't survive `JSON.stringify`, and the
+  quota is too small for a real library), versioned `PortfolioAsset`
+  domain model with workflow status orthogonal to archiving, multi-signal
+  duplicate detection (SHA-256 + normalized-JSON hash + filename/size +
+  generator seed), tolerant multi-shape JSON metadata extraction, a
+  paginated search/filter/sort grid validated at 1,000+ records, a
+  read-only Health Check report, and per-asset ZIP export with hash-
+  integrity verification. This is a separate product track from the
+  composition-quality builds above (0xx-014) — it does not touch the
+  Generator, the evaluation/scoring engine, or any existing storage
+  format. See `docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md` and
+  `docs/portfolio/`.
+
+## Recommended Next Build (Portfolio Manager track)
+
+Portfolio Manager P1 delivered the core database/import/browse/search/
+delete surface only, deliberately excluding (per the sprint brief):
+marketplace-upload automation, full SEO management, revenue/analytics,
+cloud sync, and collection-linking UI. The highest-priority P2 candidate
+is **collection-linking + full-library backup/restore** — P1's data model
+already reserves `collectionIds` on every asset and the storage layer's
+Blob-per-file design already supports zipping the entire `portfolioFiles`
+store the same way `services/exportAsset.ts` zips one asset today, so
+neither requires a storage-layer rewrite; see
+`docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md`'s "Next P2
+recommendation" section for the full reasoning.
+
+## Recommended Next Build (composition-quality track)
 
 Build 014 was a narrowly-scoped fix for the single recommendation Build
 013's Portfolio Intelligence Engine produced — it does not itself generate a
