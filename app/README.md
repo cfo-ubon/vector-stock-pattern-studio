@@ -2953,3 +2953,32 @@ object store). See:
 - [`docs/architecture/ADR-005-collection-relationship.md`](../docs/architecture/ADR-005-collection-relationship.md) — why many-to-many, why `collectionIds` on the asset, deletion/archive/integrity strategy.
 - [`docs/portfolio/P2_STAGE1_TEST_REPORT.md`](../docs/portfolio/P2_STAGE1_TEST_REPORT.md) / [`P2_STAGE1_PERFORMANCE.md`](../docs/portfolio/P2_STAGE1_PERFORMANCE.md) — test coverage and measured performance.
 - [`docs/build_reports/P2_STAGE1_REPORT.md`](../docs/build_reports/P2_STAGE1_REPORT.md) — sprint report.
+
+### Portfolio Manager P2.5 Sprint 1 — Collection validation infrastructure (`src/catalog/validation/`, `scripts/validateCollections.ts`)
+
+Dev-only tooling for scalability/integrity/performance validation of the
+Collection stack above — a deterministic dataset generator (SMALL/MEDIUM/
+LARGE presets), a benchmark runner, 8 reusable integrity scenarios (built
+on the existing `collectionService.ts` scan/repair, never a competing
+engine), and a memory-instrumentation foundation. **Not reachable from
+the production UI** — nothing here is imported by `App.tsx`/`main.tsx`,
+so it never ships in `/studio`. Run it via:
+
+```bash
+npm run validate:collections              # default: small dataset + benchmarks + integrity + bounded memory smoke
+npm run validate:collections:small         # 1,000 assets / 100 collections
+npm run validate:collections:medium        # 10,000 assets / 1,000 collections
+npm run validate:collections:large         # 100,000 assets / 10,000 collections
+npm run validate:collections:integrity     # 8 integrity scenarios (scan + repair + idempotency)
+npm run validate:collections:benchmark     # service/data-access benchmarks only
+npm run validate:collections:memory-smoke  # bounded Node-side memory smoke
+```
+
+Reports land in `validation-results/collections/` (gitignored — see
+`docs/portfolio/P2_5_PERFORMANCE_BASELINE.md` for a committed snapshot of
+real measured numbers). See:
+
+- [`docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`](../docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md) — layer map, database-isolation rationale, architecture-lock compliance.
+- [`docs/portfolio/P2_5_DATASET_GENERATOR.md`](../docs/portfolio/P2_5_DATASET_GENERATOR.md) / [`P2_5_BENCHMARK_RUNNER.md`](../docs/portfolio/P2_5_BENCHMARK_RUNNER.md) / [`P2_5_MEMORY_INSTRUMENTATION.md`](../docs/portfolio/P2_5_MEMORY_INSTRUMENTATION.md) / [`P2_5_PERFORMANCE_BASELINE.md`](../docs/portfolio/P2_5_PERFORMANCE_BASELINE.md).
+- [`docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md) — test coverage by category.
+- [`docs/build_reports/P2_5_SPRINT1_REPORT.md`](../docs/build_reports/P2_5_SPRINT1_REPORT.md) — sprint report.

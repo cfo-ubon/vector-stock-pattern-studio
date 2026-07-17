@@ -7,6 +7,56 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P2.5 Sprint 1 — Collection Validation Infrastructure
+
+**Goal**: build reusable, deterministic validation-engineering
+infrastructure (dataset generator, benchmark runner, integrity scenarios,
+memory instrumentation, baseline policy) for later scalability/integrity/
+performance/reliability certification — not a new user-facing Collection
+feature, and not the certification pass itself.
+
+### Added
+
+- `app/src/catalog/validation/` (new module, 12 files + tests):
+  `datasetGenerator.ts`/`datasetPresets.ts`/`deterministicIds.ts`/`types.ts`
+  — deterministic SMALL (1,000 assets/100 collections)/MEDIUM (10,000/
+  1,000)/LARGE (100,000/10,000) dataset generation with a real dataset
+  manifest; `validationDb.ts` — real IndexedDB persistence via the
+  existing bulk storage APIs, gated by an explicit confirmation flag;
+  `benchmarkRunner.ts`/`benchmarkReport.ts` — warm-up/measured
+  iterations, real statistics (mean/median/p95/p99/stddev/ops-per-sec),
+  console/JSON/Markdown output; `integrityScenarios.ts` — 8 named
+  scenarios (valid, orphaned membership, duplicate collectionId, stale
+  cover, empty collection, archived collection, high-membership asset,
+  high-member collection) built on Stage 1's existing
+  `validateCollectionIntegrity`/repair functions, never a competing
+  integrity engine; `memoryInstrumentation.ts` — a memory-sampling
+  adapter (Node/browser/unsupported) and a Blob-URL lifecycle tracker;
+  `baselinePolicy.ts` — regression-threshold comparison (15%
+  warning/30% failure) and a baseline schema.
+- `app/scripts/validateCollections.ts` — CLI entry point wiring all of
+  the above together (`default`/`small`/`medium`/`large`/`integrity`/
+  `benchmark`/`memory-smoke` modes).
+- `npm run validate:collections*` scripts (7 total) in `app/package.json`.
+- A bounded memory smoke test
+  (`components/portfolio/../../catalog/validation/memorySmoke.test.tsx`)
+  mounting/unmounting the real `CollectionDetailPanel` 5 times and
+  proving every created Blob object URL is revoked.
+- 89 new tests across 9 files (see `P2_5_SPRINT1_TEST_REPORT.md`).
+- New devDependency: `tsx` (runs the CLI's TypeScript directly — never
+  bundled into the shipped app).
+
+### Not changed
+
+`domain/collection.ts`, `domain/collectionMembership.ts`,
+`storage/collectionStore.ts`, `storage/portfolioStore.ts`,
+`services/collectionService.ts`, `storage/db.ts` (`DB_VERSION` stays 5),
+and every existing Collection UI component are all byte-for-byte
+unchanged. See `docs/build_reports/P2_5_SPRINT1_REPORT.md` and
+`docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`.
+
+---
+
 ## Portfolio Manager P2 Stage 2 — Collection UI and UX
 
 **Goal**: build the UI layer on top of P2 Stage 1's Collection domain/

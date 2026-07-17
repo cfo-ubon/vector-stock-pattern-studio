@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Portfolio Manager P2.5 Sprint 1 — generated validation reports
+# (`npm run validate:collections*`). Reproducible any time; only a small,
+# hand-curated baseline summary is committed, in
+# docs/portfolio/P2_5_PERFORMANCE_BASELINE.md, not raw JSON/MD dumps.
+validation-results/

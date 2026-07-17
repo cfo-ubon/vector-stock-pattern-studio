@@ -265,16 +265,32 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/build_reports/P2_STAGE2_REPORT.md` and
   `docs/portfolio/P2_STAGE2_UI_ARCHITECTURE.md`.
 
+- **Portfolio Manager P2.5 Sprint 1 — Collection Validation Infrastructure**:
+  a deterministic Collection dataset generator (SMALL/MEDIUM/LARGE
+  presets — 1,000/10,000/100,000 assets), a reusable benchmark runner
+  (warm-up/measured iterations, real statistics, console/JSON/Markdown
+  reports), 8 reusable integrity scenarios built on Stage 1's existing
+  scan/repair functions, a memory-instrumentation foundation (sampler +
+  Blob-URL lifecycle tracker) proven via a bounded smoke test, a
+  performance-baseline comparison policy, and
+  `npm run validate:collections*` CLI scripts — no production code
+  changed, no `DB_VERSION` bump, no user-facing Collection feature. See
+  `docs/build_reports/P2_5_SPRINT1_REPORT.md` and
+  `docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Stage 2 completed the collection UI layer. The next candidate remains
-**full-library backup/restore** (P1's Blob-per-file design already
-supports zipping the entire `portfolioFiles` store the same way
-`services/exportAsset.ts` zips one asset today) — still excluded from
-P1, Stage 1, and Stage 2, per each sprint's own scope. A P2.5
-stress-validation pass (very large collection counts / very large
-per-collection membership) was also explicitly excluded from Stage 2 and
-remains a candidate if real usage approaches that scale.
+Sprint 1 shipped the validation *infrastructure* only — no stress/soak
+run, no crash-recovery certification was performed with it yet. The
+natural next candidate is **P2.5 Sprint 2: apply this infrastructure to
+an actual stress/soak/crash-recovery pass** (long-running repeated
+cycles tracking a real memory-growth trend, not just the bounded smoke
+proof Sprint 1 shipped; a genuinely large sustained-load run; recovery
+behavior after a simulated mid-write interruption). **Full-library
+backup/restore** (P1's Blob-per-file design already supports zipping the
+entire `portfolioFiles` store the same way `services/exportAsset.ts`
+zips one asset today) remains excluded from every sprint so far and is
+still a candidate independent of the validation track.
 
 ## Recommended Next Build (composition-quality track)
 
