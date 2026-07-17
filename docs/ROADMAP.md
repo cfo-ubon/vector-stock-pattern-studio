@@ -251,19 +251,30 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/portfolio/COLLECTION_ARCHITECTURE.md`, and
   `docs/architecture/ADR-005-collection-relationship.md`.
 
+- **Portfolio Manager P2 Stage 2 — Collection UI and UX**: the browsing/
+  management UI on top of Stage 1's now-complete
+  `services/collectionService.ts` API — a "คอลเลกชัน" (Collections) tab
+  inside `PortfolioManagerView.tsx` (All/Active/Archived/Integrity
+  sub-navigation), create/rename/archive/delete, cover set/clear with
+  safe fallback, single- and bulk-asset assignment (multi-select on the
+  asset grid, one reused `CollectionAssignmentDialog` for both), a
+  collection filter integrated into the existing asset-library search/
+  filter system, and an integrity scan + explicit-repair panel mirroring
+  P1's `PortfolioHealthCheckPanel` shape. No domain/storage/service code
+  changed; no `DB_VERSION` bump. See
+  `docs/build_reports/P2_STAGE2_REPORT.md` and
+  `docs/portfolio/P2_STAGE2_UI_ARCHITECTURE.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Stage 1 delivered the collection data foundation only, deliberately
-excluding any UI (per its own brief). The natural next step, **Portfolio
-Manager P2 Stage 2**, is the collection browsing/management UI built
-directly on `services/collectionService.ts`'s now-complete API —
-creating/renaming/archiving collections, assigning/removing assets
-(single and bulk), and a Health-Check-style integrity panel mirroring
-P1's own `PortfolioHealthCheckPanel`. After that, the next candidate
-remains **full-library backup/restore** (P1's Blob-per-file design
-already supports zipping the entire `portfolioFiles` store the same way
+Stage 2 completed the collection UI layer. The next candidate remains
+**full-library backup/restore** (P1's Blob-per-file design already
+supports zipping the entire `portfolioFiles` store the same way
 `services/exportAsset.ts` zips one asset today) — still excluded from
-both P1 and Stage 1, per each sprint's own scope.
+P1, Stage 1, and Stage 2, per each sprint's own scope. A P2.5
+stress-validation pass (very large collection counts / very large
+per-collection membership) was also explicitly excluded from Stage 2 and
+remains a candidate if real usage approaches that scale.
 
 ## Recommended Next Build (composition-quality track)
 

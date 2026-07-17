@@ -71,6 +71,19 @@ describe('searchPortfolioAssets', () => {
     const result = searchPortfolioAssets([a, b], { onlyDuplicates: true, duplicateAssetIds: new Set([a.assetId]) });
     expect(result).toEqual([a]);
   });
+
+  it('filters by a specific collectionId (Portfolio Manager P2 Stage 2, Section 14)', () => {
+    const inCollection = makeAsset({ collectionIds: ['COL-1'] });
+    const notInCollection = makeAsset({ collectionIds: ['COL-2'] });
+    expect(searchPortfolioAssets([inCollection, notInCollection], { collectionId: 'COL-1' })).toEqual([inCollection]);
+  });
+
+  it('filters by collectionMembership "any" and "none"', () => {
+    const member = makeAsset({ collectionIds: ['COL-1'] });
+    const unassigned = makeAsset({ collectionIds: [] });
+    expect(searchPortfolioAssets([member, unassigned], { collectionMembership: 'any' })).toEqual([member]);
+    expect(searchPortfolioAssets([member, unassigned], { collectionMembership: 'none' })).toEqual([unassigned]);
+  });
 });
 
 describe('sortPortfolioAssets', () => {

@@ -28,6 +28,17 @@ export interface PortfolioFilterQuery {
    * a whole-catalog operation, not a per-asset predicate. */
   duplicateAssetIds?: ReadonlySet<string>;
   onlyDuplicates?: boolean;
+  /** Portfolio Manager P2 Stage 2 (Section 14) — collection membership
+   * filters. `collectionId` restricts to assets that are a member of one
+   * specific collection (used when opening a collection's member grid, or
+   * choosing "assets in this collection" from the sidebar). `collectionMembership`
+   * is independent of `collectionId` — "any" means "member of at least one
+   * collection", "none" means "member of zero collections" — so a caller
+   * can ask either "show me everything in Spring 2026" or "show me
+   * everything not yet organized into any collection" without the two
+   * concepts colliding. */
+  collectionId?: string;
+  collectionMembership?: 'any' | 'none';
 }
 
 function matchesKeyword(asset: PortfolioAsset, keyword: string): boolean {
@@ -71,6 +82,10 @@ export function searchPortfolioAssets(assets: PortfolioAsset[], query: Portfolio
     if (query.missingJson && asset.sourceFileReferences.some((r) => r.role === 'json')) return false;
 
     if (query.onlyDuplicates && !(query.duplicateAssetIds?.has(asset.assetId) ?? false)) return false;
+
+    if (query.collectionId && !asset.collectionIds.includes(query.collectionId)) return false;
+    if (query.collectionMembership === 'any' && asset.collectionIds.length === 0) return false;
+    if (query.collectionMembership === 'none' && asset.collectionIds.length > 0) return false;
 
     return true;
   });
@@ -135,5 +150,8 @@ export function describeActiveFilters(query: PortfolioFilterQuery): string[] {
   if (query.missingSvg) parts.push('missing SVG');
   if (query.missingJson) parts.push('missing JSON');
   if (query.onlyDuplicates) parts.push('duplicate warnings only');
+  if (query.collectionId) parts.push(`collection: ${query.collectionId}`);
+  if (query.collectionMembership === 'any') parts.push('in any collection');
+  if (query.collectionMembership === 'none') parts.push('in no collection');
   return parts;
 }

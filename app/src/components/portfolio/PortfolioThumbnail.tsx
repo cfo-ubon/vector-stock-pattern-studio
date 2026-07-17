@@ -17,9 +17,17 @@ interface Props {
   selected: boolean;
   isDuplicate: boolean;
   onSelect: (assetId: string) => void;
+  /** Portfolio Manager P2 Stage 2, Section 11 — when set, renders an
+   * accessible checkbox for multi-selection (bulk collection assignment)
+   * alongside the existing single-select "open detail" click target. The
+   * checkbox intercepts its own click/keyboard events (`stopPropagation`)
+   * so toggling it never also opens the detail panel. */
+  multiSelectable?: boolean;
+  multiChecked?: boolean;
+  onToggleMultiSelect?: (assetId: string) => void;
 }
 
-export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect }: Props) {
+export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect, multiSelectable, multiChecked, onToggleMultiSelect }: Props) {
   const { url, broken } = usePreviewUrl(asset.previewReference);
   const [loadFailed, setLoadFailed] = useState(false);
   const fileTypes = [...new Set(asset.sourceFileReferences.map((r) => r.role))];
@@ -33,6 +41,20 @@ export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect }: P
       aria-pressed={selected}
     >
       <div className="portfolio-thumb-preview">
+        {multiSelectable && (
+          <span
+            className="portfolio-thumb-checkbox"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={!!multiChecked}
+              onChange={() => onToggleMultiSelect?.(asset.assetId)}
+              aria-label={`เลือก ${asset.displayName} สำหรับการดำเนินการหลายรายการ`}
+            />
+          </span>
+        )}
         {!showPlaceholder && url ? (
           <img src={url} alt={asset.displayName} loading="lazy" onError={() => setLoadFailed(true)} />
         ) : (

@@ -11,7 +11,7 @@ describe('PortfolioDetailPanel', () => {
   it('shows the asset name and ID', () => {
     const asset = makeAsset();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={() => {}} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={() => {}} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     expect(screen.getByText('Test Asset')).toBeInTheDocument();
     expect(screen.getByText(asset.assetId)).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe('PortfolioDetailPanel', () => {
     const asset = makeAsset();
     const onUpdate = vi.fn();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     fireEvent.click(screen.getByLabelText('ให้คะแนน 4 ดาว'));
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ rating: 4 }));
@@ -31,7 +31,7 @@ describe('PortfolioDetailPanel', () => {
     const asset = makeAsset();
     const onUpdate = vi.fn();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     fireEvent.change(screen.getByDisplayValue('ฉบับร่าง'), { target: { value: 'APPROVED' } });
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ workflowStatus: 'APPROVED' }));
@@ -41,7 +41,7 @@ describe('PortfolioDetailPanel', () => {
     const asset = makeAsset();
     const onUpdate = vi.fn();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     fireEvent.click(screen.getByText('เก็บเข้าที่เก็บถาวร'));
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ isArchived: true }));
@@ -49,7 +49,7 @@ describe('PortfolioDetailPanel', () => {
     const archived = { ...asset, isArchived: true };
     const onUpdate2 = vi.fn();
     render(
-      <PortfolioDetailPanel asset={archived} isDuplicate={false} onUpdate={onUpdate2} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={archived} isDuplicate={false} onUpdate={onUpdate2} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     fireEvent.click(screen.getByText('กู้คืนจากที่เก็บถาวร'));
     expect(onUpdate2).toHaveBeenCalledWith(expect.objectContaining({ isArchived: false }));
@@ -59,7 +59,7 @@ describe('PortfolioDetailPanel', () => {
     const asset = makeAsset();
     const onUpdate = vi.fn();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={false} onUpdate={onUpdate} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     fireEvent.change(screen.getByPlaceholderText('เพิ่มแท็ก…'), { target: { value: 'floral' } });
     fireEvent.click(screen.getByText('เพิ่ม'));
@@ -69,7 +69,7 @@ describe('PortfolioDetailPanel', () => {
   it('shows a duplicate warning badge when isDuplicate is true', () => {
     const asset = makeAsset();
     render(
-      <PortfolioDetailPanel asset={asset} isDuplicate={true} onUpdate={() => {}} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} />,
+      <PortfolioDetailPanel asset={asset} isDuplicate={true} onUpdate={() => {}} onDeleteRecordOnly={() => {}} onDeleteRecordAndFiles={() => {}} onClose={() => {}} collections={[]} onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })} onRemoveFromCollection={async () => {}} />,
     );
     expect(screen.getByText(/พบไฟล์ซ้ำในคลัง/)).toBeInTheDocument();
   });
@@ -86,6 +86,9 @@ describe('PortfolioDetailPanel', () => {
         onDeleteRecordOnly={onDeleteRecordOnly}
         onDeleteRecordAndFiles={onDeleteRecordAndFiles}
         onClose={() => {}}
+        collections={[]}
+        onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })}
+        onRemoveFromCollection={async () => {}}
       />,
     );
     // Deletion is not immediate — clicking "ลบออกจากคลัง" only opens a confirm dialog.
@@ -113,6 +116,9 @@ describe('PortfolioDetailPanel', () => {
         onDeleteRecordOnly={() => {}}
         onDeleteRecordAndFiles={onDeleteRecordAndFiles}
         onClose={() => {}}
+        collections={[]}
+        onAssignToCollections={async () => ({ requestedCount: 0, changedCount: 0, skippedCount: 0, failedCount: 0, failures: [] })}
+        onRemoveFromCollection={async () => {}}
       />,
     );
     fireEvent.click(screen.getByText('ลบออกจากคลัง'));

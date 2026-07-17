@@ -2,6 +2,7 @@ import type { WorkflowStatus, SourceFileRole } from '../../catalog/domain/types'
 import { WORKFLOW_STATUSES, SOURCE_FILE_ROLES } from '../../catalog/domain/types';
 import type { PortfolioFilterQuery } from '../../catalog/domain/search';
 import type { DashboardSummary } from '../../catalog/services/dashboard';
+import type { Collection } from '../../catalog/domain/collection';
 
 const WORKFLOW_LABEL_TH: Record<WorkflowStatus, string> = {
   DRAFT: 'ฉบับร่าง',
@@ -19,12 +20,16 @@ interface Props {
   onChange: (query: PortfolioFilterQuery) => void;
   onOpenImport: () => void;
   onOpenHealthCheck: () => void;
+  /** Portfolio Manager P2 Stage 2, Section 14 — collection membership
+   * filter for the asset library ("assets in this collection" / "in any
+   * collection" / "in no collection"). */
+  collections: Collection[];
 }
 
 /** Sprint P1, Section 7 (left panel) + Section 10 (Dashboard — P1 Minimum).
  * Every number shown comes from `computeDashboardSummary` (real stored
  * data) — no hard-coded sample numbers. */
-export function PortfolioSidebar({ summary, query, onChange, onOpenImport, onOpenHealthCheck }: Props) {
+export function PortfolioSidebar({ summary, query, onChange, onOpenImport, onOpenHealthCheck, collections }: Props) {
   const toggleStatus = (status: WorkflowStatus) => {
     const current = query.workflowStatus ?? [];
     const next = current.includes(status) ? current.filter((s) => s !== status) : [...current, status];
@@ -102,6 +107,31 @@ export function PortfolioSidebar({ summary, query, onChange, onOpenImport, onOpe
           <option value="active">เฉพาะที่ใช้งานอยู่</option>
           <option value="archived">เฉพาะที่เก็บถาวร</option>
           <option value="all">ทั้งหมด</option>
+        </select>
+      </div>
+
+      <div className="portfolio-filter-group">
+        <h3>คอลเลกชัน</h3>
+        <select
+          value={query.collectionId ? `id:${query.collectionId}` : (query.collectionMembership ?? '')}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '') onChange({ ...query, collectionId: undefined, collectionMembership: undefined });
+            else if (value === 'any') onChange({ ...query, collectionId: undefined, collectionMembership: 'any' });
+            else if (value === 'none') onChange({ ...query, collectionId: undefined, collectionMembership: 'none' });
+            else onChange({ ...query, collectionId: value.slice(3), collectionMembership: undefined });
+          }}
+          aria-label="กรองตามคอลเลกชัน"
+        >
+          <option value="">ทั้งหมด</option>
+          <option value="any">อยู่ในคอลเลกชันใดก็ได้</option>
+          <option value="none">ยังไม่อยู่ในคอลเลกชันใดเลย</option>
+          {collections.map((c) => (
+            <option key={c.id} value={`id:${c.id}`}>
+              {c.name}
+              {c.isArchived ? ' (เก็บถาวร)' : ''}
+            </option>
+          ))}
         </select>
       </div>
 

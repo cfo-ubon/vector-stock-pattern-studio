@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import type { PortfolioAsset, WorkflowStatus } from '../../catalog/domain/types';
 import { WORKFLOW_STATUSES } from '../../catalog/domain/types';
+import type { Collection } from '../../catalog/domain/collection';
+import type { BulkMembershipResult } from '../../catalog/services/collectionService';
 import { usePreviewUrl } from './usePreviewUrl';
 import { exportAssetById } from '../../catalog/services/exportAsset';
 import { downloadBlobFile } from '../../export/svgExporter';
+import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
 
 const WORKFLOW_LABEL_TH: Record<WorkflowStatus, string> = {
   DRAFT: 'ฉบับร่าง',
@@ -28,6 +31,14 @@ interface Props {
   onDeleteRecordOnly: (assetId: string) => void;
   onDeleteRecordAndFiles: (assetId: string) => void;
   onClose: () => void;
+  /** Portfolio Manager P2 Stage 2, Section 12 — single-asset collection
+   * assignment. `collections` is the full list (the assignment dialog
+   * itself excludes archived collections from new-assignment, per Rule 7);
+   * `onAssign`/`onRemove` call through to `collectionService.ts` via
+   * `PortfolioManagerView.tsx`, never IndexedDB directly. */
+  collections: Collection[];
+  onAssignToCollections: (assetId: string, collectionIds: string[]) => Promise<BulkMembershipResult>;
+  onRemoveFromCollection: (assetId: string, collectionId: string) => Promise<void>;
 }
 
 /** Sprint P1, Section 7 (Asset Library UI) — the detail/inspector view.
@@ -36,7 +47,17 @@ interface Props {
  * see `PortfolioManagerView.tsx`), so this component stays a pure
  * controlled view over one asset plus its own small bits of local UI
  * state (notes draft, delete-confirm dialog). */
-export function PortfolioDetailPanel({ asset, isDuplicate, onUpdate, onDeleteRecordOnly, onDeleteRecordAndFiles, onClose }: Props) {
+export function PortfolioDetailPanel({
+  asset,
+  isDuplicate,
+  onUpdate,
+  onDeleteRecordOnly,
+  onDeleteRecordAndFiles,
+  onClose,
+  collections,
+  onAssignToCollections,
+  onRemoveFromCollection,
+}: Props) {
   const { url, broken } = usePreviewUrl(asset.previewReference);
   const [notesDraft, setNotesDraft] = useState(asset.notes);
   const [tagDraft, setTagDraft] = useState('');
@@ -44,6 +65,23 @@ export function PortfolioDetailPanel({ asset, isDuplicate, onUpdate, onDeleteRec
   const [deleteMode, setDeleteMode] = useState<'recordOnly' | 'recordAndFiles'>('recordOnly');
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [membershipError, setMembershipError] = useState<string | null>(null);
+  const [removingCollectionId, setRemovingCollectionId] = useState<string | null>(null);
+
+  const assignedCollections = collections.filter((c) => asset.collectionIds.includes(c.id));
+
+  const handleRemoveFromCollection = async (collectionId: string) => {
+    setRemovingCollectionId(collectionId);
+    setMembershipError(null);
+    try {
+      await onRemoveFromCollection(asset.assetId, collectionId);
+    } catch (e) {
+      setMembershipError(e instanceof Error ? e.message : 'นำออกจากคอลเลกชันไม่สำเร็จ');
+    } finally {
+      setRemovingCollectionId(null);
+    }
+  };
 
   const touch = (patch: Partial<PortfolioAsset>) => onUpdate({ ...asset, ...patch, updatedAt: Date.now() });
 
@@ -206,6 +244,45 @@ export function PortfolioDetailPanel({ asset, isDuplicate, onUpdate, onDeleteRec
           <dd>{new Date(asset.createdAt).toLocaleString('th-TH')}</dd>
         </dl>
       </section>
+
+      <section className="portfolio-detail-section">
+        <h3>คอลเลกชัน</h3>
+        <div className="portfolio-tag-list">
+          {assignedCollections.map((c) => (
+            <span key={c.id} className="portfolio-filetype-chip">
+              {c.name}
+              <button
+                type="button"
+                aria-label={`นำออกจากคอลเลกชัน ${c.name}`}
+                onClick={() => void handleRemoveFromCollection(c.id)}
+                disabled={removingCollectionId === c.id}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          {assignedCollections.length === 0 && <span className="metadata-hint">ยังไม่อยู่ในคอลเลกชันใด</span>}
+        </div>
+        <button type="button" className="btn btn--small" onClick={() => setShowAssignDialog(true)}>
+          + เพิ่มเข้าคอลเลกชัน
+        </button>
+        {membershipError && (
+          <p className="portfolio-error-text" role="alert">
+            {membershipError}
+          </p>
+        )}
+      </section>
+
+      {showAssignDialog && (
+        <CollectionAssignmentDialog
+          mode="assign"
+          assetIds={[asset.assetId]}
+          collections={collections}
+          currentMembership={new Set(asset.collectionIds)}
+          onConfirm={(collectionIds) => onAssignToCollections(asset.assetId, collectionIds)}
+          onClose={() => setShowAssignDialog(false)}
+        />
+      )}
 
       <section className="portfolio-detail-section portfolio-detail-actions">
         <h3>การดำเนินการ</h3>

@@ -7,6 +7,77 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P2 Stage 2 — Collection UI and UX
+
+**Goal**: build the UI layer on top of P2 Stage 1's Collection domain/
+storage/service foundation — browsing, creating, renaming, archiving,
+deleting collections, assigning/removing assets (single and bulk), an
+asset-library collection filter, and an integrity scan/repair panel.
+
+### Added
+
+- `components/portfolio/CollectionsView.tsx` — Collections tab container
+  (All/Active/Archived/Integrity sub-navigation, owns the selected
+  collection).
+- `components/portfolio/CollectionList.tsx` / `CollectionCard.tsx` —
+  searchable/sortable collection grid.
+- `components/portfolio/CreateCollectionDialog.tsx` — create-collection
+  modal.
+- `components/portfolio/CollectionDetailPanel.tsx` — rename/description
+  (inline edit), cover set/clear, archive/unarchive, two-step delete
+  confirmation, paginated member grid with bulk remove-from-collection.
+- `components/portfolio/CollectionAssignmentDialog.tsx` — single
+  component reused for single-asset and bulk assign/remove, rendering
+  the `BulkMembershipResult` summary.
+- `components/portfolio/CollectionIntegrityPanel.tsx` — scan (read-only)
+  + explicit repair (orphaned `collectionIds`, stale `coverAssetId`).
+- `components/portfolio/BulkActionBar.tsx` — appears above the asset
+  grid once assets are multi-selected.
+- `components/portfolio/useCollectionCoverUrl.ts` — Blob-URL hook for
+  collection covers (asset-id -> preview-file resolution), mirrors
+  `usePreviewUrl.ts`'s lifecycle.
+
+### Changed (additive only — no existing signature altered)
+
+- `catalog/domain/search.ts`: `PortfolioFilterQuery` gained
+  `collectionId`/`collectionMembership` (optional), plus matching
+  `.filter()` clauses and `describeActiveFilters` entries.
+- `components/portfolio/PortfolioManagerView.tsx`: new Assets/Collections
+  tab, owns collections state and every collection-mutation handler (all
+  calling `catalog/services/collectionService.ts`, never IndexedDB
+  directly); added a "quiet" refresh path (`refreshAssetsQuietly`/
+  `refreshCollectionsQuietly`) so collection mutations no longer flash
+  the full-page loading state and unmount open dialogs.
+- `components/portfolio/PortfolioSidebar.tsx`: new "คอลเลกชัน" filter
+  group (assets in a specific collection / any collection / no
+  collection).
+- `components/portfolio/PortfolioGrid.tsx` / `PortfolioThumbnail.tsx`:
+  optional multi-select checkbox props, wired to `BulkActionBar`.
+- `components/portfolio/PortfolioDetailPanel.tsx`: new "คอลเลกชัน" section
+  (view/assign/remove membership for the open asset).
+
+No domain/storage/service code from Stage 1 changed. `storage/db.ts`'s
+`DB_VERSION` stays at 5.
+
+### Tests
+
+62 new tests across 11 new files + 1 extended (`search.test.ts`). Full
+existing suite re-run alongside to confirm zero regressions (one
+pre-existing, unrelated flake — see
+`docs/build_reports/P2_STAGE2_REPORT.md`). See
+`docs/portfolio/P2_STAGE2_TEST_REPORT.md`.
+
+### Documentation
+
+`docs/portfolio/P2_STAGE2_UI_ARCHITECTURE.md`, `P2_STAGE2_TEST_REPORT.md`,
+`P2_STAGE2_ACCESSIBILITY.md`, `P2_STAGE2_PERFORMANCE.md`,
+`P2_STAGE2_BROWSER_VERIFICATION.md` (all new),
+`docs/build_reports/P2_STAGE2_REPORT.md` (new), `TECHNICAL_DEBT_REGISTER.md`
+(updated), `docs/ROADMAP.md` (appended), plus `docs/USER_GUIDE.md` Thai
+changelog (v1.66).
+
+---
+
 ## Build 001 — Composition Intelligence Foundation V2
 
 **Goal**: dramatically improve generated-pattern visual quality (target:

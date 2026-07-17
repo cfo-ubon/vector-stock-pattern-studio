@@ -576,3 +576,180 @@
   font-size: 0.75rem;
   color: var(--text-dim);
 }
+
+/* P2 Stage 2 — section nav (Assets / Collections) */
+
+.portfolio-section-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* P2 Stage 2 — forms (Create/rename dialogs) */
+
+.portfolio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.portfolio-form label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.4rem;
+}
+
+.portfolio-form input[type='text'],
+.portfolio-form textarea {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.portfolio-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* P2 Stage 2 — multi-select checkbox overlay on thumbnails */
+
+.portfolio-thumb-checkbox {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 1;
+  background: var(--panel);
+  border-radius: 4px;
+  padding: 0.1rem;
+  line-height: 0;
+}
+
+.portfolio-thumb-preview {
+  position: relative;
+}
+
+/* P2 Stage 2 — bulk action bar (asset grid + collection detail member grid) */
+
+.portfolio-bulk-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+/* P2 Stage 2 — collection assignment dialog */
+
+.collection-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.portfolio-bulk-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.portfolio-bulk-failures {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  max-height: 20vh;
+  overflow-y: auto;
+}
+
+/* P2 Stage 2 — Collections area layout */
+
+.collections-body {
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+@media (max-width: 1100px) {
+  .collections-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collections-nav-and-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.collections-tab-nav {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.collection-integrity-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.collection-card-count {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.collection-archive-confirm {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.collection-member-grid {
+  margin-top: 0.5rem;
+}
+
+.collection-member-card {
+  position: relative;
+}
+
+.collection-member-card .portfolio-select-checkbox {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 1;
+  background: var(--panel);
+  border-radius: 4px;
+  padding: 0.1rem;
+  line-height: 0;
+}
+
+.collection-asset-detail-modal {
+  max-width: 480px;
+}
+
+.collection-asset-detail-modal .portfolio-detail {
+  border: none;
+  padding: 0;
+  max-height: none;
+}
