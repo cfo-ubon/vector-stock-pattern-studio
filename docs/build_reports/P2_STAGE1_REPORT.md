@@ -28,9 +28,9 @@ feature was implemented** — see Section 21.
 - **Branch**: `claude/vector-pattern-stock-app-aqimbk`
 - **Baseline commits** (P1, already merged before this stage started):
   `21c9f8a`, `b0e8a42`
-- **This stage's commit**: recorded after commit — see the commit on
-  this branch titled "Portfolio Manager P2 Stage 1: collection domain
-  and data foundation".
+- **This stage's commit**: `4488f71` — "Portfolio Manager P2 Stage 1:
+  collection domain and data foundation" (38 files changed, 3,461
+  insertions, 65 deletions)
 
 ## 3. Files Changed
 
