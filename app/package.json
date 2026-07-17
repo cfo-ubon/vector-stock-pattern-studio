@@ -21,7 +21,14 @@
     "validate:collections:soak:30m": "tsx scripts/validateCollectionsStress.ts soak-30m",
     "validate:collections:soak:60m": "tsx scripts/validateCollectionsStress.ts soak-60m",
     "validate:collections:baseline-compare": "tsx scripts/validateCollectionsStress.ts baseline-compare",
-    "validate:collections:ui-soak": "tsx scripts/uiSoak.ts"
+    "validate:collections:ui-soak": "tsx scripts/uiSoak.ts",
+    "validate:recovery:matrix": "tsx scripts/validateRecovery.ts matrix",
+    "validate:recovery:durability": "tsx scripts/validateRecovery.ts durability",
+    "validate:recovery:idempotency": "tsx scripts/validateRecovery.ts idempotency",
+    "validate:recovery:consistency": "tsx scripts/validateRecovery.ts consistency",
+    "validate:recovery:large": "tsx scripts/validateRecovery.ts large",
+    "validate:recovery:browser-cycle": "tsx scripts/browserRecovery.ts cycle",
+    "validate:recovery:browser-crash": "tsx scripts/browserRecovery.ts crash"
   },
   "dependencies": {
     "react": "^19.2.7",

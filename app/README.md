@@ -3007,3 +3007,42 @@ See:
 - [`docs/portfolio/P2_5_SPRINT2_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_REPORT.md) — sprint report (30 sections).
 - [`docs/portfolio/P2_5_STRESS_REPORT.md`](../docs/portfolio/P2_5_STRESS_REPORT.md) / [`P2_5_SOAK_REPORT.md`](../docs/portfolio/P2_5_SOAK_REPORT.md) / [`P2_5_LATENCY_DRIFT.md`](../docs/portfolio/P2_5_LATENCY_DRIFT.md) / [`P2_5_MEMORY_REPORT.md`](../docs/portfolio/P2_5_MEMORY_REPORT.md) / [`P2_5_UI_SOAK_REPORT.md`](../docs/portfolio/P2_5_UI_SOAK_REPORT.md) / [`P2_5_BASELINE_COMPARISON.md`](../docs/portfolio/P2_5_BASELINE_COMPARISON.md).
 - [`docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md) — test coverage by category.
+
+### Portfolio Manager P2.5 Sprint 3 — Crash recovery and data integrity certification (`src/catalog/validation/recoveryEngine.ts` + `durabilityEngine.ts`, `scripts/validateRecovery.ts`, `scripts/browserRecovery.ts`)
+
+A domain-agnostic failure-injection engine (9 distinct injection points —
+before/during/aborted-transaction, rejected-promise, thrown-exception,
+after-commit, after-persistence, before-ui-refresh, validation-
+interruption) and a durability/idempotency engine, wired to all 9
+required Collection operations (create/rename/archive/unarchive/delete,
+bulk assign/remove, cover update, metadata update). Same monkey-patch-a-
+prototype-then-restore technique Sprint 2's `uiSoak.ts` used for
+`URL.createObjectURL` — never touches production source. Dev-only, not
+reachable from the production UI. Run it via:
+
+```bash
+npm run validate:recovery:matrix        # 81-scenario failure matrix (9 ops x 9 points)
+npm run validate:recovery:durability    # 900 repeated recovery cycles (100 per op)
+npm run validate:recovery:idempotency   # 6-op repeated-recovery stability check
+npm run validate:recovery:consistency   # before/after-failure/after-recovery/after-repeat manifest
+npm run validate:recovery:large         # LARGE dataset (100k/10k/500k+) recovery
+npm run validate:recovery:browser-cycle # real Chromium, 100 open/mutate/reload/reopen/validate cycles
+npm run validate:recovery:browser-crash # real Chromium, 5 real OS-process-kill crash trials
+```
+
+Real runs found and fixed one production defect — a bulk-write atomicity
+gap across 5 functions in `collectionStore.ts`/`portfolioStore.ts` (a
+mid-loop synchronous throw could leave already-queued writes silently
+auto-committed despite the caller observing failure) — then verified the
+fix across every scenario above: 81/81 matrix scenarios recovered clean,
+900/900 durability cycles durable and clean, 30/30 idempotency repeats
+stable, consistency manifests clean at every transition, 4/4 LARGE-scale
+scenarios recovered with zero new corruption, 100/100 real-browser cycles
+clean, and 5/5 real crash trials showed committed writes surviving a
+genuine `SIGKILL` with atomicity always held. None of these run as part
+of `npm test`. Reports land in `validation-results/collections/`
+(gitignored). See:
+
+- [`docs/portfolio/P2_5_SPRINT3_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_REPORT.md) — sprint report.
+- [`docs/portfolio/P2_5_RECOVERY_REPORT.md`](../docs/portfolio/P2_5_RECOVERY_REPORT.md) / [`P2_5_FAILURE_MATRIX.md`](../docs/portfolio/P2_5_FAILURE_MATRIX.md) / [`P2_5_DURABILITY_REPORT.md`](../docs/portfolio/P2_5_DURABILITY_REPORT.md) / [`P2_5_CONSISTENCY_REPORT.md`](../docs/portfolio/P2_5_CONSISTENCY_REPORT.md) / [`P2_5_BROWSER_RECOVERY.md`](../docs/portfolio/P2_5_BROWSER_RECOVERY.md).
+- [`docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md) — test coverage by category.

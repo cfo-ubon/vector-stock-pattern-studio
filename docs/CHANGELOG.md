@@ -7,6 +7,88 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P2.5 Sprint 3 — Crash Recovery and Data Integrity Certification
+
+**Goal**: certify recovery, durability, and idempotency after simulated
+mid-write failures — a validation stage, not a feature stage. No new
+user-facing Collection feature, no production Collection architecture
+change beyond the one proven-necessary atomicity fix below.
+
+### Added
+
+- `app/src/catalog/validation/recoveryEngine.ts` — a domain-agnostic
+  failure-injection engine: 9 distinct failure points (before-
+  transaction, during-transaction, aborted-transaction, rejected-promise,
+  thrown-exception, after-commit, after-persistence, before-ui-refresh,
+  validation-interruption), each a genuinely different mechanism, not a
+  relabeling of the same fault. `installFailureInjector` monkey-patches
+  `fake-indexeddb`'s `IDBDatabase`/`IDBObjectStore` prototypes
+  temporarily (the same "patch a global, patch it back" technique
+  Sprint 2's `uiSoak.ts` used for `URL.createObjectURL`) — never touches
+  production source. `runRecoveryScenario` orchestrates snapshot → inject
+  → attempt → uninstall → snapshot → retry → snapshot for one operation.
+- `app/src/catalog/validation/durabilityEngine.ts` —
+  `runDurabilityCycles()` repeats a recovery scenario N times (used for
+  the required 100-cycle runs) tracking durability and cleanliness per
+  cycle; `verifyIdempotentRecovery()` repeats a recovery action and
+  verifies the resulting state stops changing.
+- `app/scripts/validateRecovery.ts` — CLI wiring all 9 required
+  `collectionService.ts` operations (createCollection, renameCollection,
+  archiveCollection, unarchiveCollection, deleteCollection, bulkAssign,
+  bulkRemove, coverUpdate, metadataUpdate) into the matrix/durability/
+  idempotency/consistency/LARGE-dataset modes.
+- `app/scripts/browserRecovery.ts` — real-Chromium recovery testing: a
+  100-cycle open/mutate/reload/reopen/validate mode, and a crash-
+  simulation mode that spawns Chromium directly (bypassing Playwright's
+  `launchServer`/`launchPersistentContext`, neither of which can provide
+  both a real disk-backed profile and a killable process handle at once),
+  connects via `chromium.connectOverCDP`, and sends a real `SIGKILL` to
+  the actual OS process before reopening the same on-disk profile in a
+  second, independent process.
+- 7 `npm run validate:recovery:*` scripts.
+- 21 new tests (`recoveryEngine.test.ts`: 15, `durabilityEngine.test.ts`:
+  6).
+
+### Fixed (production defect)
+
+- **Bulk-write atomicity gap** across 5 functions —
+  `putCollectionRecordsBulk`/`deleteCollectionCascade`
+  (`collectionStore.ts`) and `putPortfolioAssetsBulk`/
+  `importAssetTransaction`/`deletePortfolioAssetAndFiles`
+  (`portfolioStore.ts`). Each issued `.put()`/`.delete()` calls in a loop
+  before attaching `oncomplete`/`onerror`/`onabort` handlers — a mid-loop
+  synchronous throw rejected the wrapping Promise while leaving
+  already-queued writes to silently auto-commit (reproduced: exactly 1
+  of 4 writes landing despite the caller observing failure). Fixed by
+  attaching handlers before the loop and wrapping the loop in
+  `try { ... } catch { t.abort(); }` — behaviorally identical on every
+  success path, guarantees true all-or-nothing rollback on the throwing
+  path. Found by the failure-injection matrix itself, during this
+  sprint's own construction.
+
+### Real runs
+
+81-scenario failure matrix (9 operations × 9 points): 81/81 recovered,
+81/81 clean. 900 repeated durability cycles (100 per operation): 900/900
+durable and clean. 6-operation idempotency check: 30/30 repeats stable.
+Consistency manifest (before/after-failure/after-recovery/after-repeated-
+recovery): clean at every transition. LARGE dataset (100k assets/10k
+collections/504,544 memberships): 4/4 scenarios recovered, zero new
+corruption. Real-browser 100-cycle recovery: 0 failures, 0 page/console
+errors. Real-browser 5-trial crash simulation (genuine `SIGKILL` of the
+actual OS process, reopened in a second independent process against the
+same disk profile): committed writes always survived, the deliberately
+uncommitted in-flight write was never partially present, integrity
+always clean.
+
+See `docs/portfolio/P2_5_SPRINT3_REPORT.md` (full report),
+`P2_5_RECOVERY_REPORT.md` / `P2_5_FAILURE_MATRIX.md` /
+`P2_5_DURABILITY_REPORT.md` / `P2_5_CONSISTENCY_REPORT.md` /
+`P2_5_BROWSER_RECOVERY.md` (evidence by section), and
+`P2_5_SPRINT3_TEST_REPORT.md` (test coverage by category).
+
+---
+
 ## Portfolio Manager P2.5 Sprint 2 — Stress and Soak Validation
 
 **Goal**: prove sustained stability, performance consistency, memory

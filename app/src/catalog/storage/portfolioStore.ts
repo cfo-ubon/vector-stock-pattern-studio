@@ -70,11 +70,23 @@ export async function putPortfolioAssetsBulk(assets: PortfolioAsset[]): Promise<
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const t = db.transaction(PORTFOLIO_ASSETS_STORE, 'readwrite');
-    const store = t.objectStore(PORTFOLIO_ASSETS_STORE);
-    for (const asset of assets) store.put(asset);
+    // Handlers attached before issuing any request, loop wrapped in
+    // try/catch that explicitly aborts on failure (P2.5 Sprint 3 fix,
+    // P2.5-11): a mid-loop `store.put()` throw previously rejected this
+    // Promise while leaving already-queued puts to silently auto-commit
+    // — a real atomicity violation, caught by
+    // `recoveryEngine.test.ts`'s failure-injection matrix — see
+    // `collectionStore.ts`'s `putCollectionRecordsBulk` for the full
+    // explanation (identical fix, same root cause).
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('Bulk asset write transaction aborted'));
+    try {
+      const store = t.objectStore(PORTFOLIO_ASSETS_STORE);
+      for (const asset of assets) store.put(asset);
+    } catch {
+      t.abort();
+    }
   });
 }
 
@@ -117,12 +129,20 @@ export async function importAssetTransaction(asset: PortfolioAsset, files: Portf
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const t = db.transaction([PORTFOLIO_ASSETS_STORE, PORTFOLIO_FILES_STORE], 'readwrite');
-    t.objectStore(PORTFOLIO_ASSETS_STORE).put(asset);
-    const fileStore = t.objectStore(PORTFOLIO_FILES_STORE);
-    for (const f of files) fileStore.put(f);
+    // Handlers attached before issuing any request; loop wrapped in
+    // try/catch that explicitly aborts on failure — see
+    // `putPortfolioAssetsBulk`'s comment above (P2.5 Sprint 3 fix,
+    // P2.5-11, identical root cause).
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('Import transaction aborted'));
+    try {
+      t.objectStore(PORTFOLIO_ASSETS_STORE).put(asset);
+      const fileStore = t.objectStore(PORTFOLIO_FILES_STORE);
+      for (const f of files) fileStore.put(f);
+    } catch {
+      t.abort();
+    }
   });
 }
 
@@ -146,12 +166,20 @@ export async function deletePortfolioAssetAndFiles(assetId: string): Promise<voi
   const files = await loadFilesForAsset(assetId);
   await new Promise<void>((resolve, reject) => {
     const t = db.transaction([PORTFOLIO_ASSETS_STORE, PORTFOLIO_FILES_STORE], 'readwrite');
-    t.objectStore(PORTFOLIO_ASSETS_STORE).delete(assetId);
-    const fileStore = t.objectStore(PORTFOLIO_FILES_STORE);
-    for (const f of files) fileStore.delete(f.fileId);
+    // Handlers attached before issuing any request; loop wrapped in
+    // try/catch that explicitly aborts on failure — see
+    // `putPortfolioAssetsBulk`'s comment above (P2.5 Sprint 3 fix,
+    // P2.5-11, identical root cause).
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('Delete transaction aborted'));
+    try {
+      t.objectStore(PORTFOLIO_ASSETS_STORE).delete(assetId);
+      const fileStore = t.objectStore(PORTFOLIO_FILES_STORE);
+      for (const f of files) fileStore.delete(f.fileId);
+    } catch {
+      t.abort();
+    }
   });
 }
 

@@ -18,3 +18,6 @@ export * from './latencyDrift';
 export * from './consistencyManifest';
 export * from './sprint1Baseline';
 export * from './baselineCompare';
+// Sprint 3 additions:
+export * from './recoveryEngine';
+export * from './durabilityEngine';

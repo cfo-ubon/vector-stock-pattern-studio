@@ -295,20 +295,43 @@ Build-numbered, forward-looking. Each entry is either shipped
   code changed, no `DB_VERSION` bump, no user-facing feature. See
   `docs/portfolio/P2_5_SPRINT2_REPORT.md`.
 
+- **Portfolio Manager P2.5 Sprint 3 — Crash Recovery and Data Integrity
+  Certification**: a domain-agnostic failure-injection engine
+  (`recoveryEngine.ts`, 9 deterministic failure points: before-
+  transaction, during-transaction, aborted-transaction, rejected-promise,
+  thrown-exception, after-commit, after-persistence, before-ui-refresh,
+  validation-interruption) and a durability/idempotency engine
+  (`durabilityEngine.ts`), wired to all 9 required `collectionService.ts`
+  operations. Real runs completed: an 81-scenario failure matrix (9
+  operations × 9 points, 81/81 recovered clean), 900 repeated Node-side
+  durability cycles (100 per operation, all durable and clean), a
+  6-operation idempotency check (30/30 repeats stable), an IndexedDB
+  consistency manifest across before/after-failure/after-recovery/after-
+  repeated-recovery (clean at every transition), a LARGE-dataset
+  (100k assets/10k collections/504,544 memberships) recovery run (4/4
+  scenarios recovered, no new corruption), a 100-cycle real-browser
+  recovery run (0 failures, 0 page/console errors), and a 5-trial
+  real-OS-process-kill crash simulation (committed writes always
+  survived, atomicity always held, integrity always clean). Found and
+  fixed one real production defect (a bulk-write atomicity gap across 5
+  functions in `collectionStore.ts`/`portfolioStore.ts` — a mid-loop
+  synchronous throw could leave already-queued writes silently
+  auto-committed despite the caller observing failure). No `DB_VERSION`
+  bump, no user-facing feature. See
+  `docs/portfolio/P2_5_SPRINT3_REPORT.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Sprint 2 completed the stress/soak validation pass Sprint 1's
-infrastructure was built for — a genuinely large sustained-load run
-(60-minute soak against the full LARGE dataset), latency-drift and
-memory-trend evidence, and zero confirmed defects in production
-Collection code. **Crash-recovery certification** (recovery behavior
-after a simulated mid-write interruption, interrupted migration, or
-corrupted-database recovery) was explicitly out of scope for Sprint 2 and
-is the natural next candidate — **P2.5 Sprint 3**. **Full-library
-backup/restore** (P1's Blob-per-file design already supports zipping the
-entire `portfolioFiles` store the same way `services/exportAsset.ts`
-zips one asset today) remains excluded from every sprint so far and is
-still a candidate independent of the validation track.
+Sprint 3 completed the crash-recovery certification pass Sprint 2 left
+open — a real production atomicity defect found and fixed, and full
+evidence (failure matrix, durability, idempotency, consistency, LARGE
+dataset, real-browser cycle and crash simulation) that recovery is clean
+across every scenario tested. **Full-library backup/restore** (P1's
+Blob-per-file design already supports zipping the entire
+`portfolioFiles` store the same way `services/exportAsset.ts` zips one
+asset today) remains excluded from every sprint so far and is the
+natural next candidate. **CI wiring for the performance baseline policy**
+(`P2.5-3`, open since Sprint 1) is a smaller, independent candidate.
 
 ## Recommended Next Build (composition-quality track)
 

@@ -71,11 +71,30 @@ export async function putCollectionRecordsBulk(collections: Collection[]): Promi
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const t = db.transaction(COLLECTIONS_STORE, 'readwrite');
-    const store = t.objectStore(COLLECTIONS_STORE);
-    for (const collection of collections) store.put(collection);
+    // Handlers are attached *before* issuing any `put()` — IndexedDB
+    // events are always asynchronous, so this is behaviorally identical
+    // to attaching them after the loop on the success path, but it means
+    // an `onabort` handler is already in place if the loop below ever
+    // has to call `t.abort()`. See the `try`/`catch` immediately below
+    // (P2.5 Sprint 3 fix, P2.5-11): if `store.put()` ever throws
+    // synchronously partway through (a real, if rare, possibility per the
+    // IndexedDB spec — e.g. `DataError` for a non-cloneable value,
+    // `TransactionInactiveError` if the transaction was already left
+    // inactive), the transaction is now explicitly aborted, guaranteeing
+    // the already-issued puts are rolled back too. Previously the loop's
+    // own throw would reject this Promise (via the executor's implicit
+    // catch) while leaving the transaction to auto-commit whatever had
+    // already been queued — a genuine atomicity violation caught by
+    // `recoveryEngine.test.ts`'s failure-injection matrix.
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('Bulk collection write transaction aborted'));
+    try {
+      const store = t.objectStore(COLLECTIONS_STORE);
+      for (const collection of collections) store.put(collection);
+    } catch {
+      t.abort();
+    }
   });
 }
 
@@ -114,12 +133,22 @@ export async function deleteCollectionCascade(collectionId: string, updatedAsset
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const t = db.transaction([COLLECTIONS_STORE, PORTFOLIO_ASSETS_STORE], 'readwrite');
-    t.objectStore(COLLECTIONS_STORE).delete(collectionId);
-    const assetsStore = t.objectStore(PORTFOLIO_ASSETS_STORE);
-    for (const asset of updatedAssets) assetsStore.put(asset);
+    // Handlers attached before issuing any request, loop wrapped in
+    // try/catch that explicitly aborts on failure — see
+    // `putCollectionRecordsBulk`'s comment above for why (P2.5 Sprint 3
+    // fix, P2.5-11: a mid-loop throw must not leave already-queued writes
+    // to silently auto-commit while the caller is told the operation
+    // failed).
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('Collection delete-cascade transaction aborted'));
+    try {
+      t.objectStore(COLLECTIONS_STORE).delete(collectionId);
+      const assetsStore = t.objectStore(PORTFOLIO_ASSETS_STORE);
+      for (const asset of updatedAssets) assetsStore.put(asset);
+    } catch {
+      t.abort();
+    }
   });
 }
 
