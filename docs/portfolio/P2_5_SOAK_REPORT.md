@@ -74,14 +74,39 @@ classification stable**.
 
 ## EXTENDED profile (60 minutes, LARGE dataset)
 
-<!-- FILLED IN AFTER THE RUN COMPLETES -->
+Requested per Section 13(D) — completed as a full, uninterrupted
+60-minute run, not externally limited. Launched with the corrected
+(post-P2.5-6-fix) code, seed `p2.5-sprint2-soak-extended`, against a
+freshly generated LARGE dataset.
 
-Requested per Section 13(D). Launched with the corrected (post-P2.5-6-fix)
-code, seed `p2.5-sprint2-soak-extended`, against a freshly generated
-LARGE dataset. Result recorded once the run completes — see
-`P2_5_SPRINT2_REPORT.md`'s "Soak Profiles"/"Stress Test Results" sections
-for the final, authoritative summary if this section is not yet updated
-at the time of reading.
+| Metric | Result |
+|---|---|
+| Requested / actual duration | 60.0 / **60.03 minutes** |
+| Cancelled / externally limited | false / false |
+| Total cycles | **4,997** |
+| Failures / timeouts | **0 / 0** across all 10 operation types |
+| Memory trend | growth, 425KB/s slope, early-window mean 927MB → late-window mean 1.97GB (see `P2_5_MEMORY_REPORT.md`) |
+| Latency drift | 6 operations stable, 4 at WARNING (15–24%), **0 at FAILURE**; no p95 investigation flags |
+| Consistency | 0 asset/collection delta, 0 new orphans/stale covers |
+| Baseline comparison | all 5 comparable operations STABLE or IMPROVED |
+
+Per-operation cycle counts: `openCollection` 818, `searchCollections` 825,
+`filterActive` 660, `filterArchived` 667, `switchCollection` 808,
+`tempCollectionCycle` 270 (270 full create→rename→archive→unarchive→delete
+cycles, each self-cleaning), `retrieveMembers` 508, `bulkRemove` 187,
+`integrityScan` 77, `bulkAssign` 177.
+
+**This is the strongest single result in Sprint 2**: a full, uninterrupted
+60-minute run against the complete 100k/10k LARGE dataset, with zero
+functional failures and zero consistency issues. Latency drift shows 4
+operations (`searchCollections` 15.5%, `tempCollectionCycle` 17.8%,
+`retrieveMembers` 17.0%, `bulkAssign` 23.5%) crossing from "stable" (seen
+in the 30-minute run) into "warning" territory — expected given the
+larger absolute heap growth accumulated over twice the duration (see
+`P2_5_MEMORY_REPORT.md`) — but **none reached the 30% failure threshold**,
+and no p95 investigation flag was raised for any operation. Per Section
+17's acceptance criteria ("no median degradation >30% without
+resolution"), this run passes cleanly.
 
 ## Test coverage
 

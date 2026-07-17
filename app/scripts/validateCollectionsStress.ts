@@ -28,7 +28,6 @@ import {
   persistDataset,
   resetValidationDatabase,
   scanIntegrity,
-  MemorySampler,
   analyzeMemoryTrend,
   computeLatencyDrift,
   runStressPlan,
@@ -44,7 +43,7 @@ import {
 } from '../src/catalog/validation/index.js';
 import type { SoakOperationSpec, SoakRunResult, SoakOperationName, SoakCancelSignal } from '../src/catalog/validation/soakRunner.js';
 import type { CurrentMeasurement } from '../src/catalog/validation/baselinePolicy.js';
-import { loadCollections, countCollections, searchCollectionsByName } from '../src/catalog/storage/collectionStore.js';
+import { loadCollections, searchCollectionsByName } from '../src/catalog/storage/collectionStore.js';
 import { loadPortfolioAssets } from '../src/catalog/storage/portfolioStore.js';
 import {
   assignAssetsToCollections,
@@ -398,7 +397,7 @@ async function runSoakMode(profile: 'smoke' | 'standard' | 'extended', durationM
 }
 
 async function runBaselineCompareMode(): Promise<number> {
-  const { generated, datasetIdentity } = await seedDataset('small', 'p2.5-sprint2-baseline-compare');
+  const { datasetIdentity } = await seedDataset('small', 'p2.5-sprint2-baseline-compare');
   const pools = await makePools();
   const operations = buildOperations('baseline-compare', pools);
   const result = await runStressPlan(operations, {

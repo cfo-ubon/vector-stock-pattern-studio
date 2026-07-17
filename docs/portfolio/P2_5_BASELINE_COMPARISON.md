@@ -63,6 +63,19 @@ commit).
 
 Zero regressions.
 
+## 60-minute extended soak
+
+| Benchmark | Dataset | Sprint 1 (ms) | Sprint 2 (ms) | Diff (%) | Classification |
+|---|---|---|---|---|---|
+| filter-active-archived | large-100000x10000 | 35.92 | 35.75 | −0.5% | STABLE |
+| open-collection-metadata | large-100000x10000 | 973.97 | 913.12 | −6.2% | IMPROVED |
+| bulk-assign-1000 | large-100000x10000 | 1097.70 | 1006.19 | −8.3% | IMPROVED |
+| bulk-remove-1000 | large-100000x10000 | 1111.68 | 932.63 | −16.1% | IMPROVED |
+| integrity-scan | large-100000x10000 | 1039.48 | 1074.67 | +3.4% | STABLE |
+
+Zero regressions after a full 60-minute sustained run — the longest and
+most demanding measurement in Sprint 2.
+
 ## 5-minute smoke soak
 
 | Benchmark | Dataset | Sprint 1 (ms) | Sprint 2 (ms) | Diff (%) | Classification |

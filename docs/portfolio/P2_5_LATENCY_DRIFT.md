@@ -83,6 +83,34 @@ in-process workload, not an algorithmic regression in
 brief's explicit p95 investigation requirement; no code change was made
 because none was warranted.
 
+## 60-minute extended soak (4,997 ops, LARGE dataset)
+
+| Operation | Samples | Drift | Classification | p95 drift | Investigate p95? |
+|---|---|---|---|---|---|
+| openCollection | 818 | 13.9% | stable | −3.8% | no |
+| searchCollections | 825 | 15.5% | **warning** | +21.4% | no |
+| filterActive | 660 | 9.1% | stable | −20.8% (improved) | no |
+| filterArchived | 667 | 12.6% | stable | +26.1% | no |
+| switchCollection | 808 | 10.0% | stable | +19.9% | no |
+| tempCollectionCycle | 270 | 17.8% | **warning** | +26.0% | no |
+| retrieveMembers | 508 | 17.0% | **warning** | +24.8% | no |
+| bulkRemove | 187 | 13.9% | stable | n/a | no |
+| integrityScan | 77 | 14.2% | stable | n/a | no |
+| bulkAssign | 177 | 23.5% | **warning** | n/a | no |
+
+4 of 10 operations cross into WARNING (15–30% drift) over the full 60
+minutes — none reach FAILURE (>30%), and no p95 drift exceeds 30% for any
+operation. This is consistent with, and directly correlated to, the
+larger absolute heap growth accumulated over a 60-minute window vs. the
+30-minute run (see `P2_5_MEMORY_REPORT.md` — late-window mean heap nearly
+doubles, 1.37GB → 1.97GB). **Not classified as a production defect**: the
+same pattern (rising latency correlated with cumulative heap size in a
+single long-lived Node process, worse for longer runs) is the expected
+signature of the `fake-indexeddb` in-memory validation harness under
+sustained load (Sprint 1's documented P2.5-2 structural limitation), not
+an algorithmic regression — and every operation remains comfortably below
+the 30% failure threshold even after a full hour.
+
 ## 5-minute smoke soak (4,018 ops, MEDIUM dataset)
 
 | Operation | Samples | Drift | Classification | p95 drift | Investigate p95? |

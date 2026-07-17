@@ -14,7 +14,6 @@
 // this environment's own setup notes) and the globally-installed
 // `playwright` package. Not run as part of `npm test` — a separate,
 // explicit command (`npm run validate:collections:ui-soak`).
-import { createServer } from 'node:http';
 import { spawn, type ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

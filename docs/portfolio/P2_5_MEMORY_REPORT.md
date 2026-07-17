@@ -34,7 +34,7 @@ soak, which is the only Sprint 2 run with actual Blob URLs.
 | LARGE stress | ~8.0 min | 36 | growth | 957,687 | 618.8MB | 885.2MB |
 | Smoke soak (5 min, MEDIUM) | 5.00 min | 60 | growth | 3,510,094 | 255.9MB | 1,026.0MB |
 | Standard soak (30 min, LARGE) | 30.00 min | 59 | growth | 355,960 | 936.1MB | 1,369.7MB |
-| Extended soak (60 min, LARGE) | see `P2_5_SOAK_REPORT.md` | — | — | — | — | — |
+| Extended soak (60 min, LARGE) | 60.03 min | 60 | growth | 425,325 | 927.0MB | 1,974.2MB |
 
 (An earlier 30-minute standard-soak run, made before the P2.5-6 baseline
 mapping fix and superseded for that reason, showed `plateau` with slope
@@ -65,13 +65,24 @@ samples during the run, a clear post-major-GC sawtooth) rather than rising
 monotonically. This is the signature of a heap under active, working GC
 management, not a leak.
 
+**The 60-minute extended soak** shows a slope (425KB/s) in the same order
+of magnitude as the 30-minute run, and its late-window mean heap
+(1.97GB) is nearly double the 30-minute run's (1.37GB) — expected, since
+it ran twice as long and accumulated correspondingly more mutation
+history (4,997 cycles vs. 2,589) in the same single, never-restarted
+Node process. The raw sample log for this run also oscillates throughout
+(e.g. cycle 4900's 2.80GB sample followed two samples later by 1.70GB at
+the very end of the run) rather than climbing monotonically — the same
+GC-managed sawtooth pattern seen in every other run, just over a longer
+window and a larger absolute heap size.
+
 ## Acceptance criteria (Section 6)
 
 | Criterion | Result |
 |---|---|
 | Zero outstanding Blob URLs after cleanup | N/A here (Node-only; see UI soak for the real Blob URL check — **0 outstanding** there) |
 | No monotonic unbounded growth demonstrated | **Met** — every run's raw sample series oscillates (GC sawtooth visible in all three logs); no run climbs without ever dropping |
-| No confirmed memory leak | **Met, within the tested durations and this Node/fake-indexeddb environment.** Per the brief's own wording requirement: this is not a claim that no leak could ever occur outside the tested duration/environment — it is limited to the ~8/~5/~30-minute windows actually measured here (see `P2_5_SOAK_REPORT.md` for the 60-minute extended result) |
+| No confirmed memory leak | **Met, within the tested durations and this Node/fake-indexeddb environment.** Per the brief's own wording requirement: this is not a claim that no leak could ever occur outside the tested duration/environment — it is limited to the ~8/~5/~30/~60-minute windows actually measured here, all four of which show oscillating (not monotonic) heap behavior |
 | Temporary heap growth acceptable if it returns toward stable post-cleanup range | **Observed** — the "growth" classification on the 30-minute run reflects real but bounded, GC-managed growth, not runaway allocation; `resetValidationDatabase()` runs after every soak/stress mode, releasing all validation-dataset references before the process exits |
 
 ## Why "growth" is reported instead of "plateau" as the headline result
