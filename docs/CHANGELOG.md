@@ -197,3 +197,58 @@ regressions. See `docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md`.
 (all new), `docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md` (new),
 `docs/ROADMAP.md` (appended), plus `docs/USER_GUIDE.md` Thai feature
 section + changelog (v1.64).
+
+---
+
+## Portfolio Manager P2 Stage 1 — Collection Domain and Data Foundation
+
+**Goal**: build the `Collection` entity, its persistence, and the
+business-logic (service) layer for many-to-many asset<->collection
+membership — domain/storage/services layers only, **no UI** (explicitly
+out of scope for this stage; the natural Stage 2).
+
+### Added
+
+- `src/catalog/domain/collection.ts` — `Collection` type, `createCollection`,
+  `normalizeCollection`, name validation/normalization, `isValidCollection`.
+- `src/catalog/domain/collectionMembership.ts` — pure
+  add/remove/dedupe/repair helpers for `PortfolioAsset.collectionIds`.
+- `src/catalog/storage/collectionStore.ts` — IndexedDB repository for the
+  new `collections` object store: CRUD, search-by-name, count, the
+  atomic `deleteCollectionCascade` (collection delete + membership
+  cleanup in one transaction), bulk write.
+- `src/catalog/services/collectionService.ts` — CRUD (create/rename/
+  update description/archive/unarchive/delete-safely/set-cover-asset),
+  single and bulk membership assign/remove (structured
+  `BulkMembershipResult`), queries (`getAssetsForCollection`/
+  `getCollectionsForAsset`), and integrity validation + repair
+  (`validateCollectionIntegrity`, `repairOrphanedCollectionIds`,
+  `repairCoverAssetIntegrity`).
+- `domain/id.ts`: `generateCollectionId`/`isValidCollectionId`
+  (`COL-YYYYMMDD-XXXXXX`, same shape as `generateAssetId`).
+
+### Changed (additive only — no existing signature altered)
+
+- `storage/db.ts`: `DB_VERSION` 4 → 5, adds the `collections` object
+  store (indexed by `normalizedName`, `isArchived`) to the existing
+  shared `onupgradeneeded` handler.
+- `catalog/storage/portfolioStore.ts`: one new additive function,
+  `putPortfolioAssetsBulk` — atomic multi-record write, used by
+  `collectionService`'s bulk operations for both atomicity and
+  performance.
+
+### Tests
+
+102 new tests across 6 files (domain, repository, migration, service,
+performance). Full existing suite re-run alongside to confirm zero
+regressions. See `docs/portfolio/P2_STAGE1_TEST_REPORT.md`.
+
+### Documentation
+
+`docs/architecture/ADR-001` through `ADR-005` (001-004 retrospective for
+P1 decisions, 005 new for this stage's collection-relationship design),
+`docs/portfolio/COLLECTION_ARCHITECTURE.md`, `COLLECTION_DATA_MODEL.md`,
+`P2_STAGE1_TEST_REPORT.md`, `P2_STAGE1_PERFORMANCE.md`,
+`TECHNICAL_DEBT_REGISTER.md` (all new), `docs/build_reports/P2_STAGE1_REPORT.md`
+(new), `docs/ROADMAP.md` (appended), plus `docs/USER_GUIDE.md` Thai
+changelog (v1.65 — explicitly notes no new UI this version).

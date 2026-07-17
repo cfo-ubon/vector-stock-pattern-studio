@@ -2938,3 +2938,18 @@ src/components/portfolio/
   PortfolioImportPanel.tsx    drag-and-drop / file-input import + duplicate resolution
   PortfolioHealthCheckPanel.tsx  read-only data-integrity report
 ```
+
+### Portfolio Manager P2 Stage 1 — Collection domain and data foundation (`src/catalog/domain/collection*.ts`, `storage/collectionStore.ts`, `services/collectionService.ts`)
+
+Adds a `Collection` entity (many-to-many membership with
+`PortfolioAsset`, via P1's already-reserved `collectionIds` field — no
+new field on `PortfolioAsset`) with full CRUD, bulk assign/remove, and
+read-only integrity validation + repair. **Domain/storage/service layers
+only — no UI in this stage.** `DB_VERSION` 4 → 5 (adds the `collections`
+object store). See:
+
+- [`docs/portfolio/COLLECTION_ARCHITECTURE.md`](../docs/portfolio/COLLECTION_ARCHITECTURE.md) — layer map, extensions to P1, public API surface.
+- [`docs/portfolio/COLLECTION_DATA_MODEL.md`](../docs/portfolio/COLLECTION_DATA_MODEL.md) — `Collection` field reference, membership invariants, database changes.
+- [`docs/architecture/ADR-005-collection-relationship.md`](../docs/architecture/ADR-005-collection-relationship.md) — why many-to-many, why `collectionIds` on the asset, deletion/archive/integrity strategy.
+- [`docs/portfolio/P2_STAGE1_TEST_REPORT.md`](../docs/portfolio/P2_STAGE1_TEST_REPORT.md) / [`P2_STAGE1_PERFORMANCE.md`](../docs/portfolio/P2_STAGE1_PERFORMANCE.md) — test coverage and measured performance.
+- [`docs/build_reports/P2_STAGE1_REPORT.md`](../docs/build_reports/P2_STAGE1_REPORT.md) — sprint report.

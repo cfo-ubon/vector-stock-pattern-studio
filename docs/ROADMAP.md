@@ -237,19 +237,33 @@ Build-numbered, forward-looking. Each entry is either shipped
   format. See `docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md` and
   `docs/portfolio/`.
 
+- **Portfolio Manager P2 Stage 1 — Collection Domain and Data Foundation**:
+  the `Collection` entity (`domain/collection.ts`), its IndexedDB
+  repository (`storage/collectionStore.ts`, `DB_VERSION` 4 → 5, new
+  `collections` object store), and the business-logic service layer
+  (`services/collectionService.ts`) — full CRUD, many-to-many asset
+  membership via P1's already-reserved `PortfolioAsset.collectionIds`,
+  bulk assign/remove with structured results, archive semantics
+  orthogonal to deletion, cascading delete cleanup, and read-only
+  integrity validation + repair (orphaned membership, stale cover-asset
+  references). **No UI** — this stage is data/service-layer only, by
+  design; see `docs/build_reports/P2_STAGE1_REPORT.md`,
+  `docs/portfolio/COLLECTION_ARCHITECTURE.md`, and
+  `docs/architecture/ADR-005-collection-relationship.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Portfolio Manager P1 delivered the core database/import/browse/search/
-delete surface only, deliberately excluding (per the sprint brief):
-marketplace-upload automation, full SEO management, revenue/analytics,
-cloud sync, and collection-linking UI. The highest-priority P2 candidate
-is **collection-linking + full-library backup/restore** — P1's data model
-already reserves `collectionIds` on every asset and the storage layer's
-Blob-per-file design already supports zipping the entire `portfolioFiles`
-store the same way `services/exportAsset.ts` zips one asset today, so
-neither requires a storage-layer rewrite; see
-`docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md`'s "Next P2
-recommendation" section for the full reasoning.
+Stage 1 delivered the collection data foundation only, deliberately
+excluding any UI (per its own brief). The natural next step, **Portfolio
+Manager P2 Stage 2**, is the collection browsing/management UI built
+directly on `services/collectionService.ts`'s now-complete API —
+creating/renaming/archiving collections, assigning/removing assets
+(single and bulk), and a Health-Check-style integrity panel mirroring
+P1's own `PortfolioHealthCheckPanel`. After that, the next candidate
+remains **full-library backup/restore** (P1's Blob-per-file design
+already supports zipping the entire `portfolioFiles` store the same way
+`services/exportAsset.ts` zips one asset today) — still excluded from
+both P1 and Stage 1, per each sprint's own scope.
 
 ## Recommended Next Build (composition-quality track)
 

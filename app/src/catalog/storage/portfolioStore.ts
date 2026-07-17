@@ -54,6 +54,30 @@ export async function putPortfolioAsset(asset: PortfolioAsset): Promise<void> {
   await requestAsPromise(assetsTx(db, 'readwrite').put(asset));
 }
 
+/** Portfolio Manager P2 Stage 1: writes every given asset in a single
+ * `portfolioAssets` transaction rather than one transaction per asset —
+ * the bulk-membership primitive `services/collectionService.ts`'s bulk
+ * assign/remove and orphan-repair operations use, so that e.g. a
+ * 1,000-asset bulk assignment either lands in full or not at all (one
+ * transaction's atomicity), and to avoid the per-call overhead of 1,000
+ * separate `putPortfolioAsset` transactions (the difference that makes
+ * the "under 2 seconds for 1,000 assets" performance target achievable —
+ * see `docs/portfolio/P2_STAGE1_PERFORMANCE.md`). Additive: no existing
+ * caller of `putPortfolioAsset` is affected. */
+export async function putPortfolioAssetsBulk(assets: PortfolioAsset[]): Promise<void> {
+  assertAvailable();
+  if (assets.length === 0) return;
+  const db = await openDb();
+  await new Promise<void>((resolve, reject) => {
+    const t = db.transaction(PORTFOLIO_ASSETS_STORE, 'readwrite');
+    const store = t.objectStore(PORTFOLIO_ASSETS_STORE);
+    for (const asset of assets) store.put(asset);
+    t.oncomplete = () => resolve();
+    t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error ?? new Error('Bulk asset write transaction aborted'));
+  });
+}
+
 export async function loadFilesForAsset(assetId: string): Promise<PortfolioFileRecord[]> {
   assertAvailable();
   const db = await openDb();
