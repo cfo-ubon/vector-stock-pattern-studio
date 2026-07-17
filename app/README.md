@@ -2982,3 +2982,28 @@ real measured numbers). See:
 - [`docs/portfolio/P2_5_DATASET_GENERATOR.md`](../docs/portfolio/P2_5_DATASET_GENERATOR.md) / [`P2_5_BENCHMARK_RUNNER.md`](../docs/portfolio/P2_5_BENCHMARK_RUNNER.md) / [`P2_5_MEMORY_INSTRUMENTATION.md`](../docs/portfolio/P2_5_MEMORY_INSTRUMENTATION.md) / [`P2_5_PERFORMANCE_BASELINE.md`](../docs/portfolio/P2_5_PERFORMANCE_BASELINE.md).
 - [`docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md) — test coverage by category.
 - [`docs/build_reports/P2_5_SPRINT1_REPORT.md`](../docs/build_reports/P2_5_SPRINT1_REPORT.md) — sprint report.
+
+### Portfolio Manager P2.5 Sprint 2 — Stress and soak validation (`src/catalog/validation/soakRunner.ts` + others, `scripts/validateCollectionsStress.ts`, `scripts/uiSoak.ts`)
+
+Extends Sprint 1's infrastructure with a soak/stress runner, latency
+drift analysis, memory-trend detection, an IndexedDB consistency
+manifest/diff, and Sprint 1 baseline comparison — plus a real-browser
+(Playwright/Chromium) UI soak. Also dev-only, not reachable from the
+production UI. Run it via:
+
+```bash
+npm run validate:collections:stress          # LARGE dataset, exact-count stress plan (~8 min)
+npm run validate:collections:soak:smoke      # 5-minute soak, MEDIUM dataset (verify instrumentation)
+npm run validate:collections:soak:30m        # 30-minute soak, LARGE dataset
+npm run validate:collections:soak:60m        # 60-minute soak, LARGE dataset
+npm run validate:collections:baseline-compare # quick SMALL-dataset baseline comparison
+npm run validate:collections:ui-soak         # real Chromium, 100 UI interaction cycles
+```
+
+None of these run as part of `npm test` — they are long, explicit
+commands. Reports land in `validation-results/collections/` (gitignored).
+See:
+
+- [`docs/portfolio/P2_5_SPRINT2_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_REPORT.md) — sprint report (30 sections).
+- [`docs/portfolio/P2_5_STRESS_REPORT.md`](../docs/portfolio/P2_5_STRESS_REPORT.md) / [`P2_5_SOAK_REPORT.md`](../docs/portfolio/P2_5_SOAK_REPORT.md) / [`P2_5_LATENCY_DRIFT.md`](../docs/portfolio/P2_5_LATENCY_DRIFT.md) / [`P2_5_MEMORY_REPORT.md`](../docs/portfolio/P2_5_MEMORY_REPORT.md) / [`P2_5_UI_SOAK_REPORT.md`](../docs/portfolio/P2_5_UI_SOAK_REPORT.md) / [`P2_5_BASELINE_COMPARISON.md`](../docs/portfolio/P2_5_BASELINE_COMPARISON.md).
+- [`docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md) — test coverage by category.

@@ -278,15 +278,33 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/build_reports/P2_5_SPRINT1_REPORT.md` and
   `docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`.
 
+- **Portfolio Manager P2.5 Sprint 2 — Stress and Soak Validation**:
+  extended Sprint 1's validation infrastructure with a soak/stress runner
+  (exact-count and duration-driven modes), latency drift analysis
+  (initial/middle/final-window medians, p95 investigation flags),
+  memory-trend detection (least-squares slope, growth/plateau
+  classification), an IndexedDB consistency manifest/diff, and Sprint 1
+  baseline comparison — plus `stress`/`soak-smoke`/`soak-30m`/
+  `soak-60m`/`baseline-compare` CLI modes and a real-browser Playwright
+  UI soak. Real runs completed: a LARGE-dataset (100k assets/10k
+  collections) exact-count stress plan (710 ops, 0 failures), 5-minute/
+  30-minute/60-minute soaks, and a 100-cycle real-Chromium UI soak (0
+  page/console errors, 0 outstanding Blob URLs). Found and fixed one
+  validation-tool defect (a mismatched Sprint1/Sprint2 benchmark-name
+  comparison producing a false "regression"). No production Collection
+  code changed, no `DB_VERSION` bump, no user-facing feature. See
+  `docs/portfolio/P2_5_SPRINT2_REPORT.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Sprint 1 shipped the validation *infrastructure* only — no stress/soak
-run, no crash-recovery certification was performed with it yet. The
-natural next candidate is **P2.5 Sprint 2: apply this infrastructure to
-an actual stress/soak/crash-recovery pass** (long-running repeated
-cycles tracking a real memory-growth trend, not just the bounded smoke
-proof Sprint 1 shipped; a genuinely large sustained-load run; recovery
-behavior after a simulated mid-write interruption). **Full-library
+Sprint 2 completed the stress/soak validation pass Sprint 1's
+infrastructure was built for — a genuinely large sustained-load run
+(60-minute soak against the full LARGE dataset), latency-drift and
+memory-trend evidence, and zero confirmed defects in production
+Collection code. **Crash-recovery certification** (recovery behavior
+after a simulated mid-write interruption, interrupted migration, or
+corrupted-database recovery) was explicitly out of scope for Sprint 2 and
+is the natural next candidate — **P2.5 Sprint 3**. **Full-library
 backup/restore** (P1's Blob-per-file design already supports zipping the
 entire `portfolioFiles` store the same way `services/exportAsset.ts`
 zips one asset today) remains excluded from every sprint so far and is

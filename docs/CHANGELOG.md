@@ -7,6 +7,88 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P2.5 Sprint 2 — Stress and Soak Validation
+
+**Goal**: prove sustained stability, performance consistency, memory
+safety, Blob URL cleanup, and IndexedDB data integrity under repeated
+large-scale use, using Sprint 1's validation infrastructure — a
+validation stage, not a feature stage. No new user-facing Collection
+feature, no production Collection architecture change.
+
+### Added
+
+- `app/src/catalog/validation/soakRunner.ts` — exact-count
+  (`runStressPlan`) and duration-driven (`runSoak`) operation runners over
+  a caller-supplied operation map, seeded deterministic sequencing
+  (Fisher-Yates for exact-count, weighted round-robin for duration-driven),
+  per-operation success/failure/timeout accounting, periodic memory/Blob-URL
+  sampling, and clean cancellation support.
+- `app/src/catalog/validation/latencyDrift.ts` — initial/middle/final
+  10%-window latency statistics (reusing `benchmarkRunner.ts`'s
+  `computeStats`, now exported), stable/warning/failure classification at
+  15%/30% median drift, and an independent p95-investigation flag.
+- `app/src/catalog/validation/memoryInstrumentation.ts` extended with
+  `analyzeMemoryTrend()` — least-squares slope, early/late window means,
+  growth/plateau classification.
+- `app/src/catalog/validation/consistencyManifest.ts` —
+  `captureConsistencySnapshot`/`diffConsistencySnapshots`: before/after
+  asset/collection/membership/orphan/stale-cover/duplicate-collectionId
+  counts and an expected-vs-unexplained mutation diff.
+- `app/src/catalog/validation/sprint1Baseline.ts` /
+  `baselineCompare.ts` — the committed, read-only Sprint 1 baseline
+  fixture and a batch comparison tool reusing Sprint 1's unmodified
+  `compareToBaseline` policy, extended with
+  `SPRINT2_OPERATION_TO_SPRINT1_BENCHMARK_NAME` (see "Fixed" below).
+- `app/scripts/validateCollectionsStress.ts` — new CLI script (separate
+  from Sprint 1's `validateCollections.ts`) with `stress`/`soak-smoke`/
+  `soak-30m`/`soak-60m`/`baseline-compare` modes.
+- `app/scripts/uiSoak.ts` — real-browser (Playwright/Chromium) UI soak:
+  seeds a real browser IndexedDB via raw `indexedDB` calls, instruments
+  `URL.createObjectURL`/`revokeObjectURL`, drives 100 real UI interaction
+  cycles against a bounded (≥1,000-member) collection.
+- 6 new `npm run validate:collections:*` scripts (`stress`, `soak:smoke`,
+  `soak:30m`, `soak:60m`, `baseline-compare`, `ui-soak`).
+- 46 new tests across 5 files (see `P2_5_SPRINT2_TEST_REPORT.md`).
+
+### Real measurements
+
+- **LARGE stress** (100k assets/10k collections, exact-count plan): 710
+  operations, **0 failures, 0 timeouts**, 0 unexplained consistency
+  mismatches, every latency-drift-eligible operation stable, 4 of 5
+  baseline comparisons improved.
+- **5-minute smoke soak** (MEDIUM dataset): 4,018 cycles, 0 failures.
+  Latency drift classifies `failure` for every operation — investigated
+  and attributed to short-duration/high-throughput heap warm-up, not a
+  production defect (see `P2_5_LATENCY_DRIFT.md`).
+- **30-minute standard soak** (LARGE dataset): 2,589 cycles, 0 failures,
+  every operation's latency drift **stable**.
+- **60-minute extended soak** (LARGE dataset): see
+  `P2_5_SPRINT2_REPORT.md`/`P2_5_SOAK_REPORT.md` for the result.
+- **UI soak** (real Chromium): 100/100 cycles, 0 page errors, 0 console
+  errors, 0 outstanding Blob URLs, stable DOM size.
+
+### Fixed
+
+- **P2.5-6** (validation-tool defect, not production): the CLI's
+  Sprint1-baseline comparison mapped Sprint 2's `searchCollections`
+  operation onto Sprint 1's `search-collection-filter` baseline entry —
+  which actually measured a different operation
+  (`searchPortfolioAssets`, not `searchCollectionsByName`). This produced
+  a false ~559% "regression." Fixed by extracting
+  `SPRINT2_OPERATION_TO_SPRINT1_BENCHMARK_NAME` (`baselineCompare.ts`),
+  which deliberately has no entry for `searchCollections`; added 3
+  regression tests. See `P2_5_BASELINE_COMPARISON.md`.
+
+### Not changed
+
+`domain/collection.ts`, `domain/collectionMembership.ts`,
+`storage/collectionStore.ts`, `storage/portfolioStore.ts`,
+`services/collectionService.ts`, `storage/db.ts` (`DB_VERSION` stays 5),
+and every existing Collection UI component are all byte-for-byte
+unchanged. See `docs/portfolio/P2_5_SPRINT2_REPORT.md`.
+
+---
+
 ## Portfolio Manager P2.5 Sprint 1 — Collection Validation Infrastructure
 
 **Goal**: build reusable, deterministic validation-engineering
