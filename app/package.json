@@ -15,7 +15,13 @@
     "validate:collections:large": "tsx scripts/validateCollections.ts large",
     "validate:collections:integrity": "tsx scripts/validateCollections.ts integrity",
     "validate:collections:benchmark": "tsx scripts/validateCollections.ts benchmark",
-    "validate:collections:memory-smoke": "tsx scripts/validateCollections.ts memory-smoke"
+    "validate:collections:memory-smoke": "tsx scripts/validateCollections.ts memory-smoke",
+    "validate:collections:stress": "tsx scripts/validateCollectionsStress.ts stress",
+    "validate:collections:soak:smoke": "tsx scripts/validateCollectionsStress.ts soak-smoke",
+    "validate:collections:soak:30m": "tsx scripts/validateCollectionsStress.ts soak-30m",
+    "validate:collections:soak:60m": "tsx scripts/validateCollectionsStress.ts soak-60m",
+    "validate:collections:baseline-compare": "tsx scripts/validateCollectionsStress.ts baseline-compare",
+    "validate:collections:ui-soak": "tsx scripts/uiSoak.ts"
   },
   "dependencies": {
     "react": "^19.2.7",

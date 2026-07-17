@@ -71,7 +71,11 @@ export interface BenchmarkReport {
   generatedAt: number;
 }
 
-function computeStats(samplesMs: number[]): BenchmarkStats {
+/** Exported (Sprint 2) so `latencyDrift.ts` can reuse the exact same
+ * statistics definition for its initial/middle/final windows instead of
+ * a second, potentially-drifting implementation. Purely additive —
+ * every existing caller of this module is unaffected. */
+export function computeStats(samplesMs: number[]): BenchmarkStats {
   const sorted = [...samplesMs].sort((a, b) => a - b);
   const count = sorted.length;
   const sum = sorted.reduce((a, b) => a + b, 0);
