@@ -141,6 +141,58 @@ describe('generateCluster', () => {
   });
 });
 
+describe('generateCluster: sCurve archetype minimum separation (Build 014, Motif Relationship Intelligence Engine)', () => {
+  const opts = { baseRadius: 200, rotationJitter: 15, scaleJitter: 0.15 };
+
+  it('never places a member mathematically coincident with the hero for odd member counts (BUILD_014_AUDIT.md Section 1)', () => {
+    // total=3 and total=5 both produce a tt===0.5 index where the raw
+    // (unfixed) formula evaluates to (0, 0) -- verified directly against
+    // the real 5,000-pattern Build 013 portfolio as the precise cause of
+    // false `zeroMotifOverlap` failures on `sCurve`-layout tiles. The
+    // threshold here (5% of baseRadius) is deliberately well below
+    // `generateCluster`'s own pre-existing, legitimate "deliberate overlap
+    // band" floor (~14.7% of baseRadius, unrelated to this fix and applied
+    // to every archetype) -- this test asserts the *degenerate* near-zero
+    // case is gone, not that intentional overlap-band placement changed.
+    for (const total of [3, 5]) {
+      for (let i = 0; i < 40; i++) {
+        const rng = createRng(`scurve-min-sep-${total}-${i}`);
+        const members = generateCluster('sCurve', rng, { ...opts, memberCount: total });
+        for (const m of members.slice(1)) {
+          expect(Math.hypot(m.dx, m.dy)).toBeGreaterThan(opts.baseRadius * 0.05);
+        }
+      }
+    }
+  });
+
+  it('leaves even member counts (no degenerate tt===0.5 index) geometrically unaffected in shape', () => {
+    // total=4 never hits tt===0.5, so every member should already sit well
+    // clear of the hero -- confirms the guard is a no-op for the
+    // non-degenerate case, not a blanket radius change.
+    for (let i = 0; i < 20; i++) {
+      const rng = createRng(`scurve-even-${i}`);
+      const members = generateCluster('sCurve', rng, { ...opts, memberCount: 4 });
+      for (const m of members.slice(1)) {
+        expect(Math.hypot(m.dx, m.dy)).toBeGreaterThan(opts.baseRadius * 0.05);
+      }
+    }
+  });
+
+  it('still traces the sine-wave silhouette (dy sign follows the curve, not collapsed to a line)', () => {
+    const rng = createRng('scurve-shape');
+    const members = generateCluster('sCurve', rng, { ...opts, memberCount: 5 }).slice(1);
+    const dys = members.map((m) => m.dy);
+    expect(Math.max(...dys)).toBeGreaterThan(0);
+    expect(Math.min(...dys)).toBeLessThan(0);
+  });
+
+  it('is deterministic for the same rng sequence', () => {
+    const a = generateCluster('sCurve', createRng('scurve-det'), { ...opts, memberCount: 3 });
+    const b = generateCluster('sCurve', createRng('scurve-det'), { ...opts, memberCount: 3 });
+    expect(a).toEqual(b);
+  });
+});
+
 describe('rollPreferOdd (Build 010, Section 6: Professional Illustrator Rules, "rule of odds")', () => {
   it('always returns a value within [lo, hi]', () => {
     for (let i = 0; i < 50; i++) {

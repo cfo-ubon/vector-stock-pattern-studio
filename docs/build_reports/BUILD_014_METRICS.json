@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-07-17T00:48:54.974Z",
+  "label": "BUILD_014_METRICS",
+  "rootCause": "archetypeOffset sCurve case: tt===0.5 degenerate coincident-hero offset for odd member counts, plus sCurve.ts clusterRadius factor (0.5) structurally over-tight",
+  "fix": [
+    "clusterEngine.ts archetypeOffset sCurve case: minimum-distance guard reusing existing jitter direction",
+    "sCurve.ts clusterRadius factor 0.5 -> 0.85"
+  ],
+  "affectedScope": {
+    "presets": [
+      "darkBotanical",
+      "editorialBotanical"
+    ],
+    "layouts": [
+      "sCurve"
+    ],
+    "products": [
+      "fabric",
+      "greetingCard"
+    ]
+  },
+  "summary": {
+    "scenarioSuite30": {
+      "before": {
+        "n": 30,
+        "acq": {
+          "n": 30,
+          "mean": 80.17,
+          "median": 86,
+          "p10": 67,
+          "p90": 88,
+          "min": 46,
+          "max": 89,
+          "failureRate": 3.33
+        },
+        "overlapFailures": 1
+      },
+      "after": {
+        "n": 30,
+        "acq": {
+          "n": 30,
+          "mean": 81.37,
+          "median": 86,
+          "p10": 70,
+          "p90": 88,
+          "min": 70,
+          "max": 89,
+          "failureRate": 0
+        },
+        "overlapFailures": 0
+      }
+    },
+    "portfolio100": {
+      "before": {
+        "n": 100,
+        "acq": {
+          "n": 100,
+          "mean": 72.81,
+          "median": 86,
+          "p10": 42,
+          "p90": 89,
+          "min": 4,
+          "max": 92,
+          "failureRate": 27
+        },
+        "overlapFailures": 0
+      },
+      "after": {
+        "n": 100,
+        "acq": {
+          "n": 100,
+          "mean": 72.94,
+          "median": 87,
+          "p10": 42,
+          "p90": 89,
+          "min": 4,
+          "max": 92,
+          "failureRate": 27
+        },
+        "overlapFailures": 0
+      }
+    },
+    "xlPortfolio500": {
+      "before": {
+        "n": 500,
+        "acq": {
+          "n": 500,
+          "mean": 71.21,
+          "median": 85,
+          "p10": 42,
+          "p90": 89,
+          "min": 0,
+          "max": 90,
+          "failureRate": 27.6
+        },
+        "overlapFailures": 3
+      },
+      "after": {
+        "n": 500,
+        "acq": {
+          "n": 500,
+          "mean": 71.68,
+          "median": 85,
+          "p10": 42,
+          "p90": 89,
+          "min": 0,
+          "max": 90,
+          "failureRate": 27.4
+        },
+        "overlapFailures": 0
+      }
+    },
+    "fiveKPortfolio": {
+      "before": {
+        "n": 5000,
+        "acq": {
+          "n": 5000,
+          "mean": 72.38,
+          "median": 85,
+          "p10": 42,
+          "p90": 89,
+          "min": 0,
+          "max": 92,
+          "failureRate": 25.52
+        },
+        "overlapFailures": 48
+      },
+      "after": {
+        "n": 5000,
+        "acq": {
+          "n": 5000,
+          "mean": 73,
+          "median": 86,
+          "p10": 42,
+          "p90": 89,
+          "min": 0,
+          "max": 92,
+          "failureRate": 25.28
+        },
+        "overlapFailures": 0
+      }
+    }
+  },
+  "sCurveSliceOf5000": {
+    "before": {
+      "n": 323,
+      "mean": 73.45,
+      "median": 79,
+      "p10": 58,
+      "p90": 84,
+      "min": 26,
+      "max": 86,
+      "overlapFailures": 48
+    },
+    "after": {
+      "n": 323,
+      "mean": 82.8,
+      "median": 85,
+      "p10": 74,
+      "p90": 87,
+      "min": 26,
+      "max": 89,
+      "overlapFailures": 0
+    }
+  },
+  "tossSideEffect": {
+    "totalTossPatterns": 508,
+    "tossZeroMotifOverlapFailuresBefore": 0,
+    "tossPatternsChanged": 59,
+    "meanDelta": 0.97,
+    "negativeDeltas": [
+      -1
+    ],
+    "note": "toss.ts pickArchetypePool includes sCurve as one of 3 possible cluster archetypes, so it legitimately shares the fix; 0/508 toss patterns ever failed zeroMotifOverlap before or after"
+  },
+  "successMetrics": {
+    "bottomTenPercentImproved": true,
+    "zeroMotifOverlapReducedSignificantly": true,
+    "topTenPercentPreserved": true
+  },
+  "tests": {
+    "total": 2246,
+    "passing": 2245,
+    "newTests": 4,
+    "note": "the 1 failure (collectionGenerator.test.ts, layout diversity timeout) is a pre-existing 15s timeout flake, verified identical (~14.6-14.7s) with or without this build fix applied"
+  },
+  "visualValidation": {
+    "patternsReviewed": 20,
+    "honestAssessment": "subtle but real at single-tile thumbnail scale; metric-verified, not dramatic"
+  }
+}

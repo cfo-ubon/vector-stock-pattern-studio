@@ -202,13 +202,44 @@ Build-numbered, forward-looking. Each entry is either shipped
   the healthy 75-88 range alongside all 12 other presets — no preset
   requires special-casing. See `docs/build_reports/BUILD_013_REPORT.md`.
 
-## Recommended Next Build (see `docs/build_reports/BUILD_013_REPORT.md` for the current list)
+- **Build 014 — Motif Relationship Intelligence Engine**: fixed Build 013's
+  own `zeroMotifOverlap` finding at the root, in the two subsystems Phase A's
+  audit proved were affected (`clusterEngine.ts`'s `'sCurve'` archetype,
+  `layouts/sCurve.ts`) — no new species, no new presets, no scoring changes.
+  Phase A first corrected a factual error in Build 013's own recommendation
+  text ("allow controlled overlap"): direct measurement of all 48 affected
+  patterns showed 48/48 were already too dense, the opposite direction.
+  Root cause: a formula artifact (`tt === 0.5` degenerate coincident-hero
+  offset for odd cluster member counts) plus a structurally over-tight
+  `clusterRadius` scale factor, both confined to the `sCurve` cluster
+  archetype used only by `darkBotanical`/`editorialBotanical`'s `sCurve`
+  layout. Measured result across the identical 5,000-pattern Build 013
+  portfolio: `zeroMotifOverlap` failures 48 → 0 (100%), `sCurve`-layout mean
+  Absolute Commercial Quality 73.4 → 82.8 (p10 58 → 74), top-decile
+  unchanged-or-improved at every regression tier (no regression). See
+  `docs/build_reports/BUILD_014_REPORT.md`.
 
-Build 013's own report has the current, evidence-based Build 014
-recommendation, derived from the highest-lift failure-mode finding across
-the full 5,000-pattern portfolio (`zeroMotifOverlap`, 9.1x lift in the
-bottom decile, High confidence). The section below is kept for history but
-reflects Build 012's own state, not the current one.
+## Recommended Next Build
+
+Build 014 was a narrowly-scoped fix for the single recommendation Build
+013's Portfolio Intelligence Engine produced — it does not itself generate a
+new ranked recommendation (that engine, `src/portfolio/recommendations.ts`,
+is unchanged and read-only). The natural next step is re-running Build 013's
+analysis pipeline against a fresh 5,000-pattern portfolio generated with
+Build 014's fix applied, to surface the next-highest-lift failure mode now
+that `zeroMotifOverlap` is resolved (Build 013's own Section 7 findings —
+`heroInsufficientDetail` at 7.44x lift, `largeEmptyHole` at 5.94x,
+`weakHierarchy` at 4.37x — are the leading candidates, but should be
+re-measured on fresh data rather than assumed to still hold in the same
+order). The sections below are kept for history but reflect earlier builds'
+own state, not the current one.
+
+## Recommended Next Build (superseded — see below for Build 013's own list)
+
+Build 013's own report had the evidence-based Build 014 recommendation,
+derived from the highest-lift failure-mode finding across the full
+5,000-pattern portfolio (`zeroMotifOverlap`, 9.1x lift in the bottom decile,
+High confidence) — now resolved by Build 014.
 
 ## Recommended Next Build (superseded — see below for Build 012's own list)
 

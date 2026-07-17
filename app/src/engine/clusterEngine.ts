@@ -184,9 +184,30 @@ function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, 
     }
     case 'sCurve': {
       const tt = (i + 1) / (total + 1);
-      const dx = (tt - 0.5) * r * 2.3 + rngRange(rng, -r * 0.12, r * 0.12);
-      const dy = Math.sin(tt * Math.PI * 2) * r * 0.65 + rngRange(rng, -r * 0.12, r * 0.12);
-      return { dx, dy, role: roleFor(t) };
+      const dx0 = (tt - 0.5) * r * 2.3 + rngRange(rng, -r * 0.12, r * 0.12);
+      const dy0 = Math.sin(tt * Math.PI * 2) * r * 0.65 + rngRange(rng, -r * 0.12, r * 0.12);
+      // Build 014, Motif Relationship Intelligence Engine (BUILD_014_AUDIT.md
+      // Section 1): for any odd `total`, one member's `tt` lands at exactly
+      // 0.5, where both terms above evaluate to 0 -- a formula artifact that
+      // places this member mathematically coincident with the hero (0,0),
+      // not `generateCluster`'s own deliberate 30%-overlap-band mechanism.
+      // Verified as the precise, measured cause of the `zeroMotifOverlap`
+      // quality-rule false-positives on `sCurve`-layout tiles (a coincident
+      // point drags the tile's mean nearest-neighbor distance down, reading
+      // as "too much pileup" even on otherwise-sparse tiles). Guarantee a
+      // real, visible minimum offset by scaling the already-jittered point
+      // outward along its own (already-random, per-draw) direction --
+      // reuses the jitter just drawn rather than consuming new rng() calls
+      // or picking a fixed/mechanical rescue direction.
+      const dist0 = Math.hypot(dx0, dy0);
+      const minDist = r * 0.3;
+      if (dist0 < minDist) {
+        const scale = dist0 > 1e-6 ? minDist / dist0 : 0;
+        const dx = dist0 > 1e-6 ? dx0 * scale : minDist;
+        const dy = dist0 > 1e-6 ? dy0 * scale : 0;
+        return { dx, dy, role: roleFor(t) };
+      }
+      return { dx: dx0, dy: dy0, role: roleFor(t) };
     }
     case 'diagonal': {
       const tt = (i + 1) / (total + 1);
