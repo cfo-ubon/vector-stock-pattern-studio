@@ -26,9 +26,8 @@ clean, production build succeeds, `/studio` rebuilt.
 ## Branch, commit, files changed
 
 - **Branch**: `claude/vector-pattern-stock-app-aqimbk`
-- **Commit**: recorded after this report is committed — see the final
-  commit on this branch titled "Portfolio Manager P1: Core Database and
-  Asset Library".
+- **Commit**: `21c9f8a` — "Portfolio Manager P1: Core Database and Asset
+  Library" (68 files changed, 5,964 insertions, 60 deletions)
 - **Files changed** (new unless marked MODIFIED):
   - `app/src/catalog/domain/{types,id,hash,asset,search}.ts` +
     `{hash,search,search.performance}.test.ts`
