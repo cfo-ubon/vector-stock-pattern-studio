@@ -7,6 +7,71 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Build 016 — SEO Intelligence Engine (Commercial Workflow)
+
+**Goal**: a production-grade SEO engine capable of generating,
+validating, and scoring metadata for stock marketplaces — completely
+service-layer and reusable, per the brief. Deliberately decoupled from
+the Collection API, Backup & Restore, and Submission Center's own
+`marketplaceProfile.ts` — this engine has its own SEO Profile registry
+and imports nothing from any of the three, so "reusable" is literally
+true rather than aspirational. The second module in the Commercial
+Workflow track.
+
+### Added
+
+All new, under `app/src/catalog/seo/`:
+
+- `seoProfile.ts` — SEO Profile: 5 built-in marketplace profiles
+  (Shutterstock, Adobe Stock, Freepik, Getty Images, Etsy) with
+  title/description/keyword bounds, plus `registerSeoProfile` for
+  runtime extension with no engine code change.
+- `keywordNormalizer.ts`, `keywordDeduplicator.ts` — canonical keyword
+  comparison form and exact-duplicate removal.
+- `keywordCoverage.ts` — 5-concept-bucket coverage analysis (technique/
+  subject/color/useCase/format).
+- `keywordAnalyzer.ts` — unified keyword report: duplicates, near-
+  duplicate similarity (Levenshtein), plural/singular conflicts,
+  ordering quality, coverage, noise keywords.
+- `marketplaceRules.ts` — Marketplace Rules: the compliance-evaluation
+  functions reused by every other module in this engine.
+- `titleAnalyzer.ts`, `descriptionAnalyzer.ts` — 0-100 scores across 5
+  named dimensions each (length, keyword placement/coverage,
+  readability, duplicate words/natural language, marketplace
+  compliance).
+- `seoValidator.ts` — never-throwing structured validation (errors/
+  warnings/suggestions).
+- `seoScoring.ts` — SEO Score: overall + titleScore + descriptionScore +
+  keywordScore + marketplaceCompatibility + commercialReadiness, all
+  returned together.
+- `seoGenerator.ts` — SEO Generator: adapts caller-supplied content to a
+  marketplace's bounds (dedup, truncate) and attaches real validation +
+  score for the content it actually produced.
+- `batchSeoService.ts` — Batch SEO Service: single pattern, multiple
+  patterns, marketplace-specific generation.
+- `index.ts` — public barrel.
+
+118 new tests across 13 files, including a 2,000-package large-dataset
+case (`seoLargeDataset.test.ts`) — see `docs/seo/SEO_TEST_REPORT.md` for
+the full category-by-category breakdown.
+
+4 new docs: `docs/seo/SEO_ARCHITECTURE.md`, `SEO_SCORING.md`,
+`MARKETPLACE_RULES.md`, `SEO_TEST_REPORT.md`.
+
+### Explicitly not done this build
+
+No UI. No marketplace upload (this engine only ever reasons about text).
+No modification to the frozen Collection API, Backup & Restore, or
+Submission Center's existing architecture — none were touched. No PR
+opened, nothing merged.
+
+See `docs/seo/SEO_ARCHITECTURE.md` (design + decoupling rationale),
+`SEO_SCORING.md` (every scoring formula), `MARKETPLACE_RULES.md`
+(profile data + compliance evaluation), and `SEO_TEST_REPORT.md` (full
+test coverage).
+
+---
+
 ## Build 015 — Submission Center Foundation (Commercial Workflow)
 
 **Goal**: a production-ready submission management subsystem — planning,

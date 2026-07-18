@@ -384,28 +384,60 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/submission/SUBMISSION_ARCHITECTURE.md`, `SUBMISSION_WORKFLOW.md`,
   `SUBMISSION_STATUS.md`, `SUBMISSION_TEST_REPORT.md`.
 
+- **Build 016 — SEO Intelligence Engine (Commercial Workflow's second
+  module)**: a production-grade SEO engine that generates, validates,
+  and scores metadata for stock marketplaces, built entirely decoupled
+  from the Collection API, Backup & Restore, and Submission Center — no
+  file in any of the three was touched. New module
+  (`app/src/catalog/seo/`, 12 files + a barrel, zero storage — every
+  function is a pure computation, so no IndexedDB or `localStorage` need
+  arose at all): its own SEO Profile registry seeded with the same 5
+  marketplaces as Submission Center (Shutterstock, Adobe Stock, Freepik,
+  Getty Images, Etsy), extensible at runtime via `registerSeoProfile`
+  with no code change (`seoProfile.ts`); Title/Description Analyzers
+  producing 0-100 scores across 5 dimensions each
+  (`titleAnalyzer.ts`, `descriptionAnalyzer.ts`); a Keyword Analyzer
+  detecting duplicates, near-duplicate similarity, plural/singular
+  conflicts, ordering quality, concept-bucket coverage, and noise
+  keywords (`keywordAnalyzer.ts`, composing `keywordDeduplicator.ts` and
+  `keywordCoverage.ts`); a never-throwing Validator returning structured
+  errors/warnings/suggestions (`seoValidator.ts`); an SEO Score combining
+  6 named dimensions (`seoScoring.ts`); a Generator that adapts caller-
+  supplied content to a marketplace's bounds — deduplicating, truncating
+  keyword count, truncating title/description at word boundaries
+  (`seoGenerator.ts`, honestly scoped: it adapts, it does not invent
+  creative copy); and a Batch SEO Service supporting single-pattern,
+  multi-pattern, and marketplace-specific generation
+  (`batchSeoService.ts`). 118 new tests across 13 files, including a
+  2,000-package large-dataset case. See `docs/seo/SEO_ARCHITECTURE.md`,
+  `SEO_SCORING.md`, `MARKETPLACE_RULES.md`, `SEO_TEST_REPORT.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
 Sprint 4 certified and froze the Collection module built and validated
 across Sprints 1-3 — production certification, a frozen public API
 contract, a consolidated baseline, and a recommended release tag, with
-no functional code change. P3 — Backup & Restore, and now Build 015 —
-Submission Center Foundation, have both since been completed on top of
-that frozen state (see above), each with no PR opened and nothing
-merged. The remaining steps, still gated on approval: (1) prepare and
-review a PR from the certified + backup-and-restore + submission-center
-state, (2) merge it, (3) only then create the recommended
+no functional code change. P3 — Backup & Restore, Build 015 — Submission
+Center Foundation, and now Build 016 — SEO Intelligence Engine have all
+since been completed on top of that frozen state (see above), each with
+no PR opened and nothing merged, and each leaving the frozen Collection
+API and every prior Commercial Workflow module untouched. The remaining
+steps, still gated on approval: (1) prepare and review a PR from the
+certified + backup-and-restore + submission-center + SEO-engine state,
+(2) merge it, (3) only then create the recommended
 `portfolio-collections-v1.0.0` tag. **CI wiring for the performance
 baseline policy** (`P2.5-3`, open since Sprint 1) remains a smaller,
-independent candidate, unaffected by this sequencing. Two natural next
+independent candidate, unaffected by this sequencing. Three natural next
 increments now sit on top of already-completed foundations, matching how
-P2 Stage 2 followed P2 Stage 1: a backup/restore UI (browsing history,
-triggering export/import from a screen) on top of P3, and — per Build
-015's brief — **Build 016** on top of the Submission Center: likely a
-UI for the queue/history/statistics views this foundation's service
-layer already supports, and/or the first real (opt-in, clearly-scoped)
-marketplace upload integration, which Build 015 deliberately left
-undone.
+P2 Stage 2 followed P2 Stage 1: a backup/restore UI on top of P3; a UI
+for Submission Center's queue/history/statistics views, and/or the first
+real (opt-in, clearly-scoped) marketplace upload integration, on top of
+Build 015; and — per Build 016's own brief — **Build 017**: wiring the
+SEO Intelligence Engine into Submission Center (an SEO score/validation
+report attached to each `SubmissionRecord`, likely surfaced through
+`submissionValidation.ts`'s existing readiness gate) and/or a UI
+surfacing this engine's scores and suggestions, both left undone here by
+design.
 
 ## Recommended Next Build (composition-quality track)
 
