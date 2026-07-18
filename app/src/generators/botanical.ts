@@ -1299,6 +1299,70 @@ const VARIANTS: Variant[] = TAGGED_VARIANTS.map((t) => t.variant);
  * relying on random seeds happening to hit all of them. */
 export const BOTANICAL_VARIANTS = VARIANTS;
 
+/** Built once so `createMotif` can look up which `PartShapeCategory` the
+ * variant `rngPick` just landed on without changing `poolForFamily`/
+ * `poolForHints`'s own return type (both stay `Variant[]`, exactly as
+ * `botanical.test.ts`/`botanicalFamilies.test.ts` already pin them). */
+const CATEGORY_BY_VARIANT: Map<Variant, PartShapeCategory> = new Map(TAGGED_VARIANTS.map((t) => [t.variant, t.category]));
+
+// Build 019 ("Visual Commercial Upgrade"), Priority 2 (Organic Botanical
+// Flow) / Priority 4 (Premium Botanical Relationships) — measured
+// evidence (docs/build_reports/BUILD_019_VISUAL_AUDIT_before.json) found
+// Botanical Realism the single weakest scored dimension across a 96-
+// pattern sample spanning every botanical Style DNA preset, 4 seeds and
+// 3 density bands (mean 40.79/100, still the weakest after Build 018's
+// partial `flowerBloom` fix). Root cause: 14 of the generator's 15
+// standalone "flower head" variants (peony/rose/ranunculus/protea/poppy/
+// anemone/daisy/cosmos/bell/magnolia/hydrangea/lavender/tulip/
+// layeredBloom) draw no stem/leaf structure at all -- unlike the growth-
+// engine branch variants (fern/eucalyptus/olive/laurel/sage/leafyBranch/
+// wildflowerSprig), which always do, and `flowerBud`, which always does.
+// Rather than hand-editing 14 near-duplicate stem blocks into every
+// flower variant (the exact kind of business-logic duplication this
+// build is told to avoid), this attaches the SAME stem idiom
+// `flowerBud`/`flowerBloom` (Build 018) already established -- a
+// `<line>` wrapped in `data-part="stem"`, occasionally paired with a
+// `data-part="leaves"` accent using the same shared `leafNode` helper --
+// once, at the single `createMotif` call site every variant already
+// passes through, keyed off the real `category` tag every variant
+// already carries. Never applied to `flowerBloom` itself (its own
+// internal, already-shipped stem logic) or to any non-'flower' category
+// (branch/bud/berry variants already carry their own; a lone 'leaf'
+// motif is not a whole flower and shouldn't grow one). Extends the
+// motif's own bounding `radius` by the added stem length so downstream
+// spacing/placement accounts for the real extra geometry, the same
+// convention `flowerBloom`'s own `hasStem` branch already uses.
+function attachOptionalStem(rng: Rng, colors: string[], node: ReturnType<typeof h>, radius: number, size: number): Motif {
+  if (!rngBool(rng, 0.55)) return { node, radius };
+  const stemColor = rngPick(rng, accentColors(colors));
+  const stemLength = size * 0.32;
+  const stemBaseY = round(radius * 0.8);
+  const stem = h('g', { 'data-part': 'stem' }, [
+    h('line', {
+      x1: 0,
+      y1: stemBaseY,
+      x2: 0,
+      y2: round(radius * 0.8 + stemLength),
+      stroke: stemColor,
+      'stroke-width': round(size * 0.045),
+      'stroke-linecap': 'round',
+    }),
+  ]);
+  const leaves = rngBool(rng, 0.45)
+    ? [
+        h(
+          'g',
+          {
+            'data-part': 'leaves',
+            transform: `translate(0 ${round(radius * 0.8 + stemLength * 0.55)}) rotate(${round((rngBool(rng) ? 1 : -1) * rngRange(rng, 30, 50))})`,
+          },
+          [leafNode(rng, colors, size * 0.3, size * 0.14)],
+        ),
+      ]
+    : [];
+  return { node: h('g', {}, [node, stem, ...leaves]), radius: radius + stemLength };
+}
+
 /** Every variant tagged with `family`, plus the untagged universal-foliage
  * variants (see `TaggedVariant.family`'s doc comment) — never the full
  * unfiltered pool, so a family hint genuinely narrows what gets drawn
@@ -1333,8 +1397,11 @@ function poolForHints(hints?: MotifCreateHints): Variant[] {
 
 /** Exposed for tests: lets a test assert precisely which variants a family
  * hint does/doesn't include, rather than inferring it indirectly from
- * serialized SVG output. */
-export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS };
+ * serialized SVG output. `attachOptionalStem`/`CATEGORY_BY_VARIANT`/
+ * `flowerBloom`/`proteaFlower` (Build 019) let a test exercise the stem
+ * wrapper directly and confirm which variant it is/isn't applied to,
+ * rather than trying to infer variant identity from serialized SVG. */
+export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS, attachOptionalStem, CATEGORY_BY_VARIANT, flowerBloom, proteaFlower };
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
@@ -1346,6 +1413,10 @@ export const botanicalGenerator: PatternGenerator = {
     const pool = poolForHints(hints);
     const variant = rngPick(rng, pool);
     const { node, radius } = variant(rng, colors, size);
+    // Build 019: see `attachOptionalStem`'s own doc comment above.
+    if (CATEGORY_BY_VARIANT.get(variant) === 'flower' && variant !== flowerBloom) {
+      return attachOptionalStem(rng, colors, node, radius, size);
+    }
     return { node, radius };
   },
 };

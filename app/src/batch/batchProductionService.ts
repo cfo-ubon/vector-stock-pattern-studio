@@ -89,6 +89,16 @@ export interface BatchProductionItemResult {
   variantParams: GenerateParams;
   tileData: TileData;
   outcome: ImportOutcome;
+  /** How many attempts `buildTileForGenerate`'s own quality-retry gate
+   * (engine/heroDetector.ts) took for this item — 1 means the first
+   * attempt already cleared the real commercial threshold. Build 019
+   * ("Visual Commercial Upgrade"), Priority 5/6: plumbed through from the
+   * retry result Batch Generate already computes, not a new measurement. */
+  attempts: number;
+  /** True if at least one retry actually ran for this item (mirrors
+   * `HeroRetryResult`/`CommercialRetryResult`'s own field of the same
+   * name). */
+  regenerated: boolean;
 }
 
 export interface BatchProductionResult {
@@ -98,6 +108,14 @@ export interface BatchProductionResult {
   possibleDuplicateCount: number;
   blockedDuplicateCount: number;
   errorCount: number;
+  /** Fraction of items (0-100) whose first attempt did not clear the
+   * quality-retry gate's real threshold, i.e. needed at least one
+   * regeneration — Build 019, Priority 5/6's "retry rate" validation
+   * metric, aggregated from `items[].regenerated` rather than computed by
+   * any new logic. */
+  retryRate: number;
+  /** Mean `attempts` across all generated items. */
+  meanAttempts: number;
 }
 
 /** Generates `count` diverse patterns and saves each straight into the
@@ -110,7 +128,7 @@ export interface BatchProductionResult {
 export async function generateBatchToPortfolio(input: BatchProductionInput): Promise<BatchProductionResult> {
   const { count, params, activeDna, existingAssets, seedForItem, diversityRngSeed } = input;
   if (count <= 0) {
-    return { items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0 };
+    return { items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0, retryRate: 0, meanAttempts: 0 };
   }
 
   const diversityRng = createRng(diversityRngSeed ?? randomSeed());
@@ -126,7 +144,8 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
   for (let i = 0; i < count; i++) {
     const seed = seedForItem ? seedForItem(i) : randomSeed();
     const variantParams = buildVariantParams(params, activeDna, seed, assignments[i]);
-    const tileData = buildTileForGenerate(variantParams).tileData;
+    const retryResult = buildTileForGenerate(variantParams);
+    const { tileData, attempts, regenerated } = retryResult;
 
     const svgText = buildSingleTileSvg(tileData);
     const baseName = buildExportFilename(buildFilenameParts(variantParams), variantParams.seed).replace(/\.svg$/i, '');
@@ -136,7 +155,7 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
 
     const outcome = await importFileGroup(group, knownAssets, {});
     if (outcome.status === 'imported') knownAssets.push(outcome.asset);
-    items.push({ index: i, variantParams, tileData, outcome });
+    items.push({ index: i, variantParams, tileData, outcome, attempts, regenerated });
   }
 
   return {
@@ -146,5 +165,7 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
     possibleDuplicateCount: items.filter((it) => it.outcome.status === 'possibleDuplicate').length,
     blockedDuplicateCount: items.filter((it) => it.outcome.status === 'blockedDuplicate').length,
     errorCount: items.filter((it) => it.outcome.status === 'error').length,
+    retryRate: Math.round((items.filter((it) => it.regenerated).length / items.length) * 10000) / 100,
+    meanAttempts: Math.round((items.reduce((a, it) => a + it.attempts, 0) / items.length) * 100) / 100,
   };
 }

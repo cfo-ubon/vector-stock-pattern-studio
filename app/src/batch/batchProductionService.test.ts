@@ -40,7 +40,7 @@ const dna = Object.values(STYLE_DNA_PRESETS)[0];
 describe('generateBatchToPortfolio', () => {
   it('returns an all-zero result for count 0 without touching storage', async () => {
     const result = await generateBatchToPortfolio({ count: 0, params: testParams(), existingAssets: [] });
-    expect(result).toEqual({ items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0 });
+    expect(result).toEqual({ items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0, retryRate: 0, meanAttempts: 0 });
     expect(await loadPortfolioAssets()).toHaveLength(0);
   });
 
@@ -97,6 +97,25 @@ describe('generateBatchToPortfolio', () => {
     for (const item of result.items) {
       expect(item.tileData.svg).toBeTruthy();
     }
+  });
+
+  it('Build 019: exposes real per-item attempts/regenerated and aggregate retryRate/meanAttempts from the retry gate', async () => {
+    const result = await generateBatchToPortfolio({
+      count: 8,
+      params: testParams({ categoryId: 'botanical' }),
+      existingAssets: [],
+      seedForItem: (i) => `retry-visibility-${i}`,
+    });
+    expect(result.items).toHaveLength(8);
+    for (const item of result.items) {
+      expect(item.attempts).toBeGreaterThanOrEqual(1);
+      expect(item.attempts).toBeLessThanOrEqual(3);
+      expect(item.regenerated).toBe(item.attempts > 1);
+    }
+    const expectedRetryRate = Math.round((result.items.filter((it) => it.regenerated).length / result.items.length) * 10000) / 100;
+    const expectedMeanAttempts = Math.round((result.items.reduce((a, it) => a + it.attempts, 0) / result.items.length) * 100) / 100;
+    expect(result.retryRate).toBe(expectedRetryRate);
+    expect(result.meanAttempts).toBe(expectedMeanAttempts);
   });
 
   it('detects an exact duplicate against the existing catalog and blocks it from being re-imported', async () => {

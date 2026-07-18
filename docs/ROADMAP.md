@@ -476,6 +476,30 @@ Build-numbered, forward-looking. Each entry is either shipped
   services, 5 pre-existing botanical suites re-verified passing
   unmodified). See `BUILD_018_REPORT.md`.
 
+- **Build 019 — Visual Commercial Upgrade**: an evidence-first quality
+  pass reusing the existing critic/scoring/retry pipeline end to end — no
+  new scoring engine, no architecture redesign. New audit script
+  (`scripts/build019VisualAudit.ts`) generated a broader sample than
+  Build 018's own (96 patterns: all 8 botanical-capable Style DNA
+  presets × 4 seeds × 3 density bands) and found **Botanical Realism**
+  the true weakest dimension (mean 40.79/100, not Organic Flow as
+  Build 018's smaller sample had suggested) — root-caused to 14 of 15
+  standalone "flower head" variants in `generators/botanical.ts` drawing
+  no stem/leaf structure at all. Fix: `attachOptionalStem`, a single
+  shared function wired into `botanicalGenerator.createMotif` (not 14
+  hand-edited variant functions), reusing the exact stem idiom
+  `flowerBud`/`flowerBloom` (Build 018) already established. Measured:
+  Botanical Realism 40.79 → 50.93 (+24.9%), Botanical Complexity 51.19 →
+  53.11 (+3.8%), Organic Flow flat (45.80 → 46.40, no regression),
+  Overall Visual Quality dipped 72.77 → 70.55 (-3.1%, explained: richer
+  filler motifs narrow `heroDetailRatio`'s hero-vs-filler gap — every
+  other principal metric moved less than 0.4 points). Batch Generate
+  (10/20/50/100) re-measured through the real `generateBatchToPortfolio`
+  service: 0% failure rate at every size, generation time statistically
+  unchanged from before the fix (within ~10%, normal jitter), diversity
+  fully preserved. 6 new tests, full suite 269/269 files / 3043/3043
+  tests passing. See `BUILD_019_REPORT.md`.
+
 ## Recommended Next Build (Revenue First / Production track)
 
 Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
@@ -499,6 +523,30 @@ duplicates" with no way to inspect *which* 3 without opening Portfolio
 Manager separately); (3) extend Batch Generate past 100 with real
 progress feedback (chunked, matching `candidateEngine.ts`'s own
 macrotask-chunking precedent) if larger runs are wanted.
+
+## Recommended Next Build (Visual Commercial Upgrade, Phase 2)
+
+Build 019 fixed the single weakest dimension (Botanical Realism) and its
+closely-related neighbor (Botanical Complexity), but Organic Flow —
+second-weakest before this build, now the single weakest remaining
+(mean 46.4) — is a *placement*-level characteristic
+(`gridAppearanceScore`/`rhythmRegularity`, purely a function of instance
+positions, not motif shape) rather than something the botanical motif
+generator itself can move. Build 019's own diagnostic breakdown found it
+varies meaningfully by layout (heroFlow/sCurve/scatter/airy score 41-43;
+bouquet scores 56) but is fairly flat across density bands (43.7-48.0).
+A real fix touches `layouts/*.ts`/`engine/compositionIntelligence.ts`/
+`engine/rhythmBands.ts` — code shared by every category, not just
+botanical — so it needs its own careful, isolated measurement pass
+(confirming no cross-category regression) rather than being folded into
+a single-file fix the way Botanical Realism was. Natural next steps: (1)
+investigate why `rhythmBands.ts`'s existing dense/loose spacing wave
+(Build 003, deliberately excluded from Composition Zone anchor placement
+since zones already have their own density skew) can't safely extend to
+the hero/secondary layer; (2) re-run `scripts/build019VisualAudit.ts`
+after any placement change to confirm the fix moved Organic Flow without
+regressing Composition/Negative Space/Layered Depth, which are all
+currently near-ceiling (97-100) and have real room to fall.
 
 ## Recommended Next Build (Portfolio Manager track)
 
