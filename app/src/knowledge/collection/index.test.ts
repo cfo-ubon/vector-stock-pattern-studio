@@ -56,7 +56,7 @@ describe('knowledge/collection: Product Targets facade', () => {
 
   it('evaluateCollectionProductUses + getRecommendedProductUses compose the real recommender', () => {
     const evaluations = evaluateCollectionProductUses({ categoryId: 'botanical', tileSize: 1400, density: 0.5, keywordText: 'wallpaper' });
-    expect(evaluations.length).toBe(10);
+    expect(evaluations.length).toBe(PRODUCT_USE_IDS.length);
     const recommended = getRecommendedProductUses(evaluations, 3);
     expect(recommended.length).toBeLessThanOrEqual(3);
   });

@@ -33,7 +33,22 @@ export const sCurveLayout: PatternLayout = {
     // members via its own cluster.
     const anchorSpacing = spacing * 2.4;
     const anchorsPerCurve = Math.max(3, Math.round(tileSize / anchorSpacing));
-    const clusterRadius = clusterBaseRadius(params.motifSize, params.density) * 0.5;
+    // Build 014, Motif Relationship Intelligence Engine (BUILD_014_AUDIT.md
+    // Section 1): this was `* 0.5`. Measured directly against the real
+    // 5,000-pattern Build 013 portfolio, every `sCurve` tile's members were
+    // packed into a radius so small relative to `motifSize` that the
+    // resulting instance "crowding" (footprint / mean nearest-neighbor
+    // distance) averaged 1.44 across a random sample and 1.8-2.4 on the
+    // worst tiles -- both well past the quality evaluator's own 0.95
+    // "too much pileup" ceiling, triggering false `zeroMotifOverlap`
+    // failures on ~15% of `sCurve` tiles. Loosening to `* 0.85` (still
+    // tighter than every other archetype's un-scaled `clusterBaseRadius`,
+    // preserving `sCurve`'s own denser "vining" identity) moves the same
+    // measurement to a mean of 0.92 -- squarely inside the evaluator's own
+    // ideal band -- and eliminated 48/48 of the previously-flagged patterns
+    // with zero regression measured across the portfolio's top-decile
+    // `sCurve` tiles (see BUILD_014_REPORT.md Section 5).
+    const clusterRadius = clusterBaseRadius(params.motifSize, params.density) * 0.85;
     const placements: Placement[] = [];
     let colorSeed = 0;
 

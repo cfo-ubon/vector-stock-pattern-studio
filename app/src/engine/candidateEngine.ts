@@ -2,7 +2,9 @@ import type { GenerateParams, TileData } from './types';
 import { buildTile } from './tile';
 import { serialize } from './svgAst';
 import { extractInstances, countNodes } from './svgGeometry';
-import { computeMetrics, computeOverallScore, type CompositionMetrics, type QualityPresetId } from './scoring';
+import { computeMetrics, type CompositionMetrics, type QualityPresetId } from './scoring';
+import { computeOverallScoreV2 } from './scoringV2';
+import { layoutEvaluationClass } from './layoutEvaluation';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './styleDna';
 import { getHardNodeBudget } from '../knowledge/rules';
 
@@ -153,19 +155,33 @@ function styleAwareCandidatePatch(baseParams: GenerateParams, derivedSeed: strin
   };
 }
 
+/** Build 012 (Evaluation Intelligence Engine V3): scores each candidate with
+ * `computeOverallScoreV2` instead of the original `computeOverallScore` --
+ * this candidate's own resolved `layoutId` (after `stylePatch`, which can
+ * re-roll a Style DNA style's layout per-candidate — see
+ * `styleAwareCandidatePatch`) decides which of the 8 empirically lattice-
+ * biased penalty rules apply (BUILD_012_AUDIT.md Finding 1), so "Generate
+ * Best" no longer systematically under-scores every candidate for a
+ * lattice-only Style DNA preset (Minimal Botanical/Boutique Packaging/
+ * Premium Textile) purely because of its layout, not its actual quality.
+ * `penaltyReasons` keeps the exact same combined string-array shape V1
+ * produced (metric-below-50 info lines + "label (soft penalty -N)" lines)
+ * for whatever already reads `Candidate.penaltyReasons`. */
 function buildOneCandidate(baseParams: GenerateParams, qualityPreset: QualityPresetId, index: number): Candidate {
   const derivedSeed = deriveSeed(baseParams.seed, 'candidate', index);
   const stylePatch = styleAwareCandidatePatch(baseParams, derivedSeed);
-  const tileData = buildTile({ ...baseParams, ...stylePatch, seed: derivedSeed });
+  const resolvedParams = { ...baseParams, ...stylePatch, seed: derivedSeed };
+  const tileData = buildTile(resolvedParams);
   const { rejected, reasons } = applyHardRejectRules(tileData);
   const metrics = computeMetrics(tileData);
-  const { score, penaltyReasons } = computeOverallScore(metrics, qualityPreset);
+  const scoreV2 = computeOverallScoreV2(metrics, qualityPreset, { layoutClass: layoutEvaluationClass(resolvedParams.layoutId) });
+  const penaltyReasons = scoreV2.appliedPenalties.map((p) => `${p.label} (soft penalty -${p.points})`);
   return {
     candidateId: `candidate-${index + 1}`,
     derivedSeed,
     tileData,
     metrics,
-    score: rejected ? -1 : score,
+    score: rejected ? -1 : scoreV2.score,
     rejected,
     rejectionReasons: reasons,
     penaltyReasons,

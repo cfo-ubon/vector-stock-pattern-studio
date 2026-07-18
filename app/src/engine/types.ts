@@ -35,6 +35,18 @@ export interface Motif {
    * around its own origin (0,0). Used to decide which of the 8 neighbour
    * copies could possibly overlap the tile edge. */
   radius: number;
+  /** Build 009, Section 6 (Silhouette Optimization): only set by
+   * `generators/premiumHero.ts`'s `buildPremiumHero` -- the real internal
+   * arrangement archetype (`ClusterArchetype`, see `engine/clusterEngine.ts`)
+   * `resolveHeroArchetype` resolved for this hero, threaded back so
+   * portfolio-level tooling can measure real silhouette diversity (Build
+   * 008B, Section 7's own deferred §15.2 recommendation) instead of only
+   * ever measuring it indirectly. A loose string (not the real
+   * `ClusterArchetype` union) to avoid `types.ts` importing from
+   * `clusterEngine.ts`, the same convention `MotifCreateHints` already
+   * established for `family`/`part`. Every non-premium-hero motif leaves
+   * this undefined. */
+  heroArchetype?: string;
 }
 
 /** Build 004, Section 1 (Botanical DNA Engine foundation): optional hints a
@@ -178,6 +190,24 @@ export interface GenerateParams {
    * with the remaining colors appearing only as occasional pops — the way
    * designers actually build a coherent colorway. Undefined = on. */
   colorStory?: boolean;
+  /** Build 011, Section 3 (Color Harmony Intelligence): when true (and
+   * `colorStory` is active), the tile's first "dominant" story color is the
+   * real, computed most-saturated accent in the resolved palette
+   * (`computeDominantAccentIndex`) instead of a uniformly random pick — the
+   * same accent tends to lead across repeated generations of one palette,
+   * reading as a genuine dominant-color decision rather than equal-odds
+   * coloring. The second story color still rolls randomly (a real
+   * supporting/pop color, not a second fixed dominant). Undefined/false
+   * reproduces the exact prior fully-random 2-index pick. */
+  colorHarmonyBias?: boolean;
+  /** Build 011, Section 6 (Premium Detail Distribution): when true, the
+   * Hero Complexity overlay (`heroComplexity.ts`'s
+   * `applyHeroDetailOverlay`) uses `ROLE_DETAIL_LEVEL_DISTRIBUTED` — filler
+   * gets a small nonzero detail level (still far below secondary) instead
+   * of the original flat 0 — so "background" reads as simplified rather
+   * than fully featureless. Undefined/false reproduces the exact prior
+   * hero/secondary-only detail behavior. */
+  detailDistribution?: boolean;
   /** Background filler layer: tiny dots/rings/plus/diamond accents
    * scattered between the main motifs — the professional surface-design
    * touch that makes a pattern read as "designed" instead of icons on an
@@ -221,6 +251,14 @@ export interface GenerateParams {
    * behavior. Applied after negativeSpace in the same spacing-multiplier
    * pipeline; the two partially offset if both are set. */
   overlapAmount?: number;
+  /** Build 006, Section 5 (Negative Space Designer): which real commercial
+   * product this tile targets (see collection/productTargets.ts) — when
+   * set, nudges the *effective* negative space up or down for that
+   * product's own real spacing convention (see
+   * engine/negativeSpaceDesigner.ts) on top of (never replacing) the
+   * `negativeSpace` field above. Undefined = no nudge, zero behavior
+   * change from every pre-Build-006 pattern/preset/test. */
+  productTarget?: import('../collection/productTargets').ProductUseId;
   /** Named Art Direction preset id applied (informational — the preset's
    * resolved values are written into the other fields above, so replaying
    * these params doesn't require re-resolving the preset). Undefined when
@@ -272,6 +310,16 @@ export interface GenerateParams {
    * placement completely unaffected — the default for every style that
    * doesn't explicitly opt in. */
   premiumHero?: boolean;
+  /** Build 011, Section 5 (Silhouette Intelligence): forces a premium
+   * hero's own internal arrangement archetype (`PremiumHeroOptions.archetype`,
+   * `generators/premiumHero.ts`) instead of leaving `resolveHeroArchetype`'s
+   * weighted roll unconstrained — the real hook a batch-level caller (see
+   * `assignPortfolioDiversity`'s new `heroSilhouette` dimension,
+   * `engine/portfolioVariety.ts`) uses to guarantee a shuffled-bag spread of
+   * hero silhouettes across many generations instead of an independent
+   * random roll each time. Undefined lets the roll happen exactly as
+   * before this field existed. */
+  heroArchetype?: import('./clusterEngine').ClusterArchetype;
   /** Build 005, Section 2 (Design Rule Engine): the concrete generation
    * rules `engine/designKnowledge.ts` resolves from the active Style
    * DNA's own Design Knowledge Profile (Section 1) — consumed by
@@ -280,6 +328,24 @@ export interface GenerateParams {
    * Undefined = every existing default (no Style DNA active, or a style
    * whose resolved rules happen to be the same as the defaults). */
   designRules?: import('./designKnowledge').DesignGenerationRules;
+  /** Build 010, Section 3 (Multi-layer Depth Engine, 0..1): blends filler/
+   * accent motifs' own colors toward the background color (see
+   * engine/depthEngine.ts's `applyDepthColorShift`), giving the tile a real
+   * background-reading plane distinct from hero/secondary's foreground —
+   * expressed as a solid pre-blended color (this codebase's EPS-safe
+   * convention forbids real opacity/blur), not transparency. Undefined/0 =
+   * every motif's colors are completely unaffected, identical to every
+   * pattern generated before this field existed. */
+  depthStrength?: number;
+  /** Build 010, Section 7/8: this generation's own Professional Illustrator
+   * Rules preference (rule of odds — see `generators/premiumHero.ts`'s
+   * `preferOddCount`), reaching `buildPremiumHero` whenever a premium hero
+   * is actually built. Explicit here always wins over
+   * `resolveProfessionalRulesForProduct`'s product fallback (Section 7);
+   * a Style DNA preset's own signature (Section 8) sets this directly for
+   * every style that opts into `premiumHero`. Undefined = every pre-
+   * Build-010 pattern's exact prior member-count roll. */
+  professionalRules?: boolean;
   seed: string;
 }
 
@@ -288,4 +354,9 @@ export interface TileData {
   backgroundColor: string;
   colors: string[];
   svg: SvgNode;
+  /** Build 009, Section 6 (Silhouette Optimization): the real internal
+   * arrangement archetype of every premium hero this tile actually built
+   * (see `Motif.heroArchetype`'s own doc comment) -- empty/undefined for a
+   * tile with no premium heroes, never a fabricated placeholder. */
+  premiumHeroArchetypes?: string[];
 }

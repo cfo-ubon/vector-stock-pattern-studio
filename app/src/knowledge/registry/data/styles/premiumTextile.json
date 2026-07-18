@@ -1,0 +1,48 @@
+{
+  "id": "premiumTextile",
+  "label": "Premium Textile",
+  "description": "Half-drop damask/paisley weave, full palette, sized for yardage/upholstery.",
+  "categories": [
+    "damask",
+    "paisley"
+  ],
+  "layouts": [
+    "halfDrop",
+    "brick"
+  ],
+  "preferredZones": [
+    "diagonal",
+    "offset",
+    "wave"
+  ],
+  "hierarchyPreset": "allOverTextile",
+  "density": 0.55,
+  "negativeSpace": 0.05,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.1,
+  "flowProfile": "directional",
+  "rhythmProfile": "regular",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.3,
+  "motifComplexity": "moderate",
+  "colorStrategy": "fullPalette",
+  "paletteIds": [
+    "sage-terracotta",
+    "autumn-harvest",
+    "english-garden"
+  ],
+  "backgroundStrategy": "neutralPaper",
+  "svgDepthMode": "soft",
+  "exportRecommendation": {
+    "tileSize": 1400,
+    "patternScale": 1,
+    "recommendedSites": [
+      "creativefabrica",
+      "adobestock"
+    ],
+    "bestProductTargets": [
+      "fabric",
+      "textile"
+    ]
+  }
+}

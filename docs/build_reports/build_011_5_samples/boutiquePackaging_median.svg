@@ -1,0 +1,602 @@
+<g id="tile-content" data-style-dna-id="boutiquePackaging" data-style-dna-name="Boutique Packaging" data-style-dna-version="1">
+  <defs>
+    <clipPath id="tile-clip">
+      <rect x="0" y="0" width="1200" height="1200" />
+    </clipPath>
+  </defs>
+  <g id="layer-background">
+    <rect x="0" y="0" width="1200" height="1200" fill="#FFF8F2" />
+  </g>
+  <g id="layer-pattern" clip-path="url(#tile-clip)">
+    <g id="layer-filler">
+      <polygon points="692.119,984.26 702.968,995.109 692.119,1005.958 681.27,995.109" fill="#fcebe8" />
+      <polygon points="443.483,538.116 454.535,549.169 443.483,560.221 432.43,549.169" fill="#fcebe8" />
+      <circle cx="649.531" cy="831.91" r="10.209" fill="none" stroke="#dfccc1" stroke-width="6.239" />
+      <polygon points="441.983,981.987 452.548,992.552 441.983,1003.117 431.419,992.552" fill="#fcebe8" />
+      <polygon points="1097.079,916.97 1108.214,928.104 1097.079,939.239 1085.945,928.104" fill="#dfccc1" />
+      <circle cx="469.774" cy="185.179" r="8.161" fill="none" stroke="#fcebe8" stroke-width="4.987" />
+      <circle cx="673.31" cy="736.867" r="9.745" fill="#fcebe8" />
+      <g transform="translate(582.442 716.623) rotate(76)">
+        <rect x="-5.945" y="-1.784" width="11.891" height="3.567" fill="#dfccc1" />
+        <rect x="-1.784" y="-5.945" width="3.567" height="11.891" fill="#dfccc1" />
+      </g>
+      <circle cx="1099.233" cy="153.297" r="7.612" fill="none" stroke="#dfccc1" stroke-width="4.652" />
+      <circle cx="1028.465" cy="276.478" r="10.195" fill="#fcebe8" />
+      <circle cx="815.724" cy="1166.738" r="8.565" fill="#fcebe8" />
+      <circle cx="541.99" cy="902.974" r="8.891" fill="#dfccc1" />
+      <g transform="translate(785.954 109.801) rotate(8)">
+        <rect x="-10.757" y="-3.227" width="21.513" height="6.454" fill="#dfccc1" />
+        <rect x="-3.227" y="-10.757" width="6.454" height="21.513" fill="#dfccc1" />
+      </g>
+      <circle cx="1149.661" cy="617.269" r="11.394" fill="#fcebe8" />
+      <polygon points="-9.845,1083.577 -2.359,1091.062 -9.845,1098.547 -17.33,1091.062" fill="#fcebe8" />
+      <polygon points="1190.155,1083.577 1197.641,1091.062 1190.155,1098.547 1182.67,1091.062" fill="#fcebe8" />
+      <circle cx="700.253" cy="1101.034" r="9.29" fill="#fcebe8" />
+      <polygon points="618.711,223.421 627.354,232.065 618.711,240.709 610.067,232.065" fill="#dfccc1" />
+      <polygon points="75.273,259.584 85.106,269.417 75.273,279.25 65.44,269.417" fill="#fcebe8" />
+      <polygon points="834.056,629.291 843.105,638.34 834.056,647.39 825.006,638.34" fill="#fcebe8" />
+      <g transform="translate(98.51 834.365) rotate(22)">
+        <rect x="-8.125" y="-2.438" width="16.25" height="4.875" fill="#fcebe8" />
+        <rect x="-2.438" y="-8.125" width="4.875" height="16.25" fill="#fcebe8" />
+      </g>
+      <g transform="translate(629.933 140.153) rotate(10)">
+        <rect x="-8.154" y="-2.446" width="16.308" height="4.892" fill="#fcebe8" />
+        <rect x="-2.446" y="-8.154" width="4.892" height="16.308" fill="#fcebe8" />
+      </g>
+      <circle cx="1046.011" cy="1071.915" r="11.324" fill="#dfccc1" />
+      <g transform="translate(571.154 1102.925) rotate(74)">
+        <rect x="-6.251" y="-1.875" width="12.502" height="3.751" fill="#dfccc1" />
+        <rect x="-1.875" y="-6.251" width="3.751" height="12.502" fill="#dfccc1" />
+      </g>
+      <circle cx="835.415" cy="355.373" r="8.11" fill="#fcebe8" />
+      <circle cx="174.666" cy="464.972" r="9.014" fill="#dfccc1" />
+      <g transform="translate(1045.256 778.766) rotate(63)">
+        <rect x="-8.558" y="-2.568" width="17.117" height="5.135" fill="#fcebe8" />
+        <rect x="-2.568" y="-8.558" width="5.135" height="17.117" fill="#fcebe8" />
+      </g>
+      <circle cx="996.167" cy="170.416" r="10.323" fill="#fcebe8" />
+      <circle cx="300.609" cy="854.394" r="6.944" fill="#fcebe8" />
+      <polygon points="188.453,786.668 199.122,797.337 188.453,808.006 177.784,797.337" fill="#dfccc1" />
+      <circle cx="51.595" cy="521.364" r="5.813" fill="none" stroke="#dfccc1" stroke-width="3.553" />
+      <circle cx="636.473" cy="-4.065" r="5.677" fill="none" stroke="#fcebe8" stroke-width="3.469" />
+      <circle cx="636.473" cy="1195.935" r="5.677" fill="none" stroke="#fcebe8" stroke-width="3.469" />
+      <polygon points="116.887,183.438 123.678,190.229 116.887,197.021 110.095,190.229" fill="#fcebe8" />
+      <circle cx="531.063" cy="1027.762" r="9.238" fill="none" stroke="#fcebe8" stroke-width="5.645" />
+      <g transform="translate(863.693 845.522) rotate(10)">
+        <rect x="-10.799" y="-3.24" width="21.598" height="6.479" fill="#fcebe8" />
+        <rect x="-3.24" y="-10.799" width="6.479" height="21.598" fill="#fcebe8" />
+      </g>
+      <circle cx="413.467" cy="1175.201" r="10.944" fill="#fcebe8" />
+      <circle cx="951.865" cy="466.201" r="7.282" fill="#fcebe8" />
+      <polygon points="628.718,621.103 638.968,631.353 628.718,641.603 618.468,631.353" fill="#fcebe8" />
+      <circle cx="1033.375" cy="53.436" r="8.293" fill="#dfccc1" />
+      <circle cx="216.311" cy="920.695" r="6.209" fill="#dfccc1" />
+      <polygon points="393.634,720.387 399.533,726.286 393.634,732.186 387.735,726.286" fill="#fcebe8" />
+      <g transform="translate(931.122 255.23) rotate(44)">
+        <rect x="-5.925" y="-1.777" width="11.85" height="3.555" fill="#dfccc1" />
+        <rect x="-1.777" y="-5.925" width="3.555" height="11.85" fill="#dfccc1" />
+      </g>
+      <circle cx="124.523" cy="-6.913" r="8.755" fill="none" stroke="#dfccc1" stroke-width="5.35" />
+      <circle cx="124.523" cy="1193.087" r="8.755" fill="none" stroke="#dfccc1" stroke-width="5.35" />
+      <g transform="translate(893.738 961.445) rotate(81)">
+        <rect x="-6.324" y="-1.897" width="12.648" height="3.794" fill="#dfccc1" />
+        <rect x="-1.897" y="-6.324" width="3.794" height="12.648" fill="#dfccc1" />
+      </g>
+      <circle cx="873.119" cy="1105.03" r="5.584" fill="#fcebe8" />
+      <polygon points="754.289,444.914 762.636,453.261 754.289,461.609 745.942,453.261" fill="#dfccc1" />
+      <g transform="translate(886.711 527.79) rotate(5)">
+        <rect x="-11.123" y="-3.337" width="22.245" height="6.674" fill="#dfccc1" />
+        <rect x="-3.337" y="-11.123" width="6.674" height="22.245" fill="#dfccc1" />
+      </g>
+      <g transform="translate(76.65 737.819) rotate(33)">
+        <rect x="-7.39" y="-2.217" width="14.78" height="4.434" fill="#dfccc1" />
+        <rect x="-2.217" y="-7.39" width="4.434" height="14.78" fill="#dfccc1" />
+      </g>
+      <circle cx="1176.609" cy="844.34" r="6.772" fill="#fcebe8" />
+      <g transform="translate(46.999 642.602) rotate(14)">
+        <rect x="-6.163" y="-1.849" width="12.325" height="3.698" fill="#dfccc1" />
+        <rect x="-1.849" y="-6.163" width="3.698" height="12.325" fill="#dfccc1" />
+      </g>
+      <circle cx="301.058" cy="150.23" r="5.357" fill="none" stroke="#fcebe8" stroke-width="3.274" />
+      <g transform="translate(564.715 397.265) rotate(0)">
+        <rect x="-10.059" y="-3.018" width="20.118" height="6.035" fill="#dfccc1" />
+        <rect x="-3.018" y="-10.059" width="6.035" height="20.118" fill="#dfccc1" />
+      </g>
+      <circle cx="719.533" cy="549.73" r="7.559" fill="#fcebe8" />
+      <circle cx="436.695" cy="394.582" r="8.627" fill="none" stroke="#fcebe8" stroke-width="5.272" />
+      <polygon points="411.625,94.317 419.361,102.053 411.625,109.788 403.89,102.053" fill="#fcebe8" />
+      <circle cx="1141.718" cy="412.636" r="8.366" fill="#fcebe8" />
+      <circle cx="924.375" cy="665.847" r="9.688" fill="none" stroke="#fcebe8" stroke-width="5.921" />
+      <circle cx="88.483" cy="974.637" r="11.372" fill="#dfccc1" />
+      <polygon points="519.834,-6.691 529.208,2.683 519.834,12.057 510.459,2.683" fill="#dfccc1" />
+      <polygon points="519.834,1193.309 529.208,1202.683 519.834,1212.057 510.459,1202.683" fill="#dfccc1" />
+      <circle cx="66.419" cy="69.829" r="8.606" fill="#dfccc1" />
+      <circle cx="359.406" cy="224.842" r="9.122" fill="#fcebe8" />
+      <circle cx="984.318" cy="973.58" r="8.542" fill="#fcebe8" />
+      <polygon points="1167.921,731.477 1175.208,738.763 1167.921,746.05 1160.634,738.763" fill="#dfccc1" />
+      <circle cx="945.793" cy="101.861" r="6.815" fill="none" stroke="#fcebe8" stroke-width="4.165" />
+      <polygon points="332.539,380.671 340.631,388.762 332.539,396.854 324.447,388.762" fill="#fcebe8" />
+      <polygon points="699.084,328.985 706.463,336.364 699.084,343.742 691.705,336.364" fill="#fcebe8" />
+      <circle cx="1036.626" cy="544.125" r="9.283" fill="none" stroke="#dfccc1" stroke-width="5.673" />
+      <polygon points="169.68,308.1 178.987,317.407 169.68,326.713 160.374,317.407" fill="#fcebe8" />
+      <circle cx="750.685" cy="878.683" r="5.816" fill="none" stroke="#fcebe8" stroke-width="3.554" />
+      <polygon points="1059.365,651.512 1066.727,658.874 1059.365,666.236 1052.004,658.874" fill="#fcebe8" />
+      <circle cx="769.93" cy="227.799" r="9.506" fill="#fcebe8" />
+      <circle cx="1002.984" cy="869.307" r="6.302" fill="none" stroke="#fcebe8" stroke-width="3.851" />
+      <circle cx="891.134" cy="29.825" r="9.996" fill="none" stroke="#fcebe8" stroke-width="6.109" />
+      <polygon points="191.071,141.83 197.489,148.248 191.071,154.666 184.653,148.248" fill="#fcebe8" />
+      <g transform="translate(203.546 1075.432) rotate(21)">
+        <rect x="-10.417" y="-3.125" width="20.833" height="6.25" fill="#fcebe8" />
+        <rect x="-3.125" y="-10.417" width="6.25" height="20.833" fill="#fcebe8" />
+      </g>
+      <g transform="translate(850.244 160.89) rotate(48)">
+        <rect x="-6.604" y="-1.981" width="13.207" height="3.962" fill="#dfccc1" />
+        <rect x="-1.981" y="-6.604" width="3.962" height="13.207" fill="#dfccc1" />
+      </g>
+      <circle cx="1174.332" cy="292.009" r="6.69" fill="none" stroke="#fcebe8" stroke-width="4.088" />
+      <circle cx="368.34" cy="579.209" r="8.699" fill="#fcebe8" />
+      <circle cx="796.852" cy="1013.248" r="11.327" fill="#dfccc1" />
+      <circle cx="386.151" cy="473.046" r="5.535" fill="none" stroke="#dfccc1" stroke-width="3.382" />
+      <polygon points="573.563,466.767 582.98,476.184 573.563,485.601 564.146,476.184" fill="#fcebe8" />
+      <g transform="translate(1112.543 36.137) rotate(65)">
+        <rect x="-7.04" y="-2.112" width="14.08" height="4.224" fill="#dfccc1" />
+        <rect x="-2.112" y="-7.04" width="4.224" height="14.08" fill="#dfccc1" />
+      </g>
+      <circle cx="282.923" cy="1174.861" r="8.244" fill="none" stroke="#fcebe8" stroke-width="5.038" />
+      <g transform="translate(475.074 264.376) rotate(7)">
+        <rect x="-10.689" y="-3.207" width="21.377" height="6.413" fill="#dfccc1" />
+        <rect x="-3.207" y="-10.689" width="6.413" height="21.377" fill="#dfccc1" />
+      </g>
+      <polygon points="150.114,554.236 161.125,565.247 150.114,576.259 139.102,565.247" fill="#fcebe8" />
+      <polygon points="287.142,561.011 297.979,571.849 287.142,582.686 276.304,571.849" fill="#dfccc1" />
+      <circle cx="335.115" cy="1048.085" r="7.697" fill="none" stroke="#dfccc1" stroke-width="4.704" />
+      <circle cx="491.602" cy="464.029" r="8.679" fill="#dfccc1" />
+      <circle cx="976.604" cy="348.949" r="8.055" fill="none" stroke="#fcebe8" stroke-width="4.922" />
+      <g transform="translate(273.479 492.849) rotate(61)">
+        <rect x="-9.069" y="-2.721" width="18.137" height="5.441" fill="#fcebe8" />
+        <rect x="-2.721" y="-9.069" width="5.441" height="18.137" fill="#fcebe8" />
+      </g>
+      <circle cx="596.929" cy="314.073" r="9.262" fill="#fcebe8" />
+    </g>
+    <g id="motif-1" data-role="accent">
+      <g transform="translate(120 120) rotate(0) scale(0.363)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#F6C9CE" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#F6C9CE" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-2" data-role="accent">
+      <g transform="translate(120 360) rotate(0) scale(0.331)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#D4A85A" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#F6C9CE" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-3" data-role="accent">
+      <g transform="translate(1080 360) rotate(0) scale(0.253)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+          </g>
+          <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+          <circle cx="0" cy="28.8" r="4.8" fill="#F6C9CE" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-4" data-role="accent">
+      <g transform="translate(387.72 387.72) rotate(0) scale(0.345)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#D4A85A" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#F6C9CE" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-5" data-role="filler">
+      <g transform="translate(360 120) rotate(0) scale(0.773)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#F6C9CE" />
+              <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#8C5A44" />
+              <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#F6C9CE" stroke-width="2.8" stroke-linecap="round" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#F6C9CE" />
+              <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#8C5A44" />
+              <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#F6C9CE" stroke-width="2.8" stroke-linecap="round" />
+            </g>
+          </g>
+          <circle cx="0" cy="0" r="3.2" fill="#FFF8F2" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-6" data-role="filler">
+      <g transform="translate(120 600) rotate(0) scale(0.788)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#D4A85A" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#D4A85A" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-7" data-role="filler">
+      <g transform="translate(600 600) rotate(0) scale(0.656)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#8C5A44" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="5.6" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="2.4" fill="#FFF8F2" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-8" data-role="filler">
+      <g transform="translate(120 840) rotate(0) scale(0.624)">
+        <g>
+          <g>
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#8C5A44" />
+          </g>
+          <g transform="scale(-1 1)">
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#8C5A44" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-9" data-role="filler">
+      <g transform="translate(627.72 387.72) rotate(0) scale(0.549)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+          </g>
+          <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+          <circle cx="0" cy="28.8" r="4.8" fill="#F6C9CE" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-10" data-role="filler">
+      <g transform="translate(120 1080) rotate(0) scale(0.605)">
+        <g>
+          <g>
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+          <g transform="scale(-1 1)">
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-11" data-role="filler">
+      <g transform="translate(147.72 627.72) rotate(0) scale(0.623)">
+        <g>
+          <g>
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#8C5A44" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 8 C 17.36 5.52 24.8 -5.64 13.64 -10.6 C 18.6 -1.92 11.16 4.28 0 5.024 Z" fill="#93634e" />
+            <path d="M 0 -12 C 13.44 -13.92 19.2 -22.56 10.56 -26.4 C 14.4 -19.68 8.64 -14.88 0 -14.304 Z" fill="#93634e" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+          <g transform="scale(-1 1)">
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#8C5A44" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 8 C 17.36 5.52 24.8 -5.64 13.64 -10.6 C 18.6 -1.92 11.16 4.28 0 5.024 Z" fill="#93634e" />
+            <path d="M 0 -12 C 13.44 -13.92 19.2 -22.56 10.56 -26.4 C 14.4 -19.68 8.64 -14.88 0 -14.304 Z" fill="#93634e" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-12" data-role="filler">
+      <g transform="translate(840 1080) rotate(0) scale(0.624)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#F6C9CE" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-13" data-role="secondary">
+      <g transform="translate(600 120) rotate(0) scale(0.941)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+          </g>
+          <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+          <circle cx="0" cy="28.8" r="4.8" fill="#F6C9CE" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-14" data-role="secondary">
+      <g transform="translate(840 120) rotate(0) scale(1.098)">
+        <g>
+          <g>
+            <g>
+              <g>
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#8C5A44" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#8C5A44" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#8C5A44" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+              <g transform="scale(-1 1)">
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#8C5A44" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#8C5A44" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#8C5A44" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+            </g>
+            <circle cx="0" cy="0" r="3.2" fill="#FFF8F2" />
+          </g>
+          <circle cx="0" cy="0" r="29.133" fill="none" stroke="#D4A85A" stroke-width="0.735" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-15" data-role="secondary">
+      <g transform="translate(1080 120) rotate(0) scale(1.099)">
+        <g>
+          <g>
+            <g>
+              <g>
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#D4A85A" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#F6C9CE" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#D4A85A" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+              <g transform="scale(-1 1)">
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#D4A85A" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#F6C9CE" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#D4A85A" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+            </g>
+            <circle cx="0" cy="0" r="3.2" fill="#FFF8F2" />
+          </g>
+          <circle cx="0" cy="0" r="27.878" fill="none" stroke="#8C5A44" stroke-width="0.735" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-16" data-role="secondary">
+      <g transform="translate(360 360) rotate(0) scale(0.923)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#F6C9CE" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#f7cdd1" />
+            </g>
+          </g>
+          <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+          <circle cx="0" cy="28.8" r="4.8" fill="#F6C9CE" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-17" data-role="secondary">
+      <g transform="translate(600 360) rotate(0) scale(1.219)">
+        <g>
+          <g>
+            <g>
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#8C5A44" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#956752" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#8C5A44" />
+              <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#956752" />
+            </g>
+          </g>
+          <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+          <circle cx="0" cy="28.8" r="4.8" fill="#8C5A44" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-18" data-role="secondary">
+      <g transform="translate(840 360) rotate(0) scale(0.964)">
+        <g>
+          <g>
+            <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#8C5A44" />
+            <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+            <circle cx="0" cy="0" r="5.6" fill="#8C5A44" />
+            <circle cx="0" cy="0" r="2.4" fill="#FFF8F2" />
+          </g>
+          <circle cx="0" cy="0" r="23.674" fill="none" stroke="#8C5A44" stroke-width="0.735" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-19" data-role="secondary">
+      <g transform="translate(360 600) rotate(0) scale(0.901)">
+        <g>
+          <g>
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#8C5A44" />
+          </g>
+          <g transform="scale(-1 1)">
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 13 C 17.36 10.52 24.8 -0.64 13.64 -5.6 C 18.6 3.08 11.16 9.28 0 10.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -2 C 13.44 -3.92 19.2 -12.56 10.56 -16.4 C 14.4 -9.68 8.64 -4.88 0 -4.304 Z" fill="#f7ccd0" />
+            <path d="M 0 -17 C 9.52 -18.36 13.6 -24.48 7.48 -27.2 C 10.2 -22.44 6.12 -19.04 0 -18.632 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#8C5A44" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-20" data-role="secondary">
+      <g transform="translate(1080 600) rotate(0) scale(0.967)">
+        <g>
+          <g>
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 8 C 17.36 5.52 24.8 -5.64 13.64 -10.6 C 18.6 -1.92 11.16 4.28 0 5.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -12 C 13.44 -13.92 19.2 -22.56 10.56 -26.4 C 14.4 -19.68 8.64 -14.88 0 -14.304 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+          <g transform="scale(-1 1)">
+            <path d="M 0 40 C 3.2 12 3.2 -12 0 -36" fill="none" stroke="#F6C9CE" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M 0 8 C 17.36 5.52 24.8 -5.64 13.64 -10.6 C 18.6 -1.92 11.16 4.28 0 5.024 Z" fill="#f7ccd0" />
+            <path d="M 0 -12 C 13.44 -13.92 19.2 -22.56 10.56 -26.4 C 14.4 -19.68 8.64 -14.88 0 -14.304 Z" fill="#f7ccd0" />
+            <ellipse cx="0" cy="-36" rx="4" ry="6.4" fill="#F6C9CE" />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-21" data-role="secondary">
+      <g transform="translate(360 840) rotate(0) scale(0.997)">
+        <g>
+          <g>
+            <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#8C5A44" />
+            <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+            <g>
+              <g>
+                <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#8C5A44" />
+              </g>
+              <g transform="scale(-1 1)">
+                <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#8C5A44" />
+              </g>
+            </g>
+          </g>
+          <circle cx="0" cy="0" r="29.602" fill="none" stroke="#8C5A44" stroke-width="0.735" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-22" data-role="secondary">
+      <g transform="translate(360 1080) rotate(0) scale(1.067)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#8C5A44" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#F6C9CE" />
+          <circle cx="0" cy="0" r="5.6" fill="#8C5A44" />
+          <circle cx="0" cy="0" r="2.4" fill="#FFF8F2" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-23" data-role="secondary">
+      <g transform="translate(1080 1080) rotate(0) scale(1.2)">
+        <g>
+          <path d="M 0 -40 Q 22 -18 40 0 Q 22 18 0 40 Q -22 18 -40 0 Q -22 -18 0 -40 Z" fill="#F6C9CE" />
+          <path d="M 0 -24.8 Q 13.6 -11.2 24.8 0 Q 13.6 11.2 0 24.8 Q -13.6 11.2 -24.8 0 Q -13.6 -11.2 0 -24.8 Z" fill="#8C5A44" />
+          <g>
+            <g>
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+            <g transform="scale(-1 1)">
+              <path d="M 0 7.2 C 6.4 0.8 6.4 -7.2 0 -12 L 0 7.2 Z" fill="#F6C9CE" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g id="motif-24" data-role="hero">
+      <g transform="translate(840 600) rotate(0) scale(1.521)">
+        <g>
+          <g>
+            <g>
+              <g>
+                <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#8C5A44" />
+                <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#956752" />
+              </g>
+              <g transform="scale(-1 1)">
+                <path d="M 0 14 C 11.2 2 11.2 -20 0 -38 L 0 14 Z" fill="#8C5A44" />
+                <path d="M 4.8 10 C 24 4 30 -14 20 -22 C 24 -6 16 2 4 4.8 Z" fill="#956752" />
+              </g>
+            </g>
+            <rect x="-13.6" y="15.2" width="27.2" height="5.6" rx="2.4" fill="#F6C9CE" />
+            <circle cx="0" cy="28.8" r="4.8" fill="#8C5A44" />
+          </g>
+          <path d="M 4.028 -26.269 A 26.576 26.576 0 0 1 23.9 -11.622" fill="none" stroke="#8C5A44" stroke-width="0.672" stroke-linecap="round" />
+        </g>
+      </g>
+    </g>
+    <g id="motif-25" data-role="hero">
+      <g transform="translate(600 840) rotate(0) scale(1.482)">
+        <g>
+          <g>
+            <g>
+              <g>
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#8C5A44" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#F6C9CE" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#8C5A44" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+              <g transform="scale(-1 1)">
+                <path d="M 0 -40 C 22 -20 22 20 0 40 L 0 -40 Z" fill="#8C5A44" />
+                <path d="M 0 -24 C 12 -12 12 12 0 24 L 0 -24 Z" fill="#F6C9CE" />
+                <path d="M 20 -6 Q 34 -12 32 4" fill="none" stroke="#8C5A44" stroke-width="2.8" stroke-linecap="round" />
+              </g>
+            </g>
+            <circle cx="0" cy="0" r="3.2" fill="#FFF8F2" />
+          </g>
+          <circle cx="0" cy="0" r="27.432" fill="none" stroke="#8C5A44" stroke-width="0.924" />
+        </g>
+      </g>
+    </g>
+  </g>
+</g>

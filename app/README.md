@@ -2903,3 +2903,177 @@ src/
     index.ts               Top-level barrel
     validation.ts          Cross-domain validation
 ```
+
+## Portfolio Manager P1 (`src/catalog/*`, UI in `src/components/portfolio/*`)
+
+An offline catalog of externally-produced stock-vector source files —
+import, store, browse, search, inspect, and safely remove SVG/PNG/JSON/
+EPS/AI/JPG file sets without ever modifying or recompressing the
+originals. Opened via the **"🗂 Portfolio Manager"** button next to
+Project Dashboard. Separate from `src/portfolio/` (Build 013/014's
+unrelated, read-only Portfolio *Intelligence* Engine over generated-
+pattern batches) and from `src/assets/` (the Asset Ecosystem Engine's
+extracted/editable SVG-AST motifs) — see
+[`docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md`](../docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md)
+for the naming-collision explanation and full layer map. Full docs:
+
+- [`docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md`](../docs/portfolio/PORTFOLIO_MANAGER_ARCHITECTURE.md) — layer map, storage-technology rationale, reuse vs new.
+- [`docs/portfolio/PORTFOLIO_MANAGER_DATA_MODEL.md`](../docs/portfolio/PORTFOLIO_MANAGER_DATA_MODEL.md) — `PortfolioAsset`/`PortfolioFileRecord` field reference, asset ID format, workflow-vs-archive separation.
+- [`docs/portfolio/PORTFOLIO_MANAGER_STORAGE.md`](../docs/portfolio/PORTFOLIO_MANAGER_STORAGE.md) — IndexedDB stores, transaction/deletion safety, browser limitations.
+- [`docs/portfolio/PORTFOLIO_MANAGER_IMPORT_SPEC.md`](../docs/portfolio/PORTFOLIO_MANAGER_IMPORT_SPEC.md) — import pipeline, duplicate detection, JSON compatibility, preview selection.
+- [`docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md`](../docs/portfolio/PORTFOLIO_MANAGER_P1_TEST_REPORT.md) — test coverage by category.
+- [`docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md`](../docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md) — sprint report (branch, commit, full results, known limitations, next P2 recommendation).
+
+```
+src/catalog/
+  domain/       PortfolioAsset/PortfolioFileRecord model, IDs, SHA-256 hashing, search/filter/sort
+  storage/      portfolioStore.ts — IndexedDB-only persistence (no localStorage fallback)
+  import/       fileValidation, basenameGrouping, previewSelection, jsonCompat, duplicates, importPipeline
+  services/     dashboard.ts, healthCheck.ts, exportAsset.ts (ZIP export)
+src/components/portfolio/
+  PortfolioManagerView.tsx    top-level container
+  PortfolioSidebar.tsx        dashboard stats + filters
+  PortfolioGrid.tsx           searchable/sortable/paginated thumbnail grid
+  PortfolioDetailPanel.tsx    metadata editing, archive/restore, safe delete
+  PortfolioImportPanel.tsx    drag-and-drop / file-input import + duplicate resolution
+  PortfolioHealthCheckPanel.tsx  read-only data-integrity report
+```
+
+### Portfolio Manager P2 Stage 1 — Collection domain and data foundation (`src/catalog/domain/collection*.ts`, `storage/collectionStore.ts`, `services/collectionService.ts`)
+
+Adds a `Collection` entity (many-to-many membership with
+`PortfolioAsset`, via P1's already-reserved `collectionIds` field — no
+new field on `PortfolioAsset`) with full CRUD, bulk assign/remove, and
+read-only integrity validation + repair. **Domain/storage/service layers
+only — no UI in this stage.** `DB_VERSION` 4 → 5 (adds the `collections`
+object store). See:
+
+- [`docs/portfolio/COLLECTION_ARCHITECTURE.md`](../docs/portfolio/COLLECTION_ARCHITECTURE.md) — layer map, extensions to P1, public API surface.
+- [`docs/portfolio/COLLECTION_DATA_MODEL.md`](../docs/portfolio/COLLECTION_DATA_MODEL.md) — `Collection` field reference, membership invariants, database changes.
+- [`docs/architecture/ADR-005-collection-relationship.md`](../docs/architecture/ADR-005-collection-relationship.md) — why many-to-many, why `collectionIds` on the asset, deletion/archive/integrity strategy.
+- [`docs/portfolio/P2_STAGE1_TEST_REPORT.md`](../docs/portfolio/P2_STAGE1_TEST_REPORT.md) / [`P2_STAGE1_PERFORMANCE.md`](../docs/portfolio/P2_STAGE1_PERFORMANCE.md) — test coverage and measured performance.
+- [`docs/build_reports/P2_STAGE1_REPORT.md`](../docs/build_reports/P2_STAGE1_REPORT.md) — sprint report.
+
+### Portfolio Manager P2.5 Sprint 1 — Collection validation infrastructure (`src/catalog/validation/`, `scripts/validateCollections.ts`)
+
+Dev-only tooling for scalability/integrity/performance validation of the
+Collection stack above — a deterministic dataset generator (SMALL/MEDIUM/
+LARGE presets), a benchmark runner, 8 reusable integrity scenarios (built
+on the existing `collectionService.ts` scan/repair, never a competing
+engine), and a memory-instrumentation foundation. **Not reachable from
+the production UI** — nothing here is imported by `App.tsx`/`main.tsx`,
+so it never ships in `/studio`. Run it via:
+
+```bash
+npm run validate:collections              # default: small dataset + benchmarks + integrity + bounded memory smoke
+npm run validate:collections:small         # 1,000 assets / 100 collections
+npm run validate:collections:medium        # 10,000 assets / 1,000 collections
+npm run validate:collections:large         # 100,000 assets / 10,000 collections
+npm run validate:collections:integrity     # 8 integrity scenarios (scan + repair + idempotency)
+npm run validate:collections:benchmark     # service/data-access benchmarks only
+npm run validate:collections:memory-smoke  # bounded Node-side memory smoke
+```
+
+Reports land in `validation-results/collections/` (gitignored — see
+`docs/portfolio/P2_5_PERFORMANCE_BASELINE.md` for a committed snapshot of
+real measured numbers). See:
+
+- [`docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`](../docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md) — layer map, database-isolation rationale, architecture-lock compliance.
+- [`docs/portfolio/P2_5_DATASET_GENERATOR.md`](../docs/portfolio/P2_5_DATASET_GENERATOR.md) / [`P2_5_BENCHMARK_RUNNER.md`](../docs/portfolio/P2_5_BENCHMARK_RUNNER.md) / [`P2_5_MEMORY_INSTRUMENTATION.md`](../docs/portfolio/P2_5_MEMORY_INSTRUMENTATION.md) / [`P2_5_PERFORMANCE_BASELINE.md`](../docs/portfolio/P2_5_PERFORMANCE_BASELINE.md).
+- [`docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT1_TEST_REPORT.md) — test coverage by category.
+- [`docs/build_reports/P2_5_SPRINT1_REPORT.md`](../docs/build_reports/P2_5_SPRINT1_REPORT.md) — sprint report.
+
+### Portfolio Manager P2.5 Sprint 2 — Stress and soak validation (`src/catalog/validation/soakRunner.ts` + others, `scripts/validateCollectionsStress.ts`, `scripts/uiSoak.ts`)
+
+Extends Sprint 1's infrastructure with a soak/stress runner, latency
+drift analysis, memory-trend detection, an IndexedDB consistency
+manifest/diff, and Sprint 1 baseline comparison — plus a real-browser
+(Playwright/Chromium) UI soak. Also dev-only, not reachable from the
+production UI. Run it via:
+
+```bash
+npm run validate:collections:stress          # LARGE dataset, exact-count stress plan (~8 min)
+npm run validate:collections:soak:smoke      # 5-minute soak, MEDIUM dataset (verify instrumentation)
+npm run validate:collections:soak:30m        # 30-minute soak, LARGE dataset
+npm run validate:collections:soak:60m        # 60-minute soak, LARGE dataset
+npm run validate:collections:baseline-compare # quick SMALL-dataset baseline comparison
+npm run validate:collections:ui-soak         # real Chromium, 100 UI interaction cycles
+```
+
+None of these run as part of `npm test` — they are long, explicit
+commands. Reports land in `validation-results/collections/` (gitignored).
+See:
+
+- [`docs/portfolio/P2_5_SPRINT2_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_REPORT.md) — sprint report (30 sections).
+- [`docs/portfolio/P2_5_STRESS_REPORT.md`](../docs/portfolio/P2_5_STRESS_REPORT.md) / [`P2_5_SOAK_REPORT.md`](../docs/portfolio/P2_5_SOAK_REPORT.md) / [`P2_5_LATENCY_DRIFT.md`](../docs/portfolio/P2_5_LATENCY_DRIFT.md) / [`P2_5_MEMORY_REPORT.md`](../docs/portfolio/P2_5_MEMORY_REPORT.md) / [`P2_5_UI_SOAK_REPORT.md`](../docs/portfolio/P2_5_UI_SOAK_REPORT.md) / [`P2_5_BASELINE_COMPARISON.md`](../docs/portfolio/P2_5_BASELINE_COMPARISON.md).
+- [`docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT2_TEST_REPORT.md) — test coverage by category.
+
+### Portfolio Manager P2.5 Sprint 3 — Crash recovery and data integrity certification (`src/catalog/validation/recoveryEngine.ts` + `durabilityEngine.ts`, `scripts/validateRecovery.ts`, `scripts/browserRecovery.ts`)
+
+A domain-agnostic failure-injection engine (9 distinct injection points —
+before/during/aborted-transaction, rejected-promise, thrown-exception,
+after-commit, after-persistence, before-ui-refresh, validation-
+interruption) and a durability/idempotency engine, wired to all 9
+required Collection operations (create/rename/archive/unarchive/delete,
+bulk assign/remove, cover update, metadata update). Same monkey-patch-a-
+prototype-then-restore technique Sprint 2's `uiSoak.ts` used for
+`URL.createObjectURL` — never touches production source. Dev-only, not
+reachable from the production UI. Run it via:
+
+```bash
+npm run validate:recovery:matrix        # 81-scenario failure matrix (9 ops x 9 points)
+npm run validate:recovery:durability    # 900 repeated recovery cycles (100 per op)
+npm run validate:recovery:idempotency   # 6-op repeated-recovery stability check
+npm run validate:recovery:consistency   # before/after-failure/after-recovery/after-repeat manifest
+npm run validate:recovery:large         # LARGE dataset (100k/10k/500k+) recovery
+npm run validate:recovery:browser-cycle # real Chromium, 100 open/mutate/reload/reopen/validate cycles
+npm run validate:recovery:browser-crash # real Chromium, 5 real OS-process-kill crash trials
+```
+
+Real runs found and fixed one production defect — a bulk-write atomicity
+gap across 5 functions in `collectionStore.ts`/`portfolioStore.ts` (a
+mid-loop synchronous throw could leave already-queued writes silently
+auto-committed despite the caller observing failure) — then verified the
+fix across every scenario above: 81/81 matrix scenarios recovered clean,
+900/900 durability cycles durable and clean, 30/30 idempotency repeats
+stable, consistency manifests clean at every transition, 4/4 LARGE-scale
+scenarios recovered with zero new corruption, 100/100 real-browser cycles
+clean, and 5/5 real crash trials showed committed writes surviving a
+genuine `SIGKILL` with atomicity always held. None of these run as part
+of `npm test`. Reports land in `validation-results/collections/`
+(gitignored). See:
+
+- [`docs/portfolio/P2_5_SPRINT3_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_REPORT.md) — sprint report.
+- [`docs/portfolio/P2_5_RECOVERY_REPORT.md`](../docs/portfolio/P2_5_RECOVERY_REPORT.md) / [`P2_5_FAILURE_MATRIX.md`](../docs/portfolio/P2_5_FAILURE_MATRIX.md) / [`P2_5_DURABILITY_REPORT.md`](../docs/portfolio/P2_5_DURABILITY_REPORT.md) / [`P2_5_CONSISTENCY_REPORT.md`](../docs/portfolio/P2_5_CONSISTENCY_REPORT.md) / [`P2_5_BROWSER_RECOVERY.md`](../docs/portfolio/P2_5_BROWSER_RECOVERY.md).
+- [`docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md) — test coverage by category.
+
+### Portfolio Manager P2.5 Sprint 4 — Production certification and module freeze (`src/catalog/collectionApiFreeze.test.ts`)
+
+Certifies the Collection module using Sprints 1-3's completed evidence
+and freezes its public API surface — a certification/documentation
+stage, not a feature stage. No functional code changed. The frozen
+surface is `domain/collection.ts`, `domain/collectionMembership.ts`,
+`storage/collectionStore.ts`, and `services/collectionService.ts`;
+`src/catalog/validation/*` and `scripts/*` remain dev-only tooling and
+are explicitly **not** part of the frozen contract. Enforcement is
+automated:
+
+```bash
+npm test -- collectionApiFreeze   # runs as part of the normal suite, not a separate validate: script
+```
+
+The guard test snapshots every runtime export of the frozen modules
+against a fixed list — it fails if a future change silently adds,
+removes, or renames a public export. Type-only exports (interfaces) are
+guarded instead by `tsc -b`'s own structural checking against the 8 real
+UI components and Sprint 1-3's validation tooling that already consume
+them, plus a signature copy in the freeze doc for reviewers to diff
+against. See:
+
+- [`docs/portfolio/COLLECTION_API_FREEZE.md`](../docs/portfolio/COLLECTION_API_FREEZE.md) — the frozen contract, every signature, and the versioning policy.
+- [`docs/portfolio/COLLECTION_PRODUCTION_BASELINE.md`](../docs/portfolio/COLLECTION_PRODUCTION_BASELINE.md) — Sprint 1-3 evidence consolidated into one canonical reference.
+- [`docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md`](../docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md) — the certification decision, criteria checklist, and an explicit "what was NOT tested" scope boundary (multi-tab concurrency, non-Chromium browsers, scale beyond LARGE, storage-quota exhaustion, filesystem corruption).
+- [`docs/portfolio/COLLECTION_RELEASE_NOTES.md`](../docs/portfolio/COLLECTION_RELEASE_NOTES.md) — recommends (does not create) the release tag `portfolio-collections-v1.0.0`.
+
+No PR opened, nothing merged, no tag created, no Backup & Restore or CI
+wiring started this sprint — all deferred pending separate approval.

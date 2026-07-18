@@ -38,4 +38,10 @@ describe('illustrationTemplateForSpecies (Build 005, Section 5)', () => {
       expect(['bouquet', 'spray', 'branch']).toContain(template.id);
     }
   });
+
+  it('every template declares a real fillerLeafPart (Build 008B, Section 3: Commercial Bouquet Grammar)', () => {
+    for (const template of Object.values(ILLUSTRATION_TEMPLATES)) {
+      expect(template.fillerLeafPart).toBeTruthy();
+    }
+  });
 });

@@ -6,7 +6,11 @@ import { randomSeed, createRng } from './engine/rng';
 import { assignPortfolioDiversity } from './engine/portfolioVariety';
 import { HIERARCHY_PRESETS } from './engine/hierarchy';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
-import { buildTileWithHeroRetry } from './engine/heroDetector';
+import { buildTileForGenerate } from './engine/heroDetector';
+import { generateBatchToPortfolio, type BatchProductionResult } from './batch/batchProductionService';
+import { exportAssetsAsZip } from './batch/batchExportService';
+import { buildProductionItemFiles, buildProductionCsvBundle, buildProductionManifest } from './batch/productionBundleService';
+import { loadPortfolioAssets, portfolioStorageAvailable } from './catalog/storage/portfolioStore';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
@@ -51,6 +55,7 @@ import { ProjectPanel } from './components/ProjectPanel';
 import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
 import { DesignWorkbench } from './components/workbench/DesignWorkbench';
+import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -101,6 +106,34 @@ function App() {
   const [candidateProgress, setCandidateProgress] = useState<CandidateProgress | null>(null);
   const [candidateSummary, setCandidateSummary] = useState<{ total: number; valid: number; score: number; preset: QualityPresetId } | null>(null);
   const [collectionStatus, setCollectionStatus] = useState<'idle' | 'building' | 'done'>('idle');
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate): a separate
+  // batch-count + status/result pair from the pre-existing "Generate 9
+  // Variations" flow above (which stays untouched) — this one saves
+  // straight into the Portfolio catalog (IndexedDB) instead of the
+  // ephemeral, 24-item-capped `gallery`, since 50-100 freshly generated
+  // patterns would blow past that cap. `batchProductionResult` also
+  // carries the imported asset ids so "Download Batch ZIP" knows exactly
+  // which assets belong to the run that just finished.
+  const [batchProductionCount, setBatchProductionCount] = useState<number>(20);
+  const [batchProductionStatus, setBatchProductionStatus] = useState<'idle' | 'running' | 'done'>('idle');
+  const [batchProductionResult, setBatchProductionResult] = useState<BatchProductionResult | null>(null);
+  // Build 021 ("Production Ready"): verification found Batch Generate to
+  // Portfolio only ever wrote SVG+JSON per item (no EPS/PNG/SEO CSV), and
+  // getting a complete sellable file set required a completely separate,
+  // single-pattern-at-a-time flow (the Saved library's "ย้ายทั้งคลังลง
+  // เครื่อง") not connected to batch-generated patterns at all -- no
+  // single click produced Generate -> SVG+EPS+PNG+SEO CSV -> ZIP for a
+  // whole batch. Production Mode closes that gap: same count selector,
+  // reuses `batchProductionCount`, own status/result so it doesn't
+  // interfere with the pre-existing "Batch Generate to Portfolio" button.
+  const [productionModeStatus, setProductionModeStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [productionModeResult, setProductionModeResult] = useState<{
+    itemCount: number;
+    importedCount: number;
+    possibleDuplicateCount: number;
+    blockedDuplicateCount: number;
+    errorCount: number;
+  } | null>(null);
   // Tracks *which pattern's seed* the last successfully-generated Collection
   // belongs to (not just a generic building/done flag) — the Stock
   // Submission Center's "Collection Ready" checklist item compares this
@@ -119,7 +152,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -172,7 +205,13 @@ function App() {
     // Build 003, Part 11 (Hero Detector): analyzes the real Hero
     // Visibility Score right after generation and regenerates from a
     // derived sub-seed if it's poor — see engine/heroDetector.ts.
-    const next = buildTileWithHeroRetry(params).tileData;
+    // Build 007, Section 7 (Commercial Composition Review): a botanical
+    // generation additionally gets the broader Pattern Beauty Score check
+    // (bouquet balance/silhouette/negative space/rhythm/repetition/
+    // commercial appeal) -- scoped to `botanical` specifically since that's
+    // this build's own mandate, rather than changing retry behavior for
+    // every other category no one asked to revisit.
+    const next = buildTileForGenerate(params).tileData;
     setTileData(next);
     const item: GalleryItem = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, tileData: next, createdAt: Date.now() };
     setGallery((prev) => [item, ...prev].slice(0, GALLERY_LIMIT));
@@ -227,9 +266,16 @@ function App() {
         botanicalFamily: batch[i].botanicalFamily,
         clusterArchetypes: [batch[i].clusterType],
         hierarchy: HIERARCHY_PRESETS[batch[i].heroStructure].value,
+        // Build 011, Section 5 (Silhouette Intelligence): forces this
+        // variant's own premium hero (when one gets built) toward the
+        // batch's shuffled-bag silhouette pick instead of an independent
+        // random roll, so a 9-item batch doesn't visibly repeat the same
+        // hero arrangement back-to-back.
+        heroArchetype: batch[i].heroSilhouette,
       };
-      // Build 003, Part 11 (Hero Detector): see handleGenerate above.
-      const data = buildTileWithHeroRetry(variantParams).tileData;
+      // Build 003, Part 11 (Hero Detector) / Build 007, Section 7
+      // (Commercial Composition Review): see handleGenerate above.
+      const data = buildTileForGenerate(variantParams).tileData;
       latest = data;
       items.push({ id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`, tileData: data, createdAt: Date.now() });
     }
@@ -239,6 +285,40 @@ function App() {
     setSelectedId(items[items.length - 1].id);
     setCandidateSummary(null);
   }, [params, tileData]);
+
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate; Priority 2 —
+  // Portfolio Diversity; Priority 5 — Duplicate Detection). Reuses the
+  // exact same Style DNA resolution `handleGenerateBatch` above already
+  // does, then hands off to `batch/batchProductionService.ts`'s
+  // `generateBatchToPortfolio` — which reuses `assignPortfolioDiversity`,
+  // `buildTileForGenerate`, and the existing Portfolio import pipeline's
+  // own duplicate detection, so this handler introduces no new scoring,
+  // diversity, or duplicate-detection logic of its own.
+  const handleGenerateBatchToPortfolio = useCallback(async () => {
+    if (!portfolioStorageAvailable()) {
+      window.alert('Batch Generate to Portfolio requires a browser with IndexedDB support, which is not available here.');
+      return;
+    }
+    setBatchProductionStatus('running');
+    const activeDna = params.styleDnaId
+      ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+      : undefined;
+    const existingAssets = await loadPortfolioAssets();
+    const result = await generateBatchToPortfolio({ count: batchProductionCount, params, activeDna, existingAssets });
+    setBatchProductionResult(result);
+    setBatchProductionStatus('done');
+  }, [params, batchProductionCount]);
+
+  const handleDownloadBatchZip = useCallback(async () => {
+    if (!batchProductionResult) return;
+    const importedIds = batchProductionResult.items
+      .filter((item) => item.outcome.status === 'imported')
+      .map((item) => (item.outcome.status === 'imported' ? item.outcome.asset.assetId : ''))
+      .filter(Boolean);
+    if (importedIds.length === 0) return;
+    const { blob, filename } = await exportAssetsAsZip(importedIds, `batch-${new Date().toISOString().slice(0, 10)}`);
+    downloadBlobFile(filename, blob);
+  }, [batchProductionResult]);
 
   // Composition Candidate Engine: build a deterministic pool of candidate
   // tiles from the current seed+settings (same seed+settings+mode always
@@ -444,6 +524,80 @@ function App() {
       img.src = url;
     });
   }, []);
+
+  // Build 021 ("Production Ready") — one-click "Production Mode": reuses
+  // `generateBatchToPortfolio` in full (same diversity assignment, same
+  // quality-retry gate, same duplicate-detection/import pipeline every
+  // other batch/portfolio flow already goes through -- zero new
+  // generation or dedup logic), then, for exactly the items that cleared
+  // import (`outcome.status === 'imported'`, the same filter
+  // `handleDownloadBatchZip` already uses), builds the complete sellable
+  // file set that flow never produced: SVG + EPS (`productionBundleService.ts`,
+  // pure, reused unmodified) + a PNG preview (`rasterizeSvgToPngBlob`
+  // above, the same rasterizer the Collection Generator already uses) +
+  // the raw params JSON (matching Batch-to-Portfolio's own convention)
+  // per item, plus one combined Shutterstock CSV and one combined Adobe
+  // Stock CSV for the whole run (`metadata/csv.ts`, unmodified) -- then
+  // zips and downloads everything in the same click.
+  const handleGenerateProductionBatch = useCallback(async () => {
+    if (!portfolioStorageAvailable()) {
+      window.alert('Production Mode requires a browser with IndexedDB support, which is not available here.');
+      return;
+    }
+    setProductionModeStatus('running');
+    try {
+      const activeDna = params.styleDnaId
+        ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+        : undefined;
+      const existingAssets = await loadPortfolioAssets();
+      const result = await generateBatchToPortfolio({ count: batchProductionCount, params, activeDna, existingAssets });
+      const importedItems = result.items.filter((item) => item.outcome.status === 'imported');
+
+      const enc = new TextEncoder();
+      const entries: ZipEntry[] = [];
+      for (let i = 0; i < importedItems.length; i++) {
+        const item = importedItems[i];
+        const source = { tileData: item.tileData, variantParams: item.variantParams };
+        const files = buildProductionItemFiles(source);
+        const folder = `${String(i + 1).padStart(3, '0')}-${files.baseName}`;
+        entries.push(
+          { name: `${folder}/${files.baseName}.svg`, data: enc.encode(files.svg) },
+          { name: `${folder}/${files.baseName}.eps`, data: enc.encode(files.eps) },
+          { name: `${folder}/${files.baseName}.json`, data: enc.encode(JSON.stringify(item.variantParams)) },
+        );
+        const png = await rasterizeSvgToPngBlob(files.svg, 2000);
+        if (png) entries.push({ name: `${folder}/${files.baseName}.png`, data: new Uint8Array(await png.arrayBuffer()) });
+      }
+
+      const sources = importedItems.map((item) => ({ tileData: item.tileData, variantParams: item.variantParams }));
+      const { shutterstockCsv, adobeStockCsv } = buildProductionCsvBundle(sources);
+      const manifest = buildProductionManifest(
+        importedItems.map((item) => ({ source: { tileData: item.tileData, variantParams: item.variantParams }, attempts: item.attempts, regenerated: item.regenerated, status: item.outcome.status })),
+      );
+      entries.push(
+        { name: 'shutterstock-metadata.csv', data: enc.encode(shutterstockCsv) },
+        { name: 'adobestock-metadata.csv', data: enc.encode(adobeStockCsv) },
+        { name: 'production-manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2)) },
+      );
+
+      if (entries.length > 0) {
+        const date = new Date().toISOString().slice(0, 10);
+        downloadBlobFile(`production-batch-${date}.zip`, buildZip(entries));
+      }
+
+      setProductionModeResult({
+        itemCount: importedItems.length,
+        importedCount: result.importedCount,
+        possibleDuplicateCount: result.possibleDuplicateCount,
+        blockedDuplicateCount: result.blockedDuplicateCount,
+        errorCount: result.errorCount,
+      });
+      setProductionModeStatus('done');
+    } catch (err) {
+      console.error('Production Mode failed:', err);
+      setProductionModeStatus('error');
+    }
+  }, [params, batchProductionCount, rasterizeSvgToPngBlob]);
 
   const buildAndDownloadCollectionZip = useCallback(async (collection: GeneratedCollection) => {
     const { manifest, assets } = collection;
@@ -935,8 +1089,11 @@ function App() {
         onCreate={handleCreateProject}
         onOpenDashboard={() => setView('dashboard')}
         onOpenTrendStudio={() => setView('trendStudio')}
+        onOpenPortfolioManager={() => setView('portfolio')}
       />
-      {view === 'trendStudio' ? (
+      {view === 'portfolio' ? (
+        <PortfolioManagerView onClose={() => setView('editor')} />
+      ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
           onDownloadPackage={handleDownloadDesignSpecPackage}
@@ -971,6 +1128,15 @@ function App() {
           onGenerate={handleGenerate}
           onRandomizeAll={handleRandomizeAll}
           onGenerateBatch={handleGenerateBatch}
+          batchProductionCount={batchProductionCount}
+          onBatchProductionCountChange={setBatchProductionCount}
+          onGenerateBatchToPortfolio={handleGenerateBatchToPortfolio}
+          batchProductionStatus={batchProductionStatus}
+          batchProductionResult={batchProductionResult}
+          onDownloadBatchZip={handleDownloadBatchZip}
+          onGenerateProductionBatch={handleGenerateProductionBatch}
+          productionModeStatus={productionModeStatus}
+          productionModeResult={productionModeResult}
           qualityMode={qualityMode}
           onQualityModeChange={setQualityMode}
           qualityPresetId={qualityPresetId}

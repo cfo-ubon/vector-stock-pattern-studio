@@ -1,0 +1,41 @@
+{
+  "id": "fern",
+  "label": "Fern",
+  "botanicalFamilyName": "Polypodiaceae",
+  "silhouette": "clustered",
+  "growthPreset": "fern",
+  "stemLengthScale": 0.9,
+  "leafDensityScale": 1.4,
+  "bouquetRole": "foliageOnly",
+  "flowerDiameterClass": "none",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "none",
+  "petalOverlap": "none",
+  "petalSilhouette": "none",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "thin",
+  "branchingTendency": "branching",
+  "leafType": "frond",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "green"
+  ],
+  "premiumScore": 58,
+  "eleganceScore": 70,
+  "commercialPopularity": 65,
+  "companions": [],
+  "usageProfiles": [
+    "vintage",
+    "minimal",
+    "scandinavian"
+  ]
+}

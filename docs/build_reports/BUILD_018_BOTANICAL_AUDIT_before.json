@@ -1,0 +1,138 @@
+{
+  "label": "before",
+  "sampleSize": 60,
+  "scored": 60,
+  "overall": {
+    "n": 60,
+    "mean": 68.43,
+    "median": 69,
+    "p10": 64,
+    "p90": 71,
+    "min": 62,
+    "max": 73,
+    "failureRate": 0
+  },
+  "dimensions": {
+    "botanicalRealism": {
+      "label": "Botanical Realism",
+      "n": 60,
+      "mean": 31.32,
+      "median": 28,
+      "p10": 21,
+      "p90": 42,
+      "min": 19,
+      "max": 47,
+      "failureRate": 100
+    },
+    "flowerHierarchy": {
+      "label": "Flower Hierarchy",
+      "n": 60,
+      "mean": 89.92,
+      "median": 100,
+      "p10": 61,
+      "p90": 100,
+      "min": 53,
+      "max": 100,
+      "failureRate": 0
+    },
+    "leafDiversity": {
+      "label": "Leaf Diversity",
+      "n": 60,
+      "mean": 94.8,
+      "median": 100,
+      "p10": 84,
+      "p90": 100,
+      "min": 78,
+      "max": 100,
+      "failureRate": 0
+    },
+    "naturalGrowth": {
+      "label": "Natural Growth",
+      "n": 60,
+      "mean": 70.65,
+      "median": 71,
+      "p10": 68,
+      "p90": 73,
+      "min": 65,
+      "max": 75,
+      "failureRate": 0
+    },
+    "clusterHarmony": {
+      "label": "Cluster Harmony",
+      "n": 60,
+      "mean": 100,
+      "median": 100,
+      "p10": 100,
+      "p90": 100,
+      "min": 100,
+      "max": 100,
+      "failureRate": 0
+    },
+    "organicFlow": {
+      "label": "Organic Flow",
+      "n": 60,
+      "mean": 40.98,
+      "median": 38,
+      "p10": 30,
+      "p90": 50,
+      "min": 29,
+      "max": 50,
+      "failureRate": 58.33
+    },
+    "silhouetteBeauty": {
+      "label": "Silhouette Beauty",
+      "n": 60,
+      "mean": 87.45,
+      "median": 100,
+      "p10": 50,
+      "p90": 100,
+      "min": 17,
+      "max": 100,
+      "failureRate": 6.67
+    },
+    "luxuryFeeling": {
+      "label": "Luxury Feeling",
+      "n": 60,
+      "mean": 58.55,
+      "median": 58,
+      "p10": 53,
+      "p90": 64,
+      "min": 47,
+      "max": 75,
+      "failureRate": 3.33
+    },
+    "commercialAppeal": {
+      "label": "Commercial Appeal",
+      "n": 60,
+      "mean": 48.92,
+      "median": 48,
+      "p10": 31,
+      "p90": 63,
+      "min": 30,
+      "max": 64,
+      "failureRate": 70
+    },
+    "botanicalComplexity": {
+      "label": "Botanical Complexity",
+      "n": 60,
+      "mean": 44.35,
+      "median": 40,
+      "p10": 36,
+      "p90": 55,
+      "min": 34,
+      "max": 86,
+      "failureRate": 78.33
+    },
+    "assetHarmony": {
+      "label": "Asset Harmony",
+      "n": 60,
+      "mean": 85,
+      "median": 85,
+      "p10": 85,
+      "p90": 85,
+      "min": 85,
+      "max": 85,
+      "failureRate": 0
+    }
+  }
+}

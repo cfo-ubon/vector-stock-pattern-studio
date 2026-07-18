@@ -3,6 +3,7 @@ import { COMPOSITION_ZONES, type CompositionZone } from './compositionZones';
 import { CLUSTER_ARCHETYPES, type ClusterArchetype } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
 import { BOTANICAL_FAMILIES, type BotanicalFamily } from '../generators/botanicalFamilies';
+import { HERO_ARCHETYPE_POOL } from '../generators/premiumHero';
 import { LAYOUT_LIST } from '../layouts';
 import type { FlowProfile, ColorStrategy, BackgroundStrategy } from './styleDna';
 
@@ -120,6 +121,15 @@ export interface PortfolioDiversityAssignment {
   colorHarmony: ColorStrategy;
   /** "Layout Skeleton": the whole-tile repeat strategy itself. */
   layoutSkeleton: LayoutId;
+  /** Build 011, Section 5 (Silhouette Intelligence): which premium hero
+   * internal arrangement archetype (`PremiumHeroOptions.archetype`,
+   * `generators/premiumHero.ts`) a batch item forces via the new
+   * `GenerateParams.heroArchetype` field (`engine/types.ts`) — a
+   * shuffled-bag spread across `HERO_ARCHETYPE_POOL` instead of each
+   * item's premium hero rolling `resolveHeroArchetype` independently,
+   * so a batch of many hero-bearing tiles doesn't visibly repeat the
+   * same hero silhouette back-to-back. */
+  heroSilhouette: ClusterArchetype;
 }
 
 export interface PortfolioDiversityCandidates {
@@ -131,6 +141,7 @@ export interface PortfolioDiversityCandidates {
   compositionZones?: CompositionZone[];
   colorHarmonies?: ColorStrategy[];
   layoutSkeletons?: LayoutId[];
+  heroSilhouettes?: ClusterArchetype[];
 }
 
 const DEFAULT_FLOW_PROFILES: FlowProfile[] = ['calm', 'directional', 'dynamic'];
@@ -161,6 +172,7 @@ export function assignPortfolioDiversity(rng: Rng, count: number, candidates: Po
   const compositionZone = assignBatchValues(rng, count, candidates.compositionZones?.length ? candidates.compositionZones : COMPOSITION_ZONES);
   const colorHarmony = assignBatchValues(rng, count, candidates.colorHarmonies?.length ? candidates.colorHarmonies : DEFAULT_COLOR_STRATEGIES);
   const layoutSkeleton = assignBatchValues(rng, count, candidates.layoutSkeletons?.length ? candidates.layoutSkeletons : DEFAULT_LAYOUT_SKELETONS);
+  const heroSilhouette = assignBatchValues(rng, count, candidates.heroSilhouettes?.length ? candidates.heroSilhouettes : HERO_ARCHETYPE_POOL);
 
   const out: PortfolioDiversityAssignment[] = [];
   for (let i = 0; i < count; i++) {
@@ -173,6 +185,7 @@ export function assignPortfolioDiversity(rng: Rng, count: number, candidates: Po
       compositionZone: compositionZone[i],
       colorHarmony: colorHarmony[i],
       layoutSkeleton: layoutSkeleton[i],
+      heroSilhouette: heroSilhouette[i],
     });
   }
   return out;

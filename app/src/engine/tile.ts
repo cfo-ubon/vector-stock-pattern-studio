@@ -11,6 +11,18 @@ import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
 import { applyHeroDetailOverlay } from './heroComplexity';
 import { countNodes } from './svgGeometry';
 import { buildPremiumHero } from '../generators/premiumHero';
+import {
+  resolveNegativeSpaceForProduct,
+  applyProductSpacingStrategy,
+  resolveCompositionZoneForProduct,
+  resolveDepthStrengthForProduct,
+  resolvePremiumRhythmForProduct,
+  resolveProfessionalRulesForProduct,
+  resolveArtisticBalanceForProduct,
+} from './negativeSpaceDesigner';
+import { speciesForProductTarget } from '../generators/botanicalFamilies';
+import { applyDepthColorShift } from './depthEngine';
+import { computePaletteEnergy, computeDominantAccentIndex } from './colorAnalysis';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -205,7 +217,13 @@ export function buildTile(params: GenerateParams): TileData {
   const useStory = (params.colorStory ?? true) && accentsAll.length > 2;
   let storyColors = colors;
   if (useStory) {
-    const i1 = Math.floor(rng() * accentsAll.length);
+    // Build 011, Section 3 (Color Harmony Intelligence): `colorHarmonyBias`
+    // replaces the first accent's uniformly random roll with the palette's
+    // own real, computed dominant hue (`computeDominantAccentIndex`) --
+    // consumes one fewer rng() draw than the default path, but only within
+    // this already-gated branch, so a disabled/undefined `colorHarmonyBias`
+    // reproduces the exact prior 2-draw sequence unchanged.
+    const i1 = params.colorHarmonyBias ? computeDominantAccentIndex(colors) : Math.floor(rng() * accentsAll.length);
     let i2 = Math.floor(rng() * accentsAll.length);
     if (i2 === i1) i2 = (i2 + 1) % accentsAll.length;
     storyColors = [colors[0], accentsAll[i1], accentsAll[i2]];
@@ -223,8 +241,34 @@ export function buildTile(params: GenerateParams): TileData {
   // math individually. Both default to 0, so effectiveDensity ===
   // params.density exactly when neither is set — zero behavior change for
   // every pattern saved before these controls existed.
-  const spacingAdjust = (params.overlapAmount ?? 0) - (params.negativeSpace ?? 0);
+  // Build 006, Section 5 (Negative Space Designer): resolves the real
+  // per-product nudge on top of the user's own `negativeSpace` dial before
+  // it enters the existing spacing-adjust pipeline -- `productTarget`
+  // undefined reproduces `params.negativeSpace` exactly (see
+  // `resolveNegativeSpaceForProduct`'s own doc comment).
+  const effectiveNegativeSpace = resolveNegativeSpaceForProduct(params.negativeSpace ?? 0, params.productTarget);
+  const spacingAdjust = (params.overlapAmount ?? 0) - effectiveNegativeSpace;
   const effectiveDensity = Math.max(0, Math.min(1, params.density + spacingAdjust * 0.4));
+
+  // Build 008B, Section 8 (Product-aware Species Selection): a real
+  // `productTarget` (collection/productTargets.ts) with no Style DNA
+  // family already resolved falls back to that product's own best-fit
+  // species (see `speciesForProductTarget`'s own doc comment) instead of
+  // leaving `botanicalFamily` unset -- never overrides an explicit
+  // style/user family choice, and `productTarget` undefined reproduces
+  // `params.botanicalFamily` exactly.
+  const effectiveBotanicalFamily =
+    params.botanicalFamily ?? (params.productTarget ? speciesForProductTarget(params.productTarget)[0] : undefined);
+
+  // Build 009, Section 8 (Product-aware Composition): a real `productTarget`
+  // with no Style-DNA-resolved `compositionZone` of its own falls back to
+  // that product's own best-fit composition zone (see
+  // `resolveCompositionZoneForProduct`'s own doc comment) -- the same
+  // "product's own best fit, only when nothing more specific already chose"
+  // convention as `effectiveBotanicalFamily` just above. Never overrides an
+  // explicit Style DNA zone choice, and `productTarget` undefined reproduces
+  // `params.compositionZone` exactly.
+  const effectiveCompositionZone = params.compositionZone ?? resolveCompositionZoneForProduct(params.productTarget);
 
   const placements: Placement[] = layout.generate(
     {
@@ -236,7 +280,7 @@ export function buildTile(params: GenerateParams): TileData {
       mirror: params.mirror,
       radialSymmetry: params.radialSymmetry,
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
-      preferredZone: params.compositionZone,
+      preferredZone: effectiveCompositionZone,
       preferredClusterArchetypes: params.clusterArchetypes,
     },
     rng,
@@ -249,9 +293,18 @@ export function buildTile(params: GenerateParams): TileData {
   // already-large hero motif by heroScale a second time. Undefined
   // params.hierarchy (the default for every pre-existing saved pattern)
   // means this is a no-op and `placements` passes through unchanged.
+  // Build 010, Section 7 (Product-aware Composition Engine): a product's
+  // own Premium Rhythm Engine preference only takes effect when hierarchy
+  // is already configured (see `resolvePremiumRhythmForProduct`'s own doc
+  // comment) -- it never turns hierarchy on by itself, and an explicit
+  // `hierarchy.premiumRhythm` always wins over the product fallback.
+  const effectiveHierarchy =
+    params.hierarchy && params.hierarchy.premiumRhythm === undefined
+      ? { ...params.hierarchy, premiumRhythm: resolvePremiumRhythmForProduct(params.productTarget) }
+      : params.hierarchy;
   const roledPlacements =
-    params.hierarchy && !HIERARCHY_EXEMPT_LAYOUTS.has(params.layoutId)
-      ? applyHierarchy(placements, params.hierarchy, rng)
+    effectiveHierarchy && !HIERARCHY_EXEMPT_LAYOUTS.has(params.layoutId)
+      ? applyHierarchy(placements, effectiveHierarchy, rng)
       : placements;
 
   // Composition Intelligence Engine: a deterministic geometry-only pass
@@ -266,12 +319,35 @@ export function buildTile(params: GenerateParams): TileData {
   // Minimal) the "flaw" they'd correct is the deliberate point of the
   // layout, so only the original V1 fields (balance/rhythm, neither of
   // which ever fired on a genuinely regular grid) apply there.
-  const effectiveCompositionIntelligence =
+  const latticeTrimmedCompositionIntelligence =
     params.compositionIntelligence && REGULAR_LATTICE_LAYOUTS.has(params.layoutId)
       ? { balanceStrength: params.compositionIntelligence.balanceStrength, rhythmStrength: params.compositionIntelligence.rhythmStrength }
       : params.compositionIntelligence;
+  // Build 009, Section 3 (Negative Space Designer V2): the same real
+  // per-product rhythm/cluster-looseness strategy `resolveNegativeSpaceForProduct`
+  // already nudges spacing with -- `productTarget` undefined is a strict
+  // no-op (see `applyProductSpacingStrategy`'s own doc comment).
+  const effectiveCompositionIntelligence = applyProductSpacingStrategy(latticeTrimmedCompositionIntelligence, params.productTarget);
+  // Build 011, Section 2 (Luxury Negative Space Engine): a product's own
+  // Artistic Balance Engine preference only fills in when the caller never
+  // set `artisticBalance` explicitly, and only for layouts where
+  // Composition Intelligence V2 is actually active (REGULAR_LATTICE_LAYOUTS
+  // already stripped this field out above -- a lattice layout's own opt-out
+  // of V2 must not be silently reintroduced by a product fallback).
+  const withArtisticBalanceFallback =
+    effectiveCompositionIntelligence && effectiveCompositionIntelligence.artisticBalance === undefined && !REGULAR_LATTICE_LAYOUTS.has(params.layoutId)
+      ? { ...effectiveCompositionIntelligence, artisticBalance: resolveArtisticBalanceForProduct(params.productTarget) }
+      : effectiveCompositionIntelligence;
+  // Build 011, Section 1 (Artistic Balance Engine): supplies the tile's own
+  // real, measured palette energy (from the actual resolved `colors`, never
+  // invented) only when `artisticBalance` was actually requested -- every
+  // other tile leaves `paletteEnergy` undefined, matching the strict no-op
+  // `artisticBalance` itself already guarantees.
+  const withPaletteEnergy = withArtisticBalanceFallback?.artisticBalance
+    ? { ...withArtisticBalanceFallback, paletteEnergy: computePaletteEnergy(colors) }
+    : withArtisticBalanceFallback;
   const refinedPlacements = params.compositionIntelligence
-    ? applyCompositionIntelligence(roledPlacements, tileSize, effectiveCompositionIntelligence)
+    ? applyCompositionIntelligence(roledPlacements, tileSize, withPaletteEnergy)
     : roledPlacements;
 
   // Layer Priority (Composition Intelligence Foundation V2, Section 2): a
@@ -313,12 +389,28 @@ export function buildTile(params: GenerateParams): TileData {
   // before this feature existed.
   const MAX_PREMIUM_HEROES_PER_TILE = 3;
   let premiumHeroesBuilt = 0;
+  // Build 009, Section 6 (Silhouette Optimization): collects the real
+  // internal archetype of every premium hero this tile actually builds
+  // (see `Motif.heroArchetype`'s own doc comment) -- stays empty for any
+  // tile with no premium heroes.
+  const premiumHeroArchetypesUsed: string[] = [];
 
   const motifGroups: SvgNode[] = paintOrderedPlacements.map((placement, index) => {
     const generator = activeGenerators.length > 1 ? rngPick(rng, activeGenerators) : activeGenerators[0];
     // Field patterns always get the stable story palette; everything else
     // leans dominant ~72% of the time with full-palette pops in between.
-    const motifColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
+    const storyOrDefaultColors = !useStory ? colors : isFieldPattern ? storyColors : rng() < 0.72 ? storyColors : colors;
+    // Build 010, Section 3 (Multi-layer Depth Engine): a real background-
+    // receding color shift for filler/accent roles only — see
+    // engine/depthEngine.ts's own doc comment. `params.depthStrength`
+    // undefined/0 is a strict no-op (same array reference), so every
+    // pattern that doesn't opt in keeps its exact original motif colors.
+    // Build 010, Section 7 (Product-aware Composition Engine): a product's
+    // own depth-strength preference only fills in when the caller never set
+    // one explicitly -- see `resolveDepthStrengthForProduct`'s own doc
+    // comment.
+    const effectiveDepthStrength = params.depthStrength ?? resolveDepthStrengthForProduct(params.productTarget) ?? 0;
+    const motifColors = applyDepthColorShift(storyOrDefaultColors, placement.role, effectiveDepthStrength);
     // Build 004, Section 1: threads the placement's real hierarchy role into
     // createMotif so a botanical-aware generator can pick a role-appropriate
     // shape (Section 2+) instead of a flat random pick — every other
@@ -333,9 +425,28 @@ export function buildTile(params: GenerateParams): TileData {
     const usePremiumHero =
       !!params.premiumHero && placement.role === 'hero' && generator.id === 'botanical' && premiumHeroesBuilt < MAX_PREMIUM_HEROES_PER_TILE;
     if (usePremiumHero) premiumHeroesBuilt++;
+    // Build 010, Section 7: a product's own Professional Illustrator Rules
+    // preference reaches the premium hero's own member-count/tangent
+    // resolution only where that hero is already being built (see
+    // `resolveProfessionalRulesForProduct`'s own doc comment).
     const motif = usePremiumHero
-      ? buildPremiumHero(rng, { colors: motifColors, size: effectiveMotifSize, family: params.botanicalFamily, designRules: params.designRules })
-      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: params.botanicalFamily });
+      ? buildPremiumHero(rng, {
+          colors: motifColors,
+          size: effectiveMotifSize,
+          family: effectiveBotanicalFamily,
+          designRules: params.designRules,
+          preferOddCount: params.professionalRules ?? resolveProfessionalRulesForProduct(params.productTarget),
+          // Build 011, Section 5 (Silhouette Intelligence): a batch-level
+          // caller (see `assignPortfolioDiversity`'s `heroSilhouette`
+          // dimension, `engine/portfolioVariety.ts`) can force a specific
+          // archetype here instead of leaving `resolveHeroArchetype`'s
+          // weighted roll unconstrained, to guarantee a shuffled-bag spread
+          // of hero silhouettes across many generations. Undefined leaves
+          // the roll exactly as before this field existed.
+          archetype: params.heroArchetype,
+        })
+      : generator.createMotif(rng, motifColors, effectiveMotifSize, placement.colorSeed, { role: placement.role, family: effectiveBotanicalFamily });
+    if (motif.heroArchetype) premiumHeroArchetypesUsed.push(motif.heroArchetype);
     // Never trust the generator's hand-estimated radius alone — a motif
     // with an off-center appendage (an ear, a ray, a curling leaf) is easy
     // to under-measure by hand, and an underestimate here means a missing
@@ -354,7 +465,14 @@ export function buildTile(params: GenerateParams): TileData {
     // internally, so it isn't run through this a second time.
     const detailedNode = usePremiumHero ? motif.node : applyHeroDetailOverlay(
       motif.node,
-      { role: placement.role, radius: safeRadius, colors: motifColors, instanceCount: paintOrderedPlacements.length, relativeScale: placement.scale },
+      {
+        role: placement.role,
+        radius: safeRadius,
+        colors: motifColors,
+        instanceCount: paintOrderedPlacements.length,
+        relativeScale: placement.scale,
+        detailDistribution: params.detailDistribution,
+      },
       rng,
     );
     // The shadow copy extends the reach of a placement — include its
@@ -499,5 +617,11 @@ export function buildTile(params: GenerateParams): TileData {
     h('g', { id: 'layer-pattern', 'clip-path': 'url(#tile-clip)' }, patternLayers),
   ]);
 
-  return { params, backgroundColor, colors, svg: content };
+  return {
+    params,
+    backgroundColor,
+    colors,
+    svg: content,
+    premiumHeroArchetypes: premiumHeroArchetypesUsed.length > 0 ? premiumHeroArchetypesUsed : undefined,
+  };
 }

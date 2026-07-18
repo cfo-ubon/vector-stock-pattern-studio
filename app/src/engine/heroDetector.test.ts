@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { defaultParams } from './defaults';
 import { computeMetrics, computeHeroVisibilityScore } from './scoring';
+import { computePatternBeautyScore } from './patternBeautyScore';
 import { buildTile } from './tile';
-import { buildTileWithHeroRetry } from './heroDetector';
+import { buildTileWithHeroRetry, buildTileWithCommercialRetry } from './heroDetector';
 
 describe('buildTileWithHeroRetry (Build 003, Part 11)', () => {
   it('is deterministic for the same seed', () => {
@@ -68,5 +69,59 @@ describe('buildTileWithHeroRetry (Build 003, Part 11)', () => {
     // tiers) shouldn't ever crash the retry loop even if it can't improve.
     const params = { ...defaultParams(), layoutId: 'bouquet' as const, seed: 'hero-retry-no-improve' };
     expect(() => buildTileWithHeroRetry(params)).not.toThrow();
+  });
+});
+
+describe('buildTileWithCommercialRetry (Build 007, Section 7)', () => {
+  it('is deterministic for the same seed', () => {
+    const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: 'commercial-retry-determinism' };
+    const a = buildTileWithCommercialRetry(params);
+    const b = buildTileWithCommercialRetry(params);
+    expect(a.patternBeautyScore).toBe(b.patternBeautyScore);
+    expect(a.heroVisibilityScore).toBe(b.heroVisibilityScore);
+    expect(a.attempts).toBe(b.attempts);
+  });
+
+  it('never returns a lower Pattern Beauty Score than the plain first attempt', () => {
+    for (let i = 0; i < 15; i++) {
+      const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: `commercial-retry-floor-${i}` };
+      const plain = buildTile(params);
+      const plainScore = computePatternBeautyScore(computeMetrics(plain)).overall;
+      const result = buildTileWithCommercialRetry(params);
+      expect(result.patternBeautyScore).toBeGreaterThanOrEqual(plainScore - 1e-9);
+    }
+  });
+
+  it('never exceeds maxAttempts', () => {
+    for (let i = 0; i < 10; i++) {
+      const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: `commercial-retry-bound-${i}` };
+      const result = buildTileWithCommercialRetry(params, 3);
+      expect(result.attempts).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it('respects a custom maxAttempts', () => {
+    const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: 'commercial-retry-custom-max' };
+    const result = buildTileWithCommercialRetry(params, 1);
+    expect(result.attempts).toBe(1);
+  });
+
+  it('returns a tileData that matches the reported best Pattern Beauty Score', () => {
+    const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: 'commercial-retry-consistency' };
+    const result = buildTileWithCommercialRetry(params);
+    const recomputed = computePatternBeautyScore(computeMetrics(result.tileData)).overall;
+    expect(recomputed).toBeCloseTo(result.patternBeautyScore, 6);
+  });
+
+  it('exposes the winning attempt\'s own metrics, matching a fresh computeMetrics call', () => {
+    const params = { ...defaultParams(), categoryId: 'botanical' as const, seed: 'commercial-retry-metrics-exposed' };
+    const result = buildTileWithCommercialRetry(params);
+    const recomputed = computeMetrics(result.tileData);
+    expect(result.metrics).toEqual(recomputed);
+  });
+
+  it('produces a valid, renderable tile even when it never clears both thresholds', () => {
+    const params = { ...defaultParams(), categoryId: 'botanical' as const, layoutId: 'bouquet' as const, seed: 'commercial-retry-no-improve' };
+    expect(() => buildTileWithCommercialRetry(params)).not.toThrow();
   });
 });

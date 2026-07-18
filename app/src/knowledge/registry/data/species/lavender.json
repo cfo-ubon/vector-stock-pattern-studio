@@ -1,0 +1,62 @@
+{
+  "id": "lavender",
+  "label": "Lavender",
+  "botanicalFamilyName": "Lamiaceae",
+  "silhouette": "spiky",
+  "growthPreset": "herbWhorl",
+  "stemLengthScale": 1.15,
+  "leafDensityScale": 0.6,
+  "bouquetRole": "filler",
+  "flowerDiameterClass": "small",
+  "bloomStageRange": [
+    0.7,
+    1
+  ],
+  "petalCountRange": [
+    4,
+    6
+  ],
+  "petalArrangement": "spike",
+  "petalOverlap": "slight",
+  "petalSilhouette": "trumpet",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "none",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "shrubby",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "purple",
+    "lavender"
+  ],
+  "premiumScore": 60,
+  "eleganceScore": 75,
+  "commercialPopularity": 72,
+  "companions": [
+    {
+      "family": "olive",
+      "role": "foliage",
+      "strength": 0.7,
+      "spatialRelationship": "trailing"
+    },
+    {
+      "family": "herb",
+      "role": "foliage",
+      "strength": 0.65,
+      "spatialRelationship": "trailing"
+    },
+    {
+      "family": "wildflower",
+      "role": "filler",
+      "strength": 0.5,
+      "spatialRelationship": "nesting"
+    }
+  ],
+  "usageProfiles": [
+    "scandinavian",
+    "minimal",
+    "vintage",
+    "packaging"
+  ]
+}

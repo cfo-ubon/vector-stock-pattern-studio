@@ -1,0 +1,44 @@
+{
+  "id": "eucalyptus",
+  "label": "Eucalyptus",
+  "botanicalFamilyName": "Myrtaceae",
+  "silhouette": "wispy",
+  "growthPreset": "eucalyptus",
+  "stemLengthScale": 1.2,
+  "leafDensityScale": 1.1,
+  "bouquetRole": "foliageOnly",
+  "flowerDiameterClass": "none",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "none",
+  "petalOverlap": "none",
+  "petalSilhouette": "none",
+  "petalEdgeStyle": "none",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "medium",
+  "branchingTendency": "branching",
+  "leafType": "broad",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "silver-green",
+    "blue-green"
+  ],
+  "premiumScore": 65,
+  "eleganceScore": 80,
+  "commercialPopularity": 88,
+  "companions": [],
+  "usageProfiles": [
+    "minimal",
+    "scandinavian",
+    "modern",
+    "wedding",
+    "editorialBotanical"
+  ]
+}

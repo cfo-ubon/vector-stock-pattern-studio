@@ -5,6 +5,8 @@ import { serialize } from './svgAst';
 import { extractInstances } from './svgGeometry';
 import { PALETTES } from '../palettes/palettes';
 import { PRODUCT_USE_IDS } from '../collection/productTargets';
+import { BOTANICAL_SPECIES } from '../generators/botanicalFamilies';
+import { HIERARCHY_PRESETS } from './hierarchy';
 import {
   STYLE_DNA_PRESETS,
   STYLE_DNA_LIST,
@@ -20,6 +22,7 @@ import {
   STYLE_DNA_SCHEMA_VERSION,
   type StyleDna,
 } from './styleDna';
+import { TREND_PRESETS, computeTrendFit } from './trendEngine';
 
 const PALETTE_IDS = new Set(PALETTES.map((p) => p.id));
 
@@ -160,6 +163,174 @@ describe('Style DNA: Style Grammar zone preferences (Build 003, Part 7)', () => 
   });
 });
 
+describe('Style DNA: Eye Flow Engine wiring (Build 009, Section 2)', () => {
+  it('resolves a matching eyeFlowPath whenever compositionZone lands on one of the 4 mapped zones', () => {
+    const mapped = new Set(['sCurve', 'diagonal', 'editorial', 'goldenRatio']);
+    const expected: Record<string, string> = { sCurve: 'sCurve', diagonal: 'diagonal', editorial: 'editorial', goldenRatio: 'spiral' };
+    for (const dna of STYLE_DNA_LIST) {
+      for (let i = 0; i < 10; i++) {
+        const patch = resolveStyleDna(dna, `eyeflow-mapping-${i}`);
+        if (patch.compositionZone && mapped.has(patch.compositionZone)) {
+          expect(patch.compositionIntelligence!.eyeFlowPath).toBe(expected[patch.compositionZone]);
+          expect(patch.compositionIntelligence!.eyeFlowStrength).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('leaves eyeFlowPath undefined for a style with no zone preference', () => {
+    const noZone: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: undefined };
+    const patch = resolveStyleDna(noZone, 'no-zone-eyeflow-check');
+    expect(patch.compositionIntelligence!.eyeFlowPath).toBeUndefined();
+    expect(patch.compositionIntelligence!.eyeFlowStrength).toBeUndefined();
+  });
+
+  it('leaves eyeFlowPath undefined when the resolved zone has no honest Eye Flow analog', () => {
+    const unmapped: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredZones: ['radial'] };
+    const patch = resolveStyleDna(unmapped, 'unmapped-zone-eyeflow-check');
+    expect(patch.compositionZone).toBe('radial');
+    expect(patch.compositionIntelligence!.eyeFlowPath).toBeUndefined();
+  });
+});
+
+describe('Style DNA: Natural Asymmetry Engine wiring (Build 009, Section 5)', () => {
+  it('resolves a real asymmetryDirection + positive asymmetryStrength for every preset', () => {
+    const validDirections = new Set(['left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight']);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'asymmetry-check');
+      expect(validDirections.has(patch.compositionIntelligence!.asymmetryDirection!)).toBe(true);
+      expect(patch.compositionIntelligence!.asymmetryStrength).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolving the same style + seed twice picks the same direction', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const a = resolveStyleDna(dna, 'asymmetry-determinism-check');
+    const b = resolveStyleDna(dna, 'asymmetry-determinism-check');
+    expect(a.compositionIntelligence!.asymmetryDirection).toBe(b.compositionIntelligence!.asymmetryDirection);
+  });
+
+  it('different seeds explore more than one direction across many draws', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    const seen = new Set<string>();
+    for (let i = 0; i < 40; i++) {
+      seen.add(resolveStyleDna(dna, `asymmetry-variety-${i}`).compositionIntelligence!.asymmetryDirection!);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('every preset still resolves to a buildable tile with the asymmetry nudge active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'asymmetry-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'asymmetry-build-check' })).not.toThrow();
+    }
+  });
+});
+
+describe('Style DNA: Color Harmony Intelligence wiring (Build 011, Section 3)', () => {
+  it('resolves colorHarmonyBias: true universally, for every preset', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'color-harmony-bias-check');
+      expect(patch.colorHarmonyBias).toBe(true);
+    }
+  });
+
+  it('every preset still resolves to a buildable tile with colorHarmonyBias active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'color-harmony-bias-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'color-harmony-bias-build-check' })).not.toThrow();
+    }
+  });
+});
+
+describe('Style DNA: Commercial Trend Engine cross-reference (Build 011, Section 7)', () => {
+  it('every declared trendPresetId points at a real, existing TREND_PRESETS entry', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.trendPresetId === undefined) continue;
+      expect(TREND_PRESETS[dna.trendPresetId]).toBeDefined();
+    }
+  });
+
+  it('the 3 honest cross-references identified by the audit are wired', () => {
+    expect(STYLE_DNA_PRESETS.darkBotanical.trendPresetId).toBe('darkAcademiaBotanical');
+    expect(STYLE_DNA_PRESETS.minimalBotanical.trendPresetId).toBe('cleanScandiMinimal');
+    expect(STYLE_DNA_PRESETS.vintageHerbarium.trendPresetId).toBe('vintageBotanical');
+  });
+
+  it('a Style-DNA-originated tile can be scored against its cross-referenced trend signature without throwing', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.trendPresetId === undefined) continue;
+      const patch = resolveStyleDna(dna, `trend-crossref-${dna.id}`);
+      const tile = buildTile({ ...defaultParams(), ...patch, seed: `trend-crossref-${dna.id}` });
+      expect(() => computeTrendFit(tile, dna.trendPresetId!)).not.toThrow();
+      const fit = computeTrendFit(tile, dna.trendPresetId!);
+      expect(fit).not.toBeNull();
+    }
+  });
+
+  it('leaves trendPresetId undefined for every style with no genuine structural counterpart (e.g. bohoFloral)', () => {
+    expect(STYLE_DNA_PRESETS.bohoFloral.trendPresetId).toBeUndefined();
+  });
+});
+
+describe('Style DNA: Signature Style Engine (Build 010, Section 8)', () => {
+  it('a heroFocus preset resolves a real depthStrength; a non-heroFocus preset resolves undefined', () => {
+    const heroFocusIds = STYLE_DNA_LIST.filter((d) => d.hierarchyPreset === 'heroFocus').map((d) => d.id);
+    const nonHeroFocusIds = STYLE_DNA_LIST.filter((d) => d.hierarchyPreset !== 'heroFocus').map((d) => d.id);
+    expect(heroFocusIds.length).toBeGreaterThan(0);
+    expect(nonHeroFocusIds.length).toBeGreaterThan(0);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-depth-check');
+      if (dna.hierarchyPreset === 'heroFocus') {
+        expect(patch.depthStrength).toBeGreaterThan(0);
+      } else {
+        expect(patch.depthStrength).toBeUndefined();
+      }
+    }
+  });
+
+  it('a premiumHero preset resolves professionalRules=true and hierarchy.premiumRhythm=true; a non-premiumHero preset resolves both undefined', () => {
+    const premiumHeroIds = STYLE_DNA_LIST.filter((d) => d.premiumHero).map((d) => d.id);
+    expect(premiumHeroIds.length).toBeGreaterThan(0);
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-rhythm-check');
+      if (dna.premiumHero) {
+        expect(patch.professionalRules).toBe(true);
+        expect(patch.hierarchy!.premiumRhythm).toBe(true);
+      } else {
+        expect(patch.professionalRules).toBeUndefined();
+        expect(patch.hierarchy!.premiumRhythm).toBeUndefined();
+      }
+    }
+  });
+
+  it('Build 011, Section 1: a premiumHero preset also resolves compositionIntelligence.artisticBalance=true; a non-premiumHero preset resolves undefined', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'artistic-balance-check');
+      if (dna.premiumHero) {
+        expect(patch.compositionIntelligence!.artisticBalance).toBe(true);
+      } else {
+        expect(patch.compositionIntelligence!.artisticBalance).toBeUndefined();
+      }
+    }
+  });
+
+  it('does not mutate the shared HIERARCHY_PRESETS object when merging premiumRhythm', () => {
+    const dna = STYLE_DNA_PRESETS.luxuryFloral;
+    expect(dna.premiumHero).toBe(true);
+    const before = HIERARCHY_PRESETS[dna.hierarchyPreset].value.premiumRhythm;
+    resolveStyleDna(dna, 'signature-no-mutate-check');
+    expect(HIERARCHY_PRESETS[dna.hierarchyPreset].value.premiumRhythm).toBe(before);
+  });
+
+  it('every preset still resolves to a buildable tile with the signature fields active', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      const patch = resolveStyleDna(dna, 'signature-build-check');
+      expect(() => buildTile({ ...defaultParams(), ...patch, seed: 'signature-build-check' })).not.toThrow();
+    }
+  });
+});
+
 describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
   it('every style whose categories include botanical declares at least one preferred family', () => {
     for (const dna of STYLE_DNA_LIST) {
@@ -235,6 +406,23 @@ describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
     expect(svgOff).not.toContain('data-part="premium-hero"');
   });
 
+  it('Build 009, Section 6: a premium hero tile reports real premiumHeroArchetypes on TileData', () => {
+    const on = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'premium-hero-archetype-thread');
+    const tile = buildTile({ ...defaultParams(), ...on, seed: 'premium-hero-archetype-thread' });
+    expect(tile.premiumHeroArchetypes).toBeDefined();
+    expect(tile.premiumHeroArchetypes!.length).toBeGreaterThan(0);
+    const validArchetypes = new Set(['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial']);
+    for (const archetype of tile.premiumHeroArchetypes!) {
+      expect(validArchetypes.has(archetype)).toBe(true);
+    }
+  });
+
+  it('Build 009, Section 6: leaves premiumHeroArchetypes undefined when premiumHero is off', () => {
+    const off = resolveStyleDna({ ...STYLE_DNA_PRESETS.luxuryFloral, premiumHero: false }, 'premium-hero-archetype-off');
+    const tile = buildTile({ ...defaultParams(), ...off, seed: 'premium-hero-archetype-off' });
+    expect(tile.premiumHeroArchetypes).toBeUndefined();
+  });
+
   it('a preferred family actually reaches the layout via a real tile build (no throw, botanicalFamily resolved)', () => {
     const dna = STYLE_DNA_PRESETS.minimalBotanical;
     const patch = resolveStyleDna(dna, 'family-reaches-tile');
@@ -260,6 +448,50 @@ describe('Style DNA: botanical grammar (Build 004, Section 9)', () => {
     // and fine; a wholesale collapse (only a small fraction of the
     // baseline instance count surviving) is the real regression.
     expect(onCount).toBeGreaterThan(offCount * 0.5);
+  });
+});
+
+describe('Style DNA: Species Usage Profile fallback (Build 008B, Section 4)', () => {
+  it('every real shipped botanical-category style still has an explicit preferredFamilies list (the fallback never fires for shipped styles)', () => {
+    for (const dna of STYLE_DNA_LIST) {
+      if (dna.categories.includes('botanical')) {
+        expect(dna.preferredFamilies?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('leaves botanicalFamily undefined for a botanical-category style whose id has no STYLE_USAGE_PROFILE mapping', () => {
+    const dna: StyleDna = {
+      ...STYLE_DNA_PRESETS.luxuryFloral,
+      id: 'test-no-preferred-families-no-usage-mapping',
+      preferredFamilies: undefined,
+    };
+    const patch = resolveStyleDna(dna, 'usage-profile-fallback-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('a real style id mapped in STYLE_USAGE_PROFILE resolves a family matching that usage profile, when preferredFamilies is stripped', () => {
+    const base = STYLE_DNA_PRESETS.editorialBotanical;
+    const dna: StyleDna = { ...base, preferredFamilies: undefined };
+    for (let i = 0; i < 10; i++) {
+      const patch = resolveStyleDna(dna, `usage-profile-real-id-${i}`);
+      expect(patch.botanicalFamily).toBeDefined();
+      expect(BOTANICAL_SPECIES[patch.botanicalFamily!].usageProfiles).toContain('editorialBotanical');
+    }
+  });
+
+  it('never assigns a botanical family fallback to a non-botanical-category style, even if mapped in STYLE_USAGE_PROFILE', () => {
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.modernTropical, preferredFamilies: undefined };
+    expect(dna.categories.includes('botanical')).toBe(false);
+    const patch = resolveStyleDna(dna, 'non-botanical-fallback-check');
+    expect(patch.botanicalFamily).toBeUndefined();
+  });
+
+  it('the fallback is deterministic for a given seed', () => {
+    const dna: StyleDna = { ...STYLE_DNA_PRESETS.editorialBotanical, preferredFamilies: undefined };
+    const a = resolveStyleDna(dna, 'usage-profile-determinism').botanicalFamily;
+    const b = resolveStyleDna(dna, 'usage-profile-determinism').botanicalFamily;
+    expect(a).toBe(b);
   });
 });
 

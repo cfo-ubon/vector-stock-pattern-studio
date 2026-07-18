@@ -1,0 +1,63 @@
+{
+  "id": "protea",
+  "label": "Protea",
+  "botanicalFamilyName": "Proteaceae",
+  "silhouette": "architectural",
+  "growthPreset": "basalRosette",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.5,
+  "bouquetRole": "statement",
+  "flowerDiameterClass": "extraLarge",
+  "bloomStageRange": [
+    0.4,
+    0.8
+  ],
+  "petalCountRange": [
+    20,
+    40
+  ],
+  "petalArrangement": "cluster",
+  "petalOverlap": "heavy",
+  "petalSilhouette": "cupped",
+  "petalEdgeStyle": "fringed",
+  "centerStructure": "cone",
+  "sepalStructure": "leafy",
+  "stemThickness": "thick",
+  "branchingTendency": "sparse",
+  "leafType": "broad",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "pink",
+    "cream",
+    "burgundy",
+    "green"
+  ],
+  "premiumScore": 85,
+  "eleganceScore": 82,
+  "commercialPopularity": 68,
+  "companions": [
+    {
+      "family": "eucalyptus",
+      "role": "foliage",
+      "strength": 0.8,
+      "spatialRelationship": "trailing"
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.65,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "tropicalLeaf",
+      "role": "foliage",
+      "strength": 0.7,
+      "spatialRelationship": "none"
+    }
+  ],
+  "usageProfiles": [
+    "modern",
+    "editorialBotanical",
+    "wallpaper"
+  ]
+}

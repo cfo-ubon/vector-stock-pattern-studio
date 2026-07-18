@@ -20,12 +20,49 @@ function round5(v: number): number {
   return Math.round(v * 20) / 20;
 }
 
+const BATCH_PRODUCTION_COUNT_OPTIONS = [10, 20, 50, 100] as const;
+
+export interface BatchProductionSummary {
+  generatedCount: number;
+  importedCount: number;
+  possibleDuplicateCount: number;
+  blockedDuplicateCount: number;
+  errorCount: number;
+}
+
 interface Props {
   params: GenerateParams;
   onChange: (patch: Partial<GenerateParams>) => void;
   onGenerate: () => void;
   onRandomizeAll: () => void;
   onGenerateBatch: () => void;
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate): a second,
+  // separate batch action from the pre-existing "Generate 9 Variations"
+  // above — that one stays exactly as it was (ephemeral, session-only
+  // Gallery preview). This one saves straight into the Portfolio catalog
+  // via the existing Portfolio Manager import pipeline (duplicate
+  // detection included, Priority 5), at a caller-chosen count.
+  batchProductionCount: number;
+  onBatchProductionCountChange: (count: number) => void;
+  onGenerateBatchToPortfolio: () => void;
+  batchProductionStatus: 'idle' | 'running' | 'done';
+  batchProductionResult: BatchProductionSummary | null;
+  onDownloadBatchZip: () => void;
+  // Build 021 ("Production Ready") — one click generates `batchProductionCount`
+  // patterns through the same quality gate/diversity/dedup pipeline as
+  // "Batch Generate to Portfolio" above, then immediately downloads one
+  // ZIP with the complete sellable file set (SVG+EPS+PNG+JSON per item,
+  // plus combined Shutterstock/Adobe Stock metadata CSVs) — no separate
+  // manual "download bundle" step required.
+  onGenerateProductionBatch: () => void;
+  productionModeStatus: 'idle' | 'running' | 'done' | 'error';
+  productionModeResult: {
+    itemCount: number;
+    importedCount: number;
+    possibleDuplicateCount: number;
+    blockedDuplicateCount: number;
+    errorCount: number;
+  } | null;
   qualityMode: GenerationMode;
   onQualityModeChange: (mode: GenerationMode) => void;
   qualityPresetId: QualityPresetId;
@@ -48,7 +85,7 @@ interface Props {
 
 const MAX_MIX_CATEGORIES = 5;
 
-const HIERARCHY_SLIDERS: Array<{ key: keyof HierarchyParams; label: string; min: number; max: number; step: number }> = [
+const HIERARCHY_SLIDERS: Array<{ key: Exclude<keyof HierarchyParams, 'secondaryHeroBoost' | 'premiumRhythm'>; label: string; min: number; max: number; step: number }> = [
   { key: 'heroRatio', label: 'Hero proportion', min: 0, max: 0.4, step: 0.01 },
   { key: 'secondaryRatio', label: 'Secondary proportion', min: 0.1, max: 0.7, step: 0.01 },
   { key: 'fillerRatio', label: 'Filler proportion', min: 0, max: 0.6, step: 0.01 },
@@ -65,6 +102,15 @@ export function ControlPanel({
   onGenerate,
   onRandomizeAll,
   onGenerateBatch,
+  batchProductionCount,
+  onBatchProductionCountChange,
+  onGenerateBatchToPortfolio,
+  batchProductionStatus,
+  batchProductionResult,
+  onDownloadBatchZip,
+  onGenerateProductionBatch,
+  productionModeStatus,
+  productionModeResult,
   qualityMode,
   onQualityModeChange,
   qualityPresetId,
@@ -551,6 +597,63 @@ export function ControlPanel({
         <button type="button" className="btn" onClick={onGenerateBatch}>
           Generate 9 variations
         </button>
+        <div
+          className="batch-production-controls"
+          title="สร้างลายหลายชิ้นพร้อมกันแล้วบันทึกตรงเข้าคลังผลงาน (Portfolio) — ผ่านระบบตรวจจับไฟล์ซ้ำเดียวกับที่ใช้ตอน import ไฟล์ด้วยมือ ไม่มีการเขียนตรรกะตรวจจับไฟล์ซ้ำใหม่"
+        >
+          <label>
+            Batch Generate
+            <select
+              value={batchProductionCount}
+              onChange={(e) => onBatchProductionCountChange(Number(e.target.value))}
+              disabled={batchProductionStatus === 'running'}
+              aria-label="Batch size"
+            >
+              {BATCH_PRODUCTION_COUNT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="button" className="btn" onClick={onGenerateBatchToPortfolio} disabled={batchProductionStatus === 'running'}>
+            {batchProductionStatus === 'running' ? `🏭 กำลังสร้าง ${batchProductionCount} ชิ้น…` : `🏭 Generate ${batchProductionCount} to Portfolio`}
+          </button>
+          {batchProductionStatus === 'done' && batchProductionResult && (
+            <div className="batch-production-summary" role="status">
+              <span>
+                ✅ บันทึกแล้ว {batchProductionResult.importedCount}/{batchProductionResult.generatedCount}
+              </span>
+              {batchProductionResult.possibleDuplicateCount > 0 && <span>⚠️ อาจซ้ำ {batchProductionResult.possibleDuplicateCount}</span>}
+              {batchProductionResult.blockedDuplicateCount > 0 && <span>⛔ ซ้ำแน่นอน {batchProductionResult.blockedDuplicateCount}</span>}
+              {batchProductionResult.errorCount > 0 && <span>❌ ผิดพลาด {batchProductionResult.errorCount}</span>}
+              {batchProductionResult.importedCount > 0 && (
+                <button type="button" className="btn" onClick={onDownloadBatchZip}>
+                  ⬇️ Download Batch ZIP
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        <div
+          className="batch-production-controls"
+          title="สร้าง Batch ผ่านระบบผลิตจริงเดียวกันทุกประการ (คุณภาพ + ความหลากหลาย + ตรวจจับลายซ้ำ) แล้วดาวน์โหลดชุดไฟล์พร้อมขายทันทีในคลิกเดียว: SVG + EPS + PNG พรีวิว + JSON ต่อชิ้น พร้อม Shutterstock/Adobe Stock CSV รวม"
+        >
+          <button type="button" className="btn btn--save" onClick={onGenerateProductionBatch} disabled={productionModeStatus === 'running'}>
+            {productionModeStatus === 'running' ? `🚀 กำลังผลิต ${batchProductionCount} ชิ้น…` : `🚀 Production Mode (${batchProductionCount} → ZIP พร้อมขาย)`}
+          </button>
+          {productionModeStatus === 'error' && <span className="batch-production-summary">❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง</span>}
+          {productionModeStatus === 'done' && productionModeResult && (
+            <div className="batch-production-summary" role="status">
+              <span>
+                ✅ พร้อมขาย {productionModeResult.itemCount}/{productionModeResult.importedCount}
+              </span>
+              {productionModeResult.possibleDuplicateCount > 0 && <span>⚠️ อาจซ้ำ {productionModeResult.possibleDuplicateCount}</span>}
+              {productionModeResult.blockedDuplicateCount > 0 && <span>⛔ ซ้ำแน่นอน (ไม่รวมใน zip) {productionModeResult.blockedDuplicateCount}</span>}
+              {productionModeResult.errorCount > 0 && <span>❌ ผิดพลาด {productionModeResult.errorCount}</span>}
+            </div>
+          )}
+        </div>
         <button
           type="button"
           className="btn btn--save"

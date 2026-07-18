@@ -19,6 +19,678 @@ Build-numbered, forward-looking. Each entry is either shipped
   Readability (thumbnail/zoom), Commercial Validation (8 named scores),
   100-pattern Visual Portfolio Review, 3 new Design Critic recommendation
   rules. See `docs/BUILD_REPORT.md`.
+- **Build 002 — Composition Quality V3**: Palette/Color Intelligence
+  redesign, Thumbnail Hero Legibility, Scale Diversity fix, Semantic
+  Cluster coverage to 9/14 layouts, Design Critic calibration, Product
+  Targeting, Commercial Score integrity split, a 2nd Flow architecture,
+  SVG safety margin. See `docs/build_reports/BUILD_002_REPORT.md`.
+- **Build 003 — Composition Intelligence V4**: Composition Zone Engine,
+  Rotation Angle Families, Rhythm Density Bands, Hero-Hero Repulsion,
+  hero-size-aware negative space, Style Grammar zone preferences, Hero
+  Detector regenerate-on-failure, Pattern Beauty Score, Portfolio Variety
+  tracking. See `docs/build_reports/BUILD_003_REPORT.md`.
+- **Build 004 — Botanical DNA Engine**: real Botanical Family taxonomy (12
+  families), Botanical Cluster Generator archetypes, Leaf Intelligence,
+  cluster-level Stem Engine, Natural Rotation Engine, Premium Hero
+  Builder, Style DNA botanical grammar, Botanical Beauty Metrics V2,
+  Portfolio Diversity Engine V2. See `docs/build_reports/BUILD_004_REPORT.md`.
+- **Build 005 — Design Knowledge Engine**: Design Knowledge/Rule Engine
+  (per-style design language → generation rules), Premium SVG
+  Illustration Engine (Petal/Calyx Generators, petal asymmetry), Botanical
+  Species Engine (18 species incl. Rose/Protea/Tropical Leaf),
+  Illustration Family Engine, Designer Brain (weighted preferred-list
+  picks), Premium Detail System, Commercial Knowledge architecture
+  (product-target metadata per style). See
+  `docs/build_reports/BUILD_005_REPORT.md`.
+- **Build 006 — Commercial Art Director Engine**: Commercial Style
+  Analysis Engine (10 real benchmark bands), Luxury Bouquet Composer
+  (companion-foliage sprig + visual-weight balancing), Natural Botanical
+  Relationships (real per-species companion pairing + Baby's Breath, 19th
+  species), Commercial Color Story Engine (8 named professional color
+  stories), Negative Space Designer (per-product-target spacing),
+  Luxury Repetition Engine (hero-bouquet mirroring), Premium SVG Detail
+  (Flower Center Generator), Commercial Pattern Critic (8 named
+  commercial-feeling dimensions), 300-pattern Large Portfolio Evaluation.
+  See `docs/build_reports/BUILD_006_REPORT.md`.
+- **Build 007 — Master Botanical Illustration Engine**: Flower Anatomy
+  Engine (real per-species sepal/filament/bloom-stage data, two-tier
+  petal hierarchy replacing the generic single-ring bloom), Leaf Anatomy
+  Engine (real per-species ovate/serrated + pinnate-vein leaves in the
+  premium hero, closing the gap where hero foliage was less detailed than
+  ordinary filler leaves), Premium Bouquet Designer refinements (real
+  filler-flower-vs-berry choice from the companion's own botanical role),
+  Botanical Gesture Engine (seeded foliage-base lean), Petal Variation
+  Library (6 named petal silhouettes), Luxury Detailing (berry highlight
+  caps), Commercial Composition Review (`buildTileWithCommercialRetry`,
+  botanical-category regenerate-on-failure using the real Pattern Beauty
+  Score composite), Illustration Quality Score V2 (bouquet/gesture/leaf/
+  flower realism + premium feel, all measured from real SVG structure).
+  See `docs/build_reports/BUILD_007_REPORT.md`.
+- **Build 008A — Knowledge Infrastructure (Project Orchid)**: a real,
+  reusable Knowledge Registry (load/validate/cache/version/diagnostics)
+  future builds can add a domain to, proved by migrating Style DNA's 15
+  built-in presets off a hardcoded object literal onto real, editable,
+  schema-validated JSON files — zero generation-output change (verified
+  by a dedicated compatibility test suite). See
+  `docs/build_reports/BUILD_008A_REPORT.md`.
+- **Build 008B — Commercial Botanical Species Engine**: the Botanical
+  Species table (19 species) migrated through the same Knowledge Registry
+  pattern, redesigned (not just moved) into a real commercial record —
+  botanical family/bloom/petal/leaf structure, premium/elegance/
+  commercial-popularity scores, a strength-weighted companion matrix,
+  usage-profile tags. Every one of those fields is real, wired generation
+  logic: a genuine Filler-Leaf/Filler-Flower/Berry choice from the
+  companion's typed role, a premium-score-driven visual-weight cap, a
+  5-archetype internal hero-silhouette roll (was always circular before),
+  a usage-profile/product-target species fallback. Measured against the
+  Build 007 baseline: every score within normal variance or a real
+  improvement (Leaf Realism +2.6, Premium Feel +1.0), zero regressions,
+  zero node-budget failures across 430 measured patterns. See
+  `docs/build_reports/BUILD_008B_REPORT.md`.
+- **Build 009 — Commercial Art Director Engine**: Visual Hierarchy Engine
+  V2 (`promoteSecondaryHero` + `computeVisualHierarchyScore`), Eye Flow
+  Engine (6 named placement-level bias paths, additive third mechanism
+  alongside `FlowProfile`/`CompositionZone`), Negative Space Designer V2
+  (per-product spacing/rhythm/cluster-looseness strategy), Hero Framing
+  Engine (`applyHeroFraming` push-away + bouquet angular framing),
+  Natural Asymmetry Engine (`applyControlledAsymmetry`), Silhouette
+  Optimization (`computeHeroArchetypeDiversity`, threads Build 008B's
+  hero-archetype roll through `TileData`), Luxury Composition Rules
+  (7-dimension `engine/luxuryComposition.ts`), Product-aware Composition
+  (`resolveCompositionZoneForProduct`). Every mechanism opt-in/additive,
+  verified byte-identical-by-default via no-op tests. Measured against
+  the Build 008B baseline: zero regressions across the 30/100/300-pattern
+  portfolio (aggregate scores moved <0.5 points — expected, since the
+  frozen harness never sets `productTarget` and several mechanisms are
+  deliberately subtle by design; a supplementary spot-check confirmed
+  every mechanism is really wired end to end). See
+  `docs/build_reports/BUILD_009_REPORT.md`.
+
+- **Build 010 — Signature Composition & Commercial Story Engine**:
+  Signature Bouquet Composer (`applyGatherPoint` convergence toward the
+  hero's own stem base), Visual Story Flow Engine (role-weighted Eye Flow
+  pull), Multi-layer Depth Engine (EPS-safe solid-color recede cue),
+  Botanical Relationship Engine V2 (real per-companion spatial habit —
+  trailing/nesting/climbing), Premium Rhythm Engine (hierarchy-level
+  size cadence), Professional Illustrator Rules (rule of odds, tangent-
+  avoidance margin), Product-aware Composition Engine (depth/rhythm/rules
+  product fallbacks), Signature Style Engine (per-preset fingerprint
+  derived from existing `hierarchyPreset`/`premiumHero` fields),
+  Commercial Validation Suite (`computeSignatureFingerprintDistinctness`).
+  Every mechanism opt-in/additive, verified byte-identical-by-default via
+  no-op tests. Measured against the Build 009 baseline across a new
+  500-pattern XL Portfolio (plus the existing 30/100-pattern suites):
+  zero regressions, zero node-budget failures across 630 measured
+  patterns; one honestly-reported trade-off (the "rule of odds" targets
+  the non-hero member count, so the hero-inclusive cluster size is always
+  even, not odd — see the report for the low-cost fix). See
+  `docs/build_reports/BUILD_010_REPORT.md`.
+
+- **Build 011 — Artistic Intelligence Engine**: Artistic Balance Engine
+  (`computePerceivedWeight` — perceived visual mass × detail density ×
+  color dominance, replacing plain scale×role weight in balance/negative-
+  space correction), Luxury Negative Space Engine
+  (`resolveArtisticBalanceForProduct`/`resolveLayoutArchetypeForProduct`
+  per product), Color Harmony Intelligence (`computeDominantAccentIndex`
+  drives the Color Story's dominant pick, universal across every Style DNA
+  preset), Editorial Layout Intelligence (`resolveLayoutArchetypeForProduct`,
+  shipped as a standalone tested utility — see the report for the honest
+  scoping trade-off), Silhouette Intelligence (`heroArchetype` reaches the
+  previously-dead-code Premium Hero override + a 9th portfolio diversity
+  dimension), Premium Detail Distribution (`detailDistribution` gives
+  filler a small nonzero detail level instead of a flat 0), Commercial
+  Trend Engine (3 new `TREND_PRESETS` + `StyleDna.trendPresetId`
+  cross-references), Portfolio Consistency Engine
+  (`computePortfolioConsistency` + `detectSequentialStyleDrift`, new), and
+  Commercial Appeal Score V2 (`computeCommercialAppealScoreV2`, a new
+  module combining all 6 brief-named dimensions from existing sub-scores).
+  Every mechanism opt-in/additive, verified byte-identical-by-default via
+  no-op tests. Measured against the Build 010 baseline: the 30-scenario
+  suite is byte-identical, the 100/500-pattern portfolios move under 0.5
+  points on every metric (documented cause: `colorHarmonyBias` becoming
+  universally active in Style DNA resolution shifts the RNG-consumption
+  shape by one draw), zero node-budget failures. A new 1000-pattern
+  Consistency Portfolio measured every preset at 72-87/100 Portfolio
+  Consistency (mean 79) with zero presets showing detected sequential
+  style drift. See `docs/build_reports/BUILD_011_REPORT.md`.
+
+- **Build 011.5 — Commercial Reality Check**: evidence-driven commercial
+  audit (no generation-engine changes) — 1,500-pattern portfolio (100 seeds
+  x 15 presets), full art-director-style dimension mapping, competitor
+  comparison, and a single, precisely-scoped Build 012 recommendation.
+  Headline finding: 3 presets (Minimal Botanical, Boutique Packaging,
+  Premium Textile) scored 31-44 mean Absolute Commercial Quality (92-100%
+  failure rate) despite rendering legitimately well — root-caused to a
+  layout-scoring integrity bug (regular-lattice layouts' own deliberate
+  even spacing/axis alignment triggering soft penalty rules designed for
+  organic layouts). See `docs/build_reports/BUILD_011_5_REPORT.md`.
+
+- **Build 012 — Evaluation Intelligence Engine V3**: fixed Build 011.5's
+  own diagnosed bug. New layout-aware (`engine/layoutEvaluation.ts`),
+  style-aware (`engine/styleEvaluation.ts`), and product-aware
+  (3 new `ProductUseId`s — Greeting Card/Poster/Canvas) evaluation context;
+  Penalty System V2 (`engine/penaltyRulesV2.ts`) gates 8 of the original 18
+  soft-penalty rules to organic-layout-only applicability, each with a
+  documented `reason`/`confidence` derived from measured bias data (not
+  tuned by feel); Commercial Judge V2 (`critic/commercialJudgeV2.ts`) and
+  a full explainability trace (`engine/scoringV2.ts`). Wired into the live
+  "Generate Best" candidate ranking and the Trend Studio quality gate (the
+  latter was a real live bug — lattice-layout patterns could be wrongly
+  blocked from export/SEO/collection generation). Measured against the
+  same 4 frozen tiers Build 011/011.5 established: all 3 target presets
+  recover to 77-80 mean (0% failure, from 31-44/92-100%), the 2 mixed-
+  layout presets recover to 83-85 (0% failure, from 65-70/34-46%), and
+  every one of the other 10 already-healthy presets scores byte-identically
+  (delta = 0) before and after — direct proof of a bias fix, not score
+  inflation. See `docs/build_reports/BUILD_012_REPORT.md`.
+
+- **Build 013 — Portfolio Intelligence & Self-Improvement Engine**: a
+  read-only analysis layer (`src/portfolio/`) built on top of Build 012's
+  now-trustworthy evaluator — no new generation, no scoring changes, no
+  score inflation. Generated a genuinely uncurated 5,000-pattern portfolio
+  (334/333 per preset, deterministic `p13-<styleId>-<n>` seeds, checkpoint/
+  resume every 500 patterns), then computed: multi-signal ranking and
+  percentiles (`ranking.ts`), evidence-based success/failure trait discovery
+  with real lift and confidence (`successFailure.ts`), bucketed near-
+  duplicate detection (`fingerprint.ts`/`duplicates.ts` — 0 exact/
+  deterministic duplicates, 1 near-duplicate across all 5,000), segment
+  clustering by declared preset/layout-class/measured-score band
+  (`clustering.ts`), and a single evidence-driven Build 014 recommendation
+  (`recommendations.ts`). Confirmed Build 012's fix held at scale: the 3
+  previously-broken presets (Minimal Botanical 77.1, Premium Textile 80.4,
+  Boutique Packaging 78.8 mean Absolute Commercial Quality) now sit inside
+  the healthy 75-88 range alongside all 12 other presets — no preset
+  requires special-casing. See `docs/build_reports/BUILD_013_REPORT.md`.
+
+- **Build 014 — Motif Relationship Intelligence Engine**: fixed Build 013's
+  own `zeroMotifOverlap` finding at the root, in the two subsystems Phase A's
+  audit proved were affected (`clusterEngine.ts`'s `'sCurve'` archetype,
+  `layouts/sCurve.ts`) — no new species, no new presets, no scoring changes.
+  Phase A first corrected a factual error in Build 013's own recommendation
+  text ("allow controlled overlap"): direct measurement of all 48 affected
+  patterns showed 48/48 were already too dense, the opposite direction.
+  Root cause: a formula artifact (`tt === 0.5` degenerate coincident-hero
+  offset for odd cluster member counts) plus a structurally over-tight
+  `clusterRadius` scale factor, both confined to the `sCurve` cluster
+  archetype used only by `darkBotanical`/`editorialBotanical`'s `sCurve`
+  layout. Measured result across the identical 5,000-pattern Build 013
+  portfolio: `zeroMotifOverlap` failures 48 → 0 (100%), `sCurve`-layout mean
+  Absolute Commercial Quality 73.4 → 82.8 (p10 58 → 74), top-decile
+  unchanged-or-improved at every regression tier (no regression). See
+  `docs/build_reports/BUILD_014_REPORT.md`.
+
+- **Portfolio Manager P1 — Core Database and Asset Library**: new offline
+  asset catalog (`src/catalog/`, UI in `src/components/portfolio/`) — import,
+  store, browse, search, inspect, and safely remove stock-vector source
+  files (SVG/PNG/JSON/EPS/AI/JPG) without modifying or degrading the
+  originals. IndexedDB-only storage (no localStorage fallback for the
+  catalog — binary Blob bodies can't survive `JSON.stringify`, and the
+  quota is too small for a real library), versioned `PortfolioAsset`
+  domain model with workflow status orthogonal to archiving, multi-signal
+  duplicate detection (SHA-256 + normalized-JSON hash + filename/size +
+  generator seed), tolerant multi-shape JSON metadata extraction, a
+  paginated search/filter/sort grid validated at 1,000+ records, a
+  read-only Health Check report, and per-asset ZIP export with hash-
+  integrity verification. This is a separate product track from the
+  composition-quality builds above (0xx-014) — it does not touch the
+  Generator, the evaluation/scoring engine, or any existing storage
+  format. See `docs/build_reports/PORTFOLIO_MANAGER_P1_REPORT.md` and
+  `docs/portfolio/`.
+
+- **Portfolio Manager P2 Stage 1 — Collection Domain and Data Foundation**:
+  the `Collection` entity (`domain/collection.ts`), its IndexedDB
+  repository (`storage/collectionStore.ts`, `DB_VERSION` 4 → 5, new
+  `collections` object store), and the business-logic service layer
+  (`services/collectionService.ts`) — full CRUD, many-to-many asset
+  membership via P1's already-reserved `PortfolioAsset.collectionIds`,
+  bulk assign/remove with structured results, archive semantics
+  orthogonal to deletion, cascading delete cleanup, and read-only
+  integrity validation + repair (orphaned membership, stale cover-asset
+  references). **No UI** — this stage is data/service-layer only, by
+  design; see `docs/build_reports/P2_STAGE1_REPORT.md`,
+  `docs/portfolio/COLLECTION_ARCHITECTURE.md`, and
+  `docs/architecture/ADR-005-collection-relationship.md`.
+
+- **Portfolio Manager P2 Stage 2 — Collection UI and UX**: the browsing/
+  management UI on top of Stage 1's now-complete
+  `services/collectionService.ts` API — a "คอลเลกชัน" (Collections) tab
+  inside `PortfolioManagerView.tsx` (All/Active/Archived/Integrity
+  sub-navigation), create/rename/archive/delete, cover set/clear with
+  safe fallback, single- and bulk-asset assignment (multi-select on the
+  asset grid, one reused `CollectionAssignmentDialog` for both), a
+  collection filter integrated into the existing asset-library search/
+  filter system, and an integrity scan + explicit-repair panel mirroring
+  P1's `PortfolioHealthCheckPanel` shape. No domain/storage/service code
+  changed; no `DB_VERSION` bump. See
+  `docs/build_reports/P2_STAGE2_REPORT.md` and
+  `docs/portfolio/P2_STAGE2_UI_ARCHITECTURE.md`.
+
+- **Portfolio Manager P2.5 Sprint 1 — Collection Validation Infrastructure**:
+  a deterministic Collection dataset generator (SMALL/MEDIUM/LARGE
+  presets — 1,000/10,000/100,000 assets), a reusable benchmark runner
+  (warm-up/measured iterations, real statistics, console/JSON/Markdown
+  reports), 8 reusable integrity scenarios built on Stage 1's existing
+  scan/repair functions, a memory-instrumentation foundation (sampler +
+  Blob-URL lifecycle tracker) proven via a bounded smoke test, a
+  performance-baseline comparison policy, and
+  `npm run validate:collections*` CLI scripts — no production code
+  changed, no `DB_VERSION` bump, no user-facing Collection feature. See
+  `docs/build_reports/P2_5_SPRINT1_REPORT.md` and
+  `docs/portfolio/P2_5_VALIDATION_ARCHITECTURE.md`.
+
+- **Portfolio Manager P2.5 Sprint 2 — Stress and Soak Validation**:
+  extended Sprint 1's validation infrastructure with a soak/stress runner
+  (exact-count and duration-driven modes), latency drift analysis
+  (initial/middle/final-window medians, p95 investigation flags),
+  memory-trend detection (least-squares slope, growth/plateau
+  classification), an IndexedDB consistency manifest/diff, and Sprint 1
+  baseline comparison — plus `stress`/`soak-smoke`/`soak-30m`/
+  `soak-60m`/`baseline-compare` CLI modes and a real-browser Playwright
+  UI soak. Real runs completed: a LARGE-dataset (100k assets/10k
+  collections) exact-count stress plan (710 ops, 0 failures), 5-minute/
+  30-minute/60-minute soaks, and a 100-cycle real-Chromium UI soak (0
+  page/console errors, 0 outstanding Blob URLs). Found and fixed one
+  validation-tool defect (a mismatched Sprint1/Sprint2 benchmark-name
+  comparison producing a false "regression"). No production Collection
+  code changed, no `DB_VERSION` bump, no user-facing feature. See
+  `docs/portfolio/P2_5_SPRINT2_REPORT.md`.
+
+- **Portfolio Manager P2.5 Sprint 3 — Crash Recovery and Data Integrity
+  Certification**: a domain-agnostic failure-injection engine
+  (`recoveryEngine.ts`, 9 deterministic failure points: before-
+  transaction, during-transaction, aborted-transaction, rejected-promise,
+  thrown-exception, after-commit, after-persistence, before-ui-refresh,
+  validation-interruption) and a durability/idempotency engine
+  (`durabilityEngine.ts`), wired to all 9 required `collectionService.ts`
+  operations. Real runs completed: an 81-scenario failure matrix (9
+  operations × 9 points, 81/81 recovered clean), 900 repeated Node-side
+  durability cycles (100 per operation, all durable and clean), a
+  6-operation idempotency check (30/30 repeats stable), an IndexedDB
+  consistency manifest across before/after-failure/after-recovery/after-
+  repeated-recovery (clean at every transition), a LARGE-dataset
+  (100k assets/10k collections/504,544 memberships) recovery run (4/4
+  scenarios recovered, no new corruption), a 100-cycle real-browser
+  recovery run (0 failures, 0 page/console errors), and a 5-trial
+  real-OS-process-kill crash simulation (committed writes always
+  survived, atomicity always held, integrity always clean). Found and
+  fixed one real production defect (a bulk-write atomicity gap across 5
+  functions in `collectionStore.ts`/`portfolioStore.ts` — a mid-loop
+  synchronous throw could leave already-queued writes silently
+  auto-committed despite the caller observing failure). No `DB_VERSION`
+  bump, no user-facing feature. See
+  `docs/portfolio/P2_5_SPRINT3_REPORT.md`.
+
+- **Portfolio Manager P2.5 Sprint 4 — Production Certification and
+  Module Freeze**: certified the Collection module using Sprints 1-3's
+  completed evidence (no new functional testing — a synthesis stage).
+  Froze the public API surface (`domain/collection.ts`,
+  `domain/collectionMembership.ts`, `storage/collectionStore.ts`,
+  `services/collectionService.ts`) with a documented contract
+  (`COLLECTION_API_FREEZE.md`) and an automated guard test
+  (`collectionApiFreeze.test.ts`) that fails if the public surface
+  changes without a deliberate update. Consolidated Sprint 1's
+  performance baseline, Sprint 2's stress/soak evidence, and Sprint 3's
+  recovery/durability evidence into one canonical reference
+  (`COLLECTION_PRODUCTION_BASELINE.md`). Issued a formal certification
+  (`COLLECTION_PRODUCTION_CERTIFICATION.md`) with an explicit,
+  honest scope boundary (multi-tab concurrency, non-Chromium browsers,
+  scale beyond LARGE, storage-quota exhaustion, and filesystem
+  corruption were never tested by any sprint and are called out as such,
+  not silently assumed fine). Recommended (did not create) the release
+  tag `portfolio-collections-v1.0.0`
+  (`COLLECTION_RELEASE_NOTES.md`). No PR opened, nothing merged, no
+  Backup & Restore or CI-wiring work started — all explicitly deferred
+  pending separate approval.
+
+- **Portfolio Manager P3 — Backup & Restore**: built a complete backup
+  and restore system for the Collection module directly on the frozen
+  API from Sprint 4, per a separate, explicit approval to proceed with
+  P3 ahead of the PR/merge/tag sequence originally proposed at the end
+  of Sprint 4 (below). A single JSON-envelope archive format (gzip
+  payload, checksum, schema version — not a ZIP, since the repo has no
+  ZIP reader and the payload is pure JSON; see
+  `docs/backup/BACKUP_FORMAT.md`), full backup
+  (`backupBuilder.ts`), never-throwing pre-restore validation
+  (`backupValidation.ts`), and a preview/restore engine
+  (`restoreService.ts`, `overwrite`/`merge` modes) that is idempotent
+  and self-heals from an interruption between its two bulk writes. Local
+  backup history log and export/import file glue round out the
+  brief's objectives. No modification to the frozen Collection API — no
+  production defect was found. Service-layer only, no UI, mirroring P2
+  Stage 1's own foundation-first precedent. 63 new tests. See
+  `docs/backup/BACKUP_ARCHITECTURE.md`, `BACKUP_FORMAT.md`,
+  `RESTORE_WORKFLOW.md`, `BACKUP_TEST_REPORT.md`, `BACKUP_USER_GUIDE.md`.
+
+- **Build 015 — Submission Center Foundation (Commercial Workflow's first
+  module)**: a production-ready submission management subsystem —
+  planning, tracking, and validating a pattern's journey toward one or
+  more marketplaces, built entirely on top of the frozen Collection API
+  and P3's Backup & Restore system without modifying either. New,
+  isolated module (`app/src/catalog/submission/`, 11 files + a barrel,
+  own `localStorage`-backed store — no IndexedDB schema change): 8-status
+  state machine (`submissionStatus.ts`), a data-driven Marketplace
+  Profiles registry seeded with 5 built-ins — Shutterstock, Adobe Stock,
+  Freepik, Getty Images, Etsy — extensible at runtime via
+  `registerMarketplaceProfile` with no code change
+  (`marketplaceProfile.ts`), the `SubmissionRecord` domain model
+  (`submissionRecord.ts`), never-throwing readiness validation with
+  3-rule duplicate detection (`submissionValidation.ts`,
+  `submissionDuplicateDetection.ts`), an orchestration service layer
+  mirroring `collectionService.ts`'s role (`submissionService.ts`), and
+  read-side Queue/History/Search+Filter/Statistics modules. Explicitly
+  does **not** perform any automatic upload to any marketplace — that is
+  out of scope for this foundation. 98 new tests across 12 files,
+  including a 2,000-record large-dataset case. See
+  `docs/submission/SUBMISSION_ARCHITECTURE.md`, `SUBMISSION_WORKFLOW.md`,
+  `SUBMISSION_STATUS.md`, `SUBMISSION_TEST_REPORT.md`.
+
+- **Build 016 — SEO Intelligence Engine (Commercial Workflow's second
+  module)**: a production-grade SEO engine that generates, validates,
+  and scores metadata for stock marketplaces, built entirely decoupled
+  from the Collection API, Backup & Restore, and Submission Center — no
+  file in any of the three was touched. New module
+  (`app/src/catalog/seo/`, 12 files + a barrel, zero storage — every
+  function is a pure computation, so no IndexedDB or `localStorage` need
+  arose at all): its own SEO Profile registry seeded with the same 5
+  marketplaces as Submission Center (Shutterstock, Adobe Stock, Freepik,
+  Getty Images, Etsy), extensible at runtime via `registerSeoProfile`
+  with no code change (`seoProfile.ts`); Title/Description Analyzers
+  producing 0-100 scores across 5 dimensions each
+  (`titleAnalyzer.ts`, `descriptionAnalyzer.ts`); a Keyword Analyzer
+  detecting duplicates, near-duplicate similarity, plural/singular
+  conflicts, ordering quality, concept-bucket coverage, and noise
+  keywords (`keywordAnalyzer.ts`, composing `keywordDeduplicator.ts` and
+  `keywordCoverage.ts`); a never-throwing Validator returning structured
+  errors/warnings/suggestions (`seoValidator.ts`); an SEO Score combining
+  6 named dimensions (`seoScoring.ts`); a Generator that adapts caller-
+  supplied content to a marketplace's bounds — deduplicating, truncating
+  keyword count, truncating title/description at word boundaries
+  (`seoGenerator.ts`, honestly scoped: it adapts, it does not invent
+  creative copy); and a Batch SEO Service supporting single-pattern,
+  multi-pattern, and marketplace-specific generation
+  (`batchSeoService.ts`). 118 new tests across 13 files, including a
+  2,000-package large-dataset case. See `docs/seo/SEO_ARCHITECTURE.md`,
+  `SEO_SCORING.md`, `MARKETPLACE_RULES.md`, `SEO_TEST_REPORT.md`.
+
+- **Build 017 — Portfolio Dashboard & Analytics Foundation (integration
+  build)**: a read-only service layer that combines data from the
+  frozen Collection API, Submission Center (Build 015), and the SEO
+  Intelligence Engine (Build 016) into a single Portfolio Health score,
+  5 analytics reports, a deterministic Recommendation Engine, and one
+  Dashboard Snapshot object — without modifying any of the three source
+  modules. New module (`app/src/catalog/dashboard/`, 9 files + a
+  barrel, zero storage of its own): a Portfolio Health Calculator
+  combining SEO Score, Submission Readiness, Metadata Completeness,
+  Duplicate Risk, Collection Organization, and Validation Status into
+  one 0-100 score (`portfolioHealthCalculator.ts`); Submission, SEO,
+  Collection, Marketplace, and Readiness Analytics reports, each a thin
+  reshape or aggregate over existing data
+  (`submissionAnalytics.ts`, `seoAnalytics.ts`, `collectionAnalytics.ts`,
+  `marketplaceAnalytics.ts`, `readinessAnalytics.ts`); a Recommendation
+  Engine that only ever reads analytics and never writes
+  (`recommendationEngine.ts`); and a Dashboard Snapshot assembling all
+  of the above into one object "suitable for future UI rendering,"
+  built by the one file that touches live storage
+  (`dashboardSnapshot.ts`, `portfolioDashboardService.ts`). The
+  SEO↔Submission bridge — per-pattern SEO analysis derived from each
+  `SubmissionRecord`'s own persisted snapshot fields — is the one place
+  Submission Center's and the SEO Engine's data actually meet; neither
+  module changed. 65 new tests across 10 files, including a 2,000-
+  submission large-dataset case. See
+  `docs/dashboard/PORTFOLIO_DASHBOARD_ARCHITECTURE.md`,
+  `PORTFOLIO_HEALTH_SCORE.md`, `DASHBOARD_ANALYTICS.md`,
+  `DASHBOARD_TEST_REPORT.md`.
+
+- **Build 018 — Batch Production & Botanical Realism ("Revenue First")**:
+  a direction change — PI-1/SIE (a proposed new "Stock Intelligence
+  Engine" architecture) was explicitly declined; this build reuses the
+  existing scoring/analyzer/recommendation/duplicate-detection systems
+  as-is and focuses on portfolio production throughput instead. New
+  module (`app/src/batch/`, 2 files): `batchProductionService.ts`
+  (`generateBatchToPortfolio`) generates N diverse patterns — reusing
+  `assignPortfolioDiversity` (Build 003/004, unmodified) and
+  `buildTileForGenerate` (Build 003/007's quality-retry routing,
+  extracted from `App.tsx` into `engine/heroDetector.ts` as a shared
+  export so both this and the pre-existing UI call one implementation)
+  — and saves each straight into the Portfolio catalog via the existing,
+  unmodified Sprint P1 import pipeline (`catalog/import/importPipeline.ts`'s
+  `importFileGroup`), which gives duplicate detection for free from
+  code already shipped, not a new implementation.
+  `batchExportService.ts` generalizes `catalog/services/exportAsset.ts`'s
+  existing per-asset ZIP builder (refactored to share its hash-verified
+  core via a new `buildAssetZipEntries` export, behavior-preserving) to
+  a combined multi-asset archive. UI: a "Batch Generate" control
+  (10/20/50/100) in `ControlPanel.tsx`, separate from the pre-existing
+  "Generate 9 Variations" (untouched, still ephemeral/session-only) —
+  this one is Portfolio-backed so it isn't capped by the Gallery's
+  24-item limit. One evidence-based Botanical composition fix: an
+  audit script (`scripts/build018BotanicalAudit.ts`) found Botanical
+  Realism (`engine/botanicalBeautyMetrics.ts`, unmodified metric)
+  averaging 31/100 across a 60-pattern diverse sample, traced to
+  `flowerBloom` — documented as "the untagged fallback bloom across
+  most families" — having no stem structure at all; added an optional
+  stem (60% of instances) using the exact drawing idiom `flowerBud`
+  already established. Measured after: Botanical Realism 31.32 → 37.67
+  (+20% relative), every other dimension flat (no regression), overall
+  botanical composite 68.43 → 68.92. 16 new tests (11 for the batch
+  services, 5 pre-existing botanical suites re-verified passing
+  unmodified). See `BUILD_018_REPORT.md`.
+
+- **Build 019 — Visual Commercial Upgrade**: an evidence-first quality
+  pass reusing the existing critic/scoring/retry pipeline end to end — no
+  new scoring engine, no architecture redesign. New audit script
+  (`scripts/build019VisualAudit.ts`) generated a broader sample than
+  Build 018's own (96 patterns: all 8 botanical-capable Style DNA
+  presets × 4 seeds × 3 density bands) and found **Botanical Realism**
+  the true weakest dimension (mean 40.79/100, not Organic Flow as
+  Build 018's smaller sample had suggested) — root-caused to 14 of 15
+  standalone "flower head" variants in `generators/botanical.ts` drawing
+  no stem/leaf structure at all. Fix: `attachOptionalStem`, a single
+  shared function wired into `botanicalGenerator.createMotif` (not 14
+  hand-edited variant functions), reusing the exact stem idiom
+  `flowerBud`/`flowerBloom` (Build 018) already established. Measured:
+  Botanical Realism 40.79 → 50.93 (+24.9%), Botanical Complexity 51.19 →
+  53.11 (+3.8%), Organic Flow flat (45.80 → 46.40, no regression),
+  Overall Visual Quality dipped 72.77 → 70.55 (-3.1%, explained: richer
+  filler motifs narrow `heroDetailRatio`'s hero-vs-filler gap — every
+  other principal metric moved less than 0.4 points). Batch Generate
+  (10/20/50/100) re-measured through the real `generateBatchToPortfolio`
+  service: 0% failure rate at every size, generation time statistically
+  unchanged from before the fix (within ~10%, normal jitter), diversity
+  fully preserved. 6 new tests, full suite 269/269 files / 3043/3043
+  tests passing. See `BUILD_019_REPORT.md`.
+
+- **Build 020 — Hero Dominance Recovery**: root-caused Build 019's
+  Overall Visual Quality drop by instrumenting `computeOverallScore`
+  directly (a naive weighted-metric delta massively underestimated the
+  real drop, since `applySoftPenalties` is a separate binary-threshold
+  system on top of the weighted average, invisible to a linear delta) —
+  found the `heroInsufficientDetail` soft penalty (`heroDetailRatio < 45`)
+  tripping on 18.75% of patterns (up from Build 018's 10.42%) accounted
+  for essentially the entire drop, because Build 019's stem/leaf wrapper
+  applied the same probability to every role: a fixed absolute node
+  addition is a *larger relative* gain against filler/accent's smaller
+  baseline node count than against hero's already-larger one, so it
+  narrowed the hero/baseline gap instead of widening it. Fix, entirely in
+  `generators/botanical.ts` (no scoring/formula changes, per the brief):
+  `attachOptionalStem` now takes the placement's `role` and looks up a
+  per-role probability (hero always gets a stem, usually a leaf,
+  sometimes a second leaf; secondary gets an intermediate tier;
+  filler/accent/undefined stay byte-identical to Build 019); a per-preset
+  diagnostic (`minimalBotanical`/`vintageHerbarium`/`scandinavianOrganic`/
+  `softWatercolorInspired` had structurally fragile heroes — as few as 1
+  hero instance per tile) found the single biggest remaining lever was
+  extending the same wrapper, hero-only, to instances landing on a bare
+  `'leaf'`-category variant (singleLeaf/mapleLeaf/heartLeaf/monsteraLeaf),
+  previously untouched since Build 019's wrapper only covered
+  `'flower'`-category variants. Measured: Overall Visual Quality 72.77 →
+  72.90 (Build 018 baseline exceeded, per the brief's completion rule),
+  Botanical Realism 40.79 → 65.35 (further improved over Build 019's
+  50.93, not just preserved), Hero Detail Ratio (mean) 73.44 → 80.30,
+  `heroInsufficientDetail` rate 10.42% → 9.38% (better than Build 018's
+  own baseline), Hero Visibility 85.01 → 87.12, Commercial Readiness
+  74.92 → 76.21, Negative Space/Composition flat. Every empirical tuning
+  variant was measured via a full 96-pattern audit re-run before being
+  kept or discarded — several plausible-looking changes (deterministic
+  second leaf, a zero-rng-cost sepal collar, higher filler probabilities)
+  measurably underperformed the simpler role-tiered fix and were reverted
+  once measured, consistent with this repo's "measure, don't assume"
+  precedent. Batch Generate re-verified: 0% failure rate at every size,
+  retry rate byte-identical to Build 019 (confirming determinism
+  preserved), diversity unchanged (19 distinct botanical families, 10
+  composition zones at every size). 7 new tests, full suite 269/269
+  files / 3050/3050 tests passing. See `BUILD_020_REPORT.md`.
+
+- **Build 021 — Production Ready**: a validation build, not a feature
+  build — audited the real Generate→Preview→SVG→PNG→JSON→SEO CSV→ZIP
+  pipeline against actual exported output rather than assuming it
+  worked. Found the export pipeline was real (no stubs anywhere) but
+  three separate, non-integrated systems: the Saved library (SVG+EPS+SEO
+  bundle, single pattern at a time), Batch Generate to Portfolio
+  (SVG+JSON only, no EPS/PNG/CSV ever produced for a batch item), and
+  Generate Collection ZIP (richest bundle but no EPS, SEO CSV embedded
+  as JSON string not real `.csv` files) — no single click produced the
+  complete sellable file set for a whole batch. Closed that one real gap
+  with a new "🚀 Production Mode" button: reuses `generateBatchToPortfolio`
+  in full (same diversity/quality-gate/dedup pipeline, zero new
+  generation logic) plus a new pure packaging module
+  (`batch/productionBundleService.ts`, only existing unmodified
+  `buildSingleTileSvg`/`buildEps`/`buildShutterstockCsv`/`buildAdobeStockCsv`
+  calls) to produce SVG+EPS+PNG+JSON per item and combined SEO CSVs,
+  zipped and downloaded in one click. Verified against a real 200-pattern
+  run through the unmodified production pipeline
+  (`scripts/build021ProductionVerification.ts`): 0 batch errors across
+  two 100-pattern runs, 0 filename collisions, 200/200 structurally
+  clean SVG+EPS (mean `svgHealth` 98.5/100, min 90 — the low end is only
+  the existing soft "large file" warning, never a hard NaN/external-ref/
+  duplicate-id failure), 200/200 patterns with every SEO field non-empty.
+  Real browser click-through confirmed the downloaded ZIP contains
+  genuine PNG/SVG/EPS/CSV/JSON content, not placeholders. No production
+  blocker was found, so no generator/scoring code was touched — Production
+  Mode is purely additive; the pre-existing Batch Generate/Download Batch
+  ZIP/Saved-library/Collection flows are all untouched. 6 new tests, full
+  suite passing. See `BUILD_021_REPORT.md`. **Final answer: the
+  application is ready for producing stock portfolios every day (YES).**
+
+## Recommended Next Build (Revenue First / Production track)
+
+Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
+Portfolio Diversity reuse, one evidence-based Botanical fix, and
+export/duplicate-detection wiring) and left 2 partially open by design,
+scoped to keep the build reviewable: "Improve Pattern Generator quality"
+was satisfied only in the narrow sense that batch output now goes
+through the same quality-retry path every other generation call does —
+no broader quality initiative was undertaken, since the existing
+scoring/critic stack is mature and the brief explicitly said not to
+touch it. "Improve SVG export" only got the new multi-asset ZIP
+capability — the single-file SVG/EPS/JPEG exporters themselves
+(`export/svgExporter.ts`, `export/epsExporter.ts`) were not touched.
+Natural next steps, in priority order: (1) run
+`scripts/build018BotanicalAudit.ts` again against a fresh sample and
+apply the same evidence-first approach to the next-weakest dimension
+(Organic Flow, mean ~41, was the second-lowest in this build's own
+audit); (2) wire the new `batch/` module's duplicate-detection summary
+into a real review UI (today it's a compact inline count — "3 possible
+duplicates" with no way to inspect *which* 3 without opening Portfolio
+Manager separately); (3) extend Batch Generate past 100 with real
+progress feedback (chunked, matching `candidateEngine.ts`'s own
+macrotask-chunking precedent) if larger runs are wanted.
+
+## Recommended Next Build (Visual Commercial Upgrade, Phase 2)
+
+Build 019 fixed the single weakest dimension (Botanical Realism) and its
+closely-related neighbor (Botanical Complexity), but Organic Flow —
+second-weakest before this build, now the single weakest remaining
+(mean 46.4) — is a *placement*-level characteristic
+(`gridAppearanceScore`/`rhythmRegularity`, purely a function of instance
+positions, not motif shape) rather than something the botanical motif
+generator itself can move. Build 019's own diagnostic breakdown found it
+varies meaningfully by layout (heroFlow/sCurve/scatter/airy score 41-43;
+bouquet scores 56) but is fairly flat across density bands (43.7-48.0).
+A real fix touches `layouts/*.ts`/`engine/compositionIntelligence.ts`/
+`engine/rhythmBands.ts` — code shared by every category, not just
+botanical — so it needs its own careful, isolated measurement pass
+(confirming no cross-category regression) rather than being folded into
+a single-file fix the way Botanical Realism was. Natural next steps: (1)
+investigate why `rhythmBands.ts`'s existing dense/loose spacing wave
+(Build 003, deliberately excluded from Composition Zone anchor placement
+since zones already have their own density skew) can't safely extend to
+the hero/secondary layer; (2) re-run `scripts/build019VisualAudit.ts`
+after any placement change to confirm the fix moved Organic Flow without
+regressing Composition/Negative Space/Layered Depth, which are all
+currently near-ceiling (97-100) and have real room to fall.
+
+## Recommended Next Build (Portfolio Manager track)
+
+Sprint 4 certified and froze the Collection module built and validated
+across Sprints 1-3 — production certification, a frozen public API
+contract, a consolidated baseline, and a recommended release tag, with
+no functional code change. P3 — Backup & Restore, Build 015 — Submission
+Center Foundation, Build 016 — SEO Intelligence Engine, and now Build
+017 — Portfolio Dashboard & Analytics Foundation have all since been
+completed on top of that frozen state (see above), each with no PR
+opened and nothing merged, and each leaving the frozen Collection API
+and every prior Commercial Workflow module untouched. The remaining
+steps, still gated on approval: (1) prepare and review a PR from the
+certified + backup-and-restore + submission-center + SEO-engine +
+dashboard state, (2) merge it, (3) only then create the recommended
+`portfolio-collections-v1.0.0` tag. **CI wiring for the performance
+baseline policy** (`P2.5-3`, open since Sprint 1) remains a smaller,
+independent candidate, unaffected by this sequencing. Natural next
+increments now sit on top of already-completed foundations, matching how
+P2 Stage 2 followed P2 Stage 1: a backup/restore UI on top of P3; a UI
+for Submission Center's queue/history/statistics views, and/or the first
+real (opt-in, clearly-scoped) marketplace upload integration, on top of
+Build 015; and — per Build 017's own brief — **Build 018**: a Portfolio
+Dashboard UI rendering `loadDashboardSnapshot()`'s output (the health
+score and its 6 components, the 5 analytics reports, and the
+recommendation list) as an actual screen, the first user-visible surface
+for any of the three Commercial Workflow modules built so far — left
+undone here by design ("No UI in this build").
+
+## Recommended Next Build (composition-quality track)
+
+Build 014 was a narrowly-scoped fix for the single recommendation Build
+013's Portfolio Intelligence Engine produced — it does not itself generate a
+new ranked recommendation (that engine, `src/portfolio/recommendations.ts`,
+is unchanged and read-only). The natural next step is re-running Build 013's
+analysis pipeline against a fresh 5,000-pattern portfolio generated with
+Build 014's fix applied, to surface the next-highest-lift failure mode now
+that `zeroMotifOverlap` is resolved (Build 013's own Section 7 findings —
+`heroInsufficientDetail` at 7.44x lift, `largeEmptyHole` at 5.94x,
+`weakHierarchy` at 4.37x — are the leading candidates, but should be
+re-measured on fresh data rather than assumed to still hold in the same
+order). The sections below are kept for history but reflect earlier builds'
+own state, not the current one.
+
+## Recommended Next Build (superseded — see below for Build 013's own list)
+
+Build 013's own report had the evidence-based Build 014 recommendation,
+derived from the highest-lift failure-mode finding across the full
+5,000-pattern portfolio (`zeroMotifOverlap`, 9.1x lift in the bottom decile,
+High confidence) — now resolved by Build 014.
+
+## Recommended Next Build (superseded — see below for Build 012's own list)
+
+Build 012 fixed the evaluation-layer bias Build 011.5 diagnosed. With the
+scoring layer now trustworthy across every preset, the natural next step is
+extending the same layout/product context this build introduced to the two
+explicitly-scoped-out consumption points (`critic/visualAnalysis.ts`'s own
+duplicate `gridAppearance` visual-issue flag, `metadata/submissionCenter.ts`'s
+checklist display) using the exact same `layoutEvaluationClass` pattern, plus
+Build 011.5's own remaining recommendations for artistic quality (hero-scale-
+dominance gap, botanical-category coverage). The section below is kept for
+history but reflects Build 011's own state, not the current one.
+
+## Recommended Next Build (superseded — see below for Build 011's own list)
+
+Build 011's own report has the up-to-date, evidence-based recommendation
+list (wire `resolveLayoutArchetypeForProduct` into a real call site once
+`layoutId` gains an optional state, surface Commercial Appeal Score V2 /
+the Consistency Portfolio's per-preset table in a UI panel, re-run the
+Consistency Portfolio as the standard before/after tier for future Style-
+DNA-touching builds). The section below is kept for history but reflects
+Build 001.1's own state, not the current one.
 
 ## Recommended Next Build (superseded — see below for Build 001.1's own list)
 

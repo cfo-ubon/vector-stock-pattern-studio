@@ -87,6 +87,34 @@ export const TREND_PRESETS: Record<string, TrendPreset> = {
     negativeSpace: 0.4, overlapAmount: 0, density: 0.4, colorStory: false, fillerStyle: 'none',
     signature: { hueRange: null, saturationRange: [0, 0.15], lightnessRange: [0.2, 0.95], densityRange: [0.25, 0.5], overlapRange: [0, 0.1] },
   },
+  // Build 011, Section 7 (Commercial Trend Engine): the 3 brief-named
+  // profiles with no exact-label match in either this table or
+  // STYLE_DNA_PRESETS (BUILD_011_AUDIT.md §7) — each a real, scoped bundle
+  // of already-implemented parameters, not a new engine concept. Signature
+  // ranges are built from the *actual* measured hue/saturation/lightness of
+  // each preset's own declared paletteId (verified against colorSetStats),
+  // the same way the pre-existing presets above read.
+  vintageBotanical: {
+    label: 'Vintage Botanical',
+    description: 'โทนสีดินอบอุ่นแบบตัวอย่างพืชกดแห้งโบราณ องค์ประกอบกระจายเป็นธรรมชาติ ความอิ่มตัวสีต่ำ',
+    categoryId: 'botanical', layoutId: 'scatter', paletteId: 'earth-tone', hierarchy: 'allOverTextile',
+    negativeSpace: 0.25, overlapAmount: 0, density: 0.45, colorStory: true, fillerStyle: 'subtle',
+    signature: { hueRange: [10, 90], saturationRange: [0.1, 0.5], lightnessRange: [0.25, 0.6], densityRange: [0.3, 0.55], overlapRange: [0, 0.15] },
+  },
+  modernCottagecore: {
+    label: 'Modern Cottagecore',
+    description: 'อบอุ่นละมุนสไตล์กระท่อมชนบทยุคใหม่ โทนเสจ-เทอร์ราคอตต้า จัดวางเป็นระเบียบแต่ยังมีชีวิตชีวา',
+    categoryId: 'botanical', layoutId: 'halfDrop', paletteId: 'sage-terracotta', hierarchy: 'balancedEditorial',
+    negativeSpace: 0.15, overlapAmount: 0.15, density: 0.5, colorStory: true, fillerStyle: 'subtle',
+    signature: { hueRange: [20, 110], saturationRange: [0.15, 0.55], lightnessRange: [0.35, 0.7], densityRange: [0.4, 0.6], overlapRange: [0.05, 0.25] },
+  },
+  maximalFloral: {
+    label: 'Maximal Floral',
+    description: 'ดอกไม้เต็มพื้นที่ สีสันจัดจ้านเข้มข้น องค์ประกอบแน่นทับซ้อนแทบไม่มีที่ว่าง',
+    categoryId: 'botanical', layoutId: 'densePremium', paletteId: 'berry-punch', hierarchy: 'denseLayered',
+    negativeSpace: 0, overlapAmount: 0.35, density: 0.8, colorStory: true, fillerStyle: 'rich', flatHighlight: true,
+    signature: { hueRange: [270, 30], saturationRange: [0.4, 0.75], lightnessRange: [0.3, 0.65], densityRange: [0.65, 0.9], overlapRange: [0.25, 0.45] },
+  },
 };
 
 /** Resolve a trend id into a GenerateParams patch, or null if unknown. The

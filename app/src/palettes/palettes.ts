@@ -1,5 +1,6 @@
 import type { Rng } from '../engine/types';
 import { rngPick } from '../engine/rng';
+import { COMMERCIAL_COLOR_STORIES } from './commercialColorStories';
 
 export interface Palette {
   id: string;
@@ -30,6 +31,15 @@ export const PALETTES: Palette[] = [
   { id: 'midnight-botanical', label: 'Midnight Botanical', colors: ['#EDE9DD', '#8FA68E', '#4A6B57', '#2E4A3F', '#1C2E2A', '#101820'] },
   { id: 'citrus-pop', label: 'Citrus Pop', colors: ['#FFFDF5', '#FFD166', '#FF8C42', '#EF476F', '#06A77D', '#073B4C'] },
   { id: 'lavender-fields', label: 'Lavender Fields', colors: ['#FBF7FD', '#E4D4F4', '#C6A9E8', '#9B7EDE', '#6B5197', '#3F2E5C'] },
+  // Build 006, Section 4 (Commercial Color Story Engine): the 8 named
+  // professional color stories (see `commercialColorStories.ts`, which owns
+  // their real contrast/temperature/accent/neutral-balance metadata)
+  // registered here as plain `Palette`s too -- purely additive at the end
+  // of the array, so every existing palette's id/index/order is untouched
+  // and any `paletteIds` reference (Style DNA, custom styles, saved
+  // patterns) can resolve one of these 8 ids exactly like any other
+  // palette, with zero special-casing anywhere else in the app.
+  ...COMMERCIAL_COLOR_STORIES.map((s) => ({ id: s.id, label: s.label, colors: s.colors })),
 ];
 
 export function getPalette(id: string): Palette {

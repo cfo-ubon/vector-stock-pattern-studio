@@ -174,7 +174,20 @@ describe('detectVisualIssues: lowHeroVisibility / weakHierarchy calibration (Bui
       // trigger seed, not the detector or its threshold, matching this
       // suite's own established precedent (see Build 003's
       // `fragmentedSilhouette` density retune, Section 2).
-      seed: 's6-lowherovis-retry-10',
+      //
+      // Build 018 (measured regression fix, same category as above):
+      // `generators/botanical.ts`'s `flowerBloom` variant gained an
+      // optional stem (an `rngBool` draw, Priority 4 — Botanical
+      // Realism), which consumes one extra random draw whenever that
+      // variant is picked and so shifts which variant every *later*
+      // rng() draw in the same generation lands on -- including this
+      // fixture's own trigger seed, whose score rose out of the weak
+      // range. Re-swept for a new seed that still produces a genuinely
+      // weak hero (score 42.15, comparable margin to the seed it
+      // replaces) with the current generator -- again, the fix is the
+      // trigger seed, not the detector, its threshold, or the Botanical
+      // Realism fix itself.
+      seed: 's6-lowherovis-sweep-45',
     });
     const metrics = computeMetrics(tile);
     const issue = detectVisualIssues(tile, metrics).find((i) => i.id === 'lowHeroVisibility')!;

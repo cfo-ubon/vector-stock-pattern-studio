@@ -1,0 +1,57 @@
+{
+  "id": "softWatercolorInspired",
+  "label": "Soft Watercolor Inspired (Vector only)",
+  "description": "A watercolor *feel* built entirely from flat vector fills and soft color blending — no raster texture, no bitmap brush strokes; airy negative space and a soft two-tone palette do the work.",
+  "categories": [
+    "organic",
+    "botanical"
+  ],
+  "layouts": [
+    "airy",
+    "scatter"
+  ],
+  "preferredZones": [
+    "centerFocus",
+    "wave",
+    "offset"
+  ],
+  "hierarchyPreset": "airyPremium",
+  "preferredFamilies": [
+    "cosmos",
+    "anemone",
+    "hydrangea"
+  ],
+  "preferredClusterArchetypes": [
+    "organicScatter",
+    "asymmetric"
+  ],
+  "density": 0.35,
+  "negativeSpace": 0.4,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.15,
+  "flowProfile": "calm",
+  "rhythmProfile": "organic",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.25,
+  "motifComplexity": "moderate",
+  "colorStrategy": "dominantDuo",
+  "paletteIds": [
+    "pastel-dream",
+    "lavender-fields",
+    "soft-cottage"
+  ],
+  "backgroundStrategy": "minimalLight",
+  "svgDepthMode": "soft",
+  "exportRecommendation": {
+    "tileSize": 1400,
+    "patternScale": 1,
+    "recommendedSites": [
+      "adobestock",
+      "freepik"
+    ],
+    "bestProductTargets": [
+      "stationery",
+      "digitalPaper"
+    ]
+  }
+}

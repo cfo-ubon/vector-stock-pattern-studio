@@ -40,6 +40,16 @@ export interface IllustrationTemplate {
   heroPart: BotanicalPart;
   secondaryParts: [BotanicalPart, BotanicalPart];
   fillerPart: BotanicalPart;
+  /** Build 008B, Section 3 (Commercial Bouquet Grammar): the real part
+   * drawn for a filler-role cluster member whose companion's own real
+   * pairing role (`SpeciesCompanion.role`, knowledge/registry/speciesSchema
+   * .ts) is `'foliage'` -- e.g. a Rose hero's filler members sometimes read
+   * as a Eucalyptus sprig-leaf rather than always a Berry or a small
+   * flower, matching the brief's own named role hierarchy ("...Filler
+   * Flower -> Filler Leaf -> Berry..."). See `premiumHero.ts`'s filler
+   * branch for the real per-hero selection between this, `fillerPart`
+   * (berry), and a filler flower. */
+  fillerLeafPart: BotanicalPart;
   accentPart: BotanicalPart;
   usesCalyx: boolean;
 }
@@ -50,6 +60,7 @@ export const ILLUSTRATION_TEMPLATES: Record<IllustrationTemplateId, Illustration
     heroPart: 'heroFlower',
     secondaryParts: ['bud', 'secondaryFlower'],
     fillerPart: 'berry',
+    fillerLeafPart: 'leaf',
     accentPart: 'tinyAccent',
     usesCalyx: true,
   },
@@ -58,6 +69,7 @@ export const ILLUSTRATION_TEMPLATES: Record<IllustrationTemplateId, Illustration
     heroPart: 'heroFlower',
     secondaryParts: ['secondaryFlower', 'bud'],
     fillerPart: 'berry',
+    fillerLeafPart: 'leaf',
     accentPart: 'tinyAccent',
     usesCalyx: false,
   },
@@ -66,6 +78,7 @@ export const ILLUSTRATION_TEMPLATES: Record<IllustrationTemplateId, Illustration
     heroPart: 'leafCluster',
     secondaryParts: ['leaf', 'leafCluster'],
     fillerPart: 'leaf',
+    fillerLeafPart: 'leaf',
     accentPart: 'tinyAccent',
     usesCalyx: false,
   },

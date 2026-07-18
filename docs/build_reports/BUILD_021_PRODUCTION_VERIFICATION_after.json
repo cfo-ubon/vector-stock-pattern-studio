@@ -1,0 +1,62 @@
+{
+  "label": "after",
+  "batchStability": {
+    "withDna": {
+      "label": "with-editorialBotanical",
+      "count": 100,
+      "elapsedMs": 5300,
+      "msPerItem": 53,
+      "generatedCount": 100,
+      "importedCount": 100,
+      "possibleDuplicateCount": 0,
+      "blockedDuplicateCount": 0,
+      "errorCount": 0,
+      "failureRate": 0,
+      "retryRate": 31,
+      "meanAttempts": 1.45,
+      "distinctBotanicalFamilies": 3,
+      "distinctCompositionZones": 3
+    },
+    "noDna": {
+      "label": "no-style-dna",
+      "count": 100,
+      "elapsedMs": 16640,
+      "msPerItem": 166.4,
+      "generatedCount": 100,
+      "importedCount": 100,
+      "possibleDuplicateCount": 0,
+      "blockedDuplicateCount": 0,
+      "errorCount": 0,
+      "failureRate": 0,
+      "retryRate": 1,
+      "meanAttempts": 1.02,
+      "distinctBotanicalFamilies": 19,
+      "distinctCompositionZones": 10
+    }
+  },
+  "filenameUniqueness": {
+    "totalItems": 200,
+    "uniqueBaseNames": 200,
+    "collisionCount": 0
+  },
+  "svgQuality": {
+    "itemCount": 200,
+    "svgHealthMean": 98.5,
+    "svgHealthMin": 90,
+    "svgStructurallyCleanCount": 200,
+    "epsStructurallyCleanCount": 200,
+    "allSvgHealthAt100": false
+  },
+  "seoCompleteness": {
+    "itemCount": 200,
+    "seoCompleteCount": 200,
+    "incompleteCount": 0,
+    "incompleteExamples": []
+  },
+  "csvBundle": {
+    "itemCount": 200,
+    "shutterstockRowCount": 200,
+    "adobeStockRowCount": 200,
+    "rowCountsMatchItemCount": true
+  }
+}

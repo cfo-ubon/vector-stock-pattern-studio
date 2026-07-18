@@ -5,6 +5,7 @@ import type { DesignSpecQualityReport } from '../trend/designSpecQuality';
 import { buildDesignCritique, type DesignCritique } from './designCritique';
 import { detectVisualIssues, type VisualIssue } from './visualAnalysis';
 import { detectProblems, type DesignProblem } from './problems';
+import { layoutEvaluationClass } from '../engine/layoutEvaluation';
 import { buildArtDirectionRecommendations, type ArtDirectionRecommendation } from './artDirection';
 import { buildStyleCoachNotes, type StyleCoachNote, type StyleCoachCategory } from './styleCoach';
 import { computePatternReadability, type PatternReadabilityResult } from '../engine/patternReadability';
@@ -105,7 +106,15 @@ export function buildDesignReport(
 ): DesignReport {
   const critique = buildDesignCritique(qualityReport, metrics);
   const visualIssues = detectVisualIssues(tile, metrics);
-  const problems = detectProblems(metrics);
+  // Build 012 (Evaluation Intelligence Engine V3): `spec.repeatType` is this
+  // Design Specification's own real `LayoutId` (see designSpecTypes.ts) —
+  // passing its evaluation class through fixes a real live bug where
+  // `critic/qualityGate.ts` blocked export/SEO/collection generation for
+  // lattice-layout patterns (grid/gridMinimal/halfDrop/brick/stripe) purely
+  // because their deliberate even-spacing/axis-alignment triggered
+  // high-severity "problems" that were never real defects
+  // (BUILD_012_AUDIT.md Finding 1).
+  const problems = detectProblems(metrics, { layoutClass: layoutEvaluationClass(spec.repeatType) });
   const recommendations = buildArtDirectionRecommendations(spec, visualIssues);
   const expectedImprovements = buildExpectedImprovements(recommendations, critique);
   const problemPoints = new Map(problems.map((p) => [p.id, p.points]));

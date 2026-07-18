@@ -1,5 +1,5 @@
 import type { Placement, Rng } from './types';
-import { rngRange } from './rng';
+import { rngRange, rngInt } from './rng';
 
 export type MotifRole = 'hero' | 'secondary' | 'filler' | 'accent';
 
@@ -21,6 +21,32 @@ export interface HierarchyParams {
   secondaryScale: number;
   fillerScale: number;
   accentScale: number;
+  /** Build 009, Section 1 (Visual Hierarchy Engine V2): the brief's
+   * 5-tier ask (primary hero / secondary hero / supporting / filler /
+   * micro details) doesn't get a new `MotifRole` value -- that enum is
+   * read by `ClusterMember` roles, Pattern Physics importance, paint
+   * order, and per-role scale bands across dozens of call sites, far too
+   * large a blast radius for one build. Instead, a real second focal
+   * point is created WITHIN the existing 'secondary' tier: the single
+   * largest-scaled 'secondary' placement per tile gets boosted toward a
+   * band between 'secondary' and 'hero' (see `promoteSecondaryHero`) --
+   * genuinely intentional visual weight, not a new taxonomy value.
+   * `undefined`/`0` (every `HIERARCHY_PRESETS` entry, every pre-Build-009
+   * saved pattern) is a strict no-op, reproducing prior output exactly. */
+  secondaryHeroBoost?: number;
+  /** Build 010, Section 5 (Premium Rhythm Engine): the audit found
+   * `engine/clusterEngine.ts`'s `SIZE_RHYTHM` already gives cluster
+   * anchors a real, deliberate non-monotonic large/medium/small alternating
+   * sequence (not pure randomness) — but that reach stops at cluster-based
+   * layouts. Non-clustered layouts (grid/scatter/toss/halfDrop) only ever
+   * got a genuinely random +/-22% wobble per instance. `true` applies the
+   * exact same "fixed non-monotonic cycle + randomized per-role start
+   * offset + small residual jitter" idiom here too (see
+   * `PREMIUM_RHYTHM_STEPS`), so each role's own instances read as a
+   * deliberate rhythm rather than statistical noise. Undefined/false is a
+   * strict no-op — every pre-Build-010 pattern (and every `HIERARCHY_PRESETS`
+   * entry, none of which set this) reproduces the exact prior random wobble. */
+  premiumRhythm?: boolean;
 }
 
 export const DEFAULT_HIERARCHY: HierarchyParams = {
@@ -140,6 +166,14 @@ export function sortByLayerPriority(placements: Placement[]): Placement[] {
     .map((e) => e.p);
 }
 
+/** Build 010, Section 5 (Premium Rhythm Engine): the same "fixed,
+ * deliberately non-monotonic cycle, never two equal steps in a row" idiom
+ * as `clusterEngine.ts`'s `SIZE_RHYTHM`, rescaled to stay inside the
+ * existing +/-22% wobble band (values in [0.8, 1.2]) so opting in changes
+ * *which* pattern the per-instance scale follows, not the overall spread
+ * every `HierarchyParams` scale band already assumes. */
+const PREMIUM_RHYTHM_STEPS = [1.18, 0.88, 1.05, 0.94];
+
 function normalizeRatios(h: HierarchyParams): [number, number, number, number] {
   const sum = h.heroRatio + h.secondaryRatio + h.fillerRatio + h.accentRatio;
   if (sum <= 0) return [0, 1, 0, 0];
@@ -152,7 +186,23 @@ function normalizeRatios(h: HierarchyParams): [number, number, number, number] {
  * already produced rather than replacing it. */
 export function applyHierarchy(placements: Placement[], hierarchy: HierarchyParams, rng: Rng): Placement[] {
   const [heroP, secondaryP, fillerP] = normalizeRatios(hierarchy);
-  return placements.map((p) => {
+  // Build 010, Section 5: a randomized per-role start offset into
+  // PREMIUM_RHYTHM_STEPS, resolved once per tile — rolled unconditionally
+  // (a fixed rng-consumption shape whether or not the flag ends up true
+  // downstream) would shift every other generation's rng stream, so this
+  // stays strictly inside the `premiumRhythm` branch, matching the same
+  // "no rng cost unless the feature is on" convention every other optional
+  // pass in this file already follows.
+  const rhythmOffsets = hierarchy.premiumRhythm
+    ? {
+        hero: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        secondary: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        filler: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+        accent: rngInt(rng, 0, PREMIUM_RHYTHM_STEPS.length - 1),
+      }
+    : undefined;
+  const rhythmCounts: Record<MotifRole, number> = { hero: 0, secondary: 0, filler: 0, accent: 0 };
+  const roled = placements.map((p) => {
     const t = rng();
     let role: MotifRole;
     let mul: number;
@@ -169,20 +219,103 @@ export function applyHierarchy(placements: Placement[], hierarchy: HierarchyPara
       role = 'accent';
       mul = hierarchy.accentScale;
     }
-    // Build 002, Section 4 (Scale Diversity): a real, wide per-instance
-    // spread within each role's own scale band, not just cosmetic noise —
-    // the old +/-6% wobble left same-role motifs (often 30%+ of a tile's
-    // placements, e.g. DEFAULT_HIERARCHY's 38% secondary / 35% filler)
-    // clustered tightly enough around one multiplier to dominate a single
-    // bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat detector
-    // (SCALE_REPEAT_THRESHOLD 0.5) on almost every real generation — exactly
-    // the repeatedScale flag rate this section measured at 32% portfolio-
-    // wide. +/-22% keeps every role's own band comfortably separated from
-    // its neighbors (hero/secondary/filler/accent multipliers are spaced far
-    // enough apart across every HIERARCHY_PRESETS entry that +/-22% never
-    // makes two roles' ranges overlap), while spreading each role's own
-    // instances across roughly 2 of the detector's 8 buckets instead of 1.
-    const wobble = 1 + rngRange(rng, -0.22, 0.22);
+    let wobble: number;
+    if (rhythmOffsets) {
+      // Build 010, Section 5 (Premium Rhythm Engine): each role tracks its
+      // own position in the shared non-monotonic cycle (not a tile-wide
+      // index), so a role's own instances read as a deliberate rhythm
+      // regardless of how the other roles happen to interleave with it —
+      // a small residual jitter (+/-5%, well inside the step-to-step gaps)
+      // keeps instances from looking mechanically identical within a step.
+      const idx = (rhythmCounts[role] + rhythmOffsets[role]) % PREMIUM_RHYTHM_STEPS.length;
+      rhythmCounts[role]++;
+      wobble = PREMIUM_RHYTHM_STEPS[idx] * (1 + rngRange(rng, -0.05, 0.05));
+    } else {
+      // Build 002, Section 4 (Scale Diversity): a real, wide per-instance
+      // spread within each role's own scale band, not just cosmetic noise —
+      // the old +/-6% wobble left same-role motifs (often 30%+ of a tile's
+      // placements, e.g. DEFAULT_HIERARCHY's 38% secondary / 35% filler)
+      // clustered tightly enough around one multiplier to dominate a single
+      // bucket of `critic/visualAnalysis.ts`'s 8-bucket scale-repeat detector
+      // (SCALE_REPEAT_THRESHOLD 0.5) on almost every real generation — exactly
+      // the repeatedScale flag rate this section measured at 32% portfolio-
+      // wide. +/-22% keeps every role's own band comfortably separated from
+      // its neighbors (hero/secondary/filler/accent multipliers are spaced far
+      // enough apart across every HIERARCHY_PRESETS entry that +/-22% never
+      // makes two roles' ranges overlap), while spreading each role's own
+      // instances across roughly 2 of the detector's 8 buckets instead of 1.
+      wobble = 1 + rngRange(rng, -0.22, 0.22);
+    }
     return { ...p, role, scale: Math.max(0.05, p.scale * mul * wobble) };
   });
+  return promoteSecondaryHero(roled, hierarchy);
+}
+
+/** Build 009, Section 1 (Visual Hierarchy Engine V2): a real second focal
+ * point within the 'secondary' tier -- see `HierarchyParams
+ * .secondaryHeroBoost`'s own doc comment for why this isn't a new
+ * `MotifRole` value. Deterministic (no rng consumption, so it never shifts
+ * any other pass's random stream): among every 'secondary'-role placement
+ * in the tile, the single one that already rolled the largest scale (the
+ * one that would have read as "the biggest of the supporting group"
+ * anyway) is boosted toward a band between plain secondary and hero,
+ * rather than picking a fresh random winner -- a real, deliberate "this
+ * one is the secondary hero" choice, not an arbitrary one. No-op (returns
+ * `placements` unchanged, same array reference) when `secondaryHeroBoost`
+ * is unset/0 or there is no 'secondary'-role placement at all. */
+function promoteSecondaryHero(placements: Placement[], hierarchy: HierarchyParams): Placement[] {
+  const boost = hierarchy.secondaryHeroBoost ?? 0;
+  if (boost <= 0) return placements;
+  let largestIndex = -1;
+  let largestScale = -Infinity;
+  placements.forEach((p, i) => {
+    if (p.role === 'secondary' && p.scale > largestScale) {
+      largestScale = p.scale;
+      largestIndex = i;
+    }
+  });
+  if (largestIndex < 0) return placements;
+
+  // Boosted scale sits strictly between the plain secondary band and the
+  // hero band -- never allowed to reach or exceed heroScale itself, so the
+  // real hero (Section 1's "primary hero") always still reads as the
+  // single largest object in the tile.
+  const target = hierarchy.secondaryScale + (hierarchy.heroScale - hierarchy.secondaryScale) * Math.min(1, boost);
+  const capped = Math.min(target, hierarchy.heroScale * 0.92);
+  const result = placements.slice();
+  result[largestIndex] = { ...result[largestIndex], scale: Math.max(result[largestIndex].scale, capped) };
+  return result;
+}
+
+/** Build 009, Section 1 (Visual Hierarchy Engine V2): a real, measured
+ * "does this tile's hierarchy read as intentional" score -- averages how
+ * cleanly each pair of adjacent rendered-scale tiers (hero > secondary >
+ * filler > accent, the real `ROLE_LAYER_PRIORITY` order) separates,
+ * relative to the tile's own overall scale spread. A tile whose tiers'
+ * average scales barely differ (everything reads as "medium") scores low
+ * even if roles were nominally assigned; a tile with real, clearly
+ * separated bands scores high. Tiles with fewer than 2 distinct roles
+ * present return 100 (nothing to separate, trivially "clean") rather than
+ * a fabricated penalty. */
+export function computeVisualHierarchyScore(placements: Placement[]): number {
+  const byRole = new Map<MotifRole, number[]>();
+  for (const p of placements) {
+    if (!p.role) continue;
+    if (!byRole.has(p.role)) byRole.set(p.role, []);
+    byRole.get(p.role)!.push(p.scale);
+  }
+  const tiers: MotifRole[] = ['hero', 'secondary', 'filler', 'accent'];
+  const means = tiers
+    .filter((t) => byRole.has(t))
+    .map((t) => byRole.get(t)!.reduce((a, b) => a + b, 0) / byRole.get(t)!.length);
+  if (means.length < 2) return 100;
+
+  const allScales = placements.map((p) => p.scale);
+  const spread = Math.max(...allScales) - Math.min(...allScales);
+  if (spread <= 0) return 0;
+
+  const gaps: number[] = [];
+  for (let i = 0; i < means.length - 1; i++) gaps.push((means[i] - means[i + 1]) / spread);
+  const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+  return Math.max(0, Math.min(100, Math.round(avgGap * 100)));
 }

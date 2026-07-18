@@ -2,12 +2,15 @@ import { describe, it, expect } from 'vitest';
 import type { Placement } from './types';
 import {
   computeWeight,
+  computePerceivedWeight,
   applyBalanceCorrection,
   applyGridBalanceCorrection,
   applyNegativeSpaceCorrection,
   applyFlowBias,
   applyRhythmSmoothing,
   applyCompositionIntelligence,
+  applyControlledAsymmetry,
+  ASYMMETRY_DIRECTIONS,
   DEFAULT_COMPOSITION_INTELLIGENCE,
 } from './compositionIntelligence';
 
@@ -37,6 +40,42 @@ describe('computeWeight', () => {
   it('treats an unset role as neutral (same as scale^2 alone)', () => {
     const noRole = computeWeight(makePlacement(0, 0, { scale: 1.5 }));
     expect(noRole).toBeCloseTo(1.5 * 1.5, 5);
+  });
+});
+
+describe('computePerceivedWeight (Build 011, Section 1: Artistic Balance Engine)', () => {
+  it('matches computeWeight exactly when paletteEnergy is undefined and role has no detail level', () => {
+    const filler = makePlacement(0, 0, { scale: 1, role: 'filler' });
+    expect(computePerceivedWeight(filler)).toBeCloseTo(computeWeight(filler), 10);
+  });
+
+  it('a hero reads heavier than plain computeWeight due to detail density, even with no paletteEnergy', () => {
+    const hero = makePlacement(0, 0, { scale: 1, role: 'hero' });
+    expect(computePerceivedWeight(hero)).toBeGreaterThan(computeWeight(hero));
+  });
+
+  it('a higher paletteEnergy makes a hero/secondary placement read heavier', () => {
+    const hero = makePlacement(0, 0, { scale: 1, role: 'hero' });
+    const low = computePerceivedWeight(hero, 0);
+    const high = computePerceivedWeight(hero, 1);
+    expect(high).toBeGreaterThan(low);
+  });
+
+  it('paletteEnergy does not affect filler/accent (neutral background roles)', () => {
+    const filler = makePlacement(0, 0, { scale: 1, role: 'filler' });
+    const accent = makePlacement(0, 0, { scale: 1, role: 'accent' });
+    expect(computePerceivedWeight(filler, 0)).toBeCloseTo(computePerceivedWeight(filler, 1), 10);
+    expect(computePerceivedWeight(accent, 0)).toBeCloseTo(computePerceivedWeight(accent, 1), 10);
+  });
+
+  it('still orders hero > secondary > filler > accent at equal scale/paletteEnergy', () => {
+    const hero = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'hero' }), 0.5);
+    const secondary = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'secondary' }), 0.5);
+    const filler = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'filler' }), 0.5);
+    const accent = computePerceivedWeight(makePlacement(0, 0, { scale: 1, role: 'accent' }), 0.5);
+    expect(hero).toBeGreaterThan(secondary);
+    expect(secondary).toBeGreaterThan(filler);
+    expect(filler).toBeGreaterThan(accent);
   });
 });
 
@@ -208,6 +247,55 @@ describe('applyCompositionIntelligence', () => {
     const manual = applyRhythmSmoothing(applyBalanceCorrection(placements, TILE, 0.7), TILE, 0.4);
     expect(viaOrchestrator).toEqual(manual);
   });
+
+  it('Build 009 Section 2: eyeFlowPath/eyeFlowStrength are a strict no-op when left unset', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15));
+    const withoutEyeFlow = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const explicitlyUnset = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, eyeFlowPath: undefined, eyeFlowStrength: undefined });
+    expect(explicitlyUnset).toEqual(withoutEyeFlow);
+  });
+
+  it('Build 009 Section 2: setting eyeFlowPath/eyeFlowStrength visibly changes the result', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15));
+    const without = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const withEyeFlow = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, eyeFlowPath: 'sCurve', eyeFlowStrength: 0.5 });
+    expect(withEyeFlow).not.toEqual(without);
+  });
+
+  it('Build 011 Section 1: artisticBalance/paletteEnergy are a strict no-op when left unset', () => {
+    const placements: Placement[] = [];
+    for (let i = 0; i < 12; i++) placements.push(makePlacement(50 + i * 20, 50 + i * 15, { role: i % 3 === 0 ? 'hero' : 'filler' }));
+    const withoutFlag = applyCompositionIntelligence(placements, TILE, DEFAULT_COMPOSITION_INTELLIGENCE);
+    const explicitlyUnset = applyCompositionIntelligence(placements, TILE, { ...DEFAULT_COMPOSITION_INTELLIGENCE, artisticBalance: undefined, paletteEnergy: undefined });
+    expect(explicitlyUnset).toEqual(withoutFlag);
+  });
+
+  it('Build 011 Section 1: enabling artisticBalance with a high paletteEnergy can flip which cell reads as heaviest, visibly changing the result', () => {
+    // 3 fillers alone outweigh 1 hero under plain computeWeight (2.55 vs
+    // 2.535), so the default pass evicts a filler from the filler-heavy
+    // cell. Once the hero's real perceived weight (detail density + this
+    // tile's own color energy) is factored in, the hero cell becomes the
+    // heavier one instead, and the hero itself is what gets moved — a real,
+    // observable behavior change, not just a magnitude tweak that happens
+    // to net out the same.
+    const placements: Placement[] = [
+      makePlacement(60, 60, { role: 'filler' }),
+      makePlacement(70, 70, { role: 'filler' }),
+      makePlacement(80, 80, { role: 'filler' }),
+      makePlacement(900, 60, { role: 'hero', scale: 1.3 }),
+    ];
+    const minimalParams = { balanceStrength: 1, rhythmStrength: 0 };
+    const without = applyCompositionIntelligence(placements, TILE, minimalParams);
+    const withArtisticBalance = applyCompositionIntelligence(placements, TILE, { ...minimalParams, artisticBalance: true, paletteEnergy: 1 });
+    expect(withArtisticBalance).not.toEqual(without);
+    const hero = placements[3];
+    const heroMovedOnlyWithArtisticBalance = withArtisticBalance[3].x !== hero.x || withArtisticBalance[3].y !== hero.y;
+    const heroMovedByDefault = without[3].x !== hero.x || without[3].y !== hero.y;
+    expect(heroMovedOnlyWithArtisticBalance).toBe(true);
+    expect(heroMovedByDefault).toBe(false);
+  });
 });
 
 describe('applyGridBalanceCorrection', () => {
@@ -241,6 +329,32 @@ describe('applyGridBalanceCorrection', () => {
     const a = applyGridBalanceCorrection(placements, TILE, 4, 0.6);
     const b = applyGridBalanceCorrection(placements, TILE, 4, 0.6);
     expect(a).toEqual(b);
+  });
+
+  it('Build 011, Section 1: an explicit weightFn changes which placement is judged heaviest', () => {
+    const placements: Placement[] = [
+      makePlacement(60, 60, { role: 'hero' }),
+      makePlacement(70, 70, { role: 'filler' }),
+      makePlacement(900, 60, { role: 'accent' }),
+      makePlacement(900, 900, { role: 'accent' }),
+    ];
+    // Default computeWeight: hero (1.5) > filler (0.85), so the redistribution
+    // pass moves the *lighter* filler out of the overloaded cell first.
+    const defaultResult = applyGridBalanceCorrection(placements, TILE, 2, 1);
+    const filler = placements[1];
+    const fillerMoved = defaultResult[1].x !== filler.x || defaultResult[1].y !== filler.y;
+    expect(fillerMoved).toBe(true);
+    const hero = placements[0];
+    const heroUnmovedByDefault = defaultResult[0].x === hero.x && defaultResult[0].y === hero.y;
+    expect(heroUnmovedByDefault).toBe(true);
+
+    // An inverted weightFn (hero reads as lightest) moves the hero instead —
+    // proof `weightFn` genuinely replaces `computeWeight`, not just an inert
+    // parameter.
+    const invertedWeightFn = (p: Placement) => (p.role === 'hero' ? 0.1 : 2);
+    const invertedResult = applyGridBalanceCorrection(placements, TILE, 2, 1, invertedWeightFn);
+    const heroMovedWhenInverted = invertedResult[0].x !== hero.x || invertedResult[0].y !== hero.y;
+    expect(heroMovedWhenInverted).toBe(true);
   });
 });
 
@@ -295,6 +409,82 @@ describe('applyFlowBias', () => {
     const placements = [makePlacement(100, 900), makePlacement(400, 200)];
     const a = applyFlowBias(placements, TILE, 'dynamic', 0.6);
     const b = applyFlowBias(placements, TILE, 'dynamic', 0.6);
+    expect(a).toEqual(b);
+  });
+});
+
+describe('applyControlledAsymmetry (Build 009, Section 5: Natural Asymmetry Engine)', () => {
+  it('is a no-op when strength is 0', () => {
+    const placements = [makePlacement(100, 100, { role: 'filler' })];
+    expect(applyControlledAsymmetry(placements, TILE, 'right', 0)).toBe(placements);
+  });
+
+  it('is a no-op for an empty placement list', () => {
+    expect(applyControlledAsymmetry([], TILE, 'right', 1)).toEqual([]);
+  });
+
+  it('never nudges hero or secondary placements', () => {
+    const hero = makePlacement(500, 500, { role: 'hero' });
+    const secondary = makePlacement(500, 500, { role: 'secondary' });
+    const [resultHero] = applyControlledAsymmetry([hero], TILE, 'right', 1);
+    const [resultSecondary] = applyControlledAsymmetry([secondary], TILE, 'right', 1);
+    expect(resultHero).toEqual(hero);
+    expect(resultSecondary).toEqual(secondary);
+  });
+
+  it('nudges filler/accent/unroled placements in the chosen direction', () => {
+    const filler = makePlacement(500, 500, { role: 'filler' });
+    const accent = makePlacement(500, 500, { role: 'accent' });
+    const unroled = makePlacement(500, 500);
+    const [rFiller] = applyControlledAsymmetry([filler], TILE, 'right', 1);
+    const [rAccent] = applyControlledAsymmetry([accent], TILE, 'right', 1);
+    const [rUnroled] = applyControlledAsymmetry([unroled], TILE, 'right', 1);
+    expect(rFiller.x).toBeGreaterThan(filler.x);
+    expect(rAccent.x).toBeGreaterThan(accent.x);
+    expect(rUnroled.x).toBeGreaterThan(unroled.x);
+  });
+
+  it("moves placements in the direction implied by each named direction's vector", () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    const [right] = applyControlledAsymmetry([p], TILE, 'right', 1);
+    const [left] = applyControlledAsymmetry([p], TILE, 'left', 1);
+    const [top] = applyControlledAsymmetry([p], TILE, 'top', 1);
+    const [bottom] = applyControlledAsymmetry([p], TILE, 'bottom', 1);
+    expect(right.x).toBeGreaterThan(p.x);
+    expect(left.x).toBeLessThan(p.x);
+    expect(top.y).toBeLessThan(p.y);
+    expect(bottom.y).toBeGreaterThan(p.y);
+  });
+
+  it('every real direction produces a nonzero, bounded (subtle) nudge', () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    for (const direction of ASYMMETRY_DIRECTIONS) {
+      const [result] = applyControlledAsymmetry([p], TILE, direction, 1);
+      const dist = Math.hypot(result.x - p.x, result.y - p.y);
+      expect(dist).toBeGreaterThan(0);
+      expect(dist).toBeLessThan(TILE * 0.1);
+    }
+  });
+
+  it('scales the nudge magnitude with strength', () => {
+    const p = makePlacement(500, 500, { role: 'accent' });
+    const [weak] = applyControlledAsymmetry([p], TILE, 'right', 0.2);
+    const [strong] = applyControlledAsymmetry([p], TILE, 'right', 1);
+    expect(strong.x - p.x).toBeGreaterThan(weak.x - p.x);
+  });
+
+  it('filler moves less than accent for the same strength (a lighter touch on the more prominent role)', () => {
+    const filler = makePlacement(500, 500, { role: 'filler' });
+    const accent = makePlacement(500, 500, { role: 'accent' });
+    const [rFiller] = applyControlledAsymmetry([filler], TILE, 'right', 1);
+    const [rAccent] = applyControlledAsymmetry([accent], TILE, 'right', 1);
+    expect(rFiller.x - filler.x).toBeLessThan(rAccent.x - accent.x);
+  });
+
+  it('is deterministic (pure function, no rng)', () => {
+    const placements = [makePlacement(100, 900, { role: 'accent' }), makePlacement(400, 200, { role: 'filler' })];
+    const a = applyControlledAsymmetry(placements, TILE, 'bottomLeft', 0.6);
+    const b = applyControlledAsymmetry(placements, TILE, 'bottomLeft', 0.6);
     expect(a).toEqual(b);
   });
 });

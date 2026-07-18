@@ -22,8 +22,19 @@ describe('runImprovementLoop', () => {
     expect(result.roundsUsed).toBe(result.rounds.length);
   });
 
-  it('actually improves the overall critique score for a mechanical grid spec with real headroom to improve', () => {
-    const spec = { ...makeSpec(), repeatType: 'grid' as const, rhythm: 'regular' as const, flow: 'calm' as const, density: 0.3 };
+  it('actually improves the overall critique score for a spec with real headroom to improve', () => {
+    // Build 012 (Evaluation Intelligence Engine V3) fixed a real scoring
+    // bias where a grid layout's own deliberate even spacing/axis alignment
+    // was scored as a defect (BUILD_012_AUDIT.md Finding 1) -- this grid
+    // spec now correctly scores ~80/100 out of the box, clearing the
+    // default `minOverallScore: 70` bar in round 0 with nothing left to
+    // fix. A raised `minOverallScore` restores genuine headroom (real
+    // quality-target shortfall, not an artifact of the fixed bias) so this
+    // test still exercises the loop's actual multi-round mechanism.
+    const spec = {
+      ...makeSpec(), repeatType: 'grid' as const, rhythm: 'regular' as const, flow: 'calm' as const, density: 0.3,
+      qualityTargets: { ...makeSpec().qualityTargets, minOverallScore: 95 },
+    };
     const result = runImprovementLoop(spec, 'improvement-loop-2', 3);
     expect(result.rounds.length).toBeGreaterThan(1);
     expect(result.improved).toBe(true);
@@ -31,11 +42,13 @@ describe('runImprovementLoop', () => {
   });
 
   it('each round after the first reflects a real, different spec patch applied by the previous round', () => {
-    const spec = { ...makeSpec(), repeatType: 'grid' as const, rhythm: 'regular' as const, flow: 'calm' as const, density: 0.3 };
+    const spec = {
+      ...makeSpec(), repeatType: 'grid' as const, rhythm: 'regular' as const, flow: 'calm' as const, density: 0.3,
+      qualityTargets: { ...makeSpec().qualityTargets, minOverallScore: 95 },
+    };
     const result = runImprovementLoop(spec, 'improvement-loop-3', 3);
-    if (result.rounds.length > 1) {
-      expect(result.rounds[1].spec).not.toEqual(result.rounds[0].spec);
-    }
+    expect(result.rounds.length).toBeGreaterThan(1);
+    expect(result.rounds[1].spec).not.toEqual(result.rounds[0].spec);
   });
 
   it('stops as soon as the commercial bar is met, without using every round', () => {

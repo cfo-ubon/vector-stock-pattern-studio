@@ -1,0 +1,50 @@
+{
+  "id": "kidsPlayful",
+  "label": "Kids Playful",
+  "description": "Bright, bouncy toss/scatter of simple friendly shapes with candy-shop color.",
+  "categories": [
+    "cute"
+  ],
+  "layouts": [
+    "toss",
+    "scatter"
+  ],
+  "preferredZones": [
+    "offset",
+    "zFlow",
+    "wave"
+  ],
+  "hierarchyPreset": "ditsyFloral",
+  "preferredClusterArchetypes": [
+    "wildCluster",
+    "organicScatter"
+  ],
+  "density": 0.55,
+  "negativeSpace": 0.1,
+  "overlapMode": "subtle",
+  "overlapAmount": 0.1,
+  "flowProfile": "dynamic",
+  "rhythmProfile": "syncopated",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.4,
+  "motifComplexity": "simple",
+  "colorStrategy": "fullPalette",
+  "paletteIds": [
+    "candy-shop",
+    "vibrant-pop"
+  ],
+  "backgroundStrategy": "minimalLight",
+  "svgDepthMode": "dimensional",
+  "exportRecommendation": {
+    "tileSize": 1200,
+    "patternScale": 1,
+    "recommendedSites": [
+      "shutterstock",
+      "freepik"
+    ],
+    "bestProductTargets": [
+      "stationery",
+      "giftWrap"
+    ]
+  }
+}

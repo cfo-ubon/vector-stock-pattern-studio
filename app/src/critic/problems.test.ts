@@ -62,4 +62,26 @@ describe('detectProblems', () => {
     const metrics = { ...healthyMetrics(), overlapQuality: 5 };
     expect(detectProblems(metrics)).toEqual(detectProblems(metrics));
   });
+
+  describe('Build 012: layout-aware context', () => {
+    it('defaults to organic (V1-identical) behavior when no context is given', () => {
+      const metrics = { ...healthyMetrics(), gridAppearanceScore: 10 };
+      expect(detectProblems(metrics).some((p) => p.id === 'gridAppearance')).toBe(true);
+    });
+
+    it('reports gridAppearance as a problem under an explicit organic context', () => {
+      const metrics = { ...healthyMetrics(), gridAppearanceScore: 10 };
+      expect(detectProblems(metrics, { layoutClass: 'organic' }).some((p) => p.id === 'gridAppearance')).toBe(true);
+    });
+
+    it('does not report gridAppearance as a problem under a lattice context', () => {
+      const metrics = { ...healthyMetrics(), gridAppearanceScore: 10 };
+      expect(detectProblems(metrics, { layoutClass: 'lattice' }).some((p) => p.id === 'gridAppearance')).toBe(false);
+    });
+
+    it('still reports layout-agnostic problems (e.g. zeroMotifOverlap) under a lattice context', () => {
+      const metrics = { ...healthyMetrics(), overlapQuality: 5 };
+      expect(detectProblems(metrics, { layoutClass: 'lattice' }).some((p) => p.id === 'zeroMotifOverlap')).toBe(true);
+    });
+  });
 });

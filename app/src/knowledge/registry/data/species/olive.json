@@ -1,0 +1,42 @@
+{
+  "id": "olive",
+  "label": "Olive",
+  "botanicalFamilyName": "Oleaceae",
+  "silhouette": "wispy",
+  "growthPreset": "olive",
+  "stemLengthScale": 1.1,
+  "leafDensityScale": 1,
+  "bouquetRole": "foliageOnly",
+  "flowerDiameterClass": "none",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "none",
+  "petalOverlap": "none",
+  "petalSilhouette": "none",
+  "petalEdgeStyle": "none",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "thick",
+  "branchingTendency": "branching",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "silver-green",
+    "grey-green"
+  ],
+  "premiumScore": 70,
+  "eleganceScore": 85,
+  "commercialPopularity": 75,
+  "companions": [],
+  "usageProfiles": [
+    "minimal",
+    "scandinavian",
+    "modern"
+  ]
+}

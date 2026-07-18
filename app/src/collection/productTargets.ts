@@ -17,11 +17,20 @@ export type ProductUseId =
   | 'stationery'
   | 'homeDecor'
   | 'textile'
-  | 'digitalPaper';
+  | 'digitalPaper'
+  // Build 012, Section 4 (Product-aware Evaluation): 3 named products from
+  // the brief (Notebook/Greeting Card/Poster/Canvas) had no real product id
+  // anywhere in this codebase — Build 011.5's audit used `stationery` as an
+  // honest, explicitly-documented PROXY for Greeting Card. Notebook already
+  // has a real id (`notebookCovers`, above); these 3 are genuinely new.
+  | 'greetingCard'
+  | 'poster'
+  | 'canvas';
 
 export const PRODUCT_USE_IDS: ProductUseId[] = [
   'wallpaper', 'fabric', 'wrappingPaper', 'giftWrap', 'packaging',
   'notebookCovers', 'stationery', 'homeDecor', 'textile', 'digitalPaper',
+  'greetingCard', 'poster', 'canvas',
 ];
 
 const PRODUCT_USE_LABELS: Record<ProductUseId, string> = {
@@ -35,7 +44,30 @@ const PRODUCT_USE_LABELS: Record<ProductUseId, string> = {
   homeDecor: 'Home Decor',
   textile: 'Textile',
   digitalPaper: 'Digital Paper',
+  greetingCard: 'Greeting Card',
+  poster: 'Poster',
+  canvas: 'Canvas',
 };
+
+/** Build 012, Section 5 (Penalty System V2): whether this product is
+ * conventionally sold/printed as a continuous, tiled all-over repeat
+ * (fabric yardage, wallpaper rolls, wrapping paper sheets — where a
+ * seamless-repeat defect like a corner "dead cross" is a real commercial
+ * flaw) versus a single, framed composition with no tiling concept at all
+ * (a poster or canvas print is one fixed-size image, sold and viewed once,
+ * never repeated edge-to-edge). Defaults to `true` (repeat product) when
+ * omitted below — every product this engine already supported before
+ * Build 012 is a real repeat product, so this preserves their existing
+ * evaluation behavior exactly; only `poster`/`canvas` are the unambiguous
+ * exceptions (BUILD_012_AUDIT.md Finding 6). */
+const REPEAT_PRODUCT: Partial<Record<ProductUseId, boolean>> = {
+  poster: false,
+  canvas: false,
+};
+
+export function isRepeatProduct(id: ProductUseId): boolean {
+  return REPEAT_PRODUCT[id] ?? true;
+}
 
 interface ProductUseRule {
   /** Lowercase words/phrases — if any appears in the caller's free-text
@@ -81,6 +113,13 @@ const RULES: Record<ProductUseId, ProductUseRule> = {
   homeDecor: { keywords: ['home decor', 'decor', 'cushion', 'pillow', 'rug', 'throw'], categories: ['damask', 'botanical', 'mandala', 'terrazzo'], minDensity: 0.4 },
   textile: { keywords: ['textile', 'yardage', 'curtain', 'upholstery'], categories: ['botanical', 'tropical', 'damask', 'paisley'], minTileSize: 1000 },
   digitalPaper: { keywords: ['digital paper', 'scrapbook', 'printable'], categories: ['cute', 'geometric', 'retro', 'plaid'], maxTileSize: 1400 },
+  // Build 012, Section 4: real rules for the 3 genuinely new products,
+  // following this table's own established convention exactly (keyword
+  // hints, well-suited categories, tile-size/density fit bands) — no
+  // different mechanism from the 10 rows above.
+  greetingCard: { keywords: ['greeting card', 'greeting cards', 'invitation', 'card front'], categories: ['cute', 'seasonal', 'botanical', 'mandala'], maxTileSize: 1400, minHeroVisibility: 70 },
+  poster: { keywords: ['poster', 'wall art', 'wall print'], categories: ['botanical', 'mandala', 'geometric', 'tropical', 'lineart'], minTileSize: 1800, minHeroVisibility: 65 },
+  canvas: { keywords: ['canvas', 'canvas print', 'fine art print', 'wall decor'], categories: ['botanical', 'tropical', 'organic', 'mandala'], minTileSize: 1800, minHeroVisibility: 65 },
 };
 
 export interface ProductUseEvaluation {

@@ -4,7 +4,7 @@ import { jitter, rngRange, rngInt, rngPick, rngBool } from './rng';
 import { spacingForDensity, wrapCoord } from '../layouts/shared';
 import { COMPOSITION_ZONES, placeZoneAnchors, type CompositionZone } from './compositionZones';
 import { createAngleFamily, pickFamilyAngle, type AngleFamily } from './rotationFamilies';
-import { resolveClusterCollisions } from './clusterAvoidance';
+import { resolveClusterCollisions, TANGENT_AVOIDANCE_MARGIN } from './clusterAvoidance';
 import { smoothPathD, type Pt } from './curveEngine';
 
 // Cluster Composition Engine — Project Phoenix V2, Section 1/2. Replaces
@@ -83,6 +83,28 @@ export interface ClusterGenerateOptions {
    * consistent set of directions rather than each cluster inventing its
    * own. */
   angleFamily?: AngleFamily;
+  /** Build 010, Section 6 (Professional Illustrator Rules, "rule of
+   * odds"): when true and `memberCount` is omitted, the default
+   * archetype-range roll is biased toward an odd total (see
+   * `rollPreferOdd`) — real illustrators/florists read odd-numbered
+   * groupings as more natural/intentional than even ones. Undefined/false
+   * reproduces the exact prior plain `rngInt` roll. */
+  preferOddCount?: boolean;
+}
+
+/** Build 010, Section 6 (Professional Illustrator Rules): rolls a count in
+ * [lo, hi] exactly like `rngInt`, then nudges an even result to the
+ * nearest odd value that stays within [lo, hi] (preferring +1, falling
+ * back to -1 at the range's own ceiling) — the classic "rule of odds."
+ * Consumes exactly the same single rng() draw as a plain `rngInt` roll, so
+ * threading this in only changes *which* value that draw resolves to, not
+ * the rng consumption shape of the caller. */
+export function rollPreferOdd(rng: Rng, lo: number, hi: number): number {
+  const n = rngInt(rng, lo, hi);
+  if (n % 2 !== 0) return n;
+  if (n + 1 <= hi) return n + 1;
+  if (n - 1 >= lo) return n - 1;
+  return n;
 }
 
 // Build 002, Section 4 (Scale Diversity): widened from the original
@@ -162,9 +184,30 @@ function archetypeOffset(archetype: ClusterArchetype, i: number, total: number, 
     }
     case 'sCurve': {
       const tt = (i + 1) / (total + 1);
-      const dx = (tt - 0.5) * r * 2.3 + rngRange(rng, -r * 0.12, r * 0.12);
-      const dy = Math.sin(tt * Math.PI * 2) * r * 0.65 + rngRange(rng, -r * 0.12, r * 0.12);
-      return { dx, dy, role: roleFor(t) };
+      const dx0 = (tt - 0.5) * r * 2.3 + rngRange(rng, -r * 0.12, r * 0.12);
+      const dy0 = Math.sin(tt * Math.PI * 2) * r * 0.65 + rngRange(rng, -r * 0.12, r * 0.12);
+      // Build 014, Motif Relationship Intelligence Engine (BUILD_014_AUDIT.md
+      // Section 1): for any odd `total`, one member's `tt` lands at exactly
+      // 0.5, where both terms above evaluate to 0 -- a formula artifact that
+      // places this member mathematically coincident with the hero (0,0),
+      // not `generateCluster`'s own deliberate 30%-overlap-band mechanism.
+      // Verified as the precise, measured cause of the `zeroMotifOverlap`
+      // quality-rule false-positives on `sCurve`-layout tiles (a coincident
+      // point drags the tile's mean nearest-neighbor distance down, reading
+      // as "too much pileup" even on otherwise-sparse tiles). Guarantee a
+      // real, visible minimum offset by scaling the already-jittered point
+      // outward along its own (already-random, per-draw) direction --
+      // reuses the jitter just drawn rather than consuming new rng() calls
+      // or picking a fixed/mechanical rescue direction.
+      const dist0 = Math.hypot(dx0, dy0);
+      const minDist = r * 0.3;
+      if (dist0 < minDist) {
+        const scale = dist0 > 1e-6 ? minDist / dist0 : 0;
+        const dx = dist0 > 1e-6 ? dx0 * scale : minDist;
+        const dy = dist0 > 1e-6 ? dy0 * scale : 0;
+        return { dx, dy, role: roleFor(t) };
+      }
+      return { dx: dx0, dy: dy0, role: roleFor(t) };
     }
     case 'diagonal': {
       const tt = (i + 1) / (total + 1);
@@ -283,7 +326,7 @@ export function generateCluster(archetype: ClusterArchetype, rng: Rng, opts: Clu
     branchCluster: [5, 8],
   };
   const [lo, hi] = defaultCounts[archetype];
-  const total = opts.memberCount ?? rngInt(rng, lo, hi);
+  const total = opts.memberCount ?? (opts.preferOddCount ? rollPreferOdd(rng, lo, hi) : rngInt(rng, lo, hi));
 
   const hero: ClusterMember = {
     dx: 0,
@@ -433,7 +476,7 @@ const SIZE_RHYTHM = [1.35, 0.82, 1.05, 0.62];
  * per-anchor size-based) — kept as one constant so the two stay in sync. */
 const ANCHOR_MIN_DIST_MUL = 1.7;
 
-export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: Rng, zone?: CompositionZone): ClusterAnchor[] {
+export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: Rng, zone?: CompositionZone, avoidTangents?: boolean): ClusterAnchor[] {
   const chosenZone = zone ?? rngPick(rng, COMPOSITION_ZONES);
   const avgSizeMul = SIZE_RHYTHM.reduce((a, b) => a + b, 0) / SIZE_RHYTHM.length;
   const minDist = baseRadius * avgSizeMul * ANCHOR_MIN_DIST_MUL;
@@ -450,7 +493,11 @@ export function placeClusterAnchors(tileSize: number, baseRadius: number, rng: R
   // step can still end up too close for their real size, reading as two
   // hero motifs visually touching. This resolves those specific pairs
   // without disturbing anchors that were already spaced correctly.
-  return resolveClusterCollisions(anchors, baseRadius, ANCHOR_MIN_DIST_MUL, tileSize);
+  // Build 010, Section 6 (Professional Illustrator Rules): `avoidTangents`
+  // widens that resolve past the exact touching boundary (see
+  // `TANGENT_AVOIDANCE_MARGIN`'s own doc comment) — undefined/false keeps
+  // the exact prior boundary-distance resolve.
+  return resolveClusterCollisions(anchors, baseRadius, ANCHOR_MIN_DIST_MUL, tileSize, avoidTangents ? TANGENT_AVOIDANCE_MARGIN : 1);
 }
 
 /** Small, sparse bridging accents placed at the midpoint between cluster
@@ -514,6 +561,13 @@ export interface BuildClusterPlacementsOptions {
    * this tile should use — defaults to one fresh family for the whole
    * call (shared across every anchor) when omitted. */
   angleFamily?: AngleFamily;
+  /** Build 010, Section 6 (Professional Illustrator Rules): see
+   * `ClusterGenerateOptions.preferOddCount`'s own doc comment — applied to
+   * every cluster this call generates. */
+  preferOddCount?: boolean;
+  /** Build 010, Section 6: see `placeClusterAnchors`'s own doc comment —
+   * widens anchor-collision resolution past the exact touching boundary. */
+  avoidTangents?: boolean;
 }
 
 /** Top-level assembly: places cluster anchors across the tile, generates
@@ -526,7 +580,7 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
   const maxAttempts = opts.maxAttemptsPerCluster ?? 3;
   const cohesionTarget = opts.cohesionTarget ?? 70;
   const baseRadius = clusterBaseRadius(motifSize, density);
-  const anchors = placeClusterAnchors(tileSize, baseRadius, rng, opts.zone);
+  const anchors = placeClusterAnchors(tileSize, baseRadius, rng, opts.zone, opts.avoidTangents);
   const angleFamily = opts.angleFamily ?? createAngleFamily(rng);
 
   const placements: Placement[] = [];
@@ -542,6 +596,7 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
         rotationJitter,
         scaleJitter,
         angleFamily,
+        preferOddCount: opts.preferOddCount,
       });
       const { cohesion } = evaluateCluster(candidate, baseRadius * anchor.sizeMul);
       if (cohesion > bestCohesion) {

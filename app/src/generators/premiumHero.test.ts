@@ -2,8 +2,19 @@ import { describe, it, expect } from 'vitest';
 import { createRng } from '../engine/rng';
 import { serialize } from '../engine/svgAst';
 import type { SvgNode } from '../engine/types';
-import { buildPremiumHero } from './premiumHero';
-import { BOTANICAL_FAMILIES } from './botanicalFamilies';
+import {
+  buildPremiumHero,
+  resolveFillerPart,
+  supportWeightRatio,
+  resolveHeroArchetype,
+  applyHeroFraming,
+  applyGatherPoint,
+  applyCompanionSpatialBias,
+  HERO_ARCHETYPE_POOL,
+} from './premiumHero';
+import type { ClusterMember } from '../engine/clusterEngine';
+import { BOTANICAL_FAMILIES, BOTANICAL_SPECIES } from './botanicalFamilies';
+import { ILLUSTRATION_TEMPLATES } from './illustrationFamily';
 
 const COLORS = ['#f4ede4', '#c9a86c', '#7c8a5f', '#a94438', '#3c3a34'];
 
@@ -48,9 +59,15 @@ describe('buildPremiumHero', () => {
   });
 
   it('keeps node counts within a reasonable ceiling (no runaway path bloat)', () => {
+    // Build 006, Section 2/3 (Luxury Bouquet Composer + Natural Botanical
+    // Relationships): the companion-foliage sprig is a real, deliberately
+    // small addition (capped at 3 leaves), but it's still additive on top
+    // of every pre-existing part -- a diagnostic sweep across 200 seeds
+    // measured a real max of 525 (was <400 pre-Build-006), so 600 is a real
+    // ceiling with headroom, not an arbitrarily loosened one.
     for (let i = 0; i < 20; i++) {
       const hero = buildPremiumHero(createRng(`premium-hero-nodes-${i}`), { colors: COLORS, size: 120 });
-      expect(countNodes(hero.node)).toBeLessThan(400);
+      expect(countNodes(hero.node)).toBeLessThan(600);
     }
   });
 
@@ -108,5 +125,390 @@ describe('buildPremiumHero', () => {
       designRules: { heroMemberCountRange: [3, 4], bouquetBaseRadiusScale: 0.85, stemLengthMultiplier: 1, leafDensityMultiplier: 1 },
     });
     expect(full.radius).toBeGreaterThanOrEqual(single.radius);
+  });
+
+  it('Build 006, Section 3: a species with real companions (rose) draws a real companion-foliage sprig at least sometimes', () => {
+    let sawCompanionFoliage = false;
+    for (let i = 0; i < 20; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-companion-${i}`), { colors: COLORS, size: 120, family: 'rose' });
+      if (serialize(hero.node).includes('data-part="companion-foliage"')) sawCompanionFoliage = true;
+    }
+    expect(sawCompanionFoliage).toBe(true);
+  });
+
+  it('Build 006, Section 3: a species with no companions (eucalyptus, foliageOnly) never draws a companion-foliage sprig', () => {
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-no-companion-${i}`), { colors: COLORS, size: 120, family: 'eucalyptus' });
+      expect(serialize(hero.node)).not.toContain('data-part="companion-foliage"');
+    }
+  });
+
+  it('Build 006, Section 6: non-hero members are sometimes horizontally mirrored (negative x-scale) across many seeds', () => {
+    let sawMirror = false;
+    for (let i = 0; i < 25; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-mirror-${i}`), { colors: COLORS, size: 120, family: 'peony' });
+      if (/scale\(-[0-9.]+ [0-9.]+\)/.test(serialize(hero.node))) sawMirror = true;
+    }
+    expect(sawMirror).toBe(true);
+  });
+
+  it('Build 006, Section 2: visual weight balancing never shrinks the hero member itself (hero-scale flower always present at full member scale)', () => {
+    // A regression here would mean balanceVisualWeight's role filter broke and
+    // started touching hero members too -- this stays deterministic and valid
+    // across many seeds/species regardless.
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-weight-${i}`), { colors: COLORS, size: 120, family: 'hydrangea' });
+      expect(hero.radius).toBeGreaterThan(0);
+      expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
+    }
+  });
+
+  it('Build 006, Section 7: the hero-role sub-part gets a real Flower Center (data-part="flower-center") whenever it gets a Calyx', () => {
+    let sawCenter = false;
+    for (let i = 0; i < 15; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-center-${i}`), { colors: COLORS, size: 120 });
+      const svg = serialize(hero.node);
+      if (svg.includes('data-part="calyx"')) {
+        expect(svg).toContain('data-part="flower-center"');
+        sawCenter = true;
+      }
+    }
+    expect(sawCenter).toBe(true);
+  });
+
+  it('every one of the 19 named species (including the new babysBreath) produces valid output when explicitly requested', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      for (let i = 0; i < 3; i++) {
+        const hero = buildPremiumHero(createRng(`premium-hero-species19-${family}-${i}`), { colors: COLORS, size: 120, family });
+        const svg = serialize(hero.node);
+        expect(svg).not.toMatch(/NaN|Infinity|undefined/);
+        expect(hero.radius).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
+describe('resolveFillerPart (Build 008B, Section 3: Commercial Bouquet Grammar)', () => {
+  const bouquet = ILLUSTRATION_TEMPLATES.bouquet;
+
+  it('a companion with role "foliage" resolves to the template\'s real Filler Leaf part', () => {
+    expect(resolveFillerPart(bouquet, 'foliage', 'eucalyptus')).toBe(bouquet.fillerLeafPart);
+  });
+
+  it('a companion with role "filler" resolves to a small filler flower', () => {
+    expect(resolveFillerPart(bouquet, 'filler', 'babysBreath')).toBe('secondaryFlower');
+  });
+
+  it('a companion with role "accentBerry" resolves to the template\'s real berry part', () => {
+    expect(resolveFillerPart(bouquet, 'accentBerry', 'berryBranch')).toBe(bouquet.fillerPart);
+  });
+
+  it('falls back to the pre-008B bouquetRole check when no companion role is known (no companion picked)', () => {
+    // eucalyptus itself has bouquetRole 'foliageOnly', not 'filler' -- old
+    // behavior falls through to the template's berry part.
+    expect(resolveFillerPart(bouquet, undefined, 'eucalyptus')).toBe(bouquet.fillerPart);
+    // babysBreath itself has bouquetRole 'filler' -- old behavior draws a
+    // filler flower even with no typed companion role available.
+    expect(BOTANICAL_SPECIES.babysBreath.bouquetRole).toBe('filler');
+    expect(resolveFillerPart(bouquet, undefined, 'babysBreath')).toBe('secondaryFlower');
+  });
+
+  it('falls back to the template\'s berry part when fillerFamily itself is undefined', () => {
+    expect(resolveFillerPart(bouquet, undefined, undefined)).toBe(bouquet.fillerPart);
+  });
+
+  it('every real companion entry across all 19 species resolves to one of the 3 real part outcomes', () => {
+    const validOutcomes = new Set([bouquet.fillerLeafPart, 'secondaryFlower', bouquet.fillerPart]);
+    for (const family of BOTANICAL_FAMILIES) {
+      for (const companion of BOTANICAL_SPECIES[family].companions) {
+        const part = resolveFillerPart(bouquet, companion.role, companion.family);
+        expect(validOutcomes.has(part)).toBe(true);
+      }
+    }
+  });
+
+  it('rose has a real "foliage"-role companion (eucalyptus), so buildPremiumHero\'s filler branch genuinely reaches the new Filler Leaf path, not just an unreachable unit-tested branch', () => {
+    expect(BOTANICAL_SPECIES.rose.companions.some((c) => c.role === 'foliage' && c.family === 'eucalyptus')).toBe(true);
+    for (let i = 0; i < 30; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-filler-leaf-${i}`), { colors: COLORS, size: 120, family: 'rose' });
+      expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
+    }
+  });
+});
+
+describe('supportWeightRatio (Build 008B, Section 6: Commercial Asset Priority)', () => {
+  it('returns the exact pre-008B flat ratio (0.9) when no premiumScore is known', () => {
+    expect(supportWeightRatio(undefined)).toBe(0.9);
+  });
+
+  it('a top-tier premium score (100) tightens the cap to 0.7, letting the hero dominate more', () => {
+    expect(supportWeightRatio(100)).toBeCloseTo(0.7, 5);
+  });
+
+  it('a zero premium score relaxes the cap to 1.0', () => {
+    expect(supportWeightRatio(0)).toBeCloseTo(1.0, 5);
+  });
+
+  it('is monotonically decreasing as premiumScore rises (higher premium -> stricter cap -> more hero dominance)', () => {
+    expect(supportWeightRatio(90)).toBeLessThan(supportWeightRatio(50));
+    expect(supportWeightRatio(50)).toBeLessThan(supportWeightRatio(10));
+  });
+
+  it('every real species\' premiumScore resolves to a ratio within the intended [0.7, 1.0] band', () => {
+    for (const family of BOTANICAL_FAMILIES) {
+      const ratio = supportWeightRatio(BOTANICAL_SPECIES[family].premiumScore);
+      expect(ratio).toBeGreaterThanOrEqual(0.7);
+      expect(ratio).toBeLessThanOrEqual(1.0);
+    }
+  });
+});
+
+describe('resolveHeroArchetype (Build 008B, Section 7: Silhouette Diversity)', () => {
+  it('an explicit archetype option always wins over the weighted roll', () => {
+    expect(resolveHeroArchetype(createRng('archetype-explicit'), 'diagonal')).toBe('diagonal');
+    expect(resolveHeroArchetype(createRng('archetype-explicit'), 'editorial')).toBe('editorial');
+  });
+
+  it('is deterministic for a given seed', () => {
+    const a = resolveHeroArchetype(createRng('archetype-det'));
+    const b = resolveHeroArchetype(createRng('archetype-det'));
+    expect(a).toBe(b);
+  });
+
+  it('produces more than one real silhouette across many seeds (never always "bouquet")', () => {
+    const seen = new Set<string>();
+    for (let i = 0; i < 60; i++) seen.add(resolveHeroArchetype(createRng(`archetype-vary-${i}`)));
+    expect(seen.size).toBeGreaterThan(1);
+    expect(seen.has('bouquet')).toBe(true);
+  });
+
+  it('only ever resolves to a real, known cluster archetype', () => {
+    const validArchetypes = new Set(['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial']);
+    for (let i = 0; i < 40; i++) {
+      expect(validArchetypes.has(resolveHeroArchetype(createRng(`archetype-valid-${i}`)))).toBe(true);
+    }
+  });
+
+  it('buildPremiumHero actually reaches a non-"bouquet" internal silhouette across enough seeds without ever crashing', () => {
+    // End-to-end confirmation that the whole assembly (stem/leaves/members/
+    // reach/radius math) stays valid for every archetype in the pool, not
+    // just the historically-exercised 'bouquet' path.
+    for (let i = 0; i < 80; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-silhouette-${i}`), { colors: COLORS, size: 120, family: 'peony' });
+      expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
+      expect(hero.radius).toBeGreaterThan(0);
+      expect(hero.radius).toBeLessThan(600);
+    }
+  });
+
+  it('an explicit archetype option reaches buildPremiumHero and still produces valid output for every real archetype', () => {
+    for (const archetype of ['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial'] as const) {
+      const hero = buildPremiumHero(createRng(`premium-hero-explicit-${archetype}`), { colors: COLORS, size: 120, family: 'rose', archetype });
+      expect(serialize(hero.node)).not.toMatch(/NaN|Infinity|undefined/);
+      expect(hero.radius).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('HERO_ARCHETYPE_POOL / buildPremiumHero.heroArchetype (Build 009, Section 6: Silhouette Optimization)', () => {
+  it('HERO_ARCHETYPE_POOL is exactly the 5 distinct reachable archetypes', () => {
+    expect(new Set(HERO_ARCHETYPE_POOL)).toEqual(new Set(['bouquet', 'cascade', 'diagonal', 'asymmetric', 'editorial']));
+    expect(HERO_ARCHETYPE_POOL.length).toBe(5);
+  });
+
+  it('buildPremiumHero threads back the exact archetype resolveHeroArchetype resolved', () => {
+    for (const archetype of HERO_ARCHETYPE_POOL) {
+      const hero = buildPremiumHero(createRng(`premium-hero-thread-${archetype}`), { colors: COLORS, size: 120, family: 'rose', archetype });
+      expect(hero.heroArchetype).toBe(archetype);
+    }
+  });
+
+  it('an unforced roll still returns a real, known archetype in the returned Motif', () => {
+    for (let i = 0; i < 20; i++) {
+      const hero = buildPremiumHero(createRng(`premium-hero-thread-roll-${i}`), { colors: COLORS, size: 120, family: 'peony' });
+      expect(HERO_ARCHETYPE_POOL).toContain(hero.heroArchetype);
+    }
+  });
+});
+
+describe('applyHeroFraming (Build 009, Section 4: Hero Framing Engine)', () => {
+  const size = 120;
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 0, dy: 0, rotationDeg: 0, scaleMul: 1, role: 'secondary', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op for the hero member itself', () => {
+    const hero = member({ role: 'hero', dx: 0, dy: 0 });
+    const [result] = applyHeroFraming([hero], size, 'bouquet');
+    expect(result).toEqual(hero);
+  });
+
+  it('pushes a supporting member that lands too close to the hero center outward to a real minimum clearance', () => {
+    const tooClose = member({ role: 'secondary', dx: 1, dy: 0, scaleMul: 1 });
+    const [, result] = applyHeroFraming([member({ role: 'hero' }), tooClose], size, 'cascade');
+    expect(Math.hypot(result.dx, result.dy)).toBeGreaterThan(Math.hypot(tooClose.dx, tooClose.dy));
+    // Direction (angle) is preserved -- only distance changes.
+    expect(Math.atan2(result.dy, result.dx)).toBeCloseTo(Math.atan2(tooClose.dy, tooClose.dx), 5);
+  });
+
+  it('leaves a member already at a safe distance untouched', () => {
+    const farEnough = member({ role: 'accent', dx: size * 2, dy: 0, scaleMul: 0.5 });
+    const [, result] = applyHeroFraming([member({ role: 'hero' }), farEnough], size, 'cascade');
+    expect(result).toEqual(farEnough);
+  });
+
+  it('a bigger scaleMul needs more clearance than a smaller one at the same role', () => {
+    const small = member({ role: 'filler', dx: 10, dy: 0, scaleMul: 0.3 });
+    const big = member({ role: 'filler', dx: 10, dy: 0, scaleMul: 1.5 });
+    const [, resultSmall] = applyHeroFraming([member({ role: 'hero' }), small], size, 'cascade');
+    const [, resultBig] = applyHeroFraming([member({ role: 'hero' }), big], size, 'cascade');
+    expect(Math.hypot(resultBig.dx, resultBig.dy)).toBeGreaterThan(Math.hypot(resultSmall.dx, resultSmall.dy));
+  });
+
+  it('only nudges angular position for the bouquet archetype', () => {
+    const members = [
+      member({ role: 'hero' }),
+      member({ role: 'secondary', dx: size, dy: 0, scaleMul: 1 }),
+      member({ role: 'secondary', dx: size * 0.9, dy: size * 0.1, scaleMul: 1 }),
+      member({ role: 'filler', dx: size * 0.8, dy: size * 0.2, scaleMul: 1 }),
+    ];
+    const cascadeResult = applyHeroFraming(members, size, 'cascade');
+    // Non-bouquet archetypes only get the push-away (all already far enough
+    // here), so angles are unchanged.
+    for (let i = 1; i < members.length; i++) {
+      expect(Math.atan2(cascadeResult[i].dy, cascadeResult[i].dx)).toBeCloseTo(Math.atan2(members[i].dy, members[i].dx), 5);
+    }
+    const bouquetResult = applyHeroFraming(members, size, 'bouquet');
+    const anglesChanged = bouquetResult.slice(1).some((m, i) => Math.abs(Math.atan2(m.dy, m.dx) - Math.atan2(members[i + 1].dy, members[i + 1].dx)) > 1e-6);
+    expect(anglesChanged).toBe(true);
+  });
+
+  it('bouquet framing spreads members toward more even angular coverage without changing their distance from the hero', () => {
+    // 4 members bunched tightly into one narrow arc.
+    const angle = (deg: number) => (deg * Math.PI) / 180;
+    const dist = size * 0.8;
+    const members = [
+      member({ role: 'hero' }),
+      member({ role: 'secondary', dx: Math.cos(angle(0)) * dist, dy: Math.sin(angle(0)) * dist }),
+      member({ role: 'secondary', dx: Math.cos(angle(10)) * dist, dy: Math.sin(angle(10)) * dist }),
+      member({ role: 'filler', dx: Math.cos(angle(20)) * dist, dy: Math.sin(angle(20)) * dist }),
+      member({ role: 'accent', dx: Math.cos(angle(30)) * dist, dy: Math.sin(angle(30)) * dist }),
+    ];
+    const result = applyHeroFraming(members, size, 'bouquet');
+    // Distances from the hero are preserved (this pass only rotates).
+    for (let i = 1; i < members.length; i++) {
+      expect(Math.hypot(result[i].dx, result[i].dy)).toBeCloseTo(Math.hypot(members[i].dx, members[i].dy), 5);
+    }
+    const spreadBefore = Math.max(...members.slice(1).map((m) => Math.atan2(m.dy, m.dx))) - Math.min(...members.slice(1).map((m) => Math.atan2(m.dy, m.dx)));
+    const spreadAfter = Math.max(...result.slice(1).map((m) => Math.atan2(m.dy, m.dx))) - Math.min(...result.slice(1).map((m) => Math.atan2(m.dy, m.dx)));
+    expect(spreadAfter).toBeGreaterThan(spreadBefore);
+  });
+
+  it('is a no-op when there are fewer than 2 supporting members for angular framing', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: size, dy: 0 })];
+    const result = applyHeroFraming(members, size, 'bouquet');
+    expect(result[1]).toEqual(members[1]);
+  });
+});
+
+describe('applyGatherPoint (Build 010, Section 1: Signature Bouquet Composer)', () => {
+  const size = 120;
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 0, dy: 0, rotationDeg: 0, scaleMul: 1, role: 'secondary', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op for the hero member itself', () => {
+    const hero = member({ role: 'hero', dx: 0, dy: 0 });
+    const [result] = applyGatherPoint([hero], size);
+    expect(result).toEqual(hero);
+  });
+
+  it('is a strict no-op at strength 0 (byte-identical to pre-Build-010 output)', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: 40, dy: -30 })];
+    const result = applyGatherPoint(members, size, 0);
+    expect(result).toEqual(members);
+  });
+
+  it('pulls a non-hero member closer to the gather point (0, size * 0.2)', () => {
+    const gatherY = size * 0.2;
+    const far = member({ role: 'secondary', dx: 60, dy: -50 });
+    const [, result] = applyGatherPoint([member({ role: 'hero' }), far], size);
+    const distBefore = Math.hypot(far.dx - 0, far.dy - gatherY);
+    const distAfter = Math.hypot(result.dx - 0, result.dy - gatherY);
+    expect(distAfter).toBeLessThan(distBefore);
+  });
+
+  it('is a bounded pull, not a snap to the gather point', () => {
+    const far = member({ role: 'filler', dx: 60, dy: -50 });
+    const [, result] = applyGatherPoint([member({ role: 'hero' }), far], size);
+    expect(result.dx).not.toBeCloseTo(0, 5);
+    expect(result.dy).not.toBeCloseTo(size * 0.2, 5);
+  });
+
+  it('a larger strength pulls closer to the gather point than a smaller one', () => {
+    const far = member({ role: 'accent', dx: 60, dy: -50 });
+    const gatherY = size * 0.2;
+    const [, weak] = applyGatherPoint([member({ role: 'hero' }), far], size, 0.05);
+    const [, strong] = applyGatherPoint([member({ role: 'hero' }), far], size, 0.3);
+    const distWeak = Math.hypot(weak.dx, weak.dy - gatherY);
+    const distStrong = Math.hypot(strong.dx, strong.dy - gatherY);
+    expect(distStrong).toBeLessThan(distWeak);
+  });
+
+  it('is deterministic and pure (does not mutate the input array)', () => {
+    const members = [member({ role: 'hero' }), member({ role: 'secondary', dx: 10, dy: 10 })];
+    const snapshot = JSON.parse(JSON.stringify(members));
+    applyGatherPoint(members, size);
+    expect(members).toEqual(snapshot);
+  });
+});
+
+describe('applyCompanionSpatialBias (Build 010, Section 4: Botanical Relationship Engine V2)', () => {
+  function member(overrides: Partial<ClusterMember> = {}): ClusterMember {
+    return { dx: 40, dy: -30, rotationDeg: 0, scaleMul: 1, role: 'filler', overlapsHero: false, ...overrides };
+  }
+
+  it('is a no-op (same reference) when relationship is undefined', () => {
+    const members = [member()];
+    expect(applyCompanionSpatialBias(members, undefined)).toBe(members);
+  });
+
+  it("is a no-op (same reference) when relationship is 'none'", () => {
+    const members = [member()];
+    expect(applyCompanionSpatialBias(members, 'none')).toBe(members);
+  });
+
+  it('only touches filler/accent members, leaving hero/secondary untouched', () => {
+    const hero = member({ role: 'hero' });
+    const secondary = member({ role: 'secondary' });
+    const [heroResult, secondaryResult] = applyCompanionSpatialBias([hero, secondary], 'trailing');
+    expect(heroResult).toEqual(hero);
+    expect(secondaryResult).toEqual(secondary);
+  });
+
+  it('trailing pulls a filler/accent member further from the hero center', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'trailing');
+    expect(Math.hypot(result.dx, result.dy)).toBeGreaterThan(Math.hypot(original.dx, original.dy));
+  });
+
+  it('nesting pulls a filler/accent member closer to the hero center', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'nesting');
+    expect(Math.hypot(result.dx, result.dy)).toBeLessThan(Math.hypot(original.dx, original.dy));
+  });
+
+  it('climbing pulls dx toward 0 (aligns along the vertical stem axis) without changing dy', () => {
+    const original = member();
+    const [result] = applyCompanionSpatialBias([original], 'climbing');
+    expect(Math.abs(result.dx)).toBeLessThan(Math.abs(original.dx));
+    expect(result.dy).toBe(original.dy);
+  });
+
+  it('is deterministic and pure (does not mutate the input array)', () => {
+    const members = [member({ role: 'accent' })];
+    const snapshot = JSON.parse(JSON.stringify(members));
+    applyCompanionSpatialBias(members, 'trailing');
+    expect(members).toEqual(snapshot);
   });
 });

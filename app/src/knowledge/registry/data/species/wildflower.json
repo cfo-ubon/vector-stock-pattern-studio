@@ -1,0 +1,70 @@
+{
+  "id": "wildflower",
+  "label": "Wild Meadow",
+  "botanicalFamilyName": "Asteraceae",
+  "silhouette": "airy",
+  "growthPreset": "sage",
+  "stemLengthScale": 1.1,
+  "leafDensityScale": 0.5,
+  "bouquetRole": "filler",
+  "flowerDiameterClass": "small",
+  "bloomStageRange": [
+    0.6,
+    1
+  ],
+  "petalCountRange": [
+    5,
+    8
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "none",
+  "petalSilhouette": "star",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "branching",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "purple",
+    "yellow",
+    "white",
+    "pink"
+  ],
+  "premiumScore": 45,
+  "eleganceScore": 60,
+  "commercialPopularity": 65,
+  "companions": [
+    {
+      "family": "cosmos",
+      "role": "filler",
+      "strength": 0.75,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.8,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "herb",
+      "role": "foliage",
+      "strength": 0.6,
+      "spatialRelationship": "trailing"
+    },
+    {
+      "family": "lavender",
+      "role": "filler",
+      "strength": 0.55,
+      "spatialRelationship": "nesting"
+    }
+  ],
+  "usageProfiles": [
+    "vintage",
+    "nursery",
+    "fabric",
+    "packaging"
+  ]
+}

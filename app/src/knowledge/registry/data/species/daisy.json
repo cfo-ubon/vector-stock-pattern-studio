@@ -1,0 +1,61 @@
+{
+  "id": "daisy",
+  "label": "Daisy",
+  "botanicalFamilyName": "Asteraceae",
+  "silhouette": "rounded",
+  "growthPreset": "sage",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.5,
+  "bouquetRole": "filler",
+  "flowerDiameterClass": "small",
+  "bloomStageRange": [
+    0.8,
+    1
+  ],
+  "petalCountRange": [
+    12,
+    20
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "none",
+  "petalSilhouette": "star",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "open",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "sparse",
+  "leafType": "serrated",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "white",
+    "yellow"
+  ],
+  "premiumScore": 40,
+  "eleganceScore": 55,
+  "commercialPopularity": 70,
+  "companions": [
+    {
+      "family": "wildflower",
+      "role": "filler",
+      "strength": 0.7,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.75,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "herb",
+      "role": "foliage",
+      "strength": 0.55,
+      "spatialRelationship": "trailing"
+    }
+  ],
+  "usageProfiles": [
+    "nursery",
+    "greetingCard",
+    "vintage"
+  ]
+}

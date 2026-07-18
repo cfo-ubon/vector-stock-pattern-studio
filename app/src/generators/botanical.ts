@@ -5,7 +5,7 @@ import { rngPick, rngInt, rngRange, rngBool } from '../engine/rng';
 import { pinnateVeins } from './shared';
 import { smoothPathD, wobbleEnvelope, radialAsymmetry, tangentToUpAngleDeg, type Pt } from '../engine/curveEngine';
 import { generateStem, growLeaves, terminalPoint, GROWTH_PRESETS } from './growth';
-import { organicPetalPath, petalRing } from './petals';
+import { organicPetalPath, petalRing, layeredPetalRing } from './petals';
 import { BOTANICAL_FAMILIES, type BotanicalFamily } from './botanicalFamilies';
 import { BOTANICAL_PARTS, shapeCategoryForPart, type BotanicalPart, type PartShapeCategory } from './botanicalParts';
 import { palmFrond, monsteraLeaf } from './tropical';
@@ -30,8 +30,11 @@ type Variant = (rng: Rng, colors: string[], size: number) => { node: ReturnType<
 // leaf" rather than a flat almond icon.
 
 /** Pointed-tip ovate leaf: asymmetric taper (fuller below center, tapered
- * base) built from four cubic segments for a natural curve. */
-function ovateLeafPath(length: number, width: number): string {
+ * base) built from four cubic segments for a natural curve. Exported for
+ * `generators/leafAnatomy.ts` (Build 007, Section 2), which reuses this
+ * exact shape as one of its real per-species leaf silhouettes rather than
+ * re-deriving the same ovate curve a second time. */
+export function ovateLeafPath(length: number, width: number): string {
   const h2 = length / 2;
   const w = width / 2;
   const wy = -h2 * 0.12; // widest point sits slightly below center
@@ -49,7 +52,7 @@ function ovateLeafPath(length: number, width: number): string {
  * segments (a jagged edge reads correctly even without curves — real leaf
  * teeth are sharp, so this is a deliberate exception to "smooth curves
  * everywhere"). */
-function serratedLeafPath(length: number, width: number, rng: Rng): string {
+export function serratedLeafPath(length: number, width: number, rng: Rng): string {
   const h2 = length / 2;
   const w = width / 2;
   const teeth = rngInt(rng, 9, 13);
@@ -88,27 +91,75 @@ const singleLeaf: Variant = (rng, colors, size) => {
   return { node, radius: length * 0.55 };
 };
 
+// Build 007, Section 1 (Flower Anatomy Engine): this was the app's own
+// "generic star-shaped flower" the brief warns against by name -- a single
+// flat ring of petals around a bare circle, used as the untagged fallback
+// bloom across most families with no dedicated species variant. A real
+// flower has petal HIERARCHY (an outer whorl plus a smaller inner whorl,
+// interleaved, not stacked), so this now uses `layeredPetalRing` (see
+// petals.ts) instead of one flat ring -- genuinely different geometry, not
+// a re-labeled single ring. `openness` (a real bloom-stage value, seeded
+// per instance) makes the inner whorl read anywhere from "just starting to
+// open" to "fully open", the same natural variety a bouquet's blooms show
+// at different ages instead of every bloom looking identically staged.
+// Build 018 ("Revenue First", Priority 4 — Botanical composition): an
+// empirical audit (`scripts/build018BotanicalAudit.ts`) found Botanical
+// Realism (`engine/botanicalBeautyMetrics.ts`'s `computeBotanicalRealism`
+// — the % of motif instances with a real `data-part="stem"`/`"leaves"`
+// group) averaging just ~31/100 across a diverse 60-pattern sample, far
+// below every other dimension. This variant's own doc comment above
+// states it is "the untagged fallback bloom across most families with
+// no dedicated species variant" — i.e. the single most common bare
+// (stem-less) motif in the whole generator. A stem beneath a bloom is
+// also just accurate: a cut/growing flower head is rarely drawn
+// floating with nothing beneath it. The stem is optional (not every
+// instance) so bare, floating-petal blooms — a legitimate accent
+// look — stay in the mix; the stem line reuses the exact drawing idiom
+// `flowerBud` above already established (plain `<line>`,
+// `data-part="stem"`, same stroke-width convention), not a new shape.
 const flowerBloom: Variant = (rng, colors, size) => {
   const r = size / 2;
-  const petals = rngInt(rng, 5, 7);
+  const outerCount = rngInt(rng, 5, 7);
+  const innerCount = rngInt(rng, 4, 6);
   const petalColor = rngPick(rng, accentColors(colors));
+  const innerColor = rngPick(rng, accentColors(colors));
   const centerColor = rngPick(rng, accentColors(colors));
-  const petalLen = r * 0.85;
-  const petalNodes = petalRing(rng, {
-    count: petals,
-    distance: 0,
-    length: petalLen,
-    width: petalLen * 0.5,
-    color: petalColor,
+  const openness = rngRange(rng, 0.4, 1);
+  const { outer, inner } = layeredPetalRing(rng, {
+    outerCount,
+    innerCount,
+    outerLength: r * 0.85,
+    outerWidth: r * 0.85 * 0.5,
+    innerScale: 0.58,
+    outerColor: petalColor,
+    innerColor,
     curvature: 0.55,
-    angleJitter: 5,
-    scaleJitter: 0.07,
+    openness,
+    variants: ['rounded', 'rounded', 'pointed', 'folded'],
   });
+  const hasStem = rngBool(rng, 0.6);
+  const stemColor = rngPick(rng, accentColors(colors));
   const node = h('g', {}, [
-    h('g', { 'data-part': 'petals-outer' }, petalNodes),
-    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })]),
+    ...(hasStem
+      ? [
+          h('g', { 'data-part': 'stem' }, [
+            h('line', {
+              x1: 0,
+              y1: round(r * 0.75),
+              x2: 0,
+              y2: round(r * 1.35),
+              stroke: stemColor,
+              'stroke-width': round(size * 0.045),
+              'stroke-linecap': 'round',
+            }),
+          ]),
+        ]
+      : []),
+    h('g', { 'data-part': 'petals-outer' }, outer),
+    h('g', { 'data-part': 'petals-inner' }, inner),
+    h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: centerColor })]),
   ]);
-  return { node, radius: r * 1.05 };
+  return { node, radius: hasStem ? r * 1.35 : r * 1.05 };
 };
 
 const flowerBud: Variant = (rng, colors, size) => {
@@ -691,6 +742,10 @@ const anemoneFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 6, 8);
   const petalLen = r * rngRange(rng, 0.7, 0.85);
+  // Build 007, Section 5 (Petal Variation Library): an anemone's own soft,
+  // slightly irregular petals read correctly as a real mix of rounded and
+  // occasionally folded/curled shapes -- not every petal in the ring
+  // sharing one identical curvature.
   const petalNodes = petalRing(rng, {
     count: petals,
     distance: 0,
@@ -700,6 +755,7 @@ const anemoneFlower: Variant = (rng, colors, size) => {
     curvature: 0.65,
     angleJitter: 5,
     scaleJitter: 0.07,
+    variants: ['rounded', 'rounded', 'folded', 'curled'],
   });
   const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.14), fill: blendHex('#1a1006', 0.6, centerColor) })];
   const stamens = rngInt(rng, 10, 14);
@@ -725,6 +781,9 @@ const daisyFlower: Variant = (rng, colors, size) => {
   const centerColor = rngPick(rng, accents);
   const petals = rngInt(rng, 12, 16);
   const petalLen = r * 0.9;
+  // Build 007, Section 5: a real daisy ring is mostly uniform pointed
+  // petals with the occasional weathered/immature one mixed in -- a
+  // genuine field daisy is never perfectly identical petal-for-petal.
   const petalNodes = petalRing(rng, {
     count: petals,
     distance: r * 0.12,
@@ -734,6 +793,7 @@ const daisyFlower: Variant = (rng, colors, size) => {
     curvature: 0.2,
     angleJitter: 3,
     scaleJitter: 0.05,
+    variants: ['pointed', 'pointed', 'pointed', 'damaged', 'immature'],
   });
   const centerNodes: ReturnType<typeof h>[] = [h('circle', { cx: 0, cy: 0, r: round(r * 0.22), fill: centerColor })];
   const dots = rngInt(rng, 10, 14);
@@ -1119,18 +1179,30 @@ const lavenderSpike: Variant = (rng, colors, size) => {
 };
 
 /** A small tight cluster of round berries at one point along a stem. */
+// Build 007, Section 6 (Luxury Detailing): a real berry "cap" -- a small
+// bright highlight dot offset toward one corner of each berry, the flat
+// specular read every glossy real berry (holly, rosehip) has and a flat
+// solid circle doesn't. Cheap by design (one extra circle per berry, same
+// node-budget discipline `calyxBase`/`flowerCenterDetail` already
+// established) -- adds real dimensional detail without adding clutter
+// (it's a single small dot, not a second shape).
 function berryCluster(rng: Rng, color: string, r: number): ReturnType<typeof h>[] {
   const count = rngInt(rng, 3, 5);
   const berries: ReturnType<typeof h>[] = [];
+  const highlightColor = blendHex('#ffffff', 0.55, color);
   for (let i = 0; i < count; i++) {
     const angle = rngRange(rng, 0, Math.PI * 2);
     const dist = rngRange(rng, 0, r * 0.55);
+    const berryR = r * rngRange(rng, 0.85, 1);
+    const cx = Math.cos(angle) * dist;
+    const cy = Math.sin(angle) * dist * 0.85;
+    berries.push(h('circle', { cx: round(cx), cy: round(cy), r: round(berryR), fill: color }));
     berries.push(
       h('circle', {
-        cx: round(Math.cos(angle) * dist),
-        cy: round(Math.sin(angle) * dist * 0.85),
-        r: round(r * rngRange(rng, 0.85, 1)),
-        fill: color,
+        cx: round(cx - berryR * 0.32),
+        cy: round(cy - berryR * 0.32),
+        r: round(berryR * 0.24),
+        fill: highlightColor,
       }),
     );
   }
@@ -1227,6 +1299,109 @@ const VARIANTS: Variant[] = TAGGED_VARIANTS.map((t) => t.variant);
  * relying on random seeds happening to hit all of them. */
 export const BOTANICAL_VARIANTS = VARIANTS;
 
+/** Built once so `createMotif` can look up which `PartShapeCategory` the
+ * variant `rngPick` just landed on without changing `poolForFamily`/
+ * `poolForHints`'s own return type (both stay `Variant[]`, exactly as
+ * `botanical.test.ts`/`botanicalFamilies.test.ts` already pin them). */
+const CATEGORY_BY_VARIANT: Map<Variant, PartShapeCategory> = new Map(TAGGED_VARIANTS.map((t) => [t.variant, t.category]));
+
+// Build 019 ("Visual Commercial Upgrade"), Priority 2 (Organic Botanical
+// Flow) / Priority 4 (Premium Botanical Relationships) — measured
+// evidence (docs/build_reports/BUILD_019_VISUAL_AUDIT_before.json) found
+// Botanical Realism the single weakest scored dimension across a 96-
+// pattern sample spanning every botanical Style DNA preset, 4 seeds and
+// 3 density bands (mean 40.79/100, still the weakest after Build 018's
+// partial `flowerBloom` fix). Root cause: 14 of the generator's 15
+// standalone "flower head" variants (peony/rose/ranunculus/protea/poppy/
+// anemone/daisy/cosmos/bell/magnolia/hydrangea/lavender/tulip/
+// layeredBloom) draw no stem/leaf structure at all -- unlike the growth-
+// engine branch variants (fern/eucalyptus/olive/laurel/sage/leafyBranch/
+// wildflowerSprig), which always do, and `flowerBud`, which always does.
+// Rather than hand-editing 14 near-duplicate stem blocks into every
+// flower variant (the exact kind of business-logic duplication this
+// build is told to avoid), this attaches the SAME stem idiom
+// `flowerBud`/`flowerBloom` (Build 018) already established -- a
+// `<line>` wrapped in `data-part="stem"`, occasionally paired with a
+// `data-part="leaves"` accent using the same shared `leafNode` helper --
+// once, at the single `createMotif` call site every variant already
+// passes through, keyed off the real `category` tag every variant
+// already carries. Never applied to `flowerBloom` itself (its own
+// internal, already-shipped stem logic) or to any non-'flower' category
+// (branch/bud/berry variants already carry their own; a lone 'leaf'
+// motif is not a whole flower and shouldn't grow one). Extends the
+// motif's own bounding `radius` by the added stem length so downstream
+// spacing/placement accounts for the real extra geometry, the same
+// convention `flowerBloom`'s own `hasStem` branch already uses.
+// Build 020 ("Hero Dominance Recovery"): `attachOptionalStem` above
+// applied the exact same stem/leaf probability to every role, which
+// measurably narrowed `heroDetailRatio` (engine/scoring.ts -- hero's
+// average node count over filler/accent's) instead of widening it: a
+// fixed absolute node addition is a *larger relative* increase against
+// filler/accent's smaller baseline node count than against hero's
+// already-larger one. Measured on the same 96-pattern audit sample
+// (docs/build_reports/BUILD_020_VISUAL_AUDIT_before.json): the
+// `heroInsufficientDetail` soft penalty (engine/scoring.ts,
+// `heroDetailRatio < 45`) rose from 10.42% to 18.75% of patterns after
+// Build 019, and that single threshold crossing alone accounts for
+// essentially the entire measured Overall Visual Quality drop (mean
+// penalty points/pattern 11.93 -> 14.14, a 2.21-point difference against
+// a measured 2.22-point score drop). Fix: give the hero role a
+// *reliably richer* stem/leaf treatment than filler/accent (always a
+// stem, usually a leaf, sometimes a second leaf for real bouquet
+// fullness) instead of the same coin-flip every role got -- this widens
+// (not just restores) the hero/baseline node-count gap, directly
+// addressing Hero Silhouette/Hero Scale/Bouquet Readability/Focal
+// Hierarchy without touching `engine/scoring.ts` or reducing filler/
+// accent's own Build 019 realism gain (their probabilities are
+// byte-identical to Build 019 below). Secondary gets an intermediate
+// tier, mirroring `engine/heroComplexity.ts`'s own established
+// hero-highest/secondary-medium/background-plain tiering convention.
+const STEM_PROBABILITY_BY_ROLE: Record<string, number> = { hero: 1, secondary: 0.75 };
+const DEFAULT_STEM_PROBABILITY = 0.55; // filler/accent/undefined -- unchanged from Build 019
+const LEAF_PROBABILITY_BY_ROLE: Record<string, number> = { hero: 0.75, secondary: 0.55 };
+const DEFAULT_LEAF_PROBABILITY = 0.45; // filler/accent/undefined -- unchanged from Build 019
+
+function buildLeafAccent(rng: Rng, colors: string[], size: number, radius: number, stemLength: number): ReturnType<typeof h> {
+  const side = rngBool(rng) ? 1 : -1;
+  return h(
+    'g',
+    {
+      'data-part': 'leaves',
+      transform: `translate(0 ${round(radius * 0.8 + stemLength * 0.55)}) rotate(${round(side * rngRange(rng, 30, 50))})`,
+    },
+    [leafNode(rng, colors, size * 0.3, size * 0.14)],
+  );
+}
+
+function attachOptionalStem(rng: Rng, colors: string[], node: ReturnType<typeof h>, radius: number, size: number, role?: string): Motif {
+  const stemProbability = STEM_PROBABILITY_BY_ROLE[role ?? ''] ?? DEFAULT_STEM_PROBABILITY;
+  const leafProbability = LEAF_PROBABILITY_BY_ROLE[role ?? ''] ?? DEFAULT_LEAF_PROBABILITY;
+  if (!rngBool(rng, stemProbability)) return { node, radius };
+  const stemColor = rngPick(rng, accentColors(colors));
+  const stemLength = size * 0.32;
+  const stemBaseY = round(radius * 0.8);
+  const stem = h('g', { 'data-part': 'stem' }, [
+    h('line', {
+      x1: 0,
+      y1: stemBaseY,
+      x2: 0,
+      y2: round(radius * 0.8 + stemLength),
+      stroke: stemColor,
+      'stroke-width': round(size * 0.045),
+      'stroke-linecap': 'round',
+    }),
+  ]);
+  const extras: ReturnType<typeof h>[] = [];
+  if (rngBool(rng, leafProbability)) {
+    extras.push(buildLeafAccent(rng, colors, size, radius, stemLength));
+    // Hero-only second leaf: real bouquet fullness (Priority 4's "Bouquet
+    // Readability"/"Hero Silhouette"), never on secondary/filler/accent so
+    // their own node cost stays exactly Build 019's.
+    if (role === 'hero' && rngBool(rng, 0.5)) extras.push(buildLeafAccent(rng, colors, size, radius, stemLength));
+  }
+  return { node: h('g', {}, [node, stem, ...extras]), radius: radius + stemLength };
+}
+
 /** Every variant tagged with `family`, plus the untagged universal-foliage
  * variants (see `TaggedVariant.family`'s doc comment) — never the full
  * unfiltered pool, so a family hint genuinely narrows what gets drawn
@@ -1261,19 +1436,41 @@ function poolForHints(hints?: MotifCreateHints): Variant[] {
 
 /** Exposed for tests: lets a test assert precisely which variants a family
  * hint does/doesn't include, rather than inferring it indirectly from
- * serialized SVG output. */
-export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS };
+ * serialized SVG output. `attachOptionalStem`/`CATEGORY_BY_VARIANT`/
+ * `flowerBloom`/`proteaFlower` (Build 019) let a test exercise the stem
+ * wrapper directly and confirm which variant it is/isn't applied to,
+ * rather than trying to infer variant identity from serialized SVG. */
+export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS, attachOptionalStem, CATEGORY_BY_VARIANT, flowerBloom, proteaFlower, singleLeaf };
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
   label: 'Botanical / Floral',
   description:
-    'Flat minimal leaves, blooms, buds and leafy branches — 29 variants across 18 named botanical species (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb, ranunculus, protea, tropical leaf), built on a shared curve-quality and botanical-growth engine.',
+    "Flat minimal leaves, blooms, buds and leafy branches — 29 variants across 19 named botanical species (rose, peony, tulip, anemone, magnolia, hydrangea, cosmos, wildflower, daisy, lavender, eucalyptus, olive, fern, berry branch, herb, ranunculus, protea, tropical leaf, baby's breath), built on a shared curve-quality and botanical-growth engine.",
   defaultMotifSize: 70,
   createMotif(rng: Rng, colors: string[], size: number, _colorSeed?: number, hints?: MotifCreateHints): Motif {
     const pool = poolForHints(hints);
     const variant = rngPick(rng, pool);
     const { node, radius } = variant(rng, colors, size);
+    // Build 019/020: see `attachOptionalStem`'s own doc comment above.
+    const category = CATEGORY_BY_VARIANT.get(variant);
+    if (category === 'flower' && variant !== flowerBloom) {
+      return attachOptionalStem(rng, colors, node, radius, size, hints?.role);
+    }
+    // Build 020: a hero landing on a bare 'leaf'-category variant
+    // (singleLeaf/mapleLeaf/heartLeaf/monsteraLeaf -- the sparsest shapes
+    // in the whole pool, never touched by the 'flower'-only wrapper above)
+    // was the single biggest source of the residual low-avgHero-node-count
+    // tail behind `heroInsufficientDetail` (see BUILD_020_REPORT.md's own
+    // per-preset diagnostic). Hero-only, same reused `attachOptionalStem`
+    // idiom -- turns a bare leaf into a real leafy sprig instead of
+    // inventing a second stem-drawing routine. Every instance that gains a
+    // stem this way also gains a real `data-part="stem"`, so Botanical
+    // Realism can only improve, never regress, for filler/accent/secondary
+    // (whose 'leaf'-category output is completely unchanged).
+    if (category === 'leaf' && hints?.role === 'hero') {
+      return attachOptionalStem(rng, colors, node, radius, size, hints.role);
+    }
     return { node, radius };
   },
 };

@@ -1,0 +1,59 @@
+{
+  "id": "luxuryFloral",
+  "label": "Luxury Floral",
+  "description": "Large hero blooms in a hand-tied bouquet arrangement with jewel-tone richness.",
+  "categories": [
+    "botanical"
+  ],
+  "layouts": [
+    "bouquet",
+    "heroScatter"
+  ],
+  "preferredZones": [
+    "goldenRatio",
+    "diagonal",
+    "offset"
+  ],
+  "hierarchyPreset": "heroFocus",
+  "preferredFamilies": [
+    "rose",
+    "peony",
+    "magnolia",
+    "hydrangea"
+  ],
+  "preferredClusterArchetypes": [
+    "sprayBouquet",
+    "bouquet"
+  ],
+  "premiumHero": true,
+  "density": 0.55,
+  "negativeSpace": 0.15,
+  "overlapMode": "natural",
+  "overlapAmount": 0.2,
+  "flowProfile": "directional",
+  "rhythmProfile": "organic",
+  "clusterStyle": "bouquet",
+  "clusterDensity": 0.6,
+  "motifComplexity": "intricate",
+  "botanicalGrowthPreset": "eucalyptus",
+  "colorStrategy": "highContrast",
+  "paletteIds": [
+    "jewel-tones",
+    "blush-gold",
+    "luxury-wedding"
+  ],
+  "backgroundStrategy": "richContrast",
+  "svgDepthMode": "dimensional",
+  "exportRecommendation": {
+    "tileSize": 1600,
+    "patternScale": 1,
+    "recommendedSites": [
+      "adobestock",
+      "creativemarket"
+    ],
+    "bestProductTargets": [
+      "wallpaper",
+      "homeDecor"
+    ]
+  }
+}

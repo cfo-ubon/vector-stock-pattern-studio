@@ -1,0 +1,674 @@
+{
+  "generatedAt": "2026-07-16T18:05:59.569Z",
+  "label": "BUILD_012_regression",
+  "generationTimeMs": 384218,
+  "scenarioSuite": {
+    "n": 30,
+    "v1": {
+      "n": 30,
+      "mean": 80.17,
+      "failureRate": 3.33
+    },
+    "v2": {
+      "n": 30,
+      "mean": 80.17,
+      "failureRate": 3.33
+    },
+    "byLayoutClass": {
+      "lattice": {
+        "v1": {
+          "n": 0,
+          "mean": 0,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 0,
+          "mean": 0,
+          "failureRate": 0
+        }
+      },
+      "organic": {
+        "v1": {
+          "n": 30,
+          "mean": 80.17,
+          "failureRate": 3.33
+        },
+        "v2": {
+          "n": 30,
+          "mean": 80.17,
+          "failureRate": 3.33
+        }
+      }
+    }
+  },
+  "portfolio100": {
+    "n": 100,
+    "overallV1": {
+      "n": 100,
+      "mean": 72.81,
+      "failureRate": 27
+    },
+    "overallV2": {
+      "n": 100,
+      "mean": 83.01,
+      "failureRate": 3
+    },
+    "byStyleDna": {
+      "editorialBotanical": {
+        "v1": {
+          "n": 7,
+          "mean": 88,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 88,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "luxuryFloral": {
+        "v1": {
+          "n": 7,
+          "mean": 67,
+          "failureRate": 28.57
+        },
+        "v2": {
+          "n": 7,
+          "mean": 67,
+          "failureRate": 28.57
+        },
+        "delta": 0
+      },
+      "scandinavianOrganic": {
+        "v1": {
+          "n": 7,
+          "mean": 85,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 85,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "minimalBotanical": {
+        "v1": {
+          "n": 7,
+          "mean": 31.71,
+          "failureRate": 100
+        },
+        "v2": {
+          "n": 7,
+          "mean": 78.86,
+          "failureRate": 0
+        },
+        "delta": 47.15
+      },
+      "vintageHerbarium": {
+        "v1": {
+          "n": 7,
+          "mean": 61.86,
+          "failureRate": 57.14
+        },
+        "v2": {
+          "n": 7,
+          "mean": 84,
+          "failureRate": 0
+        },
+        "delta": 22.14
+      },
+      "darkBotanical": {
+        "v1": {
+          "n": 7,
+          "mean": 74.86,
+          "failureRate": 14.29
+        },
+        "v2": {
+          "n": 7,
+          "mean": 74.86,
+          "failureRate": 14.29
+        },
+        "delta": 0
+      },
+      "modernTropical": {
+        "v1": {
+          "n": 7,
+          "mean": 87.57,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 87.57,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "boutiquePackaging": {
+        "v1": {
+          "n": 7,
+          "mean": 48.86,
+          "failureRate": 71.43
+        },
+        "v2": {
+          "n": 7,
+          "mean": 82.43,
+          "failureRate": 0
+        },
+        "delta": 33.57
+      },
+      "luxuryWallpaper": {
+        "v1": {
+          "n": 7,
+          "mean": 77.29,
+          "failureRate": 14.29
+        },
+        "v2": {
+          "n": 7,
+          "mean": 85.14,
+          "failureRate": 0
+        },
+        "delta": 7.85
+      },
+      "premiumTextile": {
+        "v1": {
+          "n": 7,
+          "mean": 44.71,
+          "failureRate": 100
+        },
+        "v2": {
+          "n": 7,
+          "mean": 79.71,
+          "failureRate": 0
+        },
+        "delta": 35
+      },
+      "kidsPlayful": {
+        "v1": {
+          "n": 7,
+          "mean": 85.14,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 85.14,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "retroOrganic": {
+        "v1": {
+          "n": 7,
+          "mean": 89.29,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 89.29,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "organicAbstract": {
+        "v1": {
+          "n": 7,
+          "mean": 88.29,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 88.29,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "bohoFloral": {
+        "v1": {
+          "n": 7,
+          "mean": 85.71,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 7,
+          "mean": 85.71,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "softWatercolorInspired": {
+        "v1": {
+          "n": 2,
+          "mean": 87,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 2,
+          "mean": 87,
+          "failureRate": 0
+        },
+        "delta": 0
+      }
+    }
+  },
+  "xlPortfolio500": {
+    "n": 500,
+    "overallV1": {
+      "n": 500,
+      "mean": 71.21,
+      "failureRate": 27.6
+    },
+    "overallV2": {
+      "n": 500,
+      "mean": 82.35,
+      "failureRate": 1.6
+    },
+    "byStyleDna": {
+      "editorialBotanical": {
+        "v1": {
+          "n": 34,
+          "mean": 81.91,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 81.91,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "luxuryFloral": {
+        "v1": {
+          "n": 34,
+          "mean": 72.74,
+          "failureRate": 20.59
+        },
+        "v2": {
+          "n": 34,
+          "mean": 72.74,
+          "failureRate": 20.59
+        },
+        "delta": 0
+      },
+      "scandinavianOrganic": {
+        "v1": {
+          "n": 34,
+          "mean": 83.12,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 83.12,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "minimalBotanical": {
+        "v1": {
+          "n": 34,
+          "mean": 24.88,
+          "failureRate": 100
+        },
+        "v2": {
+          "n": 34,
+          "mean": 75.79,
+          "failureRate": 0
+        },
+        "delta": 50.91
+      },
+      "vintageHerbarium": {
+        "v1": {
+          "n": 34,
+          "mean": 64.24,
+          "failureRate": 47.06
+        },
+        "v2": {
+          "n": 34,
+          "mean": 82.47,
+          "failureRate": 0
+        },
+        "delta": 18.23
+      },
+      "darkBotanical": {
+        "v1": {
+          "n": 34,
+          "mean": 80.68,
+          "failureRate": 2.94
+        },
+        "v2": {
+          "n": 34,
+          "mean": 80.68,
+          "failureRate": 2.94
+        },
+        "delta": 0
+      },
+      "modernTropical": {
+        "v1": {
+          "n": 34,
+          "mean": 87.74,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 87.74,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "boutiquePackaging": {
+        "v1": {
+          "n": 34,
+          "mean": 38.32,
+          "failureRate": 91.18
+        },
+        "v2": {
+          "n": 34,
+          "mean": 79.21,
+          "failureRate": 0
+        },
+        "delta": 40.89
+      },
+      "luxuryWallpaper": {
+        "v1": {
+          "n": 34,
+          "mean": 65.88,
+          "failureRate": 44.12
+        },
+        "v2": {
+          "n": 34,
+          "mean": 84.71,
+          "failureRate": 0
+        },
+        "delta": 18.83
+      },
+      "premiumTextile": {
+        "v1": {
+          "n": 34,
+          "mean": 45.47,
+          "failureRate": 100
+        },
+        "v2": {
+          "n": 34,
+          "mean": 80.47,
+          "failureRate": 0
+        },
+        "delta": 35
+      },
+      "kidsPlayful": {
+        "v1": {
+          "n": 34,
+          "mean": 84.74,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 84.74,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "retroOrganic": {
+        "v1": {
+          "n": 34,
+          "mean": 86.03,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 86.03,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "organicAbstract": {
+        "v1": {
+          "n": 34,
+          "mean": 88.15,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 88.15,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "bohoFloral": {
+        "v1": {
+          "n": 34,
+          "mean": 83.91,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 34,
+          "mean": 83.91,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "softWatercolorInspired": {
+        "v1": {
+          "n": 24,
+          "mean": 84.21,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 24,
+          "mean": 84.21,
+          "failureRate": 0
+        },
+        "delta": 0
+      }
+    }
+  },
+  "commercialRealityCheck1500": {
+    "n": 1500,
+    "overallV1": {
+      "n": 1500,
+      "mean": 72.32,
+      "failureRate": 25.87
+    },
+    "overallV2": {
+      "n": 1500,
+      "mean": 82.73,
+      "failureRate": 1.13
+    },
+    "byStyleDna": {
+      "editorialBotanical": {
+        "v1": {
+          "n": 100,
+          "mean": 79.01,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 79.01,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "luxuryFloral": {
+        "v1": {
+          "n": 100,
+          "mean": 75,
+          "failureRate": 14
+        },
+        "v2": {
+          "n": 100,
+          "mean": 75,
+          "failureRate": 14
+        },
+        "delta": 0
+      },
+      "scandinavianOrganic": {
+        "v1": {
+          "n": 100,
+          "mean": 84.16,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 84.16,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "minimalBotanical": {
+        "v1": {
+          "n": 100,
+          "mean": 31.56,
+          "failureRate": 99
+        },
+        "v2": {
+          "n": 100,
+          "mean": 77.18,
+          "failureRate": 0
+        },
+        "delta": 45.62
+      },
+      "vintageHerbarium": {
+        "v1": {
+          "n": 100,
+          "mean": 64.5,
+          "failureRate": 46
+        },
+        "v2": {
+          "n": 100,
+          "mean": 82.9,
+          "failureRate": 0
+        },
+        "delta": 18.4
+      },
+      "darkBotanical": {
+        "v1": {
+          "n": 100,
+          "mean": 80.73,
+          "failureRate": 3
+        },
+        "v2": {
+          "n": 100,
+          "mean": 80.73,
+          "failureRate": 3
+        },
+        "delta": 0
+      },
+      "modernTropical": {
+        "v1": {
+          "n": 100,
+          "mean": 87.52,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 87.52,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "boutiquePackaging": {
+        "v1": {
+          "n": 100,
+          "mean": 37.34,
+          "failureRate": 92
+        },
+        "v2": {
+          "n": 100,
+          "mean": 78.62,
+          "failureRate": 0
+        },
+        "delta": 41.28
+      },
+      "luxuryWallpaper": {
+        "v1": {
+          "n": 100,
+          "mean": 70.45,
+          "failureRate": 34
+        },
+        "v2": {
+          "n": 100,
+          "mean": 85.15,
+          "failureRate": 0
+        },
+        "delta": 14.7
+      },
+      "premiumTextile": {
+        "v1": {
+          "n": 100,
+          "mean": 44.09,
+          "failureRate": 100
+        },
+        "v2": {
+          "n": 100,
+          "mean": 80.29,
+          "failureRate": 0
+        },
+        "delta": 36.2
+      },
+      "kidsPlayful": {
+        "v1": {
+          "n": 100,
+          "mean": 85.04,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 85.04,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "retroOrganic": {
+        "v1": {
+          "n": 100,
+          "mean": 87.77,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 87.77,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "organicAbstract": {
+        "v1": {
+          "n": 100,
+          "mean": 88.05,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 88.05,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "bohoFloral": {
+        "v1": {
+          "n": 100,
+          "mean": 84.68,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 84.68,
+          "failureRate": 0
+        },
+        "delta": 0
+      },
+      "softWatercolorInspired": {
+        "v1": {
+          "n": 100,
+          "mean": 84.87,
+          "failureRate": 0
+        },
+        "v2": {
+          "n": 100,
+          "mean": 84.87,
+          "failureRate": 0
+        },
+        "delta": 0
+      }
+    }
+  }
+}

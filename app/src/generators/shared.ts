@@ -68,3 +68,41 @@ export function calyxBase(rng: Rng, opts: { color: string; flowerRadius: number;
   }
   return h('g', { 'data-part': 'calyx' }, sepals);
 }
+
+/** Build 006, Section 7 (Premium SVG Detail): a real Flower Center Generator
+ * -- the stamens/anthers/pistil disc every real bloom has at its own
+ * center, another gap no prior variant drew (blooms went straight from
+ * petals to nothing, with an empty center). A small fan of thin stamen
+ * filaments, each tipped with a tiny anther dot, plus one small center
+ * disc -- sized relative to the flower, seeded jitter per filament so it
+ * reads as grown rather than stamped, same convention as `calyxBase`.
+ * Deliberately cheap (`filamentCount` defaults to 6, ~13 nodes total) --
+ * reserved for hero-scale blooms only (see `premiumHero.ts`), the same
+ * node-budget discipline `calyxBase` already established. */
+export function flowerCenterDetail(
+  rng: Rng,
+  opts: { filamentColor: string; discColor: string; flowerRadius: number; filamentCount?: number; openness?: number },
+): ReturnType<typeof h> {
+  const { filamentColor, discColor, flowerRadius: r, filamentCount = 6, openness = 1 } = opts;
+  // Build 007, Section 1 (Flower Anatomy Engine): `openness` is a real
+  // "bloom stage" read -- a bloom just starting to open has short filaments
+  // clustered close around a larger, still-mostly-closed disc; a fully
+  // open bloom has long, spread filaments around a smaller disc. Defaults
+  // to 1 (unchanged from pre-Build-007 behavior) so every existing caller
+  // is byte-identical.
+  const filamentLen = r * 0.22 * (0.45 + 0.55 * openness);
+  const discRadius = r * (0.12 + 0.05 * (1 - openness));
+  const parts: ReturnType<typeof h>[] = [];
+  for (let i = 0; i < filamentCount; i++) {
+    const angle = (360 / filamentCount) * i + rngRange(rng, -10, 10);
+    const len = filamentLen * rngRange(rng, 0.8, 1.15);
+    parts.push(
+      h('g', { transform: `rotate(${round(angle)})` }, [
+        h('path', { d: `M 0 0 L 0 ${round(-len)}`, fill: 'none', stroke: filamentColor, 'stroke-width': round(r * 0.02), 'stroke-linecap': 'round' }),
+        h('circle', { cx: 0, cy: round(-len), r: round(r * 0.035), fill: filamentColor }),
+      ]),
+    );
+  }
+  parts.push(h('circle', { cx: 0, cy: 0, r: round(discRadius), fill: discColor }));
+  return h('g', { 'data-part': 'flower-center' }, parts);
+}

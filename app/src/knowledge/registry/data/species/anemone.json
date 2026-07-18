@@ -1,0 +1,63 @@
+{
+  "id": "anemone",
+  "label": "Anemone",
+  "botanicalFamilyName": "Ranunculaceae",
+  "silhouette": "rounded",
+  "growthPreset": "sage",
+  "stemLengthScale": 1,
+  "leafDensityScale": 0.7,
+  "bouquetRole": "supporting",
+  "flowerDiameterClass": "medium",
+  "bloomStageRange": [
+    0.6,
+    1
+  ],
+  "petalCountRange": [
+    5,
+    8
+  ],
+  "petalArrangement": "single",
+  "petalOverlap": "slight",
+  "petalSilhouette": "rounded",
+  "petalEdgeStyle": "smooth",
+  "centerStructure": "disc",
+  "sepalStructure": "minimal",
+  "stemThickness": "thin",
+  "branchingTendency": "single",
+  "leafType": "compound",
+  "veinType": "palmate",
+  "naturalColorFamilies": [
+    "white",
+    "purple",
+    "red",
+    "blue"
+  ],
+  "premiumScore": 78,
+  "eleganceScore": 88,
+  "commercialPopularity": 75,
+  "companions": [
+    {
+      "family": "olive",
+      "role": "foliage",
+      "strength": 0.75,
+      "spatialRelationship": "trailing"
+    },
+    {
+      "family": "fern",
+      "role": "foliage",
+      "strength": 0.65,
+      "spatialRelationship": "nesting"
+    },
+    {
+      "family": "babysBreath",
+      "role": "filler",
+      "strength": 0.7,
+      "spatialRelationship": "nesting"
+    }
+  ],
+  "usageProfiles": [
+    "editorialBotanical",
+    "wedding",
+    "modern"
+  ]
+}

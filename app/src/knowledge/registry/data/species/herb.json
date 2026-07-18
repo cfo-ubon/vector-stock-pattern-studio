@@ -1,0 +1,42 @@
+{
+  "id": "herb",
+  "label": "Herb",
+  "botanicalFamilyName": "Lamiaceae",
+  "silhouette": "wispy",
+  "growthPreset": "sage",
+  "stemLengthScale": 0.9,
+  "leafDensityScale": 0.9,
+  "bouquetRole": "foliageOnly",
+  "flowerDiameterClass": "none",
+  "bloomStageRange": [
+    0,
+    0
+  ],
+  "petalCountRange": [
+    0,
+    0
+  ],
+  "petalArrangement": "none",
+  "petalOverlap": "none",
+  "petalSilhouette": "none",
+  "petalEdgeStyle": "none",
+  "centerStructure": "none",
+  "sepalStructure": "none",
+  "stemThickness": "thin",
+  "branchingTendency": "shrubby",
+  "leafType": "narrow",
+  "veinType": "pinnate",
+  "naturalColorFamilies": [
+    "green",
+    "silver-green"
+  ],
+  "premiumScore": 50,
+  "eleganceScore": 60,
+  "commercialPopularity": 55,
+  "companions": [],
+  "usageProfiles": [
+    "minimal",
+    "scandinavian",
+    "packaging"
+  ]
+}

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { listPatternGrammars } from '../../services/patternGrammarService';
+import { PRODUCT_USE_IDS } from '../../collection/productTargets';
 import {
   listPatternKnowledge,
   getPatternKnowledge,
@@ -31,9 +32,9 @@ describe('knowledge/pattern: pass-through lookups', () => {
 });
 
 describe('knowledge/pattern: getPatternCommercialSuitability', () => {
-  it('composes the real Product Targets recommender and returns all 10 named uses', () => {
+  it('composes the real Product Targets recommender and returns all named uses', () => {
     const results = getPatternCommercialSuitability({ categoryId: 'botanical', tileSize: 1400, density: 0.5 });
-    expect(results.length).toBe(10);
+    expect(results.length).toBe(PRODUCT_USE_IDS.length);
     for (const r of results) {
       expect(r.score).toBeGreaterThanOrEqual(0);
       expect(r.score).toBeLessThanOrEqual(100);

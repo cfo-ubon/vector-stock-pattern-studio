@@ -1,0 +1,50 @@
+{
+  "id": "modernTropical",
+  "label": "Modern Tropical",
+  "description": "Bold, dynamic tropical foliage with citrus/ocean contrast and syncopated rhythm.",
+  "categories": [
+    "tropical"
+  ],
+  "layouts": [
+    "heroScatter",
+    "toss"
+  ],
+  "preferredZones": [
+    "zFlow",
+    "wave",
+    "diagonal"
+  ],
+  "hierarchyPreset": "heroFocus",
+  "preferredClusterArchetypes": [
+    "cornerCluster",
+    "sprayBouquet"
+  ],
+  "density": 0.55,
+  "negativeSpace": 0.1,
+  "overlapMode": "natural",
+  "overlapAmount": 0.15,
+  "flowProfile": "dynamic",
+  "rhythmProfile": "syncopated",
+  "clusterStyle": "loose",
+  "clusterDensity": 0.4,
+  "motifComplexity": "intricate",
+  "colorStrategy": "highContrast",
+  "paletteIds": [
+    "citrus-pop",
+    "ocean-breeze"
+  ],
+  "backgroundStrategy": "richContrast",
+  "svgDepthMode": "soft",
+  "exportRecommendation": {
+    "tileSize": 1400,
+    "patternScale": 1,
+    "recommendedSites": [
+      "adobestock",
+      "shutterstock"
+    ],
+    "bestProductTargets": [
+      "fabric",
+      "textile"
+    ]
+  }
+}
