@@ -20,12 +20,34 @@ function round5(v: number): number {
   return Math.round(v * 20) / 20;
 }
 
+const BATCH_PRODUCTION_COUNT_OPTIONS = [10, 20, 50, 100] as const;
+
+export interface BatchProductionSummary {
+  generatedCount: number;
+  importedCount: number;
+  possibleDuplicateCount: number;
+  blockedDuplicateCount: number;
+  errorCount: number;
+}
+
 interface Props {
   params: GenerateParams;
   onChange: (patch: Partial<GenerateParams>) => void;
   onGenerate: () => void;
   onRandomizeAll: () => void;
   onGenerateBatch: () => void;
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate): a second,
+  // separate batch action from the pre-existing "Generate 9 Variations"
+  // above — that one stays exactly as it was (ephemeral, session-only
+  // Gallery preview). This one saves straight into the Portfolio catalog
+  // via the existing Portfolio Manager import pipeline (duplicate
+  // detection included, Priority 5), at a caller-chosen count.
+  batchProductionCount: number;
+  onBatchProductionCountChange: (count: number) => void;
+  onGenerateBatchToPortfolio: () => void;
+  batchProductionStatus: 'idle' | 'running' | 'done';
+  batchProductionResult: BatchProductionSummary | null;
+  onDownloadBatchZip: () => void;
   qualityMode: GenerationMode;
   onQualityModeChange: (mode: GenerationMode) => void;
   qualityPresetId: QualityPresetId;
@@ -65,6 +87,12 @@ export function ControlPanel({
   onGenerate,
   onRandomizeAll,
   onGenerateBatch,
+  batchProductionCount,
+  onBatchProductionCountChange,
+  onGenerateBatchToPortfolio,
+  batchProductionStatus,
+  batchProductionResult,
+  onDownloadBatchZip,
   qualityMode,
   onQualityModeChange,
   qualityPresetId,
@@ -551,6 +579,44 @@ export function ControlPanel({
         <button type="button" className="btn" onClick={onGenerateBatch}>
           Generate 9 variations
         </button>
+        <div
+          className="batch-production-controls"
+          title="สร้างลายหลายชิ้นพร้อมกันแล้วบันทึกตรงเข้าคลังผลงาน (Portfolio) — ผ่านระบบตรวจจับไฟล์ซ้ำเดียวกับที่ใช้ตอน import ไฟล์ด้วยมือ ไม่มีการเขียนตรรกะตรวจจับไฟล์ซ้ำใหม่"
+        >
+          <label>
+            Batch Generate
+            <select
+              value={batchProductionCount}
+              onChange={(e) => onBatchProductionCountChange(Number(e.target.value))}
+              disabled={batchProductionStatus === 'running'}
+              aria-label="Batch size"
+            >
+              {BATCH_PRODUCTION_COUNT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="button" className="btn" onClick={onGenerateBatchToPortfolio} disabled={batchProductionStatus === 'running'}>
+            {batchProductionStatus === 'running' ? `🏭 กำลังสร้าง ${batchProductionCount} ชิ้น…` : `🏭 Generate ${batchProductionCount} to Portfolio`}
+          </button>
+          {batchProductionStatus === 'done' && batchProductionResult && (
+            <div className="batch-production-summary" role="status">
+              <span>
+                ✅ บันทึกแล้ว {batchProductionResult.importedCount}/{batchProductionResult.generatedCount}
+              </span>
+              {batchProductionResult.possibleDuplicateCount > 0 && <span>⚠️ อาจซ้ำ {batchProductionResult.possibleDuplicateCount}</span>}
+              {batchProductionResult.blockedDuplicateCount > 0 && <span>⛔ ซ้ำแน่นอน {batchProductionResult.blockedDuplicateCount}</span>}
+              {batchProductionResult.errorCount > 0 && <span>❌ ผิดพลาด {batchProductionResult.errorCount}</span>}
+              {batchProductionResult.importedCount > 0 && (
+                <button type="button" className="btn" onClick={onDownloadBatchZip}>
+                  ⬇️ Download Batch ZIP
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <button
           type="button"
           className="btn btn--save"

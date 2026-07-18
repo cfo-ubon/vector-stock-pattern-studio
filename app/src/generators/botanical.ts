@@ -102,6 +102,21 @@ const singleLeaf: Variant = (rng, colors, size) => {
 // per instance) makes the inner whorl read anywhere from "just starting to
 // open" to "fully open", the same natural variety a bouquet's blooms show
 // at different ages instead of every bloom looking identically staged.
+// Build 018 ("Revenue First", Priority 4 — Botanical composition): an
+// empirical audit (`scripts/build018BotanicalAudit.ts`) found Botanical
+// Realism (`engine/botanicalBeautyMetrics.ts`'s `computeBotanicalRealism`
+// — the % of motif instances with a real `data-part="stem"`/`"leaves"`
+// group) averaging just ~31/100 across a diverse 60-pattern sample, far
+// below every other dimension. This variant's own doc comment above
+// states it is "the untagged fallback bloom across most families with
+// no dedicated species variant" — i.e. the single most common bare
+// (stem-less) motif in the whole generator. A stem beneath a bloom is
+// also just accurate: a cut/growing flower head is rarely drawn
+// floating with nothing beneath it. The stem is optional (not every
+// instance) so bare, floating-petal blooms — a legitimate accent
+// look — stay in the mix; the stem line reuses the exact drawing idiom
+// `flowerBud` above already established (plain `<line>`,
+// `data-part="stem"`, same stroke-width convention), not a new shape.
 const flowerBloom: Variant = (rng, colors, size) => {
   const r = size / 2;
   const outerCount = rngInt(rng, 5, 7);
@@ -122,12 +137,29 @@ const flowerBloom: Variant = (rng, colors, size) => {
     openness,
     variants: ['rounded', 'rounded', 'pointed', 'folded'],
   });
+  const hasStem = rngBool(rng, 0.6);
+  const stemColor = rngPick(rng, accentColors(colors));
   const node = h('g', {}, [
+    ...(hasStem
+      ? [
+          h('g', { 'data-part': 'stem' }, [
+            h('line', {
+              x1: 0,
+              y1: round(r * 0.75),
+              x2: 0,
+              y2: round(r * 1.35),
+              stroke: stemColor,
+              'stroke-width': round(size * 0.045),
+              'stroke-linecap': 'round',
+            }),
+          ]),
+        ]
+      : []),
     h('g', { 'data-part': 'petals-outer' }, outer),
     h('g', { 'data-part': 'petals-inner' }, inner),
     h('g', { 'data-part': 'center' }, [h('circle', { cx: 0, cy: 0, r: round(r * 0.16), fill: centerColor })]),
   ]);
-  return { node, radius: r * 1.05 };
+  return { node, radius: hasStem ? r * 1.35 : r * 1.05 };
 };
 
 const flowerBud: Variant = (rng, colors, size) => {

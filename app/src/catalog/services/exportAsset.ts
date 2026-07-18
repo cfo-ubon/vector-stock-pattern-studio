@@ -61,14 +61,20 @@ function dedupeZipName(name: string, used: Set<string>): string {
   return candidate;
 }
 
-/** Builds a portable ZIP for one catalog asset. Verifies every file
- * body's real byte hash against its recorded `sha256` immediately before
- * zipping (Section 14: "hash integrity" test coverage) — a mismatch
- * throws `AssetExportIntegrityError` rather than silently exporting
- * corrupted/substituted content. */
-export async function buildAssetExportZip(asset: PortfolioAsset, files: PortfolioFileRecord[]): Promise<Blob> {
-  const usedNames = new Set<string>(['manifest.json']);
-  const zipEntries: ZipEntry[] = [];
+/** Verifies every one of one asset's source files against its recorded
+ * hash and returns the zip-ready entries + manifest rows for it, WITHOUT
+ * wrapping them in a zip yet — the shared core both `buildAssetExportZip`
+ * (single asset, own `manifest.json` at the archive root) and
+ * `batch/batchExportService.ts` (Build 018, many assets, one namespaced
+ * subfolder + entry per asset inside one combined archive) build on, so
+ * the hash-integrity check has exactly one implementation regardless of
+ * how many assets end up in the final archive. */
+export async function buildAssetZipEntries(
+  asset: PortfolioAsset,
+  files: PortfolioFileRecord[],
+  usedNames: Set<string> = new Set(),
+): Promise<{ entries: ZipEntry[]; manifestFiles: PortfolioExportManifestFileEntry[] }> {
+  const entries: ZipEntry[] = [];
   const manifestFiles: PortfolioExportManifestFileEntry[] = [];
 
   for (const ref of asset.sourceFileReferences) {
@@ -82,9 +88,21 @@ export async function buildAssetExportZip(asset: PortfolioAsset, files: Portfoli
     }
 
     const zipName = dedupeZipName(record.filename, usedNames);
-    zipEntries.push({ name: zipName, data: new Uint8Array(buffer) });
+    entries.push({ name: zipName, data: new Uint8Array(buffer) });
     manifestFiles.push({ fileId: record.fileId, filename: zipName, role: record.role, sha256: record.sha256, fileSize: record.fileSize });
   }
+
+  return { entries, manifestFiles };
+}
+
+/** Builds a portable ZIP for one catalog asset. Verifies every file
+ * body's real byte hash against its recorded `sha256` immediately before
+ * zipping (Section 14: "hash integrity" test coverage) — a mismatch
+ * throws `AssetExportIntegrityError` rather than silently exporting
+ * corrupted/substituted content. */
+export async function buildAssetExportZip(asset: PortfolioAsset, files: PortfolioFileRecord[]): Promise<Blob> {
+  const usedNames = new Set<string>(['manifest.json']);
+  const { entries: zipEntries, manifestFiles } = await buildAssetZipEntries(asset, files, usedNames);
 
   const manifest: PortfolioExportManifest = {
     manifestVersion: PORTFOLIO_EXPORT_MANIFEST_VERSION,

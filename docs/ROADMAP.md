@@ -441,6 +441,65 @@ Build-numbered, forward-looking. Each entry is either shipped
   `PORTFOLIO_HEALTH_SCORE.md`, `DASHBOARD_ANALYTICS.md`,
   `DASHBOARD_TEST_REPORT.md`.
 
+- **Build 018 — Batch Production & Botanical Realism ("Revenue First")**:
+  a direction change — PI-1/SIE (a proposed new "Stock Intelligence
+  Engine" architecture) was explicitly declined; this build reuses the
+  existing scoring/analyzer/recommendation/duplicate-detection systems
+  as-is and focuses on portfolio production throughput instead. New
+  module (`app/src/batch/`, 2 files): `batchProductionService.ts`
+  (`generateBatchToPortfolio`) generates N diverse patterns — reusing
+  `assignPortfolioDiversity` (Build 003/004, unmodified) and
+  `buildTileForGenerate` (Build 003/007's quality-retry routing,
+  extracted from `App.tsx` into `engine/heroDetector.ts` as a shared
+  export so both this and the pre-existing UI call one implementation)
+  — and saves each straight into the Portfolio catalog via the existing,
+  unmodified Sprint P1 import pipeline (`catalog/import/importPipeline.ts`'s
+  `importFileGroup`), which gives duplicate detection for free from
+  code already shipped, not a new implementation.
+  `batchExportService.ts` generalizes `catalog/services/exportAsset.ts`'s
+  existing per-asset ZIP builder (refactored to share its hash-verified
+  core via a new `buildAssetZipEntries` export, behavior-preserving) to
+  a combined multi-asset archive. UI: a "Batch Generate" control
+  (10/20/50/100) in `ControlPanel.tsx`, separate from the pre-existing
+  "Generate 9 Variations" (untouched, still ephemeral/session-only) —
+  this one is Portfolio-backed so it isn't capped by the Gallery's
+  24-item limit. One evidence-based Botanical composition fix: an
+  audit script (`scripts/build018BotanicalAudit.ts`) found Botanical
+  Realism (`engine/botanicalBeautyMetrics.ts`, unmodified metric)
+  averaging 31/100 across a 60-pattern diverse sample, traced to
+  `flowerBloom` — documented as "the untagged fallback bloom across
+  most families" — having no stem structure at all; added an optional
+  stem (60% of instances) using the exact drawing idiom `flowerBud`
+  already established. Measured after: Botanical Realism 31.32 → 37.67
+  (+20% relative), every other dimension flat (no regression), overall
+  botanical composite 68.43 → 68.92. 16 new tests (11 for the batch
+  services, 5 pre-existing botanical suites re-verified passing
+  unmodified). See `BUILD_018_REPORT.md`.
+
+## Recommended Next Build (Revenue First / Production track)
+
+Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
+Portfolio Diversity reuse, one evidence-based Botanical fix, and
+export/duplicate-detection wiring) and left 2 partially open by design,
+scoped to keep the build reviewable: "Improve Pattern Generator quality"
+was satisfied only in the narrow sense that batch output now goes
+through the same quality-retry path every other generation call does —
+no broader quality initiative was undertaken, since the existing
+scoring/critic stack is mature and the brief explicitly said not to
+touch it. "Improve SVG export" only got the new multi-asset ZIP
+capability — the single-file SVG/EPS/JPEG exporters themselves
+(`export/svgExporter.ts`, `export/epsExporter.ts`) were not touched.
+Natural next steps, in priority order: (1) run
+`scripts/build018BotanicalAudit.ts` again against a fresh sample and
+apply the same evidence-first approach to the next-weakest dimension
+(Organic Flow, mean ~41, was the second-lowest in this build's own
+audit); (2) wire the new `batch/` module's duplicate-detection summary
+into a real review UI (today it's a compact inline count — "3 possible
+duplicates" with no way to inspect *which* 3 without opening Portfolio
+Manager separately); (3) extend Batch Generate past 100 with real
+progress feedback (chunked, matching `candidateEngine.ts`'s own
+macrotask-chunking precedent) if larger runs are wanted.
+
 ## Recommended Next Build (Portfolio Manager track)
 
 Sprint 4 certified and froze the Collection module built and validated

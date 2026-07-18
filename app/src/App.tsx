@@ -6,7 +6,10 @@ import { randomSeed, createRng } from './engine/rng';
 import { assignPortfolioDiversity } from './engine/portfolioVariety';
 import { HIERARCHY_PRESETS } from './engine/hierarchy';
 import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type CancelToken, type CandidateProgress } from './engine/candidateEngine';
-import { buildTileWithHeroRetry, buildTileWithCommercialRetry } from './engine/heroDetector';
+import { buildTileForGenerate } from './engine/heroDetector';
+import { generateBatchToPortfolio, type BatchProductionResult } from './batch/batchProductionService';
+import { exportAssetsAsZip } from './batch/batchExportService';
+import { loadPortfolioAssets, portfolioStorageAvailable } from './catalog/storage/portfolioStore';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
 import { loadCustomStyles } from './storage/styleDnaStore';
@@ -80,18 +83,6 @@ function saveGallery(items: GalleryItem[]) {
   }
 }
 
-// Build 007, Section 7 (Commercial Composition Review): a botanical
-// generation gets the broader Pattern Beauty Score-based retry (bouquet
-// balance/silhouette/negative space/rhythm/repetition/commercial appeal,
-// see engine/heroDetector.ts's `buildTileWithCommercialRetry`); every other
-// category keeps the original Hero-Visibility-only retry unchanged, since
-// this build's own mandate is the botanical illustration engine, not a
-// revisit of every category's retry cadence.
-function buildTileForGenerate(params: GenerateParams) {
-  const isBotanical = params.categoryId === 'botanical' || (params.mixCategoryIds?.includes('botanical') ?? false);
-  return isBotanical ? buildTileWithCommercialRetry(params) : buildTileWithHeroRetry(params);
-}
-
 // Collection Studio Engine — which zip folder each asset type's SVG lands
 // in (Collection Export spec: Hero/Secondary/Blender/Mini/Stripe under
 // patterns/, Border/Corner under their own folders, Spot/Decorative under
@@ -114,6 +105,17 @@ function App() {
   const [candidateProgress, setCandidateProgress] = useState<CandidateProgress | null>(null);
   const [candidateSummary, setCandidateSummary] = useState<{ total: number; valid: number; score: number; preset: QualityPresetId } | null>(null);
   const [collectionStatus, setCollectionStatus] = useState<'idle' | 'building' | 'done'>('idle');
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate): a separate
+  // batch-count + status/result pair from the pre-existing "Generate 9
+  // Variations" flow above (which stays untouched) — this one saves
+  // straight into the Portfolio catalog (IndexedDB) instead of the
+  // ephemeral, 24-item-capped `gallery`, since 50-100 freshly generated
+  // patterns would blow past that cap. `batchProductionResult` also
+  // carries the imported asset ids so "Download Batch ZIP" knows exactly
+  // which assets belong to the run that just finished.
+  const [batchProductionCount, setBatchProductionCount] = useState<number>(20);
+  const [batchProductionStatus, setBatchProductionStatus] = useState<'idle' | 'running' | 'done'>('idle');
+  const [batchProductionResult, setBatchProductionResult] = useState<BatchProductionResult | null>(null);
   // Tracks *which pattern's seed* the last successfully-generated Collection
   // belongs to (not just a generic building/done flag) — the Stock
   // Submission Center's "Collection Ready" checklist item compares this
@@ -265,6 +267,40 @@ function App() {
     setSelectedId(items[items.length - 1].id);
     setCandidateSummary(null);
   }, [params, tileData]);
+
+  // Build 018 ("Revenue First", Priority 3 — Batch Generate; Priority 2 —
+  // Portfolio Diversity; Priority 5 — Duplicate Detection). Reuses the
+  // exact same Style DNA resolution `handleGenerateBatch` above already
+  // does, then hands off to `batch/batchProductionService.ts`'s
+  // `generateBatchToPortfolio` — which reuses `assignPortfolioDiversity`,
+  // `buildTileForGenerate`, and the existing Portfolio import pipeline's
+  // own duplicate detection, so this handler introduces no new scoring,
+  // diversity, or duplicate-detection logic of its own.
+  const handleGenerateBatchToPortfolio = useCallback(async () => {
+    if (!portfolioStorageAvailable()) {
+      window.alert('Batch Generate to Portfolio requires a browser with IndexedDB support, which is not available here.');
+      return;
+    }
+    setBatchProductionStatus('running');
+    const activeDna = params.styleDnaId
+      ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+      : undefined;
+    const existingAssets = await loadPortfolioAssets();
+    const result = await generateBatchToPortfolio({ count: batchProductionCount, params, activeDna, existingAssets });
+    setBatchProductionResult(result);
+    setBatchProductionStatus('done');
+  }, [params, batchProductionCount]);
+
+  const handleDownloadBatchZip = useCallback(async () => {
+    if (!batchProductionResult) return;
+    const importedIds = batchProductionResult.items
+      .filter((item) => item.outcome.status === 'imported')
+      .map((item) => (item.outcome.status === 'imported' ? item.outcome.asset.assetId : ''))
+      .filter(Boolean);
+    if (importedIds.length === 0) return;
+    const { blob, filename } = await exportAssetsAsZip(importedIds, `batch-${new Date().toISOString().slice(0, 10)}`);
+    downloadBlobFile(filename, blob);
+  }, [batchProductionResult]);
 
   // Composition Candidate Engine: build a deterministic pool of candidate
   // tiles from the current seed+settings (same seed+settings+mode always
@@ -1000,6 +1036,12 @@ function App() {
           onGenerate={handleGenerate}
           onRandomizeAll={handleRandomizeAll}
           onGenerateBatch={handleGenerateBatch}
+          batchProductionCount={batchProductionCount}
+          onBatchProductionCountChange={setBatchProductionCount}
+          onGenerateBatchToPortfolio={handleGenerateBatchToPortfolio}
+          batchProductionStatus={batchProductionStatus}
+          batchProductionResult={batchProductionResult}
+          onDownloadBatchZip={handleDownloadBatchZip}
           qualityMode={qualityMode}
           onQualityModeChange={setQualityMode}
           qualityPresetId={qualityPresetId}

@@ -145,3 +145,15 @@ export function buildTileWithCommercialRetry(params: GenerateParams, maxAttempts
     regenerated: attempts > 1,
   };
 }
+
+// Build 018 ("Revenue First"): extracted from App.tsx's own local
+// `buildTileForGenerate` (Build 007, Section 7) so the new batch-to-
+// portfolio production service (`batch/batchProductionService.ts`) and
+// every UI call site route through the exact same quality-retry decision
+// instead of a second, independently-maintained copy of it — "do not
+// introduce duplicate business logic" applies to this 2-line routing rule
+// just as much as to a real scoring engine.
+export function buildTileForGenerate(params: GenerateParams): HeroRetryResult | CommercialRetryResult {
+  const isBotanical = params.categoryId === 'botanical' || (params.mixCategoryIds?.includes('botanical') ?? false);
+  return isBotanical ? buildTileWithCommercialRetry(params) : buildTileWithHeroRetry(params);
+}
