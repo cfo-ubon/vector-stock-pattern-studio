@@ -48,6 +48,21 @@ interface Props {
   batchProductionStatus: 'idle' | 'running' | 'done';
   batchProductionResult: BatchProductionSummary | null;
   onDownloadBatchZip: () => void;
+  // Build 021 ("Production Ready") — one click generates `batchProductionCount`
+  // patterns through the same quality gate/diversity/dedup pipeline as
+  // "Batch Generate to Portfolio" above, then immediately downloads one
+  // ZIP with the complete sellable file set (SVG+EPS+PNG+JSON per item,
+  // plus combined Shutterstock/Adobe Stock metadata CSVs) — no separate
+  // manual "download bundle" step required.
+  onGenerateProductionBatch: () => void;
+  productionModeStatus: 'idle' | 'running' | 'done' | 'error';
+  productionModeResult: {
+    itemCount: number;
+    importedCount: number;
+    possibleDuplicateCount: number;
+    blockedDuplicateCount: number;
+    errorCount: number;
+  } | null;
   qualityMode: GenerationMode;
   onQualityModeChange: (mode: GenerationMode) => void;
   qualityPresetId: QualityPresetId;
@@ -93,6 +108,9 @@ export function ControlPanel({
   batchProductionStatus,
   batchProductionResult,
   onDownloadBatchZip,
+  onGenerateProductionBatch,
+  productionModeStatus,
+  productionModeResult,
   qualityMode,
   onQualityModeChange,
   qualityPresetId,
@@ -614,6 +632,25 @@ export function ControlPanel({
                   ⬇️ Download Batch ZIP
                 </button>
               )}
+            </div>
+          )}
+        </div>
+        <div
+          className="batch-production-controls"
+          title="สร้าง Batch ผ่านระบบผลิตจริงเดียวกันทุกประการ (คุณภาพ + ความหลากหลาย + ตรวจจับลายซ้ำ) แล้วดาวน์โหลดชุดไฟล์พร้อมขายทันทีในคลิกเดียว: SVG + EPS + PNG พรีวิว + JSON ต่อชิ้น พร้อม Shutterstock/Adobe Stock CSV รวม"
+        >
+          <button type="button" className="btn btn--save" onClick={onGenerateProductionBatch} disabled={productionModeStatus === 'running'}>
+            {productionModeStatus === 'running' ? `🚀 กำลังผลิต ${batchProductionCount} ชิ้น…` : `🚀 Production Mode (${batchProductionCount} → ZIP พร้อมขาย)`}
+          </button>
+          {productionModeStatus === 'error' && <span className="batch-production-summary">❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง</span>}
+          {productionModeStatus === 'done' && productionModeResult && (
+            <div className="batch-production-summary" role="status">
+              <span>
+                ✅ พร้อมขาย {productionModeResult.itemCount}/{productionModeResult.importedCount}
+              </span>
+              {productionModeResult.possibleDuplicateCount > 0 && <span>⚠️ อาจซ้ำ {productionModeResult.possibleDuplicateCount}</span>}
+              {productionModeResult.blockedDuplicateCount > 0 && <span>⛔ ซ้ำแน่นอน (ไม่รวมใน zip) {productionModeResult.blockedDuplicateCount}</span>}
+              {productionModeResult.errorCount > 0 && <span>❌ ผิดพลาด {productionModeResult.errorCount}</span>}
             </div>
           )}
         </div>

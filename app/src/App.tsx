@@ -9,6 +9,7 @@ import { generateCandidatesChunked, pickBestCandidate, type GenerationMode, type
 import { buildTileForGenerate } from './engine/heroDetector';
 import { generateBatchToPortfolio, type BatchProductionResult } from './batch/batchProductionService';
 import { exportAssetsAsZip } from './batch/batchExportService';
+import { buildProductionItemFiles, buildProductionCsvBundle, buildProductionManifest } from './batch/productionBundleService';
 import { loadPortfolioAssets, portfolioStorageAvailable } from './catalog/storage/portfolioStore';
 import type { QualityPresetId } from './engine/scoring';
 import { STYLE_DNA_PRESETS, resolveStyleDna } from './engine/styleDna';
@@ -116,6 +117,23 @@ function App() {
   const [batchProductionCount, setBatchProductionCount] = useState<number>(20);
   const [batchProductionStatus, setBatchProductionStatus] = useState<'idle' | 'running' | 'done'>('idle');
   const [batchProductionResult, setBatchProductionResult] = useState<BatchProductionResult | null>(null);
+  // Build 021 ("Production Ready"): verification found Batch Generate to
+  // Portfolio only ever wrote SVG+JSON per item (no EPS/PNG/SEO CSV), and
+  // getting a complete sellable file set required a completely separate,
+  // single-pattern-at-a-time flow (the Saved library's "ย้ายทั้งคลังลง
+  // เครื่อง") not connected to batch-generated patterns at all -- no
+  // single click produced Generate -> SVG+EPS+PNG+SEO CSV -> ZIP for a
+  // whole batch. Production Mode closes that gap: same count selector,
+  // reuses `batchProductionCount`, own status/result so it doesn't
+  // interfere with the pre-existing "Batch Generate to Portfolio" button.
+  const [productionModeStatus, setProductionModeStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [productionModeResult, setProductionModeResult] = useState<{
+    itemCount: number;
+    importedCount: number;
+    possibleDuplicateCount: number;
+    blockedDuplicateCount: number;
+    errorCount: number;
+  } | null>(null);
   // Tracks *which pattern's seed* the last successfully-generated Collection
   // belongs to (not just a generic building/done flag) — the Stock
   // Submission Center's "Collection Ready" checklist item compares this
@@ -506,6 +524,80 @@ function App() {
       img.src = url;
     });
   }, []);
+
+  // Build 021 ("Production Ready") — one-click "Production Mode": reuses
+  // `generateBatchToPortfolio` in full (same diversity assignment, same
+  // quality-retry gate, same duplicate-detection/import pipeline every
+  // other batch/portfolio flow already goes through -- zero new
+  // generation or dedup logic), then, for exactly the items that cleared
+  // import (`outcome.status === 'imported'`, the same filter
+  // `handleDownloadBatchZip` already uses), builds the complete sellable
+  // file set that flow never produced: SVG + EPS (`productionBundleService.ts`,
+  // pure, reused unmodified) + a PNG preview (`rasterizeSvgToPngBlob`
+  // above, the same rasterizer the Collection Generator already uses) +
+  // the raw params JSON (matching Batch-to-Portfolio's own convention)
+  // per item, plus one combined Shutterstock CSV and one combined Adobe
+  // Stock CSV for the whole run (`metadata/csv.ts`, unmodified) -- then
+  // zips and downloads everything in the same click.
+  const handleGenerateProductionBatch = useCallback(async () => {
+    if (!portfolioStorageAvailable()) {
+      window.alert('Production Mode requires a browser with IndexedDB support, which is not available here.');
+      return;
+    }
+    setProductionModeStatus('running');
+    try {
+      const activeDna = params.styleDnaId
+        ? (STYLE_DNA_PRESETS[params.styleDnaId] ?? loadCustomStyles().find((s) => s.id === params.styleDnaId))
+        : undefined;
+      const existingAssets = await loadPortfolioAssets();
+      const result = await generateBatchToPortfolio({ count: batchProductionCount, params, activeDna, existingAssets });
+      const importedItems = result.items.filter((item) => item.outcome.status === 'imported');
+
+      const enc = new TextEncoder();
+      const entries: ZipEntry[] = [];
+      for (let i = 0; i < importedItems.length; i++) {
+        const item = importedItems[i];
+        const source = { tileData: item.tileData, variantParams: item.variantParams };
+        const files = buildProductionItemFiles(source);
+        const folder = `${String(i + 1).padStart(3, '0')}-${files.baseName}`;
+        entries.push(
+          { name: `${folder}/${files.baseName}.svg`, data: enc.encode(files.svg) },
+          { name: `${folder}/${files.baseName}.eps`, data: enc.encode(files.eps) },
+          { name: `${folder}/${files.baseName}.json`, data: enc.encode(JSON.stringify(item.variantParams)) },
+        );
+        const png = await rasterizeSvgToPngBlob(files.svg, 2000);
+        if (png) entries.push({ name: `${folder}/${files.baseName}.png`, data: new Uint8Array(await png.arrayBuffer()) });
+      }
+
+      const sources = importedItems.map((item) => ({ tileData: item.tileData, variantParams: item.variantParams }));
+      const { shutterstockCsv, adobeStockCsv } = buildProductionCsvBundle(sources);
+      const manifest = buildProductionManifest(
+        importedItems.map((item) => ({ source: { tileData: item.tileData, variantParams: item.variantParams }, attempts: item.attempts, regenerated: item.regenerated, status: item.outcome.status })),
+      );
+      entries.push(
+        { name: 'shutterstock-metadata.csv', data: enc.encode(shutterstockCsv) },
+        { name: 'adobestock-metadata.csv', data: enc.encode(adobeStockCsv) },
+        { name: 'production-manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2)) },
+      );
+
+      if (entries.length > 0) {
+        const date = new Date().toISOString().slice(0, 10);
+        downloadBlobFile(`production-batch-${date}.zip`, buildZip(entries));
+      }
+
+      setProductionModeResult({
+        itemCount: importedItems.length,
+        importedCount: result.importedCount,
+        possibleDuplicateCount: result.possibleDuplicateCount,
+        blockedDuplicateCount: result.blockedDuplicateCount,
+        errorCount: result.errorCount,
+      });
+      setProductionModeStatus('done');
+    } catch (err) {
+      console.error('Production Mode failed:', err);
+      setProductionModeStatus('error');
+    }
+  }, [params, batchProductionCount, rasterizeSvgToPngBlob]);
 
   const buildAndDownloadCollectionZip = useCallback(async (collection: GeneratedCollection) => {
     const { manifest, assets } = collection;
@@ -1042,6 +1134,9 @@ function App() {
           batchProductionStatus={batchProductionStatus}
           batchProductionResult={batchProductionResult}
           onDownloadBatchZip={handleDownloadBatchZip}
+          onGenerateProductionBatch={handleGenerateProductionBatch}
+          productionModeStatus={productionModeStatus}
+          productionModeResult={productionModeResult}
           qualityMode={qualityMode}
           onQualityModeChange={setQualityMode}
           qualityPresetId={qualityPresetId}
