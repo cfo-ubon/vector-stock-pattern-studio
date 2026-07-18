@@ -342,21 +342,41 @@ Build-numbered, forward-looking. Each entry is either shipped
   Backup & Restore or CI-wiring work started — all explicitly deferred
   pending separate approval.
 
+- **Portfolio Manager P3 — Backup & Restore**: built a complete backup
+  and restore system for the Collection module directly on the frozen
+  API from Sprint 4, per a separate, explicit approval to proceed with
+  P3 ahead of the PR/merge/tag sequence originally proposed at the end
+  of Sprint 4 (below). A single JSON-envelope archive format (gzip
+  payload, checksum, schema version — not a ZIP, since the repo has no
+  ZIP reader and the payload is pure JSON; see
+  `docs/backup/BACKUP_FORMAT.md`), full backup
+  (`backupBuilder.ts`), never-throwing pre-restore validation
+  (`backupValidation.ts`), and a preview/restore engine
+  (`restoreService.ts`, `overwrite`/`merge` modes) that is idempotent
+  and self-heals from an interruption between its two bulk writes. Local
+  backup history log and export/import file glue round out the
+  brief's objectives. No modification to the frozen Collection API — no
+  production defect was found. Service-layer only, no UI, mirroring P2
+  Stage 1's own foundation-first precedent. 63 new tests. See
+  `docs/backup/BACKUP_ARCHITECTURE.md`, `BACKUP_FORMAT.md`,
+  `RESTORE_WORKFLOW.md`, `BACKUP_TEST_REPORT.md`, `BACKUP_USER_GUIDE.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
 Sprint 4 certified and froze the Collection module built and validated
 across Sprints 1-3 — production certification, a frozen public API
 contract, a consolidated baseline, and a recommended release tag, with
-no functional code change. The next steps are sequential and explicitly
-gated on approval, per the Sprint 4 brief: (1) prepare and review a PR
-from the certified state, (2) merge it, (3) only then create the
-recommended `portfolio-collections-v1.0.0` tag, (4) only then begin
-**P3 — Backup & Restore** (P1's Blob-per-file design already supports
-zipping the entire `portfolioFiles` store the same way
-`services/exportAsset.ts` zips one asset today) as a new, separate
-sprint. **CI wiring for the performance baseline policy** (`P2.5-3`,
-open since Sprint 1) remains a smaller, independent candidate,
-unaffected by the Backup & Restore sequencing above.
+no functional code change. P3 — Backup & Restore has since been
+completed on top of that frozen state (see above), also with no PR
+opened and nothing merged. The remaining steps, still gated on approval:
+(1) prepare and review a PR from the certified + backup-and-restore
+state, (2) merge it, (3) only then create the recommended
+`portfolio-collections-v1.0.0` tag. **CI wiring for the performance
+baseline policy** (`P2.5-3`, open since Sprint 1) remains a smaller,
+independent candidate, unaffected by this sequencing. A future backup/
+restore UI (browsing history, triggering export/import from a screen)
+is the natural next increment on top of P3's service layer, matching how
+P2 Stage 2 followed P2 Stage 1.
 
 ## Recommended Next Build (composition-quality track)
 

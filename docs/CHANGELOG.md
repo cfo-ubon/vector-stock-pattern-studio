@@ -7,6 +7,70 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P3 — Backup & Restore
+
+**Goal**: a complete, self-contained Backup & Restore system for the
+certified Collection module (collections + asset membership), built
+entirely on top of the frozen Collection API
+(`docs/portfolio/COLLECTION_API_FREEZE.md`) without modifying it. No
+production defect was found or claimed, so the frozen API constraint was
+never triggered. Service-layer only — no UI — mirroring P2 Stage 1's own
+foundation-first precedent.
+
+### Added
+
+All new, under `app/src/catalog/backup/`:
+
+- `backupFormat.ts` — the `BackupArchive`/`BackupPayload`/`BackupStats`/
+  `BackupMetadata` types, schema version constants, and a structural
+  shape guard (`isBackupArchiveShape`).
+- `backupCodec.ts` — dependency-free gzip+base64 compression
+  (`CompressionStream`/`DecompressionStream`, native Web APIs) and the
+  canonical SHA-256 payload checksum, shared by both the build and
+  validation sides.
+- `backupBuilder.ts` — `buildCollectionBackup`, a read-only full backup
+  of every Collection and asset membership via the frozen
+  `loadCollections`/`loadPortfolioAssets`.
+- `backupValidation.ts` — `validateBackupArchive`, a never-throwing
+  pre-restore validation report covering shape, schema version,
+  checksum, declared-vs-actual stats, duplicate/orphaned IDs, and an
+  optional live-asset cross-check.
+- `restoreService.ts` — `previewRestore` (dry-run) and `restoreBackup`
+  (`overwrite`/`merge` modes), sharing one internal plan-computation
+  function so preview and restore can never disagree. Restore is
+  idempotent and self-heals from an interruption between its two
+  (intentionally non-cross-atomic) bulk writes, since the plan is always
+  recomputed fresh against current live state.
+- `backupHistoryStore.ts` — a `localStorage`-backed backup/restore
+  activity log (metadata only, never the archive contents), matching
+  `workbench/workspaceSettings.ts`'s existing storage convention.
+- `backupExportImport.ts` — download/file-picker glue built on the
+  existing `downloadBlobFile` helper (`export/svgExporter.ts`).
+
+63 new tests across 6 files (`backupCodec.test.ts`,
+`backupBuilder.test.ts`, `backupValidation.test.ts`,
+`restoreService.test.ts`, `backupHistoryStore.test.ts`,
+`backupExportImport.test.ts`) — see `docs/backup/BACKUP_TEST_REPORT.md`
+for the full category-by-category breakdown, including the large-dataset
+(5,000-membership) and simulated-interrupted-restore scenarios.
+
+5 new docs: `docs/backup/BACKUP_ARCHITECTURE.md`, `BACKUP_FORMAT.md`,
+`RESTORE_WORKFLOW.md`, `BACKUP_TEST_REPORT.md`, `BACKUP_USER_GUIDE.md`.
+
+### Explicitly not done this phase
+
+No UI was built (no button, dialog, or drag-and-drop zone) — service
+layer only, per the brief's scope. Commercial Workflow and Marketplace
+were not started, per the brief's explicit closing instruction. No PR
+was opened and nothing was merged.
+
+See `docs/backup/BACKUP_ARCHITECTURE.md` (design + rationale),
+`BACKUP_FORMAT.md` (archive spec), `RESTORE_WORKFLOW.md` (preview/restore
+semantics, conflict resolution, interrupted-restore recovery), and
+`BACKUP_TEST_REPORT.md` (full test coverage).
+
+---
+
 ## Portfolio Manager P2.5 Sprint 4 — Production Certification and Module Freeze
 
 **Goal**: certify the Collection module using the completed evidence
