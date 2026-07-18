@@ -21,13 +21,27 @@ describe('botanicalGenerator', () => {
     expect(a.radius).toBe(b.radius);
   });
 
-  it('Build 004, Section 1: a bare role hint (no family, no part) is inert', () => {
+  it('Build 004, Section 1 / Build 020: a bare `family`/`part` hint is still inert (pool selection unaffected)', () => {
+    // Build 004, Section 1 originally asserted a bare `role` hint was a
+    // total no-op. Build 020 ("Hero Dominance Recovery") deliberately ends
+    // that: measured evidence (docs/build_reports/BUILD_020_REPORT.md)
+    // found the Build 019 stem/leaf wrapper narrowed `heroDetailRatio`
+    // (hero vs. filler/accent average node count) by applying identically
+    // regardless of role, tripping the `heroInsufficientDetail` soft
+    // penalty on more patterns and dragging down Overall Visual Quality.
+    // The fix makes `role` a real, intentional signal (hero/secondary get
+    // a richer stem/leaf treatment than filler/accent) -- see the dedicated
+    // "role affects stem/leaf richness" describe block below for that new
+    // behavior's own tests. What's still true and still tested here: a
+    // hint that carries no `role` (only `family`/`part`, or nothing at
+    // all) continues to have zero effect on which pool a variant is drawn
+    // from beyond what `family`/`part` alone already narrowed.
     for (let i = 0; i < 10; i++) {
       const seed = `botanical-hints-inert-${i}`;
       const plain = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0);
-      const withHints = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0, { role: 'hero' });
-      expect(serialize(withHints.node)).toBe(serialize(plain.node));
-      expect(withHints.radius).toBe(plain.radius);
+      const withFamilyHint = botanicalGenerator.createMotif(createRng(seed), COLORS, 70, 0, { family: undefined });
+      expect(serialize(withFamilyHint.node)).toBe(serialize(plain.node));
+      expect(withFamilyHint.radius).toBe(plain.radius);
     }
   });
 
@@ -226,6 +240,91 @@ describe('botanicalGenerator: optional stem wrapper for bare flower-head variant
   it('is deterministic end-to-end through createMotif for the same seed', () => {
     const a = botanicalGenerator.createMotif(createRng('b019-det-flower'), COLORS, 70, 0, { family: 'protea', part: 'heroFlower' });
     const b = botanicalGenerator.createMotif(createRng('b019-det-flower'), COLORS, 70, 0, { family: 'protea', part: 'heroFlower' });
+    expect(serialize(a.node)).toBe(serialize(b.node));
+    expect(a.radius).toBe(b.radius);
+  });
+});
+
+describe('botanicalGenerator: role affects stem/leaf richness (Build 020, Hero Dominance Recovery)', () => {
+  // Evidence: docs/build_reports/BUILD_020_REPORT.md. Build 019's stem/leaf
+  // wrapper applied the same probability to every role, which measurably
+  // *narrowed* heroDetailRatio (a fixed absolute node addition is a larger
+  // relative gain against filler/accent's smaller baseline node count than
+  // against hero's already-larger one). The fix: hero always gets a stem,
+  // usually a leaf, sometimes a second leaf; secondary gets an intermediate
+  // tier; filler/accent/undefined stay byte-identical to Build 019.
+
+  it('hero always gets a stem (probability 1, never the untouched-node no-op branch)', () => {
+    const { attachOptionalStem } = __testables;
+    const node = h('g', {}, [h('circle', { cx: 0, cy: 0, r: 10, fill: '#000' })]);
+    for (let i = 0; i < 30; i++) {
+      const result = attachOptionalStem(createRng(`b020-hero-stem-${i}`), COLORS, node, 35, 70, 'hero');
+      expect(serialize(result.node)).toContain('data-part="stem"');
+    }
+  });
+
+  it('a hero can gain a second leaf; secondary/filler never do (node-count floor strictly higher for hero)', () => {
+    const { attachOptionalStem } = __testables;
+    const node = h('g', {}, [h('circle', { cx: 0, cy: 0, r: 10, fill: '#000' })]);
+    let sawSecondLeaf = false;
+    for (let i = 0; i < 60; i++) {
+      const heroResult = attachOptionalStem(createRng(`b020-second-leaf-${i}`), COLORS, node, 35, 70, 'hero');
+      const heroLeafCount = (serialize(heroResult.node).match(/data-part="leaves"/g) ?? []).length;
+      if (heroLeafCount >= 2) sawSecondLeaf = true;
+
+      const secondaryResult = attachOptionalStem(createRng(`b020-second-leaf-${i}`), COLORS, node, 35, 70, 'secondary');
+      const secondaryLeafCount = (serialize(secondaryResult.node).match(/data-part="leaves"/g) ?? []).length;
+      expect(secondaryLeafCount).toBeLessThanOrEqual(1);
+    }
+    expect(sawSecondLeaf).toBe(true);
+  });
+
+  it('filler/accent/undefined role reproduces Build 019 exactly (same seed, same rng draws, byte-identical output)', () => {
+    const { attachOptionalStem } = __testables;
+    const node = h('g', {}, [h('circle', { cx: 0, cy: 0, r: 10, fill: '#000' })]);
+    for (const role of [undefined, 'filler', 'accent'] as const) {
+      for (let i = 0; i < 15; i++) {
+        const withRole = attachOptionalStem(createRng(`b020-filler-parity-${role}-${i}`), COLORS, node, 35, 70, role);
+        const withoutRole = attachOptionalStem(createRng(`b020-filler-parity-${role}-${i}`), COLORS, node, 35, 70);
+        expect(serialize(withRole.node)).toBe(serialize(withoutRole.node));
+        expect(withRole.radius).toBe(withoutRole.radius);
+      }
+    }
+  });
+
+  it('createMotif extends the stem/leaf wrapper to a hero landing on a bare leaf-category variant (singleLeaf)', () => {
+    // singleLeaf itself never draws a data-part="stem" -- confirmed
+    // directly against the un-wrapped variant, so any stem seen through
+    // createMotif with a hero role hint is attributable to Build 020's
+    // 'leaf'-category hero extension.
+    const { singleLeaf, CATEGORY_BY_VARIANT } = __testables;
+    expect(CATEGORY_BY_VARIANT.get(singleLeaf)).toBe('leaf');
+    for (let i = 0; i < 15; i++) {
+      const { node } = singleLeaf(createRng(`b020-leaf-bare-${i}`), COLORS, 70);
+      expect(serialize(node)).not.toContain('data-part="stem"');
+    }
+    let sawStemViaCreateMotifHero = false;
+    for (let i = 0; i < 80; i++) {
+      const motif = botanicalGenerator.createMotif(createRng(`b020-leaf-hero-${i}`), COLORS, 70, 0, { part: 'leaf', role: 'hero' });
+      if (serialize(motif.node).includes('data-part="stem"')) sawStemViaCreateMotifHero = true;
+    }
+    expect(sawStemViaCreateMotifHero).toBe(true);
+  });
+
+  it('the leaf-category extension is hero-only: a filler/secondary landing on a bare leaf variant is unaffected', () => {
+    for (const role of ['filler', 'secondary', undefined] as const) {
+      for (let i = 0; i < 30; i++) {
+        const withoutHint = botanicalGenerator.createMotif(createRng(`b020-leaf-nonhero-${role}-${i}`), COLORS, 70, 0, { part: 'leaf' });
+        const withRole = botanicalGenerator.createMotif(createRng(`b020-leaf-nonhero-${role}-${i}`), COLORS, 70, 0, { part: 'leaf', role });
+        expect(serialize(withRole.node)).toBe(serialize(withoutHint.node));
+        expect(withRole.radius).toBe(withoutHint.radius);
+      }
+    }
+  });
+
+  it('is deterministic end-to-end through createMotif for the same seed (hero + leaf-category path)', () => {
+    const a = botanicalGenerator.createMotif(createRng('b020-det-leaf-hero'), COLORS, 70, 0, { part: 'leaf', role: 'hero' });
+    const b = botanicalGenerator.createMotif(createRng('b020-det-leaf-hero'), COLORS, 70, 0, { part: 'leaf', role: 'hero' });
     expect(serialize(a.node)).toBe(serialize(b.node));
     expect(a.radius).toBe(b.radius);
   });

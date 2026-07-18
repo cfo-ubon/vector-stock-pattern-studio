@@ -1332,8 +1332,51 @@ const CATEGORY_BY_VARIANT: Map<Variant, PartShapeCategory> = new Map(TAGGED_VARI
 // motif's own bounding `radius` by the added stem length so downstream
 // spacing/placement accounts for the real extra geometry, the same
 // convention `flowerBloom`'s own `hasStem` branch already uses.
-function attachOptionalStem(rng: Rng, colors: string[], node: ReturnType<typeof h>, radius: number, size: number): Motif {
-  if (!rngBool(rng, 0.55)) return { node, radius };
+// Build 020 ("Hero Dominance Recovery"): `attachOptionalStem` above
+// applied the exact same stem/leaf probability to every role, which
+// measurably narrowed `heroDetailRatio` (engine/scoring.ts -- hero's
+// average node count over filler/accent's) instead of widening it: a
+// fixed absolute node addition is a *larger relative* increase against
+// filler/accent's smaller baseline node count than against hero's
+// already-larger one. Measured on the same 96-pattern audit sample
+// (docs/build_reports/BUILD_020_VISUAL_AUDIT_before.json): the
+// `heroInsufficientDetail` soft penalty (engine/scoring.ts,
+// `heroDetailRatio < 45`) rose from 10.42% to 18.75% of patterns after
+// Build 019, and that single threshold crossing alone accounts for
+// essentially the entire measured Overall Visual Quality drop (mean
+// penalty points/pattern 11.93 -> 14.14, a 2.21-point difference against
+// a measured 2.22-point score drop). Fix: give the hero role a
+// *reliably richer* stem/leaf treatment than filler/accent (always a
+// stem, usually a leaf, sometimes a second leaf for real bouquet
+// fullness) instead of the same coin-flip every role got -- this widens
+// (not just restores) the hero/baseline node-count gap, directly
+// addressing Hero Silhouette/Hero Scale/Bouquet Readability/Focal
+// Hierarchy without touching `engine/scoring.ts` or reducing filler/
+// accent's own Build 019 realism gain (their probabilities are
+// byte-identical to Build 019 below). Secondary gets an intermediate
+// tier, mirroring `engine/heroComplexity.ts`'s own established
+// hero-highest/secondary-medium/background-plain tiering convention.
+const STEM_PROBABILITY_BY_ROLE: Record<string, number> = { hero: 1, secondary: 0.75 };
+const DEFAULT_STEM_PROBABILITY = 0.55; // filler/accent/undefined -- unchanged from Build 019
+const LEAF_PROBABILITY_BY_ROLE: Record<string, number> = { hero: 0.75, secondary: 0.55 };
+const DEFAULT_LEAF_PROBABILITY = 0.45; // filler/accent/undefined -- unchanged from Build 019
+
+function buildLeafAccent(rng: Rng, colors: string[], size: number, radius: number, stemLength: number): ReturnType<typeof h> {
+  const side = rngBool(rng) ? 1 : -1;
+  return h(
+    'g',
+    {
+      'data-part': 'leaves',
+      transform: `translate(0 ${round(radius * 0.8 + stemLength * 0.55)}) rotate(${round(side * rngRange(rng, 30, 50))})`,
+    },
+    [leafNode(rng, colors, size * 0.3, size * 0.14)],
+  );
+}
+
+function attachOptionalStem(rng: Rng, colors: string[], node: ReturnType<typeof h>, radius: number, size: number, role?: string): Motif {
+  const stemProbability = STEM_PROBABILITY_BY_ROLE[role ?? ''] ?? DEFAULT_STEM_PROBABILITY;
+  const leafProbability = LEAF_PROBABILITY_BY_ROLE[role ?? ''] ?? DEFAULT_LEAF_PROBABILITY;
+  if (!rngBool(rng, stemProbability)) return { node, radius };
   const stemColor = rngPick(rng, accentColors(colors));
   const stemLength = size * 0.32;
   const stemBaseY = round(radius * 0.8);
@@ -1348,19 +1391,15 @@ function attachOptionalStem(rng: Rng, colors: string[], node: ReturnType<typeof 
       'stroke-linecap': 'round',
     }),
   ]);
-  const leaves = rngBool(rng, 0.45)
-    ? [
-        h(
-          'g',
-          {
-            'data-part': 'leaves',
-            transform: `translate(0 ${round(radius * 0.8 + stemLength * 0.55)}) rotate(${round((rngBool(rng) ? 1 : -1) * rngRange(rng, 30, 50))})`,
-          },
-          [leafNode(rng, colors, size * 0.3, size * 0.14)],
-        ),
-      ]
-    : [];
-  return { node: h('g', {}, [node, stem, ...leaves]), radius: radius + stemLength };
+  const extras: ReturnType<typeof h>[] = [];
+  if (rngBool(rng, leafProbability)) {
+    extras.push(buildLeafAccent(rng, colors, size, radius, stemLength));
+    // Hero-only second leaf: real bouquet fullness (Priority 4's "Bouquet
+    // Readability"/"Hero Silhouette"), never on secondary/filler/accent so
+    // their own node cost stays exactly Build 019's.
+    if (role === 'hero' && rngBool(rng, 0.5)) extras.push(buildLeafAccent(rng, colors, size, radius, stemLength));
+  }
+  return { node: h('g', {}, [node, stem, ...extras]), radius: radius + stemLength };
 }
 
 /** Every variant tagged with `family`, plus the untagged universal-foliage
@@ -1401,7 +1440,7 @@ function poolForHints(hints?: MotifCreateHints): Variant[] {
  * `flowerBloom`/`proteaFlower` (Build 019) let a test exercise the stem
  * wrapper directly and confirm which variant it is/isn't applied to,
  * rather than trying to infer variant identity from serialized SVG. */
-export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS, attachOptionalStem, CATEGORY_BY_VARIANT, flowerBloom, proteaFlower };
+export const __testables = { poolForFamily, poolForHints, TAGGED_VARIANTS, attachOptionalStem, CATEGORY_BY_VARIANT, flowerBloom, proteaFlower, singleLeaf };
 
 export const botanicalGenerator: PatternGenerator = {
   id: 'botanical',
@@ -1413,9 +1452,24 @@ export const botanicalGenerator: PatternGenerator = {
     const pool = poolForHints(hints);
     const variant = rngPick(rng, pool);
     const { node, radius } = variant(rng, colors, size);
-    // Build 019: see `attachOptionalStem`'s own doc comment above.
-    if (CATEGORY_BY_VARIANT.get(variant) === 'flower' && variant !== flowerBloom) {
-      return attachOptionalStem(rng, colors, node, radius, size);
+    // Build 019/020: see `attachOptionalStem`'s own doc comment above.
+    const category = CATEGORY_BY_VARIANT.get(variant);
+    if (category === 'flower' && variant !== flowerBloom) {
+      return attachOptionalStem(rng, colors, node, radius, size, hints?.role);
+    }
+    // Build 020: a hero landing on a bare 'leaf'-category variant
+    // (singleLeaf/mapleLeaf/heartLeaf/monsteraLeaf -- the sparsest shapes
+    // in the whole pool, never touched by the 'flower'-only wrapper above)
+    // was the single biggest source of the residual low-avgHero-node-count
+    // tail behind `heroInsufficientDetail` (see BUILD_020_REPORT.md's own
+    // per-preset diagnostic). Hero-only, same reused `attachOptionalStem`
+    // idiom -- turns a bare leaf into a real leafy sprig instead of
+    // inventing a second stem-drawing routine. Every instance that gains a
+    // stem this way also gains a real `data-part="stem"`, so Botanical
+    // Realism can only improve, never regress, for filler/accent/secondary
+    // (whose 'leaf'-category output is completely unchanged).
+    if (category === 'leaf' && hints?.role === 'hero') {
+      return attachOptionalStem(rng, colors, node, radius, size, hints.role);
     }
     return { node, radius };
   },

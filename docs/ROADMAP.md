@@ -500,6 +500,47 @@ Build-numbered, forward-looking. Each entry is either shipped
   fully preserved. 6 new tests, full suite 269/269 files / 3043/3043
   tests passing. See `BUILD_019_REPORT.md`.
 
+- **Build 020 — Hero Dominance Recovery**: root-caused Build 019's
+  Overall Visual Quality drop by instrumenting `computeOverallScore`
+  directly (a naive weighted-metric delta massively underestimated the
+  real drop, since `applySoftPenalties` is a separate binary-threshold
+  system on top of the weighted average, invisible to a linear delta) —
+  found the `heroInsufficientDetail` soft penalty (`heroDetailRatio < 45`)
+  tripping on 18.75% of patterns (up from Build 018's 10.42%) accounted
+  for essentially the entire drop, because Build 019's stem/leaf wrapper
+  applied the same probability to every role: a fixed absolute node
+  addition is a *larger relative* gain against filler/accent's smaller
+  baseline node count than against hero's already-larger one, so it
+  narrowed the hero/baseline gap instead of widening it. Fix, entirely in
+  `generators/botanical.ts` (no scoring/formula changes, per the brief):
+  `attachOptionalStem` now takes the placement's `role` and looks up a
+  per-role probability (hero always gets a stem, usually a leaf,
+  sometimes a second leaf; secondary gets an intermediate tier;
+  filler/accent/undefined stay byte-identical to Build 019); a per-preset
+  diagnostic (`minimalBotanical`/`vintageHerbarium`/`scandinavianOrganic`/
+  `softWatercolorInspired` had structurally fragile heroes — as few as 1
+  hero instance per tile) found the single biggest remaining lever was
+  extending the same wrapper, hero-only, to instances landing on a bare
+  `'leaf'`-category variant (singleLeaf/mapleLeaf/heartLeaf/monsteraLeaf),
+  previously untouched since Build 019's wrapper only covered
+  `'flower'`-category variants. Measured: Overall Visual Quality 72.77 →
+  72.90 (Build 018 baseline exceeded, per the brief's completion rule),
+  Botanical Realism 40.79 → 65.35 (further improved over Build 019's
+  50.93, not just preserved), Hero Detail Ratio (mean) 73.44 → 80.30,
+  `heroInsufficientDetail` rate 10.42% → 9.38% (better than Build 018's
+  own baseline), Hero Visibility 85.01 → 87.12, Commercial Readiness
+  74.92 → 76.21, Negative Space/Composition flat. Every empirical tuning
+  variant was measured via a full 96-pattern audit re-run before being
+  kept or discarded — several plausible-looking changes (deterministic
+  second leaf, a zero-rng-cost sepal collar, higher filler probabilities)
+  measurably underperformed the simpler role-tiered fix and were reverted
+  once measured, consistent with this repo's "measure, don't assume"
+  precedent. Batch Generate re-verified: 0% failure rate at every size,
+  retry rate byte-identical to Build 019 (confirming determinism
+  preserved), diversity unchanged (19 distinct botanical families, 10
+  composition zones at every size). 7 new tests, full suite 269/269
+  files / 3050/3050 tests passing. See `BUILD_020_REPORT.md`.
+
 ## Recommended Next Build (Revenue First / Production track)
 
 Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
