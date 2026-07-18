@@ -7,6 +7,68 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Build 015 — Submission Center Foundation (Commercial Workflow)
+
+**Goal**: a production-ready submission management subsystem — planning,
+tracking, and validating a pattern's journey toward one or more
+marketplaces — built entirely on top of the frozen Collection API and
+P3's Backup & Restore system, without modifying either. The first module
+in a new "Commercial Workflow" track. Explicitly does **not** perform any
+automatic upload to any marketplace.
+
+### Added
+
+All new, under `app/src/catalog/submission/`:
+
+- `submissionStatus.ts` — 8-status state machine (`DRAFT`, `READY`,
+  `QUEUED`, `SUBMITTED`, `APPROVED`, `REJECTED`, `NEEDS_REVISION`,
+  `ARCHIVED`) with a full transition table and
+  `InvalidSubmissionStatusTransitionError` guard.
+- `marketplaceProfile.ts` — Marketplace Profiles: 5 built-ins
+  (Shutterstock, Adobe Stock, Freepik, Getty Images, Etsy) as plain data,
+  plus `registerMarketplaceProfile` for adding future marketplaces at
+  runtime with no code change.
+- `submissionRecord.ts` — the `SubmissionRecord` domain model
+  (submission id, pattern id, marketplace, status, timestamps, version,
+  title/description/keyword snapshots, category, notes, append-only
+  status history) and its factory.
+- `submissionStore.ts` — isolated `localStorage`-backed persistence (no
+  IndexedDB schema change, no `DB_VERSION` bump).
+- `submissionDuplicateDetection.ts` — 3-rule duplicate detection
+  (same-version, already-approved, already-submitted), scoped to
+  (pattern, marketplace).
+- `submissionValidation.ts` — never-throwing structured readiness report
+  gating the `DRAFT -> READY` transition (SVG/preview/title/description/
+  keywords/category/no-duplicate).
+- `submissionService.ts` — orchestration layer (create, update draft,
+  validate, transition, delete) mirroring `collectionService.ts`'s role.
+- `submissionQueue.ts`, `submissionHistory.ts`,
+  `submissionSearchFilter.ts`, `submissionStatistics.ts` — read-side
+  Queue/History/Search+Filter/Statistics modules.
+- `index.ts` — public barrel.
+
+98 new tests across 12 files, including a 2,000-record large-dataset
+case (`submissionLargeDataset.test.ts`) — see
+`docs/submission/SUBMISSION_TEST_REPORT.md` for the full category-by-
+category breakdown.
+
+4 new docs: `docs/submission/SUBMISSION_ARCHITECTURE.md`,
+`SUBMISSION_WORKFLOW.md`, `SUBMISSION_STATUS.md`, `SUBMISSION_TEST_REPORT.md`.
+
+### Explicitly not done this build
+
+No automatic upload to any marketplace — every "submitted"/"approved"/
+"rejected" transition only records the app's own tracking state, per the
+brief's explicit constraint. No UI. No modification to the frozen
+Collection API or to Backup & Restore. No PR opened, nothing merged.
+
+See `docs/submission/SUBMISSION_ARCHITECTURE.md` (design + decoupling
+rationale), `SUBMISSION_STATUS.md` (state machine), `SUBMISSION_WORKFLOW.md`
+(end-to-end flow, validation, duplicate detection), and
+`SUBMISSION_TEST_REPORT.md` (full test coverage).
+
+---
+
 ## Portfolio Manager P3 — Backup & Restore
 
 **Goal**: a complete, self-contained Backup & Restore system for the

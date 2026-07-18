@@ -361,22 +361,51 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/backup/BACKUP_ARCHITECTURE.md`, `BACKUP_FORMAT.md`,
   `RESTORE_WORKFLOW.md`, `BACKUP_TEST_REPORT.md`, `BACKUP_USER_GUIDE.md`.
 
+- **Build 015 — Submission Center Foundation (Commercial Workflow's first
+  module)**: a production-ready submission management subsystem —
+  planning, tracking, and validating a pattern's journey toward one or
+  more marketplaces, built entirely on top of the frozen Collection API
+  and P3's Backup & Restore system without modifying either. New,
+  isolated module (`app/src/catalog/submission/`, 11 files + a barrel,
+  own `localStorage`-backed store — no IndexedDB schema change): 8-status
+  state machine (`submissionStatus.ts`), a data-driven Marketplace
+  Profiles registry seeded with 5 built-ins — Shutterstock, Adobe Stock,
+  Freepik, Getty Images, Etsy — extensible at runtime via
+  `registerMarketplaceProfile` with no code change
+  (`marketplaceProfile.ts`), the `SubmissionRecord` domain model
+  (`submissionRecord.ts`), never-throwing readiness validation with
+  3-rule duplicate detection (`submissionValidation.ts`,
+  `submissionDuplicateDetection.ts`), an orchestration service layer
+  mirroring `collectionService.ts`'s role (`submissionService.ts`), and
+  read-side Queue/History/Search+Filter/Statistics modules. Explicitly
+  does **not** perform any automatic upload to any marketplace — that is
+  out of scope for this foundation. 98 new tests across 12 files,
+  including a 2,000-record large-dataset case. See
+  `docs/submission/SUBMISSION_ARCHITECTURE.md`, `SUBMISSION_WORKFLOW.md`,
+  `SUBMISSION_STATUS.md`, `SUBMISSION_TEST_REPORT.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
 Sprint 4 certified and froze the Collection module built and validated
 across Sprints 1-3 — production certification, a frozen public API
 contract, a consolidated baseline, and a recommended release tag, with
-no functional code change. P3 — Backup & Restore has since been
-completed on top of that frozen state (see above), also with no PR
-opened and nothing merged. The remaining steps, still gated on approval:
-(1) prepare and review a PR from the certified + backup-and-restore
+no functional code change. P3 — Backup & Restore, and now Build 015 —
+Submission Center Foundation, have both since been completed on top of
+that frozen state (see above), each with no PR opened and nothing
+merged. The remaining steps, still gated on approval: (1) prepare and
+review a PR from the certified + backup-and-restore + submission-center
 state, (2) merge it, (3) only then create the recommended
 `portfolio-collections-v1.0.0` tag. **CI wiring for the performance
 baseline policy** (`P2.5-3`, open since Sprint 1) remains a smaller,
-independent candidate, unaffected by this sequencing. A future backup/
-restore UI (browsing history, triggering export/import from a screen)
-is the natural next increment on top of P3's service layer, matching how
-P2 Stage 2 followed P2 Stage 1.
+independent candidate, unaffected by this sequencing. Two natural next
+increments now sit on top of already-completed foundations, matching how
+P2 Stage 2 followed P2 Stage 1: a backup/restore UI (browsing history,
+triggering export/import from a screen) on top of P3, and — per Build
+015's brief — **Build 016** on top of the Submission Center: likely a
+UI for the queue/history/statistics views this foundation's service
+layer already supports, and/or the first real (opt-in, clearly-scoped)
+marketplace upload integration, which Build 015 deliberately left
+undone.
 
 ## Recommended Next Build (composition-quality track)
 
