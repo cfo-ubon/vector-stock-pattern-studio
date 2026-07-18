@@ -412,32 +412,62 @@ Build-numbered, forward-looking. Each entry is either shipped
   2,000-package large-dataset case. See `docs/seo/SEO_ARCHITECTURE.md`,
   `SEO_SCORING.md`, `MARKETPLACE_RULES.md`, `SEO_TEST_REPORT.md`.
 
+- **Build 017 — Portfolio Dashboard & Analytics Foundation (integration
+  build)**: a read-only service layer that combines data from the
+  frozen Collection API, Submission Center (Build 015), and the SEO
+  Intelligence Engine (Build 016) into a single Portfolio Health score,
+  5 analytics reports, a deterministic Recommendation Engine, and one
+  Dashboard Snapshot object — without modifying any of the three source
+  modules. New module (`app/src/catalog/dashboard/`, 9 files + a
+  barrel, zero storage of its own): a Portfolio Health Calculator
+  combining SEO Score, Submission Readiness, Metadata Completeness,
+  Duplicate Risk, Collection Organization, and Validation Status into
+  one 0-100 score (`portfolioHealthCalculator.ts`); Submission, SEO,
+  Collection, Marketplace, and Readiness Analytics reports, each a thin
+  reshape or aggregate over existing data
+  (`submissionAnalytics.ts`, `seoAnalytics.ts`, `collectionAnalytics.ts`,
+  `marketplaceAnalytics.ts`, `readinessAnalytics.ts`); a Recommendation
+  Engine that only ever reads analytics and never writes
+  (`recommendationEngine.ts`); and a Dashboard Snapshot assembling all
+  of the above into one object "suitable for future UI rendering,"
+  built by the one file that touches live storage
+  (`dashboardSnapshot.ts`, `portfolioDashboardService.ts`). The
+  SEO↔Submission bridge — per-pattern SEO analysis derived from each
+  `SubmissionRecord`'s own persisted snapshot fields — is the one place
+  Submission Center's and the SEO Engine's data actually meet; neither
+  module changed. 65 new tests across 10 files, including a 2,000-
+  submission large-dataset case. See
+  `docs/dashboard/PORTFOLIO_DASHBOARD_ARCHITECTURE.md`,
+  `PORTFOLIO_HEALTH_SCORE.md`, `DASHBOARD_ANALYTICS.md`,
+  `DASHBOARD_TEST_REPORT.md`.
+
 ## Recommended Next Build (Portfolio Manager track)
 
 Sprint 4 certified and froze the Collection module built and validated
 across Sprints 1-3 — production certification, a frozen public API
 contract, a consolidated baseline, and a recommended release tag, with
 no functional code change. P3 — Backup & Restore, Build 015 — Submission
-Center Foundation, and now Build 016 — SEO Intelligence Engine have all
-since been completed on top of that frozen state (see above), each with
-no PR opened and nothing merged, and each leaving the frozen Collection
-API and every prior Commercial Workflow module untouched. The remaining
+Center Foundation, Build 016 — SEO Intelligence Engine, and now Build
+017 — Portfolio Dashboard & Analytics Foundation have all since been
+completed on top of that frozen state (see above), each with no PR
+opened and nothing merged, and each leaving the frozen Collection API
+and every prior Commercial Workflow module untouched. The remaining
 steps, still gated on approval: (1) prepare and review a PR from the
-certified + backup-and-restore + submission-center + SEO-engine state,
-(2) merge it, (3) only then create the recommended
+certified + backup-and-restore + submission-center + SEO-engine +
+dashboard state, (2) merge it, (3) only then create the recommended
 `portfolio-collections-v1.0.0` tag. **CI wiring for the performance
 baseline policy** (`P2.5-3`, open since Sprint 1) remains a smaller,
-independent candidate, unaffected by this sequencing. Three natural next
+independent candidate, unaffected by this sequencing. Natural next
 increments now sit on top of already-completed foundations, matching how
 P2 Stage 2 followed P2 Stage 1: a backup/restore UI on top of P3; a UI
 for Submission Center's queue/history/statistics views, and/or the first
 real (opt-in, clearly-scoped) marketplace upload integration, on top of
-Build 015; and — per Build 016's own brief — **Build 017**: wiring the
-SEO Intelligence Engine into Submission Center (an SEO score/validation
-report attached to each `SubmissionRecord`, likely surfaced through
-`submissionValidation.ts`'s existing readiness gate) and/or a UI
-surfacing this engine's scores and suggestions, both left undone here by
-design.
+Build 015; and — per Build 017's own brief — **Build 018**: a Portfolio
+Dashboard UI rendering `loadDashboardSnapshot()`'s output (the health
+score and its 6 components, the 5 analytics reports, and the
+recommendation list) as an actual screen, the first user-visible surface
+for any of the three Commercial Workflow modules built so far — left
+undone here by design ("No UI in this build").
 
 ## Recommended Next Build (composition-quality track)
 
