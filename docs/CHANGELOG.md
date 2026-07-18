@@ -7,6 +7,58 @@ builds aimed at contributors and reviewers.
 
 ---
 
+## Portfolio Manager P2.5 Sprint 4 — Production Certification and Module Freeze
+
+**Goal**: certify the Collection module using the completed evidence
+from Sprints 1-3, freeze its public interfaces and performance
+baselines, and prepare release documentation — a certification/
+documentation stage, not a feature stage. No functional code changed
+(the only new production-adjacent file is a test asserting the existing
+API surface, not a behavior change).
+
+### Added
+
+- `app/src/catalog/collectionApiFreeze.test.ts` — automated guard test:
+  snapshots every runtime export of `domain/collection.ts`,
+  `domain/collectionMembership.ts`, `storage/collectionStore.ts`, and
+  `services/collectionService.ts` against a frozen list, so a future
+  accidental breaking change to the public API fails a test instead of
+  going unnoticed.
+- `docs/portfolio/COLLECTION_API_FREEZE.md` — the frozen public API
+  contract: every export's signature, what "frozen" permits (additive
+  changes) versus forbids (silent breaking changes), and how type-only
+  exports (interfaces) are guarded since they have no runtime
+  representation to test directly.
+- `docs/portfolio/COLLECTION_PRODUCTION_BASELINE.md` — consolidates
+  Sprint 1's performance baseline, Sprint 2's stress/soak/memory
+  results, and Sprint 3's recovery/durability results into one canonical
+  reference, with every figure traceable back to where it was
+  originally measured (nothing re-run for this sprint).
+- `docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md` — the formal
+  certification: a criteria checklist (functional correctness,
+  performance, durability, recovery, atomicity, API stability, test
+  coverage, security) each with a pass/fail and evidence citation, plus
+  an explicit, honest "scope of certification" section listing what was
+  genuinely NOT tested (multi-tab concurrency, non-Chromium browsers,
+  scale beyond LARGE, storage-quota exhaustion, filesystem corruption).
+- `docs/portfolio/COLLECTION_RELEASE_NOTES.md` — recommends (does not
+  create) the release tag `portfolio-collections-v1.0.0`, with rationale
+  and a semver policy for future changes to the frozen API.
+
+### Explicitly not done this sprint
+
+Backup & Restore was not started. CI wiring for the performance baseline
+(P2.5-3) was not started. No PR was opened, nothing was merged, no
+release tag was created — all deferred pending separate approval per
+the Sprint 4 brief.
+
+See `docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md` (certification
+decision), `COLLECTION_API_FREEZE.md` (frozen contract),
+`COLLECTION_PRODUCTION_BASELINE.md` (consolidated evidence), and
+`COLLECTION_RELEASE_NOTES.md` (recommended tag).
+
+---
+
 ## Portfolio Manager P2.5 Sprint 3 — Crash Recovery and Data Integrity Certification
 
 **Goal**: certify recovery, durability, and idempotency after simulated

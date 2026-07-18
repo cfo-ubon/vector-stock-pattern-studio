@@ -320,18 +320,43 @@ Build-numbered, forward-looking. Each entry is either shipped
   bump, no user-facing feature. See
   `docs/portfolio/P2_5_SPRINT3_REPORT.md`.
 
+- **Portfolio Manager P2.5 Sprint 4 — Production Certification and
+  Module Freeze**: certified the Collection module using Sprints 1-3's
+  completed evidence (no new functional testing — a synthesis stage).
+  Froze the public API surface (`domain/collection.ts`,
+  `domain/collectionMembership.ts`, `storage/collectionStore.ts`,
+  `services/collectionService.ts`) with a documented contract
+  (`COLLECTION_API_FREEZE.md`) and an automated guard test
+  (`collectionApiFreeze.test.ts`) that fails if the public surface
+  changes without a deliberate update. Consolidated Sprint 1's
+  performance baseline, Sprint 2's stress/soak evidence, and Sprint 3's
+  recovery/durability evidence into one canonical reference
+  (`COLLECTION_PRODUCTION_BASELINE.md`). Issued a formal certification
+  (`COLLECTION_PRODUCTION_CERTIFICATION.md`) with an explicit,
+  honest scope boundary (multi-tab concurrency, non-Chromium browsers,
+  scale beyond LARGE, storage-quota exhaustion, and filesystem
+  corruption were never tested by any sprint and are called out as such,
+  not silently assumed fine). Recommended (did not create) the release
+  tag `portfolio-collections-v1.0.0`
+  (`COLLECTION_RELEASE_NOTES.md`). No PR opened, nothing merged, no
+  Backup & Restore or CI-wiring work started — all explicitly deferred
+  pending separate approval.
+
 ## Recommended Next Build (Portfolio Manager track)
 
-Sprint 3 completed the crash-recovery certification pass Sprint 2 left
-open — a real production atomicity defect found and fixed, and full
-evidence (failure matrix, durability, idempotency, consistency, LARGE
-dataset, real-browser cycle and crash simulation) that recovery is clean
-across every scenario tested. **Full-library backup/restore** (P1's
-Blob-per-file design already supports zipping the entire
-`portfolioFiles` store the same way `services/exportAsset.ts` zips one
-asset today) remains excluded from every sprint so far and is the
-natural next candidate. **CI wiring for the performance baseline policy**
-(`P2.5-3`, open since Sprint 1) is a smaller, independent candidate.
+Sprint 4 certified and froze the Collection module built and validated
+across Sprints 1-3 — production certification, a frozen public API
+contract, a consolidated baseline, and a recommended release tag, with
+no functional code change. The next steps are sequential and explicitly
+gated on approval, per the Sprint 4 brief: (1) prepare and review a PR
+from the certified state, (2) merge it, (3) only then create the
+recommended `portfolio-collections-v1.0.0` tag, (4) only then begin
+**P3 — Backup & Restore** (P1's Blob-per-file design already supports
+zipping the entire `portfolioFiles` store the same way
+`services/exportAsset.ts` zips one asset today) as a new, separate
+sprint. **CI wiring for the performance baseline policy** (`P2.5-3`,
+open since Sprint 1) remains a smaller, independent candidate,
+unaffected by the Backup & Restore sequencing above.
 
 ## Recommended Next Build (composition-quality track)
 

@@ -3046,3 +3046,34 @@ of `npm test`. Reports land in `validation-results/collections/`
 - [`docs/portfolio/P2_5_SPRINT3_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_REPORT.md) — sprint report.
 - [`docs/portfolio/P2_5_RECOVERY_REPORT.md`](../docs/portfolio/P2_5_RECOVERY_REPORT.md) / [`P2_5_FAILURE_MATRIX.md`](../docs/portfolio/P2_5_FAILURE_MATRIX.md) / [`P2_5_DURABILITY_REPORT.md`](../docs/portfolio/P2_5_DURABILITY_REPORT.md) / [`P2_5_CONSISTENCY_REPORT.md`](../docs/portfolio/P2_5_CONSISTENCY_REPORT.md) / [`P2_5_BROWSER_RECOVERY.md`](../docs/portfolio/P2_5_BROWSER_RECOVERY.md).
 - [`docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md`](../docs/portfolio/P2_5_SPRINT3_TEST_REPORT.md) — test coverage by category.
+
+### Portfolio Manager P2.5 Sprint 4 — Production certification and module freeze (`src/catalog/collectionApiFreeze.test.ts`)
+
+Certifies the Collection module using Sprints 1-3's completed evidence
+and freezes its public API surface — a certification/documentation
+stage, not a feature stage. No functional code changed. The frozen
+surface is `domain/collection.ts`, `domain/collectionMembership.ts`,
+`storage/collectionStore.ts`, and `services/collectionService.ts`;
+`src/catalog/validation/*` and `scripts/*` remain dev-only tooling and
+are explicitly **not** part of the frozen contract. Enforcement is
+automated:
+
+```bash
+npm test -- collectionApiFreeze   # runs as part of the normal suite, not a separate validate: script
+```
+
+The guard test snapshots every runtime export of the frozen modules
+against a fixed list — it fails if a future change silently adds,
+removes, or renames a public export. Type-only exports (interfaces) are
+guarded instead by `tsc -b`'s own structural checking against the 8 real
+UI components and Sprint 1-3's validation tooling that already consume
+them, plus a signature copy in the freeze doc for reviewers to diff
+against. See:
+
+- [`docs/portfolio/COLLECTION_API_FREEZE.md`](../docs/portfolio/COLLECTION_API_FREEZE.md) — the frozen contract, every signature, and the versioning policy.
+- [`docs/portfolio/COLLECTION_PRODUCTION_BASELINE.md`](../docs/portfolio/COLLECTION_PRODUCTION_BASELINE.md) — Sprint 1-3 evidence consolidated into one canonical reference.
+- [`docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md`](../docs/portfolio/COLLECTION_PRODUCTION_CERTIFICATION.md) — the certification decision, criteria checklist, and an explicit "what was NOT tested" scope boundary (multi-tab concurrency, non-Chromium browsers, scale beyond LARGE, storage-quota exhaustion, filesystem corruption).
+- [`docs/portfolio/COLLECTION_RELEASE_NOTES.md`](../docs/portfolio/COLLECTION_RELEASE_NOTES.md) — recommends (does not create) the release tag `portfolio-collections-v1.0.0`.
+
+No PR opened, nothing merged, no tag created, no Backup & Restore or CI
+wiring started this sprint — all deferred pending separate approval.

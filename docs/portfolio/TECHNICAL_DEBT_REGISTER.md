@@ -65,6 +65,23 @@ accidental defect.
 | P2.5-13 | Node-side recovery/durability evidence (`fake-indexeddb`) cannot, by construction, prove genuine process-restart durability | `fake-indexeddb` is purely in-memory per Node process — a fresh process always starts empty regardless of whether the prior process crashed or exited cleanly (same structural fact as P2.5-2) | Not closable within the Node/`fake-indexeddb` harness; real crash/restart evidence comes only from the browser layer (`scripts/browserRecovery.ts crash`, built this sprint specifically for this reason) |
 | P2.5-14 | The real-browser crash simulation's deliberately-uncommitted in-flight write was found fully absent in all 5 trials, never partially present | `SIGKILL` timing relative to IndexedDB's internal flush is not controllable from outside the OS process — every trial's kill happened to land before that write's transaction ever committed | Not closable deterministically; more trials would increase the chance of observing a genuinely-interrupted mid-flight state, but the property actually being verified (never partial) already held in every trial run |
 
+## P2.5 Sprint 4 (Production Certification and Module Freeze)
+
+Sprint 4 added no new functional testing (a certification/freeze stage,
+not a validation stage) — the items below are gaps in *scope*, made
+explicit by `COLLECTION_PRODUCTION_CERTIFICATION.md`'s "Scope of
+certification" section, not gaps discovered by new evidence. None of
+Sprints 1-3 tested these; Sprint 4's contribution is naming them
+honestly rather than letting the certification imply broader coverage
+than it has.
+
+| # | Item | Why deferred | Closing it requires |
+|---|---|---|---|
+| P2.5-15 | No multi-tab / multi-process concurrent-write testing against the same IndexedDB database | Never in scope for any sprint's brief; every real-browser test (Sprint 2's UI soak, Sprint 3's cycle/crash runs) used a single tab/page | A future sprint would need to open two real Playwright pages against the same origin's IndexedDB and exercise concurrent writes/transactions deliberately |
+| P2.5-16 | No non-Chromium browser evidence (Firefox/Safari IndexedDB implementations untested) | All real-browser tooling across Sprints 2-3 was built on Playwright's Chromium; Playwright supports Firefox/WebKit too but no sprint's brief asked for cross-browser coverage | Extend `uiSoak.ts`/`browserRecovery.ts` to also run against `firefox`/`webkit` launchers, if cross-browser support becomes a real product requirement |
+| P2.5-17 | No evidence beyond LARGE scale (100k assets/10k collections/~500k memberships) | LARGE was Sprint 1's own defined ceiling preset; no sprint's brief asked for a larger one | Define and measure an even-larger preset if a real product need for >100k-asset libraries emerges |
+| P2.5-18 | No storage-quota-exhaustion / disk-full simulation | Distinct from Sprint 3's crash simulation (which tests process termination, not storage capacity); never in scope for any sprint | A future sprint could simulate `QuotaExceededError` from IndexedDB writes and verify the app's error handling/messaging, if this becomes a real user-reported issue |
+
 ## Explicitly not debt (by design, not to be "fixed")
 
 - IndexedDB-only storage with no localStorage fallback (ADR-001) — a
