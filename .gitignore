@@ -15,3 +15,9 @@ docs/build_reports/baselines/BUILD_013_portfolio_checkpoint.json
 # reproducible any time via `npx tsx scripts/portfolioVisuals.ts`; only its
 # small manifest.json (which pattern IDs/scores were sampled) is committed.
 docs/build_reports/build_013_visuals/uncurated_contact_sheet.html
+# Portfolio Phase 1's own 100-pattern production run output (SVG/EPS/PNG/
+# JSON/ZIP per pattern, ~348MB) — reproducible any time via
+# `npx tsx scripts/portfolioPhase1.ts`; delivered directly to the user
+# instead of committed, per their explicit choice. Only the run's
+# PORTFOLIO_PHASE_1_REPORT.md and the generating script are tracked.
+portfolio_phase_1/
