@@ -1,0 +1,53 @@
+# electron-builder configuration — Windows installer (NSIS) + portable
+# build. Per DESKTOP_MIGRATION_AUDIT.md Section 11/13: per-user install
+# (no admin rights required for normal use), user data/projects preserved
+# across upgrade and NOT deleted on uninstall unless the user explicitly
+# opts in, no internet required at runtime.
+
+appId: com.cfoubon.vectorstockpatternstudio
+productName: Vector Stock Pattern Studio
+copyright: Copyright © CFO Ubon
+
+directories:
+  output: ../release/VectorStockPatternStudio_Desktop/build-tmp
+  buildResources: build
+
+files:
+  - dist-desktop/**/*
+  - dist-electron/**/*
+  - package.json
+  - "!node_modules/electron-builder${/*}"
+
+# better-sqlite3 is a native module — electron-builder rebuilds it against
+# the target Electron's ABI automatically (npmRebuild default: true) as
+# part of this build step. That rebuild needs to download Electron's
+# native headers, which this repository's own CI/dev container could not
+# do (see DESKTOP_MIGRATION_AUDIT.md Section 11) — verify this step
+# succeeds on the actual Windows/CI build machine before relying on it.
+asarUnpack:
+  - "**/node_modules/better-sqlite3/**"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: build/icons/icon.ico
+  requestedExecutionLevel: asInvoker # per-user install, no admin required for normal use
+  artifactName: "VectorStockPatternStudio-${target}-x64.${ext}"
+
+nsis:
+  oneClick: false
+  perMachine: false # per-user install (brief Section 13)
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Vector Stock Pattern Studio
+  uninstallDisplayName: Vector Stock Pattern Studio
+  deleteAppDataOnUninstall: false # never delete user data on uninstall without explicit confirmation
+
+portable:
+  artifactName: "VectorStockPatternStudio-Portable-x64.${ext}"
+
+publish: null # no auto-update/publish server — fully offline, no cloud dependency

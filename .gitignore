@@ -27,3 +27,15 @@ portfolio_phase_1/
 # once portfolio_phase_1/ exists; delivered directly to the user instead
 # of committed. Only the generating script is tracked.
 portfolio_phase_1b_review/
+
+# Desktop migration build output — all reproducible via `npm run
+# desktop:build` / `desktop:installer` / `desktop:portable` (see
+# DESKTOP_MIGRATION_AUDIT.md). Source (electron/, tsconfig.electron.json,
+# vite.config.desktop.ts, electron-builder.yml, build/icons/) is tracked;
+# generated output is not.
+app/dist-electron/
+app/dist-desktop/
+release/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm

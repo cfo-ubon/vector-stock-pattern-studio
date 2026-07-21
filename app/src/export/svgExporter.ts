@@ -4,6 +4,7 @@ import { optimizeSvgTree } from '../engine/svgOptimizer';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { getPalette } from '../palettes/palettes';
+import { isDesktop, getDesktopBridge, type DesktopExportFileInput } from '../desktop/desktopBridge';
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 const SVG_NS_ATTRS = {
@@ -155,7 +156,37 @@ export function buildExportFilename(parts: string[], seed: string, suffix = ''):
   return `${slug}-seamless-pattern-${safeSeed}${suffix}.svg`;
 }
 
+const DESKTOP_EXTENSIONS = new Set(['svg', 'eps', 'png', 'json', 'zip', 'csv']);
+
+/** Desktop shell path (Electron only, see `desktop/desktopBridge.ts`): a
+ * native "Save As" dialog instead of the browser's blob-URL/`<a
+ * download>` trick. Every existing call site keeps calling
+ * `downloadBlobFile` exactly as before — this only intercepts when
+ * `window.vsp` is actually present, so web-app behavior is byte-for-byte
+ * unchanged. Fire-and-forget from the sync caller's perspective (matches
+ * how a browser download itself is "fire and forget" from the caller's
+ * point of view — neither path blocks on user interaction). */
+function downloadBlobFileDesktop(filename: string, blob: Blob): boolean {
+  const dotIndex = filename.lastIndexOf('.');
+  const extension = dotIndex >= 0 ? filename.slice(dotIndex + 1).toLowerCase() : '';
+  if (!DESKTOP_EXTENSIONS.has(extension)) return false;
+  const suggestedName = dotIndex >= 0 ? filename.slice(0, dotIndex) : filename;
+  const bridge = getDesktopBridge();
+  if (!bridge) return false;
+
+  blob
+    .arrayBuffer()
+    .then((data) => bridge.saveExportFile({ suggestedName, extension: extension as DesktopExportFileInput['extension'], data, isBinary: true }))
+    .catch(() => {
+      // A failed native-dialog save is surfaced to the user by the main
+      // process's own error dialog (see electron/ipc/exportHandlers.ts) —
+      // nothing further to do here.
+    });
+  return true;
+}
+
 export function downloadBlobFile(filename: string, blob: Blob) {
+  if (isDesktop() && downloadBlobFileDesktop(filename, blob)) return;
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
