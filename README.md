@@ -37,3 +37,38 @@ js/styles/               style family แต่ละแบบ (botanical, geome
 
 ส่วน "AI ช่วยคิดลวดลาย" ใช้วิธีคัดลอก prompt ไปคุยกับ ChatGPT/Claude เอง ไม่มีการเรียก
 API หรือเก็บ API key ในแอป — ปลอดภัยสำหรับ static hosting
+
+## React App (`/app`) และเวอร์ชัน Desktop
+
+Repo นี้ยังมีแอปตัวที่สอง — Vector Stock Pattern Studio เวอร์ชัน React +
+TypeScript ที่ `/app` (คนละตัวกับ static site ด้านบน, มี generator/scoring/
+export engine ที่ครบและซับซ้อนกว่ามาก) โดยมี production build ที่ถูก commit
+ไว้ที่ `/studio` และให้บริการผ่าน GitHub Pages ที่
+https://cfo-ubon.github.io/vector-stock-pattern-studio/studio/
+
+แอปตัวนี้มีเวอร์ชัน **Windows Desktop แบบออฟไลน์** ด้วย (Electron) — ใช้งานได้
+โดยไม่ต้องต่ออินเทอร์เน็ตหลังติดตั้งเสร็จ ดูรายละเอียดที่:
+
+- `docs/DESKTOP_INSTALLATION_GUIDE_TH.md` — วิธีติดตั้ง/เปิดโปรแกรม/ถอนการติดตั้ง
+- `docs/DESKTOP_USER_GUIDE_TH.md` — วิธีใช้งานฟีเจอร์ desktop ทั้งหมด
+- `docs/DESKTOP_TROUBLESHOOTING_TH.md` — แก้ปัญหาเบื้องต้น
+- `docs/OFFLINE_ARCHITECTURE.md` — สถาปัตยกรรม Electron (ภาษาอังกฤษ, สำหรับนักพัฒนา)
+- `docs/PROJECT_FILE_FORMAT.md` — สเปกไฟล์โปรเจกต์ `.vsps`
+- `docs/BACKUP_AND_RECOVERY.md` — ระบบสำรอง/กู้คืนข้อมูล
+- `docs/RELEASE_PROCESS_DESKTOP.md` — ขั้นตอน build/release เวอร์ชัน desktop
+- `DESKTOP_MIGRATION_AUDIT.md` / `DESKTOP_OFFLINE_BUILD_REPORT.md` — เอกสาร
+  ตรวจสอบและรายงานผลการทำ desktop migration (ภาษาอังกฤษ)
+
+Build commands (จาก `/app`):
+
+```
+npm install
+npm run dev              # web dev server (เหมือนเดิม)
+npm run build             # web production build -> ../studio
+npm test                  # test suite ทั้งหมด
+npm run desktop:dev        # รัน Electron app โหมด dev
+npm run desktop:build      # build เฉพาะไฟล์ desktop (ยังไม่ทำ installer)
+npm run desktop:installer  # สร้าง Windows installer (.exe)
+npm run desktop:portable   # สร้าง Windows portable (.exe)
+npm run desktop:test       # test suite + type-check ของ Electron main process
+```
