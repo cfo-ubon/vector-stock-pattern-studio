@@ -79,3 +79,14 @@ export { filterSubmissions, searchSubmissions } from './submissionSearchFilter';
 
 export type { MarketplaceSubmissionTotals, SubmissionStatistics } from './submissionStatistics';
 export { computeSubmissionStatistics } from './submissionStatistics';
+
+export type { SubmissionPackageOptions, SubmissionPackageManifest, SubmissionPackageResult } from './submissionPackageBuilder';
+export { buildSubmissionPackage, sanitizeZipEntryName, SubmissionPackageError } from './submissionPackageBuilder';
+
+export type { AiDeclarationStatus, EditorialDesignation } from './submissionRecord';
+
+export type { RejectionCategory, RejectionRecord } from './rejectionIntelligence';
+export { REJECTION_CATEGORIES, normalizeRejectionReason, createRejectionRecord, effectiveCategory, breakdownByCategory } from './rejectionIntelligence';
+
+export type { SalesEvent } from './salesRevenue';
+export { aggregateByMonth, aggregateByMarketplace, aggregateByProductionAsset, topPerformers, underperformingApproved } from './salesRevenue';
