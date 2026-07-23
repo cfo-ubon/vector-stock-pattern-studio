@@ -149,6 +149,8 @@ export function generateDataset(config: DatasetGeneratorConfig): GeneratedDatase
       notes: '',
       parentAssetId: null,
       variationGroupId: null,
+      productionAssetId: null,
+      qualitySnapshotId: null,
     });
   }
 
