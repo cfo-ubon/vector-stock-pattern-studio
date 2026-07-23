@@ -119,6 +119,14 @@ export interface StyleDna {
    * elements") or non-botanical (the hero's active generator has to be the
    * botanical one for this to have any effect at all). */
   premiumHero?: boolean;
+  /** Build 025 (Luxury Floral Composition & Stability Engine): true for a
+   * style that opts into the Luxury Floral Composition Profile system
+   * (`luxuryCompositionProfiles.ts`) for its `bouquet`-layout anchor
+   * placement, instead of `clusterEngine.ts`'s generic zone-scatter anchor
+   * placement — see `layouts/bouquet.ts`. Set only by `luxuryFloral` itself
+   * (the one style BUILD_025_AUDIT.md's failure-seed audit targeted);
+   * every other style is completely unaffected. */
+  luxuryComposition?: boolean;
   /** Named hierarchy profile — references the existing HIERARCHY_PRESETS
    * table (hero/secondary/filler/accent ratios + scales) instead of
    * duplicating those 8 numbers per style. */
@@ -270,6 +278,7 @@ export type StyleDnaResolvedFields = Pick<
   | 'botanicalFamily'
   | 'clusterArchetypes'
   | 'premiumHero'
+  | 'luxuryComposition'
   | 'designRules'
   | 'depthStrength'
   | 'professionalRules'
@@ -421,6 +430,7 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     botanicalFamily,
     clusterArchetypes: dna.preferredClusterArchetypes,
     premiumHero: dna.premiumHero,
+    luxuryComposition: dna.luxuryComposition,
     // Build 005, Sections 1-2 (Design Knowledge + Design Rule Engine):
     // every Style DNA now generates using its own real, computed rules —
     // see engine/designKnowledge.ts.

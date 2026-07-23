@@ -1,0 +1,106 @@
+{
+  "patternId": "bohoFloral_10",
+  "styleId": "bohoFloral",
+  "seed": "b025-bohoFloral-10",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 84,
+    "absoluteCommercialQualityV2": 84,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 66,
+      "illustrationRefinement": 58,
+      "depth": 82,
+      "hierarchy": 100,
+      "visualRhythm": 8,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 90,
+      "originality": 79,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (8/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 90,
+    "thumbnail400": 99,
+    "zoom800": 87,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Desert Botanical Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "desert-botanical-botanical-floral-toss-pattern-seamless-pattern-b025-bohofloral-10.eps"
+  },
+  "files": {
+    "svg": "svg/bohoFloral_10.svg",
+    "png": "png/bohoFloral_10.png",
+    "json": "json/bohoFloral_10.json"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "patternId": "scandinavianOrganic_7",
+  "styleId": "scandinavianOrganic",
+  "seed": "b025-scandinavianOrganic-7",
+  "productTarget": "homeDecor",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 85,
+    "absoluteCommercialQualityV2": 85,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 89.75,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 62,
+      "illustrationRefinement": 60,
+      "depth": 93,
+      "hierarchy": 75,
+      "visualRhythm": 6,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 92,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 86,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Scandinavian Calm Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "airy",
+      "light spacing",
+      "breathable",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "scandinavian-calm-botanical-floral-airy-botanical-seamless-pattern-b025-scandinavianorganic-7.eps"
+  },
+  "files": {
+    "svg": "svg/scandinavianOrganic_7.svg",
+    "png": "png/scandinavianOrganic_7.png",
+    "json": "json/scandinavianOrganic_7.json"
+  }
+}

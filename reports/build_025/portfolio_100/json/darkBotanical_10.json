@@ -1,0 +1,106 @@
+{
+  "patternId": "darkBotanical_10",
+  "styleId": "darkBotanical",
+  "seed": "b025-darkBotanical-10",
+  "productTarget": "wallpaper",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 81,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 72,
+      "illustrationRefinement": 55,
+      "depth": 97,
+      "hierarchy": 100,
+      "visualRhythm": 6,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 87,
+      "originality": 88,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 87,
+    "thumbnail400": 100,
+    "zoom800": 94,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Dark Floral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "s-curve",
+      "organic flow",
+      "botanical stripe",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "dark-floral-botanical-floral-s-curve-botanical-seamless-pattern-b025-darkbotanical-10.eps"
+  },
+  "files": {
+    "svg": "svg/darkBotanical_10.svg",
+    "png": "png/darkBotanical_10.png",
+    "json": "json/darkBotanical_10.json"
+  }
+}

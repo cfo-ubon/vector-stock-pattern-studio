@@ -30,6 +30,7 @@ import { computeRichnessBudget } from './richnessBudget';
 import { buildBouquetSpineLayer } from './bouquetSpine';
 import { assignDepthLayers, computeDepthDiagnostics } from './depthLayers';
 import { applyThumbnailAwareRepair } from './thumbnailRepair';
+import { applyRepairEngineV2 } from './repairEngineV2';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -302,6 +303,8 @@ export function buildTile(params: GenerateParams): TileData {
       preferredZone: effectiveCompositionZone,
       preferredClusterArchetypes: params.clusterArchetypes,
       premiumHero: params.premiumHero,
+      luxuryComposition: params.luxuryComposition,
+      productTarget: params.productTarget,
     },
     rng,
   );
@@ -392,6 +395,26 @@ export function buildTile(params: GenerateParams): TileData {
     ? applyBouquetRepairPass(refinedPlacements, tileSize, effectiveMotifSize, computeRichnessBudget(true)).placements
     : refinedPlacements;
 
+  // Build 025 (Luxury Floral Composition & Stability Engine), Phase 6:
+  // Repair Engine V2 runs AFTER the existing Build 023 repair pass above
+  // (never replacing it) and operates one level up — whole clusters, not
+  // individual members — specifically for styles that opted into the
+  // Luxury Floral Composition Profile system. `buildLuxuryCompositionPlacements`
+  // (`layouts/bouquet.ts`) tags every placement belonging to a bouquet
+  // unit's own dominant hero cluster with `isPrimaryCluster: true`, so
+  // Repair Engine V2 auto-detects each unit's primary (a tile can contain
+  // several units) rather than needing one tile-wide id threaded through.
+  // A `luxuryComposition` style resolved to `heroScatter` instead (which
+  // doesn't run the Hero Dominance Engine at all) has no `isPrimaryCluster`
+  // tags at all, so this is a strict no-op for that layout — only
+  // `bouquet`'s own placements carry the tag. Strict no-op for every other
+  // style (gate on the live `params.luxuryComposition`,
+  // matching the same "gate on the live param" convention Build 023's
+  // `scandinavianOrganic` regression already taught this codebase).
+  const luxuryRepaired = params.luxuryComposition
+    ? applyRepairEngineV2(repairedPlacements, tileSize, effectiveMotifSize).placements
+    : repairedPlacements;
+
   // Layer Priority (Composition Intelligence Foundation V2, Section 2): a
   // stable sort so higher-priority roles (hero) always paint last, i.e. on
   // top. A no-op for every placement with no role — a stable sort of an
@@ -403,7 +426,7 @@ export function buildTile(params: GenerateParams): TileData {
   // opts into the Depth-Layering Engine (see `paintOrderedPlacements`'s own
   // doc comment right below for why that engine reorders the ALREADY-BUILT
   // SVG nodes afterward instead of reordering this array).
-  const paintOrderedPlacements = sortByLayerPriority(repairedPlacements);
+  const paintOrderedPlacements = sortByLayerPriority(luxuryRepaired);
 
   // Build 024, Phase 8 (Thumbnail-Aware Repair): scoped to
   // `thumbnailIntent === 'heroMustDominate'` (premiumHero/heroFocus styles —

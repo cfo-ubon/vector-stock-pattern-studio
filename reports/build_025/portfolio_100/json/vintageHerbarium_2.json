@@ -1,0 +1,106 @@
+{
+  "patternId": "vintageHerbarium_2",
+  "styleId": "vintageHerbarium",
+  "seed": "b025-vintageHerbarium-2",
+  "productTarget": "stationery",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 86,
+    "absoluteCommercialQualityV2": 86,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 77,
+    "beautyDiagnostics": {
+      "focalClarity": 83.2,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 69,
+      "illustrationRefinement": 64,
+      "depth": 76,
+      "hierarchy": 100,
+      "visualRhythm": 5,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 88,
+      "originality": 76,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 88,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Terracotta Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "terracotta",
+      "clay",
+      "warm",
+      "rustic",
+      "desert",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "terracotta-botanical-floral-random-scatter-seamless-pattern-b025-vintageherbarium-2.eps"
+  },
+  "files": {
+    "svg": "svg/vintageHerbarium_2.svg",
+    "png": "png/vintageHerbarium_2.png",
+    "json": "json/vintageHerbarium_2.json"
+  }
+}

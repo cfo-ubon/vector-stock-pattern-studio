@@ -1,0 +1,110 @@
+{
+  "patternId": "minimalBotanical_2",
+  "styleId": "minimalBotanical",
+  "seed": "b025-minimalBotanical-2",
+  "productTarget": "textile",
+  "decision": "REJECT",
+  "commercial": {
+    "absoluteCommercialQuality": 29,
+    "absoluteCommercialQualityV2": 74,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 70,
+    "beautyDiagnostics": {
+      "focalClarity": 89,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 76,
+      "illustrationRefinement": 47,
+      "depth": 100,
+      "hierarchy": 45,
+      "visualRhythm": 52,
+      "negativeSpaceQuality": 33,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 86,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Illustration refinement is weak (47/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Hierarchy is weak (45/100) — hero/secondary/filler roles aren't visually distinguishable (engine/scoring.ts's hierarchy).",
+      "Visual rhythm is weak (52/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (33/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 61,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Coastal Neutral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "coastal",
+      "neutral",
+      "beige",
+      "serene",
+      "natural",
+      "minimal grid",
+      "icon grid",
+      "evenly spaced",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "coastal-neutral-botanical-floral-grid-minimal-seamless-pattern-b025-minimalbotanical-2.eps"
+  },
+  "files": {
+    "svg": "svg/minimalBotanical_2.svg",
+    "png": "png/minimalBotanical_2.png",
+    "json": "json/minimalBotanical_2.json"
+  }
+}

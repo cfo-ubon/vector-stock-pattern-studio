@@ -529,11 +529,28 @@ describe('buildTile: Luxury Negative Space Engine — artisticBalance product fa
     // the balance-correction outcome in a minority of layouts, so this
     // checks several seeds for at least one real difference rather than
     // asserting it on a single arbitrary seed.
+    //
+    // Build 025 (Phase 10, flaky-test root cause): the default tileSize
+    // (1200) / density (0.55) fixture generates hundreds of bouquet
+    // placements per buildTile() call, and this loop calls buildTile() up
+    // to 60 times (30 seeds x 2 variants) hunting for the first seed that
+    // differs -- measured standalone at ~250-450ms/call, ~8.5-9.5s total
+    // wall-clock for the (deterministic) 26 iterations this exact fixture
+    // needs, which sits close enough to the global 15000ms testTimeout
+    // that ordinary full-suite worker contention pushes it over. This is
+    // not an async/timer/race-condition bug -- buildTile() here is pure
+    // and synchronous -- it is a heavy-per-call fixture cost. A smaller
+    // tileSize/motifSize exercises the exact same artisticBalance
+    // fallback-resolution code path with far fewer placements to
+    // position/repair per call (measured: first difference now found at
+    // seed index 0, ~60-80ms total), so the fix targets the actual cost
+    // rather than the timeout.
     let foundDifference = false;
     for (let i = 0; i < 30 && !foundDifference; i++) {
       const base = {
         ...defaultParams(), categoryId: 'botanical', layoutId: 'scatter' as const,
         productTarget: 'giftWrap' as const,
+        tileSize: 400, motifSize: 60,
         compositionIntelligence: DEFAULT_COMPOSITION_INTELLIGENCE,
         seed: `product-artistic-balance-explicit-${i}`,
       };

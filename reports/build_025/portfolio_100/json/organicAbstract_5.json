@@ -1,0 +1,106 @@
+{
+  "patternId": "organicAbstract_5",
+  "styleId": "organicAbstract",
+  "seed": "b025-organicAbstract-5",
+  "productTarget": "wallpaper",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 89,
+    "absoluteCommercialQualityV2": 89,
+    "productTargetFit": 51,
+    "productTargetFitV2": 62
+  },
+  "beauty": {
+    "beautyScore": 82,
+    "beautyDiagnostics": {
+      "focalClarity": 94.2,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 68,
+      "illustrationRefinement": 100,
+      "depth": 100,
+      "hierarchy": 71,
+      "visualRhythm": 6,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 95,
+      "originality": 90,
+      "productSuitability": 62
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 95,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Ocean Breeze Abstract Organic Seamless Vector Pattern — Flat Abstract organic shapes Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "organic",
+      "blob",
+      "memphis",
+      "matisse",
+      "cutout",
+      "hand drawn",
+      "contemporary",
+      "squiggle",
+      "doodle",
+      "shape",
+      "freeform",
+      "artistic",
+      "collage",
+      "mid century",
+      "funky",
+      "playful",
+      "terrazzo",
+      "confetti",
+      "ocean",
+      "teal",
+      "aqua",
+      "marine",
+      "fresh",
+      "airy",
+      "light spacing",
+      "breathable",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "ocean-breeze-abstract-organic-airy-botanical-seamless-pattern-b025-organicabstract-5.eps"
+  },
+  "files": {
+    "svg": "svg/organicAbstract_5.svg",
+    "png": "png/organicAbstract_5.png",
+    "json": "json/organicAbstract_5.json"
+  }
+}

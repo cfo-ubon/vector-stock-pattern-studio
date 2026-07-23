@@ -1,5 +1,6 @@
 import type { LayoutParams, PatternLayout, Placement, Rng } from '../engine/types';
 import { buildClusterPlacements } from '../engine/clusterEngine';
+import { buildLuxuryCompositionPlacements } from '../engine/luxuryFloralCompositionEngine';
 
 /** Bouquet Layout — Project Phoenix V2: this layout was the original,
  * bespoke single-archetype precedent the shared Cluster Composition Engine
@@ -18,6 +19,27 @@ export const bouquetLayout: PatternLayout = {
   id: 'bouquet',
   label: 'Bouquet',
   generate(params: LayoutParams, rng: Rng): Placement[] {
+    // Build 025 (Luxury Floral Composition & Stability Engine): a style
+    // that opts in (currently only `luxuryFloral`) replaces the generic
+    // zone-scatter anchor placement below with the named Composition
+    // Profile system — guaranteed-connected topology, Hero Dominance
+    // Engine scale assignment, and scored connector bridges. Every other
+    // style's `bouquet` layout is a strict no-op change (still calls
+    // `buildClusterPlacements` exactly as before).
+    if (params.luxuryComposition) {
+      return buildLuxuryCompositionPlacements(
+        {
+          tileSize: params.tileSize,
+          motifSize: params.motifSize,
+          density: params.density,
+          rotationJitter: params.rotationJitter,
+          scaleJitter: params.scaleJitter,
+          archetypes: ['bouquet', 'sprayBouquet'],
+          productTarget: params.productTarget,
+        },
+        rng,
+      ).placements;
+    }
     return buildClusterPlacements(
       {
         tileSize: params.tileSize,

@@ -1,0 +1,109 @@
+{
+  "patternId": "luxuryFloral_9",
+  "styleId": "luxuryFloral",
+  "seed": "b025-luxuryFloral-9",
+  "productTarget": "giftWrap",
+  "decision": "REJECT",
+  "commercial": {
+    "absoluteCommercialQuality": 44,
+    "absoluteCommercialQualityV2": 44,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 65,
+    "beautyDiagnostics": {
+      "focalClarity": 97.4,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 67,
+      "illustrationRefinement": 76,
+      "depth": 50,
+      "hierarchy": 87,
+      "visualRhythm": 11,
+      "negativeSpaceQuality": 0,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 93,
+      "originality": 98,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Depth is weak (50/100) — little foreground/background separation between hero and filler layers (engine/scoring.ts's heroDetailRatio + overlapQuality).",
+      "Visual rhythm is weak (11/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (0/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 93,
+    "thumbnail400": 100,
+    "zoom800": 76,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Blush & Gold Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "blush",
+      "gold",
+      "feminine",
+      "romantic",
+      "chic",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "blush-gold-botanical-floral-bouquet-seamless-pattern-b025-luxuryfloral-9.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_9.svg",
+    "png": "png/luxuryFloral_9.png",
+    "json": "json/luxuryFloral_9.json"
+  }
+}

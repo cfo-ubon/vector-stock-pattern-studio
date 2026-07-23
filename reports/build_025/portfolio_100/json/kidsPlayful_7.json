@@ -1,0 +1,107 @@
+{
+  "patternId": "kidsPlayful_7",
+  "styleId": "kidsPlayful",
+  "seed": "b025-kidsPlayful-7",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 86,
+    "absoluteCommercialQualityV2": 86,
+    "productTargetFit": 56,
+    "productTargetFitV2": 69
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 86.7,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 75,
+      "illustrationRefinement": 97,
+      "depth": 81,
+      "hierarchy": 100,
+      "visualRhythm": 1,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 88,
+      "originality": 50,
+      "productSuitability": 69
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (1/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Originality is weak (50/100) — motif shapes repeat with little real variation (engine/scoring.ts's motifShapeDiversity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 88,
+    "thumbnail400": 100,
+    "zoom800": 93,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Vibrant Pop Cute / Kids Seamless Vector Pattern — Flat Cute animal faces Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "cute",
+      "kawaii",
+      "animal",
+      "kids",
+      "baby",
+      "nursery",
+      "children",
+      "bear",
+      "cat",
+      "bunny",
+      "rabbit",
+      "paw",
+      "heart",
+      "star",
+      "cartoon",
+      "childish",
+      "sweet",
+      "adorable",
+      "vibrant",
+      "bright",
+      "bold",
+      "colorful",
+      "pop",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "vibrant-pop-cute-kids-toss-pattern-seamless-pattern-b025-kidsplayful-7.eps"
+  },
+  "files": {
+    "svg": "svg/kidsPlayful_7.svg",
+    "png": "png/kidsPlayful_7.png",
+    "json": "json/kidsPlayful_7.json"
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "generatedAt": "2026-07-23T14:06:30.860Z",
+  "durationMs": 98312,
+  "luxuryFloral": {
+    "baseline": {
+      "label": "luxuryFloral baseline (production, luxuryComposition off)",
+      "n": 300,
+      "fragmentedSilhouetteRate": 60.67,
+      "deadSpaceRate": 42.33,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 42.33,
+        "mechanicalSpacing": 0.33,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 0,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 1.67,
+        "repeatedScale": 5,
+        "fragmentedSilhouette": 60.67,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0.67,
+        "tooManyFillers": 8
+      },
+      "commercialQualityMean": 81.04,
+      "commercialQualityV2Mean": 81.04,
+      "nodeCount": {
+        "n": 300,
+        "mean": 5997.9,
+        "median": 5976,
+        "p10": 5662,
+        "p90": 6331,
+        "min": 4984,
+        "max": 7302,
+        "failureRate": 0
+      }
+    },
+    "experimental": {
+      "label": "luxuryFloral experimental (luxuryComposition on)",
+      "n": 300,
+      "fragmentedSilhouetteRate": 54.67,
+      "deadSpaceRate": 51,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 51,
+        "mechanicalSpacing": 0,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 0,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 1.67,
+        "repeatedScale": 11.67,
+        "fragmentedSilhouette": 54.67,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0.67,
+        "tooManyFillers": 8
+      },
+      "commercialQualityMean": 79.13,
+      "commercialQualityV2Mean": 79.13,
+      "nodeCount": {
+        "n": 300,
+        "mean": 5988.43,
+        "median": 5977,
+        "p10": 5606,
+        "p90": 6336,
+        "min": 5036,
+        "max": 7323,
+        "failureRate": 0
+      }
+    },
+    "pairedDelta": {
+      "fragmentedSilhouetteRateDelta": -6,
+      "deadSpaceRateDelta": 8.670000000000002,
+      "commercialQualityMeanDelta": -1.9100000000000108
+    }
+  },
+  "controls": {
+    "scandinavianOrganic": {
+      "label": "scandinavianOrganic (control, unaffected by construction)",
+      "n": 100,
+      "fragmentedSilhouetteRate": 6,
+      "deadSpaceRate": 0,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 0,
+        "mechanicalSpacing": 0,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 47,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 4,
+        "repeatedScale": 0,
+        "fragmentedSilhouette": 6,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0,
+        "tooManyFillers": 0
+      },
+      "commercialQualityMean": 86.49,
+      "commercialQualityV2Mean": 86.49,
+      "nodeCount": {
+        "n": 100,
+        "mean": 2091.93,
+        "median": 2531,
+        "p10": 744,
+        "p90": 3786,
+        "min": 630,
+        "max": 4073,
+        "failureRate": 0
+      }
+    },
+    "bohoFloral": {
+      "label": "bohoFloral (control, unaffected by construction)",
+      "n": 50,
+      "fragmentedSilhouetteRate": 20,
+      "deadSpaceRate": 0,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 0,
+        "mechanicalSpacing": 0,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 46,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 0,
+        "repeatedScale": 0,
+        "fragmentedSilhouette": 20,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0,
+        "tooManyFillers": 0
+      },
+      "commercialQualityMean": 82.5,
+      "commercialQualityV2Mean": 82.5,
+      "nodeCount": {
+        "n": 50,
+        "mean": 5508.82,
+        "median": 5829,
+        "p10": 4239,
+        "p90": 5996,
+        "min": 3934,
+        "max": 6148,
+        "failureRate": 0
+      }
+    },
+    "darkBotanical": {
+      "label": "darkBotanical (control, unaffected by construction)",
+      "n": 50,
+      "fragmentedSilhouetteRate": 28,
+      "deadSpaceRate": 12,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 12,
+        "mechanicalSpacing": 0,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 0,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 0,
+        "repeatedScale": 2,
+        "fragmentedSilhouette": 28,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0,
+        "tooManyFillers": 0
+      },
+      "commercialQualityMean": 83.78,
+      "commercialQualityV2Mean": 83.78,
+      "nodeCount": {
+        "n": 50,
+        "mean": 5925.94,
+        "median": 5949,
+        "p10": 5738,
+        "p90": 6107,
+        "min": 5490,
+        "max": 6349,
+        "failureRate": 0
+      }
+    },
+    "editorialBotanical": {
+      "label": "editorialBotanical (control, unaffected by construction)",
+      "n": 50,
+      "fragmentedSilhouetteRate": 40,
+      "deadSpaceRate": 16,
+      "allIssueRates": {
+        "weakHero": 0,
+        "deadSpace": 16,
+        "mechanicalSpacing": 0,
+        "gridAppearance": 0,
+        "weakClusters": 0,
+        "lowDetail": 0,
+        "weakFlow": 0,
+        "crowdedAreas": 0,
+        "repeatedRotation": 0,
+        "repeatedScale": 22,
+        "fragmentedSilhouette": 40,
+        "lowHeroVisibility": 0,
+        "weakHierarchy": 0,
+        "tooManyFillers": 48
+      },
+      "commercialQualityMean": 85.4,
+      "commercialQualityV2Mean": 85.4,
+      "nodeCount": {
+        "n": 50,
+        "mean": 2733.12,
+        "median": 2686,
+        "p10": 2212,
+        "p90": 3306,
+        "min": 1956,
+        "max": 3833,
+        "failureRate": 0
+      }
+    }
+  }
+}

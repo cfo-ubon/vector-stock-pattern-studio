@@ -572,6 +572,24 @@ Build-numbered, forward-looking. Each entry is either shipped
   suite passing. See `BUILD_021_REPORT.md`. **Final answer: the
   application is ready for producing stock portfolios every day (YES).**
 
+- **Build 025 — Luxury Floral Composition & Stability Engine**: built a
+  full experimental Composition system for `luxuryFloral`
+  (`engine/luxuryCompositionProfiles.ts` — 6 named composition profiles,
+  `engine/heroDominanceEngine.ts`, `engine/topologyPlacement.ts`,
+  `engine/connectorQuality.ts` — scored connectors replacing
+  `connectClusters`'s coin flip, `engine/repairEngineV2.ts` — whole-cluster
+  simulated repair, `engine/wrapCohesion.ts`, orchestrated by
+  `engine/luxuryFloralCompositionEngine.ts`), gated behind
+  `GenerateParams.luxuryComposition`. Full 300-seed measurement: real
+  `fragmentedSilhouette` improvement (60.67% → 54.67%, -6pp) but short of
+  the brief's ≤30% target, plus 2 measured regressions (`deadSpace` +8.67pp,
+  mean commercial quality -1.91) — **shipped disabled by default**, see
+  `BUILD_025_AUDIT.md` and `BUILD_025_REPORT.md` for full data. Also
+  root-caused and fixed a genuinely flaky test in `tile.test.ts` (heavy
+  per-call fixture cost under worker contention, not async/race — fixed by
+  shrinking that test's own fixture, verified via 50-run loop). Full
+  regression: 290/290 files, 3171/3171 tests, run 3x consecutively.
+
 ## Recommended Next Build (Revenue First / Production track)
 
 Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
@@ -802,17 +820,28 @@ systematic "bare stem / disconnected endpoint" validation pass exists beyond
 the one specific instance Build 023 fixed (the bouquet spine connector's
 distance cap).
 
-### 6. Luxury Floral fragmentation still above target (Build 023 + 024)
+### 6. Luxury Floral fragmentation still above target (Build 023 + 024 + 025)
 
 Build 023 reduced `luxuryFloral`'s `fragmentedSilhouette` rate 100% → 70%;
 Build 024's repair-iteration tuning (3 → 5, empirically swept) reduced it
 further to 60% on the same 30-seed matrix — real, measured, but still short
 of the ≤30% target either build's brief named. The `anchorSpacingMultiplier`
 lever is already at its own measured diminishing-returns point (Build 023's
-own benchmark). Reaching ≤30% likely needs the composition-level work both
-builds' briefs originally scoped for but neither delivered: an explicit
-bouquet composition engine with a guaranteed dominant focal mass, not another
-repair-pass parameter sweep.
+own benchmark).
+
+Build 025 built the "explicit bouquet composition engine with a guaranteed
+dominant focal mass" this section previously called for
+(`engine/luxuryFloralCompositionEngine.ts` + 6 supporting modules — see
+`BUILD_025_AUDIT.md`). At full 300-seed scale it moved the rate 60.67% →
+54.67% (-6pp, real) but still nowhere near ≤30%, and introduced 2 new
+regressions (`deadSpace` +8.67pp, mean commercial quality -1.91) — so it
+ships disabled by default. `BUILD_025_AUDIT.md` Section 7 traces the
+remaining gap to node-budget thinning economics (`tile.ts`'s Section-10
+`stratifiedSelect` + `bouquetSpatialGraph.ts`'s `reserveClusterCompanions`
+survivor-per-cluster math), not further anchor/topology tuning — a future
+build should raise `luxuryFloral`'s specific thinning survivor budget
+(a `richnessBudget.ts`-level change) rather than repeat this build's
+composition-geometry approach.
 
 ### 7. Count-reducing thumbnail repair actions (Build 024)
 

@@ -1,0 +1,108 @@
+{
+  "patternId": "darkBotanical_4",
+  "styleId": "darkBotanical",
+  "seed": "b025-darkBotanical-4",
+  "productTarget": "wallpaper",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 75,
+    "absoluteCommercialQualityV2": 75,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 74,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 70,
+      "illustrationRefinement": 51,
+      "depth": 86,
+      "hierarchy": 100,
+      "visualRhythm": 6,
+      "negativeSpaceQuality": 36,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 89,
+      "originality": 82,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Illustration refinement is weak (51/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (36/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 89,
+    "thumbnail400": 100,
+    "zoom800": 88,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Midnight Botanical Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "dark",
+      "midnight",
+      "forest",
+      "moody",
+      "deep green",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "midnight-botanical-botanical-floral-bouquet-seamless-pattern-b025-darkbotanical-4.eps"
+  },
+  "files": {
+    "svg": "svg/darkBotanical_4.svg",
+    "png": "png/darkBotanical_4.png",
+    "json": "json/darkBotanical_4.json"
+  }
+}

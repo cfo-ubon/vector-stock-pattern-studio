@@ -134,6 +134,15 @@ export interface Placement {
   clusterId?: number;
   clusterAnchorX?: number;
   clusterAnchorY?: number;
+  /** Build 025 (Luxury Floral Composition & Stability Engine): true for
+   * every placement belonging to a bouquet unit's own designated dominant
+   * primary hero cluster (see `heroDominanceEngine.ts`/
+   * `luxuryFloralCompositionEngine.ts`) -- lets `repairEngineV2.ts` find
+   * each non-primary cluster's own nearest primary to pull toward, without
+   * needing a separately-threaded id list (a tile can contain several
+   * bouquet units, each with its own primary). Undefined for every
+   * placement outside the Luxury Floral Composition Profile system. */
+  isPrimaryCluster?: boolean;
 }
 
 export type LayoutId =
@@ -179,6 +188,18 @@ export interface LayoutParams {
    * fragment every cluster (BUILD_023_AUDIT.md Finding 3) — see
    * `clusterEngine.ts`'s `anchorSpacingMultiplier` doc comment. */
   premiumHero?: boolean;
+  /** Build 025 (Luxury Floral Composition & Stability Engine) — see
+   * GenerateParams.luxuryComposition. `bouquet.ts` uses this to switch its
+   * anchor placement from `clusterEngine.ts`'s generic zone-scatter to the
+   * Luxury Floral Composition Profile system
+   * (`luxuryCompositionProfiles.ts`/`topologyPlacement.ts`). */
+  luxuryComposition?: boolean;
+  /** Build 025, Phase 8 (Product-Target-Specific Luxury Floral): passed
+   * through so `bouquet.ts`'s Luxury Floral Composition path can tune its
+   * chosen profile per product target (see
+   * `applyLuxuryProductAdjustment`). Unused by every layout that doesn't
+   * opt into `luxuryComposition`. */
+  productTarget?: import('../collection/productTargets').ProductUseId;
 }
 
 export interface PatternLayout {
@@ -332,6 +353,16 @@ export interface GenerateParams {
    * placement completely unaffected — the default for every style that
    * doesn't explicitly opt in. */
   premiumHero?: boolean;
+  /** Build 025 (Luxury Floral Composition & Stability Engine): when true,
+   * the `bouquet` layout places its cluster anchors using a named
+   * Luxury Floral Composition Profile (`luxuryCompositionProfiles.ts`) —
+   * guaranteed-connected topology-aware placement, Hero Dominance Engine
+   * scale assignment, and a scored Connector Quality Engine bridge pass —
+   * instead of `clusterEngine.ts`'s generic zone-scatter anchor placement.
+   * Set only by the `luxuryFloral` Style DNA preset; undefined/false
+   * (every other style) is a strict no-op — the layout keeps calling
+   * `buildClusterPlacements` exactly as before. */
+  luxuryComposition?: boolean;
   /** Build 011, Section 5 (Silhouette Intelligence): forces a premium
    * hero's own internal arrangement archetype (`PremiumHeroOptions.archetype`,
    * `generators/premiumHero.ts`) instead of leaving `resolveHeroArchetype`'s

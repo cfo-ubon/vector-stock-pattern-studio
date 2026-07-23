@@ -1,0 +1,710 @@
+{
+  "generatedAt": "2026-07-23T14:12:43.827Z",
+  "pairCount": 100,
+  "scales": [
+    "full",
+    "256"
+  ],
+  "pairs": [
+    {
+      "seed": "m25-1",
+      "files": {
+        "beforeSvg": "svg/m25-1_before.svg",
+        "afterSvg": "svg/m25-1_after.svg"
+      }
+    },
+    {
+      "seed": "m25-2",
+      "files": {
+        "beforeSvg": "svg/m25-2_before.svg",
+        "afterSvg": "svg/m25-2_after.svg"
+      }
+    },
+    {
+      "seed": "m25-3",
+      "files": {
+        "beforeSvg": "svg/m25-3_before.svg",
+        "afterSvg": "svg/m25-3_after.svg"
+      }
+    },
+    {
+      "seed": "m25-4",
+      "files": {
+        "beforeSvg": "svg/m25-4_before.svg",
+        "afterSvg": "svg/m25-4_after.svg"
+      }
+    },
+    {
+      "seed": "m25-5",
+      "files": {
+        "beforeSvg": "svg/m25-5_before.svg",
+        "afterSvg": "svg/m25-5_after.svg"
+      }
+    },
+    {
+      "seed": "m25-6",
+      "files": {
+        "beforeSvg": "svg/m25-6_before.svg",
+        "afterSvg": "svg/m25-6_after.svg"
+      }
+    },
+    {
+      "seed": "m25-7",
+      "files": {
+        "beforeSvg": "svg/m25-7_before.svg",
+        "afterSvg": "svg/m25-7_after.svg"
+      }
+    },
+    {
+      "seed": "m25-8",
+      "files": {
+        "beforeSvg": "svg/m25-8_before.svg",
+        "afterSvg": "svg/m25-8_after.svg"
+      }
+    },
+    {
+      "seed": "m25-9",
+      "files": {
+        "beforeSvg": "svg/m25-9_before.svg",
+        "afterSvg": "svg/m25-9_after.svg"
+      }
+    },
+    {
+      "seed": "m25-10",
+      "files": {
+        "beforeSvg": "svg/m25-10_before.svg",
+        "afterSvg": "svg/m25-10_after.svg"
+      }
+    },
+    {
+      "seed": "m25-11",
+      "files": {
+        "beforeSvg": "svg/m25-11_before.svg",
+        "afterSvg": "svg/m25-11_after.svg"
+      }
+    },
+    {
+      "seed": "m25-12",
+      "files": {
+        "beforeSvg": "svg/m25-12_before.svg",
+        "afterSvg": "svg/m25-12_after.svg"
+      }
+    },
+    {
+      "seed": "m25-13",
+      "files": {
+        "beforeSvg": "svg/m25-13_before.svg",
+        "afterSvg": "svg/m25-13_after.svg"
+      }
+    },
+    {
+      "seed": "m25-14",
+      "files": {
+        "beforeSvg": "svg/m25-14_before.svg",
+        "afterSvg": "svg/m25-14_after.svg"
+      }
+    },
+    {
+      "seed": "m25-15",
+      "files": {
+        "beforeSvg": "svg/m25-15_before.svg",
+        "afterSvg": "svg/m25-15_after.svg"
+      }
+    },
+    {
+      "seed": "m25-16",
+      "files": {
+        "beforeSvg": "svg/m25-16_before.svg",
+        "afterSvg": "svg/m25-16_after.svg"
+      }
+    },
+    {
+      "seed": "m25-17",
+      "files": {
+        "beforeSvg": "svg/m25-17_before.svg",
+        "afterSvg": "svg/m25-17_after.svg"
+      }
+    },
+    {
+      "seed": "m25-18",
+      "files": {
+        "beforeSvg": "svg/m25-18_before.svg",
+        "afterSvg": "svg/m25-18_after.svg"
+      }
+    },
+    {
+      "seed": "m25-19",
+      "files": {
+        "beforeSvg": "svg/m25-19_before.svg",
+        "afterSvg": "svg/m25-19_after.svg"
+      }
+    },
+    {
+      "seed": "m25-20",
+      "files": {
+        "beforeSvg": "svg/m25-20_before.svg",
+        "afterSvg": "svg/m25-20_after.svg"
+      }
+    },
+    {
+      "seed": "m25-21",
+      "files": {
+        "beforeSvg": "svg/m25-21_before.svg",
+        "afterSvg": "svg/m25-21_after.svg"
+      }
+    },
+    {
+      "seed": "m25-22",
+      "files": {
+        "beforeSvg": "svg/m25-22_before.svg",
+        "afterSvg": "svg/m25-22_after.svg"
+      }
+    },
+    {
+      "seed": "m25-23",
+      "files": {
+        "beforeSvg": "svg/m25-23_before.svg",
+        "afterSvg": "svg/m25-23_after.svg"
+      }
+    },
+    {
+      "seed": "m25-24",
+      "files": {
+        "beforeSvg": "svg/m25-24_before.svg",
+        "afterSvg": "svg/m25-24_after.svg"
+      }
+    },
+    {
+      "seed": "m25-25",
+      "files": {
+        "beforeSvg": "svg/m25-25_before.svg",
+        "afterSvg": "svg/m25-25_after.svg"
+      }
+    },
+    {
+      "seed": "m25-26",
+      "files": {
+        "beforeSvg": "svg/m25-26_before.svg",
+        "afterSvg": "svg/m25-26_after.svg"
+      }
+    },
+    {
+      "seed": "m25-27",
+      "files": {
+        "beforeSvg": "svg/m25-27_before.svg",
+        "afterSvg": "svg/m25-27_after.svg"
+      }
+    },
+    {
+      "seed": "m25-28",
+      "files": {
+        "beforeSvg": "svg/m25-28_before.svg",
+        "afterSvg": "svg/m25-28_after.svg"
+      }
+    },
+    {
+      "seed": "m25-29",
+      "files": {
+        "beforeSvg": "svg/m25-29_before.svg",
+        "afterSvg": "svg/m25-29_after.svg"
+      }
+    },
+    {
+      "seed": "m25-30",
+      "files": {
+        "beforeSvg": "svg/m25-30_before.svg",
+        "afterSvg": "svg/m25-30_after.svg"
+      }
+    },
+    {
+      "seed": "m25-31",
+      "files": {
+        "beforeSvg": "svg/m25-31_before.svg",
+        "afterSvg": "svg/m25-31_after.svg"
+      }
+    },
+    {
+      "seed": "m25-32",
+      "files": {
+        "beforeSvg": "svg/m25-32_before.svg",
+        "afterSvg": "svg/m25-32_after.svg"
+      }
+    },
+    {
+      "seed": "m25-33",
+      "files": {
+        "beforeSvg": "svg/m25-33_before.svg",
+        "afterSvg": "svg/m25-33_after.svg"
+      }
+    },
+    {
+      "seed": "m25-34",
+      "files": {
+        "beforeSvg": "svg/m25-34_before.svg",
+        "afterSvg": "svg/m25-34_after.svg"
+      }
+    },
+    {
+      "seed": "m25-35",
+      "files": {
+        "beforeSvg": "svg/m25-35_before.svg",
+        "afterSvg": "svg/m25-35_after.svg"
+      }
+    },
+    {
+      "seed": "m25-36",
+      "files": {
+        "beforeSvg": "svg/m25-36_before.svg",
+        "afterSvg": "svg/m25-36_after.svg"
+      }
+    },
+    {
+      "seed": "m25-37",
+      "files": {
+        "beforeSvg": "svg/m25-37_before.svg",
+        "afterSvg": "svg/m25-37_after.svg"
+      }
+    },
+    {
+      "seed": "m25-38",
+      "files": {
+        "beforeSvg": "svg/m25-38_before.svg",
+        "afterSvg": "svg/m25-38_after.svg"
+      }
+    },
+    {
+      "seed": "m25-39",
+      "files": {
+        "beforeSvg": "svg/m25-39_before.svg",
+        "afterSvg": "svg/m25-39_after.svg"
+      }
+    },
+    {
+      "seed": "m25-40",
+      "files": {
+        "beforeSvg": "svg/m25-40_before.svg",
+        "afterSvg": "svg/m25-40_after.svg"
+      }
+    },
+    {
+      "seed": "m25-41",
+      "files": {
+        "beforeSvg": "svg/m25-41_before.svg",
+        "afterSvg": "svg/m25-41_after.svg"
+      }
+    },
+    {
+      "seed": "m25-42",
+      "files": {
+        "beforeSvg": "svg/m25-42_before.svg",
+        "afterSvg": "svg/m25-42_after.svg"
+      }
+    },
+    {
+      "seed": "m25-43",
+      "files": {
+        "beforeSvg": "svg/m25-43_before.svg",
+        "afterSvg": "svg/m25-43_after.svg"
+      }
+    },
+    {
+      "seed": "m25-44",
+      "files": {
+        "beforeSvg": "svg/m25-44_before.svg",
+        "afterSvg": "svg/m25-44_after.svg"
+      }
+    },
+    {
+      "seed": "m25-45",
+      "files": {
+        "beforeSvg": "svg/m25-45_before.svg",
+        "afterSvg": "svg/m25-45_after.svg"
+      }
+    },
+    {
+      "seed": "m25-46",
+      "files": {
+        "beforeSvg": "svg/m25-46_before.svg",
+        "afterSvg": "svg/m25-46_after.svg"
+      }
+    },
+    {
+      "seed": "m25-47",
+      "files": {
+        "beforeSvg": "svg/m25-47_before.svg",
+        "afterSvg": "svg/m25-47_after.svg"
+      }
+    },
+    {
+      "seed": "m25-48",
+      "files": {
+        "beforeSvg": "svg/m25-48_before.svg",
+        "afterSvg": "svg/m25-48_after.svg"
+      }
+    },
+    {
+      "seed": "m25-49",
+      "files": {
+        "beforeSvg": "svg/m25-49_before.svg",
+        "afterSvg": "svg/m25-49_after.svg"
+      }
+    },
+    {
+      "seed": "m25-50",
+      "files": {
+        "beforeSvg": "svg/m25-50_before.svg",
+        "afterSvg": "svg/m25-50_after.svg"
+      }
+    },
+    {
+      "seed": "m25-51",
+      "files": {
+        "beforeSvg": "svg/m25-51_before.svg",
+        "afterSvg": "svg/m25-51_after.svg"
+      }
+    },
+    {
+      "seed": "m25-52",
+      "files": {
+        "beforeSvg": "svg/m25-52_before.svg",
+        "afterSvg": "svg/m25-52_after.svg"
+      }
+    },
+    {
+      "seed": "m25-53",
+      "files": {
+        "beforeSvg": "svg/m25-53_before.svg",
+        "afterSvg": "svg/m25-53_after.svg"
+      }
+    },
+    {
+      "seed": "m25-54",
+      "files": {
+        "beforeSvg": "svg/m25-54_before.svg",
+        "afterSvg": "svg/m25-54_after.svg"
+      }
+    },
+    {
+      "seed": "m25-55",
+      "files": {
+        "beforeSvg": "svg/m25-55_before.svg",
+        "afterSvg": "svg/m25-55_after.svg"
+      }
+    },
+    {
+      "seed": "m25-56",
+      "files": {
+        "beforeSvg": "svg/m25-56_before.svg",
+        "afterSvg": "svg/m25-56_after.svg"
+      }
+    },
+    {
+      "seed": "m25-57",
+      "files": {
+        "beforeSvg": "svg/m25-57_before.svg",
+        "afterSvg": "svg/m25-57_after.svg"
+      }
+    },
+    {
+      "seed": "m25-58",
+      "files": {
+        "beforeSvg": "svg/m25-58_before.svg",
+        "afterSvg": "svg/m25-58_after.svg"
+      }
+    },
+    {
+      "seed": "m25-59",
+      "files": {
+        "beforeSvg": "svg/m25-59_before.svg",
+        "afterSvg": "svg/m25-59_after.svg"
+      }
+    },
+    {
+      "seed": "m25-60",
+      "files": {
+        "beforeSvg": "svg/m25-60_before.svg",
+        "afterSvg": "svg/m25-60_after.svg"
+      }
+    },
+    {
+      "seed": "m25-61",
+      "files": {
+        "beforeSvg": "svg/m25-61_before.svg",
+        "afterSvg": "svg/m25-61_after.svg"
+      }
+    },
+    {
+      "seed": "m25-62",
+      "files": {
+        "beforeSvg": "svg/m25-62_before.svg",
+        "afterSvg": "svg/m25-62_after.svg"
+      }
+    },
+    {
+      "seed": "m25-63",
+      "files": {
+        "beforeSvg": "svg/m25-63_before.svg",
+        "afterSvg": "svg/m25-63_after.svg"
+      }
+    },
+    {
+      "seed": "m25-64",
+      "files": {
+        "beforeSvg": "svg/m25-64_before.svg",
+        "afterSvg": "svg/m25-64_after.svg"
+      }
+    },
+    {
+      "seed": "m25-65",
+      "files": {
+        "beforeSvg": "svg/m25-65_before.svg",
+        "afterSvg": "svg/m25-65_after.svg"
+      }
+    },
+    {
+      "seed": "m25-66",
+      "files": {
+        "beforeSvg": "svg/m25-66_before.svg",
+        "afterSvg": "svg/m25-66_after.svg"
+      }
+    },
+    {
+      "seed": "m25-67",
+      "files": {
+        "beforeSvg": "svg/m25-67_before.svg",
+        "afterSvg": "svg/m25-67_after.svg"
+      }
+    },
+    {
+      "seed": "m25-68",
+      "files": {
+        "beforeSvg": "svg/m25-68_before.svg",
+        "afterSvg": "svg/m25-68_after.svg"
+      }
+    },
+    {
+      "seed": "m25-69",
+      "files": {
+        "beforeSvg": "svg/m25-69_before.svg",
+        "afterSvg": "svg/m25-69_after.svg"
+      }
+    },
+    {
+      "seed": "m25-70",
+      "files": {
+        "beforeSvg": "svg/m25-70_before.svg",
+        "afterSvg": "svg/m25-70_after.svg"
+      }
+    },
+    {
+      "seed": "m25-71",
+      "files": {
+        "beforeSvg": "svg/m25-71_before.svg",
+        "afterSvg": "svg/m25-71_after.svg"
+      }
+    },
+    {
+      "seed": "m25-72",
+      "files": {
+        "beforeSvg": "svg/m25-72_before.svg",
+        "afterSvg": "svg/m25-72_after.svg"
+      }
+    },
+    {
+      "seed": "m25-73",
+      "files": {
+        "beforeSvg": "svg/m25-73_before.svg",
+        "afterSvg": "svg/m25-73_after.svg"
+      }
+    },
+    {
+      "seed": "m25-74",
+      "files": {
+        "beforeSvg": "svg/m25-74_before.svg",
+        "afterSvg": "svg/m25-74_after.svg"
+      }
+    },
+    {
+      "seed": "m25-75",
+      "files": {
+        "beforeSvg": "svg/m25-75_before.svg",
+        "afterSvg": "svg/m25-75_after.svg"
+      }
+    },
+    {
+      "seed": "m25-76",
+      "files": {
+        "beforeSvg": "svg/m25-76_before.svg",
+        "afterSvg": "svg/m25-76_after.svg"
+      }
+    },
+    {
+      "seed": "m25-77",
+      "files": {
+        "beforeSvg": "svg/m25-77_before.svg",
+        "afterSvg": "svg/m25-77_after.svg"
+      }
+    },
+    {
+      "seed": "m25-78",
+      "files": {
+        "beforeSvg": "svg/m25-78_before.svg",
+        "afterSvg": "svg/m25-78_after.svg"
+      }
+    },
+    {
+      "seed": "m25-79",
+      "files": {
+        "beforeSvg": "svg/m25-79_before.svg",
+        "afterSvg": "svg/m25-79_after.svg"
+      }
+    },
+    {
+      "seed": "m25-80",
+      "files": {
+        "beforeSvg": "svg/m25-80_before.svg",
+        "afterSvg": "svg/m25-80_after.svg"
+      }
+    },
+    {
+      "seed": "m25-81",
+      "files": {
+        "beforeSvg": "svg/m25-81_before.svg",
+        "afterSvg": "svg/m25-81_after.svg"
+      }
+    },
+    {
+      "seed": "m25-82",
+      "files": {
+        "beforeSvg": "svg/m25-82_before.svg",
+        "afterSvg": "svg/m25-82_after.svg"
+      }
+    },
+    {
+      "seed": "m25-83",
+      "files": {
+        "beforeSvg": "svg/m25-83_before.svg",
+        "afterSvg": "svg/m25-83_after.svg"
+      }
+    },
+    {
+      "seed": "m25-84",
+      "files": {
+        "beforeSvg": "svg/m25-84_before.svg",
+        "afterSvg": "svg/m25-84_after.svg"
+      }
+    },
+    {
+      "seed": "m25-85",
+      "files": {
+        "beforeSvg": "svg/m25-85_before.svg",
+        "afterSvg": "svg/m25-85_after.svg"
+      }
+    },
+    {
+      "seed": "m25-86",
+      "files": {
+        "beforeSvg": "svg/m25-86_before.svg",
+        "afterSvg": "svg/m25-86_after.svg"
+      }
+    },
+    {
+      "seed": "m25-87",
+      "files": {
+        "beforeSvg": "svg/m25-87_before.svg",
+        "afterSvg": "svg/m25-87_after.svg"
+      }
+    },
+    {
+      "seed": "m25-88",
+      "files": {
+        "beforeSvg": "svg/m25-88_before.svg",
+        "afterSvg": "svg/m25-88_after.svg"
+      }
+    },
+    {
+      "seed": "m25-89",
+      "files": {
+        "beforeSvg": "svg/m25-89_before.svg",
+        "afterSvg": "svg/m25-89_after.svg"
+      }
+    },
+    {
+      "seed": "m25-90",
+      "files": {
+        "beforeSvg": "svg/m25-90_before.svg",
+        "afterSvg": "svg/m25-90_after.svg"
+      }
+    },
+    {
+      "seed": "m25-91",
+      "files": {
+        "beforeSvg": "svg/m25-91_before.svg",
+        "afterSvg": "svg/m25-91_after.svg"
+      }
+    },
+    {
+      "seed": "m25-92",
+      "files": {
+        "beforeSvg": "svg/m25-92_before.svg",
+        "afterSvg": "svg/m25-92_after.svg"
+      }
+    },
+    {
+      "seed": "m25-93",
+      "files": {
+        "beforeSvg": "svg/m25-93_before.svg",
+        "afterSvg": "svg/m25-93_after.svg"
+      }
+    },
+    {
+      "seed": "m25-94",
+      "files": {
+        "beforeSvg": "svg/m25-94_before.svg",
+        "afterSvg": "svg/m25-94_after.svg"
+      }
+    },
+    {
+      "seed": "m25-95",
+      "files": {
+        "beforeSvg": "svg/m25-95_before.svg",
+        "afterSvg": "svg/m25-95_after.svg"
+      }
+    },
+    {
+      "seed": "m25-96",
+      "files": {
+        "beforeSvg": "svg/m25-96_before.svg",
+        "afterSvg": "svg/m25-96_after.svg"
+      }
+    },
+    {
+      "seed": "m25-97",
+      "files": {
+        "beforeSvg": "svg/m25-97_before.svg",
+        "afterSvg": "svg/m25-97_after.svg"
+      }
+    },
+    {
+      "seed": "m25-98",
+      "files": {
+        "beforeSvg": "svg/m25-98_before.svg",
+        "afterSvg": "svg/m25-98_after.svg"
+      }
+    },
+    {
+      "seed": "m25-99",
+      "files": {
+        "beforeSvg": "svg/m25-99_before.svg",
+        "afterSvg": "svg/m25-99_after.svg"
+      }
+    },
+    {
+      "seed": "m25-100",
+      "files": {
+        "beforeSvg": "svg/m25-100_before.svg",
+        "afterSvg": "svg/m25-100_after.svg"
+      }
+    }
+  ]
+}
