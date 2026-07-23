@@ -141,9 +141,9 @@ beforeEach(async () => {
 });
 
 describe('storage/db.ts migration — DB_VERSION reports (before/after)', () => {
-  it('the current DB_VERSION is 5 (Stage 1 bumped it from the P1 value of 4)', async () => {
+  it('the current DB_VERSION is 6 (Build 026 bumped it from the Build 025 value of 5)', async () => {
     const { DB_VERSION } = await import('./db');
-    expect(DB_VERSION).toBe(5);
+    expect(DB_VERSION).toBe(6);
   });
 });
 
@@ -151,7 +151,7 @@ describe('storage/db.ts migration — fresh database creation', () => {
   it('creates every store (including the new collections store) in one pass', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(5);
+    expect(conn.version).toBe(6);
     for (const store of ['saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections']) {
       expect(conn.objectStoreNames.contains(store)).toBe(true);
     }
@@ -164,10 +164,10 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     await seedV4SampleData();
   });
 
-  it('opening the v4 database via openDb() upgrades it to v5 and preserves existing assets', async () => {
+  it('opening the v4 database via openDb() upgrades it to v6 and preserves existing assets', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(5);
+    expect(conn.version).toBe(6);
 
     const asset = await new Promise((resolve, reject) => {
       const req = conn.transaction('portfolioAssets', 'readonly').objectStore('portfolioAssets').get(SAMPLE_ASSET.assetId);
@@ -223,7 +223,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     vi.resetModules();
     const second = await import('./db');
     const conn2 = track(await second.openDb());
-    expect(conn2.version).toBe(5);
+    expect(conn2.version).toBe(6);
     expect(conn2.objectStoreNames.contains('collections')).toBe(true);
   });
 
