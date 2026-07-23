@@ -22,6 +22,12 @@ import { loadImportHistory, putImportHistoryRecord, createImportHistoryRecord } 
 import type { ImportHistoryRecord } from '../../catalog/import/importHistoryStore';
 import { buildProductionBackup, restoreProductionBackup, isProductionBackupArchiveShape } from '../../catalog/backup/productionBackup';
 import type { ProductionBackupArchive } from '../../catalog/backup/productionBackup';
+import { createProductionQueueItem, transitionProductionQueueItem, PRODUCTION_QUEUE_STATUSES, canTransitionProductionQueueStatus } from '../../catalog/queue/productionQueue';
+import type { ProductionQueueItem, ProductionQueueStatus } from '../../catalog/queue/productionQueue';
+import { loadProductionQueueItems, putProductionQueueItem } from '../../catalog/queue/productionQueueStore';
+import { createProductionBatch, addQueueItemToBatch, PRODUCTION_BATCH_TYPES } from '../../catalog/queue/productionBatch';
+import type { ProductionBatch, ProductionBatchType } from '../../catalog/queue/productionBatch';
+import { loadProductionBatches, putProductionBatch } from '../../catalog/queue/productionBatchStore';
 import './productionCenter.css';
 
 // Build 026, Phase 17 — the first-ever UI for the Submission Center
@@ -35,7 +41,28 @@ import './productionCenter.css';
 // validation/scoring/classification logic that already lives in
 // `catalog/`.
 
-type ProductionTab = 'submissions' | 'import-results' | 'commercial' | 'recommendations' | 'historical-import' | 'backup';
+type ProductionTab = 'submissions' | 'import-results' | 'commercial' | 'recommendations' | 'queue' | 'historical-import' | 'backup';
+
+const QUEUE_STATUS_LABEL_TH: Record<ProductionQueueStatus, string> = {
+  IDEA: 'ไอเดีย',
+  GENERATED: 'สร้างแล้ว',
+  QUALITY_REVIEW: 'ตรวจคุณภาพ',
+  READY: 'พร้อมส่ง',
+  PACKAGE_PREPARED: 'เตรียมแพ็กเกจแล้ว',
+  SUBMITTED: 'ส่งแล้ว',
+  APPROVED: 'อนุมัติแล้ว',
+  REJECTED: 'ถูกปฏิเสธ',
+  PERFORMANCE_TRACKING: 'ติดตามยอดขาย',
+};
+
+const BATCH_TYPE_LABEL_TH: Record<ProductionBatchType, string> = {
+  collection: 'คอลเลกชัน',
+  'production-batch': 'ชุดผลิต',
+  'submission-batch': 'ชุดส่งงาน',
+  'seasonal-campaign': 'แคมเปญตามฤดูกาล',
+  'marketplace-batch': 'ชุดตามตลาด',
+  'experimental-batch': 'ชุดทดลอง',
+};
 
 interface Props {
   assets: PortfolioAsset[];
@@ -71,6 +98,7 @@ export function ProductionCenterView({ assets, onClose }: Props) {
             ['import-results', 'นำเข้าผลลัพธ์'],
             ['commercial', 'ผลตอบรับเชิงพาณิชย์'],
             ['recommendations', 'คำแนะนำการผลิต'],
+            ['queue', 'คิวการผลิต'],
             ['historical-import', 'นำเข้าผลงานเก่า'],
             ['backup', 'สำรอง/กู้คืน'],
           ] as const
@@ -85,6 +113,7 @@ export function ProductionCenterView({ assets, onClose }: Props) {
       {tab === 'import-results' && <MarketplaceResultsTab assets={assets} />}
       {tab === 'commercial' && <CommercialDashboardTab assets={assets} />}
       {tab === 'recommendations' && <RecommendationsTab assets={assets} />}
+      {tab === 'queue' && <ProductionQueueTab assets={assets} />}
       {tab === 'historical-import' && <HistoricalImportTab />}
       {tab === 'backup' && <BackupTab />}
     </div>
@@ -424,6 +453,156 @@ function RecommendationsTab({ assets }: { assets: PortfolioAsset[] }) {
               ))}
             </ol>
           </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+// --- Production Queue & Batches --------------------------------------------
+
+function ProductionQueueTab({ assets }: { assets: PortfolioAsset[] }) {
+  const [items, setItems] = useState<ProductionQueueItem[]>([]);
+  const [batches, setBatches] = useState<ProductionBatch[]>([]);
+  const [ideaNote, setIdeaNote] = useState('');
+  const [batchName, setBatchName] = useState('');
+  const [batchType, setBatchType] = useState<ProductionBatchType>('production-batch');
+
+  const refresh = useCallback(async () => {
+    const [loadedItems, loadedBatches] = await Promise.all([loadProductionQueueItems(), loadProductionBatches()]);
+    setItems(loadedItems);
+    setBatches(loadedBatches);
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const assetById = useMemo(() => new Map(assets.map((a) => [a.assetId, a])), [assets]);
+  const batchById = useMemo(() => new Map(batches.map((b) => [b.batchId, b])), [batches]);
+
+  const handleCreateIdea = useCallback(async () => {
+    if (!ideaNote.trim()) return;
+    await putProductionQueueItem(createProductionQueueItem({ ideaNote }));
+    setIdeaNote('');
+    await refresh();
+  }, [ideaNote, refresh]);
+
+  const handleTransition = useCallback(
+    async (item: ProductionQueueItem, to: ProductionQueueStatus) => {
+      await putProductionQueueItem(transitionProductionQueueItem(item, to));
+      await refresh();
+    },
+    [refresh],
+  );
+
+  const handleCreateBatch = useCallback(async () => {
+    if (!batchName.trim()) return;
+    await putProductionBatch(createProductionBatch({ name: batchName, batchType }));
+    setBatchName('');
+    await refresh();
+  }, [batchName, batchType, refresh]);
+
+  const handleAssignToBatch = useCallback(
+    async (item: ProductionQueueItem, batchId: string) => {
+      if (!batchId) return;
+      const batch = batchById.get(batchId);
+      if (!batch) return;
+      await putProductionBatch(addQueueItemToBatch(batch, item.queueItemId));
+      await putProductionQueueItem({ ...item, batchId, updatedAt: Date.now() });
+      await refresh();
+    },
+    [batchById, refresh],
+  );
+
+  return (
+    <div className="production-panel">
+      <section className="production-card">
+        <h2>คิวการผลิต (9 ขั้นตอน)</h2>
+        <p>ติดตามไอเดียตั้งแต่ก่อนสร้างจนถึงติดตามยอดขาย: ไอเดีย → สร้างแล้ว → ตรวจคุณภาพ → พร้อมส่ง → เตรียมแพ็กเกจแล้ว → ส่งแล้ว → อนุมัติแล้ว/ถูกปฏิเสธ → ติดตามยอดขาย</p>
+        <div className="production-form-grid">
+          <label>
+            ไอเดียใหม่
+            <input value={ideaNote} onChange={(e) => setIdeaNote(e.target.value)} placeholder="เช่น ลายดอกไม้หรูสำหรับกระดาษห่อของขวัญ" />
+          </label>
+        </div>
+        <button type="button" className="btn btn--primary" disabled={!ideaNote.trim()} onClick={() => void handleCreateIdea()}>
+          + เพิ่มไอเดียเข้าคิว
+        </button>
+      </section>
+
+      <section className="production-card">
+        <h2>รายการในคิว ({items.length})</h2>
+        {items.length === 0 ? (
+          <p>ยังไม่มีรายการในคิว</p>
+        ) : (
+          <table className="production-table">
+            <thead>
+              <tr>
+                <th>ไอเดีย/ชิ้นงาน</th>
+                <th>สถานะ</th>
+                <th>ชุดงาน</th>
+                <th>การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.queueItemId}>
+                  <td>{item.assetId ? assetById.get(item.assetId)?.displayName ?? item.assetId : item.ideaNote}</td>
+                  <td>{QUEUE_STATUS_LABEL_TH[item.status]}</td>
+                  <td>
+                    <select value={item.batchId ?? ''} onChange={(e) => void handleAssignToBatch(item, e.target.value)}>
+                      <option value="">— ไม่มีชุดงาน —</option>
+                      {batches.map((b) => (
+                        <option key={b.batchId} value={b.batchId}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    {PRODUCTION_QUEUE_STATUSES.filter((to) => canTransitionProductionQueueStatus(item.status, to)).map((to) => (
+                      <button key={to} type="button" className="btn btn--small" onClick={() => void handleTransition(item, to)}>
+                        → {QUEUE_STATUS_LABEL_TH[to]}
+                      </button>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      <section className="production-card">
+        <h2>ชุดงาน / แคมเปญ ({batches.length})</h2>
+        <div className="production-form-grid">
+          <label>
+            ชื่อชุดงาน
+            <input value={batchName} onChange={(e) => setBatchName(e.target.value)} />
+          </label>
+          <label>
+            ประเภท
+            <select value={batchType} onChange={(e) => setBatchType(e.target.value as ProductionBatchType)}>
+              {PRODUCTION_BATCH_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {BATCH_TYPE_LABEL_TH[t]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <button type="button" className="btn btn--primary" disabled={!batchName.trim()} onClick={() => void handleCreateBatch()}>
+          + สร้างชุดงาน
+        </button>
+        {batches.length > 0 && (
+          <ul>
+            {batches.map((b) => (
+              <li key={b.batchId}>
+                {b.name} ({BATCH_TYPE_LABEL_TH[b.batchType]}) — {b.queueItemIds.length} รายการ
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

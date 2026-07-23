@@ -7,6 +7,8 @@ import { resetSubmissionStoreForTest } from '../../catalog/submission/submission
 import { clearSalesEvents } from '../../catalog/submission/salesRevenueStore';
 import { clearRejectionRecords } from '../../catalog/submission/rejectionStore';
 import { clearImportHistory } from '../../catalog/import/importHistoryStore';
+import { clearProductionQueueItems } from '../../catalog/queue/productionQueueStore';
+import { clearProductionBatches } from '../../catalog/queue/productionBatchStore';
 import type { PortfolioAsset } from '../../catalog/domain/types';
 
 beforeEach(async () => {
@@ -15,6 +17,8 @@ beforeEach(async () => {
   await clearSalesEvents();
   await clearRejectionRecords();
   await clearImportHistory();
+  await clearProductionQueueItems();
+  await clearProductionBatches();
 });
 
 function makeAsset(overrides: Partial<Parameters<typeof createPortfolioAsset>[0]> = {}): PortfolioAsset {
@@ -52,6 +56,12 @@ describe('ProductionCenterView', () => {
     render(<ProductionCenterView assets={[]} onClose={() => {}} />);
     fireEvent.click(screen.getByText('คำแนะนำการผลิต'));
     expect(screen.getByText('ควรผลิตอะไรต่อไป')).toBeInTheDocument();
+  });
+
+  it('switches to the production queue tab', () => {
+    render(<ProductionCenterView assets={[]} onClose={() => {}} />);
+    fireEvent.click(screen.getByText('คิวการผลิต'));
+    expect(screen.getByText('คิวการผลิต (9 ขั้นตอน)')).toBeInTheDocument();
   });
 
   it('switches to the historical import tab', () => {

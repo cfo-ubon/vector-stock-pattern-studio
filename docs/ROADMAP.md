@@ -603,6 +603,46 @@ Build-numbered, forward-looking. Each entry is either shipped
   `docs/CONNECTIVITY_AWARE_THINNING_REPAIR.md`, and `BUILD_025_REPORT.md`
   for full data.
 
+- **Build 026 — Production Portfolio & Commercial Feedback Engine**:
+  turned the app from a pattern generator into a system for regular
+  stock submission. Added: content-derived `productionAssetId`
+  (`domain/productionAssetId.ts`, `PAID-<sha256>`, survives copy/rename/
+  re-import); `SubmissionRecord` schema v2 (16 new additive fields) plus
+  a 4th duplicate-detection rule (`same-production-asset`, catches a
+  renamed/re-imported copy of an already-submitted design);
+  `submissionPackageBuilder.ts` (one-click marketplace ZIP with
+  checksum/checklist/duplicate-warning report, ZIP-path-traversal
+  hardened); `rejectionIntelligence.ts` (17-category structured
+  rejection taxonomy, keyword-normalized, human-correctable);
+  `salesRevenue.ts` (manual downloads/revenue tracking, no live API, no
+  live currency conversion); `commercialFeedbackEngine.ts` (confidence-
+  gated real-outcome analysis by preset/Style DNA/composition/pattern
+  type — never touches the generation-time Beauty/Commercial Score);
+  `productionRecommendations.ts` ("what to generate next," gap + internal-
+  diversity + confidence-gated commercial-boost scoring, hard duplicate-
+  risk exclusion); `productionQueue.ts`/`productionBatch.ts` (9-stage
+  IDEA→PERFORMANCE_TRACKING pipeline, 6 batch types); `productionBackup.ts`
+  (independent backup/restore for the 8 new stores, upsert-only, separate
+  from the certified Collection backup); `historicalPortfolioImport.ts`
+  (imports `portfolio_phase_1*`/`reports/build_02x` folders without
+  reimplementing hashing/dedup, without touching the source folders);
+  `marketplaceResultImport.ts` (bulk CSV status/sales import,
+  CSV-formula-injection hardened); `MarketplaceRegistration` (contributor
+  account labels only — no password/API-key field, by construction, not
+  just by policy). `storage/db.ts` DB_VERSION bumped 5→6 (8 new IndexedDB
+  stores). A 7-tab Production Center UI
+  (`components/production/ProductionCenterView.tsx`) wires all of the
+  above into Portfolio Manager as a third nav section. A 266-asset
+  synthetic, clearly-labeled validation dataset
+  (`scripts/build026ValidationDataset.ts`,
+  `reports/build_026/validation_dataset/`) empirically confirms the
+  Commercial Feedback Engine's confidence gating, Production
+  Recommendations, and the new duplicate rule all fire correctly at
+  realistic data volumes. No paid API, no marketplace API key, no
+  automated marketplace login/upload, no stored marketplace password —
+  in any of the above. See `docs/PRODUCTION_PORTFOLIO.md` for the full
+  map of docs and `BUILD_026_REPORT.md` for the final verdict.
+
 ## Recommended Next Build (Revenue First / Production track)
 
 Build 018 covered 4 of the brief's 6 priorities directly (Batch Generate,
