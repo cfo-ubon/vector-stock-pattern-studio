@@ -1,0 +1,126 @@
+{
+  "patternId": "minimalBotanical_8",
+  "styleId": "minimalBotanical",
+  "seed": "b024-minimalBotanical-8",
+  "productTarget": "textile",
+  "decision": "REJECT",
+  "commercial": {
+    "absoluteCommercialQuality": 13,
+    "absoluteCommercialQualityV2": 73,
+    "productTargetFit": 54,
+    "productTargetFitV2": 64
+  },
+  "beauty": {
+    "beautyScore": 66,
+    "beautyDiagnostics": {
+      "focalClarity": 68.45,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 65,
+      "illustrationRefinement": 43,
+      "depth": 68,
+      "hierarchy": 56,
+      "visualRhythm": 66,
+      "negativeSpaceQuality": 33,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 94,
+      "productSuitability": 64
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Illustration refinement is weak (43/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Negative space is weak (33/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 64,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 100,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 99,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 12.4,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.08,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Coastal Neutral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "coastal",
+      "neutral",
+      "beige",
+      "serene",
+      "natural",
+      "minimal grid",
+      "icon grid",
+      "evenly spaced",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "coastal-neutral-botanical-floral-grid-minimal-seamless-pattern-b024-minimalbotanical-8.eps"
+  },
+  "files": {
+    "svg": "svg/minimalBotanical_8.svg",
+    "png": "png/minimalBotanical_8.png",
+    "json": "json/minimalBotanical_8.json"
+  }
+}

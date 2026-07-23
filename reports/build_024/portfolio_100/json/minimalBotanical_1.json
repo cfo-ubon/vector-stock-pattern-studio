@@ -1,0 +1,122 @@
+{
+  "patternId": "minimalBotanical_1",
+  "styleId": "minimalBotanical",
+  "seed": "b024-minimalBotanical-1",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 61,
+    "absoluteCommercialQualityV2": 81,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 83,
+    "beautyDiagnostics": {
+      "focalClarity": 83.05,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 72,
+      "illustrationRefinement": 58,
+      "depth": 86,
+      "hierarchy": 66,
+      "visualRhythm": 69,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 92,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": []
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 70,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 99,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 97,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 12.5,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.14,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Coastal Neutral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "coastal",
+      "neutral",
+      "beige",
+      "serene",
+      "natural",
+      "grid layout",
+      "geometric grid",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "coastal-neutral-botanical-floral-grid-seamless-pattern-b024-minimalbotanical-1.eps"
+  },
+  "files": {
+    "svg": "svg/minimalBotanical_1.svg",
+    "png": "png/minimalBotanical_1.png",
+    "json": "json/minimalBotanical_1.json"
+  }
+}

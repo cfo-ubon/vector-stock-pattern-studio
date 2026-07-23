@@ -790,6 +790,41 @@ layout's own generation, not a single field applied after the fact).
 Not addressed in Build 001.1 — still the single largest performance cost
 in the composition pipeline for very high-instance-count layouts.
 
+### 5. Full flower/leaf anatomy families vs. targeted vein/validation fixes (Build 024)
+
+Build 024's audit (`BUILD_024_AUDIT.md`, `docs/BUILD_024_BOTANICAL_ANATOMY.md`)
+found the existing 29-variant/19-family botanical generator already far more
+differentiated per species than the brief's originating premise assumed, and
+scoped the build away from a ground-up rewrite as a result. Two narrower,
+real gaps remain for a future build: 4 of the 10 leaf silhouettes
+(eucalyptus/olive/laurel/sage) render with no vein geometry at all, and no
+systematic "bare stem / disconnected endpoint" validation pass exists beyond
+the one specific instance Build 023 fixed (the bouquet spine connector's
+distance cap).
+
+### 6. Luxury Floral fragmentation still above target (Build 023 + 024)
+
+Build 023 reduced `luxuryFloral`'s `fragmentedSilhouette` rate 100% → 70%;
+Build 024's repair-iteration tuning (3 → 5, empirically swept) reduced it
+further to 60% on the same 30-seed matrix — real, measured, but still short
+of the ≤30% target either build's brief named. The `anchorSpacingMultiplier`
+lever is already at its own measured diminishing-returns point (Build 023's
+own benchmark). Reaching ≤30% likely needs the composition-level work both
+builds' briefs originally scoped for but neither delivered: an explicit
+bouquet composition engine with a guaranteed dominant focal mass, not another
+repair-pass parameter sweep.
+
+### 7. Count-reducing thumbnail repair actions (Build 024)
+
+`engine/thumbnailRepair.ts` only implements hero-enlargement — the brief's
+other repair actions (reduce filler count, reduce dark mass, close central
+holes) would need to remove entries from the placement array BEFORE Section
+10's node-budget thinning runs, which requires re-deriving every downstream
+index (shadow groups, spine layer, thinning budget math) that currently
+assumes a stable 1:1 correspondence with `paintOrderedPlacements`. A future
+build should design that index-invalidation handling explicitly rather than
+patching it in incrementally.
+
 ## Explicitly out of scope (per the brief, and still true)
 
 Marketplace, SEO, AI Integration, Collection Builder, Prompt System, and

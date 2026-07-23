@@ -1,0 +1,131 @@
+{
+  "patternId": "bohoFloral_2",
+  "styleId": "bohoFloral",
+  "seed": "b024-bohoFloral-2",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 86,
+    "absoluteCommercialQualityV2": 86,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 80,
+    "beautyDiagnostics": {
+      "focalClarity": 96.85,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 73,
+      "illustrationRefinement": 65,
+      "depth": 85,
+      "hierarchy": 100,
+      "visualRhythm": 6,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 87,
+      "originality": 85,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 87,
+    "thumbnail400": 99,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 92,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 82,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.8,
+      "motifMergingRisk": 0.34,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.19,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": {
+    "layerCount": 5,
+    "overlapDepth": 1.27,
+    "heroOcclusionRatio": 0.56,
+    "foregroundFramingScore": 1,
+    "rearLayerVisibility": 0.25,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Terracotta Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "terracotta",
+      "clay",
+      "warm",
+      "rustic",
+      "desert",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "terracotta-botanical-floral-toss-pattern-seamless-pattern-b024-bohofloral-2.eps"
+  },
+  "files": {
+    "svg": "svg/bohoFloral_2.svg",
+    "png": "png/bohoFloral_2.png",
+    "json": "json/bohoFloral_2.json"
+  }
+}

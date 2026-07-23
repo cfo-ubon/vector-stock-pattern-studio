@@ -29,7 +29,18 @@ import { silhouetteGridN, groupByCluster } from './bouquetSpatialGraph';
 // placements always produce the same repair, satisfying the brief's
 // "deterministic bounded repair passes" requirement literally.
 
-const MAX_ITERATIONS = 3;
+// Build 024, Phase 9 (Luxury Floral Fragmentation Reduction): raised from
+// Build 023's original 3 to 5 after empirical sweep (3/4/5/6/7/8/10) against
+// `luxuryFloral`'s own 30-seed diagnostic matrix — 5 is the point of
+// diminishing (in fact reversing) returns: 4 gave 56.7% fragmentedSilhouette
+// / 46.7% deadSpace / 81.13 commercial mean, 5 gave 50.0% / 46.7% / 81.13 (a
+// strict improvement over 4 on every axis), and 6+ plateaued at a WORSE
+// 53.3% / 56.7% / ~79.9 (more iterations let the repair over-tighten,
+// trading fragmentation for a deadSpace regression with no commercial
+// upside) — see BUILD_024_REPORT.md's fragmentation section for the full
+// sweep table. No other behavior changed: still deterministic, still capped
+// by `maxRepairFraction`, still hero-anchored.
+const MAX_ITERATIONS = 5;
 /** A non-hero cluster member farther than this fraction of the silhouette
  * detector's own cell size from its anchor is a repair candidate. */
 const COHESION_TARGET_FRACTION_OF_CELL = 0.5;

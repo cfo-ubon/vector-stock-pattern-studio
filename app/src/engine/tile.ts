@@ -28,6 +28,8 @@ import { reserveClusterCompanions } from './bouquetSpatialGraph';
 import { applyBouquetRepairPass } from './repairPass';
 import { computeRichnessBudget } from './richnessBudget';
 import { buildBouquetSpineLayer } from './bouquetSpine';
+import { assignDepthLayers, computeDepthDiagnostics } from './depthLayers';
+import { applyThumbnailAwareRepair } from './thumbnailRepair';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -394,8 +396,43 @@ export function buildTile(params: GenerateParams): TileData {
   // stable sort so higher-priority roles (hero) always paint last, i.e. on
   // top. A no-op for every placement with no role — a stable sort of an
   // all-equal-priority array never reorders — so patterns that never opted
-  // into the Hierarchy Engine are unaffected.
+  // into the Hierarchy Engine are unaffected. This is the array
+  // `motifGroups` below actually iterates in — i.e. the array order the
+  // shared, sequential `rng` gets CONSUMED in — so it must stay exactly
+  // `sortByLayerPriority`'s output regardless of whether this tile also
+  // opts into the Depth-Layering Engine (see `paintOrderedPlacements`'s own
+  // doc comment right below for why that engine reorders the ALREADY-BUILT
+  // SVG nodes afterward instead of reordering this array).
   const paintOrderedPlacements = sortByLayerPriority(repairedPlacements);
+
+  // Build 024, Phase 8 (Thumbnail-Aware Repair): scoped to
+  // `thumbnailIntent === 'heroMustDominate'` (premiumHero/heroFocus styles —
+  // see `artDirectionModel.ts`) to keep blast radius small; every other
+  // style's placements pass through unchanged. Strict no-op (zero
+  // iterations) for a tile whose 128px legibility already clears the floor
+  // — see `thumbnailRepair.ts`'s own doc comment for why count-changing
+  // repair actions aren't implemented here. Also gated on the live
+  // `params.premiumHero`, not just the resolved `artDirectionModel` (derived
+  // once from the STYLE's own declared `premiumHero` and can go stale if a
+  // caller overrides `premiumHero` directly without re-resolving Style DNA
+  // — e.g. `botanicalBeautyMetrics.test.ts`'s own on/off A-B comparison,
+  // which spreads one resolved `dna` into two `buildTile` calls differing
+  // only in `premiumHero`) — the same "gate on the live param, not a
+  // resolved-but-possibly-stale flag" lesson Build 023's
+  // `scandinavianOrganic` regression already taught this codebase. Runs on
+  // this SAME canonical (pre-depth-reorder) array — repositioning/enlarging
+  // placements here doesn't reorder the array itself, so it doesn't disturb
+  // RNG consumption order either.
+  const runThumbnailRepair = !!params.premiumHero && params.artDirectionModel?.thumbnailIntent === 'heroMustDominate';
+  const thumbnailRepair = runThumbnailRepair
+    ? applyThumbnailAwareRepair(paintOrderedPlacements, tileSize, effectiveMotifSize)
+    : undefined;
+  if (thumbnailRepair) {
+    // In-place field copy (never replacing the array reference) — the
+    // index-to-index correspondence with `motifGroups` below must survive
+    // untouched; only x/y/scale/rotationDeg values may change.
+    thumbnailRepair.placements.forEach((p, i) => Object.assign(paintOrderedPlacements[i], p));
+  }
 
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
@@ -682,8 +719,8 @@ export function buildTile(params: GenerateParams): TileData {
   // (dry-run counted, dropped entirely rather than partially trimmed) since
   // it is added *after* the thinning pass has already sized the tile to fit.
   let spineLayer: SvgNode | null = null;
+  const survivingPlacements = finalKeptIndices ? paintOrderedPlacements.filter((_, i) => finalKeptIndices!.has(i)) : paintOrderedPlacements;
   if (params.premiumHero) {
-    const survivingPlacements = finalKeptIndices ? paintOrderedPlacements.filter((_, i) => finalKeptIndices!.has(i)) : paintOrderedPlacements;
     const candidateSpine = buildBouquetSpineLayer(survivingPlacements, tileSize, effectiveMotifSize, rng, colors);
     if (candidateSpine) {
       const finalNodeCount = finalMotifGroups.reduce((sum, g) => sum + countNodes(g), 0) + finalShadowGroups.reduce((sum, g) => sum + countNodes(g), 0);
@@ -691,6 +728,32 @@ export function buildTile(params: GenerateParams): TileData {
       if (finalNodeCount + spineNodeCount <= instanceBudget) spineLayer = candidateSpine;
     }
   }
+
+  // Build 024, Phase 6 (Depth-Layering Engine): a style whose resolved
+  // `artDirectionModel.depthPlan` asks for real depth (`'shallow'`/
+  // `'pronounced'` — always premiumHero/heroFocus presets) re-paints the
+  // FINAL, already-generated `finalMotifGroups` in 7-named-plane order
+  // (`assignDepthLayers`) instead of the flat 4-tier role order — a pure
+  // visual re-ordering of the SAME already-built SVG nodes, applied AFTER
+  // generation/thinning are fully resolved so it can never perturb the
+  // shared `rng`'s consumption order or which placements survive node-
+  // budget thinning (reordering `paintOrderedPlacements` itself, tried
+  // first, measurably changed `botanicalBeautyMetrics.ts`'s
+  // `botanicalComplexity` for premiumHero tiles — see git history for the
+  // regression this replaced). `finalMotifGroups[i]` and
+  // `survivingPlacements[i]` are the same post-thinning subset in the same
+  // relative order (both filtered from `paintOrderedPlacements`/
+  // `motifGroups` by the same `finalKeptIndices`), so `assignDepthLayers`'s
+  // own `index` field is a valid permutation index into either array.
+  // Explicitly gated on live `params.premiumHero`, not just the resolved
+  // model — see `runThumbnailRepair`'s own doc comment above for why.
+  const useDepthLayers =
+    !!params.premiumHero && params.artDirectionModel?.depthPlan && params.artDirectionModel.depthPlan !== 'flat';
+  if (useDepthLayers) {
+    const depthOrder = assignDepthLayers(survivingPlacements, tileSize);
+    finalMotifGroups = depthOrder.map((a) => finalMotifGroups[a.index]);
+  }
+  const depthDiagnostics = useDepthLayers ? computeDepthDiagnostics(survivingPlacements, tileSize, effectiveMotifSize) : undefined;
 
   const patternLayers: SvgNode[] = [];
   if (fillerLayer) patternLayers.push(fillerLayer);
@@ -727,5 +790,7 @@ export function buildTile(params: GenerateParams): TileData {
     colors,
     svg: content,
     premiumHeroArchetypes: premiumHeroArchetypesUsed.length > 0 ? premiumHeroArchetypesUsed : undefined,
+    depthDiagnostics,
+    thumbnailRepairHistory: thumbnailRepair?.actionsApplied,
   };
 }

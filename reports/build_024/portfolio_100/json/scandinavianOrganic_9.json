@@ -1,0 +1,125 @@
+{
+  "patternId": "scandinavianOrganic_9",
+  "styleId": "scandinavianOrganic",
+  "seed": "b024-scandinavianOrganic-9",
+  "productTarget": "homeDecor",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
+    "productTargetFit": 51,
+    "productTargetFitV2": 62
+  },
+  "beauty": {
+    "beautyScore": 78,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 69,
+      "illustrationRefinement": 100,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 1,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 91,
+      "originality": 75,
+      "productSuitability": 62
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (1/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 91,
+    "thumbnail400": 100,
+    "zoom800": 88,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 93,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 84,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 7.1,
+      "motifMergingRisk": 0.26,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.32,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Coastal Neutral Abstract Organic Seamless Vector Pattern — Flat Abstract organic shapes Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "organic",
+      "blob",
+      "memphis",
+      "matisse",
+      "cutout",
+      "hand drawn",
+      "contemporary",
+      "squiggle",
+      "doodle",
+      "shape",
+      "freeform",
+      "artistic",
+      "collage",
+      "mid century",
+      "funky",
+      "playful",
+      "terrazzo",
+      "confetti",
+      "coastal",
+      "neutral",
+      "beige",
+      "serene",
+      "natural",
+      "ditsy",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "coastal-neutral-abstract-organic-random-scatter-seamless-pattern-b024-scandinavianorganic-9.eps"
+  },
+  "files": {
+    "svg": "svg/scandinavianOrganic_9.svg",
+    "png": "png/scandinavianOrganic_9.png",
+    "json": "json/scandinavianOrganic_9.json"
+  }
+}

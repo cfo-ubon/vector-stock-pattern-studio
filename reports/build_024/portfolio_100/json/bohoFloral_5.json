@@ -1,0 +1,135 @@
+{
+  "patternId": "bohoFloral_5",
+  "styleId": "bohoFloral",
+  "seed": "b024-bohoFloral-5",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 82,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 78,
+      "illustrationRefinement": 63,
+      "depth": 95,
+      "hierarchy": 100,
+      "visualRhythm": 11,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 91,
+      "originality": 83,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (11/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 91,
+    "thumbnail400": 100,
+    "zoom800": 92,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 92,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 81,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.9,
+      "motifMergingRisk": 0.46,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.25,
+      "failureReasons": [
+        "46% of instances sit close enough to visually merge with a neighbor at 128px."
+      ]
+    },
+    "repairRecommendations": [
+      "increaseHeroBackgroundSeparation"
+    ]
+  },
+  "depthDiagnostics": {
+    "layerCount": 5,
+    "overlapDepth": 1.26,
+    "heroOcclusionRatio": 0.39,
+    "foregroundFramingScore": 1,
+    "rearLayerVisibility": 0.24,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Desert Botanical Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "desert-botanical-botanical-floral-toss-pattern-seamless-pattern-b024-bohofloral-5.eps"
+  },
+  "files": {
+    "svg": "svg/bohoFloral_5.svg",
+    "png": "png/bohoFloral_5.png",
+    "json": "json/bohoFloral_5.json"
+  }
+}

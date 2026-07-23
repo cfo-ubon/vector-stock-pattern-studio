@@ -1,0 +1,128 @@
+{
+  "patternId": "organicAbstract_5",
+  "styleId": "organicAbstract",
+  "seed": "b024-organicAbstract-5",
+  "productTarget": "wallpaper",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 85,
+    "absoluteCommercialQualityV2": 85,
+    "productTargetFit": 51,
+    "productTargetFitV2": 62
+  },
+  "beauty": {
+    "beautyScore": 82,
+    "beautyDiagnostics": {
+      "focalClarity": 94.8,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 72,
+      "illustrationRefinement": 100,
+      "depth": 99,
+      "hierarchy": 74,
+      "visualRhythm": 2,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 95,
+      "originality": 87,
+      "productSuitability": 62
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (2/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 95,
+    "thumbnail400": 100,
+    "zoom800": 76,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 95,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 86,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.4,
+      "motifMergingRisk": 0.43,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.24,
+      "failureReasons": [
+        "43% of instances sit close enough to visually merge with a neighbor at 128px."
+      ]
+    },
+    "repairRecommendations": [
+      "increaseHeroBackgroundSeparation"
+    ]
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Lavender Fields Abstract Organic Seamless Vector Pattern — Flat Abstract organic shapes Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "organic",
+      "blob",
+      "memphis",
+      "matisse",
+      "cutout",
+      "hand drawn",
+      "contemporary",
+      "squiggle",
+      "doodle",
+      "shape",
+      "freeform",
+      "artistic",
+      "collage",
+      "mid century",
+      "funky",
+      "playful",
+      "terrazzo",
+      "confetti",
+      "lavender",
+      "purple",
+      "violet",
+      "dreamy",
+      "lilac",
+      "airy",
+      "light spacing",
+      "breathable",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "lavender-fields-abstract-organic-airy-botanical-seamless-pattern-b024-organicabstract-5.eps"
+  },
+  "files": {
+    "svg": "svg/organicAbstract_5.svg",
+    "png": "png/organicAbstract_5.png",
+    "json": "json/organicAbstract_5.json"
+  }
+}

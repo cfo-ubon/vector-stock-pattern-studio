@@ -1,0 +1,135 @@
+{
+  "patternId": "editorialBotanical_2",
+  "styleId": "editorialBotanical",
+  "seed": "b024-editorialBotanical-2",
+  "productTarget": "stationery",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 89,
+    "absoluteCommercialQualityV2": 89,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 84,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 71,
+      "illustrationRefinement": 81,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 3,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 83,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (3/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 87,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 94,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 82,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 9.9,
+      "motifMergingRisk": 0.17,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.64,
+      "failureReasons": [
+        "64% of instances read as indistinct specks (2-4px) at 128px rather than legible shapes."
+      ]
+    },
+    "repairRecommendations": [
+      "simplifyDetails"
+    ]
+  },
+  "depthDiagnostics": {
+    "layerCount": 4,
+    "overlapDepth": 2.5,
+    "heroOcclusionRatio": 0.5,
+    "foregroundFramingScore": 0.75,
+    "rearLayerVisibility": 0.95,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Sage & Terracotta Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "sage",
+      "terracotta",
+      "muted",
+      "earthy",
+      "calm",
+      "editorial",
+      "flowing layout",
+      "statement print",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "sage-terracotta-botanical-floral-hero-editorial-flow-seamless-pattern-b024-editorialbotanical-2.eps"
+  },
+  "files": {
+    "svg": "svg/editorialBotanical_2.svg",
+    "png": "png/editorialBotanical_2.png",
+    "json": "json/editorialBotanical_2.json"
+  }
+}

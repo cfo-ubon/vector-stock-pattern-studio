@@ -1,0 +1,125 @@
+{
+  "patternId": "kidsPlayful_10",
+  "styleId": "kidsPlayful",
+  "seed": "b024-kidsPlayful-10",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 85,
+    "absoluteCommercialQualityV2": 85,
+    "productTargetFit": 56,
+    "productTargetFitV2": 69
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 89.15,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 67,
+      "illustrationRefinement": 96,
+      "depth": 85,
+      "hierarchy": 100,
+      "visualRhythm": 5,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 89,
+      "originality": 49,
+      "productSuitability": 69
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Originality is weak (49/100) — motif shapes repeat with little real variation (engine/scoring.ts's motifShapeDiversity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 89,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 94,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 86,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.5,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.23,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Vibrant Pop Cute / Kids Seamless Vector Pattern — Flat Cute animal faces Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "cute",
+      "kawaii",
+      "animal",
+      "kids",
+      "baby",
+      "nursery",
+      "children",
+      "bear",
+      "cat",
+      "bunny",
+      "rabbit",
+      "paw",
+      "heart",
+      "star",
+      "cartoon",
+      "childish",
+      "sweet",
+      "adorable",
+      "vibrant",
+      "bright",
+      "bold",
+      "colorful",
+      "pop",
+      "ditsy",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "vibrant-pop-cute-kids-random-scatter-seamless-pattern-b024-kidsplayful-10.eps"
+  },
+  "files": {
+    "svg": "svg/kidsPlayful_10.svg",
+    "png": "png/kidsPlayful_10.png",
+    "json": "json/kidsPlayful_10.json"
+  }
+}

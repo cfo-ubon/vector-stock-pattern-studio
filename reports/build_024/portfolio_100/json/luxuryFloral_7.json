@@ -1,0 +1,136 @@
+{
+  "patternId": "luxuryFloral_7",
+  "styleId": "luxuryFloral",
+  "seed": "b024-luxuryFloral-7",
+  "productTarget": "giftWrap",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 75,
+    "absoluteCommercialQualityV2": 75,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 77,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 62,
+      "illustrationRefinement": 87,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 5,
+      "negativeSpaceQuality": 19,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 89,
+      "originality": 91,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (19/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 89,
+    "thumbnail400": 100,
+    "zoom800": 80,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 89,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 78,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6,
+      "motifMergingRisk": 0.53,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.26,
+      "failureReasons": [
+        "53% of instances sit close enough to visually merge with a neighbor at 128px."
+      ]
+    },
+    "repairRecommendations": [
+      "increaseHeroBackgroundSeparation"
+    ]
+  },
+  "depthDiagnostics": {
+    "layerCount": 5,
+    "overlapDepth": 1.73,
+    "heroOcclusionRatio": 0.6,
+    "foregroundFramingScore": 1,
+    "rearLayerVisibility": 0.63,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Luxury Wedding Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "luxury-wedding-botanical-floral-bouquet-seamless-pattern-b024-luxuryfloral-7.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_7.svg",
+    "png": "png/luxuryFloral_7.png",
+    "json": "json/luxuryFloral_7.json"
+  }
+}

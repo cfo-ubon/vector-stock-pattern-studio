@@ -1,0 +1,128 @@
+{
+  "patternId": "vintageHerbarium_7",
+  "styleId": "vintageHerbarium",
+  "seed": "b024-vintageHerbarium-7",
+  "productTarget": "stationery",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 46,
+    "absoluteCommercialQualityV2": 81,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 81,
+    "beautyDiagnostics": {
+      "focalClarity": 75.05,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 90,
+      "illustrationRefinement": 62,
+      "depth": 78,
+      "hierarchy": 54,
+      "visualRhythm": 67,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 85,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Hierarchy is weak (54/100) — hero/secondary/filler roles aren't visually distinguishable (engine/scoring.ts's hierarchy)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 70,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 97,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 90,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 8.5,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": true,
+      "clutterScore": 0.23,
+      "failureReasons": [
+        "Hero barely exceeds the filler/accent instances' own on-screen size at 128px — hero risks washing out into the surrounding texture."
+      ]
+    },
+    "repairRecommendations": [
+      "strengthenSilhouette"
+    ]
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Earth Tone Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "earth tone",
+      "natural",
+      "warm",
+      "brown",
+      "organic colors",
+      "half drop",
+      "wallpaper repeat",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "earth-tone-botanical-floral-half-drop-seamless-pattern-b024-vintageherbarium-7.eps"
+  },
+  "files": {
+    "svg": "svg/vintageHerbarium_7.svg",
+    "png": "png/vintageHerbarium_7.png",
+    "json": "json/vintageHerbarium_7.json"
+  }
+}

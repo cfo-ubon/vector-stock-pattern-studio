@@ -1,0 +1,129 @@
+{
+  "patternId": "kidsPlayful_6",
+  "styleId": "kidsPlayful",
+  "seed": "b024-kidsPlayful-6",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 86,
+    "absoluteCommercialQualityV2": 86,
+    "productTargetFit": 56,
+    "productTargetFitV2": 69
+  },
+  "beauty": {
+    "beautyScore": 80,
+    "beautyDiagnostics": {
+      "focalClarity": 87.75,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 76,
+      "illustrationRefinement": 99,
+      "depth": 83,
+      "hierarchy": 100,
+      "visualRhythm": 5,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 90,
+      "originality": 50,
+      "productSuitability": 69
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Originality is weak (50/100) — motif shapes repeat with little real variation (engine/scoring.ts's motifShapeDiversity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 90,
+    "thumbnail400": 100,
+    "zoom800": 92,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 92,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 81,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.5,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": true,
+      "washoutRisk": false,
+      "clutterScore": 0.29,
+      "failureReasons": [
+        "6 instances crowd within one focal area — reads as a dense dark mass rather than distinct shapes at 128px."
+      ]
+    },
+    "repairRecommendations": [
+      "reduceFillerCount"
+    ]
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Vibrant Pop Cute / Kids Seamless Vector Pattern — Flat Cute animal faces Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "cute",
+      "kawaii",
+      "animal",
+      "kids",
+      "baby",
+      "nursery",
+      "children",
+      "bear",
+      "cat",
+      "bunny",
+      "rabbit",
+      "paw",
+      "heart",
+      "star",
+      "cartoon",
+      "childish",
+      "sweet",
+      "adorable",
+      "vibrant",
+      "bright",
+      "bold",
+      "colorful",
+      "pop",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "vibrant-pop-cute-kids-toss-pattern-seamless-pattern-b024-kidsplayful-6.eps"
+  },
+  "files": {
+    "svg": "svg/kidsPlayful_6.svg",
+    "png": "png/kidsPlayful_6.png",
+    "json": "json/kidsPlayful_6.json"
+  }
+}

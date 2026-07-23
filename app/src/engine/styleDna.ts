@@ -16,6 +16,7 @@ import type { ProductUseId } from '../collection/productTargets';
 import { computeDesignKnowledgeProfile, resolveDesignRules } from './designKnowledge';
 import { weightedPickPreferred } from './designerBrain';
 import { KnowledgeRegistry } from '../knowledge/registry';
+import { resolveArtDirectionModel } from './artDirectionModel';
 
 // Style DNA Engine — turns "category + layout + palette + density + hierarchy
 // + flow + overlap + cluster" (a dozen separate manual choices) into ONE
@@ -272,6 +273,7 @@ export type StyleDnaResolvedFields = Pick<
   | 'designRules'
   | 'depthStrength'
   | 'professionalRules'
+  | 'artDirectionModel'
 >;
 
 /** Deterministically picks one entry from a Style DNA's preferred list using
@@ -425,6 +427,11 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     designRules: resolveDesignRules(computeDesignKnowledgeProfile(dna)),
     depthStrength,
     professionalRules,
+    // Build 024, Phase 2 (Art-Direction Data Model): resolved from the
+    // same real signals already computed above (compositionZone,
+    // botanicalFamily) rather than a second independent source of truth —
+    // see `artDirectionModel.ts`'s own module doc comment.
+    artDirectionModel: resolveArtDirectionModel(dna, seed, { compositionZone, botanicalFamily }),
   };
 }
 

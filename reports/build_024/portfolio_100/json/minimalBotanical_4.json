@@ -1,0 +1,126 @@
+{
+  "patternId": "minimalBotanical_4",
+  "styleId": "minimalBotanical",
+  "seed": "b024-minimalBotanical-4",
+  "productTarget": "textile",
+  "decision": "REJECT",
+  "commercial": {
+    "absoluteCommercialQuality": 19,
+    "absoluteCommercialQualityV2": 74,
+    "productTargetFit": 52,
+    "productTargetFitV2": 64
+  },
+  "beauty": {
+    "beautyScore": 68,
+    "beautyDiagnostics": {
+      "focalClarity": 63.2,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 73,
+      "illustrationRefinement": 44,
+      "depth": 60,
+      "hierarchy": 56,
+      "visualRhythm": 79,
+      "negativeSpaceQuality": 39,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 97,
+      "productSuitability": 64
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Illustration refinement is weak (44/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Negative space is weak (39/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 59,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 100,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 99,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 13,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.04,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Monochrome Charcoal Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "monochrome",
+      "gray",
+      "black and white",
+      "neutral",
+      "grayscale",
+      "minimal grid",
+      "icon grid",
+      "evenly spaced",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "monochrome-charcoal-botanical-floral-grid-minimal-seamless-pattern-b024-minimalbotanical-4.eps"
+  },
+  "files": {
+    "svg": "svg/minimalBotanical_4.svg",
+    "png": "png/minimalBotanical_4.png",
+    "json": "json/minimalBotanical_4.json"
+  }
+}

@@ -368,6 +368,16 @@ export interface GenerateParams {
    * every style that opts into `premiumHero`. Undefined = every pre-
    * Build-010 pattern's exact prior member-count roll. */
   professionalRules?: boolean;
+  /** Build 024, Phase 2 (Art-Direction Data Model): one coherent design
+   * decision (story/focal-strategy/silhouette/depth-plan/negative-space-
+   * plan/color-hierarchy/thumbnail-intent) resolved once per style+seed by
+   * `engine/artDirectionModel.ts`, distinct from the Build-003-era named
+   * preset id in `artDirection` above. `depthPlan` and `thumbnailIntent`
+   * are read by real new engines (see `engine/depthLayers.ts`,
+   * `engine/thumbnailRepair.ts`) — undefined falls back to every pre-
+   * Build-024 pattern's existing flat 4-tier paint order and default
+   * repair budget, a strict no-op. */
+  artDirectionModel?: import('./artDirectionModel').ArtDirectionModel;
   seed: string;
 }
 
@@ -381,4 +391,16 @@ export interface TileData {
    * (see `Motif.heroArchetype`'s own doc comment) -- empty/undefined for a
    * tile with no premium heroes, never a fabricated placeholder. */
   premiumHeroArchetypes?: string[];
+  /** Build 024, Phase 6 (Depth-Layering Engine): only computed when this
+   * tile's `params.artDirectionModel.depthPlan` opted into real depth
+   * (`'shallow'`/`'pronounced'`) — see `engine/depthLayers.ts`. Undefined
+   * for every flat-depth-plan tile (most non-premium presets), not a
+   * fabricated zero. */
+  depthDiagnostics?: import('./depthLayers').DepthDiagnostics;
+  /** Build 024, Phase 8 (Thumbnail-Aware Repair): which bounded repair
+   * actions (if any) `engine/thumbnailRepair.ts` actually applied to this
+   * tile's placements before rendering — empty when the tile's 128px
+   * legibility already cleared the floor, undefined when the tile's style
+   * didn't opt into `thumbnailIntent: 'heroMustDominate'` at all. */
+  thumbnailRepairHistory?: string[];
 }

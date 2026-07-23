@@ -1,0 +1,132 @@
+{
+  "patternId": "luxuryFloral_9",
+  "styleId": "luxuryFloral",
+  "seed": "b024-luxuryFloral-9",
+  "productTarget": "giftWrap",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 73,
+    "absoluteCommercialQualityV2": 73,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 78,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 73,
+      "illustrationRefinement": 80,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 7,
+      "negativeSpaceQuality": 39,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 90,
+      "originality": 82,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (7/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (39/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 90,
+    "thumbnail400": 99,
+    "zoom800": 82,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 93,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 83,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6,
+      "motifMergingRisk": 0.19,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.28,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": {
+    "layerCount": 5,
+    "overlapDepth": 1.5,
+    "heroOcclusionRatio": 0.45,
+    "foregroundFramingScore": 1,
+    "rearLayerVisibility": 1,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Jewel Tones Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "jewel tone",
+      "rich",
+      "deep",
+      "elegant",
+      "moody",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "jewel-tones-botanical-floral-bouquet-seamless-pattern-b024-luxuryfloral-9.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_9.svg",
+    "png": "png/luxuryFloral_9.png",
+    "json": "json/luxuryFloral_9.json"
+  }
+}

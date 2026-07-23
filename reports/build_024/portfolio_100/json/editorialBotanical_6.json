@@ -1,0 +1,136 @@
+{
+  "patternId": "editorialBotanical_6",
+  "styleId": "editorialBotanical",
+  "seed": "b024-editorialBotanical-6",
+  "productTarget": "stationery",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 90,
+    "absoluteCommercialQualityV2": 90,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 77,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 66,
+      "illustrationRefinement": 73,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 2,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 78,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (2/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 96,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 85,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 11.4,
+      "motifMergingRisk": 0.08,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.74,
+      "failureReasons": [
+        "74% of instances read as indistinct specks (2-4px) at 128px rather than legible shapes."
+      ]
+    },
+    "repairRecommendations": [
+      "simplifyDetails"
+    ]
+  },
+  "depthDiagnostics": {
+    "layerCount": 4,
+    "overlapDepth": 1.8,
+    "heroOcclusionRatio": 0.2,
+    "foregroundFramingScore": 0.75,
+    "rearLayerVisibility": 0.95,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Pastel Dream Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "pastel",
+      "soft",
+      "pale",
+      "gentle",
+      "baby colors",
+      "editorial",
+      "flowing layout",
+      "statement print",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "pastel-dream-botanical-floral-hero-editorial-flow-seamless-pattern-b024-editorialbotanical-6.eps"
+  },
+  "files": {
+    "svg": "svg/editorialBotanical_6.svg",
+    "png": "png/editorialBotanical_6.png",
+    "json": "json/editorialBotanical_6.json"
+  }
+}

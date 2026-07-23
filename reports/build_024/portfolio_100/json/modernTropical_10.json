@@ -1,0 +1,124 @@
+{
+  "patternId": "modernTropical_10",
+  "styleId": "modernTropical",
+  "seed": "b024-modernTropical-10",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
+    "productTargetFit": 54,
+    "productTargetFitV2": 63
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 84.25,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 70,
+      "illustrationRefinement": 100,
+      "depth": 78,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 89,
+      "originality": 62,
+      "productSuitability": 63
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 89,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 95,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 87,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 7.4,
+      "motifMergingRisk": 0,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.29,
+      "failureReasons": []
+    },
+    "repairRecommendations": []
+  },
+  "depthDiagnostics": null,
+  "thumbnailRepairHistory": [],
+  "seo": {
+    "title": "Citrus Pop Tropical Seamless Vector Pattern — Flat Tropical leaves and fruit Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "tropical",
+      "palm",
+      "palm leaf",
+      "monstera",
+      "jungle",
+      "exotic",
+      "summer",
+      "hawaiian",
+      "beach",
+      "paradise",
+      "hibiscus",
+      "citrus",
+      "fruit",
+      "botanical",
+      "aloha",
+      "vacation",
+      "rainforest",
+      "leaf",
+      "bright",
+      "fresh",
+      "zesty",
+      "summer colors",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "citrus-pop-tropical-toss-pattern-seamless-pattern-b024-moderntropical-10.eps"
+  },
+  "files": {
+    "svg": "svg/modernTropical_10.svg",
+    "png": "png/modernTropical_10.png",
+    "json": "json/modernTropical_10.json"
+  }
+}

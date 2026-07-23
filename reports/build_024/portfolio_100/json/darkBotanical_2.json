@@ -1,0 +1,139 @@
+{
+  "patternId": "darkBotanical_2",
+  "styleId": "darkBotanical",
+  "seed": "b024-darkBotanical-2",
+  "productTarget": "wallpaper",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 85,
+    "absoluteCommercialQualityV2": 85,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 76,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 65,
+      "illustrationRefinement": 49,
+      "depth": 91,
+      "hierarchy": 100,
+      "visualRhythm": 10,
+      "negativeSpaceQuality": 53,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 86,
+      "originality": 87,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Illustration refinement is weak (49/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Visual rhythm is weak (10/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (53/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 86,
+    "thumbnail400": 100,
+    "zoom800": 81,
+    "readableAtAllScales": true
+  },
+  "thumbnailLegibility": {
+    "overallScore": 89,
+    "legibleAtAllScales": true,
+    "scale128": {
+      "scale": 128,
+      "legibilityScore": 78,
+      "focalPointVisible": true,
+      "heroRecognizablePx": 6.3,
+      "motifMergingRisk": 0.54,
+      "darkBlobRisk": false,
+      "washoutRisk": false,
+      "clutterScore": 0.27,
+      "failureReasons": [
+        "54% of instances sit close enough to visually merge with a neighbor at 128px."
+      ]
+    },
+    "repairRecommendations": [
+      "increaseHeroBackgroundSeparation"
+    ]
+  },
+  "depthDiagnostics": {
+    "layerCount": 5,
+    "overlapDepth": 2.13,
+    "heroOcclusionRatio": 0.8,
+    "foregroundFramingScore": 1,
+    "rearLayerVisibility": 0.46,
+    "flattenedCompositionRisk": false
+  },
+  "thumbnailRepairHistory": [
+    "enlargeHero(iter 1)"
+  ],
+  "seo": {
+    "title": "Midnight Botanical Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "dark",
+      "midnight",
+      "forest",
+      "moody",
+      "deep green",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "midnight-botanical-botanical-floral-bouquet-seamless-pattern-b024-darkbotanical-2.eps"
+  },
+  "files": {
+    "svg": "svg/darkBotanical_2.svg",
+    "png": "png/darkBotanical_2.png",
+    "json": "json/darkBotanical_2.json"
+  }
+}
