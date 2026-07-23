@@ -19,8 +19,6 @@ import {
   buildPortfolioParams,
   STYLE_IDS,
   breakdownBy,
-  namedPenaltyRates,
-  visualIssueRates,
   type EvalResult,
 } from './qualityReport';
 import { STYLE_DNA_PRESETS } from '../src/engine/styleDna';
