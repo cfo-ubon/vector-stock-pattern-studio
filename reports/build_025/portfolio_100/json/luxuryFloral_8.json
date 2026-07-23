@@ -5,8 +5,8 @@
   "productTarget": "giftWrap",
   "decision": "REJECT",
   "commercial": {
-    "absoluteCommercialQuality": 76,
-    "absoluteCommercialQualityV2": 76,
+    "absoluteCommercialQuality": 75,
+    "absoluteCommercialQualityV2": 75,
     "productTargetFit": 50,
     "productTargetFitV2": 65
   },
@@ -15,20 +15,20 @@
     "beautyDiagnostics": {
       "focalClarity": 100,
       "silhouetteCohesion": 40,
-      "botanicalFlow": 65,
+      "botanicalFlow": 70,
       "illustrationRefinement": 81,
       "depth": 100,
       "hierarchy": 100,
-      "visualRhythm": 16,
+      "visualRhythm": 6,
       "negativeSpaceQuality": 36,
       "paletteHarmony": 100,
-      "thumbnailImpact": 93,
-      "originality": 96,
+      "thumbnailImpact": 94,
+      "originality": 98,
       "productSuitability": 65
     },
     "beautyFailureReasons": [
       "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
-      "Visual rhythm is weak (16/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
       "Negative space is weak (36/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
     ]
   },
@@ -38,9 +38,9 @@
     "clusterCohesion": 100
   },
   "thumbnail": {
-    "thumbnail200": 93,
+    "thumbnail200": 94,
     "thumbnail400": 99,
-    "zoom800": 83,
+    "zoom800": 77,
     "readableAtAllScales": true
   },
   "seo": {

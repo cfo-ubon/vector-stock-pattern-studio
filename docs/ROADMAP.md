@@ -583,12 +583,25 @@ Build-numbered, forward-looking. Each entry is either shipped
   `GenerateParams.luxuryComposition`. Full 300-seed measurement: real
   `fragmentedSilhouette` improvement (60.67% → 54.67%, -6pp) but short of
   the brief's ≤30% target, plus 2 measured regressions (`deadSpace` +8.67pp,
-  mean commercial quality -1.91) — **shipped disabled by default**, see
-  `BUILD_025_AUDIT.md` and `BUILD_025_REPORT.md` for full data. Also
+  mean commercial quality -1.91) — **shipped disabled by default**. Also
   root-caused and fixed a genuinely flaky test in `tile.test.ts` (heavy
   per-call fixture cost under worker contention, not async/race — fixed by
-  shrinking that test's own fixture, verified via 50-run loop). Full
-  regression: 290/290 files, 3171/3171 tests, run 3x consecutively.
+  shrinking that test's own fixture, verified via 50-run loop).
+  **Continued in the same build**: direct instrumentation of real
+  post-thinning placements found the TRUE dominant fragmentation cause —
+  92% of isolated instances were `role: 'filler'` ambient-scatter points
+  (`layouts/heroScatter.ts`), stranded by a thinning-distribution grid
+  coarser than the critic's own fragmentation grid, not a cluster-companion
+  failure. `engine/connectivityRepair.ts`'s Connectivity-Aware Thinning
+  Repair (Phase 9b) — a simulate-then-commit swap-repair pass gated on
+  `params.premiumHero`, never changing total kept-instance count — fixes
+  this directly and **is enabled by default**: `fragmentedSilhouette`
+  60.67% → 23%, clearing the ≤30% target with no regression on `deadSpace`,
+  `tooManyFillers`, or commercial quality. Full regression: 291/291 files,
+  3175/3175 tests, run 3x consecutively, zero flakes.
+  **Final verdict: PASS.** See `BUILD_025_AUDIT.md`,
+  `docs/CONNECTIVITY_AWARE_THINNING_REPAIR.md`, and `BUILD_025_REPORT.md`
+  for full data.
 
 ## Recommended Next Build (Revenue First / Production track)
 
@@ -820,7 +833,7 @@ systematic "bare stem / disconnected endpoint" validation pass exists beyond
 the one specific instance Build 023 fixed (the bouquet spine connector's
 distance cap).
 
-### 6. Luxury Floral fragmentation still above target (Build 023 + 024 + 025)
+### 6. Luxury Floral fragmentation — RESOLVED in Build 025 (was open across Build 023 + 024 + 025's own first attempt)
 
 Build 023 reduced `luxuryFloral`'s `fragmentedSilhouette` rate 100% → 70%;
 Build 024's repair-iteration tuning (3 → 5, empirically swept) reduced it
@@ -829,19 +842,31 @@ of the ≤30% target either build's brief named. The `anchorSpacingMultiplier`
 lever is already at its own measured diminishing-returns point (Build 023's
 own benchmark).
 
-Build 025 built the "explicit bouquet composition engine with a guaranteed
-dominant focal mass" this section previously called for
+Build 025 first built the "explicit bouquet composition engine with a
+guaranteed dominant focal mass" this section previously called for
 (`engine/luxuryFloralCompositionEngine.ts` + 6 supporting modules — see
-`BUILD_025_AUDIT.md`). At full 300-seed scale it moved the rate 60.67% →
-54.67% (-6pp, real) but still nowhere near ≤30%, and introduced 2 new
-regressions (`deadSpace` +8.67pp, mean commercial quality -1.91) — so it
-ships disabled by default. `BUILD_025_AUDIT.md` Section 7 traces the
-remaining gap to node-budget thinning economics (`tile.ts`'s Section-10
-`stratifiedSelect` + `bouquetSpatialGraph.ts`'s `reserveClusterCompanions`
-survivor-per-cluster math), not further anchor/topology tuning — a future
-build should raise `luxuryFloral`'s specific thinning survivor budget
-(a `richnessBudget.ts`-level change) rather than repeat this build's
-composition-geometry approach.
+`BUILD_025_AUDIT.md` Sections 1-7). At full 300-seed scale it moved the
+rate 60.67% → 54.67% (-6pp, real) but still nowhere near ≤30%, and
+introduced 2 new regressions (`deadSpace` +8.67pp, mean commercial quality
+-1.91) — so that engine ships disabled by default.
+
+Rather than stop there, the same build root-caused the actual dominant
+mechanism (`BUILD_025_AUDIT.md` Section 8): 92% of isolated post-thinning
+instances were `role: 'filler'` ambient-scatter points, stranded by a
+thinning-distribution grid coarser than the critic's own fragmentation
+grid — not a cluster-companion or geometry problem at all.
+`engine/connectivityRepair.ts`'s Connectivity-Aware Thinning Repair (a
+simulate-then-commit swap-repair pass, enabled by default for every
+`premiumHero` style) fixes this directly: `fragmentedSilhouette`
+60.67% → **23%**, clearing the ≤30% target with no regression on
+`deadSpace`, `tooManyFillers`, or commercial quality. See
+`docs/CONNECTIVITY_AWARE_THINNING_REPAIR.md` for the full mechanism. **This
+issue is now resolved** — no further work needed on this specific target
+unless a future brief lowers the bar further (e.g. toward the ≤20%
+"preferably" figure), in which case the node-budget-economics lever
+(raising `luxuryFloral`'s thinning survivor budget via a
+`richnessBudget.ts`-level change) remains the most promising untried
+direction.
 
 ### 7. Count-reducing thumbnail repair actions (Build 024)
 

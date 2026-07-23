@@ -5,8 +5,8 @@
   "productTarget": "wallpaper",
   "decision": "REVIEW",
   "commercial": {
-    "absoluteCommercialQuality": 87,
-    "absoluteCommercialQualityV2": 87,
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
     "productTargetFit": 50,
     "productTargetFitV2": 65
   },
@@ -15,11 +15,11 @@
     "beautyDiagnostics": {
       "focalClarity": 100,
       "silhouetteCohesion": 40,
-      "botanicalFlow": 69,
-      "illustrationRefinement": 86,
+      "botanicalFlow": 71,
+      "illustrationRefinement": 85,
       "depth": 100,
       "hierarchy": 100,
-      "visualRhythm": 6,
+      "visualRhythm": 7,
       "negativeSpaceQuality": 100,
       "paletteHarmony": 100,
       "thumbnailImpact": 88,
@@ -28,7 +28,7 @@
     },
     "beautyFailureReasons": [
       "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
-      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+      "Visual rhythm is weak (7/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
     ]
   },
   "fragmentation": {
@@ -39,7 +39,7 @@
   "thumbnail": {
     "thumbnail200": 88,
     "thumbnail400": 100,
-    "zoom800": 79,
+    "zoom800": 80,
     "readableAtAllScales": true
   },
   "seo": {

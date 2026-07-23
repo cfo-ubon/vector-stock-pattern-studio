@@ -15,11 +15,11 @@
     "beautyDiagnostics": {
       "focalClarity": 98.25,
       "silhouetteCohesion": 40,
-      "botanicalFlow": 80,
+      "botanicalFlow": 79,
       "illustrationRefinement": 65,
       "depth": 93,
       "hierarchy": 100,
-      "visualRhythm": 9,
+      "visualRhythm": 10,
       "negativeSpaceQuality": 100,
       "paletteHarmony": 100,
       "thumbnailImpact": 90,
@@ -28,7 +28,7 @@
     },
     "beautyFailureReasons": [
       "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
-      "Visual rhythm is weak (9/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+      "Visual rhythm is weak (10/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
     ]
   },
   "fragmentation": {

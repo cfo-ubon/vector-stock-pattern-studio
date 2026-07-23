@@ -3,43 +3,42 @@
   "styleId": "luxuryFloral",
   "seed": "b025-luxuryFloral-3",
   "productTarget": "giftWrap",
-  "decision": "REVIEW",
+  "decision": "READY",
   "commercial": {
-    "absoluteCommercialQuality": 89,
-    "absoluteCommercialQualityV2": 89,
+    "absoluteCommercialQuality": 90,
+    "absoluteCommercialQualityV2": 90,
     "productTargetFit": 50,
     "productTargetFitV2": 65
   },
   "beauty": {
-    "beautyScore": 78,
+    "beautyScore": 83,
     "beautyDiagnostics": {
       "focalClarity": 100,
-      "silhouetteCohesion": 40,
-      "botanicalFlow": 72,
-      "illustrationRefinement": 77,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 73,
+      "illustrationRefinement": 81,
       "depth": 100,
       "hierarchy": 100,
       "visualRhythm": 3,
       "negativeSpaceQuality": 100,
       "paletteHarmony": 100,
       "thumbnailImpact": 96,
-      "originality": 85,
+      "originality": 83,
       "productSuitability": 65
     },
     "beautyFailureReasons": [
-      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
       "Visual rhythm is weak (3/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
     ]
   },
   "fragmentation": {
-    "fragmentedSilhouette": true,
+    "fragmentedSilhouette": false,
     "deadSpace": false,
     "clusterCohesion": 100
   },
   "thumbnail": {
     "thumbnail200": 96,
     "thumbnail400": 100,
-    "zoom800": 88,
+    "zoom800": 87,
     "readableAtAllScales": true
   },
   "seo": {

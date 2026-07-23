@@ -3,43 +3,42 @@
   "styleId": "darkBotanical",
   "seed": "b025-darkBotanical-9",
   "productTarget": "wallpaper",
-  "decision": "REVIEW",
+  "decision": "READY",
   "commercial": {
-    "absoluteCommercialQuality": 86,
-    "absoluteCommercialQualityV2": 86,
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
     "productTargetFit": 50,
     "productTargetFitV2": 65
   },
   "beauty": {
-    "beautyScore": 78,
+    "beautyScore": 84,
     "beautyDiagnostics": {
       "focalClarity": 100,
-      "silhouetteCohesion": 40,
-      "botanicalFlow": 66,
-      "illustrationRefinement": 79,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 71,
+      "illustrationRefinement": 82,
       "depth": 100,
       "hierarchy": 100,
-      "visualRhythm": 8,
-      "negativeSpaceQuality": 98,
+      "visualRhythm": 7,
+      "negativeSpaceQuality": 100,
       "paletteHarmony": 100,
       "thumbnailImpact": 91,
       "originality": 90,
       "productSuitability": 65
     },
     "beautyFailureReasons": [
-      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
-      "Visual rhythm is weak (8/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+      "Visual rhythm is weak (7/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
     ]
   },
   "fragmentation": {
-    "fragmentedSilhouette": true,
+    "fragmentedSilhouette": false,
     "deadSpace": false,
     "clusterCohesion": 100
   },
   "thumbnail": {
     "thumbnail200": 91,
     "thumbnail400": 100,
-    "zoom800": 82,
+    "zoom800": 78,
     "readableAtAllScales": true
   },
   "seo": {

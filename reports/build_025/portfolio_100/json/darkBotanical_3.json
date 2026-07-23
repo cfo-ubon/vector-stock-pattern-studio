@@ -5,19 +5,19 @@
   "productTarget": "wallpaper",
   "decision": "REVIEW",
   "commercial": {
-    "absoluteCommercialQuality": 84,
-    "absoluteCommercialQualityV2": 84,
+    "absoluteCommercialQuality": 83,
+    "absoluteCommercialQualityV2": 83,
     "productTargetFit": 50,
     "productTargetFitV2": 65
   },
   "beauty": {
     "beautyScore": 75,
     "beautyDiagnostics": {
-      "focalClarity": 99.65,
+      "focalClarity": 98.94999999999999,
       "silhouetteCohesion": 40,
       "botanicalFlow": 70,
       "illustrationRefinement": 49,
-      "depth": 91,
+      "depth": 87,
       "hierarchy": 100,
       "visualRhythm": 10,
       "negativeSpaceQuality": 100,
@@ -40,7 +40,7 @@
   "thumbnail": {
     "thumbnail200": 88,
     "thumbnail400": 100,
-    "zoom800": 69,
+    "zoom800": 68,
     "readableAtAllScales": true
   },
   "seo": {

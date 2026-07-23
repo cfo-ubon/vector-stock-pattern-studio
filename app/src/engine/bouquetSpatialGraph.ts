@@ -43,7 +43,12 @@ export function silhouetteGridN(tileSize: number, motifSize: number): number {
   );
 }
 
-function cellIndexOf(x: number, y: number, tileSize: number, gridN: number): number {
+/** Exported so a caller that needs to test "would this OTHER point land in
+ * the same or a neighboring cell" (Build 025, Phase 9b's
+ * `connectivityRepair.ts`) uses the identical wraparound cell-index math
+ * this module's own graph is built from, rather than a second
+ * hand-derived copy that could drift out of sync. */
+export function cellIndexOf(x: number, y: number, tileSize: number, gridN: number): number {
   const cell = tileSize / gridN;
   const gx = Math.min(gridN - 1, Math.floor((((x % tileSize) + tileSize) % tileSize) / cell));
   const gy = Math.min(gridN - 1, Math.floor((((y % tileSize) + tileSize) % tileSize) / cell));
@@ -63,6 +68,21 @@ export interface BouquetSpatialGraph {
   isIsolated: boolean[];
 }
 
+/** The same 4-connected, wraparound-aware neighbor set every isolation
+ * check in this module (and `connectivityRepair.ts`) uses — extracted so
+ * both call sites share one definition of "adjacent" rather than risking
+ * two copies drifting apart. */
+export function neighborCellsOf(cell: number, gridN: number): number[] {
+  const gx = cell % gridN;
+  const gy = Math.floor(cell / gridN);
+  return [
+    gy * gridN + ((gx + 1) % gridN),
+    gy * gridN + ((gx - 1 + gridN) % gridN),
+    ((gy + 1) % gridN) * gridN + gx,
+    ((gy - 1 + gridN) % gridN) * gridN + gx,
+  ];
+}
+
 /** Builds the connectivity graph over `placements` using the identical
  * cell size and 4-connected wraparound adjacency rule
  * `critic/visualAnalysis.ts`'s `computeSilhouetteCohesion` uses — so
@@ -74,14 +94,7 @@ export function buildBouquetSpatialGraph(placements: Placement[], tileSize: numb
   const cellOf = placements.map((p) => cellIndexOf(p.x, p.y, tileSize, gridN));
   const occupied = new Set(cellOf);
   const isIsolated = cellOf.map((c) => {
-    const gx = c % gridN;
-    const gy = Math.floor(c / gridN);
-    const neighbors = [
-      gy * gridN + ((gx + 1) % gridN),
-      gy * gridN + ((gx - 1 + gridN) % gridN),
-      ((gy + 1) % gridN) * gridN + gx,
-      ((gy - 1 + gridN) % gridN) * gridN + gx,
-    ];
+    const neighbors = neighborCellsOf(c, gridN);
     const hasOccupiedNeighbor = neighbors.some((n) => n !== c && occupied.has(n));
     // A cell with >1 placement in it is never isolated (they already share
     // one component by construction); otherwise isolation depends on

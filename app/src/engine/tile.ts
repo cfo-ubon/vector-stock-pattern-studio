@@ -25,6 +25,7 @@ import { speciesForProductTarget } from '../generators/botanicalFamilies';
 import { applyDepthColorShift } from './depthEngine';
 import { computePaletteEnergy, computeDominantAccentIndex } from './colorAnalysis';
 import { reserveClusterCompanions } from './bouquetSpatialGraph';
+import { repairIsolatedSurvivors } from './connectivityRepair';
 import { applyBouquetRepairPass } from './repairPass';
 import { computeRichnessBudget } from './richnessBudget';
 import { buildBouquetSpineLayer } from './bouquetSpine';
@@ -716,6 +717,28 @@ export function buildTile(params: GenerateParams): TileData {
         ...reservedCompanions,
         ...stratifiedSelect(remainingThinnable, paintOrderedPlacements, tileSize, remainingTarget),
       ]);
+    }
+
+    // Build 025, Phase 9b (Connectivity-Aware Thinning Repair): direct
+    // instrumentation of a real `luxuryFloral` sample found 92% of
+    // post-thinning isolated survivors carried no `clusterId` at all —
+    // ambient `role: 'filler'` scatter instances (`layouts/heroScatter.ts`'s
+    // independent Poisson-disc layer, deliberately spread at a minimum
+    // distance so it never clumps), not failed cluster companions.
+    // `stratifiedSelect`'s own coarse 8x8 grid is spatially fair at ITS
+    // resolution but says nothing about adjacency at the critic's finer
+    // silhouette grid — so a "fairly distributed" selection can (and does)
+    // still strand a filler survivor with no neighbor. This swaps in an
+    // available never-kept candidate for a still-isolated survivor only
+    // when doing so provably reduces the real isolated count (see
+    // `connectivityRepair.ts`'s own simulate-then-commit discipline) —
+    // same total kept count, same node budget, only WHICH instances
+    // survive shifts. Gated to `premiumHero`, same convention as
+    // `reservedCompanions` immediately above, to keep every non-premium
+    // style's thinning output byte-identical.
+    if (params.premiumHero) {
+      const repaired = repairIsolatedSurvivors(paintOrderedPlacements, keptIndices, protectedIndices, thinnableIndices, tileSize, effectiveMotifSize);
+      keptIndices = repaired.keptIndices;
     }
 
     if (keptIndices.size < paintOrderedPlacements.length) {

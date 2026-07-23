@@ -11,24 +11,24 @@
     "productTargetFitV2": 65
   },
   "beauty": {
-    "beautyScore": 78,
+    "beautyScore": 77,
     "beautyDiagnostics": {
       "focalClarity": 100,
       "silhouetteCohesion": 100,
-      "botanicalFlow": 69,
-      "illustrationRefinement": 85,
+      "botanicalFlow": 67,
+      "illustrationRefinement": 88,
       "depth": 100,
       "hierarchy": 100,
       "visualRhythm": 8,
-      "negativeSpaceQuality": 36,
+      "negativeSpaceQuality": 26,
       "paletteHarmony": 100,
       "thumbnailImpact": 87,
-      "originality": 86,
+      "originality": 87,
       "productSuitability": 65
     },
     "beautyFailureReasons": [
       "Visual rhythm is weak (8/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
-      "Negative space is weak (36/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+      "Negative space is weak (26/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
     ]
   },
   "fragmentation": {
@@ -39,7 +39,7 @@
   "thumbnail": {
     "thumbnail200": 87,
     "thumbnail400": 98,
-    "zoom800": 81,
+    "zoom800": 82,
     "readableAtAllScales": true
   },
   "seo": {

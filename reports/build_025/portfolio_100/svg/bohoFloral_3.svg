@@ -581,21 +581,6 @@
           </g>
         </g>
       </g>
-      <g id="motif-145" data-role="filler">
-        <g transform="translate(338.965 952.25) rotate(117.451) scale(0.352)">
-          <g>
-            <g data-part="stem">
-              <line x1="0" y1="7" x2="0" y2="35" stroke="#81B29A" stroke-width="3.5" stroke-linecap="round" />
-            </g>
-            <g data-part="center">
-              <path d="M 0 -26.25 C 14.7 -19.25 14 3.5 0 10.5 C -14 3.5 -14.7 -19.25 0 -26.25 Z" fill="#56390a" />
-            </g>
-          </g>
-          <g transform="translate(-11.025 -11.76) rotate(-28)">
-            <ellipse cx="0" cy="0" rx="11.025" ry="6.615" fill="#fffaf3" />
-          </g>
-        </g>
-      </g>
       <g id="motif-149" data-role="filler">
         <g transform="translate(770.389 1307.858) rotate(254.731) scale(0.387)">
           <g transform="rotate(39.12)">
@@ -1231,6 +1216,33 @@
           </g>
           <g transform="translate(-13.125 -14) rotate(-28)">
             <ellipse cx="0" cy="0" rx="13.125" ry="7.875" fill="#fffaf3" />
+          </g>
+        </g>
+      </g>
+      <g id="motif-195" data-role="filler">
+        <g transform="translate(1168.11 1008.335) rotate(285.879) scale(0.405)">
+          <g>
+            <g data-part="stem">
+              <line x1="0" y1="7" x2="0" y2="35" stroke="#dc694b" stroke-width="3.5" stroke-linecap="round" />
+            </g>
+            <g data-part="center">
+              <path d="M 0 -26.25 C 14.7 -19.25 14 3.5 0 10.5 C -14 3.5 -14.7 -19.25 0 -26.25 Z" fill="#dc694b" />
+            </g>
+            <g data-part="leaves">
+              <g transform="translate(0 19.25) rotate(-39.568)">
+                <path d="M 0 -11.375 C 3.08 -6.256 5.6 -3.325 5.6 -1.365 C 5.6 3.955 2.24 9.669 0 11.375 C -2.24 9.669 -5.6 3.955 -5.6 -1.365 C -5.6 -3.325 -3.08 -6.256 0 -11.375 Z" fill="#56390a" />
+                <path d="M 0 -9.669 L 0 9.1" fill="none" stroke="#8e5519" stroke-width="0.5" stroke-linecap="round" />
+                <path d="M 0 -2.161 Q -1.68 -3.299 -3.36 -5.346" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+                <path d="M 0 -2.161 Q 1.68 -3.299 3.36 -5.346" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+                <path d="M 0 1.934 Q -1.344 0.796 -2.688 -1.251" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+                <path d="M 0 1.934 Q 1.344 0.796 2.688 -1.251" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+                <path d="M 0 6.029 Q -1.008 4.891 -2.016 2.844" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+                <path d="M 0 6.029 Q 1.008 4.891 2.016 2.844" fill="none" stroke="#8e5519" stroke-width="0.296" stroke-linecap="round" />
+              </g>
+            </g>
+          </g>
+          <g transform="translate(-11.025 -11.76) rotate(-28)">
+            <ellipse cx="0" cy="0" rx="11.025" ry="6.615" fill="#fffaf3" />
           </g>
         </g>
       </g>

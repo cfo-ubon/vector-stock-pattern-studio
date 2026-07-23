@@ -164,7 +164,7 @@ in the codebase as real, tested, working infrastructure
 continue tuning from this point, but they do not affect any currently
 shipped output.
 
-## 7. Recommended next steps (not undertaken in this build)
+## 7. Recommended next steps (not undertaken in this build, as of Sections 1-6)
 
 1. The remaining fragmentation gap is a node-budget economics problem, not
    (primarily) a geometry problem — Section 3's root cause. A future build
@@ -182,3 +182,77 @@ shipped output.
 3. `wrapCohesion.ts` (Phase 7) is implemented and unit-tested but was never
    wired into connector scoring or empirically benchmarked — a real,
    available lever for a follow-up build.
+
+## 8. Phase 9b: the actual root cause and the fix that ships (supersedes Section 6's disposition)
+
+Sections 1-7 above are preserved as-written because their diagnostic work
+(the node-budget economics framing, the Composition Engine build, and its
+honest FAIL against the ≤30% target) is real and accurate for what it
+covers — but it was diagnosing the wrong dominant mechanism. Rather than
+stop at that FAIL, this build went further: instead of tuning pre-thinning
+cluster geometry (which Section 3 already showed thinning re-derives
+largely independent of), direct instrumentation of `tile.ts`'s real
+post-thinning `Placement[]` on 30 live `luxuryFloral` tiles found:
+
+- **92% of every post-thinning isolated instance carried no `clusterId` at
+  all**, and cross-referencing role showed **100% of those were
+  `role: 'filler'`** — the ambient, independently-scattered filler layer
+  `layouts/heroScatter.ts` adds (deliberately spread at a minimum distance
+  so it never clumps), not a cluster-companion failure. Only 7.5% of
+  isolated instances belonged to a cluster with a surviving companion
+  (meaning Build 023's `reserveClusterCompanions` was already working
+  correctly), and zero belonged to a single-member cluster.
+- The actual mechanism: `tile.ts`'s Section-10 thinning distributes
+  survivors across a fixed, coarse 8x8 grid (for corner/edge-density
+  reasons unrelated to this metric) — coarser than the critic's own finer
+  silhouette grid. Being "fairly distributed" at 8x8 resolution says
+  nothing about whether two specific survivors land in adjacent cells at
+  the critic's resolution, so the existing thinning selection could (and
+  empirically did) strand filler survivors as isolated islands even while
+  looking representative by its own coarser standard.
+- Also: roughly half of all `luxuryFloral` generations resolve to the
+  `heroScatter` layout rather than `bouquet` (Style DNA's `pickPreferred`
+  over `["bouquet","heroScatter"]`), meaning the entire Composition Engine
+  built in Phases 2-8 never executes for those seeds at all — a further
+  reason it could not single-handedly clear the target.
+
+**The fix**: `engine/connectivityRepair.ts`'s `repairIsolatedSurvivors`
+(new, Phase 9b), gated on `params.premiumHero` (same convention as
+`reservedCompanions`), runs immediately after thinning selects
+`keptIndices` and before render. For every currently-isolated survivor, it
+searches the discarded thinnable candidate pool for one that would land in
+or adjacent to the isolated instance's cell, and swaps it in for a
+same-role donor from the kept set — but commits a swap ONLY when
+rebuilding the exact graph the critic reads proves the isolated count
+strictly decreases. Total kept-instance count (export node budget) never
+changes. See `docs/CONNECTIVITY_AWARE_THINNING_REPAIR.md` for the full
+mechanism, and `app/src/engine/connectivityRepair.test.ts` for its 4 unit
+tests.
+
+**Result (300-seed benchmark, same script and seed set as Sections 1 and
+4)**: `luxuryFloral` `fragmentedSilhouette` **60.67% → 23%**, clearing the
+≤30% mandatory target, via the ALREADY-SHIPPED production path — no
+experimental composition engine required, no threshold or diagnostic
+change. `deadSpace` (44.67%, ~2pp noise), `tooManyFillers` (8%, unchanged
+from baseline), and mean commercial quality (80.72, ~unchanged from 81.04)
+show no regression. Control presets `bohoFloral` (20%) and
+`editorialBotanical` (40%) are unchanged (rarely hit the over-budget
+thinning branch this fix runs in); `darkBotanical` also improved for free
+(28% → 16%, shares the same thinning code path); `scandinavianOrganic`
+(non-`premiumHero`) is untouched (6%, not gated in).
+
+An intermediate version of the victim-selection step inside
+`repairIsolatedSurvivors` measured 21.67% fragmentation but selected
+donors without regard to `role`, which — because 92% of rescuing
+candidates are filler-role — systematically donated non-filler survivors
+and pushed `tooManyFillers` from ~8% to 35% as an unintended side effect.
+Fixed by ordering victim candidates by same-role-first, then
+most-crowded-cell: this cost 1.33pp of fragmentation gain (21.67% → 23%)
+but restored `tooManyFillers` to its 8% baseline, with no shortcut on
+either metric.
+
+**This changes Section 6's disposition.** The Composition Engine
+(Phases 2-8) still ships disabled by default, for the reasons Section 6
+already gives — but the brief's mandatory fragmentation blocker is now
+met by the Phase 9b fix, which IS enabled by default. See
+`BUILD_025_REPORT.md` for the final verdict.

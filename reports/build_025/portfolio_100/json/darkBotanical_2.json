@@ -15,19 +15,19 @@
     "beautyDiagnostics": {
       "focalClarity": 100,
       "silhouetteCohesion": 100,
-      "botanicalFlow": 74,
-      "illustrationRefinement": 81,
+      "botanicalFlow": 75,
+      "illustrationRefinement": 82,
       "depth": 100,
       "hierarchy": 100,
-      "visualRhythm": 5,
+      "visualRhythm": 6,
       "negativeSpaceQuality": 100,
       "paletteHarmony": 100,
       "thumbnailImpact": 90,
-      "originality": 92,
+      "originality": 93,
       "productSuitability": 65
     },
     "beautyFailureReasons": [
-      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+      "Visual rhythm is weak (6/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
     ]
   },
   "fragmentation": {
@@ -38,7 +38,7 @@
   "thumbnail": {
     "thumbnail200": 90,
     "thumbnail400": 100,
-    "zoom800": 69,
+    "zoom800": 70,
     "readableAtAllScales": true
   },
   "seo": {
