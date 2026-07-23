@@ -36,13 +36,14 @@ import { PortfolioImportPanel } from './PortfolioImportPanel';
 import { PortfolioHealthCheckPanel } from './PortfolioHealthCheckPanel';
 import { CollectionsView } from './CollectionsView';
 import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
+import { ProductionCenterView } from '../production/ProductionCenterView';
 import './portfolio.css';
 
 interface Props {
   onClose: () => void;
 }
 
-type ManagerSection = 'assets' | 'collections';
+type ManagerSection = 'assets' | 'collections' | 'production';
 
 /** Sprint P1 / Portfolio Manager P2 Stage 2 — Top-level container: owns
  * the loaded catalog, the loaded collection list, filters/sort/selection,
@@ -364,6 +365,14 @@ export function PortfolioManagerView({ onClose }: Props) {
         >
           คอลเลกชัน
         </button>
+        <button
+          type="button"
+          className={`btn${section === 'production' ? ' btn--primary' : ''}`}
+          aria-pressed={section === 'production'}
+          onClick={() => setSection('production')}
+        >
+          ศูนย์การผลิต
+        </button>
       </nav>
 
       {loadError && <p className="portfolio-error-text">{loadError}</p>}
@@ -412,7 +421,7 @@ export function PortfolioManagerView({ onClose }: Props) {
             />
           )}
         </div>
-      ) : (
+      ) : section === 'collections' ? (
         <CollectionsView
           collections={collections}
           collectionsLoading={collectionsLoading}
@@ -436,6 +445,8 @@ export function PortfolioManagerView({ onClose }: Props) {
           selectedCollectionId={selectedCollectionId}
           onSelectCollection={setSelectedCollectionId}
         />
+      ) : (
+        <ProductionCenterView assets={assets} onClose={() => setSection('assets')} />
       )}
 
       {assetDetailModal && selectedAsset && (
