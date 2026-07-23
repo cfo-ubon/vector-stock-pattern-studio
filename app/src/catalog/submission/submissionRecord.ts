@@ -10,7 +10,18 @@ import type { SubmissionStatus } from './submissionStatus';
 // or needing to modify) the frozen Collection API. Callers resolve
 // `patternId` to whatever "the pattern" means in their own context.
 
-export const SUBMISSION_SCHEMA_VERSION = 1;
+export const SUBMISSION_SCHEMA_VERSION = 2;
+
+/** Build 026, schema v2 — additive fields the brief's Submission Tracker
+ * (Phase 5) and Rejection Intelligence (Phase 10) sections ask for, none
+ * of which existed in v1. Every field is optional on the interface and
+ * defaulted in `normalizeSubmissionRecord` so a v1 record loaded from
+ * storage never crashes; `productionAssetId` is the one field that
+ * connects a submission back to Build 026's content-derived identity
+ * (`domain/productionAssetId.ts`), letting duplicate-submission checks
+ * work across renamed/copied files (see `submissionDuplicateDetection.ts`). */
+export type AiDeclarationStatus = 'not-ai-generated' | 'ai-assisted' | 'ai-generated' | 'not-declared';
+export type EditorialDesignation = 'commercial' | 'editorial';
 
 /** One entry in a record's own append-only status log — this *is* "Submission
  * History" (see `submissionHistory.ts`): rather than a separate history
@@ -52,6 +63,34 @@ export interface SubmissionRecord {
   notes: string;
   statusHistory: SubmissionStatusEvent[];
   schemaVersion: number;
+
+  // --- Build 026, schema v2 (all additive, all optional-with-defaults) ---
+  /** Links back to `domain/productionAssetId.ts`'s content-derived
+   * identity — `null` when the caller didn't supply one (e.g. a pre-
+   * Build-026 record, or a `patternId` source that hasn't computed one). */
+  productionAssetId: string | null;
+  contributorAccountLabel: string;
+  submittedFilename: string | null;
+  submittedFileTypes: string[];
+  editorialDesignation: EditorialDesignation | null;
+  aiDeclaration: AiDeclarationStatus;
+  submissionBatchId: string | null;
+  reviewDate: number | null;
+  approvedDate: number | null;
+  rejectionDate: number | null;
+  /** Links to a `RejectionRecord` (`rejectionIntelligence.ts`) with the
+   * full structured reason — this field is only the pointer. */
+  rejectionRecordId: string | null;
+  resubmissionAllowed: boolean;
+  resubmissionDate: number | null;
+  marketplaceAssetId: string | null;
+  marketplaceUrl: string | null;
+  /** Distinct from `notes` (the brief's original free-text field, kept
+   * as-is for backward compatibility) — `reviewerNotes` is specifically
+   * what a marketplace reviewer said, `userNotes` is the contributor's
+   * own annotation. Neither replaces `notes`. */
+  reviewerNotes: string;
+  userNotes: string;
 }
 
 /** `SUB-YYYYMMDD-XXXXXX` — same date-stamped + 6-char base36 suffix shape
@@ -87,6 +126,10 @@ export interface CreateSubmissionInput {
   /** Injectable clock for deterministic tests, mirroring
    * `createCollection`'s `now` parameter. */
   now?: number;
+  productionAssetId?: string | null;
+  contributorAccountLabel?: string;
+  editorialDesignation?: EditorialDesignation | null;
+  aiDeclaration?: AiDeclarationStatus;
 }
 
 export class InvalidSubmissionInputError extends Error {
@@ -124,6 +167,23 @@ export function createSubmissionRecord(input: CreateSubmissionInput): Submission
     notes: input.notes ?? '',
     statusHistory: [{ status: 'DRAFT', changedAt: now }],
     schemaVersion: SUBMISSION_SCHEMA_VERSION,
+    productionAssetId: input.productionAssetId ?? null,
+    contributorAccountLabel: input.contributorAccountLabel ?? '',
+    submittedFilename: null,
+    submittedFileTypes: [],
+    editorialDesignation: input.editorialDesignation ?? null,
+    aiDeclaration: input.aiDeclaration ?? 'not-declared',
+    submissionBatchId: null,
+    reviewDate: null,
+    approvedDate: null,
+    rejectionDate: null,
+    rejectionRecordId: null,
+    resubmissionAllowed: true,
+    resubmissionDate: null,
+    marketplaceAssetId: null,
+    marketplaceUrl: null,
+    reviewerNotes: '',
+    userNotes: '',
   };
 }
 
@@ -143,6 +203,23 @@ export function normalizeSubmissionRecord(record: SubmissionRecord): SubmissionR
     category: record.category ?? null,
     notes: record.notes ?? '',
     statusHistory: record.statusHistory ?? [],
+    productionAssetId: record.productionAssetId ?? null,
+    contributorAccountLabel: record.contributorAccountLabel ?? '',
+    submittedFilename: record.submittedFilename ?? null,
+    submittedFileTypes: record.submittedFileTypes ?? [],
+    editorialDesignation: record.editorialDesignation ?? null,
+    aiDeclaration: record.aiDeclaration ?? 'not-declared',
+    submissionBatchId: record.submissionBatchId ?? null,
+    reviewDate: record.reviewDate ?? null,
+    approvedDate: record.approvedDate ?? null,
+    rejectionDate: record.rejectionDate ?? null,
+    rejectionRecordId: record.rejectionRecordId ?? null,
+    resubmissionAllowed: record.resubmissionAllowed ?? true,
+    resubmissionDate: record.resubmissionDate ?? null,
+    marketplaceAssetId: record.marketplaceAssetId ?? null,
+    marketplaceUrl: record.marketplaceUrl ?? null,
+    reviewerNotes: record.reviewerNotes ?? '',
+    userNotes: record.userNotes ?? '',
   };
 }
 
