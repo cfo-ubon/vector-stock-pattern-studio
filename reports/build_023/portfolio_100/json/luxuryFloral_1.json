@@ -1,0 +1,108 @@
+{
+  "patternId": "luxuryFloral_1",
+  "styleId": "luxuryFloral",
+  "seed": "b023-luxuryFloral-1",
+  "productTarget": "giftWrap",
+  "decision": "REJECT",
+  "commercial": {
+    "absoluteCommercialQuality": 73,
+    "absoluteCommercialQualityV2": 73,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 73,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 80,
+      "illustrationRefinement": 89,
+      "depth": 95,
+      "hierarchy": 100,
+      "visualRhythm": 10,
+      "negativeSpaceQuality": 9,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 93,
+      "originality": 97,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (10/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (9/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": true,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 93,
+    "thumbnail400": 97,
+    "zoom800": 78,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Jewel Tones Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "jewel tone",
+      "rich",
+      "deep",
+      "elegant",
+      "moody",
+      "bouquet",
+      "clustered",
+      "floral arrangement",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "jewel-tones-botanical-floral-bouquet-seamless-pattern-b023-luxuryfloral-1.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_1.svg",
+    "png": "png/luxuryFloral_1.png",
+    "json": "json/luxuryFloral_1.json"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "patternId": "modernTropical_9",
+  "styleId": "modernTropical",
+  "seed": "b023-modernTropical-9",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
+    "productTargetFit": 54,
+    "productTargetFitV2": 63
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 82.15,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 68,
+      "illustrationRefinement": 100,
+      "depth": 75,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 91,
+      "originality": 59,
+      "productSuitability": 63
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 91,
+    "thumbnail400": 100,
+    "zoom800": 89,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Ocean Breeze Tropical Seamless Vector Pattern — Flat Tropical leaves and fruit Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "tropical",
+      "palm",
+      "palm leaf",
+      "monstera",
+      "jungle",
+      "exotic",
+      "summer",
+      "hawaiian",
+      "beach",
+      "paradise",
+      "hibiscus",
+      "citrus",
+      "fruit",
+      "botanical",
+      "aloha",
+      "vacation",
+      "rainforest",
+      "leaf",
+      "ocean",
+      "teal",
+      "aqua",
+      "marine",
+      "fresh",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "ocean-breeze-tropical-toss-pattern-seamless-pattern-b023-moderntropical-9.eps"
+  },
+  "files": {
+    "svg": "svg/modernTropical_9.svg",
+    "png": "png/modernTropical_9.png",
+    "json": "json/modernTropical_9.json"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "patternId": "luxuryFloral_10",
+  "styleId": "luxuryFloral",
+  "seed": "b023-luxuryFloral-10",
+  "productTarget": "giftWrap",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 90,
+    "absoluteCommercialQualityV2": 90,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 74,
+      "illustrationRefinement": 81,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 97,
+      "originality": 85,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 97,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Jewel Tones Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "jewel tone",
+      "rich",
+      "deep",
+      "elegant",
+      "moody",
+      "hero print",
+      "focal point",
+      "scattered accent",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "jewel-tones-botanical-floral-hero-scatter-seamless-pattern-b023-luxuryfloral-10.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_10.svg",
+    "png": "png/luxuryFloral_10.png",
+    "json": "json/luxuryFloral_10.json"
+  }
+}

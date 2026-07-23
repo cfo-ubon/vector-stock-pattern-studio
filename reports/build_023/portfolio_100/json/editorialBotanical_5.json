@@ -1,0 +1,106 @@
+{
+  "patternId": "editorialBotanical_5",
+  "styleId": "editorialBotanical",
+  "seed": "b023-editorialBotanical-5",
+  "productTarget": "stationery",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 82,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 70,
+      "illustrationRefinement": 74,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 5,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 71,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (5/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 89,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Sage & Terracotta Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "sage",
+      "terracotta",
+      "muted",
+      "earthy",
+      "calm",
+      "editorial",
+      "flowing layout",
+      "statement print",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "sage-terracotta-botanical-floral-hero-editorial-flow-seamless-pattern-b023-editorialbotanical-5.eps"
+  },
+  "files": {
+    "svg": "svg/editorialBotanical_5.svg",
+    "png": "png/editorialBotanical_5.png",
+    "json": "json/editorialBotanical_5.json"
+  }
+}

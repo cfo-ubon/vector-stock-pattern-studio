@@ -1,0 +1,106 @@
+{
+  "patternId": "bohoFloral_9",
+  "styleId": "bohoFloral",
+  "seed": "b023-bohoFloral-9",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 81,
+    "absoluteCommercialQualityV2": 81,
+    "productTargetFit": 51,
+    "productTargetFitV2": 62
+  },
+  "beauty": {
+    "beautyScore": 76,
+    "beautyDiagnostics": {
+      "focalClarity": 89.85,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 70,
+      "illustrationRefinement": 60,
+      "depth": 74,
+      "hierarchy": 100,
+      "visualRhythm": 3,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 89,
+      "originality": 62,
+      "productSuitability": 62
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (3/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 89,
+    "thumbnail400": 100,
+    "zoom800": 90,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Desert Botanical Boho / Tribal Seamless Vector Pattern — Flat Boho tribal motifs Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "boho",
+      "bohemian",
+      "tribal",
+      "ethnic",
+      "aztec",
+      "moon",
+      "sun",
+      "mystic",
+      "celestial",
+      "folk",
+      "hippie",
+      "arch",
+      "rainbow",
+      "zigzag",
+      "chevron",
+      "native",
+      "earthy",
+      "terracotta",
+      "colorful",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "desert-botanical-boho-tribal-toss-pattern-seamless-pattern-b023-bohofloral-9.eps"
+  },
+  "files": {
+    "svg": "svg/bohoFloral_9.svg",
+    "png": "png/bohoFloral_9.png",
+    "json": "json/bohoFloral_9.json"
+  }
+}

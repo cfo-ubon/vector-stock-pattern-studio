@@ -1,0 +1,106 @@
+{
+  "patternId": "minimalBotanical_7",
+  "styleId": "minimalBotanical",
+  "seed": "b023-minimalBotanical-7",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 61,
+    "absoluteCommercialQualityV2": 81,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 81,
+    "beautyDiagnostics": {
+      "focalClarity": 71.5,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 71,
+      "illustrationRefinement": 63,
+      "depth": 73,
+      "hierarchy": 52,
+      "visualRhythm": 82,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 93,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Hierarchy is weak (52/100) — hero/secondary/filler roles aren't visually distinguishable (engine/scoring.ts's hierarchy)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 68,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Monochrome Charcoal Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "monochrome",
+      "gray",
+      "black and white",
+      "neutral",
+      "grayscale",
+      "grid layout",
+      "geometric grid",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "monochrome-charcoal-botanical-floral-grid-seamless-pattern-b023-minimalbotanical-7.eps"
+  },
+  "files": {
+    "svg": "svg/minimalBotanical_7.svg",
+    "png": "png/minimalBotanical_7.png",
+    "json": "json/minimalBotanical_7.json"
+  }
+}

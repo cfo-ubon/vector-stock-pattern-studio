@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Build 023 Visual Evidence — Before (Build 022) vs After (Build 023)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #eee; padding: 24px; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 15px; margin-top: 40px; border-bottom: 1px solid #444; padding-bottom: 6px; }
+  .row { display: flex; gap: 24px; margin-bottom: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .col { text-align: center; }
+  .col img { border: 1px solid #444; background: #fff; }
+  .label { font-size: 12px; color: #aaa; margin-top: 4px; }
+  .detail img { width: 340px; height: 340px; }
+  .thumb img { width: 140px; height: 140px; }
+</style>
+</head>
+<body>
+<h1>Build 023 Visual Evidence — Luxury Floral / Dark Botanical / Boho Floral fragmentation fix</h1>
+<p>Same fixed (styleId, seed) pairs used by the diagnostic matrix. "Before" rendered from a worktree pinned to commit 525c1d1 (Build 022 final). "After" rendered from this branch. Detail = 800px viewport / thumb = 160px viewport (marketplace thumbnail scale), both at the tile's native viewBox.</p>
+
+<h2>Luxury Floral — m22-1 (frag rate 100% -&gt; 70% across 30 seeds)</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/luxuryFloral_m22-1_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/luxuryFloral_m22-1_detail.png"><div class="label">After (detail)</div></div>
+  <div class="col thumb"><img src="before_build022/luxuryFloral_m22-1_thumb.png"><div class="label">Before (thumb)</div></div>
+  <div class="col thumb"><img src="after_build023/luxuryFloral_m22-1_thumb.png"><div class="label">After (thumb)</div></div>
+</div>
+
+<h2>Luxury Floral — m22-2</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/luxuryFloral_m22-2_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/luxuryFloral_m22-2_detail.png"><div class="label">After (detail)</div></div>
+  <div class="col thumb"><img src="before_build022/luxuryFloral_m22-2_thumb.png"><div class="label">Before (thumb)</div></div>
+  <div class="col thumb"><img src="after_build023/luxuryFloral_m22-2_thumb.png"><div class="label">After (thumb)</div></div>
+</div>
+
+<h2>Dark Botanical — m22-2 (frag rate 66.67% -&gt; 6.7% across 30 seeds; m22-2 itself shows the fix's target mechanism)</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/darkBotanical_m22-2_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/darkBotanical_m22-2_detail.png"><div class="label">After (detail)</div></div>
+  <div class="col thumb"><img src="before_build022/darkBotanical_m22-2_thumb.png"><div class="label">Before (thumb)</div></div>
+  <div class="col thumb"><img src="after_build023/darkBotanical_m22-2_thumb.png"><div class="label">After (thumb)</div></div>
+</div>
+
+<h2>Dark Botanical — m22-1 (control: byte-identical PNG before/after — this seed's sample doesn't land in a bouquet/heroScatter cluster layout, confirming the fix never touches what it shouldn't)</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/darkBotanical_m22-1_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/darkBotanical_m22-1_detail.png"><div class="label">After (detail) — identical</div></div>
+</div>
+
+<h2>Boho Floral — m22-1 (frag rate 16.67% -&gt; 16.7%, unchanged rate but with the stem/spine layer now connecting surviving companions)</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/bohoFloral_m22-1_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/bohoFloral_m22-1_detail.png"><div class="label">After (detail)</div></div>
+  <div class="col thumb"><img src="before_build022/bohoFloral_m22-1_thumb.png"><div class="label">Before (thumb)</div></div>
+  <div class="col thumb"><img src="after_build023/bohoFloral_m22-1_thumb.png"><div class="label">After (thumb)</div></div>
+</div>
+
+<h2>Editorial Botanical — m22-1 (non-premiumHero-cluster control: byte-identical before/after, confirming zero blast radius on unrelated presets)</h2>
+<div class="row">
+  <div class="col detail"><img src="before_build022/editorialBotanical_m22-1_detail.png"><div class="label">Before (detail)</div></div>
+  <div class="col detail"><img src="after_build023/editorialBotanical_m22-1_detail.png"><div class="label">After (detail) — identical</div></div>
+</div>
+
+</body>
+</html>

@@ -557,6 +557,23 @@ export interface BuildClusterPlacementsOptions {
   /** Build 003: the composition zone anchor placement should follow —
    * defaults to a random pick (see `placeClusterAnchors`) when omitted. */
   zone?: CompositionZone;
+  /** Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade),
+   * Finding 3 (BUILD_023_AUDIT.md): a `premiumHero` tile's node-budget
+   * thinning (`tile.ts` Section 10) discards ~90% of raw cluster
+   * placements down to as few as ~40-55 survivors, because a premium
+   * hero's own multi-part SVG costs far more of the budget per instance
+   * than a plain motif — measured for `luxuryFloral` at ~40-56 separate
+   * anchors sharing that same ~40-55-instance survivor budget, i.e.
+   * ~1 survivor per cluster on average, structurally too few to ever read
+   * as a cohesive bouquet regardless of which member survives. Widening
+   * anchor spacing (fewer, larger clusters for the *same* tile) directly
+   * raises that survivor-per-cluster ratio without changing the total
+   * instance/node budget at all — only passed when a caller explicitly
+   * opts in (`bouquet.ts`/`heroScatter.ts` set this only for
+   * `premiumHero` styles), so every other layout/style's anchor density
+   * is completely unaffected; `undefined`/`1` reproduces the exact prior
+   * `placeClusterAnchors` spacing. */
+  anchorSpacingMultiplier?: number;
   /** Build 003, Part 9: the shared rotation angle family every cluster in
    * this tile should use — defaults to one fresh family for the whole
    * call (shared across every anchor) when omitted. */
@@ -580,7 +597,8 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
   const maxAttempts = opts.maxAttemptsPerCluster ?? 3;
   const cohesionTarget = opts.cohesionTarget ?? 70;
   const baseRadius = clusterBaseRadius(motifSize, density);
-  const anchors = placeClusterAnchors(tileSize, baseRadius, rng, opts.zone, opts.avoidTangents);
+  const anchorBaseRadius = baseRadius * (opts.anchorSpacingMultiplier ?? 1);
+  const anchors = placeClusterAnchors(tileSize, anchorBaseRadius, rng, opts.zone, opts.avoidTangents);
   const angleFamily = opts.angleFamily ?? createAngleFamily(rng);
 
   const placements: Placement[] = [];
@@ -613,6 +631,18 @@ export function buildClusterPlacements(opts: BuildClusterPlacementsOptions, rng:
         scale: Math.max(0.08, member.scaleMul),
         colorSeed: colorSeed++,
         role: member.role,
+        // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+        // tags every member of this cluster with its anchor's index and
+        // tile-space position, so downstream passes (negative-space
+        // correction, the bounded repair pass) can tell a deliberately-
+        // grouped bouquet member apart from free-floating texture — see
+        // BUILD_023_AUDIT.md Finding 1. `connectClusters`' bridge accents
+        // (pushed separately below) are intentionally left untagged: they
+        // already span two anchors by construction and aren't at risk of
+        // being evicted as an "isolated" single-cluster member.
+        clusterId: anchorIndex,
+        clusterAnchorX: anchor.x,
+        clusterAnchorY: anchor.y,
       });
     }
   });

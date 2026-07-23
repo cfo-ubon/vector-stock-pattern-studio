@@ -29,6 +29,11 @@ export const bouquetLayout: PatternLayout = {
         // Build 003, Part 7 (Style Grammar): a Style DNA preset's own zone
         // preference (if any) wins over buildClusterPlacements' random pick.
         zone: params.preferredZone,
+        // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+        // see `clusterEngine.ts`'s `anchorSpacingMultiplier` doc comment —
+        // fewer, larger clusters for the same node/instance budget, only
+        // for premium-hero styles.
+        anchorSpacingMultiplier: params.premiumHero ? 2.0 : undefined,
       },
       rng,
     );

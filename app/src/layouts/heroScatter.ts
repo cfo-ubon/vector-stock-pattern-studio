@@ -20,7 +20,12 @@ export const heroScatterLayout: PatternLayout = {
   label: 'Hero + Scatter',
   generate(params: LayoutParams, rng: Rng): Placement[] {
     const { tileSize } = params;
-    const heroMinDist = spacingForDensity(params.motifSize, params.density) * 2.4;
+    // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+    // see `clusterEngine.ts`'s `anchorSpacingMultiplier` doc comment —
+    // widens hero spacing (fewer, larger clusters for the same node
+    // budget) only for premium-hero styles, whose node-budget thinning is
+    // otherwise tight enough to fragment nearly every cluster.
+    const heroMinDist = spacingForDensity(params.motifSize, params.density) * 2.4 * (params.premiumHero ? 2.0 : 1);
     const heroTarget = Math.max(2, Math.round((tileSize * tileSize) / (heroMinDist * heroMinDist)));
     // Build 003, Part 1/6 (Composition Zone Engine): hero anchors — the
     // placements every supporting cluster grows from — now follow one
@@ -52,7 +57,7 @@ export const heroScatterLayout: PatternLayout = {
     // above already established.
     const archetype = params.preferredClusterArchetypes?.length ? rngPick(rng, params.preferredClusterArchetypes) : 'organicScatter';
 
-    for (const [x, y] of heroPoints) {
+    heroPoints.forEach(([x, y], anchorIndex) => {
       placements.push({
         x,
         y,
@@ -60,6 +65,18 @@ export const heroScatterLayout: PatternLayout = {
         scale: Math.max(0.5, 1.5 * (1 + rngRange(rng, -params.scaleJitter, params.scaleJitter))),
         colorSeed: colorSeed++,
         role: 'hero',
+        // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+        // tags this hero and its own supporting cluster members with a
+        // shared cluster identity, same convention as
+        // `clusterEngine.ts`'s `buildClusterPlacements` — this layout
+        // built its per-hero clusters directly rather than through that
+        // shared function, so it needs its own tagging to get the same
+        // negative-space protection / thinning-reservation / repair-pass
+        // benefits (BUILD_023_AUDIT.md Finding 2 measured this layout's
+        // clusters had zero `clusterId` coverage before this change).
+        clusterId: anchorIndex,
+        clusterAnchorX: x,
+        clusterAnchorY: y,
       });
 
       const members = generateCluster(archetype, rng, {
@@ -78,9 +95,12 @@ export const heroScatterLayout: PatternLayout = {
           scale: Math.max(0.2, m.scaleMul),
           colorSeed: colorSeed++,
           role: m.role,
+          clusterId: anchorIndex,
+          clusterAnchorX: x,
+          clusterAnchorY: y,
         });
       }
-    }
+    });
     // Ambient filler runs at a lower density than Build 001 shipped — each
     // hero's own cluster above now contributes its own filler/accent
     // members nearby, so this layer only needs to cover leftover space.

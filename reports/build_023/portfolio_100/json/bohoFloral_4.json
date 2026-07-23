@@ -1,0 +1,106 @@
+{
+  "patternId": "bohoFloral_4",
+  "styleId": "bohoFloral",
+  "seed": "b023-bohoFloral-4",
+  "productTarget": "fabric",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 80,
+    "beautyDiagnostics": {
+      "focalClarity": 96.85,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 71,
+      "illustrationRefinement": 60,
+      "depth": 89,
+      "hierarchy": 100,
+      "visualRhythm": 8,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 91,
+      "originality": 82,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (8/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 91,
+    "thumbnail400": 99,
+    "zoom800": 88,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Terracotta Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "terracotta",
+      "clay",
+      "warm",
+      "rustic",
+      "desert",
+      "toss print",
+      "all-over toss",
+      "random layout",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "terracotta-botanical-floral-toss-pattern-seamless-pattern-b023-bohofloral-4.eps"
+  },
+  "files": {
+    "svg": "svg/bohoFloral_4.svg",
+    "png": "png/bohoFloral_4.png",
+    "json": "json/bohoFloral_4.json"
+  }
+}

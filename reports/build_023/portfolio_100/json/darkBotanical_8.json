@@ -1,0 +1,109 @@
+{
+  "patternId": "darkBotanical_8",
+  "styleId": "darkBotanical",
+  "seed": "b023-darkBotanical-8",
+  "productTarget": "wallpaper",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 82,
+    "absoluteCommercialQualityV2": 82,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 72,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 68,
+      "illustrationRefinement": 50,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 11,
+      "negativeSpaceQuality": 50,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 92,
+      "originality": 87,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Illustration refinement is weak (50/100) — motif construction reads as mechanical/under-detailed (illustrationQualityV2, or composition as a non-botanical proxy).",
+      "Visual rhythm is weak (11/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Negative space is weak (50/100) — empty area reads as leftover/accidental rather than designed breathing room (engine/scoring.ts's largestEmptyRegion, critic/visualAnalysis.ts's deadSpace)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 92,
+    "thumbnail400": 100,
+    "zoom800": 81,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Dark Floral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "colorful",
+      "s-curve",
+      "organic flow",
+      "botanical stripe",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern",
+      "trendy",
+      "abstract",
+      "graphic"
+    ],
+    "filename": "dark-floral-botanical-floral-s-curve-botanical-seamless-pattern-b023-darkbotanical-8.eps"
+  },
+  "files": {
+    "svg": "svg/darkBotanical_8.svg",
+    "png": "png/darkBotanical_8.png",
+    "json": "json/darkBotanical_8.json"
+  }
+}

@@ -1,0 +1,635 @@
+{
+  "tag": "after_build023",
+  "rows": [
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-1",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 88,
+      "commercialV2": 88
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-2",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 89,
+      "commercialV2": 89
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-3",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 74,
+      "commercialV2": 74
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 74,
+      "commercialV2": 74
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-5",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-6",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 87,
+      "commercialV2": 87
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-7",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 72,
+      "commercialV2": 72
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-8",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 88,
+      "commercialV2": 88
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 74,
+      "commercialV2": 74
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-10",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-11",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-12",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 75,
+      "commercialV2": 75
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-13",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 89,
+      "commercialV2": 89
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-14",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 90,
+      "commercialV2": 90
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-15",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 90,
+      "commercialV2": 90
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-16",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-17",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 77,
+      "commercialV2": 77
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-18",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 76,
+      "commercialV2": 76
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-19",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-20",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 73,
+      "commercialV2": 73
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-1",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-2",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-3",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-5",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-6",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-7",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 75,
+      "commercialV2": 75
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-8",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-10",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-1",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 87,
+      "commercialV2": 87
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-2",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 87,
+      "commercialV2": 87
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-3",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 87,
+      "commercialV2": 87
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 79,
+      "commercialV2": 79
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-5",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-6",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-7",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 80,
+      "commercialV2": 80
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-8",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 77,
+      "commercialV2": 77
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-10",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 82,
+      "commercialV2": 82
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-1",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 72,
+      "commercialV2": 72
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-2",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 89,
+      "commercialV2": 89
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-3",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 88,
+      "commercialV2": 88
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 89,
+      "commercialV2": 89
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-5",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 88,
+      "commercialV2": 88
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-6",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 91,
+      "commercialV2": 91
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-7",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 89,
+      "commercialV2": 89
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-8",
+      "fragmentedSilhouette": true,
+      "deadSpace": false,
+      "commercialV1": 88,
+      "commercialV2": 88
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 61,
+      "commercialV2": 61
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-10",
+      "fragmentedSilhouette": false,
+      "deadSpace": true,
+      "commercialV1": 75,
+      "commercialV2": 75
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-1",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 47,
+      "commercialV2": 82
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-2",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 62,
+      "commercialV2": 82
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-3",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 61,
+      "commercialV2": 81
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 45,
+      "commercialV2": 80
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-5",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 48,
+      "commercialV2": 83
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-6",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 34,
+      "commercialV2": 74
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-7",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 61,
+      "commercialV2": 81
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-8",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 30,
+      "commercialV2": 75
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 47,
+      "commercialV2": 82
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-10",
+      "fragmentedSilhouette": true,
+      "deadSpace": true,
+      "commercialV1": 13,
+      "commercialV2": 73
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-1",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 83,
+      "commercialV2": 83
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-2",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 84,
+      "commercialV2": 84
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-3",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-4",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-5",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-6",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 86,
+      "commercialV2": 86
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-7",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-8",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-9",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-10",
+      "fragmentedSilhouette": false,
+      "deadSpace": false,
+      "commercialV1": 85,
+      "commercialV2": 85
+    }
+  ]
+}

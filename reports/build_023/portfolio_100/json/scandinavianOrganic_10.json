@@ -1,0 +1,106 @@
+{
+  "patternId": "scandinavianOrganic_10",
+  "styleId": "scandinavianOrganic",
+  "seed": "b023-scandinavianOrganic-10",
+  "productTarget": "homeDecor",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 87,
+    "absoluteCommercialQualityV2": 87,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 90.2,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 66,
+      "illustrationRefinement": 58,
+      "depth": 86,
+      "hierarchy": 100,
+      "visualRhythm": 11,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 93,
+      "originality": 80,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (11/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 93,
+    "thumbnail400": 100,
+    "zoom800": 92,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Coastal Neutral Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "coastal",
+      "neutral",
+      "beige",
+      "serene",
+      "natural",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "coastal-neutral-botanical-floral-random-scatter-seamless-pattern-b023-scandinavianorganic-10.eps"
+  },
+  "files": {
+    "svg": "svg/scandinavianOrganic_10.svg",
+    "png": "png/scandinavianOrganic_10.png",
+    "json": "json/scandinavianOrganic_10.json"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-07-23T07:54:24.055Z",
+  "sampleSize": 450,
+  "seedsPerPreset": 30,
+  "rows": [
+    {
+      "styleId": "luxuryFloral",
+      "label": "Luxury Floral",
+      "premiumHero": true,
+      "n": 30,
+      "fragmentedSilhouetteRate": 70,
+      "deadSpaceRate": 36.7,
+      "commercialMean": 82.43,
+      "commercialV2Mean": 82.43
+    },
+    {
+      "styleId": "editorialBotanical",
+      "label": "Editorial Botanical",
+      "premiumHero": true,
+      "n": 30,
+      "fragmentedSilhouetteRate": 43.3,
+      "deadSpaceRate": 26.7,
+      "commercialMean": 84.3,
+      "commercialV2Mean": 84.3
+    },
+    {
+      "styleId": "minimalBotanical",
+      "label": "Minimal Botanical",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 43.3,
+      "deadSpaceRate": 43.3,
+      "commercialMean": 39.17,
+      "commercialV2Mean": 78
+    },
+    {
+      "styleId": "boutiquePackaging",
+      "label": "Boutique Packaging",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 40,
+      "deadSpaceRate": 33.3,
+      "commercialMean": 39.73,
+      "commercialV2Mean": 79.6
+    },
+    {
+      "styleId": "retroOrganic",
+      "label": "Retro Organic",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 36.7,
+      "deadSpaceRate": 0,
+      "commercialMean": 85.43,
+      "commercialV2Mean": 85.43
+    },
+    {
+      "styleId": "bohoFloral",
+      "label": "Boho Floral",
+      "premiumHero": true,
+      "n": 30,
+      "fragmentedSilhouetteRate": 16.7,
+      "deadSpaceRate": 0,
+      "commercialMean": 83.7,
+      "commercialV2Mean": 83.7
+    },
+    {
+      "styleId": "luxuryWallpaper",
+      "label": "Luxury Wallpaper",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 10,
+      "deadSpaceRate": 0,
+      "commercialMean": 72.8,
+      "commercialV2Mean": 85.3
+    },
+    {
+      "styleId": "darkBotanical",
+      "label": "Dark Botanical",
+      "premiumHero": true,
+      "n": 30,
+      "fragmentedSilhouetteRate": 6.7,
+      "deadSpaceRate": 16.7,
+      "commercialMean": 83.2,
+      "commercialV2Mean": 83.2
+    },
+    {
+      "styleId": "softWatercolorInspired",
+      "label": "Soft Watercolor Inspired (Vector only)",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 6.7,
+      "deadSpaceRate": 0,
+      "commercialMean": 86.1,
+      "commercialV2Mean": 86.1
+    },
+    {
+      "styleId": "scandinavianOrganic",
+      "label": "Scandinavian Organic",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 84.8,
+      "commercialV2Mean": 84.8
+    },
+    {
+      "styleId": "vintageHerbarium",
+      "label": "Vintage Herbarium",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 67.1,
+      "commercialV2Mean": 83.93
+    },
+    {
+      "styleId": "modernTropical",
+      "label": "Modern Tropical",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 85.63,
+      "commercialV2Mean": 85.63
+    },
+    {
+      "styleId": "premiumTextile",
+      "label": "Premium Textile",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 46.07,
+      "commercialV2Mean": 80.57
+    },
+    {
+      "styleId": "kidsPlayful",
+      "label": "Kids Playful",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 83.13,
+      "commercialV2Mean": 83.13
+    },
+    {
+      "styleId": "organicAbstract",
+      "label": "Organic Abstract",
+      "premiumHero": false,
+      "n": 30,
+      "fragmentedSilhouetteRate": 0,
+      "deadSpaceRate": 0,
+      "commercialMean": 87.13,
+      "commercialV2Mean": 87.13
+    }
+  ]
+}

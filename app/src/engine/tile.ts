@@ -24,6 +24,10 @@ import {
 import { speciesForProductTarget } from '../generators/botanicalFamilies';
 import { applyDepthColorShift } from './depthEngine';
 import { computePaletteEnergy, computeDominantAccentIndex } from './colorAnalysis';
+import { reserveClusterCompanions } from './bouquetSpatialGraph';
+import { applyBouquetRepairPass } from './repairPass';
+import { computeRichnessBudget } from './richnessBudget';
+import { buildBouquetSpineLayer } from './bouquetSpine';
 
 // Build 002, Section 10 — Performance and SVG Safety. A real safety margin
 // under candidateEngine.ts's hard 8000-node ceiling (HARD_NODE_BUDGET) —
@@ -295,6 +299,7 @@ export function buildTile(params: GenerateParams): TileData {
       disableGridRhythm: !isMix && (activeGenerators[0].disableGridRhythm ?? false),
       preferredZone: effectiveCompositionZone,
       preferredClusterArchetypes: params.clusterArchetypes,
+      premiumHero: params.premiumHero,
     },
     rng,
   );
@@ -363,12 +368,34 @@ export function buildTile(params: GenerateParams): TileData {
     ? applyCompositionIntelligence(roledPlacements, tileSize, withPaletteEnergy)
     : roledPlacements;
 
+  // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+  // deterministic bounded repair pass, run before paint-order sorting and
+  // before the Section-10 thinning pass below so a thinned survivor's
+  // *position* is already tightened toward its own cluster's anchor, not
+  // just its *selection* (see `reserveClusterCompanions`'s doc comment for
+  // why selection alone isn't enough — a reserved companion still needs to
+  // land close enough to actually share a grid cell with its hero).
+  // `applyBouquetRepairPass` itself is a strict no-op for any placement
+  // list with no cluster-tagged member, but `buildClusterPlacements` tags
+  // `clusterId` unconditionally (not only for `premiumHero` styles) — so
+  // without this explicit gate, any non-premium style that happens to use
+  // a cluster-based layout (bouquet/heroScatter/sCurve) would still have
+  // its geometry nudged by the repair pass. Confirmed by measurement
+  // (Build 023 Visual Beauty Engine before/after run): `scandinavianOrganic`
+  // (premiumHero: false) showed a real, unintended score regression before
+  // this gate was added. Explicitly scoped to `premiumHero` restores the
+  // byte-identical-for-non-premium invariant every other Build 023
+  // mechanism already holds itself to.
+  const repairedPlacements = params.premiumHero
+    ? applyBouquetRepairPass(refinedPlacements, tileSize, effectiveMotifSize, computeRichnessBudget(true)).placements
+    : refinedPlacements;
+
   // Layer Priority (Composition Intelligence Foundation V2, Section 2): a
   // stable sort so higher-priority roles (hero) always paint last, i.e. on
   // top. A no-op for every placement with no role — a stable sort of an
   // all-equal-priority array never reorders — so patterns that never opted
   // into the Hierarchy Engine are unaffected.
-  const paintOrderedPlacements = sortByLayerPriority(refinedPlacements);
+  const paintOrderedPlacements = sortByLayerPriority(repairedPlacements);
 
   // Flat "sticker" shadow setup: a solid tone slightly darker than the
   // background, offset down-right, drawn in its own layer *under* all
@@ -568,29 +595,67 @@ export function buildTile(params: GenerateParams): TileData {
   const perIndexCost = paintOrderedPlacements.map((_, i) => countNodes(motifGroups[i]) + (shadowByIndex.has(i) ? countNodes(shadowByIndex.get(i)!) : 0));
   const realInstanceNodeCount = perIndexCost.reduce((a, b) => a + b, 0);
   const instanceBudget = NODE_BUDGET_SAFETY_MARGIN - fixedOverheadNodeCount;
+  // Build 023, Finding 3b: an earlier iteration reserved a slice of this
+  // budget up front so the stem/spine layer (`bouquetSpine.ts`, added after
+  // this thinning pass) would almost always have headroom to render.
+  // Measured effect: it thinned surviving *motif* instances (companions)
+  // further to make room, which measurably pushed `fragmentedSilhouette`
+  // back up (darkBotanical 6.7%->16.7%, bohoFloral 16.7%->33.3% in the
+  // Build 023 diagnostic matrix) — trading the brief's primary, required
+  // metric for a cosmetic addition. Reverted: the thinning target here is
+  // unchanged from Build 022, so every one of Finding 3's real fragmentation
+  // gains is preserved intact. The spine layer instead stays exactly what
+  // its own module doc promises — an opportunistic bonus added only when
+  // the already-thinned tile happens to have room (see the safety check at
+  // the spine call site below), never a reason to thin harder.
+  const thinningBudget = instanceBudget;
   let finalMotifGroups = motifGroups;
   let finalShadowGroups = shadowGroups;
-  if (realInstanceNodeCount > instanceBudget && paintOrderedPlacements.length > 0) {
+  let finalKeptIndices: Set<number> | null = null;
+  if (realInstanceNodeCount > thinningBudget && paintOrderedPlacements.length > 0) {
     const protectedIndices: number[] = [];
     const thinnableIndices: number[] = [];
     paintOrderedPlacements.forEach((p, i) => (p.role === 'hero' ? protectedIndices : thinnableIndices).push(i));
     const protectedCost = protectedIndices.reduce((sum, i) => sum + perIndexCost[i], 0);
 
     let keptIndices: Set<number>;
-    if (protectedCost >= instanceBudget) {
+    if (protectedCost >= thinningBudget) {
       // Even every hero instance alone exceeds the budget — the rare edge
       // case where the layout's own hero count/scale is the problem, not
       // the filler layer. Thin the hero set itself (evenly, not randomly)
       // rather than silently leaving the tile over budget.
       const protectedAvg = protectedCost / protectedIndices.length;
-      const protectedTarget = Math.max(1, Math.floor(instanceBudget / protectedAvg));
+      const protectedTarget = Math.max(1, Math.floor(thinningBudget / protectedAvg));
       keptIndices = new Set(stratifiedSelect(protectedIndices, paintOrderedPlacements, tileSize, protectedTarget));
     } else {
       const thinnableCost = realInstanceNodeCount - protectedCost;
       const thinnableAvg = thinnableIndices.length > 0 ? thinnableCost / thinnableIndices.length : 0;
-      const remainingBudget = instanceBudget - protectedCost;
+      const remainingBudget = thinningBudget - protectedCost;
       const thinnableTarget = thinnableAvg > 0 ? Math.max(0, Math.floor(remainingBudget / thinnableAvg)) : thinnableIndices.length;
-      keptIndices = new Set([...protectedIndices, ...stratifiedSelect(thinnableIndices, paintOrderedPlacements, tileSize, thinnableTarget)]);
+      // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade),
+      // Finding 2: reserve one companion per cluster *before* the existing
+      // spatial-grid `stratifiedSelect` spends the thinnable budget, so a
+      // node-budget-constrained premium-hero tile doesn't leave most of
+      // its hero clusters with zero surviving companions (see
+      // `reserveClusterCompanions`'s own doc comment for the measured
+      // mechanism this fixes). Same total thinnable count either way —
+      // this only changes which instances are kept, never how many.
+      // Explicitly gated to `premiumHero` (not just "has a clusterId") —
+      // `buildClusterPlacements` tags `clusterId` unconditionally, so
+      // without this gate a non-premium style using a cluster-based layout
+      // would still have its thinning survivors reshuffled; confirmed by
+      // measurement to be an unintended regression on `scandinavianOrganic`
+      // (premiumHero: false) before this gate was added.
+      const reservedCompanions = params.premiumHero
+        ? reserveClusterCompanions(thinnableIndices, paintOrderedPlacements, thinnableTarget)
+        : new Set<number>();
+      const remainingThinnable = thinnableIndices.filter((i) => !reservedCompanions.has(i));
+      const remainingTarget = Math.max(0, thinnableTarget - reservedCompanions.size);
+      keptIndices = new Set([
+        ...protectedIndices,
+        ...reservedCompanions,
+        ...stratifiedSelect(remainingThinnable, paintOrderedPlacements, tileSize, remainingTarget),
+      ]);
     }
 
     if (keptIndices.size < paintOrderedPlacements.length) {
@@ -599,12 +664,38 @@ export function buildTile(params: GenerateParams): TileData {
         const m = /^shadow-(\d+)$/.exec(String(g.attrs?.id ?? ''));
         return m ? keptIndices.has(Number(m[1]) - 1) : true;
       });
+      finalKeptIndices = keptIndices;
+    }
+  }
+
+  // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+  // "bouquet anchor and spine system" / "foliage and stem connector engine"
+  // deliverable — real connective stem geometry drawn between each
+  // surviving cluster's hero and its companions (see `bouquetSpine.ts`'s
+  // own header for why this is a rendering-side wiring of the already-
+  // built `clusterEngine.ts` stem system, not a new geometry engine).
+  // Strictly gated to `params.premiumHero` so no RNG draw — and therefore
+  // no rendered pixel — changes for any style that hasn't opted in.
+  // Built from the SAME surviving (post-thinning) placement set the final
+  // motif/shadow layers use, so the spine only ever connects instances that
+  // actually made it into the tile. Guarded against the node budget itself
+  // (dry-run counted, dropped entirely rather than partially trimmed) since
+  // it is added *after* the thinning pass has already sized the tile to fit.
+  let spineLayer: SvgNode | null = null;
+  if (params.premiumHero) {
+    const survivingPlacements = finalKeptIndices ? paintOrderedPlacements.filter((_, i) => finalKeptIndices!.has(i)) : paintOrderedPlacements;
+    const candidateSpine = buildBouquetSpineLayer(survivingPlacements, tileSize, effectiveMotifSize, rng, colors);
+    if (candidateSpine) {
+      const finalNodeCount = finalMotifGroups.reduce((sum, g) => sum + countNodes(g), 0) + finalShadowGroups.reduce((sum, g) => sum + countNodes(g), 0);
+      const spineNodeCount = countNodes(candidateSpine);
+      if (finalNodeCount + spineNodeCount <= instanceBudget) spineLayer = candidateSpine;
     }
   }
 
   const patternLayers: SvgNode[] = [];
   if (fillerLayer) patternLayers.push(fillerLayer);
   if (finalShadowGroups.length > 0) patternLayers.push(h('g', { id: 'layer-shadows' }, finalShadowGroups));
+  if (spineLayer) patternLayers.push(spineLayer);
   patternLayers.push(...finalMotifGroups);
 
   // Style DNA metadata: Affinity Designer and every SVG viewer show unknown

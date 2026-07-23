@@ -1,0 +1,426 @@
+{
+  "tag": "before_build022",
+  "count": 70,
+  "samples": [
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-1",
+      "base": "luxuryFloral__luxuryFloral_m22-1"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-2",
+      "base": "luxuryFloral__luxuryFloral_m22-2"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-3",
+      "base": "luxuryFloral__luxuryFloral_m22-3"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-4",
+      "base": "luxuryFloral__luxuryFloral_m22-4"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-5",
+      "base": "luxuryFloral__luxuryFloral_m22-5"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-6",
+      "base": "luxuryFloral__luxuryFloral_m22-6"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-7",
+      "base": "luxuryFloral__luxuryFloral_m22-7"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-8",
+      "base": "luxuryFloral__luxuryFloral_m22-8"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-9",
+      "base": "luxuryFloral__luxuryFloral_m22-9"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-10",
+      "base": "luxuryFloral__luxuryFloral_m22-10"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-11",
+      "base": "luxuryFloral__luxuryFloral_m22-11"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-12",
+      "base": "luxuryFloral__luxuryFloral_m22-12"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-13",
+      "base": "luxuryFloral__luxuryFloral_m22-13"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-14",
+      "base": "luxuryFloral__luxuryFloral_m22-14"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-15",
+      "base": "luxuryFloral__luxuryFloral_m22-15"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-16",
+      "base": "luxuryFloral__luxuryFloral_m22-16"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-17",
+      "base": "luxuryFloral__luxuryFloral_m22-17"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-18",
+      "base": "luxuryFloral__luxuryFloral_m22-18"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-19",
+      "base": "luxuryFloral__luxuryFloral_m22-19"
+    },
+    {
+      "category": "luxuryFloral",
+      "styleId": "luxuryFloral",
+      "seed": "m22-20",
+      "base": "luxuryFloral__luxuryFloral_m22-20"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-1",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-1"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-2",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-2"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-3",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-3"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-4",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-4"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-5",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-5"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-6",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-6"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-7",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-7"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-8",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-8"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-9",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-9"
+    },
+    {
+      "category": "premiumBotanicalFloral_darkBotanical",
+      "styleId": "darkBotanical",
+      "seed": "m22-10",
+      "base": "premiumBotanicalFloral_darkBotanical__darkBotanical_m22-10"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-1",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-1"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-2",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-2"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-3",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-3"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-4",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-4"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-5",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-5"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-6",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-6"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-7",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-7"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-8",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-8"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-9",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-9"
+    },
+    {
+      "category": "premiumBotanicalFloral_bohoFloral",
+      "styleId": "bohoFloral",
+      "seed": "m22-10",
+      "base": "premiumBotanicalFloral_bohoFloral__bohoFloral_m22-10"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-1",
+      "base": "editorialBotanical__editorialBotanical_m22-1"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-2",
+      "base": "editorialBotanical__editorialBotanical_m22-2"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-3",
+      "base": "editorialBotanical__editorialBotanical_m22-3"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-4",
+      "base": "editorialBotanical__editorialBotanical_m22-4"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-5",
+      "base": "editorialBotanical__editorialBotanical_m22-5"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-6",
+      "base": "editorialBotanical__editorialBotanical_m22-6"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-7",
+      "base": "editorialBotanical__editorialBotanical_m22-7"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-8",
+      "base": "editorialBotanical__editorialBotanical_m22-8"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-9",
+      "base": "editorialBotanical__editorialBotanical_m22-9"
+    },
+    {
+      "category": "editorialBotanical",
+      "styleId": "editorialBotanical",
+      "seed": "m22-10",
+      "base": "editorialBotanical__editorialBotanical_m22-10"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-1",
+      "base": "minimalBotanical__minimalBotanical_m22-1"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-2",
+      "base": "minimalBotanical__minimalBotanical_m22-2"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-3",
+      "base": "minimalBotanical__minimalBotanical_m22-3"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-4",
+      "base": "minimalBotanical__minimalBotanical_m22-4"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-5",
+      "base": "minimalBotanical__minimalBotanical_m22-5"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-6",
+      "base": "minimalBotanical__minimalBotanical_m22-6"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-7",
+      "base": "minimalBotanical__minimalBotanical_m22-7"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-8",
+      "base": "minimalBotanical__minimalBotanical_m22-8"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-9",
+      "base": "minimalBotanical__minimalBotanical_m22-9"
+    },
+    {
+      "category": "minimalBotanical",
+      "styleId": "minimalBotanical",
+      "seed": "m22-10",
+      "base": "minimalBotanical__minimalBotanical_m22-10"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-1",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-1"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-2",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-2"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-3",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-3"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-4",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-4"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-5",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-5"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-6",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-6"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-7",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-7"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-8",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-8"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-9",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-9"
+    },
+    {
+      "category": "strongControl_scandinavianOrganic",
+      "styleId": "scandinavianOrganic",
+      "seed": "m22-10",
+      "base": "strongControl_scandinavianOrganic__scandinavianOrganic_m22-10"
+    }
+  ]
+}

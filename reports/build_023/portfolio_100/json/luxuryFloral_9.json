@@ -1,0 +1,107 @@
+{
+  "patternId": "luxuryFloral_9",
+  "styleId": "luxuryFloral",
+  "seed": "b023-luxuryFloral-9",
+  "productTarget": "giftWrap",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 89,
+    "absoluteCommercialQualityV2": 89,
+    "productTargetFit": 50,
+    "productTargetFitV2": 65
+  },
+  "beauty": {
+    "beautyScore": 78,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 69,
+      "illustrationRefinement": 79,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 98,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 96,
+      "originality": 86,
+      "productSuitability": 65
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 96,
+    "thumbnail400": 100,
+    "zoom800": 92,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Blush & Gold Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "blush",
+      "gold",
+      "feminine",
+      "romantic",
+      "chic",
+      "hero print",
+      "focal point",
+      "scattered accent",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "blush-gold-botanical-floral-hero-scatter-seamless-pattern-b023-luxuryfloral-9.eps"
+  },
+  "files": {
+    "svg": "svg/luxuryFloral_9.svg",
+    "png": "png/luxuryFloral_9.png",
+    "json": "json/luxuryFloral_9.json"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "patternId": "vintageHerbarium_6",
+  "styleId": "vintageHerbarium",
+  "seed": "b023-vintageHerbarium-6",
+  "productTarget": "stationery",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 86,
+    "absoluteCommercialQualityV2": 86,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 79,
+    "beautyDiagnostics": {
+      "focalClarity": 89.5,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 69,
+      "illustrationRefinement": 66,
+      "depth": 85,
+      "hierarchy": 100,
+      "visualRhythm": 2,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 91,
+      "originality": 76,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (2/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 91,
+    "thumbnail400": 100,
+    "zoom800": 87,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Earth Tone Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "earth tone",
+      "natural",
+      "warm",
+      "brown",
+      "organic colors",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook",
+      "modern"
+    ],
+    "filename": "earth-tone-botanical-floral-random-scatter-seamless-pattern-b023-vintageherbarium-6.eps"
+  },
+  "files": {
+    "svg": "svg/vintageHerbarium_6.svg",
+    "png": "png/vintageHerbarium_6.png",
+    "json": "json/vintageHerbarium_6.json"
+  }
+}

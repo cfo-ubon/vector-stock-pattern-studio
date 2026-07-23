@@ -184,6 +184,7 @@ export function applyGridBalanceCorrection(
   gridN: number,
   strength: number,
   weightFn: (p: Placement) => number = computeWeight,
+  protectClusterMembers = false,
 ): Placement[] {
   if (strength <= 0 || placements.length < 4) return placements;
 
@@ -207,6 +208,20 @@ export function applyGridBalanceCorrection(
   const movable = placements
     .map((_, i) => ({ i, w: weights[i] }))
     .filter((e) => cellIndex[e.i] === heaviest)
+    // Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+    // a placement carrying `clusterId` was deliberately grouped near its
+    // hero by engine/clusterEngine.ts's `buildClusterPlacements` — it is
+    // exactly the "lightest in the heaviest cell" filler/accent member
+    // this pass otherwise evicts toward the tile's single emptiest cell
+    // first (see BUILD_023_AUDIT.md Finding 1), which is what fragments a
+    // bouquet's silhouette into disconnected islands. Only genuinely
+    // free-floating placements (no clusterId — every lattice-layout
+    // placement, plus heroScatter's independent ambient-filler layer,
+    // which has no cluster affiliation by design) remain eligible for
+    // redistribution when `protectClusterMembers` is set; the macro 2x2
+    // `applyBalanceCorrection` pass is unaffected (defaults to false, so
+    // its own prior behavior is byte-for-byte unchanged).
+    .filter((e) => !protectClusterMembers || placements[e.i].clusterId === undefined)
     // Move the lightest placements out first — relieves crowding without
     // disturbing the cell's own anchor/hero motifs.
     .sort((a, b) => a.w - b.w);
@@ -270,9 +285,12 @@ export function applyNegativeSpaceCorrection(
   placements: Placement[],
   tileSize: number,
   strength: number,
-  weightFn?: (p: Placement) => number,
+  weightFn: (p: Placement) => number = computeWeight,
 ): Placement[] {
-  return applyGridBalanceCorrection(placements, tileSize, 8, strength, weightFn);
+  // Build 023: `protectClusterMembers=true` — see `applyGridBalanceCorrection`'s
+  // own doc comment on the `.filter` this adds. `applyBalanceCorrection`
+  // (the 2x2 macro pass) deliberately keeps the old default (false).
+  return applyGridBalanceCorrection(placements, tileSize, 8, strength, weightFn, true);
 }
 
 export type FlowBiasProfile = FlowProfile;

@@ -1,0 +1,107 @@
+{
+  "patternId": "kidsPlayful_1",
+  "styleId": "kidsPlayful",
+  "seed": "b023-kidsPlayful-1",
+  "productTarget": "textile",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 84,
+    "absoluteCommercialQualityV2": 84,
+    "productTargetFit": 56,
+    "productTargetFitV2": 69
+  },
+  "beauty": {
+    "beautyScore": 78,
+    "beautyDiagnostics": {
+      "focalClarity": 88.1,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 66,
+      "illustrationRefinement": 92,
+      "depth": 83,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 88,
+      "originality": 46,
+      "productSuitability": 69
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity).",
+      "Originality is weak (46/100) — motif shapes repeat with little real variation (engine/scoring.ts's motifShapeDiversity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 88,
+    "thumbnail400": 100,
+    "zoom800": 91,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Candy Shop Cute / Kids Seamless Vector Pattern — Flat Cute animal faces Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "cute",
+      "kawaii",
+      "animal",
+      "kids",
+      "baby",
+      "nursery",
+      "children",
+      "bear",
+      "cat",
+      "bunny",
+      "rabbit",
+      "paw",
+      "heart",
+      "star",
+      "cartoon",
+      "childish",
+      "sweet",
+      "adorable",
+      "candy",
+      "colorful",
+      "cheerful",
+      "rainbow",
+      "fun",
+      "ditsy",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "candy-shop-cute-kids-random-scatter-seamless-pattern-b023-kidsplayful-1.eps"
+  },
+  "files": {
+    "svg": "svg/kidsPlayful_1.svg",
+    "png": "png/kidsPlayful_1.png",
+    "json": "json/kidsPlayful_1.json"
+  }
+}

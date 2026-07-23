@@ -1,0 +1,107 @@
+{
+  "patternId": "editorialBotanical_7",
+  "styleId": "editorialBotanical",
+  "seed": "b023-editorialBotanical-7",
+  "productTarget": "stationery",
+  "decision": "REVIEW",
+  "commercial": {
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
+    "productTargetFit": 57,
+    "productTargetFitV2": 66
+  },
+  "beauty": {
+    "beautyScore": 78,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 40,
+      "botanicalFlow": 67,
+      "illustrationRefinement": 79,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 4,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 100,
+      "originality": 82,
+      "productSuitability": 66
+    },
+    "beautyFailureReasons": [
+      "Silhouette cohesion is weak (40/100) — the composition reads as scattered/fragmented rather than one connected mass (critic/visualAnalysis.ts's fragmentedSilhouette + engine/scoring.ts's clusterCohesion).",
+      "Visual rhythm is weak (4/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": true,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 100,
+    "thumbnail400": 100,
+    "zoom800": 93,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Pastel Dream Botanical / Floral Seamless Vector Pattern — Flat Botanical leaves and flowers Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "floral",
+      "flower",
+      "leaf",
+      "leaves",
+      "botanical",
+      "botany",
+      "garden",
+      "spring",
+      "bloom",
+      "blossom",
+      "nature",
+      "plant",
+      "foliage",
+      "branch",
+      "meadow",
+      "ditsy",
+      "summer",
+      "herb",
+      "pastel",
+      "soft",
+      "pale",
+      "gentle",
+      "baby colors",
+      "editorial",
+      "flowing layout",
+      "statement print",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "pastel-dream-botanical-floral-hero-editorial-flow-seamless-pattern-b023-editorialbotanical-7.eps"
+  },
+  "files": {
+    "svg": "svg/editorialBotanical_7.svg",
+    "png": "png/editorialBotanical_7.png",
+    "json": "json/editorialBotanical_7.json"
+  }
+}

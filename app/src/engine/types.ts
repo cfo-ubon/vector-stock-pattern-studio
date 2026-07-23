@@ -119,6 +119,21 @@ export interface Placement {
    * its own tiers — see HIERARCHY_EXEMPT_LAYOUTS). Carried through to the
    * exported SVG as a `data-role` attribute for Affinity Designer editing. */
   role?: 'hero' | 'secondary' | 'filler' | 'accent';
+  /** Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade):
+   * which cluster anchor (engine/clusterEngine.ts's `ClusterAnchor`, by
+   * index in that tile's anchor list) this placement was originally
+   * grouped under, and that anchor's own tile-space position. Set only by
+   * `buildClusterPlacements` for cluster-built layouts (bouquet,
+   * heroScatter, sCurve); left undefined for every lattice layout and for
+   * heroScatter's independent ambient-filler layer (which has no real
+   * cluster affiliation — see engine/bouquetSpatialGraph.ts). Lets
+   * downstream passes (engine/compositionIntelligence.ts's negative-space
+   * correction, engine/repairPass.ts) tell "this is a hero's supporting
+   * member" apart from "this is free-floating texture" without having to
+   * infer it positionally after the fact. */
+  clusterId?: number;
+  clusterAnchorX?: number;
+  clusterAnchorY?: number;
 }
 
 export type LayoutId =
@@ -157,6 +172,13 @@ export interface LayoutParams {
    * several archetypes use this directly (no further random narrowing) when
    * set, instead of their own hardcoded default pool. */
   preferredClusterArchetypes?: import('./clusterEngine').ClusterArchetype[];
+  /** Build 023 (Premium Bouquet Silhouette & Visual Cohesion Upgrade) —
+   * see GenerateParams.premiumHero. Cluster-based layouts (`bouquet.ts`,
+   * `heroScatter.ts`) use this to widen anchor spacing only for premium-
+   * hero styles, whose node-budget thinning is otherwise tight enough to
+   * fragment every cluster (BUILD_023_AUDIT.md Finding 3) — see
+   * `clusterEngine.ts`'s `anchorSpacingMultiplier` doc comment. */
+  premiumHero?: boolean;
 }
 
 export interface PatternLayout {

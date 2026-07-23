@@ -1,0 +1,106 @@
+{
+  "patternId": "organicAbstract_3",
+  "styleId": "organicAbstract",
+  "seed": "b023-organicAbstract-3",
+  "productTarget": "wallpaper",
+  "decision": "READY",
+  "commercial": {
+    "absoluteCommercialQuality": 88,
+    "absoluteCommercialQualityV2": 88,
+    "productTargetFit": 51,
+    "productTargetFitV2": 62
+  },
+  "beauty": {
+    "beautyScore": 82,
+    "beautyDiagnostics": {
+      "focalClarity": 100,
+      "silhouetteCohesion": 100,
+      "botanicalFlow": 65,
+      "illustrationRefinement": 92,
+      "depth": 100,
+      "hierarchy": 100,
+      "visualRhythm": 3,
+      "negativeSpaceQuality": 100,
+      "paletteHarmony": 100,
+      "thumbnailImpact": 87,
+      "originality": 72,
+      "productSuitability": 62
+    },
+    "beautyFailureReasons": [
+      "Visual rhythm is weak (3/100) — spacing/repeat intervals read as irregular or overly mechanical rather than an intentional beat (engine/scoring.ts's rhythmRegularity)."
+    ]
+  },
+  "fragmentation": {
+    "fragmentedSilhouette": false,
+    "deadSpace": false,
+    "clusterCohesion": 100
+  },
+  "thumbnail": {
+    "thumbnail200": 87,
+    "thumbnail400": 100,
+    "zoom800": 88,
+    "readableAtAllScales": true
+  },
+  "seo": {
+    "title": "Lavender Fields Abstract Organic Seamless Vector Pattern — Flat Abstract organic shapes Repeat for Fabric and Wallpaper",
+    "keywordCount": 50,
+    "keywords": [
+      "organic",
+      "blob",
+      "memphis",
+      "matisse",
+      "cutout",
+      "hand drawn",
+      "contemporary",
+      "squiggle",
+      "doodle",
+      "shape",
+      "freeform",
+      "artistic",
+      "collage",
+      "mid century",
+      "funky",
+      "playful",
+      "terrazzo",
+      "confetti",
+      "lavender",
+      "purple",
+      "violet",
+      "dreamy",
+      "lilac",
+      "ditsy",
+      "scattered",
+      "tossed",
+      "seamless",
+      "pattern",
+      "vector",
+      "seamless pattern",
+      "background",
+      "wallpaper",
+      "textile",
+      "fabric",
+      "print",
+      "repeat",
+      "texture",
+      "design",
+      "illustration",
+      "flat",
+      "wrapping paper",
+      "surface pattern",
+      "backdrop",
+      "decorative",
+      "ornament",
+      "stationery",
+      "packaging",
+      "fashion",
+      "home decor",
+      "scrapbook"
+    ],
+    "filename": "lavender-fields-abstract-organic-random-scatter-seamless-pattern-b023-organicabstract-3.eps"
+  },
+  "files": {
+    "svg": "svg/organicAbstract_3.svg",
+    "png": "png/organicAbstract_3.png",
+    "json": "json/organicAbstract_3.json"
+  }
+}
