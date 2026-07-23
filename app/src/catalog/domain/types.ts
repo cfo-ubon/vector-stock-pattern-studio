@@ -108,6 +108,17 @@ export interface PortfolioAsset {
    * duplicate, or grouped as a deliberate variation of another asset. */
   parentAssetId: string | null;
   variationGroupId: string | null;
+  /** Build 026 — the content-derived fingerprint from
+   * `domain/productionAssetId.ts`, computed at generation/import time when
+   * enough metadata is available (generator version, style DNA, preset,
+   * composition, product targets, seed, canonical SVG). `null` for assets
+   * imported without that metadata (e.g. a bare externally-authored SVG) —
+   * this field is additive and optional so no pre-Build-026 asset breaks. */
+  productionAssetId: string | null;
+  /** Build 026 — points at the most recent `QualitySnapshot`
+   * (`quality/qualitySnapshotStore.ts`) for this asset, or `null` if this
+   * asset has never been evaluated through the quality classifier. */
+  qualitySnapshotId: string | null;
 }
 
 /** One physically-stored file body. Kept in its own object store

@@ -20,6 +20,8 @@ export interface CreatePortfolioAssetInput {
   colorPalette?: string[];
   parentAssetId?: string | null;
   variationGroupId?: string | null;
+  productionAssetId?: string | null;
+  qualitySnapshotId?: string | null;
 }
 
 /** Determine an asset's dominant commercial type from its grouped source
@@ -73,6 +75,8 @@ export function createPortfolioAsset(input: CreatePortfolioAssetInput): Portfoli
     notes: '',
     parentAssetId: input.parentAssetId ?? null,
     variationGroupId: input.variationGroupId ?? null,
+    productionAssetId: input.productionAssetId ?? null,
+    qualitySnapshotId: input.qualitySnapshotId ?? null,
   };
 }
 
@@ -100,6 +104,8 @@ export function normalizePortfolioAsset(asset: PortfolioAsset): PortfolioAsset {
     notes: asset.notes ?? '',
     parentAssetId: asset.parentAssetId ?? null,
     variationGroupId: asset.variationGroupId ?? null,
+    productionAssetId: asset.productionAssetId ?? null,
+    qualitySnapshotId: asset.qualitySnapshotId ?? null,
   };
 }
 
