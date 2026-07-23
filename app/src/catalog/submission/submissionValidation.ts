@@ -90,7 +90,13 @@ export function validateSubmissionReadiness(
   }
 
   const duplicate = detectDuplicateSubmission(
-    { patternId: record.patternId, marketplaceId: record.marketplaceId, version: record.version, submissionId: record.submissionId },
+    {
+      patternId: record.patternId,
+      marketplaceId: record.marketplaceId,
+      version: record.version,
+      submissionId: record.submissionId,
+      productionAssetId: record.productionAssetId,
+    },
     existingSubmissions,
   );
   if (duplicate.isDuplicate) {

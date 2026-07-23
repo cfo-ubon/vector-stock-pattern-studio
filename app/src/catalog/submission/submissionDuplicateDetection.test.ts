@@ -71,4 +71,50 @@ describe('detectDuplicateSubmission', () => {
     const result = detectDuplicateSubmission({ patternId: 'p1', marketplaceId: 'etsy', version: 3 }, [draft, rejected]);
     expect(result.isDuplicate).toBe(false);
   });
+
+  describe('same-production-asset (Build 026)', () => {
+    it('flags same-production-asset when a different patternId shares productionAssetId at the same marketplace', () => {
+      const existing = createSubmissionRecord({ patternId: 'p1', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' });
+      const result = detectDuplicateSubmission(
+        { patternId: 'p2-renamed-copy', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' },
+        [existing],
+      );
+      expect(result.isDuplicate).toBe(true);
+      expect(result.conflicts).toEqual([{ reason: 'same-production-asset', existingSubmissionId: existing.submissionId }]);
+    });
+
+    it('does not flag same-production-asset for a different marketplace', () => {
+      const existing = createSubmissionRecord({ patternId: 'p1', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' });
+      const result = detectDuplicateSubmission(
+        { patternId: 'p2', marketplaceId: 'shutterstock', version: 1, productionAssetId: 'PAID-abc' },
+        [existing],
+      );
+      expect(result.isDuplicate).toBe(false);
+    });
+
+    it('does not flag same-production-asset when productionAssetId differs', () => {
+      const existing = createSubmissionRecord({ patternId: 'p1', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' });
+      const result = detectDuplicateSubmission(
+        { patternId: 'p2', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-different' },
+        [existing],
+      );
+      expect(result.isDuplicate).toBe(false);
+    });
+
+    it('never matches on null productionAssetId -- null means unknown, not same', () => {
+      const existing = createSubmissionRecord({ patternId: 'p1', marketplaceId: 'etsy', version: 1 });
+      const result = detectDuplicateSubmission({ patternId: 'p2', marketplaceId: 'etsy', version: 1, productionAssetId: null }, [existing]);
+      expect(result.isDuplicate).toBe(false);
+    });
+
+    it('does not double-report via same-production-asset when patternId is also identical (already-covered by the other rules)', () => {
+      const existing = createSubmissionRecord({ patternId: 'p1', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' });
+      const result = detectDuplicateSubmission(
+        { patternId: 'p1', marketplaceId: 'etsy', version: 1, productionAssetId: 'PAID-abc' },
+        [existing],
+      );
+      expect(result.conflicts.some((c) => c.reason === 'same-production-asset')).toBe(false);
+      expect(result.conflicts.some((c) => c.reason === 'same-version')).toBe(true);
+    });
+  });
 });

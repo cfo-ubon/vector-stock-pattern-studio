@@ -48,7 +48,17 @@ export interface PortfolioHealthScore {
  * under multiple collections, which is organizational, not risky). */
 export function countDuplicateConflictingSubmissions(records: SubmissionRecord[]): number {
   return records.filter(
-    (record) => detectDuplicateSubmission({ patternId: record.patternId, marketplaceId: record.marketplaceId, version: record.version, submissionId: record.submissionId }, records).isDuplicate,
+    (record) =>
+      detectDuplicateSubmission(
+        {
+          patternId: record.patternId,
+          marketplaceId: record.marketplaceId,
+          version: record.version,
+          submissionId: record.submissionId,
+          productionAssetId: record.productionAssetId,
+        },
+        records,
+      ).isDuplicate,
   ).length;
 }
 
