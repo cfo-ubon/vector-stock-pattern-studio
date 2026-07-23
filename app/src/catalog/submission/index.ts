@@ -90,3 +90,19 @@ export { REJECTION_CATEGORIES, normalizeRejectionReason, createRejectionRecord, 
 
 export type { SalesEvent } from './salesRevenue';
 export { aggregateByMonth, aggregateByMarketplace, aggregateByProductionAsset, topPerformers, underperformingApproved } from './salesRevenue';
+
+export type { MarketplaceRegistration, CreateMarketplaceRegistrationInput } from './marketplaceRegistration';
+export {
+  MARKETPLACE_REGISTRATION_SCHEMA_VERSION,
+  createMarketplaceRegistration,
+  normalizeMarketplaceRegistration,
+  isValidMarketplaceRegistration,
+  InvalidMarketplaceRegistrationInputError,
+} from './marketplaceRegistration';
+export {
+  loadMarketplaceRegistrations,
+  putMarketplaceRegistration,
+  deleteMarketplaceRegistration,
+  clearMarketplaceRegistrations,
+  MarketplaceRegistrationStorageUnavailableError,
+} from './marketplaceRegistrationStore';
