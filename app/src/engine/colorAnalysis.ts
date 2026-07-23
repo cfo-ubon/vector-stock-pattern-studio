@@ -30,6 +30,34 @@ export function hexToHsl(hex: string): Hsl {
   return { h, s, l };
 }
 
+/** Inverse of `hexToHsl` — Build 022, Phase 4 (Hero Visibility and Palette
+ * Contrast Engine) needs to round-trip a color back to hex after nudging
+ * only its lightness, preserving hue/saturation exactly. */
+export function hslToHex(hsl: Hsl): string {
+  const { h, s, l } = hsl;
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    const hex = v.toString(16).padStart(2, '0');
+    return `#${hex}${hex}${hex}`;
+  }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  const hueToRgb = (t0: number) => {
+    let t = t0;
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+  const hn = h / 360;
+  const r = Math.round(hueToRgb(hn + 1 / 3) * 255);
+  const g = Math.round(hueToRgb(hn) * 255);
+  const b = Math.round(hueToRgb(hn - 1 / 3) * 255);
+  return `#${[r, g, b].map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('')}`;
+}
+
 /** Circular mean of a set of hues (degrees) — a plain arithmetic mean of
  * e.g. 350 and 10 would wrongly give 180 (green) instead of 0 (red). */
 export function meanHue(hues: number[]): number {

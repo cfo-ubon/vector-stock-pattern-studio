@@ -5,6 +5,7 @@ import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { poissonDiscPoints } from '../layouts/shared';
 import { getPalette, resolveColors, blendHex } from '../palettes/palettes';
+import { ensureContrastSafePalette } from './paletteContrastEngine';
 import { applyHierarchy, HIERARCHY_EXEMPT_LAYOUTS, REGULAR_LATTICE_LAYOUTS, sortByLayerPriority } from './hierarchy';
 import { applyCompositionIntelligence } from './compositionIntelligence';
 import { STYLE_DNA_PRESETS, STYLE_DNA_SCHEMA_VERSION } from './styleDna';
@@ -205,7 +206,19 @@ export function buildTile(params: GenerateParams): TileData {
   const layout = LAYOUTS[params.layoutId] ?? Object.values(LAYOUTS)[0];
   const isValidHex = (c: string) => /^#[0-9a-fA-F]{6}$/.test(c);
   const custom = params.customColors?.filter(isValidHex) ?? [];
-  const colors = custom.length >= 2 ? custom.slice(0, 6) : resolveColors(getPalette(params.paletteId), params.colorCount);
+  // Build 022, Phase 4 (Hero Visibility and Palette Contrast Engine):
+  // applies only to the Style-DNA/library-resolved palette path — a strict
+  // no-op for any resolved palette that already clears
+  // paletteContrastEngine.ts's WCAG-based floor (13 of 15 built-in
+  // presets, per BUILD_022_AUDIT.md's diagnostic matrix), nudging only
+  // lightness (never hue/saturation) for the real, measured weak cases
+  // (editorialBotanical, softWatercolorInspired). Explicit user-supplied
+  // customColors are left untouched — a deliberate user color choice
+  // (including a deliberately low-contrast one) is never silently
+  // "corrected".
+  const colors = custom.length >= 2
+    ? custom.slice(0, 6)
+    : ensureContrastSafePalette(resolveColors(getPalette(params.paletteId), params.colorCount)).colors;
   const backgroundColor = colors[0];
   const { tileSize } = params;
   // Color story: pick 2 dominant accents once per tile; most placements

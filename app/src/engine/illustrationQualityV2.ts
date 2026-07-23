@@ -150,7 +150,33 @@ export function computeIllustrationQualityV2(tile: TileData, metrics: Compositio
   const flowerRealism = computeFlowerRealism(primaries);
   const premiumFeel = Math.round((beauty.luxuryFeeling + leafRealism + flowerRealism) / 3);
 
-  const subScores = [botanicalRealism, illustrationQuality, bouquetQuality, silhouetteQuality, gestureQuality, leafRealism, flowerRealism, premiumFeel];
+  // Build 022, Phase 5 (Master Vector Illustration Quality Upgrade):
+  // BUILD_022_AUDIT.md's diagnostic matrix found a real, evidence-backed
+  // scoring blind spot here (structurally identical to Finding 4's
+  // Product-Target Fit averaging flaw) — `computeBouquetQuality`,
+  // `computeGestureQuality`, and `computeFlowerRealism` all early-return 0
+  // when a tile has zero `premium-hero`-tagged instances (see each
+  // function above), which is true for every style whose Style DNA
+  // doesn't set `premiumHero: true` (11 of 15 built-in presets —
+  // generators/premiumHero.ts is simply never invoked for them). Averaging
+  // those 3 structural zeros into `overall` alongside 5 genuinely-measured
+  // dimensions permanently caps every non-premium-hero preset's score
+  // regardless of real illustration quality — confirmed empirically: the
+  // 4 weakest `illustrationQualityV2.overall` scores across all 15 presets
+  // are exactly the 4 non-premium-hero presets in the diagnostic sample,
+  // and the 4 strongest are exactly the 4 `premiumHero: true` presets.
+  // Fix: only average in the 3 hero-construction-only dimensions when this
+  // tile actually has premium-hero instances to measure — every other
+  // dimension (botanicalRealism/illustrationQuality/silhouetteQuality,
+  // plus leafRealism which is measured from ordinary `leaves` groups any
+  // construction method can emit) still applies universally and is
+  // unaffected. `premiumFeel` also folds in leafRealism/flowerRealism
+  // unconditionally (unchanged) — it already reads as "reduced, not zero"
+  // for a non-hero tile since leafRealism alone still contributes.
+  const hasPremiumHeroInstances = primaries.some((p) => findDataPartNodes(p, 'premium-hero').length > 0);
+  const universalScores = [botanicalRealism, illustrationQuality, silhouetteQuality, leafRealism, premiumFeel];
+  const heroOnlyScores = hasPremiumHeroInstances ? [bouquetQuality, gestureQuality, flowerRealism] : [];
+  const subScores = [...universalScores, ...heroOnlyScores];
   const overall = Math.round(subScores.reduce((a, b) => a + b, 0) / subScores.length);
 
   return { botanicalRealism, illustrationQuality, bouquetQuality, silhouetteQuality, gestureQuality, leafRealism, flowerRealism, premiumFeel, overall };

@@ -5,6 +5,9 @@ import { buildTileWithHeroRetry } from '../src/engine/heroDetector';
 import { defaultParams } from '../src/engine/defaults';
 import type { GenerateParams, LayoutId, TileData } from '../src/engine/types';
 import { computeOverallScore, computeHeroVisibilityScore, SOFT_PENALTY_RULES, type CompositionMetrics } from '../src/engine/scoring';
+import { computeOverallScoreV2 } from '../src/engine/scoringV2';
+import { layoutEvaluationClass } from '../src/engine/layoutEvaluation';
+import { bestFitProductTargetFit } from '../src/collection/productTargetFitV2';
 import { computePatternBeautyScore } from '../src/engine/patternBeautyScore';
 import { computePatternReadability, type PatternReadabilityResult } from '../src/engine/patternReadability';
 import { detectVisualIssues, type VisualIssueId } from '../src/critic/visualAnalysis';
@@ -107,6 +110,21 @@ export interface EvalResult {
   styleDnaId?: string;
   metrics: CompositionMetrics;
   absoluteCommercialQuality: number;
+  /** Build 022 Finding 1: Build 012 (Evaluation Intelligence Engine V3)
+   * already built and validated a layout-aware replacement for
+   * `computeOverallScore` (`engine/scoringV2.ts`'s `computeOverallScoreV2`,
+   * gated on `engine/layoutEvaluation.ts`'s `layoutEvaluationClass`) but
+   * it was only ever wired into the interactive Design Critic
+   * (`critic/problems.ts`), never into this reporting harness — every
+   * portfolio/composition average this script has produced since Build
+   * 012 shipped re-introduced the exact lattice-layout bias Build 012
+   * itself measured and fixed for `minimalBotanical`/`boutiquePackaging`/
+   * `premiumTextile` (BUILD_022_AUDIT.md Finding 1: +37 to +44 points for
+   * those 3 presets, 0 change for organic-layout controls). Additive
+   * field — `absoluteCommercialQuality` (V1) is kept unchanged for every
+   * existing caller/baseline/test; this is the corrected score going
+   * forward for anything Build 022 or later computes classification from. */
+  absoluteCommercialQualityV2: number;
   heroVisibility: number;
   patternBeautyScore: number;
   readability: PatternReadabilityResult;
@@ -114,6 +132,20 @@ export interface EvalResult {
   issues: Record<VisualIssueId, boolean>;
   styleFitQuality?: number;
   productTargetFit?: number;
+  /** Build 022 Finding 4 / Phase 7 (Product-Target Fit Engine V2):
+   * `productTargetFit` (V1) averages `evaluateProductTargets`'s score
+   * across all 13 named products uniformly, which mathematically
+   * regresses toward ~50 regardless of real fit (BUILD_022_AUDIT.md
+   * Finding 4 — the caller's keyword text is a Style DNA label, so the
+   * dominant +35 keyword-match bonus almost never fires, and irrelevant
+   * products drag the average down no matter how well the pattern suits
+   * its actual best product). This reports the mean of the pattern's own
+   * best-fit product(s) instead — see
+   * `collection/productTargetFitV2.ts`'s own doc comment for the exact
+   * method. Kept alongside (not replacing) `productTargetFit` for
+   * backward comparability. */
+  productTargetFitV2?: number;
+  bestFitProducts?: string[];
   /** Build 005, Section 9: only meaningful for the botanical generator —
    * undefined for every other category, same convention as
    * GenerateParams.botanicalFamily itself. */
@@ -167,6 +199,7 @@ export function evaluateWithTile(label: string, params: GenerateParams, styleDna
   // for a second full computeMetrics pass over the same tile.
   const { tileData: tile, metrics } = buildTileWithHeroRetry(params);
   const absoluteCommercialQuality = computeOverallScore(metrics, 'stockClean').score;
+  const absoluteCommercialQualityV2 = computeOverallScoreV2(metrics, 'stockClean', { layoutClass: layoutEvaluationClass(params.layoutId) }).score;
   const heroVisibility = computeHeroVisibilityScore(metrics);
   const patternBeautyScore = computePatternBeautyScore(metrics).overall;
   const readability = computePatternReadability(tile, metrics);
@@ -176,11 +209,16 @@ export function evaluateWithTile(label: string, params: GenerateParams, styleDna
 
   let styleFitQuality: number | undefined;
   let productTargetFit: number | undefined;
+  let productTargetFitV2: number | undefined;
+  let bestFitProducts: string[] | undefined;
   if (styleDnaId) {
     const dna = STYLE_DNA_PRESETS[styleDnaId];
     styleFitQuality = computeStyleDnaConsistency(metrics, dna);
-    const evaluations = evaluateProductTargets({ categoryId: params.categoryId, tileSize: params.tileSize, density: params.density, keywordText: dna.label });
+    const evaluations = evaluateProductTargets({ categoryId: params.categoryId, tileSize: params.tileSize, density: params.density, keywordText: dna.label, heroVisibility });
     productTargetFit = Math.round(evaluations.reduce((a, e) => a + e.score, 0) / evaluations.length);
+    const bestFit = bestFitProductTargetFit(evaluations);
+    productTargetFitV2 = bestFit.score;
+    bestFitProducts = bestFit.products;
   }
 
   let illustrationQuality: number | undefined;
@@ -220,6 +258,7 @@ export function evaluateWithTile(label: string, params: GenerateParams, styleDna
     styleDnaId,
     metrics,
     absoluteCommercialQuality,
+    absoluteCommercialQualityV2,
     heroVisibility,
     patternBeautyScore,
     commercialPatternCritique,
@@ -231,6 +270,8 @@ export function evaluateWithTile(label: string, params: GenerateParams, styleDna
     issues,
     styleFitQuality,
     productTargetFit,
+    productTargetFitV2,
+    bestFitProducts,
     botanicalFamily: params.botanicalFamily,
     illustrationQuality,
     visualRichness,
@@ -420,6 +461,7 @@ export function aggregateMetrics(results: EvalResult[]) {
     perMetric[key] = stats(results.map((r) => r.metrics[key]));
   }
   perMetric.absoluteCommercialQuality = stats(results.map((r) => r.absoluteCommercialQuality));
+  perMetric.absoluteCommercialQualityV2 = stats(results.map((r) => r.absoluteCommercialQualityV2));
   perMetric.heroVisibility = stats(results.map((r) => r.heroVisibility));
   perMetric.patternBeautyScore = stats(results.map((r) => r.patternBeautyScore));
   perMetric.readabilityThumbnail200 = stats(results.map((r) => r.readability.thumbnail200));
@@ -430,6 +472,7 @@ export function aggregateMetrics(results: EvalResult[]) {
   if (withStyleFit.length > 0) {
     perMetric.styleFitQuality = stats(withStyleFit.map((r) => r.styleFitQuality!));
     perMetric.productTargetFit = stats(withStyleFit.map((r) => r.productTargetFit!));
+    perMetric.productTargetFitV2 = stats(withStyleFit.map((r) => r.productTargetFitV2!));
   }
   // Build 005, Section 9: only botanical-category results carry these.
   const withIllustrationQuality = results.filter((r) => r.illustrationQuality !== undefined);
@@ -671,6 +714,10 @@ function main() {
   console.log(`Signature Fingerprint Distinctness (15 Style DNA presets)=${signatureFingerprintDistinctness}%`);
   console.log(`Scenario suite (n=${scenarioResults.length}): Absolute Commercial Quality mean=${report.scenarioSuite.aggregate.absoluteCommercialQuality.mean}, median=${report.scenarioSuite.aggregate.absoluteCommercialQuality.median}`);
   console.log(`Portfolio (n=${portfolioResults.length}): Absolute Commercial Quality mean=${report.portfolio.aggregate.absoluteCommercialQuality.mean}, median=${report.portfolio.aggregate.absoluteCommercialQuality.median}`);
+  console.log(`Portfolio Absolute Commercial Quality V2 (layout-aware, Build 022) mean=${report.portfolio.aggregate.absoluteCommercialQualityV2.mean}, median=${report.portfolio.aggregate.absoluteCommercialQualityV2.median}`);
+  if (report.portfolio.aggregate.productTargetFitV2) {
+    console.log(`Portfolio Product-Target Fit V2 (best-fit, Build 022) mean=${report.portfolio.aggregate.productTargetFitV2.mean}`);
+  }
   console.log(`Portfolio Palette Contrast mean=${report.portfolio.aggregate.paletteContrast.mean}`);
   console.log(`Portfolio Hero Visibility mean=${report.portfolio.aggregate.heroVisibility.mean}`);
   console.log(`Portfolio Pattern Beauty Score mean=${report.portfolio.aggregate.patternBeautyScore.mean}`);

@@ -4,6 +4,7 @@ import { mapCompositionZoneToEyeFlow } from './eyeFlowEngine';
 import { ASYMMETRY_DIRECTIONS } from './compositionIntelligence';
 import type { ClusterArchetype } from './clusterEngine';
 import { HIERARCHY_PRESETS } from './hierarchy';
+import { applyCompositionEnvelope } from './compositionEnvelopes';
 import { GENERATORS } from '../generators';
 import { GROWTH_PRESETS } from '../generators/growth';
 import type { BotanicalFamily } from '../generators/botanicalFamilies';
@@ -381,7 +382,15 @@ export function resolveStyleDna(dna: StyleDna, seed: string): StyleDnaResolvedFi
     // Build 010, Section 8 (Signature Style Engine): `premiumRhythm` merged
     // in (never mutating the shared preset object) only for `premiumHero`
     // styles -- see `professionalRules`'s own doc comment above for why.
-    hierarchy: dna.premiumHero ? { ...HIERARCHY_PRESETS[dna.hierarchyPreset].value, premiumRhythm: true } : HIERARCHY_PRESETS[dna.hierarchyPreset].value,
+    // Build 022, Phase 3 (Style-Aware Composition Repair): applied last,
+    // on top of premiumRhythm — `applyCompositionEnvelope` is a strict
+    // no-op for every style id without a registered override (see
+    // compositionEnvelopes.ts), so this changes nothing for 13 of the 15
+    // built-in presets.
+    hierarchy: applyCompositionEnvelope(
+      dna.id,
+      dna.premiumHero ? { ...HIERARCHY_PRESETS[dna.hierarchyPreset].value, premiumRhythm: true } : HIERARCHY_PRESETS[dna.hierarchyPreset].value,
+    ),
     compositionIntelligence: {
       balanceStrength: CLUSTER_BALANCE_STRENGTH[dna.clusterStyle] * (1 - dna.clusterDensity * 0.4),
       rhythmStrength: RHYTHM_STRENGTH[dna.rhythmProfile],

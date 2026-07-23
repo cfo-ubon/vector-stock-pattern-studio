@@ -18,12 +18,37 @@ describe('computeIllustrationQualityV2 (Build 007, Section 8)', () => {
     expect(result.overall).toBeLessThanOrEqual(100);
   });
 
-  it('overall is exactly the average of the 8 sub-scores', () => {
-    const tile = buildTile({ ...defaultParams(), categoryId: 'botanical', seed: 'iqv2-formula' });
-    const result = computeIllustrationQualityV2(tile, computeMetrics(tile));
-    const subScores = ILLUSTRATION_QUALITY_V2_DIMENSIONS.map(({ key }) => result[key]);
-    const expected = Math.round(subScores.reduce((a, b) => a + b, 0) / subScores.length);
-    expect(result.overall).toBe(expected);
+  it('overall averages the 5 universal sub-scores plus the 3 hero-construction-only sub-scores only when the tile actually has premium-hero instances (Build 022, Phase 5)', () => {
+    // Build 022 fix: `bouquetQuality`/`gestureQuality`/`flowerRealism` are
+    // structurally 0 (not "measured and poor") for any tile with zero
+    // premium-hero instances -- averaging those 3 zeros into `overall`
+    // unconditionally (this test's pre-Build-022 assertion) permanently
+    // capped every non-premiumHero preset's score regardless of real
+    // quality (BUILD_022_AUDIT.md's diagnostic matrix: the 4 weakest
+    // illustrationQualityV2 scores across all 15 built-in presets were
+    // exactly the 4 non-premiumHero presets). A premium-hero tile still
+    // averages all 8, unchanged.
+    const heroDna = resolveStyleDna(STYLE_DNA_PRESETS.luxuryFloral, 'iqv2-formula-hero');
+    const heroTile = buildTile({ ...defaultParams(), ...heroDna, premiumHero: true, seed: 'iqv2-formula-hero' });
+    const heroResult = computeIllustrationQualityV2(heroTile, computeMetrics(heroTile));
+    const heroSubScores = ILLUSTRATION_QUALITY_V2_DIMENSIONS.map(({ key }) => heroResult[key]);
+    expect(heroResult.overall).toBe(Math.round(heroSubScores.reduce((a, b) => a + b, 0) / heroSubScores.length));
+
+    const nonHeroTile = buildTile({ ...defaultParams(), categoryId: 'botanical', seed: 'iqv2-formula-nonhero' });
+    const nonHeroResult = computeIllustrationQualityV2(nonHeroTile, computeMetrics(nonHeroTile));
+    expect(nonHeroResult.bouquetQuality).toBe(0);
+    expect(nonHeroResult.gestureQuality).toBe(0);
+    expect(nonHeroResult.flowerRealism).toBe(0);
+    const universal = [nonHeroResult.botanicalRealism, nonHeroResult.illustrationQuality, nonHeroResult.silhouetteQuality, nonHeroResult.leafRealism, nonHeroResult.premiumFeel];
+    const expectedNonHero = Math.round(universal.reduce((a, b) => a + b, 0) / universal.length);
+    expect(nonHeroResult.overall).toBe(expectedNonHero);
+    // The old flawed formula (averaging in the 3 structural zeros) always
+    // scores <= the new one whenever the universal sub-scores' mean is
+    // positive -- confirms this is a strict improvement, never a decrease,
+    // for every non-hero tile.
+    const oldFormulaSubScores = ILLUSTRATION_QUALITY_V2_DIMENSIONS.map(({ key }) => nonHeroResult[key]);
+    const oldFormulaOverall = Math.round(oldFormulaSubScores.reduce((a, b) => a + b, 0) / oldFormulaSubScores.length);
+    expect(nonHeroResult.overall).toBeGreaterThanOrEqual(oldFormulaOverall);
   });
 
   it('bouquetQuality/gestureQuality/flowerRealism are 0 for a non-botanical tile', () => {
