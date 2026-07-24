@@ -1,0 +1,110 @@
+/* Application Backup System — Backup Manager. Reuses the same shared CSS
+ * custom properties and class-naming convention as
+ * `components/production/productionCenter.css` rather than inventing a
+ * parallel design language. */
+
+.backup-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  color: var(--text);
+  min-height: 60vh;
+}
+
+.backup-center-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.backup-center-header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.backup-tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.backup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.backup-card {
+  background: var(--panel, #1c1c22);
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.backup-card h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+.backup-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.backup-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.backup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.backup-table th,
+.backup-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border, #333);
+  vertical-align: top;
+}
+
+.backup-error-text {
+  color: #e07a7a;
+}
+
+.backup-warning-text {
+  color: #d9a441;
+}
+
+.backup-success-text {
+  color: #5cb27b;
+}
+
+.backup-progress-track {
+  width: 100%;
+  height: 0.6rem;
+  background: var(--panel-alt, #26262e);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border, #333);
+}
+
+.backup-progress-fill {
+  height: 100%;
+  background: var(--accent, #6c8cff);
+  transition: width 0.15s ease-out;
+}
+
+.backup-issue-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+}

@@ -34,7 +34,14 @@ export const DB_NAME = 'vsp-db';
 // access, and the migration needs its own error handling/reporting, not a
 // silent side effect of opening the database). The other 7 stores back
 // entirely new Build 026 modules and have no prior data to migrate.
-export const DB_VERSION = 6;
+//
+// v7 (Application Backup System): adds `appBackupHistory` — one row per
+// backup ever created or restored from, including the archive's own Blob
+// (bounded by the user's configured retention policy, pruned in
+// `appBackupHistoryStore.ts`, not here), so "restore from history" works
+// without asking the user to re-locate the original `.vspsb` file.
+export const DB_VERSION = 7;
+export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
 export const SAVED_STORE = 'saved';
 export const PROJECTS_STORE = 'projects';
 export const ASSETS_STORE = 'assets';
@@ -118,6 +125,10 @@ export function openDb(): Promise<IDBDatabase> {
         }
         if (!db.objectStoreNames.contains(MARKETPLACE_REGISTRATIONS_STORE)) {
           db.createObjectStore(MARKETPLACE_REGISTRATIONS_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(APP_BACKUP_HISTORY_STORE)) {
+          const backupHistory = db.createObjectStore(APP_BACKUP_HISTORY_STORE, { keyPath: 'historyId' });
+          backupHistory.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);

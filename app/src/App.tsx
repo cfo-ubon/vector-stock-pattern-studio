@@ -56,6 +56,7 @@ import { SavedPanel, type SavedItem } from './components/SavedPanel';
 import { AiAssistPanel } from './components/AiAssistPanel';
 import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
+import { BackupManagerView } from './components/backup/BackupManagerView';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -152,7 +153,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -1090,9 +1091,12 @@ function App() {
         onOpenDashboard={() => setView('dashboard')}
         onOpenTrendStudio={() => setView('trendStudio')}
         onOpenPortfolioManager={() => setView('portfolio')}
+        onOpenBackupManager={() => setView('backup')}
       />
       {view === 'portfolio' ? (
         <PortfolioManagerView onClose={() => setView('editor')} />
+      ) : view === 'backup' ? (
+        <BackupManagerView onClose={() => setView('editor')} />
       ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
