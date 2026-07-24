@@ -4,9 +4,69 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
+> **Application Version:** v1.80
+> **Development Build:** Build 026
+> **Source Commit:** d45498f
+> **Documentation Status:** Current for Build 026 on branch
+> `claude/build-026-production-commercial-feedback` — **not yet merged to
+> `main`**. The `main` branch is currently at **Application Version v1.74
+> / Development Build 021** (merged via Release Candidate RC-1, covering
+> Builds 006–021). If you are reading this file on `main`, the Production
+> Portfolio & Commercial Feedback Engine features described below (and
+> the entire "🏭 ศูนย์การผลิต" section) are **not yet present** — they
+> ship only once this branch is merged. See
+> [Version and Build Numbering](#-version-and-build-numbering) below for
+> what these two numbers mean and why they differ.
+
 แอปสร้างลวดลายเวคเตอร์แบบ **seamless (ต่อกันไร้รอยต่อ)** สำหรับขายบนเว็บ stock
 เช่น Shutterstock, Adobe Stock, Freepik, Creative Fabrica — ทุกอย่างทำงานใน
 เบราว์เซอร์ ไม่เรียก AI API ไม่มีค่าใช้จ่ายต่อครั้ง สร้างได้ไม่จำกัด
+
+---
+
+## 🔢 Version and Build Numbering
+
+This project tracks two independent numbers. They are not the same
+sequence and are not required to match:
+
+- **Application Version** (e.g. `v1.80`) — identifies the user-facing
+  software release. It increments every time a user-visible change ships
+  in `docs/USER_GUIDE.md`'s changelog (บันทึกการอัปเดต), regardless of
+  which internal Build produced it.
+- **Development Build** (e.g. `Build 026`) — identifies one scoped
+  internal development milestone (a single work session or PR's worth of
+  planned scope, per its own `BUILD_0XX_REPORT.md`). A Build is the unit
+  this team plans, audits, tests, and ships against.
+- **The numbers do not need to match**, and in practice they diverge:
+  Build 021 shipped as v1.74; Build 026 (this one) ships as v1.80.
+- **One Build can contain multiple internal Application Version bumps.**
+  Build 025, for example, shipped two separate Application Version
+  increments in the same Build (v1.78, then v1.79 after a follow-up fix
+  in the same session) — both belong to the one Build 025.
+- **The commit hash identifies the exact source revision** a given
+  Application Version / Development Build pairing was built from — the
+  only unambiguous way to pin down "this exact state of the code," since
+  version and build numbers alone don't capture uncommitted or
+  in-progress work.
+
+### Version history (recent builds)
+
+| Application Version | Development Build | Commit | Main Feature | Status |
+|---|---|---|---|---|
+| v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
+| v1.79 | Build 025 (follow-up) | `3c8bbb5` | Connectivity-Aware Thinning Repair — Luxury Floral fragmentation 60.67%→23% | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
+| v1.78 | Build 025 | `c922d27` | Luxury Floral Composition Engine (built, shipped disabled by default) | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
+| v1.77 | Build 024 | `5e73312` | Art-Direction model, Depth-Layering Engine, Thumbnail Legibility Engine | On branch `claude/build-024-botanical-anatomy-depth-engine`, not merged to `main` |
+| v1.76 | Build 023 | `61f0738` | Visual Beauty & Premium Art Direction Engine | On branch `claude/build-023-visual-beauty-engine`, not merged to `main` |
+| v1.75 | Build 022 | `525c1d1` | Weakest-scoring pattern-category quality upgrade | On branch `claude/build-022-weak-style-commercial-upgrade`, not merged to `main` |
+| v1.74 | Build 021 | *(see RC-1 merge commit `5a947f3`)* | Production Mode — one-click sale-ready batch export | **Merged to `main`** (current `main` HEAD version) |
+| v1.0–v1.73 | Builds prior to 021 | *(not individually re-audited for this table)* | See the full changelog below for each entry | Historical — merged to `main` via earlier releases; see [`RELEASE_CANDIDATE_REPORT.md`](../RELEASE_CANDIDATE_REPORT.md) |
+
+Historical changelog entries below (e.g. "v1.52 — Build 004", "v1.53 —
+Build 005") are left as originally written — they are accurate records
+of past milestones, not errors to correct, even though the Build-numbering
+convention shown above wasn't formalized until later in the project's
+history.
 
 ---
 
