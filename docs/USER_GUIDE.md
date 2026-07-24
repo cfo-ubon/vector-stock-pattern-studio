@@ -7,7 +7,7 @@
 > **Application Version:** v1.81
 > **Development Build:** Build 026 (Application Backup System shipped as a
 > follow-on increment on the same branch, not a separate numbered Build)
-> **Source Commit:** (see the commit that introduced this line)
+> **Source Commit:** d3c97e2
 > **Documentation Status:** Current for Build 026 + the Application Backup
 > System on branch `claude/build-026-production-commercial-feedback` —
 > **not yet merged to `main`**. The `main` branch is currently at
