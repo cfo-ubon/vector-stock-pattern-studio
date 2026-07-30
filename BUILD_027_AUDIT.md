@@ -1,7 +1,67 @@
 # Build 027 — Offline PC & iPad Application: Phase 1 Audit
 
-**Status: audit complete, implementation not yet started.**
+**Status: Phases 2-4 implemented and verified below. Phases 5-11 remain (see
+`docs/build_reports` when written). Branch: `claude/build-027-offline-pc-ipad`.**
 **Branch not yet created** (this audit was done on `main` at commit `4344c99`, read-only).
+
+---
+
+## Phase 4 results — Windows desktop app (Electron)
+
+Per the user's explicit instruction, Phase 4 forward-ported the proven
+Electron/IPC/security/installer components from `codex/offline-windows-desktop`
+onto this branch, rebased onto the current `.vspsb`/IndexedDB architecture
+(Builds 022-026 + Application Backup System) instead of that branch's obsolete
+`.vsps`/SQLite (`better-sqlite3`) format, which was dropped entirely — the app's
+real persistence layer needed no main-process reimplementation at all, since
+Electron's `BrowserWindow` renderer is a full Chromium instance where IndexedDB
+already works exactly as it does in the browser. Only native file dialogs
+(Open/Save `.vspsb`/exports) and basic app-info genuinely needed a main-process
+bridge.
+
+### What was reused vs. rewritten from `codex/offline-windows-desktop`
+
+| Component | Reused | Rewritten |
+|---|---|---|
+| `electron/security/paths.ts` (path-traversal guards, filename sanitization) | Yes, near-verbatim | Extension allowlist updated (dropped `.vsps`, added `.vspsb`) |
+| `electron/main.ts` (window creation, security `webPreferences`, menu, navigation lockdown) | Security posture/pattern reused | Autosave timers, backup timers, and "unsaved changes" close-confirmation dropped entirely — no such concept applies when persistence is continuous IndexedDB |
+| `electron/preload.ts` (contextBridge allowlist pattern) | Pattern reused | Channel surface rewritten: generic file open/save/folder-select + app info, not project/settings/backup passthroughs |
+| `electron/ipcContract.ts`, `ipc/*.ts` | — | New: 7-channel allowlist, ArrayBuffer-based binary transfer (not `number[]`) for efficient large `.vspsb` transfer |
+| `src/desktop/desktopBridge.ts`, `useDesktopIntegration.ts` | `isDesktop()`/bridge pattern reused | Much smaller interface; no dirty-state reporting |
+| `electron-builder.yml` | Reused/adapted | `asarUnpack: better-sqlite3` removed — no native module dependency remains |
+| `app/build/icons/*` | Copied verbatim | — |
+
+### Electron security requirements (user requirement #7) — verified in code
+
+- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, `webSecurity: true` — set in `electron/main.ts`'s `webPreferences`.
+- No remote module; `contextBridge.exposeInMainWorld('vsp', ...)` is the only renderer-facing surface.
+- IPC channels are an explicit allowlist (`IPC_CHANNELS` in `ipcContract.ts`); `preload.ts` rejects any channel not in the list before calling `ipcRenderer.invoke`.
+- `will-navigate` and `setWindowOpenHandler` lock down navigation/new windows.
+- All file-dialog paths come from the dialog itself, never a renderer-supplied string; `file:openFolder` additionally verifies the path is a real directory (`fs.stat().isDirectory()`) before calling `shell.openPath`, closing an arbitrary-execution risk that a bare `shell.openPath(rendererString)` would allow.
+
+### Honest verification results (per the user's mandated result policy)
+
+| Check | Result |
+|---|---|
+| Source implementation (`tsc -p tsconfig.electron.json --noEmit`) | **PASS** — zero errors |
+| Full app regression suite (`npm test`) | **PASS** — 326/326 files, 3520/3520 tests |
+| `tsc -b` (whole `/app`) | **PASS** — zero errors |
+| `oxlint` (whole `/app` incl. `electron/`) | **PASS** — one pre-existing, unrelated warning in `submissionPackageBuilder.ts` (Build 026 code, not touched here) |
+| Linux Electron smoke test (`npm run desktop:smoke`, via Playwright's Electron driver + `xvfb-run`) | **PASS** — real app shell rendered (`.app-shell`, `.offline-status-bar` present), `window.vsp` bridge exposed with working methods, a real IPC round-trip (`getVersion()`) returned `1.0.0-desktop.1`, **zero console errors** |
+| Windows NSIS installer build (`electron-builder --win nsis --x64`, this Linux sandbox) | **PASS** — required installing `wine`/`wine32:i386` in-sandbox first (not present by default); produced `VectorStockPatternStudio-Setup-x64.exe` (~100.4 MB) |
+| Windows portable build (`electron-builder --win portable --x64`) | **PASS** — produced `VectorStockPatternStudio-Portable-x64.exe` (~89.3 MB) |
+| SHA-256 checksums | **PASS** — computed from the real built files, in `SHA256SUMS.txt` |
+| **Actual install + launch + use on a real Windows 11 machine** | **PENDING USER-PC VERIFICATION** — categorically impossible to perform from this Linux sandbox (no Windows runtime, no WebView2). See `docs/WINDOWS_INSTALLATION.md` and `app/scripts/verifyWindowsInstall.ps1`. |
+
+Per user requirement #10 ("Do not report PASS based on Linux cross-build alone")
+and #12 ("Final status must be PARTIAL until the actual Windows installer is
+installed and smoke-tested on a real Windows 11 machine"), **Phase 4's overall
+status is PARTIAL**, not PASS, until that last row is completed by the user.
+
+The build artifacts themselves (both `.exe` files, ~90-100 MB each) are not
+committed to git — they are reproducible any time via `npm run desktop:installer`
+/ `npm run desktop:portable` inside `/app`, and were delivered to the user
+directly for real-machine testing.
 
 ## 1. Repository state relevant to this build
 

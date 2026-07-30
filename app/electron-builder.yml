@@ -1,0 +1,53 @@
+# electron-builder configuration — Windows installer (NSIS) + portable
+# build. Per-user install (no admin rights required for normal use), user
+# data preserved across upgrade (nothing in this app writes user data
+# outside `userData/logs` at the main-process level at all — the actual
+# projects/portfolio/settings live in the renderer's IndexedDB, which
+# Electron itself persists per-app under userData and never touches on
+# upgrade or on uninstall unless the user explicitly opts in).
+#
+# Adapted from `codex/offline-windows-desktop`'s `electron-builder.yml`:
+# the original's `asarUnpack: better-sqlite3` entry is removed entirely —
+# this build has no native Node module dependency at all (no SQLite), so
+# there is nothing for electron-builder to rebuild against the target
+# Electron ABI, removing a whole class of native-module build risk the
+# old branch's own audit had flagged as unverified in a dev container.
+
+appId: com.cfoubon.vectorstockpatternstudio
+productName: Vector Stock Pattern Studio
+copyright: Copyright © CFO Ubon
+
+directories:
+  output: ../release/VectorStockPatternStudio_Desktop/build-tmp
+  buildResources: build
+
+files:
+  - dist-desktop/**/*
+  - dist-electron/**/*
+  - package.json
+  - "!node_modules/electron-builder${/*}"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: build/icons/icon.ico
+  requestedExecutionLevel: asInvoker # per-user install, no admin required for normal use
+
+nsis:
+  oneClick: false
+  perMachine: false # per-user install
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Vector Stock Pattern Studio
+  uninstallDisplayName: Vector Stock Pattern Studio
+  deleteAppDataOnUninstall: false # never delete user data on uninstall without explicit confirmation
+  artifactName: "VectorStockPatternStudio-Setup-x64.${ext}"
+
+portable:
+  artifactName: "VectorStockPatternStudio-Portable-x64.${ext}"
+
+publish: null # no auto-update/publish server — fully offline, no cloud dependency

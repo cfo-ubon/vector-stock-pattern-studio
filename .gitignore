@@ -4,6 +4,13 @@ dist-ssr
 *.local
 .DS_Store
 
+# Build 027 — electron-builder Windows installer/portable output (tens to
+# hundreds of MB per artifact). Reproducible any time via
+# `npm run desktop:installer` / `npm run desktop:portable` inside /app;
+# only the SHA-256 checksums and build report are committed, not the
+# binaries themselves.
+/release
+
 # Build 013 (Portfolio Intelligence): the raw 5,000-pattern generation
 # manifest and its resume checkpoint are large (tens of MB) intermediate
 # working data, not the "lightweight manifest" artifact the build brief asks

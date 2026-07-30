@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -28,7 +29,15 @@
     "validate:recovery:consistency": "tsx scripts/validateRecovery.ts consistency",
     "validate:recovery:large": "tsx scripts/validateRecovery.ts large",
     "validate:recovery:browser-cycle": "tsx scripts/browserRecovery.ts cycle",
-    "validate:recovery:browser-crash": "tsx scripts/browserRecovery.ts crash"
+    "validate:recovery:browser-crash": "tsx scripts/browserRecovery.ts crash",
+    "desktop:dev": "npm run desktop:build && electron .",
+    "desktop:build:renderer": "vite build --config vite.config.desktop.ts",
+    "desktop:build:main": "tsc -p tsconfig.electron.json && node -e \"require('fs').writeFileSync('dist-electron/package.json', JSON.stringify({type:'commonjs'}))\"",
+    "desktop:build": "npm run desktop:build:renderer && npm run desktop:build:main",
+    "desktop:installer": "npm run desktop:build && electron-builder --win nsis --x64",
+    "desktop:portable": "npm run desktop:build && electron-builder --win portable --x64",
+    "desktop:test": "npm test && tsc -p tsconfig.electron.json --noEmit",
+    "desktop:smoke": "node scripts/electronSmokeTest.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
@@ -41,6 +50,8 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
     "oxlint": "^1.71.0",

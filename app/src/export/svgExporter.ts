@@ -4,6 +4,7 @@ import { optimizeSvgTree } from '../engine/svgOptimizer';
 import { GENERATORS } from '../generators';
 import { LAYOUTS } from '../layouts';
 import { getPalette } from '../palettes/palettes';
+import { isDesktop, getDesktopBridge, filtersForFilename } from '../desktop/desktopBridge';
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 const SVG_NS_ATTRS = {
@@ -155,7 +156,24 @@ export function buildExportFilename(parts: string[], seed: string, suffix = ''):
   return `${slug}-seamless-pattern-${safeSeed}${suffix}.svg`;
 }
 
+/** Every export/backup-download call site in the app funnels through this
+ * one function — which makes it the single, additive integration point
+ * for the Electron desktop build's native Save dialog (Build 027 Phase
+ * 4): `isDesktop()` is false in the plain web app/PWA (where
+ * `window.vsp` is never defined), so behavior there is byte-for-byte
+ * unchanged from before. Inside Electron, a native dialog opens instead
+ * of the browser's anchor-download mechanism; if that somehow throws,
+ * this falls back to the same anchor-download path rather than losing
+ * the file entirely. */
 export function downloadBlobFile(filename: string, blob: Blob) {
+  if (isDesktop()) {
+    saveBlobViaDesktopDialog(filename, blob).catch(() => downloadBlobFileViaBrowser(filename, blob));
+    return;
+  }
+  downloadBlobFileViaBrowser(filename, blob);
+}
+
+function downloadBlobFileViaBrowser(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -164,6 +182,14 @@ export function downloadBlobFile(filename: string, blob: Blob) {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+async function saveBlobViaDesktopDialog(filename: string, blob: Blob): Promise<void> {
+  const bridge = getDesktopBridge();
+  if (!bridge) throw new Error('Desktop bridge unavailable.');
+  const data = await blob.arrayBuffer();
+  const result = await bridge.saveBinaryFile({ suggestedName: filename, filters: filtersForFilename(filename), data });
+  if (!result.ok && !result.canceled) throw new Error(result.error ?? 'Native save failed.');
 }
 
 export function downloadSvgFile(filename: string, svgString: string) {

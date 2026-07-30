@@ -58,6 +58,7 @@ import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
 import { BackupManagerView } from './components/backup/BackupManagerView';
 import { OfflineStatusBar } from './components/pwa/OfflineStatusBar';
+import { useDesktopIntegration } from './desktop/useDesktopIntegration';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -156,6 +157,17 @@ function App() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
+
+  // No-op outside the Electron desktop build (`isDesktop()` false) — see
+  // `desktop/useDesktopIntegration.ts`'s header comment. The File menu's
+  // Create/Restore Backup items open the same Backup Manager the top-nav
+  // button does; Export Current/Open Export Folder/Preferences are not
+  // yet wired to a specific handler (no regression from the web app,
+  // since those menu items simply do nothing yet rather than crash).
+  useDesktopIntegration({
+    onMenuCreateBackup: () => setView('backup'),
+    onMenuRestoreBackup: () => setView('backup'),
+  });
 
   useEffect(() => saveGallery(gallery), [gallery]);
   // Saved library + Projects both live in IndexedDB (effectively

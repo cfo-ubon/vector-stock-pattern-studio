@@ -4,18 +4,20 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.82
+> **Application Version:** v1.83
 > **Development Build:** Build 027 (Offline PC and iPad Application
 > Package — in progress; see `BUILD_027_AUDIT.md`)
 > **Source Commit:** (see the commit that introduced this line)
 > **Documentation Status:** Builds 022–026 and the Application Backup
 > System are now on `main` (merged as commit `4344c99`). This entry
-> additionally covers Build 027's **iPad PWA offline support** (service
-> worker, offline status bar, storage cleanup tool), shipped so far on
-> branch `claude/build-027-offline-pc-ipad` — **not yet merged to `main`**.
-> Build 027's Windows desktop packaging is still in progress and not yet
-> reflected here. If you are reading this file on `main`, the "💾 Offline
-> ใช้งานได้แม้ไม่มีอินเทอร์เน็ต" section below is **not yet present**. See
+> additionally covers Build 027's **iPad PWA offline support** and its
+> **Windows desktop app (Electron)**, shipped so far on branch
+> `claude/build-027-offline-pc-ipad` — **not yet merged to `main`**. The
+> Windows build has been verified on Linux only (compiles, packages, and
+> passes a headless smoke test) — real installation on Windows 11 is
+> **pending user verification**, see `docs/WINDOWS_INSTALLATION.md`. If
+> you are reading this file on `main`, the "💾 Offline ใช้งานได้แม้ไม่มี
+> อินเทอร์เน็ต" section below is **not yet present**. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -54,6 +56,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v1.83 | Build 027 (Phase 4) | *(see the commit that introduced this line)* | Windows desktop app (Electron) — installer + portable build, verified on Linux only | On branch `claude/build-027-offline-pc-ipad`, not merged to `main` |
+| v1.82 | Build 027 (Phase 2-3) | *(see prior commit)* | iPad offline PWA (service worker, storage/backup safety) | On branch `claude/build-027-offline-pc-ipad`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.79 | Build 025 (follow-up) | `3c8bbb5` | Connectivity-Aware Thinning Repair — Luxury Floral fragmentation 60.67%→23% | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
 | v1.78 | Build 025 | `c922d27` | Luxury Floral Composition Engine (built, shipped disabled by default) | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
@@ -1335,6 +1339,30 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.83 — 30 ก.ค. 2026 — แอปพลิเคชัน Windows แบบออฟไลน์ (Electron Desktop App) 🆕
+
+- 🖥️ **แอปพลิเคชัน Windows แบบติดตั้งได้จริง**: ใช้โค้ดชุดเดียวกับเว็บแอป/PWA
+  ทั้งหมด (React/TypeScript/Vite/IndexedDB) — ไม่มีการเขียนใหม่แยกต่างหาก
+  ข้อมูลทั้งหมด (โปรเจกต์, คลังชิ้นงาน, คอลเลกชัน, การส่งขาย) เก็บใน
+  IndexedDB ของแอปเอง เหมือนเว็บแอปทุกประการ
+- 📦 **ไฟล์ที่ได้**: ตัวติดตั้ง Windows (`.exe`, สร้าง Shortcut บน Desktop/
+  Start Menu, ไม่ต้องสิทธิ์ผู้ดูแลระบบ) และเวอร์ชัน Portable (`.exe` เดียว
+  รันได้ทันทีไม่ต้องติดตั้ง) พร้อมไฟล์ตรวจสอบ `SHA256SUMS.txt`
+- 🔒 **ความปลอดภัยระดับสูง**: `contextIsolation`, ปิด `nodeIntegration`,
+  เปิด `sandbox`, ไม่มี remote module, ช่องทางสื่อสารระหว่างหน้าจอกับระบบ
+  (IPC) จำกัดเฉพาะรายการที่อนุญาตไว้ล่วงหน้าเท่านั้น (เปิด/บันทึกไฟล์แบบ
+  native, ดูเวอร์ชันแอป) — ไม่มีการเข้าถึงไฟล์ระบบตามอำเภอใจ
+- 💾 **กล่องโต้ตอบไฟล์แบบ native ของ Windows**: ส่งออก SVG/PNG/EPS/`.vspsb`
+  ใช้กล่องเลือกไฟล์จริงของ Windows แทนการดาวน์โหลดผ่านเบราว์เซอร์
+- 🔄 **Backup Manager ทำงานเหมือนเดิมทุกประการ**: `.vspsb` คือรูปแบบไฟล์
+  ถ่ายโอนข้อมูลระหว่าง PC ↔ iPad อย่างเป็นทางการ (ดู
+  `docs/DATA_TRANSFER_PC_IPAD.md`)
+- ⚠️ **สถานะการตรวจสอบ**: ตรวจสอบแล้วบน Linux (คอมไพล์ TypeScript ผ่าน,
+  สร้างไฟล์ติดตั้งสำเร็จ, ทดสอบเปิดแอปจริงแบบ headless ผ่าน — หน้าจอแสดงผล
+  ถูกต้อง ไม่มี error) แต่ **ยังไม่ได้ติดตั้งและทดสอบจริงบนเครื่อง Windows 11**
+  — ดูวิธีตรวจสอบด้วยตัวเองที่ `docs/WINDOWS_INSTALLATION.md` และสคริปต์
+  `app/scripts/verifyWindowsInstall.ps1`
 
 ### v1.82 — 30 ก.ค. 2026 — ใช้งานออฟไลน์บน iPad (Progressive Web App) 🆕
 
