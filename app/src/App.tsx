@@ -57,6 +57,7 @@ import { AiAssistPanel } from './components/AiAssistPanel';
 import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
 import { BackupManagerView } from './components/backup/BackupManagerView';
+import { OfflineStatusBar } from './components/pwa/OfflineStatusBar';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -1069,6 +1070,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <OfflineStatusBar />
       <header className="app-header">
         <div>
           <h1>Vector Stock Pattern Studio</h1>

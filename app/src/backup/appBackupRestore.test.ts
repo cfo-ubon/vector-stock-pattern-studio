@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Blob as NodeBlob } from 'node:buffer';
 import { previewAppBackupRestore, applyAppBackupRestore, AppBackupRestoreError } from './appBackupRestore';
 import { buildAppBackup } from './appBackupBuilder';
@@ -11,6 +11,7 @@ import { clearBackupHistoryStore, listBackupHistory } from './appBackupHistorySt
 import { DB_VERSION } from '../storage/db';
 import { MANIFEST_ENTRY_NAME } from './appBackupFormat';
 import type { AppBackupManifest } from './appBackupFormat';
+import * as appBackupIdb from './appBackupIdb';
 
 // `appBackupRestore.ts` reconstructs `PortfolioFileRecord.blob` from raw
 // archive bytes via the global `Blob` constructor (necessarily — it has
@@ -198,4 +199,44 @@ describe('applyAppBackupRestore — large asset library', () => {
     const result = await applyAppBackupRestore(backup.blob);
     expect(result.assetFilesRestored).toBe(30);
   }, 30000);
+});
+
+describe('applyAppBackupRestore — storage quota exceeded (Build 027 Phase 3)', () => {
+  it('surfaces a clear, safety-backup-referencing error instead of a raw browser exception', async () => {
+    const { asset } = await seedAsset('BeforeQuota', '<svg>before</svg>');
+    const backup = await buildAppBackup();
+
+    const quotaError = new DOMException('quota', 'QuotaExceededError');
+    const spy = vi.spyOn(appBackupIdb, 'putAllRecords').mockRejectedValueOnce(quotaError);
+
+    let caught: unknown;
+    try {
+      await applyAppBackupRestore(backup.blob);
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(AppBackupRestoreError);
+    expect((caught as Error).message).toMatch(/not enough free storage space/);
+
+    spy.mockRestore();
+
+    // Upsert-only semantics mean nothing already present was deleted by
+    // the failed attempt — the pre-existing asset must still be there.
+    const stillThere = await getPortfolioAsset(asset.assetId);
+    expect(stillThere).not.toBeNull();
+
+    // And the mandatory Safety Backup taken before the failed write must
+    // still be recorded, since that's the user's actual recovery path.
+    const history = await listBackupHistory();
+    expect(history.some((h) => h.trigger === 'safety')).toBe(true);
+  });
+
+  it('re-throws non-quota errors unchanged rather than misreporting them as a storage problem', async () => {
+    await seedAsset('Seed', '<svg>seed</svg>');
+    const backup = await buildAppBackup();
+
+    const spy = vi.spyOn(appBackupIdb, 'restoreAllStores').mockRejectedValueOnce(new Error('some other IDB failure'));
+    await expect(applyAppBackupRestore(backup.blob)).rejects.toThrow('some other IDB failure');
+    spy.mockRestore();
+  });
 });

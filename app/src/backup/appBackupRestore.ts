@@ -19,6 +19,7 @@ import { applySettingsSnapshot, type AppBackupSettingsSnapshot } from './appBack
 import { classifyBackupCompatibility, type MigrationCompatibilityResult } from './migrationCompatibility';
 import { buildAppBackup } from './appBackupBuilder';
 import { addBackupHistoryRecord } from './appBackupHistoryStore';
+import { isQuotaExceededError } from '../pwa/storageQuota';
 import {
   APP_BACKUP_STORE_NAMES,
   DATABASE_ENTRY_NAME,
@@ -117,31 +118,47 @@ export async function applyAppBackupRestore(blob: Blob, options: AppBackupRestor
   // database.json — every generic store.
   const databaseEntry = entries.find((e) => e.name === DATABASE_ENTRY_NAME);
   let storeRecordCounts: Record<string, number> = {};
-  if (databaseEntry) {
-    const dump = JSON.parse(new TextDecoder().decode(databaseEntry.data)) as AppBackupDatabaseDump;
-    storeRecordCounts = await restoreAllStores(dump, APP_BACKUP_STORE_NAMES);
-  }
-
-  // assets/ — binary portfolio files, reconstructed from manifest metadata
-  // + archived bytes (portfolioFiles is deliberately not part of
-  // database.json — see appBackupFormat.ts's header comment).
   const fileRecords: PortfolioFileRecord[] = [];
-  for (const assetMeta of manifest.assets) {
-    const entry = entries.find((e) => e.name === assetMeta.archivePath);
-    if (!entry) continue; // already flagged by validation if genuinely missing; defensive skip here
-    fileRecords.push({
-      fileId: assetMeta.fileId,
-      assetId: assetMeta.assetId,
-      role: assetMeta.role as PortfolioFileRecord['role'],
-      filename: assetMeta.filename,
-      mimeType: assetMeta.mimeType,
-      fileSize: assetMeta.fileSize,
-      sha256: assetMeta.sha256,
-      blob: new Blob([entry.data as BlobPart], { type: assetMeta.mimeType }),
-      storedAt: assetMeta.storedAt,
-    });
+  try {
+    if (databaseEntry) {
+      const dump = JSON.parse(new TextDecoder().decode(databaseEntry.data)) as AppBackupDatabaseDump;
+      storeRecordCounts = await restoreAllStores(dump, APP_BACKUP_STORE_NAMES);
+    }
+
+    // assets/ — binary portfolio files, reconstructed from manifest metadata
+    // + archived bytes (portfolioFiles is deliberately not part of
+    // database.json — see appBackupFormat.ts's header comment).
+    for (const assetMeta of manifest.assets) {
+      const entry = entries.find((e) => e.name === assetMeta.archivePath);
+      if (!entry) continue; // already flagged by validation if genuinely missing; defensive skip here
+      fileRecords.push({
+        fileId: assetMeta.fileId,
+        assetId: assetMeta.assetId,
+        role: assetMeta.role as PortfolioFileRecord['role'],
+        filename: assetMeta.filename,
+        mimeType: assetMeta.mimeType,
+        fileSize: assetMeta.fileSize,
+        sha256: assetMeta.sha256,
+        blob: new Blob([entry.data as BlobPart], { type: assetMeta.mimeType }),
+        storedAt: assetMeta.storedAt,
+      });
+    }
+    await putAllRecords(PORTFOLIO_FILES_STORE, fileRecords);
+  } catch (err) {
+    // Restore is upsert-only (nothing is ever deleted), so a write
+    // failure partway through leaves the database incomplete but not
+    // corrupt — records already written stay valid, records not yet
+    // reached are simply unchanged. The Safety Backup taken above still
+    // reflects the pre-restore state, so surface its ID here rather than
+    // just the raw browser error, since that's the user's actual recovery
+    // path if this partial state isn't what they want.
+    if (isQuotaExceededError(err)) {
+      throw new AppBackupRestoreError(
+        `Restore stopped: not enough free storage space to write this backup. Some records may already be restored (nothing already in your data was deleted). Free up space (see Storage Cleanup) or restore fewer items, then try again. Your pre-restore Safety Backup is saved in Backup History (id: ${safetyHistoryId}).`
+      );
+    }
+    throw err;
   }
-  await putAllRecords(PORTFOLIO_FILES_STORE, fileRecords);
 
   // settings/ — localStorage snapshot.
   const settingsSnapshot: AppBackupSettingsSnapshot = { values: {} };

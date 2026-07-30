@@ -4,19 +4,18 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.81
-> **Development Build:** Build 026 (Application Backup System shipped as a
-> follow-on increment on the same branch, not a separate numbered Build)
-> **Source Commit:** d3c97e2
-> **Documentation Status:** Current for Build 026 + the Application Backup
-> System on branch `claude/build-026-production-commercial-feedback` —
-> **not yet merged to `main`**. The `main` branch is currently at
-> **Application Version v1.74 / Development Build 021** (merged via
-> Release Candidate RC-1, covering Builds 006–021). If you are reading
-> this file on `main`, the Production Portfolio & Commercial Feedback
-> Engine and the Application Backup System described below (the entire
-> "🏭 ศูนย์การผลิต" section and "💾 Backup Manager") are **not yet
-> present** — they ship only once this branch is merged. See
+> **Application Version:** v1.82
+> **Development Build:** Build 027 (Offline PC and iPad Application
+> Package — in progress; see `BUILD_027_AUDIT.md`)
+> **Source Commit:** (see the commit that introduced this line)
+> **Documentation Status:** Builds 022–026 and the Application Backup
+> System are now on `main` (merged as commit `4344c99`). This entry
+> additionally covers Build 027's **iPad PWA offline support** (service
+> worker, offline status bar, storage cleanup tool), shipped so far on
+> branch `claude/build-027-offline-pc-ipad` — **not yet merged to `main`**.
+> Build 027's Windows desktop packaging is still in progress and not yet
+> reflected here. If you are reading this file on `main`, the "💾 Offline
+> ใช้งานได้แม้ไม่มีอินเทอร์เน็ต" section below is **not yet present**. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -1336,6 +1335,25 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.82 — 30 ก.ค. 2026 — ใช้งานออฟไลน์บน iPad (Progressive Web App) 🆕
+
+- 📴 **แถบสถานะออฟไลน์ใหม่** ด้านบนของทุกหน้าจอ: แสดงสถานะออนไลน์/ออฟไลน์แบบ
+  เรียลไทม์, สถานะความพร้อมใช้งานออฟไลน์ (กำลังดาวน์โหลด/พร้อมใช้งานแล้ว/มี
+  อัปเดตใหม่), คำเตือนเมื่อพื้นที่จัดเก็บใกล้เต็ม, ปุ่มขอพื้นที่จัดเก็บถาวร
+  (ป้องกัน iPadOS ลบข้อมูลอัตโนมัติ), ปุ่มวิธีติดตั้งใช้งานออฟไลน์ และปุ่ม
+  ล้างพื้นที่จัดเก็บ
+- 🧹 **เครื่องมือล้างพื้นที่จัดเก็บใหม่**: ลบเฉพาะประวัติการสำรองข้อมูลเก่า
+  ตามจำนวนที่เลือกเก็บไว้ (5/10/20 รายการล่าสุด) — **ไม่ลบโปรเจกต์หรือชิ้นงาน
+  โดยอัตโนมัติเด็ดขาด**
+- 🔄 **แจ้งเตือนอัปเดตอย่างปลอดภัย**: เมื่อมีเวอร์ชันใหม่พร้อมใช้งาน แอปจะ
+  แสดงแบนเนอร์ให้กดยืนยันก่อนโหลดใหม่เสมอ ไม่โหลดใหม่เองโดยไม่ถาม
+- 🛡️ **การกู้คืนสำรองข้อมูลปลอดภัยขึ้น**: หากพื้นที่จัดเก็บไม่พอระหว่างกู้คืน
+  ระบบจะแจ้งข้อผิดพลาดที่ชัดเจน ไม่ทำให้ข้อมูลเสียหาย (กู้คืนแบบเพิ่ม/เขียน
+  ทับเท่านั้น) และชี้ไปยัง Safety Backup ที่สร้างไว้ก่อนกู้คืนเสมอ
+- ⚠️ **หมายเหตุความคืบหน้า**: งานนี้ยังไม่เสร็จสมบูรณ์ทั้งหมด — ส่วนของ
+  แอปพลิเคชัน Windows แบบออฟไลน์ (Electron) ยังอยู่ระหว่างดำเนินการและยังไม่
+  รวมอยู่ใน commit นี้ ดูรายละเอียดที่ `BUILD_027_AUDIT.md`
 
 ### v1.81 — 24 ก.ค. 2026 — ระบบสำรอง/กู้คืนข้อมูลทั้งแอป (Application Backup System)
 

@@ -1,0 +1,130 @@
+.offline-status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  background: #1a1d29;
+  border-bottom: 1px solid #2a2e3d;
+  font-size: 0.8rem;
+}
+
+.offline-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #262a38;
+  color: #d7dae2;
+  white-space: nowrap;
+}
+
+.offline-status-pill--online {
+  background: #163a2a;
+  color: #7fe0ac;
+}
+
+.offline-status-pill--offline {
+  background: #3a1e1e;
+  color: #ff9b9b;
+}
+
+.offline-status-pill--warning {
+  background: #3a301a;
+  color: #ffd27a;
+}
+
+.offline-status-pill--critical {
+  background: #3a1e1e;
+  color: #ff9b9b;
+}
+
+.offline-status-link {
+  background: none;
+  border: none;
+  color: #8fb2ff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 6px 4px;
+  min-height: 32px;
+  text-decoration: underline;
+}
+
+.offline-update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: #26304a;
+  border-radius: 8px;
+  color: #eef1ff;
+  font-size: 0.85rem;
+}
+
+.offline-guide-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 16, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  z-index: 1000;
+}
+
+.offline-guide-panel {
+  background: #1a1d29;
+  color: #eef1ff;
+  border-radius: 12px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+}
+
+.offline-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.offline-guide-close {
+  background: none;
+  border: none;
+  color: #eef1ff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.offline-guide-steps {
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.offline-guide-steps li {
+  margin-bottom: 8px;
+}
+
+.offline-guide-caveats {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #2a2e3d;
+  font-size: 0.85rem;
+  color: #b9bdc9;
+}
+
+.offline-guide-caveats ul {
+  padding-left: 20px;
+  line-height: 1.5;
+}
