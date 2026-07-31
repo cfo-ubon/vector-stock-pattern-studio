@@ -141,9 +141,9 @@ beforeEach(async () => {
 });
 
 describe('storage/db.ts migration — DB_VERSION reports (before/after)', () => {
-  it('the current DB_VERSION is 10 (Build 028C bumped it from the Build 028B AI Creative Director value of 9)', async () => {
+  it('the current DB_VERSION is 11 (Build 029 bumped it from the Build 028C value of 10)', async () => {
     const { DB_VERSION } = await import('./db');
-    expect(DB_VERSION).toBe(10);
+    expect(DB_VERSION).toBe(11);
   });
 });
 
@@ -151,8 +151,8 @@ describe('storage/db.ts migration — fresh database creation', () => {
   it('creates every store (including the new collections store) in one pass', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(10);
-    for (const store of ['saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections', 'researchSources', 'marketObservations', 'marketSnapshots', 'designBriefs', 'designConfigurations', 'collectionPlans']) {
+    expect(conn.version).toBe(11);
+    for (const store of ['saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections', 'researchSources', 'marketObservations', 'marketSnapshots', 'designBriefs', 'designConfigurations', 'collectionPlans', 'autonomousDesignRuns']) {
       expect(conn.objectStoreNames.contains(store)).toBe(true);
     }
   });
@@ -167,7 +167,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
   it('opening the v4 database via openDb() upgrades it to v9 and preserves existing assets', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(10);
+    expect(conn.version).toBe(11);
 
     const asset = await new Promise((resolve, reject) => {
       const req = conn.transaction('portfolioAssets', 'readonly').objectStore('portfolioAssets').get(SAMPLE_ASSET.assetId);
@@ -223,7 +223,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     vi.resetModules();
     const second = await import('./db');
     const conn2 = track(await second.openDb());
-    expect(conn2.version).toBe(10);
+    expect(conn2.version).toBe(11);
     expect(conn2.objectStoreNames.contains('collections')).toBe(true);
   });
 

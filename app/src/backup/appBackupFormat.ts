@@ -196,6 +196,11 @@ export const APP_BACKUP_STORE_NAMES = [
   // in this build, so it is registered here now per this list's own
   // convention.
   'marketingDesignHandoffs',
+  // Build 029 (Autonomous Design Autopilot) — `autonomousDesignRuns` is a
+  // new store added in this build (DB version 10 -> 11), registered here
+  // immediately since `autopilot/storage/autonomousDesignRunStore.ts`
+  // writes real data from the first run.
+  'autonomousDesignRuns',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

@@ -74,7 +74,14 @@ export const DB_NAME = 'vsp-db';
 // upgrade transaction's own `objectStore()` handle (the one case where an
 // upgrade must reach into an *existing* store rather than create a new
 // one).
-export const DB_VERSION = 10;
+//
+// v11 (Build 029, Autonomous Design Autopilot): adds `autonomousDesignRuns`
+// — the one new store spanning a whole "ออกแบบให้ฉันวันนี้" run (frozen
+// Design Plan, per-item progress, READY/REVIEW/REJECT counts, resume
+// state). Indexed by `status` (Autopilot History's active/completed
+// filter) and `mode` (grouping runs by entry mode).
+export const DB_VERSION = 11;
+export const AUTONOMOUS_DESIGN_RUNS_STORE = 'autonomousDesignRuns';
 export const COLLECTION_PLANS_STORE = 'collectionPlans';
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
 export const RESEARCH_SOURCES_STORE = 'researchSources';
@@ -258,6 +265,11 @@ export function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(COLLECTION_PLANS_STORE)) {
           const collectionPlans = db.createObjectStore(COLLECTION_PLANS_STORE, { keyPath: 'id' });
           collectionPlans.createIndex('briefId', 'briefId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AUTONOMOUS_DESIGN_RUNS_STORE)) {
+          const autonomousRuns = db.createObjectStore(AUTONOMOUS_DESIGN_RUNS_STORE, { keyPath: 'id' });
+          autonomousRuns.createIndex('status', 'status', { unique: false });
+          autonomousRuns.createIndex('mode', 'mode', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
