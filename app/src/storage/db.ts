@@ -55,7 +55,16 @@ export const DB_NAME = 'vsp-db';
 // stable, versioned part; the modules built on top of it can land across
 // several follow-up commits without ever needing another DB_VERSION bump
 // for this build.
-export const DB_VERSION = 8;
+//
+// v9 (Build 028B, AI Creative Director / Collection Strategy Engine): adds
+// `collectionPlans` — the one new store this build needs. `designBriefs`
+// and `designConfigurations` (already created in v8, unused until now) are
+// reused as-is for this build's Creative Brief and Generator Handoff
+// records respectively, since their pre-provisioned shape
+// (`status`/`sourceOpportunityId` and `briefId` indexes) already matches
+// exactly what those two new domain modules need.
+export const DB_VERSION = 9;
+export const COLLECTION_PLANS_STORE = 'collectionPlans';
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
 export const RESEARCH_SOURCES_STORE = 'researchSources';
 export const MARKET_OBSERVATIONS_STORE = 'marketObservations';
@@ -225,6 +234,10 @@ export function openDb(): Promise<IDBDatabase> {
           const recommendationHistory = db.createObjectStore(RECOMMENDATION_HISTORY_STORE, { keyPath: 'id' });
           recommendationHistory.createIndex('recommendationType', 'recommendationType', { unique: false });
           recommendationHistory.createIndex('refId', 'refId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(COLLECTION_PLANS_STORE)) {
+          const collectionPlans = db.createObjectStore(COLLECTION_PLANS_STORE, { keyPath: 'id' });
+          collectionPlans.createIndex('briefId', 'briefId', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);

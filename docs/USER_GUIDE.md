@@ -4,21 +4,22 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.82
-> **Development Build:** Build 028 (Marketing Intelligence & AI Design
-> Director), Phases 1-4 — Marketing Intelligence Center UI
+> **Application Version:** v1.83
+> **Development Build:** Build 028B (AI Creative Director / Collection
+> Strategy Engine) — on top of Build 028 Phases 1-4
 > **Source Commit:** *(see this build's commit on branch
 > `claude/build-028-marketing-design-intelligence`)*
-> **Documentation Status:** Current for Build 028 Phases 1-4 on branch
+> **Documentation Status:** Current for Build 028B on branch
 > `claude/build-028-marketing-design-intelligence` — **not yet merged to
 > `main`**. The `main` branch is currently at **Application Version v1.74 /
 > Development Build 021** (merged via Release Candidate RC-1, covering
 > Builds 006–021). If you are reading this file on `main`, the "📈
-> นักการตลาด" Marketing Intelligence Center, the Production Portfolio &
-> Commercial Feedback Engine, and the Application Backup System described
-> below are **not yet present** — they ship only once their branches are
-> merged. See [Version and Build Numbering](#-version-and-build-numbering)
-> below for what these two numbers mean and why they differ.
+> นักการตลาด" Marketing Intelligence Center, the "🎨 นักออกแบบ" AI Creative
+> Director, the Production Portfolio & Commercial Feedback Engine, and the
+> Application Backup System described below are **not yet present** — they
+> ship only once their branches are merged. See
+> [Version and Build Numbering](#-version-and-build-numbering) below for
+> what these two numbers mean and why they differ.
 
 แอปสร้างลวดลายเวคเตอร์แบบ **seamless (ต่อกันไร้รอยต่อ)** สำหรับขายบนเว็บ stock
 เช่น Shutterstock, Adobe Stock, Freepik, Creative Fabrica — ทุกอย่างทำงานใน
@@ -55,7 +56,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.82 | Build 028 (Phases 1-4) | *(this build's commit)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.83 | Build 028B | *(this build's commit)* | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.82 | Build 028 (Phases 1-4) | *(prior commit on this branch)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.81 | Build 026 (follow-on) | *(see prior commit)* | Application Backup System | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.79 | Build 025 (follow-up) | `3c8bbb5` | Connectivity-Aware Thinning Repair — Luxury Floral fragmentation 60.67%→23% | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
@@ -1333,6 +1335,61 @@ System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด
 
 ---
 
+## 🎨 AI Creative Director — นักออกแบบ 🆕
+
+ปุ่ม **"🎨 นักออกแบบ"** บนแถบเมนูบนสุดเปิด **AI Creative Director** — โมดูล
+ใหม่ที่ทำหน้าที่ **ผู้อำนวยการฝ่ายสร้างสรรค์เชิงพาณิชย์** ไม่ใช่เครื่องมือ
+สร้างลายอีกตัว หน้าที่ของมันคือแปลง **Market Opportunity** ที่อนุมัติแล้วจาก
+"📈 นักการตลาด" ให้กลายเป็น **แผนคอลเลกชันเชิงพาณิชย์ที่สมบูรณ์** ตอบคำถาม
+เช่น ควรทำคอลเลกชันอะไร กี่ลาย ลายประเภทไหน ลายเด่น/ลายเสริมอะไรบ้าง กี่เฉด
+สี องค์ประกอบแบบไหน ขายมาร์เก็ตเพลสไหน สินค้าอะไร และคอลเลกชันจะ "ครบ" เมื่อ
+ไหน
+
+> ⚠️ **หลักการเดียวกับ "📈 นักการตลาด"**: ไม่มีคะแนน/ตัวเลขที่กุขึ้นมาเอง —
+> สัญญาณที่ยังไม่มีข้อมูลจริงรองรับ (เช่น ความซ้ำของโครงสร้าง/ลายก่อนมีลาย
+> จริงถูกสร้างขึ้น) จะแสดงว่า **"ยังประเมินไม่ได้"** พร้อมเหตุผล แทนการเดา
+> ตัวเลข และทุกคำแนะนำต้องระบุ **เหตุผล (Why), หลักฐานอ้างอิง (Evidence),
+> ระดับความเชื่อมั่น (Confidence)** และแก้ไขได้เสมอ
+
+10 แท็บ (ตรงกับ 11 โมดูลของระบบ):
+
+- **Creative Brief** — สร้างบรีฟจาก Market Opportunity ที่อนุมัติแล้วโดยตรง
+  (ชื่อคอลเลกชัน/ธีม/มาร์เก็ตเพลสเป้าหมาย/สินค้าเป้าหมาย/กลุ่มผู้ซื้อ/สไตล์
+  ลายเด่น/ทิศทางสี/เป้าหมายเชิงพาณิชย์/ขนาดคอลเลกชัน/ความสำคัญ/ความยาก/เวลา
+  ประมาณการ) แก้ไขได้ทุกช่อง
+- **Collection Planner** — สร้างแผนคอลเลกชันจากบรีฟ แบ่งสัดส่วนลายเด่น
+  (Hero)/ลายเสริม (Secondary)/ลายพื้น (Blender)/ลายทาง (Stripe)/ลายขอบ
+  (Border)/ลายคู่ (Coordinate)/ลายจิ๋ว (Mini Pattern)/พื้นผิว (Texture) —
+  ปรับสัดส่วนเองได้
+- **Roadmap** — ลำดับขั้นตอนการผลิต (เช่น ลายเด่น → ลายพื้นใบไม้ → ลายคู่ →
+  ลายทาง → ลายขอบ → ขยายเฉดสี) พร้อมชั่วโมงประมาณการต่อขั้นตอนและรวม
+- **Completeness** — เปอร์เซ็นต์ความครบถ้วนของคอลเลกชัน พร้อมรายการที่ขาด
+  (ลายเด่น/ลายพื้น/ลายขอบ/เฉดสี/ลายคู่/ความหลากหลาย) และสถานะพร้อมขาย
+- **Balance** — วิเคราะห์สัดส่วน Hero/Secondary/Blender/Stripe/Coordinate/
+  Border/Texture เตือนเมื่อไม่สมดุล
+- **Diversity** — ตรวจความซ้ำซ้อน (ลายเด่น/ชุดสี/องค์ประกอบ/ลาย/คอลเลกชัน/
+  พอร์ตโฟลิโอ) — สัญญาณที่ยังไม่มีลายจริงให้เทียบจะแสดง "ยังประเมินไม่ได้"
+  ตรงไปตรงมา ไม่เดาตัวเลข
+- **Art Director** — ตรวจสอบก่อนเริ่มผลิตจริง พร้อมตัวอย่างปัญหา (ลายเด่นเล็ก
+  เกินไป/พื้นที่ว่างน้อยเกินไป/โทนสีมืดเกินไป/ขาดความหลากหลาย/หนาแน่นเกินไป/
+  ลายดอกไม้เยอะเกินไป/ต้องการลายเรขาคณิตเสริม) ทุกคำแนะนำระบุเหตุผล
+- **Commercial QA** — ประเมิน**ทั้งคอลเลกชัน** (ไม่ใช่ลายเดียว) ครบ 9 มิติ:
+  คุณภาพเชิงพาณิชย์/ความสอดคล้องของคอลเลกชัน/การขยายพอร์ตโฟลิโอ/ความเหมาะสม
+  กับมาร์เก็ตเพลส/ความครอบคลุมสินค้า/คุณภาพความหลากหลาย/ความสอดคล้องแบรนด์/
+  ความเชื่อมั่นของหลักฐาน/ความพร้อมเชิงพาณิชย์
+- **Portfolio Impact** — สรุปผลกระทบเชิงคุณภาพเท่านั้น (เช่น เสริมหมวดเด็ก/
+  เสริมหมวดหรู/เพิ่มเนื้อหา evergreen/ลดการพึ่งพาลายดอกไม้) **ไม่มีการประเมิน
+  รายได้**
+- **Generator Handoff** — สร้างค่าคอนฟิกสำหรับเครื่องมือสร้างลายจริง (ลายเด่น/
+  ลายเสริม/ประเภทลาย/องค์ประกอบ/ความหนาแน่น/สเกล/ชุดสี/เฉดสี/ระยะห่าง/ความ
+  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale)
+
+**ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** (ต่อยอดจาก schema เดิมของ Build 028
+Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) ยังไม่รวมอยู่ใน Application Backup System
+ในเวอร์ชันนี้ ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากภายนอกใดๆ
+
+---
+
 ## 🧮 แอปสร้างลายไม่ซ้ำกันได้กี่แบบ?
 
 **มากกว่า 130 ล้านแบบ** — นับเฉพาะค่าปรับหลักที่มองเห็นผลต่างชัดเจน (ยังไม่รวม
@@ -1389,6 +1446,36 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.83 — 31 ก.ค. 2026 — Build 028B: AI Creative Director / Collection Strategy Engine
+
+- 🆕 **แท็บใหม่ "🎨 นักออกแบบ" บนแถบเมนูบนสุด**: โมดูล **AI Creative Director**
+  ที่แปลง Market Opportunity ที่อนุมัติแล้วจาก "📈 นักการตลาด" ให้กลายเป็น
+  แผนคอลเลกชันเชิงพาณิชย์ที่สมบูรณ์ — 10 แท็บ: Creative Brief, Collection
+  Planner, Roadmap, Completeness, Balance, Diversity, Art Director,
+  Commercial QA, Portfolio Impact, Generator Handoff (ดูรายละเอียดเต็มในหัวข้อ
+  "🎨 AI Creative Director" ด้านบน)
+- 🧾 **สืบทอดหลักการหลักฐานเดียวกับ Marketing Intelligence Center**: ทุกคำ
+  แนะนำต้องระบุเหตุผล (Why), หลักฐานอ้างอิง (Evidence), และระดับความเชื่อมั่น
+  (Confidence) พร้อมแก้ไขได้เสมอ — ไม่มีการ์ดตัวอย่าง (placeholder) และไม่มี
+  คะแนน/ตัวเลขเชิงพาณิชย์ที่กุขึ้นมาเอง
+- 🕳️ **สัญญาณที่ยังประเมินไม่ได้จะบอกตรงๆ**: ในแท็บ Diversity สัญญาณ 3 อย่าง
+  (ความซ้ำขององค์ประกอบ/ลาย/คอลเลกชัน) ยังคำนวณจริงไม่ได้ก่อนมีลายที่สร้าง
+  จริงในคอลเลกชันนั้น ระบบแสดง "ยังประเมินไม่ได้" พร้อมคำอธิบาย แทนการเดา
+  ตัวเลข
+- 💰 **Portfolio Impact เป็นเชิงคุณภาพล้วน**: สรุปผลกระทบต่อพอร์ตโฟลิโอ (เช่น
+  เสริมหมวดเด็ก/หมวดหรู) แบบข้อความเท่านั้น **ไม่มีการประเมินรายได้**ตามที่
+  โจทย์กำหนด
+- 🗄️ **ต่อยอด schema เดิมของ Build 028 Phase 2**: ใช้ IndexedDB store
+  `designBriefs`/`designConfigurations` ที่จองไว้แล้วตั้งแต่ Phase 2 บวก
+  store ใหม่ 1 ตัว (`collectionPlans`, DB version เพิ่มจาก 8 เป็น 9) — สอง
+  store เดิมและ store ใหม่**ยังไม่รวมอยู่ใน Application Backup System** ใน
+  เวอร์ชันนี้
+- ✅ ไม่กระทบ Marketing Intelligence Center, Portfolio Manager, Production
+  Center, Backup Manager หรือหน้าสร้างลายเดิมเลย — เป็นโมดูลใหม่แยกอิสระ
+  ทั้งหมด, ทดสอบผ่านครบ 19 ไฟล์/58 การทดสอบใหม่ และ regression เต็มระบบ
+  3641/3641 (ไม่นับ 2 การทดสอบที่ไม่เกี่ยวข้องซึ่งพบว่า flaky อยู่ก่อนแล้ว
+  ใน `batchProductionService.test.ts` — ผ่าน 100% เมื่อรันแยกไฟล์)
 
 ### v1.82 — 31 ก.ค. 2026 — Build 028 (Phase 1-4): Marketing Intelligence Center
 

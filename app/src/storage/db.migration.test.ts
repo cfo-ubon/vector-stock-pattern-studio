@@ -141,9 +141,9 @@ beforeEach(async () => {
 });
 
 describe('storage/db.ts migration — DB_VERSION reports (before/after)', () => {
-  it('the current DB_VERSION is 8 (Build 028 Marketing Intelligence & AI Design Director bumped it from the Application Backup System value of 7)', async () => {
+  it('the current DB_VERSION is 9 (Build 028B AI Creative Director bumped it from the Marketing Intelligence value of 8)', async () => {
     const { DB_VERSION } = await import('./db');
-    expect(DB_VERSION).toBe(8);
+    expect(DB_VERSION).toBe(9);
   });
 });
 
@@ -151,8 +151,8 @@ describe('storage/db.ts migration — fresh database creation', () => {
   it('creates every store (including the new collections store) in one pass', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(8);
-    for (const store of ['saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections', 'researchSources', 'marketObservations', 'marketSnapshots']) {
+    expect(conn.version).toBe(9);
+    for (const store of ['saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections', 'researchSources', 'marketObservations', 'marketSnapshots', 'designBriefs', 'designConfigurations', 'collectionPlans']) {
       expect(conn.objectStoreNames.contains(store)).toBe(true);
     }
   });
@@ -164,10 +164,10 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     await seedV4SampleData();
   });
 
-  it('opening the v4 database via openDb() upgrades it to v8 and preserves existing assets', async () => {
+  it('opening the v4 database via openDb() upgrades it to v9 and preserves existing assets', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(8);
+    expect(conn.version).toBe(9);
 
     const asset = await new Promise((resolve, reject) => {
       const req = conn.transaction('portfolioAssets', 'readonly').objectStore('portfolioAssets').get(SAMPLE_ASSET.assetId);
@@ -223,7 +223,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     vi.resetModules();
     const second = await import('./db');
     const conn2 = track(await second.openDb());
-    expect(conn2.version).toBe(8);
+    expect(conn2.version).toBe(9);
     expect(conn2.objectStoreNames.contains('collections')).toBe(true);
   });
 

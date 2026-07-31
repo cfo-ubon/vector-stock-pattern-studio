@@ -1,0 +1,368 @@
+/* Build 028B — AI Creative Director. Reuses the same shared CSS custom
+ * properties and class-naming convention as
+ * components/marketing/marketingCenter.css rather than inventing a parallel
+ * design language. 1100px matches the existing iPad/tablet breakpoint used
+ * across workbench.css, portfolio.css, and marketingCenter.css. */
+
+.design-director {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  color: var(--text);
+  min-height: 60vh;
+}
+
+.design-director-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.design-director-header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.design-director-tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.design-director-error {
+  color: #e07a7a;
+  border: 1px solid #e07a7a;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.design-director-loading {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.design-director-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #6c8cff);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.link-btn--active {
+  font-weight: 700;
+}
+
+.field-why {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-weight: normal;
+}
+
+.no-data-banner {
+  border: 1px dashed var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* Creative Brief */
+
+.brief-generate,
+.brief-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brief-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.brief-form {
+  background: var(--panel, #1c1c22);
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.brief-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.brief-field-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.brief-field-grid input,
+.brief-field-grid select,
+.brief-field-grid textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-alt, #26262e);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+}
+
+.brief-field-full {
+  grid-column: 1 / -1;
+}
+
+.brief-evidence ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.brief-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Collection Planner */
+
+.pattern-type-table,
+.balance-table,
+.commercial-qa-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.pattern-type-table th,
+.pattern-type-table td,
+.balance-table th,
+.balance-table td,
+.commercial-qa-table th,
+.commercial-qa-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border, #333);
+  vertical-align: top;
+}
+
+.pattern-type-table input {
+  width: 5rem;
+}
+
+.pattern-type-total {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.colorway-plan-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.colorway-plan-card {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel, #1c1c22);
+}
+
+.colorway-swatches {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0.4rem 0;
+}
+
+.colorway-swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border, #333);
+  display: inline-block;
+}
+
+.plan-history-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* Roadmap */
+
+.roadmap-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.2rem;
+}
+
+.roadmap-step-hours {
+  color: var(--text-dim);
+}
+
+/* Completeness */
+
+.completeness-percent {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.completeness-checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.completeness-checks li {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.completeness-check--failed {
+  border-color: #e07a7a;
+}
+
+/* Balance */
+
+.balance-row--warning {
+  background: rgba(217, 164, 65, 0.12);
+}
+
+.balance-warnings ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+/* Diversity */
+
+.diversity-signal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.diversity-signal-list li {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.diversity-signal--unavailable {
+  opacity: 0.65;
+}
+
+/* Art Director */
+
+.art-director-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.art-director-item {
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border, #333);
+}
+
+.art-director-item--critical {
+  border-color: #e07a7a;
+}
+
+.art-director-item--warning {
+  border-color: #d9a441;
+}
+
+/* Commercial QA */
+
+.commercial-qa-overall {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Portfolio Impact */
+
+.portfolio-impact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.portfolio-impact-list li {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Generator Handoff */
+
+.handoff-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.handoff-fields dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.handoff-version-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 1100px) {
+  .design-director {
+    padding: 1rem;
+  }
+
+  .design-director-tab-nav {
+    gap: 0.35rem;
+  }
+
+  .brief-field-grid,
+  .handoff-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .colorway-plan-cards {
+    grid-template-columns: 1fr;
+  }
+}

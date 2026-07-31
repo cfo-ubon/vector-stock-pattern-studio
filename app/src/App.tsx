@@ -58,6 +58,7 @@ import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
 import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
+import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -154,7 +155,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector'>('editor');
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -1094,6 +1095,7 @@ function App() {
         onOpenPortfolioManager={() => setView('portfolio')}
         onOpenBackupManager={() => setView('backup')}
         onOpenMarketing={() => setView('marketing')}
+        onOpenDesignDirector={() => setView('designDirector')}
       />
       {view === 'portfolio' ? (
         <PortfolioManagerView onClose={() => setView('editor')} />
@@ -1101,6 +1103,8 @@ function App() {
         <BackupManagerView onClose={() => setView('editor')} />
       ) : view === 'marketing' ? (
         <MarketingIntelligenceView onClose={() => setView('editor')} />
+      ) : view === 'designDirector' ? (
+        <AIDesignDirectorView onClose={() => setView('editor')} />
       ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
