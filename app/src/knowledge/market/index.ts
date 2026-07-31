@@ -42,3 +42,23 @@ export {
   importSnapshotFromJson,
   getMostRecentSnapshotForOfflineUse,
 } from '../../marketing/snapshot/snapshotService';
+
+export {
+  createScoringProfile,
+  defaultScoringWeights,
+  defaultScoreBands,
+  labelForScore,
+  OPPORTUNITY_SCORE_DIMENSIONS,
+  type ScoringProfile,
+  type OpportunityScoreDimension,
+} from '../../marketing/domain/scoringProfile';
+
+export { computeOpportunityScore, type OpportunityScoreInputs, type OpportunityScoreResult } from '../../marketing/scoring/opportunityScoring';
+
+export { createMarketKeyword, KEYWORD_CLUSTER_VALUES, type MarketKeyword, type KeywordCluster } from '../../marketing/domain/marketKeyword';
+
+export { clusterKeywords, findDuplicateKeywordGroups, summarizeClusterCoverage } from '../../marketing/keyword/keywordClustering';
+
+export { createSeasonalEvent, isLateForProduction, isPastEvent, type SeasonalEvent } from '../../marketing/domain/seasonalEvent';
+
+export { buildGlobalSeasonalEvents } from '../../marketing/seasonal/globalCalendar';
