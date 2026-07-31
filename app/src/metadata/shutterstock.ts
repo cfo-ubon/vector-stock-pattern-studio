@@ -184,8 +184,12 @@ const LAYOUT_WORDS: Record<string, string[]> = {
   stripe: ['striped', 'linear repeat', 'banded'],
 };
 
-/** Everything the per-site builders need, computed once. */
-function computeCore(tileData: TileData) {
+/** Everything the per-site builders need, computed once. Exported (Build
+ * 029) so the Autonomous Design Autopilot's SEO prep (`autopilot/
+ * seoPreparation.ts`) can reuse this exact, already-shipped title/
+ * description/keyword generator instead of writing a second one — the
+ * same real content every manual per-site metadata panel already shows. */
+export function computeCore(tileData: TileData) {
   const { categoryId, paletteId, layoutId, customColors, mixCategoryIds } = tileData.params;
   const isMix = !!mixCategoryIds && mixCategoryIds.length >= 2;
   const mixCategories = isMix ? mixCategoryIds.map((id) => CATEGORY_KEYWORDS[id] ?? CATEGORY_KEYWORDS.geometric) : [];
