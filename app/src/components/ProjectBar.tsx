@@ -11,6 +11,7 @@ interface Props {
   onOpenBackupManager: () => void;
   onOpenMarketing: () => void;
   onOpenDesignDirector: () => void;
+  onOpenAutopilot: () => void;
 }
 
 /** Active-Project bar — persistent header strip (chosen over a Figma/Canva-
@@ -30,12 +31,16 @@ export function ProjectBar({
   onOpenBackupManager,
   onOpenMarketing,
   onOpenDesignDirector,
+  onOpenAutopilot,
 }: Props) {
   const visible = projects.filter((p) => !p.archived);
   const active = projects.find((p) => p.id === activeProjectId);
 
   return (
     <div className="project-bar">
+      <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenAutopilot}>
+        ✨ ออกแบบให้ฉันวันนี้
+      </button>
       <span className="project-bar-label">📁 Project:</span>
       <select
         className="project-bar-select"

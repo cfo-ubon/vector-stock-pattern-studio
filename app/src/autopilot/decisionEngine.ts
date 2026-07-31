@@ -36,7 +36,7 @@ export interface DecisionEngineInput {
   now: number;
 }
 
-interface EvidenceSelection {
+export interface EvidenceSelection {
   source: DesignDecisionSource;
   opportunity: MarketOpportunity | null;
   mission: DailyMission | null;
@@ -89,7 +89,14 @@ function leastCoveredCategory(portfolioAssets: PortfolioAsset[], constraints: Au
   return { categoryId, count };
 }
 
-function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
+/** Exported (Build 029 UI wiring) so the Autopilot screen can derive the
+ * real `marketOpportunityId`/`dailyMissionId` a run's frozen Design Plan
+ * was built from — for `AutonomousDesignRun.sourceEvidence` (Module 10's
+ * traceability) — without re-implementing this selection logic a second
+ * time. Calling this and `buildAutonomousDesignPlan` on the identical
+ * input is safe: both are pure and deterministic, so they select the same
+ * evidence. */
+export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
   const { mode, constraints, opportunities, missions, seasonalEvents, portfolioAssets, offline, now, userInstruction } = input;
 
   if (mode === 'CUSTOM_GOAL') {

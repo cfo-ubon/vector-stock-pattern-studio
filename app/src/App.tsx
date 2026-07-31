@@ -59,6 +59,7 @@ import { PortfolioManagerView } from './components/portfolio/PortfolioManagerVie
 import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
 import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
+import { AutopilotView } from './components/autopilot/AutopilotView';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
@@ -156,7 +157,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('editor');
   // Build 028C — cross-navigation state for the Marketing <-> Creative
   // Director workflow (requirement #13): which brief/opportunity to
   // preselect the next time each view opens, set by the view being left
@@ -1137,8 +1138,11 @@ function App() {
         onOpenBackupManager={() => setView('backup')}
         onOpenMarketing={() => setView('marketing')}
         onOpenDesignDirector={() => setView('designDirector')}
+        onOpenAutopilot={() => setView('autopilot')}
       />
-      {view === 'portfolio' ? (
+      {view === 'autopilot' ? (
+        <AutopilotView onClose={() => setView('editor')} />
+      ) : view === 'portfolio' ? (
         <PortfolioManagerView onClose={() => setView('editor')} />
       ) : view === 'backup' ? (
         <BackupManagerView onClose={() => setView('editor')} />
