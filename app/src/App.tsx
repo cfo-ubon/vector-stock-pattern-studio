@@ -57,6 +57,10 @@ import { AiAssistPanel } from './components/AiAssistPanel';
 import { DesignWorkbench } from './components/workbench/DesignWorkbench';
 import { PortfolioManagerView } from './components/portfolio/PortfolioManagerView';
 import { BackupManagerView } from './components/backup/BackupManagerView';
+import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
+import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
+import { AutopilotView } from './components/autopilot/AutopilotView';
+import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -153,7 +157,13 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup'>('editor');
+  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('editor');
+  // Build 028C — cross-navigation state for the Marketing <-> Creative
+  // Director workflow (requirement #13): which brief/opportunity to
+  // preselect the next time each view opens, set by the view being left
+  // and consumed by the view being entered.
+  const [pendingDesignDirectorBriefId, setPendingDesignDirectorBriefId] = useState<string | null>(null);
+  const [pendingMarketingOpportunityId, setPendingMarketingOpportunityId] = useState<string | null>(null);
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -662,6 +672,40 @@ function App() {
     setView('editor');
   }, []);
 
+  /** AI Creative Director's "ส่งไปยังตัวสร้างลวดลาย" (Send to Pattern
+   * Generator) — merges only the reviewer-approved subset of
+   * `GeneratorHandoffTab`'s review screen onto the CURRENT editor params
+   * (any field the reviewer excluded/"locked" is simply absent from
+   * `selectedFields` and therefore never touches this pattern's existing
+   * value for that key — see `applyMappedFieldsToParams`'s own doc
+   * comment), attaches the traceability lineage, and switches to the
+   * editor — same setTileData+setParams+setView pairing
+   * `handleApplyDesignSpecToEditor` above already uses. */
+  const handleSendGeneratorHandoffToEditor = useCallback(
+    (application: GeneratorHandoffApplication, selectedFields: MappedGeneratorField[]) => {
+      const next = applyMappedFieldsToParams(params, selectedFields, application.lineage);
+      setTileData(buildTile(next));
+      setParams(next);
+      setView('editor');
+    },
+    [params],
+  );
+
+  /** Build 028C, requirement #13 — Generated result -> Creative Brief /
+   * Market Opportunity cross-navigation. Reads the currently-shown tile's
+   * own `sourceLineage` (Build 028B Hardening's traceability field) rather
+   * than any separately-tracked state, so the links only ever appear for a
+   * pattern that genuinely came from the AI Creative Director. */
+  const handleViewLineageBrief = useCallback((designBriefId: string) => {
+    setPendingDesignDirectorBriefId(designBriefId);
+    setView('designDirector');
+  }, []);
+
+  const handleViewLineageOpportunity = useCallback((marketOpportunityId: string) => {
+    setPendingMarketingOpportunityId(marketOpportunityId);
+    setView('marketing');
+  }, []);
+
   /** Trend Intelligence Studio's Marketplace Package download — same zip-
    * assembly shape as `handleDownloadMarketplacePackage` above (SVG + PNG
    * preview rasterized here, DOM-dependent; every text/JSON file comes
@@ -1092,11 +1136,35 @@ function App() {
         onOpenTrendStudio={() => setView('trendStudio')}
         onOpenPortfolioManager={() => setView('portfolio')}
         onOpenBackupManager={() => setView('backup')}
+        onOpenMarketing={() => setView('marketing')}
+        onOpenDesignDirector={() => setView('designDirector')}
+        onOpenAutopilot={() => setView('autopilot')}
       />
-      {view === 'portfolio' ? (
+      {view === 'autopilot' ? (
+        <AutopilotView onClose={() => setView('editor')} />
+      ) : view === 'portfolio' ? (
         <PortfolioManagerView onClose={() => setView('editor')} />
       ) : view === 'backup' ? (
         <BackupManagerView onClose={() => setView('editor')} />
+      ) : view === 'marketing' ? (
+        <MarketingIntelligenceView
+          onClose={() => setView('editor')}
+          onSentToCreativeDirector={(briefId) => {
+            setPendingDesignDirectorBriefId(briefId);
+            setView('designDirector');
+          }}
+          initialSelectedOpportunityId={pendingMarketingOpportunityId}
+        />
+      ) : view === 'designDirector' ? (
+        <AIDesignDirectorView
+          onClose={() => setView('editor')}
+          onSendToGenerator={handleSendGeneratorHandoffToEditor}
+          initialSelectedBriefId={pendingDesignDirectorBriefId}
+          onViewSourceOpportunity={(opportunityId) => {
+            setPendingMarketingOpportunityId(opportunityId);
+            setView('marketing');
+          }}
+        />
       ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
@@ -1161,6 +1229,19 @@ function App() {
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
+          {tileData.params.sourceLineage && (
+            <div className="lineage-banner" role="note">
+              <span>Generated from the AI Creative Director</span>
+              <button type="button" className="link-btn" onClick={() => handleViewLineageBrief(tileData.params.sourceLineage!.designBriefId)}>
+                ← View Creative Brief
+              </button>
+              {tileData.params.sourceLineage.marketOpportunityId && (
+                <button type="button" className="link-btn" onClick={() => handleViewLineageOpportunity(tileData.params.sourceLineage!.marketOpportunityId!)}>
+                  ← View Market Opportunity
+                </button>
+              )}
+            </div>
+          )}
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
           <QualityPanel tileData={tileData} candidateSummary={candidateSummary} />
           <TrendPanel tileData={tileData} />

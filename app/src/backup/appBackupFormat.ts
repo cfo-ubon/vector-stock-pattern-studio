@@ -166,6 +166,41 @@ export const APP_BACKUP_STORE_NAMES = [
   'productionBatches',
   'importHistory',
   'marketplaceRegistrations',
+  // Build 028, Marketing Intelligence (Phases 2-3) — registered as each
+  // gains a real domain/store module; the remaining Build 028 stores
+  // (designStrategies, marketingDesignHandoffs, commercialFeedbackSignals,
+  // recommendationHistory) already exist in `storage/db.ts`'s v9 schema but
+  // stay unregistered here until a later phase actually writes to them,
+  // matching this list's existing convention of registering a store only
+  // once it holds real data.
+  'researchSources',
+  'marketObservations',
+  'marketSnapshots',
+  'marketKeywords',
+  'seasonalEvents',
+  'scoringProfiles',
+  'marketOpportunities',
+  'dailyMissions',
+  // Build 028B (AI Creative Director) — `designBriefs`/`designConfigurations`
+  // were pre-provisioned by Build 028 Phase 2 but only gained real
+  // read/write store modules (`design-director/storage/*Store.ts`) in
+  // 028B; `collectionPlans` is a new store added in the same build (DB
+  // version 8 -> 9). All three registered here in the 028B hardening pass
+  // that closed this gap.
+  'designBriefs',
+  'designConfigurations',
+  'collectionPlans',
+  // Build 028C (Marketing to Creative Director Workflow) — `marketingDesignHandoffs`
+  // was pre-provisioned by Build 028 Phase 2 but only gained a real
+  // read/write store module (`design-director/storage/marketingDesignHandoffStore.ts`)
+  // in this build, so it is registered here now per this list's own
+  // convention.
+  'marketingDesignHandoffs',
+  // Build 029 (Autonomous Design Autopilot) — `autonomousDesignRuns` is a
+  // new store added in this build (DB version 10 -> 11), registered here
+  // immediately since `autopilot/storage/autonomousDesignRunStore.ts`
+  // writes real data from the first run.
+  'autonomousDesignRuns',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

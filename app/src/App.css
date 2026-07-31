@@ -75,6 +75,22 @@ body {
   min-height: 0;
 }
 
+/* Build 028C — traceability banner shown when the current tile came from
+ * "ส่งไปยังตัวสร้างลวดลาย" (AI Creative Director Generator Handoff), linking
+ * back to its Creative Brief / Market Opportunity (requirement #13). */
+.lineage-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  background: var(--panel, #1c1c22);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
 .control-panel {
   padding: 1rem;
   border-right: 1px solid var(--border);

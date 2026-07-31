@@ -4,19 +4,21 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.81
-> **Development Build:** Build 026 (Application Backup System shipped as a
-> follow-on increment on the same branch, not a separate numbered Build)
-> **Source Commit:** d3c97e2
-> **Documentation Status:** Current for Build 026 + the Application Backup
-> System on branch `claude/build-026-production-commercial-feedback` —
-> **not yet merged to `main`**. The `main` branch is currently at
-> **Application Version v1.74 / Development Build 021** (merged via
-> Release Candidate RC-1, covering Builds 006–021). If you are reading
-> this file on `main`, the Production Portfolio & Commercial Feedback
-> Engine and the Application Backup System described below (the entire
-> "🏭 ศูนย์การผลิต" section and "💾 Backup Manager") are **not yet
-> present** — they ship only once this branch is merged. See
+> **Application Version:** v1.85
+> **Development Build:** Build 028C (Marketing to Creative Director
+> Workflow — "ส่งให้นักออกแบบ / Send to Creative Director") — on top of
+> Build 028B Hardening, Build 028B, and Build 028 Phases 1-4
+> **Source Commit:** *(see this build's commit on branch
+> `claude/build-028-marketing-design-intelligence`)*
+> **Documentation Status:** Current for Build 028C on branch
+> `claude/build-028-marketing-design-intelligence` — **not yet merged to
+> `main`**. The `main` branch is currently at **Application Version v1.74 /
+> Development Build 021** (merged via Release Candidate RC-1, covering
+> Builds 006–021). If you are reading this file on `main`, the "📈
+> นักการตลาด" Marketing Intelligence Center, the "🎨 นักออกแบบ" AI Creative
+> Director, the Production Portfolio & Commercial Feedback Engine, and the
+> Application Backup System described below are **not yet present** — they
+> ship only once their branches are merged. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -55,6 +57,12 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v1.86 | Build 029 | *(this build's commit)* | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | On branch `claude/build-029-autonomous-design-autopilot`, not merged to `main` |
+| v1.85 | Build 028C | `d1078c5` | Marketing to Creative Director Workflow — "ส่งให้นักออกแบบ / Send to Creative Director" handoff review, 13-status workflow tracking, collectionItemId traceability, cross-navigation | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.84 | Build 028B Hardening | `e2904a1` | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.83 | Build 028B | `422c2be` | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.82 | Build 028 (Phases 1-4) | *(prior commit on this branch)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.81 | Build 026 (follow-on) | *(see prior commit)* | Application Backup System | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.79 | Build 025 (follow-up) | `3c8bbb5` | Connectivity-Aware Thinning Repair — Luxury Floral fragmentation 60.67%→23% | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
 | v1.78 | Build 025 | `c922d27` | Luxury Floral Composition Engine (built, shipped disabled by default) | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
@@ -1280,6 +1288,262 @@ Color Roles ของแพ็กนั้นเข้ากับ Design Spec �
 
 ---
 
+## 📈 Marketing Intelligence Center — นักการตลาด 🆕
+
+ปุ่ม **"📈 นักการตลาด"** บนแถบเมนูบนสุดเปิด **Marketing Intelligence Center** —
+ศูนย์รวมข้อมูลตลาด/โอกาสเชิงพาณิชย์/แผนผลิตประจำวัน ที่ทำงานแยกจากหน้าสร้างลาย
+โดยสมบูรณ์ (ปิดได้ตลอดเวลาโดยไม่กระทบงานที่กำลังทำอยู่)
+
+> ⚠️ **หลักการสำคัญที่ยึดตลอดทั้งระบบ**: ทุกตัวเลข/คะแนน/คำแนะนำที่เห็นต้อง
+> ระบุที่มาของหลักฐานเสมอ (นำเข้าเอง/สังเกตเอง/ข้อมูลยอดขายจริง/AI อนุมาน/
+> ข้อมูลตัวอย่าง) — **ไม่มีการอ้างว่าเป็นข้อมูลตลาดสด (live) โดยไม่มีแหล่งจริง
+> รองรับ**, และ**ข้อมูลตัวอย่างจะมีป้าย "⚠ SAMPLE DATA" กำกับเสมอ** ไม่มีวัน
+> ปะปนกับข้อมูลจริงโดยไม่บอก
+
+9 แท็บ:
+
+- **Today's Mission** — แผนผลิตแนะนำของวันนี้ (ธีม/มาร์เก็ตเพลสหลัก/ลายเด่น/
+  ทิศทางสี/จำนวนที่ควรผลิต) พร้อม "เหตุผลที่แนะนำ", "ทำไมตัวเลือกอื่นไม่ถูก
+  แนะนำ", ระดับความเชื่อมั่น, ความเสี่ยง, และผลกระทบต่อคลังผลงาน — กด
+  ยอมรับ/แก้ไข/เลื่อน/ปฏิเสธได้ทุกภารกิจ
+- **AI Market Advisor** — สรุปโอกาสเด่น 3 อันดับแรกและช่องว่างตลาด 3 อันดับแรก
+  จากข้อมูลจริงที่มีอยู่
+- **Opportunity Explorer** — ค้นหา/กรอง/เรียงลำดับ/เปรียบเทียบโอกาสเชิงพาณิชย์
+  ทั้งหมด พร้อมปรับสถานะ (RESEARCH → SELECTED → ... → SUBMITTED/ARCHIVED)
+- **Commercial Score Details** — กระจายคะแนนโอกาสแบบโปร่งใสทุกมิติ (ค่าดิบ/
+  น้ำหนัก/สัดส่วนคะแนน/แหล่งหลักฐาน) — มิติที่ยังไม่มีหลักฐานจะถูก**ตัดออกจาก
+  การคำนวณ** ไม่ใช่ถูกนับเป็นศูนย์
+- **Keyword Intelligence** — จัดกลุ่มคำค้นตาม 8 หมวด, ตรวจคำค้นซ้ำ, สรุปความ
+  ครอบคลุมของคลังผลงานต่อกลุ่ม — ระดับการแข่งขัน/โอกาส/ความเสี่ยงซ้ำเป็น
+  **ระดับเชิงคุณภาพเท่านั้น** (ไม่มีตัวเลขปริมาณการค้นหาที่กุขึ้นมาเอง)
+- **Seasonal Planner** — ปฏิทินการผลิตตามฤดูกาล พร้อมเตือนอัตโนมัติเมื่อเลย
+  กำหนดเวลาที่ควรเริ่มผลิตแล้ว
+- **Market Gap Finder** — หาคำค้นที่มีโอกาสดีแต่คลังผลงานยังครอบคลุมน้อย
+  พร้อมคำอธิบายเหตุผลและคำแนะนำคอลเลกชันที่ควรทำเพิ่ม
+- **Marketplace Comparison** — เปรียบเทียบกฎ metadata และการกระจายของสัญญาณ
+  ความต้องการ/การแข่งขันต่อมาร์เก็ตเพลส
+- **Daily Missions** — ประวัติภารกิจทั้งหมด พร้อมปุ่มยอมรับ/แก้ไข/เลื่อน/
+  ปฏิเสธ/เสร็จสิ้น
+
+**ทำงานได้แบบออฟไลน์**: หากไม่มีการเชื่อมต่อ ระบบใช้ **Market Snapshot** ล่าสุด
+ที่บันทึกไว้ในเครื่อง พร้อมป้าย **"OFFLINE ANALYSIS"**, วันที่ของ snapshot,
+และคำเตือนความสดใหม่ของข้อมูลเสมอ
+
+**ยังไม่มีข้อมูล?** กดปุ่ม **"⚠ Load Sample Data"** เพื่อดูตัวอย่างหน้าจอที่ใช้
+งานได้จริงด้วยข้อมูลตัวอย่างที่มีป้ายกำกับชัดเจน (ไหลผ่านเอนจินคำนวณคะแนน/
+แผนผลิตจริงเหมือนข้อมูลจริงทุกประการ)
+
+**ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** และรวมอยู่ใน Application Backup
+System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด/ดึงข้อมูลจากมาร์เก็ตเพลสอัตโนมัติ
+ไม่มีการเก็บรหัสผ่าน/API key ของบุคคลที่สามใดๆ ในเวอร์ชันนี้
+
+### 🔗 "ส่งให้นักออกแบบ / Send to Creative Director" 🆕
+
+ปุ่ม **"ส่งให้นักออกแบบ (Send to Creative Director)"** ปรากฏใน 4 จุด:
+**Today's Mission**, **Opportunity Explorer**, **Market Gap Finder**, และ
+**Daily Missions** — กดแล้วเปิด**หน้าจอตรวจสอบก่อนบันทึก (Handoff Review)**
+ทันที ไม่มีการบันทึกอะไรจนกว่าจะกดยืนยัน
+
+หน้าจอตรวจสอบแสดงทุกช่องข้อมูลที่จะส่งต่อ (ธีม/ชื่อคอลเลกชัน/มาร์เก็ตเพลส
+เป้าหมาย/สินค้าเป้าหมาย/ลายเด่น/องค์ประกอบ/ชุดสี/ช่วงเวลาผลิต/กลุ่มผู้ซื้อ)
+พร้อม **5 อย่างต่อช่อง**: ที่มา (Source), ระดับความเชื่อมั่น (Confidence),
+หลักฐานอ้างอิง (Evidence), ค่าที่แก้ไขได้ (Editable Value), และช่องติ๊ก
+เลือกใช้/ล็อก (Apply) — แก้ไขค่าใดก็ได้ตรงนี้ก่อนส่ง (จะถูกทำเครื่องหมายว่า
+"User Override")
+
+**ไม่มีการกุข้อมูลที่ไม่มีหลักฐานรองรับ**: ช่องที่ไม่มีข้อมูลจริงจะแสดงสถานะ
+ตรงไปตรงมาแทนการเดา — **"Not Provided"** (ไม่มีข้อมูลต้นทางเลย),
+**"Needs User Decision"** (เป็นการตัดสินใจเชิงสร้างสรรค์ที่ไม่มีหลักฐานใด
+ตอบได้ เช่น ลายเด่น/องค์ประกอบเมื่อยังไม่มี Daily Mission), หรือ **"Not
+Supported by Evidence"** (มีค่าอยู่แต่ระดับความเชื่อมั่นของหลักฐานต่ำ
+เกินไป)
+
+เมื่อกดยืนยัน ระบบจะ**สร้าง Creative Brief ฉบับร่างให้อัตโนมัติ**จากข้อมูล
+ที่ตรวจสอบแล้ว พร้อมเก็บ **MarketingDesignHandoff** — ระเบียนเดียวที่ตาม
+รอยการทำงานทั้งหมดตั้งแต่ Market Snapshot/Market Opportunity/Daily
+Mission เดิม ผ่านคะแนนโอกาส ระดับความเชื่อมั่น ความสดใหม่ของข้อมูล ไปจนถึง
+Creative Brief/Collection Plan/Collection Item/Generator Handoff ที่ตามมา
+— แล้วสลับแอปไปยัง **"🎨 นักออกแบบ"** พร้อมบรีฟที่เพิ่งสร้างทันที
+
+---
+
+## 🎨 AI Creative Director — นักออกแบบ 🆕
+
+ปุ่ม **"🎨 นักออกแบบ"** บนแถบเมนูบนสุดเปิด **AI Creative Director** — โมดูล
+ใหม่ที่ทำหน้าที่ **ผู้อำนวยการฝ่ายสร้างสรรค์เชิงพาณิชย์** ไม่ใช่เครื่องมือ
+สร้างลายอีกตัว หน้าที่ของมันคือแปลง **Market Opportunity** ที่อนุมัติแล้วจาก
+"📈 นักการตลาด" ให้กลายเป็น **แผนคอลเลกชันเชิงพาณิชย์ที่สมบูรณ์** ตอบคำถาม
+เช่น ควรทำคอลเลกชันอะไร กี่ลาย ลายประเภทไหน ลายเด่น/ลายเสริมอะไรบ้าง กี่เฉด
+สี องค์ประกอบแบบไหน ขายมาร์เก็ตเพลสไหน สินค้าอะไร และคอลเลกชันจะ "ครบ" เมื่อ
+ไหน
+
+> ⚠️ **หลักการเดียวกับ "📈 นักการตลาด"**: ไม่มีคะแนน/ตัวเลขที่กุขึ้นมาเอง —
+> สัญญาณที่ยังไม่มีข้อมูลจริงรองรับ (เช่น ความซ้ำของโครงสร้าง/ลายก่อนมีลาย
+> จริงถูกสร้างขึ้น) จะแสดงว่า **"ยังประเมินไม่ได้"** พร้อมเหตุผล แทนการเดา
+> ตัวเลข และทุกคำแนะนำต้องระบุ **เหตุผล (Why), หลักฐานอ้างอิง (Evidence),
+> ระดับความเชื่อมั่น (Confidence)** และแก้ไขได้เสมอ
+
+10 แท็บ (ตรงกับ 11 โมดูลของระบบ):
+
+- **Creative Brief** — สร้างบรีฟจาก Market Opportunity ที่อนุมัติแล้วโดยตรง
+  (ชื่อคอลเลกชัน/ธีม/มาร์เก็ตเพลสเป้าหมาย/สินค้าเป้าหมาย/กลุ่มผู้ซื้อ/สไตล์
+  ลายเด่น/ทิศทางสี/เป้าหมายเชิงพาณิชย์/ขนาดคอลเลกชัน/ความสำคัญ/ความยาก/เวลา
+  ประมาณการ) แก้ไขได้ทุกช่อง
+- **Collection Planner** — สร้างแผนคอลเลกชันจากบรีฟ แบ่งสัดส่วนลายเด่น
+  (Hero)/ลายเสริม (Secondary)/ลายพื้น (Blender)/ลายทาง (Stripe)/ลายขอบ
+  (Border)/ลายคู่ (Coordinate)/ลายจิ๋ว (Mini Pattern)/พื้นผิว (Texture) —
+  ปรับสัดส่วนเองได้ (แผนที่สร้างจะมี **รายการต่อชิ้น (Collection Item)**
+  แต่ละชิ้นแยกกันด้วย 🆕 ให้เลือกส่งต่อทีละชิ้นในแท็บ Generator Handoff ได้)
+- **Roadmap** — ลำดับขั้นตอนการผลิต (เช่น ลายเด่น → ลายพื้นใบไม้ → ลายคู่ →
+  ลายทาง → ลายขอบ → ขยายเฉดสี) พร้อมชั่วโมงประมาณการต่อขั้นตอนและรวม
+- **Completeness** — เปอร์เซ็นต์ความครบถ้วนของคอลเลกชัน พร้อมรายการที่ขาด
+  (ลายเด่น/ลายพื้น/ลายขอบ/เฉดสี/ลายคู่/ความหลากหลาย) และสถานะพร้อมขาย
+- **Balance** — วิเคราะห์สัดส่วน Hero/Secondary/Blender/Stripe/Coordinate/
+  Border/Texture เตือนเมื่อไม่สมดุล
+- **Diversity** — ตรวจความซ้ำซ้อน (ลายเด่น/ชุดสี/องค์ประกอบ/ลาย/คอลเลกชัน/
+  พอร์ตโฟลิโอ) — สัญญาณที่ยังไม่มีลายจริงให้เทียบจะแสดง "ยังประเมินไม่ได้"
+  ตรงไปตรงมา ไม่เดาตัวเลข
+- **Art Director** — ตรวจสอบก่อนเริ่มผลิตจริง พร้อมตัวอย่างปัญหา (ลายเด่นเล็ก
+  เกินไป/พื้นที่ว่างน้อยเกินไป/โทนสีมืดเกินไป/ขาดความหลากหลาย/หนาแน่นเกินไป/
+  ลายดอกไม้เยอะเกินไป/ต้องการลายเรขาคณิตเสริม) ทุกคำแนะนำระบุเหตุผล
+- **Commercial QA** — ประเมิน**ทั้งคอลเลกชัน** (ไม่ใช่ลายเดียว) ครบ 9 มิติ:
+  คุณภาพเชิงพาณิชย์/ความสอดคล้องของคอลเลกชัน/การขยายพอร์ตโฟลิโอ/ความเหมาะสม
+  กับมาร์เก็ตเพลส/ความครอบคลุมสินค้า/คุณภาพความหลากหลาย/ความสอดคล้องแบรนด์/
+  ความเชื่อมั่นของหลักฐาน/ความพร้อมเชิงพาณิชย์
+- **Portfolio Impact** — สรุปผลกระทบเชิงคุณภาพเท่านั้น (เช่น เสริมหมวดเด็ก/
+  เสริมหมวดหรู/เพิ่มเนื้อหา evergreen/ลดการพึ่งพาลายดอกไม้) **ไม่มีการประเมิน
+  รายได้**
+- **Generator Handoff** — สร้างค่าคอนฟิกสำหรับเครื่องมือสร้างลายจริง (ลายเด่น/
+  ลายเสริม/ประเภทลาย/องค์ประกอบ/ความหนาแน่น/สเกล/ชุดสี/เฉดสี/ระยะห่าง/ความ
+  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale) — เลือก
+  **Collection Item** เจาะจงชิ้นเดียวได้ก่อนสร้างค่าคอนฟิก 🆕 (ไม่เลือก =
+  ทำค่าคอนฟิกสำหรับทั้งคอลเลกชัน) กดปุ่ม **"ส่งไปยัง
+  ตัวสร้างลวดลาย (Send to Pattern Generator)"** เพื่อเปิดหน้าจอตรวจสอบก่อนนำไปใช้
+  จริง — แสดงที่มาของทุกค่า (From Market Opportunity / From Creative Brief / From
+  Collection Plan / User Override / Generator Default) พร้อมช่องติ๊กเลือกว่าจะ
+  นำค่าไหนไปใช้ (ไม่ติ๊ก = "ล็อก" ค่าเดิมไว้ ไม่ถูกเขียนทับ) เมื่อยืนยันแล้วแอปจะ
+  เปิดตัวสร้างลายพร้อมค่าคอนฟิกที่เลือกทันที การ์ดสถานะแสดง Backup
+  Protected/Not Yet Backed Up, Ready for Generator/Missing Configuration,
+  Generated/Not Generated พร้อมเวลาที่ส่งล่าสุด และลายที่สร้างจากหน้านี้จะเก็บ
+  "สายเชื่อมโยงที่มา" (traceability lineage) ไว้ในค่าคอนฟิกของลายนั้นเสมอ —
+  อ้างอิงกลับไปถึง Market Snapshot, Market Opportunity, Creative Brief,
+  Collection Plan, **Collection Item** 🆕, Generator Handoff, seed และเวลาที่
+  สร้าง — คงอยู่ไม่ว่าจะโหลดหน้าใหม่ หรือสำรอง/กู้คืนข้อมูลด้วย .vspsb
+
+### 📊 สถานะการทำงาน (Workflow Status) และการนำทางข้ามโมดูล 🆕
+
+สำหรับบรีฟที่มาจาก "ส่งให้นักออกแบบ" การ์ดสถานะเดียวกันจะปรากฏในแท็บ
+**Creative Brief**, **Collection Planner**, และ **Generator Handoff**
+แสดง: โอกาสต้นทาง (พร้อมลิงก์กลับ), สถานะปัจจุบันใน 13 ขั้นตอน (Marketing
+Research → Opportunity Selected → Brief Draft → Brief Review → Brief
+Approved → Collection Planned → Collection Item Selected → Handoff
+Review → Ready for Generator → Generating → Generated → Design Review →
+Ready for Portfolio), เวลาอัปเดตล่าสุด, โมดูลที่รับผิดชอบอยู่ตอนนี้,
+ช่องข้อมูลที่ยังไม่ได้ข้อสรุป, สถานะสำรองข้อมูล, และความพร้อมส่งเข้าตัวสร้าง
+ลาย — ทุกการเปลี่ยนสถานะถูกบันทึกเป็นประวัติ (audit history) แบบเรียงลำดับ
+เวลาไว้ถาวร
+
+**การนำทางข้ามโมดูล**: จากการ์ดสถานะกดลิงก์ **"→ กลับไป Market
+Opportunity"** ได้ทุกที่ที่การ์ดปรากฏ, จากแท็บ Collection Planner กดปุ่ม
+**"Go to Generator Handoff →"** ได้ทันทีหลังสร้างแผน, และเมื่อสร้างลายจริง
+แล้ว หน้าตัวสร้างลายจะมีแถบ**"สายเชื่อมโยงที่มา"** พร้อมลิงก์ **"←
+View Creative Brief"** และ **"← View Market Opportunity"** ย้อนกลับไปดูจุด
+เริ่มต้นของลายนั้นได้เสมอ
+
+**ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** (ต่อยอดจาก schema เดิมของ Build 028
+Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) **Creative Brief, Collection Plan,
+Generator Handoff และ MarketingDesignHandoff (ระเบียนสถานะการทำงาน) ทั้งหมด
+รวมอยู่ใน Application Backup System (.vspsb) แล้ว** ไม่มีการเชื่อมต่อ/ดึง
+ข้อมูลจากภายนอกใดๆ
+
+---
+
+## ✨ ออกแบบให้ฉันวันนี้ — Autonomous Design Autopilot 🆕
+
+ปุ่ม **"✨ ออกแบบให้ฉันวันนี้"** สีเด่นที่สุดบนแถบเมนูบนสุด เปิด **Autopilot**
+— โหมดที่ระบบตัดสินใจแทนผู้ใช้แทบทุกอย่าง (หมวดหมู่/ธีม/ลายเด่น/ลายเสริม/
+องค์ประกอบ/จานสี/ความหนาแน่น/สเกล/ความซับซ้อน/พื้นที่ว่าง/seed/โครงสร้าง
+คอลเลกชัน/มาร์เก็ตเพลสเป้าหมาย) โดยดึงข้อมูลจริงจาก "📈 นักการตลาด", "🎨
+นักออกแบบ", ประวัติ Portfolio, และขีดความสามารถจริงของตัวสร้างลาย — **แล้ว
+สร้างลายจริงให้ทันที ไม่ใช่แค่คำแนะนำ** ผู้ใช้ทั่วไปทำงานจบได้ในไม่เกิน 4
+ขั้นตอน: (1) เลือกจำนวนลาย (2) เลือกมาร์เก็ตเพลสหรือปล่อย Auto (3)
+ตรวจแผนสุดท้ายหนึ่งครั้ง (4) กด "สร้างทันที"
+
+### 8 โหมดเริ่มต้น
+
+- **Full Autopilot** (ระบบตัดสินใจทุกอย่าง)
+- **Guided Autopilot** (ระบบตัดสินใจทั้งหมด แต่ผู้ใช้แก้ไขข้อจำกัดสำคัญได้)
+- **Use Today's Market Mission** (ใช้คำแนะนำล่าสุดจากเมนูนักการตลาด)
+- **Expand My Portfolio** (เลือกสิ่งที่ Portfolio ยังขาด)
+- **Build a Sellable Collection** (สร้าง Collection ที่สมบูรณ์ทั้งชุด)
+- **Evergreen Commercial** (เน้นแนวที่ไม่ขึ้นกับฤดูกาล)
+- **Seasonal Opportunity** (ใช้โอกาสตามฤดูกาลและช่วงเวลาส่งขาย)
+- **Custom Goal** (พิมพ์เป้าหมายสั้น ๆ ประโยคเดียว เช่น "สร้างลาย Botanical
+  สำหรับขาย Adobe Stock จำนวน 10 ลาย")
+
+### ขั้นตอนการทำงาน
+
+1. **หน้าเป้าหมาย** — เลือกโหมด/จำนวนลาย/จำนวนเฉดสี/มาร์เก็ตเพลส/เป้าหมายการ
+   ผลิต หรือกดปุ่มลัด ("สร้าง 5 ลาย", "สร้าง 10 ลาย", "สร้าง Collection 20
+   ลาย", "ใช้คำแนะนำของนักการตลาดวันนี้", "เติมหมวดที่ Portfolio ยังขาด")
+2. **แผนการออกแบบ** — ระบบแสดงแผนเดียวที่สรุปทุกการตัดสินใจ พร้อมเหตุผล
+   **"ระบบเลือกค่านี้เพราะ..."** เป็นภาษาไทยและอังกฤษทุกช่อง (ที่มา หลักฐาน
+   ตลาด เหตุผล Portfolio มาร์เก็ตเพลสเป้าหมาย กลุ่มลูกค้าเป้าหมาย สินค้า
+   เป้าหมาย โครงสร้างคอลเลกชัน ทิศทางภาพ ทิศทางสี ความพยายามในการผลิต ความ
+   เสี่ยง ระดับความเชื่อมั่น ความสดใหม่ของข้อมูล) มี 3 ปุ่มเท่านั้น:
+   **"สร้างทันที"** / **"ปรับข้อจำกัด"** / **"ยกเลิก"**
+3. **ปรับข้อจำกัด** (Guided Autopilot) — แผงกะทัดรัด ไม่ใช่หน้าตั้งค่าขั้นสูง
+   เต็มรูปแบบ: ยกเว้นหมวดหมู่ / เลือกมาร์เก็ตเพลส / เลือก-หลีกเลี่ยงกลุ่มสี /
+   ความหนาแน่น / สไตล์ / จำนวนสูงสุด / สินค้าที่ต้องการ — ตรวจพบข้อจำกัดที่
+   ขัดแย้งกันทันทีพร้อมข้อเสนอแก้ไขที่เล็กที่สุด
+4. **กำลังสร้างลวดลาย** — สร้างลายทีละชิ้นจริงผ่านตัวสร้างลายเดียวกับที่ใช้
+   ทั่วทั้งแอป มีแถบความคืบหน้า จำนวน READY/REVIEW/REJECT แบบเรียลไทม์ และปุ่ม
+   **หยุดชั่วคราว/ดำเนินการต่อ/ยกเลิก** จริง (ใช้ AbortSignal เดียวกับที่
+   verified แล้วใน Batch Generate) การยกเลิกไม่ทิ้งงานเขียนฐานข้อมูลค้างไว้
+   เบื้องหลัง และปิดแอปกลางทางแล้วกลับมาดำเนินการต่อได้จากจุดที่ค้างไว้
+5. **ผลลัพธ์** — สรุปจำนวนที่สร้างจริง/READY/REVIEW/REJECT ความสมดุลของ
+   คอลเลกชัน (ตามแผน vs. ที่สร้างจริง) ลายที่ดีที่สุดเรียงลำดับก่อน เหตุผลของ
+   ลายที่ถูกปฏิเสธ (REJECT **ไม่เคยถูกลบทิ้งเงียบ ๆ**) พร้อม 3 ปุ่ม: **"นำ
+   READY เข้า Portfolio"**, **"นำทั้งหมดเข้า Portfolio พร้อมสถานะ"**, และ
+   **"เตรียม SEO สำหรับ READY"** (ใช้เครื่องมือ SEO เดิมของแอป ไม่มีการสร้าง
+   คำสำคัญปลอมเมื่อยังไม่มีข้อมูลโปรไฟล์มาร์เก็ตเพลส — จะแจ้ง "Needs
+   marketplace profile verification" อย่างตรงไปตรงมาแทน)
+
+### 📜 ประวัติ Autopilot 🆕
+
+ปุ่ม **"📜 ประวัติ"** ในหน้า Autopilot แสดงทุกรันที่เคยสร้างจริง (วันที่/โหมด/
+มาร์เก็ตเพลส/คอลเลกชัน/จำนวนที่ขอ-ที่สร้างจริง/READY-REVIEW-REJECT/สถานะ/
+Market Snapshot ต้นทาง/ความเชื่อมั่น/ระยะเวลา) พร้อม 4 การกระทำ: **เปิด**
+(ดูผลลัพธ์รันที่เสร็จแล้วอีกครั้ง), **ดำเนินการต่อ** (สำหรับรันที่ค้างหรือ
+หยุดชั่วคราว), **ทำซ้ำด้วย Seed ใหม่** (สร้างแผนใหม่จากแผนเดิม แต่**ไม่สร้าง
+ลายซ้ำอัตโนมัติ** — ต้องกด "สร้างทันที" เองอีกครั้งเสมอ), และ **เก็บถาวร/
+ส่งออกรายงาน**
+
+### 🔌 โหมดออฟไลน์ 🆕
+
+หากไม่มีการเชื่อมต่อหรือไม่มีข้อมูลตลาดสด ระบบแสดงป้าย **"🔌 OFFLINE
+AUTOPILOT"** พร้อมวันที่ของ Market Snapshot ที่ใช้ล่าสุด (หรือระบุว่าเป็นโหมด
+**Portfolio Gap Autopilot** / **Evergreen Commercial Autopilot** เมื่อไม่มี
+Snapshot เลย) — **ไม่มีการแสดงเป็นคำแนะนำจากข้อมูลสดโดยไม่บอกความจริง**
+Autopilot ทำงานได้ครบทุกฟังก์ชันแม้ปิดอินเทอร์เน็ตสนิท (ทดสอบจริงด้วยการตัด
+เครือข่ายกลางรัน สร้างลายสำเร็จโดยไม่มี error ใด ๆ)
+
+### ⚙️ การตั้งค่าขั้นสูง (Manual Mode) ยังอยู่ครบ
+
+Autopilot เป็น**ทางลัดที่แนะนำ** ไม่ใช่การแทนที่ — หน้าจอสร้างลายแบบ manual,
+"📈 นักการตลาด", "🎨 นักออกแบบ" เดิมยังอยู่ครบทุกฟังก์ชัน ไม่มีการบังคับผู้ใช้
+ทั่วไปให้ต้องผ่านหน้าตั้งค่าขั้นสูงเพื่อสร้างลายเลย
+
+**ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** (เพิ่ม store ใหม่
+`autonomousDesignRuns` — DB version เพิ่มจาก 10 เป็น 11) **รวมอยู่ใน
+Application Backup System (.vspsb) แล้ว** ทุกลายที่สร้างผ่าน Autopilot เก็บ
+"สายเชื่อมโยงที่มา" ครบ (Market Snapshot/Market Opportunity/Daily Mission/
+MarketingDesignHandoff/Creative Brief/Collection Plan/Collection Item/
+Generator Handoff/Autonomous Design Run ID/seed) เหมือนลายที่สร้างผ่าน
+"🎨 นักออกแบบ" ทุกประการ
+
+---
+
 ## 🧮 แอปสร้างลายไม่ซ้ำกันได้กี่แบบ?
 
 **มากกว่า 130 ล้านแบบ** — นับเฉพาะค่าปรับหลักที่มองเห็นผลต่างชัดเจน (ยังไม่รวม
@@ -1336,6 +1600,226 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.86 — 31 ก.ค. 2026 — Build 029: Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้"
+
+- 🆕 **ปุ่ม "✨ ออกแบบให้ฉันวันนี้"** สีเด่นที่สุดบนแถบเมนูบนสุด — เปิดหน้าจอ
+  Autopilot 5 ขั้นตอน (เป้าหมาย → แผนการออกแบบ → กำลังสร้างลวดลาย →
+  ผลลัพธ์ → Portfolio) ผู้ใช้ทั่วไปทำงานจบได้ในไม่เกิน 4 การตัดสินใจ (จำนวน
+  ลาย/มาร์เก็ตเพลสหรือ Auto/ตรวจแผนหนึ่งครั้ง/กดสร้าง) — **ระบบสร้างลายจริง
+  ให้ทันที ไม่ใช่แค่คำแนะนำหรือหน้าตั้งค่า**
+- 🎯 **8 โหมดเริ่มต้น**: Full Autopilot, Guided Autopilot, Use Today's
+  Market Mission, Expand My Portfolio, Build a Sellable Collection,
+  Evergreen Commercial, Seasonal Opportunity, Custom Goal (พิมพ์เป้าหมาย
+  ประโยคเดียว เช่น "สร้างลาย Botanical สำหรับขาย Adobe Stock จำนวน 10 ลาย"
+  — แยกธีม/มาร์เก็ตเพลส/จำนวน/สินค้าเป้าหมายได้จริงโดยไม่ใช้ AI ภายนอก)
+- 🧠 **Autonomous Design Decision Engine**: อ่านข้อมูลจริงจาก Market
+  Snapshot/Market Opportunity/Daily Mission/Portfolio coverage/ปฏิทิน
+  ฤดูกาล แล้วตัดสินใจ หมวดหมู่/ธีม/ลายเด่น/องค์ประกอบ/จานสี/ความหนาแน่น/
+  มาร์เก็ตเพลส/สินค้าเป้าหมาย/โครงสร้างคอลเลกชันให้ทั้งหมด **ตรวจสอบทุกค่า
+  กับรายการหมวดหมู่จริงที่ตัวสร้างลายรองรับเสมอ ไม่มีการเลือกค่าที่ระบบสร้าง
+  ลายไม่รองรับ** ทุกการตัดสินใจแสดงเหตุผล **"ระบบเลือกค่านี้เพราะ..."**
+  สองภาษา (ไทย/อังกฤษ) พร้อมที่มา/หลักฐาน/ระดับความเชื่อมั่น
+- 🧩 **Autonomous Collection Planner**: แบ่งสัดส่วนบทบาทลาย (เด่น/เสริม/
+  พื้น/ทาง/ขอบ/คู่/จิ๋ว/พื้นผิว) อัตโนมัติ ปรับตามมาร์เก็ตเพลส/เป้าหมายการ
+  ผลิต/ขนาดคอลเลกชัน — แต่ละบทบาทได้องค์ประกอบ/ความหนาแน่น/สเกล/ความซับซ้อน
+  ของตัวเอง **ไม่สร้างลายซ้ำแบบเดียวกัน 20 ครั้ง**
+- ⚙️ **ปรับข้อจำกัด (Guided Autopilot)**: แผงกะทัดรัด (ยกเว้นหมวดหมู่/เลือก
+  มาร์เก็ตเพลส/เลือก-หลีกเลี่ยงกลุ่มสี/ความหนาแน่น/สไตล์/จำนวนสูงสุด/สินค้า
+  ที่ต้องการ) **ไม่ใช่หน้าตั้งค่าขั้นสูงเต็มรูปแบบ** ตรวจพบข้อจำกัดที่ขัดแย้ง
+  กันพร้อมข้อเสนอแก้ไขที่เล็กที่สุดเสมอ
+- 🏭 **สร้างลายจริงแบบ One-Click**: ทุกลายผ่านตัวสร้างลายเดียวกับที่ใช้ทั่ว
+  ทั้งแอป (ไม่มี pipeline คู่ขนาน) มีแถบความคืบหน้า จำนวน READY/REVIEW/
+  REJECT แบบเรียลไทม์ ปุ่มหยุดชั่วคราว/ดำเนินการต่อ/ยกเลิกที่ใช้งานได้จริง
+  (สถาปัตยกรรม AbortSignal เดียวกับที่ verified แล้วจาก Build 028B
+  Hardening) — การยกเลิกไม่ทิ้งงานเขียนฐานข้อมูลค้างเบื้องหลัง ปิดแอปกลาง
+  ทางแล้วดำเนินการต่อได้จากจุดที่ค้างไว้เสมอ
+- 🔍 **ตรวจสอบคุณภาพอัตโนมัติ**: ทุกลายผ่าน Beauty Review/Commercial
+  Score/Product-Target Fit/ตรวจจับปัญหาภาพ/ตรวจสอบ metadata เหมือนลายที่
+  สร้างด้วยมือทุกประการ จัดประเภท READY/REVIEW/REJECT โดยใช้เกณฑ์เดิมที่
+  verified แล้วจาก Build 026 (ไม่มีการลดมาตรฐาน) พร้อมซ่อมแซมอัตโนมัติแบบมี
+  ขอบเขต (สูงสุด 3 ครั้งต่อลาย ใช้ retry gate เดิมที่ verified แล้ว **REJECT
+  ไม่เคยถูกลบทิ้งเงียบ ๆ**)
+- 📦 **ผลลัพธ์ + SEO + Portfolio**: สรุปลายที่ดีที่สุดเรียงลำดับก่อน ความ
+  สมดุลของคอลเลกชัน (ตามแผน vs. ที่สร้างจริง) เหตุผลของลายที่ถูกปฏิเสธ ปุ่ม
+  "นำ READY เข้า Portfolio" / "นำทั้งหมดเข้า Portfolio พร้อมสถานะ" (ใช้สถานะ
+  workflow เดิมของ Portfolio) และ "เตรียม SEO สำหรับ READY" (ใช้เครื่องมือ
+  สร้างชื่อ/คำอธิบาย/คำสำคัญเดิมของแอป — ไม่มีการสร้างคำสำคัญปลอมเมื่อไม่มี
+  โปรไฟล์มาร์เก็ตเพลสรองรับ จะแจ้งตรงไปตรงมาแทน)
+- 📜 **ประวัติ Autopilot 🆕**: ทุกรันจริงแสดงวันที่/โหมด/มาร์เก็ตเพลส/
+  คอลเลกชัน/จำนวนที่ขอ-ที่สร้าง/READY-REVIEW-REJECT/สถานะ/Snapshot ต้นทาง/
+  ความเชื่อมั่น/ระยะเวลา พร้อมเปิด/ดำเนินการต่อ/ทำซ้ำด้วย seed ใหม่ (ไม่สร้าง
+  ลายซ้ำอัตโนมัติเด็ดขาด)/เก็บถาวร/ส่งออกรายงาน
+- 🔌 **โหมดออฟไลน์ที่ตรงไปตรงมา**: ป้าย "OFFLINE AUTOPILOT" พร้อมวันที่ของ
+  Snapshot ที่ใช้ หรือระบุ Portfolio Gap Autopilot / Evergreen Commercial
+  Autopilot อย่างชัดเจนเมื่อไม่มีข้อมูลตลาดสด — ทดสอบจริงด้วยการตัดเครือข่าย
+  กลางรัน สร้างลายสำเร็จครบทุกขั้นตอนโดยไม่มี error
+- 🗄️ **AutonomousDesignRun เข้าสู่ Application Backup System แล้ว** (DB
+  version เพิ่มจาก 10 เป็น 11) ทุกลายเก็บสายเชื่อมโยงที่มาครบ (Market
+  Snapshot/Opportunity/Daily Mission/MarketingDesignHandoff/Creative
+  Brief/Collection Plan/Collection Item/Generator Handoff/Autonomous
+  Design Run ID/seed) เหมือนลายที่สร้างผ่าน "🎨 นักออกแบบ" ทุกประการ
+- ⚙️ **การตั้งค่าขั้นสูงเดิมยังอยู่ครบ** — Autopilot เป็นทางลัดที่แนะนำ ไม่ใช่
+  การแทนที่ ไม่มีการบังคับผู้ใช้ทั่วไปให้ผ่านหน้าตั้งค่าขั้นสูงเพื่อสร้างลาย
+- ✅ ทดสอบผ่านครบ 297 การทดสอบเฉพาะโมดูล Autopilot (unit + component-level
+  ด้วย React Testing Library) และ regression เต็มระบบ 3,803/3,803 การ
+  ทดสอบ ติดต่อกัน 2 รอบ พร้อมตรวจสอบด้วยเบราว์เซอร์จริงทั้ง desktop, iPad
+  portrait, iPad landscape, และโหมดออฟไลน์ (ตัดเครือข่ายจริงระหว่างทดสอบ)
+
+### v1.85 — 31 ก.ค. 2026 — Build 028C: เชื่อม Marketing Intelligence เข้ากับ AI Creative Director โดยตรง
+
+- 🆕 **ปุ่ม "ส่งให้นักออกแบบ (Send to Creative Director)"** ใน 4 จุด:
+  Today's Mission, Opportunity Explorer, Market Gap Finder, Daily Missions
+  — กดแล้วเปิดหน้าจอตรวจสอบก่อนบันทึกทันที (ไม่มีการบันทึกจนกว่าจะกดยืนยัน)
+- 🧾 **หน้าจอตรวจสอบ (Handoff Review)**: ทุกช่องข้อมูลแสดง 5 อย่างพร้อมกัน —
+  ที่มา, ระดับความเชื่อมั่น, หลักฐานอ้างอิง, ค่าที่แก้ไขได้, และช่องติ๊ก
+  เลือกใช้/ล็อก แก้ไขค่าได้ก่อนส่ง (ทำเครื่องหมาย "User Override")
+- 🕳️ **ตรวจจับข้อมูลที่ขาดหายอย่างตรงไปตรงมา**: ช่องที่ไม่มีหลักฐานรองรับจะ
+  แสดง **"Not Provided"**, **"Needs User Decision"** (การตัดสินใจเชิง
+  สร้างสรรค์ที่ไม่มีหลักฐานใดตอบได้), หรือ **"Not Supported by Evidence"**
+  (มีค่าแต่ความเชื่อมั่นของหลักฐานต่ำเกินไป) — **ไม่มีการกุค่าที่ไม่มีจริง**
+- 🧠 **สร้าง Creative Brief ฉบับร่างอัตโนมัติ**จากข้อมูลที่ตรวจสอบแล้ว พร้อม
+  บันทึก **MarketingDesignHandoff** — ระเบียนเดียวที่ตามรอยทั้ง Market
+  Snapshot/Market Opportunity/Daily Mission ต้นทาง, คะแนนโอกาส, ความเชื่อมั่น,
+  ความสดใหม่ของข้อมูล ไปจนถึง Creative Brief/Collection Plan/Collection
+  Item/Generator Handoff ที่ตามมา แล้วสลับแอปไปหน้า "🎨 นักออกแบบ" พร้อมบรีฟ
+  ที่เพิ่งสร้างทันที
+- 📊 **สถานะการทำงาน 13 ขั้นตอน + ประวัติการเปลี่ยนสถานะถาวร**: Marketing
+  Research → Opportunity Selected → Brief Draft → Brief Review → Brief
+  Approved → Collection Planned → Collection Item Selected → Handoff
+  Review → Ready for Generator → Generating → Generated → Design Review →
+  Ready for Portfolio — แสดงผ่านการ์ดสถานะเดียวกันในแท็บ Creative Brief,
+  Collection Planner, และ Generator Handoff (โอกาสต้นทาง/สถานะปัจจุบัน/เวลา
+  อัปเดตล่าสุด/โมดูลที่รับผิดชอบ/ช่องที่ยังไม่สรุป/สถานะสำรองข้อมูล/ความพร้อม
+  ส่งเข้าตัวสร้างลาย)
+- 🧩 **Collection Item รายชิ้นจริง**: แผนคอลเลกชันเก็บรายการต่อชิ้นแยกกันแล้ว
+  เลือกส่งต่อ Generator Handoff ทีละชิ้นได้ — id ของชิ้นนั้นไหลต่อเนื่องไปถึง
+  ลายที่สร้างจริง (`GeneratorHandoffLineage.collectionItemId` /
+  `GenerateParams.sourceLineage.collectionItemId`) คงอยู่ผ่าน JSON round-trip
+  และสำรอง/กู้คืนด้วย .vspsb
+- 🧭 **การนำทางข้ามโมดูล**: การ์ดสถานะมีลิงก์กลับไป Market Opportunity ต้นทาง
+  เสมอ, ปุ่ม "Go to Generator Handoff →" ในแท็บ Collection Planner, และแถบ
+  "สายเชื่อมโยงที่มา" ในหน้าตัวสร้างลายมีลิงก์ "← View Creative Brief" และ
+  "← View Market Opportunity" ย้อนกลับไปดูจุดเริ่มต้นของลายนั้นได้เสมอ
+- 🗄️ **MarketingDesignHandoff เข้าสู่ Application Backup System แล้ว**
+  (DB version เพิ่มจาก 9 เป็น 10 สำหรับดัชนีใหม่) ทดสอบ round-trip ครบ
+  (store ว่าง, ข้อมูลผสมสคีมาเก่า/ใหม่, ตรวจสอบ checksum ล้มเหลว, การกู้คืนที่
+  ถูกขัดจังหวะกลางทาง)
+- ✅ ไม่กระทบ Marketing Intelligence Center, AI Creative Director เดิม, หรือ
+  หน้าสร้างลายเลย — ทดสอบผ่านครบทุกชุดใหม่ (field-mapping, missing-data
+  semantics, lock/edit behavior, collectionItemId round-trip/backup/
+  migration, การเปลี่ยนสถานะครบ 13 ขั้นตอนผ่าน UI จริง) พร้อมตรวจสอบด้วย
+  เบราว์เซอร์จริงทั้งขนาด desktop และ iPad — regression เต็มระบบผ่าน 100%
+  ติดต่อกัน 2 รอบ
+
+### v1.84 — 31 ก.ค. 2026 — Build 028B Hardening: เสถียรภาพ, สำรองข้อมูลครบ, เชื่อมต่อตัวสร้างลายจริง
+
+- 🐞 **แก้ต้นตอปัญหาการทดสอบ flaky ใน `batchProductionService.test.ts`**: พบว่า
+  งาน batch แบบ async ที่ค้างอยู่จาก test ก่อนหน้า (ที่ timeout ไปแล้วแต่ยังรัน
+  อยู่จริงเบื้องหลัง) ไปปนกับ test ถัดไปในไฟล์เดียวกันเมื่อรันพร้อมกันทั้งชุด
+  แก้ด้วยการเพิ่มความสามารถยกเลิกงานจริง (`AbortSignal`) เข้าไปใน
+  `batchProductionService` เอง (เป็นฟีเจอร์จริงของระบบ ไม่ใช่แค่โค้ดทดสอบ) แล้ว
+  ยกเลิกงานทุกชิ้นที่ยังค้างอยู่ก่อนเริ่ม test ถัดไปเสมอ พร้อมเพิ่มการทดสอบ
+  ครอบคลุมการยกเลิกงานทั้งก่อนเริ่มและระหว่างทำงาน
+- 🗄️ **Application Backup System (.vspsb) ครอบคลุม Build 028/028B ครบทุก
+  store แล้ว**: เพิ่ม `designBriefs`, `designConfigurations`, `collectionPlans`
+  เข้าสู่รายการที่สำรอง/กู้คืนได้ (แก้ไขข้อจำกัดที่ระบุไว้ใน v1.83) ทดสอบ
+  round-trip ครบทั้งกรณี store ว่าง, ข้อมูลผสมสคีมาเก่า/ใหม่, ตรวจสอบ checksum
+  ล้มเหลว และการกู้คืนที่ถูกขัดจังหวะกลางทาง (มี Safety Backup ป้องกันเสมอ)
+- 🔗 **Generator Handoff เชื่อมต่อกับตัวสร้างลายจริงแล้ว**: กดปุ่ม "ส่งไปยัง
+  ตัวสร้างลวดลาย (Send to Pattern Generator)" จะเปิดหน้าจอตรวจสอบก่อนใช้จริง
+  แสดงที่มาของทุกค่า (From Market Opportunity/From Creative Brief/From
+  Collection Plan/User Override/Generator Default) พร้อมติ๊กเลือก/ไม่เลือก
+  แต่ละค่า (ไม่ติ๊ก = ค่าคอนฟิกเดิมในตัวสร้างลายจะไม่ถูกเขียนทับ) เมื่อยืนยันแล้ว
+  แอปจะสลับไปหน้าตัวสร้างลายพร้อมค่าที่เลือกทันที
+- 🧭 **สายเชื่อมโยงที่มา (traceability lineage)**: ลายที่สร้างผ่าน Generator
+  Handoff จะเก็บ Market Snapshot ID, Market Opportunity ID, Design Brief ID,
+  Collection Plan ID, Generator Handoff ID, seed, เวอร์ชันตัวสร้างลาย และเวลา
+  ที่สร้าง ไว้ในค่าคอนฟิกของลายนั้นเอง — คงอยู่ไม่ว่าจะโหลดหน้าใหม่, บันทึกลง
+  IndexedDB หรือสำรอง/กู้คืนด้วย .vspsb
+- 🖥️ **สถานะใหม่ในแท็บ Generator Handoff**: การ์ดแสดง Backup Protected/Not Yet
+  Backed Up, Ready for Generator/Missing Configuration, Generated/Not
+  Generated พร้อมเวลาที่ส่งล่าสุดและตัวอย่างค่าคอนฟิกที่จะส่งไป
+- ✅ ทดสอบผ่านครบทุกชุดใหม่ (backup round-trip, generator mapping, locked
+  field, provenance, traceability) และตรวจสอบด้วยเบราว์เซอร์จริงทั้งขนาด
+  desktop และ iPad ไม่พบ console error — regression เต็มระบบผ่าน 100% ติดต่อกัน
+  2 รอบ ไม่มีการทดสอบ flaky หลงเหลืออีกต่อไป
+
+### v1.83 — 31 ก.ค. 2026 — Build 028B: AI Creative Director / Collection Strategy Engine
+
+- 🆕 **แท็บใหม่ "🎨 นักออกแบบ" บนแถบเมนูบนสุด**: โมดูล **AI Creative Director**
+  ที่แปลง Market Opportunity ที่อนุมัติแล้วจาก "📈 นักการตลาด" ให้กลายเป็น
+  แผนคอลเลกชันเชิงพาณิชย์ที่สมบูรณ์ — 10 แท็บ: Creative Brief, Collection
+  Planner, Roadmap, Completeness, Balance, Diversity, Art Director,
+  Commercial QA, Portfolio Impact, Generator Handoff (ดูรายละเอียดเต็มในหัวข้อ
+  "🎨 AI Creative Director" ด้านบน)
+- 🧾 **สืบทอดหลักการหลักฐานเดียวกับ Marketing Intelligence Center**: ทุกคำ
+  แนะนำต้องระบุเหตุผล (Why), หลักฐานอ้างอิง (Evidence), และระดับความเชื่อมั่น
+  (Confidence) พร้อมแก้ไขได้เสมอ — ไม่มีการ์ดตัวอย่าง (placeholder) และไม่มี
+  คะแนน/ตัวเลขเชิงพาณิชย์ที่กุขึ้นมาเอง
+- 🕳️ **สัญญาณที่ยังประเมินไม่ได้จะบอกตรงๆ**: ในแท็บ Diversity สัญญาณ 3 อย่าง
+  (ความซ้ำขององค์ประกอบ/ลาย/คอลเลกชัน) ยังคำนวณจริงไม่ได้ก่อนมีลายที่สร้าง
+  จริงในคอลเลกชันนั้น ระบบแสดง "ยังประเมินไม่ได้" พร้อมคำอธิบาย แทนการเดา
+  ตัวเลข
+- 💰 **Portfolio Impact เป็นเชิงคุณภาพล้วน**: สรุปผลกระทบต่อพอร์ตโฟลิโอ (เช่น
+  เสริมหมวดเด็ก/หมวดหรู) แบบข้อความเท่านั้น **ไม่มีการประเมินรายได้**ตามที่
+  โจทย์กำหนด
+- 🗄️ **ต่อยอด schema เดิมของ Build 028 Phase 2**: ใช้ IndexedDB store
+  `designBriefs`/`designConfigurations` ที่จองไว้แล้วตั้งแต่ Phase 2 บวก
+  store ใหม่ 1 ตัว (`collectionPlans`, DB version เพิ่มจาก 8 เป็น 9) — สอง
+  store เดิมและ store ใหม่**ยังไม่รวมอยู่ใน Application Backup System** ใน
+  เวอร์ชันนี้
+- ✅ ไม่กระทบ Marketing Intelligence Center, Portfolio Manager, Production
+  Center, Backup Manager หรือหน้าสร้างลายเดิมเลย — เป็นโมดูลใหม่แยกอิสระ
+  ทั้งหมด, ทดสอบผ่านครบ 19 ไฟล์/58 การทดสอบใหม่ และ regression เต็มระบบ
+  3641/3641 (ไม่นับ 2 การทดสอบที่ไม่เกี่ยวข้องซึ่งพบว่า flaky อยู่ก่อนแล้ว
+  ใน `batchProductionService.test.ts` — ผ่าน 100% เมื่อรันแยกไฟล์)
+
+### v1.82 — 31 ก.ค. 2026 — Build 028 (Phase 1-4): Marketing Intelligence Center
+
+- 🆕 **แท็บใหม่ "📈 นักการตลาด" บนแถบเมนูบนสุด**: เปลี่ยนแอปจาก "เครื่องมือสร้าง
+  ลาย" ให้ตอบคำถาม "วันนี้ควรออกแบบลายอะไรเพื่อโอกาสเชิงพาณิชย์ที่สมจริง
+  ที่สุด" — 9 แท็บ: Today's Mission, AI Market Advisor, Opportunity Explorer,
+  Commercial Score Details, Keyword Intelligence, Seasonal Planner, Market Gap
+  Finder, Marketplace Comparison, Daily Missions (ดูรายละเอียดเต็มในหัวข้อ
+  "📈 Marketing Intelligence Center" ด้านบน)
+- 🧾 **หลักการหลักฐานที่ยึดตลอดระบบ**: ทุกเรกคอร์ดที่ป้อนเข้าคำแนะนำต้องระบุ
+  แหล่งหลักฐาน (`VERIFIED_SOURCE` / `USER_IMPORTED` / `USER_OBSERVATION` /
+  `LOCAL_SALES_DATA` / `LOCAL_PORTFOLIO_DATA` / `AI_INFERENCE` /
+  `SAMPLE_DATA`) — ไม่มีฟิลด์ปริมาณการค้นหาที่เป็นตัวเลขกุขึ้นมาเองที่ไหนเลย
+  ในระบบ ใช้ระดับเชิงคุณภาพ (very-low/low/medium/high/very-high/unknown)
+  แทนทั้งหมด
+- 📊 **Commercial Opportunity Scoring แบบโปร่งใส**: คะแนนรวมคำนวณจากค่าถ่วง
+  น้ำหนักเฉพาะมิติที่มีหลักฐานจริงเท่านั้น — มิติที่ยังไม่มีข้อมูลจะถูก
+  **ตัดออกจากการคำนวณ ไม่ถูกนับเป็นศูนย์** และแสดงรายการ "มิติที่ยังขาดหลักฐาน"
+  เสมอ; ระดับความเชื่อมั่นโดยรวม = ระดับความเชื่อมั่น**ต่ำที่สุด**ในบรรดามิติ
+  ที่มีส่วนร่วมคำนวณจริง
+- 📸 **Market Snapshot พกพาได้ + ใช้งานออฟไลน์**: บันทึก/ทำสำเนา/เปรียบเทียบ/
+  เก็บถาวร/ส่งออก-นำเข้า Market Snapshot ได้ — เมื่อออฟไลน์ระบบใช้ snapshot
+  ล่าสุดที่บันทึกไว้พร้อมป้าย **"OFFLINE ANALYSIS"**, วันที่ของ snapshot,
+  และคำเตือนความสดใหม่เสมอ ไม่มีวันอ้างว่าเป็นข้อมูลสด (live) โดยไม่มีแหล่ง
+  รองรับ
+- 🗓 **Seasonal Production Calendar**: ปฏิทินฤดูกาลระดับโลก + กำหนดเองได้
+  พร้อมเตือนอัตโนมัติเมื่อเลยกำหนดเวลาที่ควรเริ่มผลิตแล้ว (คำนวณจากวันที่จริง
+  เทียบกับวันปัจจุบัน ไม่ใช่คะแนนความเร่งด่วนที่กุขึ้น)
+- 🕳️ **Market Gap Finder + Marketplace Comparison**: หาคำค้นที่มีโอกาสดีแต่
+  คลังผลงานยังครอบคลุมน้อย และเปรียบเทียบกฎ metadata/สัญญาณความต้องการ-
+  การแข่งขันต่อมาร์เก็ตเพลสแบบกระจาย (ไม่เฉลี่ยรวมเป็นตัวเลขเดียวที่บิดเบือน
+  ความแม่นยำ)
+- 🧪 **ปุ่ม "⚠ Load Sample Data"**: สร้างชุดข้อมูลตัวอย่างที่ไหลผ่านเอนจิน
+  คำนวณคะแนน/แผนผลิตจริงชุดเดียวกับข้อมูลจริงทุกประการ พร้อมป้าย
+  "⚠ SAMPLE DATA" กำกับชัดเจนทุกจุดที่แสดงผล ไม่มีวันปะปนกับข้อมูลจริงโดยไม่บอก
+- 💾 **รวมเข้า Application Backup System แล้ว**: ข้อมูลการตลาดทั้ง 8 IndexedDB
+  store ใหม่ (research sources, market observations, market snapshots, market
+  keywords, seasonal events, scoring profiles, market opportunities, daily
+  missions) รวมอยู่ในไฟล์สำรอง `.vspsb` แล้ว — DB version เพิ่มจาก 7 เป็น 8
+  แบบไม่กระทบข้อมูลผู้ใช้เดิม
+- 🔒 **ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากมาร์เก็ตเพลสอัตโนมัติในเวอร์ชันนี้**:
+  ไม่มีการเก็บรหัสผ่าน/API key ของบุคคลที่สามใดๆ, ไม่มีการ scrape หรือ
+  บอทอัตโนมัติ — การวิจัยตลาดเป็นการบันทึก/นำเข้าด้วยมือของผู้ใช้เองทั้งหมด
+- ✅ ไม่กระทบพฤติกรรมการสร้างลาย/Portfolio Manager/Production Center/Backup
+  Manager เดิมเลย — เป็นโมดูลใหม่แยกอิสระทั้งหมด รายละเอียดสถาปัตยกรรมอยู่ใน
+  `BUILD_028_AUDIT.md`
 
 ### v1.81 — 24 ก.ค. 2026 — ระบบสำรอง/กู้คืนข้อมูลทั้งแอป (Application Backup System)
 

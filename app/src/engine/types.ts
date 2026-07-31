@@ -409,7 +409,46 @@ export interface GenerateParams {
    * Build-024 pattern's existing flat 4-tier paint order and default
    * repair budget, a strict no-op. */
   artDirectionModel?: import('./artDirectionModel').ArtDirectionModel;
+  /** Build 028B Hardening — traceability lineage back to the AI Creative
+   * Director record chain that produced this generation, set only when
+   * these params came from "ส่งไปยังตัวสร้างลวดลาย" (Send to Pattern
+   * Generator — `design-director/handoff/applyGeneratorHandoff.ts`).
+   * Undefined for every pattern generated the normal way (no Creative
+   * Director involved), which is the overwhelming majority of patterns —
+   * never fabricated, never backfilled onto pre-existing records. Rides
+   * inside `GenerateParams` deliberately (rather than a new store) so it
+   * survives everywhere params already do: a saved pattern's JSON
+   * sidecar, a Portfolio asset's `metadataReference` source file, and
+   * therefore the Application Backup System (`.vspsb`), with zero new
+   * persistence code. */
+  sourceLineage?: GeneratorHandoffLineage;
   seed: string;
+}
+
+/** See `GenerateParams.sourceLineage`'s doc comment. Every id here is the
+ * real record id from its own domain module (never a fabricated/derived
+ * value) — `collectionItemId` references a real `CollectionPlanItem.id`
+ * (`design-director/domain/collectionPlan.ts`, added in Build 028C) when
+ * the Generator Handoff was configured for one specific planned item;
+ * `null` for a handoff not tied to one exact item (including every handoff
+ * created before Build 028C, when `CollectionPlan` only tracked pattern-type
+ * COUNTS with no individually-identified items to reference). */
+export interface GeneratorHandoffLineage {
+  marketSnapshotId: string | null;
+  marketOpportunityId: string | null;
+  designBriefId: string;
+  collectionPlanId: string;
+  collectionItemId: string | null;
+  generatorHandoffId: string;
+  generatorVersion: string;
+  seed: string;
+  appliedAt: number;
+  /** Build 029 — the `AutonomousDesignRun.id` this pattern was generated
+   * under, when generation happened through the "ออกแบบให้ฉันวันนี้"
+   * Autopilot pipeline rather than a manual Send-to-Generator handoff.
+   * `null`/undefined for every manually-applied handoff (Build 028B/028C),
+   * never fabricated for those. */
+  autonomousDesignRunId?: string | null;
 }
 
 export interface TileData {

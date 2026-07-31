@@ -9,6 +9,9 @@ interface Props {
   onOpenTrendStudio: () => void;
   onOpenPortfolioManager: () => void;
   onOpenBackupManager: () => void;
+  onOpenMarketing: () => void;
+  onOpenDesignDirector: () => void;
+  onOpenAutopilot: () => void;
 }
 
 /** Active-Project bar — persistent header strip (chosen over a Figma/Canva-
@@ -17,12 +20,27 @@ interface Props {
  * collection/export is attributed to whichever project is active here.
  * "📂 Projects" opens the full Project Dashboard (Project Manager) to
  * create/open/duplicate/rename/archive/delete/favorite. */
-export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOpenDashboard, onOpenTrendStudio, onOpenPortfolioManager, onOpenBackupManager }: Props) {
+export function ProjectBar({
+  projects,
+  activeProjectId,
+  onSwitch,
+  onCreate,
+  onOpenDashboard,
+  onOpenTrendStudio,
+  onOpenPortfolioManager,
+  onOpenBackupManager,
+  onOpenMarketing,
+  onOpenDesignDirector,
+  onOpenAutopilot,
+}: Props) {
   const visible = projects.filter((p) => !p.archived);
   const active = projects.find((p) => p.id === activeProjectId);
 
   return (
     <div className="project-bar">
+      <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenAutopilot}>
+        ✨ ออกแบบให้ฉันวันนี้
+      </button>
       <span className="project-bar-label">📁 Project:</span>
       <select
         className="project-bar-select"
@@ -52,6 +70,12 @@ export function ProjectBar({ projects, activeProjectId, onSwitch, onCreate, onOp
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenBackupManager}>
         💾 Backup Manager
+      </button>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenMarketing}>
+        📈 นักการตลาด
+      </button>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenDesignDirector}>
+        🎨 นักออกแบบ
       </button>
     </div>
   );
