@@ -4,21 +4,21 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.81
-> **Development Build:** Build 026 (Application Backup System shipped as a
-> follow-on increment on the same branch, not a separate numbered Build)
-> **Source Commit:** d3c97e2
-> **Documentation Status:** Current for Build 026 + the Application Backup
-> System on branch `claude/build-026-production-commercial-feedback` —
-> **not yet merged to `main`**. The `main` branch is currently at
-> **Application Version v1.74 / Development Build 021** (merged via
-> Release Candidate RC-1, covering Builds 006–021). If you are reading
-> this file on `main`, the Production Portfolio & Commercial Feedback
-> Engine and the Application Backup System described below (the entire
-> "🏭 ศูนย์การผลิต" section and "💾 Backup Manager") are **not yet
-> present** — they ship only once this branch is merged. See
-> [Version and Build Numbering](#-version-and-build-numbering) below for
-> what these two numbers mean and why they differ.
+> **Application Version:** v1.82
+> **Development Build:** Build 028 (Marketing Intelligence & AI Design
+> Director), Phases 1-4 — Marketing Intelligence Center UI
+> **Source Commit:** *(see this build's commit on branch
+> `claude/build-028-marketing-design-intelligence`)*
+> **Documentation Status:** Current for Build 028 Phases 1-4 on branch
+> `claude/build-028-marketing-design-intelligence` — **not yet merged to
+> `main`**. The `main` branch is currently at **Application Version v1.74 /
+> Development Build 021** (merged via Release Candidate RC-1, covering
+> Builds 006–021). If you are reading this file on `main`, the "📈
+> นักการตลาด" Marketing Intelligence Center, the Production Portfolio &
+> Commercial Feedback Engine, and the Application Backup System described
+> below are **not yet present** — they ship only once their branches are
+> merged. See [Version and Build Numbering](#-version-and-build-numbering)
+> below for what these two numbers mean and why they differ.
 
 แอปสร้างลวดลายเวคเตอร์แบบ **seamless (ต่อกันไร้รอยต่อ)** สำหรับขายบนเว็บ stock
 เช่น Shutterstock, Adobe Stock, Freepik, Creative Fabrica — ทุกอย่างทำงานใน
@@ -55,6 +55,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v1.82 | Build 028 (Phases 1-4) | *(this build's commit)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.81 | Build 026 (follow-on) | *(see prior commit)* | Application Backup System | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.79 | Build 025 (follow-up) | `3c8bbb5` | Connectivity-Aware Thinning Repair — Luxury Floral fragmentation 60.67%→23% | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
 | v1.78 | Build 025 | `c922d27` | Luxury Floral Composition Engine (built, shipped disabled by default) | On branch `claude/build-025-luxury-floral-composition-stability`, not merged to `main` |
@@ -1280,6 +1282,57 @@ Color Roles ของแพ็กนั้นเข้ากับ Design Spec �
 
 ---
 
+## 📈 Marketing Intelligence Center — นักการตลาด 🆕
+
+ปุ่ม **"📈 นักการตลาด"** บนแถบเมนูบนสุดเปิด **Marketing Intelligence Center** —
+ศูนย์รวมข้อมูลตลาด/โอกาสเชิงพาณิชย์/แผนผลิตประจำวัน ที่ทำงานแยกจากหน้าสร้างลาย
+โดยสมบูรณ์ (ปิดได้ตลอดเวลาโดยไม่กระทบงานที่กำลังทำอยู่)
+
+> ⚠️ **หลักการสำคัญที่ยึดตลอดทั้งระบบ**: ทุกตัวเลข/คะแนน/คำแนะนำที่เห็นต้อง
+> ระบุที่มาของหลักฐานเสมอ (นำเข้าเอง/สังเกตเอง/ข้อมูลยอดขายจริง/AI อนุมาน/
+> ข้อมูลตัวอย่าง) — **ไม่มีการอ้างว่าเป็นข้อมูลตลาดสด (live) โดยไม่มีแหล่งจริง
+> รองรับ**, และ**ข้อมูลตัวอย่างจะมีป้าย "⚠ SAMPLE DATA" กำกับเสมอ** ไม่มีวัน
+> ปะปนกับข้อมูลจริงโดยไม่บอก
+
+9 แท็บ:
+
+- **Today's Mission** — แผนผลิตแนะนำของวันนี้ (ธีม/มาร์เก็ตเพลสหลัก/ลายเด่น/
+  ทิศทางสี/จำนวนที่ควรผลิต) พร้อม "เหตุผลที่แนะนำ", "ทำไมตัวเลือกอื่นไม่ถูก
+  แนะนำ", ระดับความเชื่อมั่น, ความเสี่ยง, และผลกระทบต่อคลังผลงาน — กด
+  ยอมรับ/แก้ไข/เลื่อน/ปฏิเสธได้ทุกภารกิจ
+- **AI Market Advisor** — สรุปโอกาสเด่น 3 อันดับแรกและช่องว่างตลาด 3 อันดับแรก
+  จากข้อมูลจริงที่มีอยู่
+- **Opportunity Explorer** — ค้นหา/กรอง/เรียงลำดับ/เปรียบเทียบโอกาสเชิงพาณิชย์
+  ทั้งหมด พร้อมปรับสถานะ (RESEARCH → SELECTED → ... → SUBMITTED/ARCHIVED)
+- **Commercial Score Details** — กระจายคะแนนโอกาสแบบโปร่งใสทุกมิติ (ค่าดิบ/
+  น้ำหนัก/สัดส่วนคะแนน/แหล่งหลักฐาน) — มิติที่ยังไม่มีหลักฐานจะถูก**ตัดออกจาก
+  การคำนวณ** ไม่ใช่ถูกนับเป็นศูนย์
+- **Keyword Intelligence** — จัดกลุ่มคำค้นตาม 8 หมวด, ตรวจคำค้นซ้ำ, สรุปความ
+  ครอบคลุมของคลังผลงานต่อกลุ่ม — ระดับการแข่งขัน/โอกาส/ความเสี่ยงซ้ำเป็น
+  **ระดับเชิงคุณภาพเท่านั้น** (ไม่มีตัวเลขปริมาณการค้นหาที่กุขึ้นมาเอง)
+- **Seasonal Planner** — ปฏิทินการผลิตตามฤดูกาล พร้อมเตือนอัตโนมัติเมื่อเลย
+  กำหนดเวลาที่ควรเริ่มผลิตแล้ว
+- **Market Gap Finder** — หาคำค้นที่มีโอกาสดีแต่คลังผลงานยังครอบคลุมน้อย
+  พร้อมคำอธิบายเหตุผลและคำแนะนำคอลเลกชันที่ควรทำเพิ่ม
+- **Marketplace Comparison** — เปรียบเทียบกฎ metadata และการกระจายของสัญญาณ
+  ความต้องการ/การแข่งขันต่อมาร์เก็ตเพลส
+- **Daily Missions** — ประวัติภารกิจทั้งหมด พร้อมปุ่มยอมรับ/แก้ไข/เลื่อน/
+  ปฏิเสธ/เสร็จสิ้น
+
+**ทำงานได้แบบออฟไลน์**: หากไม่มีการเชื่อมต่อ ระบบใช้ **Market Snapshot** ล่าสุด
+ที่บันทึกไว้ในเครื่อง พร้อมป้าย **"OFFLINE ANALYSIS"**, วันที่ของ snapshot,
+และคำเตือนความสดใหม่ของข้อมูลเสมอ
+
+**ยังไม่มีข้อมูล?** กดปุ่ม **"⚠ Load Sample Data"** เพื่อดูตัวอย่างหน้าจอที่ใช้
+งานได้จริงด้วยข้อมูลตัวอย่างที่มีป้ายกำกับชัดเจน (ไหลผ่านเอนจินคำนวณคะแนน/
+แผนผลิตจริงเหมือนข้อมูลจริงทุกประการ)
+
+**ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** และรวมอยู่ใน Application Backup
+System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด/ดึงข้อมูลจากมาร์เก็ตเพลสอัตโนมัติ
+ไม่มีการเก็บรหัสผ่าน/API key ของบุคคลที่สามใดๆ ในเวอร์ชันนี้
+
+---
+
 ## 🧮 แอปสร้างลายไม่ซ้ำกันได้กี่แบบ?
 
 **มากกว่า 130 ล้านแบบ** — นับเฉพาะค่าปรับหลักที่มองเห็นผลต่างชัดเจน (ยังไม่รวม
@@ -1336,6 +1389,52 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.82 — 31 ก.ค. 2026 — Build 028 (Phase 1-4): Marketing Intelligence Center
+
+- 🆕 **แท็บใหม่ "📈 นักการตลาด" บนแถบเมนูบนสุด**: เปลี่ยนแอปจาก "เครื่องมือสร้าง
+  ลาย" ให้ตอบคำถาม "วันนี้ควรออกแบบลายอะไรเพื่อโอกาสเชิงพาณิชย์ที่สมจริง
+  ที่สุด" — 9 แท็บ: Today's Mission, AI Market Advisor, Opportunity Explorer,
+  Commercial Score Details, Keyword Intelligence, Seasonal Planner, Market Gap
+  Finder, Marketplace Comparison, Daily Missions (ดูรายละเอียดเต็มในหัวข้อ
+  "📈 Marketing Intelligence Center" ด้านบน)
+- 🧾 **หลักการหลักฐานที่ยึดตลอดระบบ**: ทุกเรกคอร์ดที่ป้อนเข้าคำแนะนำต้องระบุ
+  แหล่งหลักฐาน (`VERIFIED_SOURCE` / `USER_IMPORTED` / `USER_OBSERVATION` /
+  `LOCAL_SALES_DATA` / `LOCAL_PORTFOLIO_DATA` / `AI_INFERENCE` /
+  `SAMPLE_DATA`) — ไม่มีฟิลด์ปริมาณการค้นหาที่เป็นตัวเลขกุขึ้นมาเองที่ไหนเลย
+  ในระบบ ใช้ระดับเชิงคุณภาพ (very-low/low/medium/high/very-high/unknown)
+  แทนทั้งหมด
+- 📊 **Commercial Opportunity Scoring แบบโปร่งใส**: คะแนนรวมคำนวณจากค่าถ่วง
+  น้ำหนักเฉพาะมิติที่มีหลักฐานจริงเท่านั้น — มิติที่ยังไม่มีข้อมูลจะถูก
+  **ตัดออกจากการคำนวณ ไม่ถูกนับเป็นศูนย์** และแสดงรายการ "มิติที่ยังขาดหลักฐาน"
+  เสมอ; ระดับความเชื่อมั่นโดยรวม = ระดับความเชื่อมั่น**ต่ำที่สุด**ในบรรดามิติ
+  ที่มีส่วนร่วมคำนวณจริง
+- 📸 **Market Snapshot พกพาได้ + ใช้งานออฟไลน์**: บันทึก/ทำสำเนา/เปรียบเทียบ/
+  เก็บถาวร/ส่งออก-นำเข้า Market Snapshot ได้ — เมื่อออฟไลน์ระบบใช้ snapshot
+  ล่าสุดที่บันทึกไว้พร้อมป้าย **"OFFLINE ANALYSIS"**, วันที่ของ snapshot,
+  และคำเตือนความสดใหม่เสมอ ไม่มีวันอ้างว่าเป็นข้อมูลสด (live) โดยไม่มีแหล่ง
+  รองรับ
+- 🗓 **Seasonal Production Calendar**: ปฏิทินฤดูกาลระดับโลก + กำหนดเองได้
+  พร้อมเตือนอัตโนมัติเมื่อเลยกำหนดเวลาที่ควรเริ่มผลิตแล้ว (คำนวณจากวันที่จริง
+  เทียบกับวันปัจจุบัน ไม่ใช่คะแนนความเร่งด่วนที่กุขึ้น)
+- 🕳️ **Market Gap Finder + Marketplace Comparison**: หาคำค้นที่มีโอกาสดีแต่
+  คลังผลงานยังครอบคลุมน้อย และเปรียบเทียบกฎ metadata/สัญญาณความต้องการ-
+  การแข่งขันต่อมาร์เก็ตเพลสแบบกระจาย (ไม่เฉลี่ยรวมเป็นตัวเลขเดียวที่บิดเบือน
+  ความแม่นยำ)
+- 🧪 **ปุ่ม "⚠ Load Sample Data"**: สร้างชุดข้อมูลตัวอย่างที่ไหลผ่านเอนจิน
+  คำนวณคะแนน/แผนผลิตจริงชุดเดียวกับข้อมูลจริงทุกประการ พร้อมป้าย
+  "⚠ SAMPLE DATA" กำกับชัดเจนทุกจุดที่แสดงผล ไม่มีวันปะปนกับข้อมูลจริงโดยไม่บอก
+- 💾 **รวมเข้า Application Backup System แล้ว**: ข้อมูลการตลาดทั้ง 8 IndexedDB
+  store ใหม่ (research sources, market observations, market snapshots, market
+  keywords, seasonal events, scoring profiles, market opportunities, daily
+  missions) รวมอยู่ในไฟล์สำรอง `.vspsb` แล้ว — DB version เพิ่มจาก 7 เป็น 8
+  แบบไม่กระทบข้อมูลผู้ใช้เดิม
+- 🔒 **ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากมาร์เก็ตเพลสอัตโนมัติในเวอร์ชันนี้**:
+  ไม่มีการเก็บรหัสผ่าน/API key ของบุคคลที่สามใดๆ, ไม่มีการ scrape หรือ
+  บอทอัตโนมัติ — การวิจัยตลาดเป็นการบันทึก/นำเข้าด้วยมือของผู้ใช้เองทั้งหมด
+- ✅ ไม่กระทบพฤติกรรมการสร้างลาย/Portfolio Manager/Production Center/Backup
+  Manager เดิมเลย — เป็นโมดูลใหม่แยกอิสระทั้งหมด รายละเอียดสถาปัตยกรรมอยู่ใน
+  `BUILD_028_AUDIT.md`
 
 ### v1.81 — 24 ก.ค. 2026 — ระบบสำรอง/กู้คืนข้อมูลทั้งแอป (Application Backup System)
 

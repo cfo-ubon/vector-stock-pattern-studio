@@ -1,0 +1,468 @@
+/* Build 028 Phase 4 — Marketing Intelligence Center. Reuses the same
+ * shared CSS custom properties and class-naming convention as
+ * components/backup/backupManager.css and
+ * components/production/productionCenter.css rather than inventing a
+ * parallel design language. 1100px matches the existing iPad/tablet
+ * breakpoint used across workbench.css and portfolio.css. */
+
+.marketing-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  color: var(--text);
+  min-height: 60vh;
+}
+
+.marketing-center-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.marketing-center-header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.marketing-tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.marketing-error {
+  color: #e07a7a;
+  border: 1px solid #e07a7a;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.marketing-loading,
+.marketing-empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.marketing-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Shared evidence / confidence / band / offline badges */
+
+.evidence-badge,
+.confidence-badge,
+.band-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border, #333);
+  background: var(--panel-alt, #26262e);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.evidence-badge--sample {
+  background: #4a3410;
+  border-color: #d9a441;
+  color: #f0c060;
+  font-weight: 600;
+}
+
+.offline-analysis-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--accent, #6c8cff);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  background: var(--panel, #1c1c22);
+  font-size: 0.85rem;
+}
+
+.no-data-banner {
+  border: 1px dashed var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: var(--text-dim);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #6c8cff);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.btn--danger {
+  border-color: #e07a7a;
+  color: #e07a7a;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Today's Mission */
+
+.mission-card {
+  background: var(--panel, #1c1c22);
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mission-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+
+.mission-fields > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-fields dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.mission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mission-risks ul,
+.mission-alternatives ul,
+.evidence-lineage ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.mission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.evidence-lineage {
+  border-top: 1px solid var(--border, #333);
+  padding-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* AI Market Advisor */
+
+.advisor-opportunity-list,
+.advisor-gap-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.advisor-opportunity-list li,
+.advisor-gap-list li {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+
+/* Opportunity Explorer */
+
+.explorer-controls,
+.gap-controls,
+.keyword-controls,
+.keyword-add-form,
+.seasonal-add-form,
+.marketplace-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.opportunity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.opportunity-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  flex-wrap: wrap;
+}
+
+.opportunity-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 260px;
+}
+
+.opportunity-badges {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.opportunity-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.opportunity-compare-table-wrap {
+  overflow-x: auto;
+}
+
+.opportunity-compare-table,
+.keyword-table,
+.score-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.opportunity-compare-table th,
+.opportunity-compare-table td,
+.keyword-table th,
+.keyword-table td,
+.score-breakdown-table th,
+.score-breakdown-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border, #333);
+  vertical-align: top;
+}
+
+/* Commercial Score Details */
+
+.score-breakdown-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.score-breakdown-overall {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.score-breakdown-missing {
+  color: #d9a441;
+  font-size: 0.85rem;
+}
+
+.score-breakdown-row--missing {
+  opacity: 0.6;
+}
+
+/* Keyword Intelligence */
+
+.keyword-coverage-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.keyword-detail dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.keyword-detail dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* Seasonal Planner */
+
+.seasonal-late-warnings {
+  border: 1px solid #d9a441;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.seasonal-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.seasonal-event-list li {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+
+.seasonal-event--late {
+  border-color: #d9a441;
+}
+
+.seasonal-event-list dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.35rem 1rem;
+  margin: 0.4rem 0;
+}
+
+.seasonal-event-list dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* Market Gap Finder */
+
+.gap-dashboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gap-card {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.gap-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0;
+}
+
+/* Marketplace Comparison */
+
+.marketplace-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.marketplace-comparison-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.marketplace-comparison-card {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: var(--panel, #1c1c22);
+}
+
+.marketplace-distribution ul {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.2rem;
+  font-size: 0.8rem;
+}
+
+/* Daily Missions */
+
+.daily-mission-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.daily-mission-history-item {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.daily-mission-history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.daily-mission-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 1100px) {
+  .marketing-center {
+    padding: 1rem;
+  }
+
+  .marketing-tab-nav {
+    gap: 0.35rem;
+  }
+
+  .mission-fields,
+  .keyword-detail dl,
+  .seasonal-event-list dl {
+    grid-template-columns: 1fr;
+  }
+
+  .opportunity-list-item {
+    flex-direction: column;
+  }
+
+  .marketplace-comparison-cards {
+    grid-template-columns: 1fr;
+  }
+}
