@@ -168,18 +168,20 @@ export const APP_BACKUP_STORE_NAMES = [
   'marketplaceRegistrations',
   // Build 028, Marketing Intelligence (Phases 2-3) — registered as each
   // gains a real domain/store module; the remaining Build 028 stores
-  // (marketOpportunities, dailyMissions, designBriefs, designStrategies,
-  // designConfigurations, marketingDesignHandoffs,
-  // commercialFeedbackSignals, recommendationHistory) already exist in
-  // `storage/db.ts`'s v8 schema but are added here in the later phase
-  // that actually writes to them, matching this list's existing
-  // convention of registering a store only once it holds real data.
+  // (designBriefs, designStrategies, designConfigurations,
+  // marketingDesignHandoffs, commercialFeedbackSignals,
+  // recommendationHistory) already exist in `storage/db.ts`'s v8 schema
+  // but are added here in the later phase that actually writes to them,
+  // matching this list's existing convention of registering a store only
+  // once it holds real data.
   'researchSources',
   'marketObservations',
   'marketSnapshots',
   'marketKeywords',
   'seasonalEvents',
   'scoringProfiles',
+  'marketOpportunities',
+  'dailyMissions',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

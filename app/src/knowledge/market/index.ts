@@ -62,3 +62,13 @@ export { clusterKeywords, findDuplicateKeywordGroups, summarizeClusterCoverage }
 export { createSeasonalEvent, isLateForProduction, isPastEvent, type SeasonalEvent } from '../../marketing/domain/seasonalEvent';
 
 export { buildGlobalSeasonalEvents } from '../../marketing/seasonal/globalCalendar';
+
+export { createMarketOpportunity, OPPORTUNITY_STATUS_VALUES, type MarketOpportunity, type OpportunityStatus } from '../../marketing/domain/marketOpportunity';
+
+export { createDailyMission, transitionDailyMissionStatus, type DailyMission } from '../../marketing/domain/dailyMission';
+
+export { generateDailyMission } from '../../marketing/mission/dailyMissionGenerator';
+
+export { findMarketGaps, type MarketGap } from '../../marketing/gap/marketGapFinder';
+
+export { compareMarketplaces, type MarketplaceComparisonRow } from '../../marketing/compare/marketplaceComparison';
