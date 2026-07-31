@@ -348,6 +348,65 @@
   color: var(--text-dim);
 }
 
+.handoff-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: var(--panel, #1c1c22);
+}
+
+.handoff-status dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.handoff-review {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--panel, #1c1c22);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.handoff-review-intro {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.handoff-review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.handoff-review-table th,
+.handoff-review-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border, #333);
+  vertical-align: top;
+}
+
+.handoff-unmapped-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.handoff-review-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 @media (max-width: 1100px) {
   .design-director {
     padding: 1rem;
@@ -358,11 +417,17 @@
   }
 
   .brief-field-grid,
-  .handoff-fields {
+  .handoff-fields,
+  .handoff-status {
     grid-template-columns: 1fr;
   }
 
   .colorway-plan-cards {
     grid-template-columns: 1fr;
+  }
+
+  .handoff-review-table {
+    display: block;
+    overflow-x: auto;
   }
 }

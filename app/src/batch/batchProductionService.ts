@@ -82,6 +82,16 @@ export interface BatchProductionInput {
    * but makes exact reproduction — including in tests — otherwise
    * impossible. */
   diversityRngSeed?: string;
+  /** Checked before each item starts (never mid-item — an item already in
+   * flight always finishes and is counted). Omitted callers get
+   * unconditional, uncancellable generation, matching every prior release's
+   * behavior. This closes a real gap: without it, a caller that stops
+   * awaiting this promise early (a UI "Cancel batch" action, or — the
+   * concrete case that motivated adding this — a test runner abandoning a
+   * timed-out test) has no way to stop the loop, so it keeps running
+   * unattended in the background and keeps writing into whatever storage
+   * `importFileGroup` targets. */
+  signal?: AbortSignal;
 }
 
 export interface BatchProductionItemResult {
@@ -116,6 +126,10 @@ export interface BatchProductionResult {
   retryRate: number;
   /** Mean `attempts` across all generated items. */
   meanAttempts: number;
+  /** True if `signal` fired before every item finished — `items`/the count
+   * fields above then describe only the items completed before that point,
+   * never a partial or fabricated entry for the one that got skipped. */
+  aborted: boolean;
 }
 
 /** Generates `count` diverse patterns and saves each straight into the
@@ -126,9 +140,9 @@ export interface BatchProductionResult {
  * asset already imported earlier in this same batch, not just the
  * catalog's state before the batch started. */
 export async function generateBatchToPortfolio(input: BatchProductionInput): Promise<BatchProductionResult> {
-  const { count, params, activeDna, existingAssets, seedForItem, diversityRngSeed } = input;
+  const { count, params, activeDna, existingAssets, seedForItem, diversityRngSeed, signal } = input;
   if (count <= 0) {
-    return { items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0, retryRate: 0, meanAttempts: 0 };
+    return { items: [], generatedCount: 0, importedCount: 0, possibleDuplicateCount: 0, blockedDuplicateCount: 0, errorCount: 0, retryRate: 0, meanAttempts: 0, aborted: false };
   }
 
   const diversityRng = createRng(diversityRngSeed ?? randomSeed());
@@ -140,8 +154,13 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
 
   const items: BatchProductionItemResult[] = [];
   const knownAssets = [...existingAssets];
+  let aborted = false;
 
   for (let i = 0; i < count; i++) {
+    if (signal?.aborted) {
+      aborted = true;
+      break;
+    }
     const seed = seedForItem ? seedForItem(i) : randomSeed();
     const variantParams = buildVariantParams(params, activeDna, seed, assignments[i]);
     const retryResult = buildTileForGenerate(variantParams);
@@ -165,7 +184,8 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
     possibleDuplicateCount: items.filter((it) => it.outcome.status === 'possibleDuplicate').length,
     blockedDuplicateCount: items.filter((it) => it.outcome.status === 'blockedDuplicate').length,
     errorCount: items.filter((it) => it.outcome.status === 'error').length,
-    retryRate: Math.round((items.filter((it) => it.regenerated).length / items.length) * 10000) / 100,
-    meanAttempts: Math.round((items.reduce((a, it) => a + it.attempts, 0) / items.length) * 100) / 100,
+    retryRate: items.length === 0 ? 0 : Math.round((items.filter((it) => it.regenerated).length / items.length) * 10000) / 100,
+    meanAttempts: items.length === 0 ? 0 : Math.round((items.reduce((a, it) => a + it.attempts, 0) / items.length) * 100) / 100,
+    aborted,
   };
 }

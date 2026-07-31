@@ -409,7 +409,37 @@ export interface GenerateParams {
    * Build-024 pattern's existing flat 4-tier paint order and default
    * repair budget, a strict no-op. */
   artDirectionModel?: import('./artDirectionModel').ArtDirectionModel;
+  /** Build 028B Hardening — traceability lineage back to the AI Creative
+   * Director record chain that produced this generation, set only when
+   * these params came from "ส่งไปยังตัวสร้างลวดลาย" (Send to Pattern
+   * Generator — `design-director/handoff/applyGeneratorHandoff.ts`).
+   * Undefined for every pattern generated the normal way (no Creative
+   * Director involved), which is the overwhelming majority of patterns —
+   * never fabricated, never backfilled onto pre-existing records. Rides
+   * inside `GenerateParams` deliberately (rather than a new store) so it
+   * survives everywhere params already do: a saved pattern's JSON
+   * sidecar, a Portfolio asset's `metadataReference` source file, and
+   * therefore the Application Backup System (`.vspsb`), with zero new
+   * persistence code. */
+  sourceLineage?: GeneratorHandoffLineage;
   seed: string;
+}
+
+/** See `GenerateParams.sourceLineage`'s doc comment. Every id here is the
+ * real record id from its own domain module (never a fabricated/derived
+ * value) — `collectionItemId` is `null` because `CollectionPlan` (Build
+ * 028B) tracks pattern-type COUNTS, not individually-identified planned
+ * items yet, so there is honestly no per-item id to reference. */
+export interface GeneratorHandoffLineage {
+  marketSnapshotId: string | null;
+  marketOpportunityId: string | null;
+  designBriefId: string;
+  collectionPlanId: string;
+  collectionItemId: string | null;
+  generatorHandoffId: string;
+  generatorVersion: string;
+  seed: string;
+  appliedAt: number;
 }
 
 export interface TileData {

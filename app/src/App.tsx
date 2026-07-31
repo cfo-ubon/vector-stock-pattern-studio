@@ -59,6 +59,7 @@ import { PortfolioManagerView } from './components/portfolio/PortfolioManagerVie
 import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
 import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
+import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
 import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
@@ -664,6 +665,25 @@ function App() {
     setView('editor');
   }, []);
 
+  /** AI Creative Director's "ส่งไปยังตัวสร้างลวดลาย" (Send to Pattern
+   * Generator) — merges only the reviewer-approved subset of
+   * `GeneratorHandoffTab`'s review screen onto the CURRENT editor params
+   * (any field the reviewer excluded/"locked" is simply absent from
+   * `selectedFields` and therefore never touches this pattern's existing
+   * value for that key — see `applyMappedFieldsToParams`'s own doc
+   * comment), attaches the traceability lineage, and switches to the
+   * editor — same setTileData+setParams+setView pairing
+   * `handleApplyDesignSpecToEditor` above already uses. */
+  const handleSendGeneratorHandoffToEditor = useCallback(
+    (application: GeneratorHandoffApplication, selectedFields: MappedGeneratorField[]) => {
+      const next = applyMappedFieldsToParams(params, selectedFields, application.lineage);
+      setTileData(buildTile(next));
+      setParams(next);
+      setView('editor');
+    },
+    [params],
+  );
+
   /** Trend Intelligence Studio's Marketplace Package download — same zip-
    * assembly shape as `handleDownloadMarketplacePackage` above (SVG + PNG
    * preview rasterized here, DOM-dependent; every text/JSON file comes
@@ -1104,7 +1124,7 @@ function App() {
       ) : view === 'marketing' ? (
         <MarketingIntelligenceView onClose={() => setView('editor')} />
       ) : view === 'designDirector' ? (
-        <AIDesignDirectorView onClose={() => setView('editor')} />
+        <AIDesignDirectorView onClose={() => setView('editor')} onSendToGenerator={handleSendGeneratorHandoffToEditor} />
       ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}

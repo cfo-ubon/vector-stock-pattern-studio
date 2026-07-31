@@ -38,7 +38,21 @@ writes data another one owns.
   (`appBackupFormat.ts`): `saved`, `projects`, `assets`,
   `portfolioAssets`, `collections`, `submissions`, `qualitySnapshots`,
   `salesEvents`, `rejectionRecords`, `productionQueueItems`,
-  `productionBatches`, `importHistory`, `marketplaceRegistrations`.
+  `productionBatches`, `importHistory`, `marketplaceRegistrations`,
+  `researchSources`, `marketObservations`, `marketSnapshots`,
+  `marketKeywords`, `seasonalEvents`, `scoringProfiles`,
+  `marketOpportunities`, `dailyMissions` (Build 028 Marketing
+  Intelligence), and `designBriefs`, `designConfigurations`,
+  `collectionPlans` (Build 028B AI Creative Director). `designStrategies`,
+  `marketingDesignHandoffs`, `commercialFeedbackSignals`, and
+  `recommendationHistory` are pre-provisioned in `storage/db.ts`'s schema
+  but stay unregistered here until a store module actually writes to them
+  — see `appBackupFormat.ts`'s own comment for this list's "register only
+  once real data exists" convention. `appBackupHistory` (the backup
+  history store, holding this system's own past archives) is
+  deliberately never included — backing it up inside itself would be
+  self-referential and would bloat every future backup with copies of
+  prior backups.
 - **Every portfolio source file's actual bytes** (`portfolioFiles` —
   SVG/PNG/EPS/AI/etc.), captured as individual `assets/<fileId>__<name>`
   archive entries rather than JSON, since Blobs don't serialize into

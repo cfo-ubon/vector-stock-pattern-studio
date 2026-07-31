@@ -4,12 +4,13 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.83
-> **Development Build:** Build 028B (AI Creative Director / Collection
-> Strategy Engine) — on top of Build 028 Phases 1-4
+> **Application Version:** v1.84
+> **Development Build:** Build 028B Hardening (flaky-test root-cause fix,
+> full `.vspsb` backup coverage, real Generator Handoff integration,
+> traceability lineage) — on top of Build 028B and Build 028 Phases 1-4
 > **Source Commit:** *(see this build's commit on branch
 > `claude/build-028-marketing-design-intelligence`)*
-> **Documentation Status:** Current for Build 028B on branch
+> **Documentation Status:** Current for Build 028B Hardening on branch
 > `claude/build-028-marketing-design-intelligence` — **not yet merged to
 > `main`**. The `main` branch is currently at **Application Version v1.74 /
 > Development Build 021** (merged via Release Candidate RC-1, covering
@@ -56,7 +57,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.83 | Build 028B | *(this build's commit)* | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.84 | Build 028B Hardening | *(this build's commit)* | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.83 | Build 028B | `422c2be` | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.82 | Build 028 (Phases 1-4) | *(prior commit on this branch)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.81 | Build 026 (follow-on) | *(see prior commit)* | Application Backup System | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
@@ -1382,11 +1384,23 @@ System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด
   รายได้**
 - **Generator Handoff** — สร้างค่าคอนฟิกสำหรับเครื่องมือสร้างลายจริง (ลายเด่น/
   ลายเสริม/ประเภทลาย/องค์ประกอบ/ความหนาแน่น/สเกล/ชุดสี/เฉดสี/ระยะห่าง/ความ
-  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale)
+  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale) กดปุ่ม **"ส่งไปยัง
+  ตัวสร้างลวดลาย (Send to Pattern Generator)"** เพื่อเปิดหน้าจอตรวจสอบก่อนนำไปใช้
+  จริง — แสดงที่มาของทุกค่า (From Market Opportunity / From Creative Brief / From
+  Collection Plan / User Override / Generator Default) พร้อมช่องติ๊กเลือกว่าจะ
+  นำค่าไหนไปใช้ (ไม่ติ๊ก = "ล็อก" ค่าเดิมไว้ ไม่ถูกเขียนทับ) เมื่อยืนยันแล้วแอปจะ
+  เปิดตัวสร้างลายพร้อมค่าคอนฟิกที่เลือกทันที การ์ดสถานะแสดง Backup
+  Protected/Not Yet Backed Up, Ready for Generator/Missing Configuration,
+  Generated/Not Generated พร้อมเวลาที่ส่งล่าสุด และลายที่สร้างจากหน้านี้จะเก็บ
+  "สายเชื่อมโยงที่มา" (traceability lineage) ไว้ในค่าคอนฟิกของลายนั้นเสมอ —
+  อ้างอิงกลับไปถึง Market Snapshot, Market Opportunity, Creative Brief,
+  Collection Plan, Generator Handoff, seed และเวลาที่สร้าง — คงอยู่ไม่ว่าจะโหลด
+  หน้าใหม่ หรือสำรอง/กู้คืนข้อมูลด้วย .vspsb
 
 **ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** (ต่อยอดจาก schema เดิมของ Build 028
-Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) ยังไม่รวมอยู่ใน Application Backup System
-ในเวอร์ชันนี้ ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากภายนอกใดๆ
+Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) **Creative Brief, Collection Plan และ
+Generator Handoff ทั้งหมดรวมอยู่ใน Application Backup System (.vspsb) แล้ว**
+ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากภายนอกใดๆ
 
 ---
 
@@ -1446,6 +1460,39 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.84 — 31 ก.ค. 2026 — Build 028B Hardening: เสถียรภาพ, สำรองข้อมูลครบ, เชื่อมต่อตัวสร้างลายจริง
+
+- 🐞 **แก้ต้นตอปัญหาการทดสอบ flaky ใน `batchProductionService.test.ts`**: พบว่า
+  งาน batch แบบ async ที่ค้างอยู่จาก test ก่อนหน้า (ที่ timeout ไปแล้วแต่ยังรัน
+  อยู่จริงเบื้องหลัง) ไปปนกับ test ถัดไปในไฟล์เดียวกันเมื่อรันพร้อมกันทั้งชุด
+  แก้ด้วยการเพิ่มความสามารถยกเลิกงานจริง (`AbortSignal`) เข้าไปใน
+  `batchProductionService` เอง (เป็นฟีเจอร์จริงของระบบ ไม่ใช่แค่โค้ดทดสอบ) แล้ว
+  ยกเลิกงานทุกชิ้นที่ยังค้างอยู่ก่อนเริ่ม test ถัดไปเสมอ พร้อมเพิ่มการทดสอบ
+  ครอบคลุมการยกเลิกงานทั้งก่อนเริ่มและระหว่างทำงาน
+- 🗄️ **Application Backup System (.vspsb) ครอบคลุม Build 028/028B ครบทุก
+  store แล้ว**: เพิ่ม `designBriefs`, `designConfigurations`, `collectionPlans`
+  เข้าสู่รายการที่สำรอง/กู้คืนได้ (แก้ไขข้อจำกัดที่ระบุไว้ใน v1.83) ทดสอบ
+  round-trip ครบทั้งกรณี store ว่าง, ข้อมูลผสมสคีมาเก่า/ใหม่, ตรวจสอบ checksum
+  ล้มเหลว และการกู้คืนที่ถูกขัดจังหวะกลางทาง (มี Safety Backup ป้องกันเสมอ)
+- 🔗 **Generator Handoff เชื่อมต่อกับตัวสร้างลายจริงแล้ว**: กดปุ่ม "ส่งไปยัง
+  ตัวสร้างลวดลาย (Send to Pattern Generator)" จะเปิดหน้าจอตรวจสอบก่อนใช้จริง
+  แสดงที่มาของทุกค่า (From Market Opportunity/From Creative Brief/From
+  Collection Plan/User Override/Generator Default) พร้อมติ๊กเลือก/ไม่เลือก
+  แต่ละค่า (ไม่ติ๊ก = ค่าคอนฟิกเดิมในตัวสร้างลายจะไม่ถูกเขียนทับ) เมื่อยืนยันแล้ว
+  แอปจะสลับไปหน้าตัวสร้างลายพร้อมค่าที่เลือกทันที
+- 🧭 **สายเชื่อมโยงที่มา (traceability lineage)**: ลายที่สร้างผ่าน Generator
+  Handoff จะเก็บ Market Snapshot ID, Market Opportunity ID, Design Brief ID,
+  Collection Plan ID, Generator Handoff ID, seed, เวอร์ชันตัวสร้างลาย และเวลา
+  ที่สร้าง ไว้ในค่าคอนฟิกของลายนั้นเอง — คงอยู่ไม่ว่าจะโหลดหน้าใหม่, บันทึกลง
+  IndexedDB หรือสำรอง/กู้คืนด้วย .vspsb
+- 🖥️ **สถานะใหม่ในแท็บ Generator Handoff**: การ์ดแสดง Backup Protected/Not Yet
+  Backed Up, Ready for Generator/Missing Configuration, Generated/Not
+  Generated พร้อมเวลาที่ส่งล่าสุดและตัวอย่างค่าคอนฟิกที่จะส่งไป
+- ✅ ทดสอบผ่านครบทุกชุดใหม่ (backup round-trip, generator mapping, locked
+  field, provenance, traceability) และตรวจสอบด้วยเบราว์เซอร์จริงทั้งขนาด
+  desktop และ iPad ไม่พบ console error — regression เต็มระบบผ่าน 100% ติดต่อกัน
+  2 รอบ ไม่มีการทดสอบ flaky หลงเหลืออีกต่อไป
 
 ### v1.83 — 31 ก.ค. 2026 — Build 028B: AI Creative Director / Collection Strategy Engine
 

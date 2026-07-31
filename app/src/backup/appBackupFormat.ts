@@ -168,10 +168,9 @@ export const APP_BACKUP_STORE_NAMES = [
   'marketplaceRegistrations',
   // Build 028, Marketing Intelligence (Phases 2-3) — registered as each
   // gains a real domain/store module; the remaining Build 028 stores
-  // (designBriefs, designStrategies, designConfigurations,
-  // marketingDesignHandoffs, commercialFeedbackSignals,
-  // recommendationHistory) already exist in `storage/db.ts`'s v8 schema
-  // but are added here in the later phase that actually writes to them,
+  // (designStrategies, marketingDesignHandoffs, commercialFeedbackSignals,
+  // recommendationHistory) already exist in `storage/db.ts`'s v9 schema but
+  // stay unregistered here until a later phase actually writes to them,
   // matching this list's existing convention of registering a store only
   // once it holds real data.
   'researchSources',
@@ -182,6 +181,15 @@ export const APP_BACKUP_STORE_NAMES = [
   'scoringProfiles',
   'marketOpportunities',
   'dailyMissions',
+  // Build 028B (AI Creative Director) — `designBriefs`/`designConfigurations`
+  // were pre-provisioned by Build 028 Phase 2 but only gained real
+  // read/write store modules (`design-director/storage/*Store.ts`) in
+  // 028B; `collectionPlans` is a new store added in the same build (DB
+  // version 8 -> 9). All three registered here in the 028B hardening pass
+  // that closed this gap.
+  'designBriefs',
+  'designConfigurations',
+  'collectionPlans',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

@@ -41,6 +41,14 @@ export interface GeneratorHandoff {
   mappingRationale: Record<string, string>;
   createdAt: number;
   schemaVersion: number;
+  /** Build 028B Hardening — set the moment a user actually confirms
+   * "ส่งไปยังตัวสร้างลวดลาย" (Send to Pattern Generator) for this exact
+   * handoff record, via the review screen in `GeneratorHandoffTab`.
+   * Undefined means this handoff has never been sent to the generator —
+   * a real, directly-observed event, never inferred or backfilled. Powers
+   * the "Generated / Not Generated" + "Last generated timestamp" status
+   * the UI shows. */
+  lastAppliedAt?: number;
 }
 
 export class InvalidGeneratorHandoffInputError extends Error {

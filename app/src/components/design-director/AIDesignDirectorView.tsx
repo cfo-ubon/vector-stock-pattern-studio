@@ -18,6 +18,7 @@ import type { CreativeBrief } from '../../design-director/domain/creativeBrief';
 import type { CollectionPlan } from '../../design-director/domain/collectionPlan';
 import type { GeneratorHandoff } from '../../design-director/domain/generatorHandoff';
 import type { PortfolioAsset } from '../../catalog/domain/types';
+import type { GeneratorHandoffApplication, MappedGeneratorField } from '../../design-director/handoff/applyGeneratorHandoff';
 
 import { CreativeBriefTab } from './CreativeBriefTab';
 import { CollectionPlannerTab } from './CollectionPlannerTab';
@@ -42,6 +43,7 @@ import './designDirector.css';
 
 interface Props {
   onClose: () => void;
+  onSendToGenerator: (application: GeneratorHandoffApplication, selectedFields: MappedGeneratorField[]) => void;
 }
 
 export type DesignDirectorTab =
@@ -78,7 +80,7 @@ export interface DesignDirectorData {
   portfolioAssets: PortfolioAsset[];
 }
 
-export function AIDesignDirectorView({ onClose }: Props) {
+export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
   const [tab, setTab] = useState<DesignDirectorTab>('brief');
   const [data, setData] = useState<DesignDirectorData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -116,6 +118,10 @@ export function AIDesignDirectorView({ onClose }: Props) {
     const handoffs = data.handoffs.filter((h) => h.collectionPlanId === activePlan.id);
     return handoffs.length > 0 ? [...handoffs].sort((a, b) => b.createdAt - a.createdAt)[0] : null;
   }, [data, activePlan]);
+  const activeOpportunity = useMemo(
+    () => (data && activeBrief?.sourceOpportunityId ? (data.opportunities.find((o) => o.id === activeBrief.sourceOpportunityId) ?? null) : null),
+    [data, activeBrief],
+  );
 
   const completeness = useMemo(() => (activePlan ? computeCollectionCompleteness(activePlan) : null), [activePlan]);
   const balance = useMemo(() => (activePlan ? computeCollectionBalance(activePlan) : null), [activePlan]);
@@ -184,7 +190,9 @@ export function AIDesignDirectorView({ onClose }: Props) {
               activeBrief={activeBrief}
               activePlan={activePlan}
               activeHandoff={activeHandoff}
+              activeOpportunity={activeOpportunity}
               colorwayResult={colorwayResult}
+              onSendToGenerator={onSendToGenerator}
             />
           )}
         </>
