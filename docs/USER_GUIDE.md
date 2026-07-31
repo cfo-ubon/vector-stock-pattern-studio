@@ -4,13 +4,13 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.84
-> **Development Build:** Build 028B Hardening (flaky-test root-cause fix,
-> full `.vspsb` backup coverage, real Generator Handoff integration,
-> traceability lineage) — on top of Build 028B and Build 028 Phases 1-4
+> **Application Version:** v1.85
+> **Development Build:** Build 028C (Marketing to Creative Director
+> Workflow — "ส่งให้นักออกแบบ / Send to Creative Director") — on top of
+> Build 028B Hardening, Build 028B, and Build 028 Phases 1-4
 > **Source Commit:** *(see this build's commit on branch
 > `claude/build-028-marketing-design-intelligence`)*
-> **Documentation Status:** Current for Build 028B Hardening on branch
+> **Documentation Status:** Current for Build 028C on branch
 > `claude/build-028-marketing-design-intelligence` — **not yet merged to
 > `main`**. The `main` branch is currently at **Application Version v1.74 /
 > Development Build 021** (merged via Release Candidate RC-1, covering
@@ -57,7 +57,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.84 | Build 028B Hardening | *(this build's commit)* | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.85 | Build 028C | *(this build's commit)* | Marketing to Creative Director Workflow — "ส่งให้นักออกแบบ / Send to Creative Director" handoff review, 13-status workflow tracking, collectionItemId traceability, cross-navigation | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
+| v1.84 | Build 028B Hardening | `e2904a1` | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.83 | Build 028B | `422c2be` | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.82 | Build 028 (Phases 1-4) | *(prior commit on this branch)* | Marketing Intelligence Center | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.81 | Build 026 (follow-on) | *(see prior commit)* | Application Backup System | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
@@ -1335,6 +1336,34 @@ Color Roles ของแพ็กนั้นเข้ากับ Design Spec �
 System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด/ดึงข้อมูลจากมาร์เก็ตเพลสอัตโนมัติ
 ไม่มีการเก็บรหัสผ่าน/API key ของบุคคลที่สามใดๆ ในเวอร์ชันนี้
 
+### 🔗 "ส่งให้นักออกแบบ / Send to Creative Director" 🆕
+
+ปุ่ม **"ส่งให้นักออกแบบ (Send to Creative Director)"** ปรากฏใน 4 จุด:
+**Today's Mission**, **Opportunity Explorer**, **Market Gap Finder**, และ
+**Daily Missions** — กดแล้วเปิด**หน้าจอตรวจสอบก่อนบันทึก (Handoff Review)**
+ทันที ไม่มีการบันทึกอะไรจนกว่าจะกดยืนยัน
+
+หน้าจอตรวจสอบแสดงทุกช่องข้อมูลที่จะส่งต่อ (ธีม/ชื่อคอลเลกชัน/มาร์เก็ตเพลส
+เป้าหมาย/สินค้าเป้าหมาย/ลายเด่น/องค์ประกอบ/ชุดสี/ช่วงเวลาผลิต/กลุ่มผู้ซื้อ)
+พร้อม **5 อย่างต่อช่อง**: ที่มา (Source), ระดับความเชื่อมั่น (Confidence),
+หลักฐานอ้างอิง (Evidence), ค่าที่แก้ไขได้ (Editable Value), และช่องติ๊ก
+เลือกใช้/ล็อก (Apply) — แก้ไขค่าใดก็ได้ตรงนี้ก่อนส่ง (จะถูกทำเครื่องหมายว่า
+"User Override")
+
+**ไม่มีการกุข้อมูลที่ไม่มีหลักฐานรองรับ**: ช่องที่ไม่มีข้อมูลจริงจะแสดงสถานะ
+ตรงไปตรงมาแทนการเดา — **"Not Provided"** (ไม่มีข้อมูลต้นทางเลย),
+**"Needs User Decision"** (เป็นการตัดสินใจเชิงสร้างสรรค์ที่ไม่มีหลักฐานใด
+ตอบได้ เช่น ลายเด่น/องค์ประกอบเมื่อยังไม่มี Daily Mission), หรือ **"Not
+Supported by Evidence"** (มีค่าอยู่แต่ระดับความเชื่อมั่นของหลักฐานต่ำ
+เกินไป)
+
+เมื่อกดยืนยัน ระบบจะ**สร้าง Creative Brief ฉบับร่างให้อัตโนมัติ**จากข้อมูล
+ที่ตรวจสอบแล้ว พร้อมเก็บ **MarketingDesignHandoff** — ระเบียนเดียวที่ตาม
+รอยการทำงานทั้งหมดตั้งแต่ Market Snapshot/Market Opportunity/Daily
+Mission เดิม ผ่านคะแนนโอกาส ระดับความเชื่อมั่น ความสดใหม่ของข้อมูล ไปจนถึง
+Creative Brief/Collection Plan/Collection Item/Generator Handoff ที่ตามมา
+— แล้วสลับแอปไปยัง **"🎨 นักออกแบบ"** พร้อมบรีฟที่เพิ่งสร้างทันที
+
 ---
 
 ## 🎨 AI Creative Director — นักออกแบบ 🆕
@@ -1362,7 +1391,8 @@ System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด
 - **Collection Planner** — สร้างแผนคอลเลกชันจากบรีฟ แบ่งสัดส่วนลายเด่น
   (Hero)/ลายเสริม (Secondary)/ลายพื้น (Blender)/ลายทาง (Stripe)/ลายขอบ
   (Border)/ลายคู่ (Coordinate)/ลายจิ๋ว (Mini Pattern)/พื้นผิว (Texture) —
-  ปรับสัดส่วนเองได้
+  ปรับสัดส่วนเองได้ (แผนที่สร้างจะมี **รายการต่อชิ้น (Collection Item)**
+  แต่ละชิ้นแยกกันด้วย 🆕 ให้เลือกส่งต่อทีละชิ้นในแท็บ Generator Handoff ได้)
 - **Roadmap** — ลำดับขั้นตอนการผลิต (เช่น ลายเด่น → ลายพื้นใบไม้ → ลายคู่ →
   ลายทาง → ลายขอบ → ขยายเฉดสี) พร้อมชั่วโมงประมาณการต่อขั้นตอนและรวม
 - **Completeness** — เปอร์เซ็นต์ความครบถ้วนของคอลเลกชัน พร้อมรายการที่ขาด
@@ -1384,7 +1414,9 @@ System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด
   รายได้**
 - **Generator Handoff** — สร้างค่าคอนฟิกสำหรับเครื่องมือสร้างลายจริง (ลายเด่น/
   ลายเสริม/ประเภทลาย/องค์ประกอบ/ความหนาแน่น/สเกล/ชุดสี/เฉดสี/ระยะห่าง/ความ
-  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale) กดปุ่ม **"ส่งไปยัง
+  ซับซ้อน) พร้อมเหตุผลของแต่ละค่าที่แมปมา (mapping rationale) — เลือก
+  **Collection Item** เจาะจงชิ้นเดียวได้ก่อนสร้างค่าคอนฟิก 🆕 (ไม่เลือก =
+  ทำค่าคอนฟิกสำหรับทั้งคอลเลกชัน) กดปุ่ม **"ส่งไปยัง
   ตัวสร้างลวดลาย (Send to Pattern Generator)"** เพื่อเปิดหน้าจอตรวจสอบก่อนนำไปใช้
   จริง — แสดงที่มาของทุกค่า (From Market Opportunity / From Creative Brief / From
   Collection Plan / User Override / Generator Default) พร้อมช่องติ๊กเลือกว่าจะ
@@ -1394,13 +1426,34 @@ System (`.vspsb`) แล้ว — ไม่มีการอัปโหลด
   Generated/Not Generated พร้อมเวลาที่ส่งล่าสุด และลายที่สร้างจากหน้านี้จะเก็บ
   "สายเชื่อมโยงที่มา" (traceability lineage) ไว้ในค่าคอนฟิกของลายนั้นเสมอ —
   อ้างอิงกลับไปถึง Market Snapshot, Market Opportunity, Creative Brief,
-  Collection Plan, Generator Handoff, seed และเวลาที่สร้าง — คงอยู่ไม่ว่าจะโหลด
-  หน้าใหม่ หรือสำรอง/กู้คืนข้อมูลด้วย .vspsb
+  Collection Plan, **Collection Item** 🆕, Generator Handoff, seed และเวลาที่
+  สร้าง — คงอยู่ไม่ว่าจะโหลดหน้าใหม่ หรือสำรอง/กู้คืนข้อมูลด้วย .vspsb
+
+### 📊 สถานะการทำงาน (Workflow Status) และการนำทางข้ามโมดูล 🆕
+
+สำหรับบรีฟที่มาจาก "ส่งให้นักออกแบบ" การ์ดสถานะเดียวกันจะปรากฏในแท็บ
+**Creative Brief**, **Collection Planner**, และ **Generator Handoff**
+แสดง: โอกาสต้นทาง (พร้อมลิงก์กลับ), สถานะปัจจุบันใน 13 ขั้นตอน (Marketing
+Research → Opportunity Selected → Brief Draft → Brief Review → Brief
+Approved → Collection Planned → Collection Item Selected → Handoff
+Review → Ready for Generator → Generating → Generated → Design Review →
+Ready for Portfolio), เวลาอัปเดตล่าสุด, โมดูลที่รับผิดชอบอยู่ตอนนี้,
+ช่องข้อมูลที่ยังไม่ได้ข้อสรุป, สถานะสำรองข้อมูล, และความพร้อมส่งเข้าตัวสร้าง
+ลาย — ทุกการเปลี่ยนสถานะถูกบันทึกเป็นประวัติ (audit history) แบบเรียงลำดับ
+เวลาไว้ถาวร
+
+**การนำทางข้ามโมดูล**: จากการ์ดสถานะกดลิงก์ **"→ กลับไป Market
+Opportunity"** ได้ทุกที่ที่การ์ดปรากฏ, จากแท็บ Collection Planner กดปุ่ม
+**"Go to Generator Handoff →"** ได้ทันทีหลังสร้างแผน, และเมื่อสร้างลายจริง
+แล้ว หน้าตัวสร้างลายจะมีแถบ**"สายเชื่อมโยงที่มา"** พร้อมลิงก์ **"←
+View Creative Brief"** และ **"← View Market Opportunity"** ย้อนกลับไปดูจุด
+เริ่มต้นของลายนั้นได้เสมอ
 
 **ข้อมูลทั้งหมดเก็บใน IndexedDB บนเครื่อง** (ต่อยอดจาก schema เดิมของ Build 028
-Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) **Creative Brief, Collection Plan และ
-Generator Handoff ทั้งหมดรวมอยู่ใน Application Backup System (.vspsb) แล้ว**
-ไม่มีการเชื่อมต่อ/ดึงข้อมูลจากภายนอกใดๆ
+Phase 2 — ไม่มีตารางใหม่ที่ซ้ำซ้อน) **Creative Brief, Collection Plan,
+Generator Handoff และ MarketingDesignHandoff (ระเบียนสถานะการทำงาน) ทั้งหมด
+รวมอยู่ใน Application Backup System (.vspsb) แล้ว** ไม่มีการเชื่อมต่อ/ดึง
+ข้อมูลจากภายนอกใดๆ
 
 ---
 
@@ -1460,6 +1513,52 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.85 — 31 ก.ค. 2026 — Build 028C: เชื่อม Marketing Intelligence เข้ากับ AI Creative Director โดยตรง
+
+- 🆕 **ปุ่ม "ส่งให้นักออกแบบ (Send to Creative Director)"** ใน 4 จุด:
+  Today's Mission, Opportunity Explorer, Market Gap Finder, Daily Missions
+  — กดแล้วเปิดหน้าจอตรวจสอบก่อนบันทึกทันที (ไม่มีการบันทึกจนกว่าจะกดยืนยัน)
+- 🧾 **หน้าจอตรวจสอบ (Handoff Review)**: ทุกช่องข้อมูลแสดง 5 อย่างพร้อมกัน —
+  ที่มา, ระดับความเชื่อมั่น, หลักฐานอ้างอิง, ค่าที่แก้ไขได้, และช่องติ๊ก
+  เลือกใช้/ล็อก แก้ไขค่าได้ก่อนส่ง (ทำเครื่องหมาย "User Override")
+- 🕳️ **ตรวจจับข้อมูลที่ขาดหายอย่างตรงไปตรงมา**: ช่องที่ไม่มีหลักฐานรองรับจะ
+  แสดง **"Not Provided"**, **"Needs User Decision"** (การตัดสินใจเชิง
+  สร้างสรรค์ที่ไม่มีหลักฐานใดตอบได้), หรือ **"Not Supported by Evidence"**
+  (มีค่าแต่ความเชื่อมั่นของหลักฐานต่ำเกินไป) — **ไม่มีการกุค่าที่ไม่มีจริง**
+- 🧠 **สร้าง Creative Brief ฉบับร่างอัตโนมัติ**จากข้อมูลที่ตรวจสอบแล้ว พร้อม
+  บันทึก **MarketingDesignHandoff** — ระเบียนเดียวที่ตามรอยทั้ง Market
+  Snapshot/Market Opportunity/Daily Mission ต้นทาง, คะแนนโอกาส, ความเชื่อมั่น,
+  ความสดใหม่ของข้อมูล ไปจนถึง Creative Brief/Collection Plan/Collection
+  Item/Generator Handoff ที่ตามมา แล้วสลับแอปไปหน้า "🎨 นักออกแบบ" พร้อมบรีฟ
+  ที่เพิ่งสร้างทันที
+- 📊 **สถานะการทำงาน 13 ขั้นตอน + ประวัติการเปลี่ยนสถานะถาวร**: Marketing
+  Research → Opportunity Selected → Brief Draft → Brief Review → Brief
+  Approved → Collection Planned → Collection Item Selected → Handoff
+  Review → Ready for Generator → Generating → Generated → Design Review →
+  Ready for Portfolio — แสดงผ่านการ์ดสถานะเดียวกันในแท็บ Creative Brief,
+  Collection Planner, และ Generator Handoff (โอกาสต้นทาง/สถานะปัจจุบัน/เวลา
+  อัปเดตล่าสุด/โมดูลที่รับผิดชอบ/ช่องที่ยังไม่สรุป/สถานะสำรองข้อมูล/ความพร้อม
+  ส่งเข้าตัวสร้างลาย)
+- 🧩 **Collection Item รายชิ้นจริง**: แผนคอลเลกชันเก็บรายการต่อชิ้นแยกกันแล้ว
+  เลือกส่งต่อ Generator Handoff ทีละชิ้นได้ — id ของชิ้นนั้นไหลต่อเนื่องไปถึง
+  ลายที่สร้างจริง (`GeneratorHandoffLineage.collectionItemId` /
+  `GenerateParams.sourceLineage.collectionItemId`) คงอยู่ผ่าน JSON round-trip
+  และสำรอง/กู้คืนด้วย .vspsb
+- 🧭 **การนำทางข้ามโมดูล**: การ์ดสถานะมีลิงก์กลับไป Market Opportunity ต้นทาง
+  เสมอ, ปุ่ม "Go to Generator Handoff →" ในแท็บ Collection Planner, และแถบ
+  "สายเชื่อมโยงที่มา" ในหน้าตัวสร้างลายมีลิงก์ "← View Creative Brief" และ
+  "← View Market Opportunity" ย้อนกลับไปดูจุดเริ่มต้นของลายนั้นได้เสมอ
+- 🗄️ **MarketingDesignHandoff เข้าสู่ Application Backup System แล้ว**
+  (DB version เพิ่มจาก 9 เป็น 10 สำหรับดัชนีใหม่) ทดสอบ round-trip ครบ
+  (store ว่าง, ข้อมูลผสมสคีมาเก่า/ใหม่, ตรวจสอบ checksum ล้มเหลว, การกู้คืนที่
+  ถูกขัดจังหวะกลางทาง)
+- ✅ ไม่กระทบ Marketing Intelligence Center, AI Creative Director เดิม, หรือ
+  หน้าสร้างลายเลย — ทดสอบผ่านครบทุกชุดใหม่ (field-mapping, missing-data
+  semantics, lock/edit behavior, collectionItemId round-trip/backup/
+  migration, การเปลี่ยนสถานะครบ 13 ขั้นตอนผ่าน UI จริง) พร้อมตรวจสอบด้วย
+  เบราว์เซอร์จริงทั้งขนาด desktop และ iPad — regression เต็มระบบผ่าน 100%
+  ติดต่อกัน 2 รอบ
 
 ### v1.84 — 31 ก.ค. 2026 — Build 028B Hardening: เสถียรภาพ, สำรองข้อมูลครบ, เชื่อมต่อตัวสร้างลายจริง
 
