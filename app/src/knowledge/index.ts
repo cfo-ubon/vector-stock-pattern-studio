@@ -17,3 +17,4 @@ export * as RuleKnowledge from './rules';
 export * as RecommendationEngine from './recommendation';
 export * as LearningHistory from './history';
 export * as KnowledgeValidation from './validation';
+export * as MarketKnowledge from './market';

@@ -40,8 +40,37 @@ export const DB_NAME = 'vsp-db';
 // (bounded by the user's configured retention policy, pruned in
 // `appBackupHistoryStore.ts`, not here), so "restore from history" works
 // without asking the user to re-locate the original `.vspsb` file.
-export const DB_VERSION = 7;
+//
+// v8 (Build 028, Marketing Intelligence & AI Design Director): adds 14
+// stores across two new subsystems. `researchSources`/`marketObservations`/
+// `marketSnapshots`/`marketKeywords`/`seasonalEvents`/`marketOpportunities`/
+// `scoringProfiles`/`dailyMissions` back Marketing Intelligence
+// (`app/src/marketing/`); `designBriefs`/`designStrategies`/
+// `designConfigurations` back the AI Design Director
+// (`app/src/design-director/`); `marketingDesignHandoffs` is the formal
+// handoff between the two; `commercialFeedbackSignals` and
+// `recommendationHistory` close the loop back from real outcomes. All 14
+// are created in this one upgrade pass even though not every domain/store
+// module consuming them ships in the same commit — the schema is the
+// stable, versioned part; the modules built on top of it can land across
+// several follow-up commits without ever needing another DB_VERSION bump
+// for this build.
+export const DB_VERSION = 8;
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
+export const RESEARCH_SOURCES_STORE = 'researchSources';
+export const MARKET_OBSERVATIONS_STORE = 'marketObservations';
+export const MARKET_SNAPSHOTS_STORE = 'marketSnapshots';
+export const MARKET_KEYWORDS_STORE = 'marketKeywords';
+export const SEASONAL_EVENTS_STORE = 'seasonalEvents';
+export const MARKET_OPPORTUNITIES_STORE = 'marketOpportunities';
+export const SCORING_PROFILES_STORE = 'scoringProfiles';
+export const DAILY_MISSIONS_STORE = 'dailyMissions';
+export const DESIGN_BRIEFS_STORE = 'designBriefs';
+export const DESIGN_STRATEGIES_STORE = 'designStrategies';
+export const DESIGN_CONFIGURATIONS_STORE = 'designConfigurations';
+export const MARKETING_DESIGN_HANDOFFS_STORE = 'marketingDesignHandoffs';
+export const COMMERCIAL_FEEDBACK_SIGNALS_STORE = 'commercialFeedbackSignals';
+export const RECOMMENDATION_HISTORY_STORE = 'recommendationHistory';
 export const SAVED_STORE = 'saved';
 export const PROJECTS_STORE = 'projects';
 export const ASSETS_STORE = 'assets';
@@ -129,6 +158,73 @@ export function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(APP_BACKUP_HISTORY_STORE)) {
           const backupHistory = db.createObjectStore(APP_BACKUP_HISTORY_STORE, { keyPath: 'historyId' });
           backupHistory.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(RESEARCH_SOURCES_STORE)) {
+          const researchSources = db.createObjectStore(RESEARCH_SOURCES_STORE, { keyPath: 'id' });
+          researchSources.createIndex('marketplace', 'marketplace', { unique: false });
+          researchSources.createIndex('sourceType', 'sourceType', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MARKET_OBSERVATIONS_STORE)) {
+          const observations = db.createObjectStore(MARKET_OBSERVATIONS_STORE, { keyPath: 'id' });
+          observations.createIndex('researchSourceId', 'researchSourceId', { unique: false });
+          observations.createIndex('evidenceStatus', 'evidenceStatus', { unique: false });
+          observations.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MARKET_SNAPSHOTS_STORE)) {
+          const snapshots = db.createObjectStore(MARKET_SNAPSHOTS_STORE, { keyPath: 'id' });
+          snapshots.createIndex('createdAt', 'createdAt', { unique: false });
+          snapshots.createIndex('archived', 'archived', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MARKET_KEYWORDS_STORE)) {
+          const keywords = db.createObjectStore(MARKET_KEYWORDS_STORE, { keyPath: 'id' });
+          keywords.createIndex('keyword', 'keyword', { unique: false });
+          keywords.createIndex('marketplace', 'marketplace', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(SEASONAL_EVENTS_STORE)) {
+          const seasonalEvents = db.createObjectStore(SEASONAL_EVENTS_STORE, { keyPath: 'id' });
+          seasonalEvents.createIndex('eventDate', 'eventDate', { unique: false });
+          seasonalEvents.createIndex('region', 'region', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MARKET_OPPORTUNITIES_STORE)) {
+          const opportunities = db.createObjectStore(MARKET_OPPORTUNITIES_STORE, { keyPath: 'id' });
+          opportunities.createIndex('snapshotId', 'snapshotId', { unique: false });
+          opportunities.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(SCORING_PROFILES_STORE)) {
+          db.createObjectStore(SCORING_PROFILES_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(DAILY_MISSIONS_STORE)) {
+          const missions = db.createObjectStore(DAILY_MISSIONS_STORE, { keyPath: 'id' });
+          missions.createIndex('date', 'date', { unique: false });
+          missions.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DESIGN_BRIEFS_STORE)) {
+          const briefs = db.createObjectStore(DESIGN_BRIEFS_STORE, { keyPath: 'id' });
+          briefs.createIndex('status', 'status', { unique: false });
+          briefs.createIndex('sourceOpportunityId', 'sourceOpportunityId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DESIGN_STRATEGIES_STORE)) {
+          const strategies = db.createObjectStore(DESIGN_STRATEGIES_STORE, { keyPath: 'id' });
+          strategies.createIndex('briefId', 'briefId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DESIGN_CONFIGURATIONS_STORE)) {
+          const configurations = db.createObjectStore(DESIGN_CONFIGURATIONS_STORE, { keyPath: 'id' });
+          configurations.createIndex('briefId', 'briefId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MARKETING_DESIGN_HANDOFFS_STORE)) {
+          const handoffs = db.createObjectStore(MARKETING_DESIGN_HANDOFFS_STORE, { keyPath: 'id' });
+          handoffs.createIndex('status', 'status', { unique: false });
+          handoffs.createIndex('briefId', 'briefId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(COMMERCIAL_FEEDBACK_SIGNALS_STORE)) {
+          const feedbackSignals = db.createObjectStore(COMMERCIAL_FEEDBACK_SIGNALS_STORE, { keyPath: 'id' });
+          feedbackSignals.createIndex('signalType', 'signalType', { unique: false });
+          feedbackSignals.createIndex('computedAt', 'computedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(RECOMMENDATION_HISTORY_STORE)) {
+          const recommendationHistory = db.createObjectStore(RECOMMENDATION_HISTORY_STORE, { keyPath: 'id' });
+          recommendationHistory.createIndex('recommendationType', 'recommendationType', { unique: false });
+          recommendationHistory.createIndex('refId', 'refId', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
