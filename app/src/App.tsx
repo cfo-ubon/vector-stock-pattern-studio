@@ -157,6 +157,12 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector'>('editor');
+  // Build 028C — cross-navigation state for the Marketing <-> Creative
+  // Director workflow (requirement #13): which brief/opportunity to
+  // preselect the next time each view opens, set by the view being left
+  // and consumed by the view being entered.
+  const [pendingDesignDirectorBriefId, setPendingDesignDirectorBriefId] = useState<string | null>(null);
+  const [pendingMarketingOpportunityId, setPendingMarketingOpportunityId] = useState<string | null>(null);
   const cancelTokenRef = useRef<CancelToken | null>(null);
 
   useEffect(() => saveGallery(gallery), [gallery]);
@@ -684,6 +690,21 @@ function App() {
     [params],
   );
 
+  /** Build 028C, requirement #13 — Generated result -> Creative Brief /
+   * Market Opportunity cross-navigation. Reads the currently-shown tile's
+   * own `sourceLineage` (Build 028B Hardening's traceability field) rather
+   * than any separately-tracked state, so the links only ever appear for a
+   * pattern that genuinely came from the AI Creative Director. */
+  const handleViewLineageBrief = useCallback((designBriefId: string) => {
+    setPendingDesignDirectorBriefId(designBriefId);
+    setView('designDirector');
+  }, []);
+
+  const handleViewLineageOpportunity = useCallback((marketOpportunityId: string) => {
+    setPendingMarketingOpportunityId(marketOpportunityId);
+    setView('marketing');
+  }, []);
+
   /** Trend Intelligence Studio's Marketplace Package download — same zip-
    * assembly shape as `handleDownloadMarketplacePackage` above (SVG + PNG
    * preview rasterized here, DOM-dependent; every text/JSON file comes
@@ -1122,9 +1143,24 @@ function App() {
       ) : view === 'backup' ? (
         <BackupManagerView onClose={() => setView('editor')} />
       ) : view === 'marketing' ? (
-        <MarketingIntelligenceView onClose={() => setView('editor')} />
+        <MarketingIntelligenceView
+          onClose={() => setView('editor')}
+          onSentToCreativeDirector={(briefId) => {
+            setPendingDesignDirectorBriefId(briefId);
+            setView('designDirector');
+          }}
+          initialSelectedOpportunityId={pendingMarketingOpportunityId}
+        />
       ) : view === 'designDirector' ? (
-        <AIDesignDirectorView onClose={() => setView('editor')} onSendToGenerator={handleSendGeneratorHandoffToEditor} />
+        <AIDesignDirectorView
+          onClose={() => setView('editor')}
+          onSendToGenerator={handleSendGeneratorHandoffToEditor}
+          initialSelectedBriefId={pendingDesignDirectorBriefId}
+          onViewSourceOpportunity={(opportunityId) => {
+            setPendingMarketingOpportunityId(opportunityId);
+            setView('marketing');
+          }}
+        />
       ) : view === 'trendStudio' ? (
         <DesignWorkbench
           onApplyToEditor={handleApplyDesignSpecToEditor}
@@ -1189,6 +1225,19 @@ function App() {
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
         <main className="app-main">
+          {tileData.params.sourceLineage && (
+            <div className="lineage-banner" role="note">
+              <span>Generated from the AI Creative Director</span>
+              <button type="button" className="link-btn" onClick={() => handleViewLineageBrief(tileData.params.sourceLineage!.designBriefId)}>
+                ← View Creative Brief
+              </button>
+              {tileData.params.sourceLineage.marketOpportunityId && (
+                <button type="button" className="link-btn" onClick={() => handleViewLineageOpportunity(tileData.params.sourceLineage!.marketOpportunityId!)}>
+                  ← View Market Opportunity
+                </button>
+              )}
+            </div>
+          )}
           <PreviewCanvas tileData={tileData} onRescale={handleRescale} />
           <QualityPanel tileData={tileData} candidateSummary={candidateSummary} />
           <TrendPanel tileData={tileData} />

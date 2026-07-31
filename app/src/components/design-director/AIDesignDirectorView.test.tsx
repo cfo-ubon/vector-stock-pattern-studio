@@ -5,13 +5,16 @@ import { seedSampleMarketData } from '../../marketing/sampleData/seedSampleMarke
 import { clearMarketSnapshots } from '../../marketing/storage/marketSnapshotStore';
 import { clearMarketObservations } from '../../marketing/storage/marketObservationStore';
 import { clearMarketKeywords } from '../../marketing/storage/marketKeywordStore';
-import { clearMarketOpportunities } from '../../marketing/storage/marketOpportunityStore';
+import { clearMarketOpportunities, loadMarketOpportunities } from '../../marketing/storage/marketOpportunityStore';
 import { clearDailyMissions } from '../../marketing/storage/dailyMissionStore';
 import { clearResearchSources } from '../../marketing/storage/researchSourceStore';
 import { clearScoringProfiles } from '../../marketing/storage/scoringProfileStore';
-import { clearCreativeBriefs } from '../../design-director/storage/creativeBriefStore';
+import { createCreativeBrief } from '../../design-director/domain/creativeBrief';
+import { clearCreativeBriefs, putCreativeBrief } from '../../design-director/storage/creativeBriefStore';
 import { clearCollectionPlans } from '../../design-director/storage/collectionPlanStore';
 import { clearGeneratorHandoffs } from '../../design-director/storage/generatorHandoffStore';
+import { createMarketingDesignHandoff, transitionMarketingDesignHandoffWorkflow } from '../../design-director/domain/marketingDesignHandoff';
+import { clearMarketingDesignHandoffs, putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
 
 async function clearAllStores() {
   await Promise.all([
@@ -25,6 +28,7 @@ async function clearAllStores() {
     clearCreativeBriefs(),
     clearCollectionPlans(),
     clearGeneratorHandoffs(),
+    clearMarketingDesignHandoffs(),
   ]);
 }
 
@@ -147,6 +151,74 @@ describe('AIDesignDirectorView', () => {
     await waitFor(() => expect(screen.queryByText('Review — Send to Pattern Generator')).not.toBeInTheDocument());
     // Generation status now reflects the real, just-happened event.
     await waitFor(() => expect(screen.getByText(/Generated — last sent/)).toBeInTheDocument());
+
+    expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  // Build 028C — a real MarketingDesignHandoff (as "ส่งให้นักออกแบบ" would
+  // have created it) walked through every one of the 13 workflow statuses
+  // by genuine UI actions across Creative Brief / Collection Planner /
+  // Generator Handoff, confirming requirements #10 (statuses), #11 (audit
+  // history persists across every step) and #12 (the status card reflects
+  // it live in each tab).
+  it('walks a real MarketingDesignHandoff through every workflow status as Creative Director actions occur', async () => {
+    function workflowStatusLabel(): string {
+      return screen.getByText('Workflow status').nextElementSibling?.textContent ?? '';
+    }
+
+    const opportunities = await loadMarketOpportunities();
+    const opportunity = opportunities[0];
+    const brief = createCreativeBrief({ collectionName: 'Workflow Test Collection', theme: opportunity.theme, sourceOpportunityId: opportunity.id, now: 1000 });
+    await putCreativeBrief(brief);
+    let handoff = createMarketingDesignHandoff({ marketOpportunityId: opportunity.id, recommendedTheme: opportunity.theme, now: 1000 });
+    handoff = transitionMarketingDesignHandoffWorkflow({ ...handoff, creativeBriefId: brief.id }, 'BRIEF_DRAFT', 1001);
+    await putMarketingDesignHandoff(handoff);
+
+    render(<AIDesignDirectorView onClose={() => {}} onSendToGenerator={() => {}} initialSelectedBriefId={brief.id} />);
+    await waitFor(() => expect(screen.getByText('Workflow Test Collection')).toBeInTheDocument());
+    expect(workflowStatusLabel()).toBe('Brief Draft');
+
+    // Saving the brief IS the review step (BRIEF_DRAFT -> BRIEF_REVIEW).
+    fireEvent.click(screen.getByText('Save Brief'));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Brief Review'));
+
+    // Approving the brief (BRIEF_REVIEW -> BRIEF_APPROVED).
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Brief Approved'));
+
+    // Creating a Collection Plan (BRIEF_APPROVED -> COLLECTION_PLANNED).
+    fireEvent.click(screen.getByRole('button', { name: 'Collection Planner' }));
+    await waitFor(() => expect(screen.getByText('Create Collection Plan')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Create Collection Plan'));
+    await waitFor(() => expect(screen.getByText('Save Updated Plan')).toBeInTheDocument());
+    expect(workflowStatusLabel()).toBe('Collection Planned');
+
+    // Selecting a collection item (COLLECTION_PLANNED -> COLLECTION_ITEM_SELECTED).
+    fireEvent.click(screen.getByRole('button', { name: 'Generator Handoff' }));
+    await waitFor(() => expect(screen.getByText('Generate Handoff Configuration')).toBeInTheDocument());
+    const itemSelect = screen.getByRole('combobox');
+    const itemOptions = Array.from((itemSelect as HTMLSelectElement).options).filter((o) => o.value);
+    expect(itemOptions.length).toBeGreaterThan(0);
+    fireEvent.change(itemSelect, { target: { value: itemOptions[0].value } });
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Collection Item Selected'));
+
+    // Generating the handoff configuration (COLLECTION_ITEM_SELECTED -> READY_FOR_GENERATOR).
+    fireEvent.click(screen.getByText('Generate Handoff Configuration'));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Ready for Generator'));
+
+    // Opening the review screen (READY_FOR_GENERATOR -> HANDOFF_REVIEW).
+    fireEvent.click(screen.getByText('ส่งไปยังตัวสร้างลวดลาย (Send to Pattern Generator)'));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Handoff Review'));
+
+    // Confirming the apply (HANDOFF_REVIEW -> GENERATING -> GENERATED).
+    fireEvent.click(screen.getByText('Apply to Generator'));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Generated'));
+
+    // Manual post-generation transitions (GENERATED -> DESIGN_REVIEW -> READY_FOR_PORTFOLIO).
+    fireEvent.click(screen.getByRole('button', { name: 'Mark Design Reviewed' }));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Design Review'));
+    fireEvent.click(screen.getByRole('button', { name: 'Mark Ready for Portfolio' }));
+    await waitFor(() => expect(workflowStatusLabel()).toBe('Ready for Portfolio'));
 
     expect(errorSpy).not.toHaveBeenCalled();
   });

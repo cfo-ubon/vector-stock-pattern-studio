@@ -190,6 +190,12 @@ export const APP_BACKUP_STORE_NAMES = [
   'designBriefs',
   'designConfigurations',
   'collectionPlans',
+  // Build 028C (Marketing to Creative Director Workflow) — `marketingDesignHandoffs`
+  // was pre-provisioned by Build 028 Phase 2 but only gained a real
+  // read/write store module (`design-director/storage/marketingDesignHandoffStore.ts`)
+  // in this build, so it is registered here now per this list's own
+  // convention.
+  'marketingDesignHandoffs',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

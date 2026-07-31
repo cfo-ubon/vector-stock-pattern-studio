@@ -8,6 +8,11 @@ import { ConfidenceBadge } from './evidenceDisplay';
 interface Props {
   data: MarketingData;
   onViewScore: (opportunityId: string) => void;
+  /** Build 028C — "ส่งให้นักออกแบบ / Send to Creative Director". No Daily
+   * Mission context exists at this entry point, so the review screen's
+   * mission-derived fields (hero motif, composition, buyer persona,
+   * palette) honestly report as missing rather than guessed. */
+  onSendToCreativeDirector: (opportunity: MarketOpportunity) => void;
 }
 
 type SortKey = 'score' | 'createdAt' | 'title';
@@ -15,7 +20,7 @@ type SortKey = 'score' | 'createdAt' | 'title';
 /** Section 2/9 — Opportunity Explorer. Search/filter/sort/compare across
  * real MarketOpportunity records; every score shown is the already-computed
  * OpportunityScoreResult.overall/band/confidence, never recomputed here. */
-export function OpportunityExplorerTab({ data, onViewScore }: Props) {
+export function OpportunityExplorerTab({ data, onViewScore, onSendToCreativeDirector }: Props) {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OpportunityStatus | 'ALL'>('ALL');
   const [sortKey, setSortKey] = useState<SortKey>('score');
@@ -108,6 +113,9 @@ export function OpportunityExplorerTab({ data, onViewScore }: Props) {
               </label>
               <button type="button" className="link-btn" onClick={() => onViewScore(opportunity.id)}>
                 Explain →
+              </button>
+              <button type="button" className="btn" onClick={() => onSendToCreativeDirector(opportunity)}>
+                ส่งให้นักออกแบบ (Send to Creative Director)
               </button>
             </div>
           </li>

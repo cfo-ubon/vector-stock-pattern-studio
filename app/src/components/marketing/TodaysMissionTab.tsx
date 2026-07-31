@@ -3,13 +3,19 @@ import type { MarketingData } from './MarketingIntelligenceView';
 import { generateDailyMission } from '../../marketing/mission/dailyMissionGenerator';
 import { putDailyMission, getMissionForDate } from '../../marketing/storage/dailyMissionStore';
 import { transitionDailyMissionStatus, type DailyMission } from '../../marketing/domain/dailyMission';
-import type { OpportunityStatus } from '../../marketing/domain/marketOpportunity';
+import type { OpportunityStatus, MarketOpportunity } from '../../marketing/domain/marketOpportunity';
 import { EvidenceBadge, ConfidenceBadge, OfflineAnalysisBanner } from './evidenceDisplay';
 
 interface Props {
   data: MarketingData;
   reload: () => Promise<void>;
   onViewScore: (opportunityId: string) => void;
+  /** Build 028C — "ส่งให้นักออกแบบ / Send to Creative Director". `mission`
+   * is the real, already-persisted `DailyMission` when today's mission has
+   * been saved (`todaysExisting`), otherwise `null` — an unsaved candidate
+   * mission has no real id to reference, so it is honestly omitted rather
+   * than passed as if it were real. */
+  onSendToCreativeDirector: (opportunity: MarketOpportunity, mission: DailyMission | null) => void;
 }
 
 const ACTIONS: Array<[OpportunityStatus, string]> = [
@@ -23,7 +29,7 @@ const ACTIONS: Array<[OpportunityStatus, string]> = [
  * generateDailyMission(opportunities, snapshot) — the same function the
  * sample-data seeder and any future scheduler would call — and renders
  * whatever it returns (or null, honestly, if no opportunity exists yet). */
-export function TodaysMissionTab({ data, reload, onViewScore }: Props) {
+export function TodaysMissionTab({ data, reload, onViewScore, onSendToCreativeDirector }: Props) {
   const [busy, setBusy] = useState(false);
   const latestSnapshot = data.snapshots[0];
   const todaysExisting = data.missions.find((m) => {
@@ -145,6 +151,11 @@ export function TodaysMissionTab({ data, reload, onViewScore }: Props) {
             {todaysExisting && (
               <button type="button" className="btn btn--danger" onClick={() => void handleTransition('ARCHIVED')} disabled={busy}>
                 Reject
+              </button>
+            )}
+            {opportunity && (
+              <button type="button" className="btn" onClick={() => onSendToCreativeDirector(opportunity, todaysExisting ?? null)}>
+                ส่งให้นักออกแบบ (Send to Creative Director)
               </button>
             )}
           </div>

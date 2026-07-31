@@ -4,7 +4,12 @@ import type { CreativeBrief, CommercialPriority, ExpectedDifficulty } from '../.
 import { COMMERCIAL_PRIORITY_VALUES, EXPECTED_DIFFICULTY_VALUES, transitionCreativeBriefStatus } from '../../design-director/domain/creativeBrief';
 import { buildCreativeBriefFromOpportunity } from '../../design-director/brief/briefGenerator';
 import { putCreativeBrief } from '../../design-director/storage/creativeBriefStore';
+import type { MarketingDesignHandoff } from '../../design-director/domain/marketingDesignHandoff';
+import { getMarketingDesignHandoffWorkflowStatus } from '../../design-director/domain/marketingDesignHandoff';
+import type { WorkflowStatus } from '../../design-director/domain/workflowStatus';
+import type { MarketOpportunity } from '../../marketing/domain/marketOpportunity';
 import { ConfidenceBadge } from '../marketing/evidenceDisplay';
+import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 interface Props {
   data: DesignDirectorData;
@@ -12,6 +17,13 @@ interface Props {
   selectedBriefId: string | null;
   onSelectBrief: (id: string | null) => void;
   activeBrief: CreativeBrief | null;
+  /** Build 028C — the Marketing -> Creative Director workflow record for
+   * this brief, when it was created via "ส่งให้นักออกแบบ" (null for briefs
+   * generated the older way, directly from an opportunity in this tab). */
+  activeMarketingHandoff: MarketingDesignHandoff | null;
+  activeOpportunity: MarketOpportunity | null;
+  onUpdateMarketingHandoff: (patch: Partial<MarketingDesignHandoff>, status: WorkflowStatus, note?: string) => Promise<void>;
+  onViewSourceOpportunity?: (opportunityId: string) => void;
 }
 
 const STATUS_ACTIONS: Array<[CreativeBrief['status'], string]> = [
@@ -25,7 +37,17 @@ const STATUS_ACTIONS: Array<[CreativeBrief['status'], string]> = [
  * (the AI Design Director's Module 1) — this component never derives a
  * field itself, it only renders what that function returned and lets the
  * user override any value before saving. */
-export function CreativeBriefTab({ data, reload, selectedBriefId, onSelectBrief, activeBrief }: Props) {
+export function CreativeBriefTab({
+  data,
+  reload,
+  selectedBriefId,
+  onSelectBrief,
+  activeBrief,
+  activeMarketingHandoff,
+  activeOpportunity,
+  onUpdateMarketingHandoff,
+  onViewSourceOpportunity,
+}: Props) {
   const [sourceOpportunityId, setSourceOpportunityId] = useState('');
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState<CreativeBrief | null>(activeBrief);
@@ -56,7 +78,14 @@ export function CreativeBriefTab({ data, reload, selectedBriefId, onSelectBrief,
     setBusy(true);
     try {
       await putCreativeBrief(form);
-      await reload();
+      // Build 028C — saving/editing a brief that arrived via "ส่งให้นักออกแบบ"
+      // IS the review step; only transition once, the first time (a
+      // second save shouldn't re-announce "review started").
+      if (activeMarketingHandoff && getMarketingDesignHandoffWorkflowStatus(activeMarketingHandoff) === 'BRIEF_DRAFT') {
+        await onUpdateMarketingHandoff({}, 'BRIEF_REVIEW');
+      } else {
+        await reload();
+      }
     } finally {
       setBusy(false);
     }
@@ -68,7 +97,11 @@ export function CreativeBriefTab({ data, reload, selectedBriefId, onSelectBrief,
     try {
       const updated = transitionCreativeBriefStatus(form, status);
       await putCreativeBrief(updated);
-      await reload();
+      if (activeMarketingHandoff && status === 'APPROVED') {
+        await onUpdateMarketingHandoff({}, 'BRIEF_APPROVED');
+      } else {
+        await reload();
+      }
     } finally {
       setBusy(false);
     }
@@ -80,6 +113,14 @@ export function CreativeBriefTab({ data, reload, selectedBriefId, onSelectBrief,
 
   return (
     <div className="design-director-tab creative-brief-tab">
+      {activeMarketingHandoff && (
+        <WorkflowStatusCard
+          handoff={activeMarketingHandoff}
+          opportunity={activeOpportunity}
+          onViewSourceOpportunity={onViewSourceOpportunity}
+          generatorReady={!!activeMarketingHandoff.generatorHandoffId}
+        />
+      )}
       <section className="brief-generate">
         <h2>Generate from an approved Market Opportunity</h2>
         <label>

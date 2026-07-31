@@ -4,6 +4,10 @@ import { loadMarketSnapshots } from '../../marketing/storage/marketSnapshotStore
 import { loadCreativeBriefs } from '../../design-director/storage/creativeBriefStore';
 import { loadCollectionPlans } from '../../design-director/storage/collectionPlanStore';
 import { loadGeneratorHandoffs } from '../../design-director/storage/generatorHandoffStore';
+import { loadMarketingDesignHandoffs, putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
+import type { MarketingDesignHandoff } from '../../design-director/domain/marketingDesignHandoff';
+import { transitionMarketingDesignHandoffWorkflow } from '../../design-director/domain/marketingDesignHandoff';
+import type { WorkflowStatus } from '../../design-director/domain/workflowStatus';
 import { loadPortfolioAssets } from '../../catalog/storage/portfolioStore';
 import { computeCollectionCompleteness } from '../../design-director/analysis/completeness';
 import { computeCollectionBalance } from '../../design-director/analysis/balance';
@@ -44,6 +48,13 @@ import './designDirector.css';
 interface Props {
   onClose: () => void;
   onSendToGenerator: (application: GeneratorHandoffApplication, selectedFields: MappedGeneratorField[]) => void;
+  /** Build 028C — preselects a brief when the app switches here right
+   * after "ส่งให้นักออกแบบ" (Send to Creative Director) creates one. */
+  initialSelectedBriefId?: string | null;
+  /** Build 028C, requirement #13 — Creative Director -> Source Opportunity
+   * cross-navigation, owned by `App.tsx` (it owns the view-switching
+   * state this needs). */
+  onViewSourceOpportunity?: (opportunityId: string) => void;
 }
 
 export type DesignDirectorTab =
@@ -78,9 +89,10 @@ export interface DesignDirectorData {
   plans: CollectionPlan[];
   handoffs: GeneratorHandoff[];
   portfolioAssets: PortfolioAsset[];
+  marketingHandoffs: MarketingDesignHandoff[];
 }
 
-export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
+export function AIDesignDirectorView({ onClose, onSendToGenerator, initialSelectedBriefId, onViewSourceOpportunity }: Props) {
   const [tab, setTab] = useState<DesignDirectorTab>('brief');
   const [data, setData] = useState<DesignDirectorData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -88,15 +100,16 @@ export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
 
   const reload = useCallback(async () => {
     try {
-      const [opportunities, snapshots, briefs, plans, handoffs, portfolioAssets] = await Promise.all([
+      const [opportunities, snapshots, briefs, plans, handoffs, portfolioAssets, marketingHandoffs] = await Promise.all([
         loadMarketOpportunities(),
         loadMarketSnapshots(),
         loadCreativeBriefs(),
         loadCollectionPlans(),
         loadGeneratorHandoffs(),
         loadPortfolioAssets(),
+        loadMarketingDesignHandoffs(),
       ]);
-      setData({ opportunities, snapshots, briefs, plans, handoffs, portfolioAssets });
+      setData({ opportunities, snapshots, briefs, plans, handoffs, portfolioAssets, marketingHandoffs });
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
@@ -106,6 +119,10 @@ export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (initialSelectedBriefId) setSelectedBriefId(initialSelectedBriefId);
+  }, [initialSelectedBriefId]);
 
   const activeBrief = useMemo(() => data?.briefs.find((b) => b.id === selectedBriefId) ?? null, [data, selectedBriefId]);
   const activePlan = useMemo(() => {
@@ -121,6 +138,26 @@ export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
   const activeOpportunity = useMemo(
     () => (data && activeBrief?.sourceOpportunityId ? (data.opportunities.find((o) => o.id === activeBrief.sourceOpportunityId) ?? null) : null),
     [data, activeBrief],
+  );
+  /** Build 028C — the one `MarketingDesignHandoff` record spanning this
+   * brief's whole Marketing -> Creative Director workflow, found via the
+   * `creativeBriefId` link set the moment "ส่งให้นักออกแบบ" created it. A
+   * brief created the old way (directly from the Creative Brief tab's own
+   * "Generate from an approved Market Opportunity" flow, with no Marketing
+   * Handoff review) honestly has none. */
+  const activeMarketingHandoff = useMemo(
+    () => (data && activeBrief ? (data.marketingHandoffs.find((h) => h.creativeBriefId === activeBrief.id) ?? null) : null),
+    [data, activeBrief],
+  );
+
+  const handleUpdateMarketingHandoff = useCallback(
+    async (patch: Partial<MarketingDesignHandoff>, status: WorkflowStatus, note?: string) => {
+      if (!activeMarketingHandoff) return;
+      const updated = transitionMarketingDesignHandoffWorkflow({ ...activeMarketingHandoff, ...patch }, status, Date.now(), note);
+      await putMarketingDesignHandoff(updated);
+      await reload();
+    },
+    [activeMarketingHandoff, reload],
   );
 
   const completeness = useMemo(() => (activePlan ? computeCollectionCompleteness(activePlan) : null), [activePlan]);
@@ -171,10 +208,31 @@ export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
       {data && (
         <>
           {tab === 'brief' && (
-            <CreativeBriefTab data={data} reload={reload} selectedBriefId={selectedBriefId} onSelectBrief={setSelectedBriefId} activeBrief={activeBrief} />
+            <CreativeBriefTab
+              data={data}
+              reload={reload}
+              selectedBriefId={selectedBriefId}
+              onSelectBrief={setSelectedBriefId}
+              activeBrief={activeBrief}
+              activeMarketingHandoff={activeMarketingHandoff}
+              activeOpportunity={activeOpportunity}
+              onUpdateMarketingHandoff={handleUpdateMarketingHandoff}
+              onViewSourceOpportunity={onViewSourceOpportunity}
+            />
           )}
           {tab === 'planner' && (
-            <CollectionPlannerTab data={data} reload={reload} activeBrief={activeBrief} activePlan={activePlan} colorwayResult={colorwayResult} />
+            <CollectionPlannerTab
+              data={data}
+              reload={reload}
+              activeBrief={activeBrief}
+              activePlan={activePlan}
+              colorwayResult={colorwayResult}
+              activeMarketingHandoff={activeMarketingHandoff}
+              onUpdateMarketingHandoff={handleUpdateMarketingHandoff}
+              activeOpportunity={activeOpportunity}
+              onViewSourceOpportunity={onViewSourceOpportunity}
+              onGoToHandoffTab={() => setTab('handoff')}
+            />
           )}
           {tab === 'roadmap' && <RoadmapTab activePlan={activePlan} />}
           {tab === 'completeness' && <CompletenessTab completeness={completeness} />}
@@ -193,6 +251,9 @@ export function AIDesignDirectorView({ onClose, onSendToGenerator }: Props) {
               activeOpportunity={activeOpportunity}
               colorwayResult={colorwayResult}
               onSendToGenerator={onSendToGenerator}
+              activeMarketingHandoff={activeMarketingHandoff}
+              onUpdateMarketingHandoff={handleUpdateMarketingHandoff}
+              onViewSourceOpportunity={onViewSourceOpportunity}
             />
           )}
         </>

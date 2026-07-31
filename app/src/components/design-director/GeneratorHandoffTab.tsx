@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import type { DesignDirectorData } from './AIDesignDirectorView';
 import type { CreativeBrief } from '../../design-director/domain/creativeBrief';
 import type { CollectionPlan } from '../../design-director/domain/collectionPlan';
+import { getCollectionPlanItems, markCollectionPlanItemStatus } from '../../design-director/domain/collectionPlan';
+import { putCollectionPlan } from '../../design-director/storage/collectionPlanStore';
 import type { GeneratorHandoff } from '../../design-director/domain/generatorHandoff';
 import type { MarketOpportunity } from '../../marketing/domain/marketOpportunity';
 import type { RecommendColorwayPlansResult } from '../../design-director/colorway/colorwayStrategist';
@@ -10,6 +12,10 @@ import { buildGeneratorHandoff } from '../../design-director/handoff/generatorHa
 import { buildGeneratorHandoffApplication } from '../../design-director/handoff/applyGeneratorHandoff';
 import { putGeneratorHandoff } from '../../design-director/storage/generatorHandoffStore';
 import { listBackupHistory } from '../../backup/appBackupHistoryStore';
+import type { MarketingDesignHandoff } from '../../design-director/domain/marketingDesignHandoff';
+import { getMarketingDesignHandoffWorkflowStatus } from '../../design-director/domain/marketingDesignHandoff';
+import type { WorkflowStatus } from '../../design-director/domain/workflowStatus';
+import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 interface Props {
   data: DesignDirectorData;
@@ -25,6 +31,13 @@ interface Props {
    * the only place holding the live editor state this handoff merges
    * onto (never overwriting a field the reviewer excluded/"locked"). */
   onSendToGenerator: (application: GeneratorHandoffApplication, selectedFields: MappedGeneratorField[]) => void;
+  /** Build 028C — the Marketing -> Creative Director workflow record for
+   * this brief, so selecting a collection item / generating a handoff /
+   * reviewing / sending to the generator all advance its real workflow
+   * status + audit history. */
+  activeMarketingHandoff: MarketingDesignHandoff | null;
+  onUpdateMarketingHandoff: (patch: Partial<MarketingDesignHandoff>, status: WorkflowStatus, note?: string) => Promise<void>;
+  onViewSourceOpportunity?: (opportunityId: string) => void;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -60,11 +73,27 @@ function formatTimestamp(ms: number): string {
  * applied. Also surfaces Backup Protected / Ready-for-Generator /
  * Generated status so the collection's real persistence state is visible
  * without leaving this tab. */
-export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, activeHandoff, activeOpportunity, colorwayResult, onSendToGenerator }: Props) {
+export function GeneratorHandoffTab({
+  data,
+  reload,
+  activeBrief,
+  activePlan,
+  activeHandoff,
+  activeOpportunity,
+  colorwayResult,
+  onSendToGenerator,
+  activeMarketingHandoff,
+  onUpdateMarketingHandoff,
+  onViewSourceOpportunity,
+}: Props) {
   const [busy, setBusy] = useState(false);
   const [reviewApplication, setReviewApplication] = useState<GeneratorHandoffApplication | null>(null);
   const [excludedKeys, setExcludedKeys] = useState<Set<string>>(new Set());
   const [lastBackupAt, setLastBackupAt] = useState<number | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string>('');
+
+  const planItems = activePlan ? getCollectionPlanItems(activePlan) : [];
+  const selectedItem = planItems.find((i) => i.id === selectedItemId) ?? null;
 
   useEffect(() => {
     let cancelled = false;
@@ -91,22 +120,39 @@ export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, act
     );
   }
 
+  const handleSelectItem = async (itemId: string) => {
+    setSelectedItemId(itemId);
+    if (itemId && activeMarketingHandoff) {
+      await onUpdateMarketingHandoff({ collectionItemId: itemId }, 'COLLECTION_ITEM_SELECTED');
+    }
+  };
+
   const handleGenerate = async () => {
     setBusy(true);
     try {
-      const handoff = buildGeneratorHandoff(activeBrief, activePlan, colorwayResult?.plans ?? []);
+      const handoff = buildGeneratorHandoff(activeBrief, activePlan, colorwayResult?.plans ?? [], selectedItemId || null);
       await putGeneratorHandoff(handoff);
-      await reload();
+      if (selectedItemId) {
+        await putCollectionPlan(markCollectionPlanItemStatus(activePlan, selectedItemId, 'handoffReady'));
+      }
+      if (activeMarketingHandoff) {
+        await onUpdateMarketingHandoff({ generatorHandoffId: handoff.id, collectionItemId: selectedItemId || activeMarketingHandoff.collectionItemId }, 'READY_FOR_GENERATOR');
+      } else {
+        await reload();
+      }
     } finally {
       setBusy(false);
     }
   };
 
-  const handleOpenReview = () => {
+  const handleOpenReview = async () => {
     if (!activeHandoff) return;
     const application = buildGeneratorHandoffApplication(activeHandoff, activeBrief, activePlan, activeOpportunity);
     setReviewApplication(application);
     setExcludedKeys(new Set());
+    if (activeMarketingHandoff) {
+      await onUpdateMarketingHandoff({}, 'HANDOFF_REVIEW');
+    }
   };
 
   const handleToggleField = (key: string) => {
@@ -121,10 +167,26 @@ export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, act
   const handleConfirmApply = async () => {
     if (!reviewApplication || !activeHandoff) return;
     const selectedFields = reviewApplication.mappedFields.filter((f) => !excludedKeys.has(f.key));
+    if (activeMarketingHandoff) await onUpdateMarketingHandoff({}, 'GENERATING');
     onSendToGenerator(reviewApplication, selectedFields);
     await putGeneratorHandoff({ ...activeHandoff, lastAppliedAt: Date.now() });
-    await reload();
+    if (activeHandoff.collectionItemId && activePlan) {
+      await putCollectionPlan(markCollectionPlanItemStatus(activePlan, activeHandoff.collectionItemId, 'generated'));
+    }
+    if (activeMarketingHandoff) {
+      await onUpdateMarketingHandoff({}, 'GENERATED');
+    } else {
+      await reload();
+    }
     setReviewApplication(null);
+  };
+
+  const handleMarkDesignReviewed = async () => {
+    if (activeMarketingHandoff) await onUpdateMarketingHandoff({}, 'DESIGN_REVIEW');
+  };
+
+  const handleMarkReadyForPortfolio = async () => {
+    if (activeMarketingHandoff) await onUpdateMarketingHandoff({}, 'READY_FOR_PORTFOLIO');
   };
 
   const versionCount = data.handoffs.filter((h) => h.collectionPlanId === activePlan.id).length;
@@ -132,9 +194,46 @@ export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, act
   return (
     <div className="design-director-tab generator-handoff-tab">
       <h2>Generator Handoff</h2>
+
+      {activeMarketingHandoff && (
+        <WorkflowStatusCard
+          handoff={activeMarketingHandoff}
+          opportunity={activeOpportunity}
+          onViewSourceOpportunity={onViewSourceOpportunity}
+          backupProtected={backupProtected}
+          generatorReady={!!activeHandoff}
+        />
+      )}
+
+      {activeMarketingHandoff && getMarketingDesignHandoffWorkflowStatus(activeMarketingHandoff) === 'GENERATED' && (
+        <button type="button" className="btn" onClick={() => void handleMarkDesignReviewed()}>
+          Mark Design Reviewed
+        </button>
+      )}
+      {activeMarketingHandoff && getMarketingDesignHandoffWorkflowStatus(activeMarketingHandoff) === 'DESIGN_REVIEW' && (
+        <button type="button" className="btn" onClick={() => void handleMarkReadyForPortfolio()}>
+          Mark Ready for Portfolio
+        </button>
+      )}
+
+      {planItems.length > 0 && (
+        <label className="handoff-item-picker">
+          Collection item (optional):{' '}
+          <select value={selectedItemId} onChange={(e) => void handleSelectItem(e.target.value)}>
+            <option value="">— whole collection, no specific item —</option>
+            {planItems.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label} ({item.status})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <button type="button" className="btn btn--primary" disabled={busy} onClick={() => void handleGenerate()}>
         {activeHandoff ? 'Regenerate Handoff Configuration' : 'Generate Handoff Configuration'}
       </button>
+      {selectedItem && <p className="handoff-version-note">This handoff will be configured for: {selectedItem.label}.</p>}
 
       {activeHandoff && (
         <>
@@ -160,7 +259,7 @@ export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, act
             </div>
           </dl>
 
-          <button type="button" className="btn" onClick={handleOpenReview}>
+          <button type="button" className="btn" onClick={() => void handleOpenReview()}>
             ส่งไปยังตัวสร้างลวดลาย (Send to Pattern Generator)
           </button>
 
@@ -180,6 +279,12 @@ export function GeneratorHandoffTab({ data, reload, activeBrief, activePlan, act
               <dt>Pattern type</dt>
               <dd>{activeHandoff.patternType}</dd>
             </div>
+            {activeHandoff.collectionItemId && (
+              <div>
+                <dt>Collection item</dt>
+                <dd>{planItems.find((i) => i.id === activeHandoff.collectionItemId)?.label ?? activeHandoff.collectionItemId}</dd>
+              </div>
+            )}
             <div>
               <dt>{FIELD_LABELS.categoryId}</dt>
               <dd>

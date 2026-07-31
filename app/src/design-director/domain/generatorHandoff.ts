@@ -28,6 +28,13 @@ export interface GeneratorHandoff {
   secondaryMotifs: string[];
   patternType: CollectionPatternType;
   categoryId: string;
+  /** Build 028C — the specific `CollectionPlanItem.id` (see
+   * `collectionPlan.ts`) this handoff was configured for, when the user
+   * selected one before generating the handoff. `null`/undefined means no
+   * specific item was selected (e.g. a handoff created before Build 028C,
+   * or a plan-level handoff not tied to one item) — honestly reflected as
+   * `null` in `GeneratorHandoffLineage.collectionItemId`, never fabricated. */
+  collectionItemId?: string | null;
   composition: string;
   density: number;
   scale: HandoffScale;
@@ -65,6 +72,7 @@ export interface CreateGeneratorHandoffInput {
   categoryId: string;
   secondaryMotifs?: string[];
   patternType?: CollectionPatternType;
+  collectionItemId?: string | null;
   composition?: string;
   density?: number;
   scale?: HandoffScale;
@@ -95,6 +103,7 @@ export function createGeneratorHandoff(input: CreateGeneratorHandoffInput): Gene
     secondaryMotifs: input.secondaryMotifs ?? [],
     patternType: input.patternType ?? 'hero',
     categoryId: input.categoryId,
+    collectionItemId: input.collectionItemId ?? null,
     composition: input.composition ?? '',
     density: input.density ?? 0.5,
     scale: input.scale ?? 'medium',

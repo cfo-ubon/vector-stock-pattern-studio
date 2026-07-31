@@ -63,7 +63,18 @@ export const DB_NAME = 'vsp-db';
 // records respectively, since their pre-provisioned shape
 // (`status`/`sourceOpportunityId` and `briefId` indexes) already matches
 // exactly what those two new domain modules need.
-export const DB_VERSION = 9;
+//
+// v10 (Build 028C, Marketing to Creative Director Workflow): adds an
+// `opportunityId` index to the existing `marketingDesignHandoffs` store
+// (pre-provisioned in v8, first given a real domain/store module in this
+// build) — needed so the UI can look up "has this Market Opportunity
+// already been sent to the Creative Director?" without a full-store scan.
+// No new store is created; the store itself already existed since v8, so
+// this upgrade only adds an index inside the existing store via the
+// upgrade transaction's own `objectStore()` handle (the one case where an
+// upgrade must reach into an *existing* store rather than create a new
+// one).
+export const DB_VERSION = 10;
 export const COLLECTION_PLANS_STORE = 'collectionPlans';
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
 export const RESEARCH_SOURCES_STORE = 'researchSources';
@@ -224,6 +235,15 @@ export function openDb(): Promise<IDBDatabase> {
           const handoffs = db.createObjectStore(MARKETING_DESIGN_HANDOFFS_STORE, { keyPath: 'id' });
           handoffs.createIndex('status', 'status', { unique: false });
           handoffs.createIndex('briefId', 'briefId', { unique: false });
+          handoffs.createIndex('opportunityId', 'marketOpportunityId', { unique: false });
+        } else {
+          // v10: the store already existed (v8) — reach into it via the
+          // upgrade transaction to add the new index without recreating
+          // the store (which would discard any data already in it).
+          const handoffs = req.transaction!.objectStore(MARKETING_DESIGN_HANDOFFS_STORE);
+          if (!handoffs.indexNames.contains('opportunityId')) {
+            handoffs.createIndex('opportunityId', 'marketOpportunityId', { unique: false });
+          }
         }
         if (!db.objectStoreNames.contains(COMMERCIAL_FEEDBACK_SIGNALS_STORE)) {
           const feedbackSignals = db.createObjectStore(COMMERCIAL_FEEDBACK_SIGNALS_STORE, { keyPath: 'id' });

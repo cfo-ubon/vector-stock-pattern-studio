@@ -1,13 +1,17 @@
 import { useMemo, useState } from 'react';
 import type { MarketingData } from './MarketingIntelligenceView';
-import type { OpportunityStatus } from '../../marketing/domain/marketOpportunity';
-import { transitionDailyMissionStatus } from '../../marketing/domain/dailyMission';
+import type { OpportunityStatus, MarketOpportunity } from '../../marketing/domain/marketOpportunity';
+import { transitionDailyMissionStatus, type DailyMission } from '../../marketing/domain/dailyMission';
 import { putDailyMission } from '../../marketing/storage/dailyMissionStore';
 import { ConfidenceBadge } from './evidenceDisplay';
 
 interface Props {
   data: MarketingData;
   reload: () => Promise<void>;
+  /** Build 028C — "ส่งให้นักออกแบบ / Send to Creative Director", sourced
+   * from a real, already-persisted Daily Mission plus its underlying
+   * Market Opportunity. */
+  onSendToCreativeDirector: (opportunity: MarketOpportunity, mission: DailyMission) => void;
 }
 
 const QUICK_ACTIONS: Array<[OpportunityStatus, string]> = [
@@ -21,7 +25,7 @@ const QUICK_ACTIONS: Array<[OpportunityStatus, string]> = [
  * listed is a real, previously-saved DailyMission record; status
  * transitions go through transitionDailyMissionStatus (a plain, auditable
  * status change, not a rewritten history). */
-export function DailyMissionsTab({ data, reload }: Props) {
+export function DailyMissionsTab({ data, reload, onSendToCreativeDirector }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const sorted = useMemo(() => [...data.missions].sort((a, b) => b.date - a.date), [data.missions]);
@@ -82,6 +86,14 @@ export function DailyMissionsTab({ data, reload }: Props) {
               <button type="button" className="btn btn--danger" disabled={busyId === mission.id} onClick={() => void handleReject(mission.id)}>
                 Reject
               </button>
+              {(() => {
+                const opportunity = data.opportunities.find((o) => o.id === mission.opportunityId);
+                return opportunity ? (
+                  <button type="button" className="btn" onClick={() => onSendToCreativeDirector(opportunity, mission)}>
+                    ส่งให้นักออกแบบ (Send to Creative Director)
+                  </button>
+                ) : null;
+              })()}
             </div>
           </li>
         ))}

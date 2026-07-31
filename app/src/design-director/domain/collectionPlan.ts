@@ -1,4 +1,4 @@
-import { collectionPlanId } from '../../marketing/domain/id';
+import { collectionPlanId, collectionPlanItemId } from '../../marketing/domain/id';
 
 // Build 028B — Module 2/3: Collection Planner + Collection Roadmap. The 8
 // pattern-type categories below are the business-facing planning taxonomy
@@ -50,6 +50,29 @@ export interface RoadmapStep {
   estimatedHours: number;
 }
 
+// Build 028C (Marketing to Creative Director Workflow), requirement #9 —
+// individually-identified planned collection items. Prior to this build,
+// `patternTypeCounts` only tracked COUNTS per pattern type; `items` expands
+// each count into a real, addressable `CollectionPlanItem` so a Generator
+// Handoff (and the `GeneratorHandoffLineage`/`GenerateParams.sourceLineage`
+// it produces) can honestly reference a specific planned item instead of a
+// permanently-null `collectionItemId`. Optional on `CollectionPlan` (not
+// every plan created before this field existed has one) — `plan.items ?? []`
+// is the correct read everywhere, never an assumed-present array.
+export const COLLECTION_PLAN_ITEM_STATUS_VALUES = ['planned', 'handoffReady', 'generated'] as const;
+export type CollectionPlanItemStatus = (typeof COLLECTION_PLAN_ITEM_STATUS_VALUES)[number];
+
+export interface CollectionPlanItem {
+  id: string;
+  patternType: CollectionPatternType;
+  /** 1-based position within this pattern type's own count (e.g. the 2nd
+   * planned "hero" item), used only to build a stable human label — not a
+   * global sequence across pattern types. */
+  index: number;
+  label: string;
+  status: CollectionPlanItemStatus;
+}
+
 export const COLLECTION_PLAN_SCHEMA_VERSION = 1;
 
 export interface CollectionPlan {
@@ -63,8 +86,46 @@ export interface CollectionPlan {
   roadmap: RoadmapStep[];
   targetMarketplace: string;
   targetProducts: string[];
+  /** See `CollectionPlanItem`'s own doc comment above — optional for
+   * backward compatibility with plans created before Build 028C. */
+  items?: CollectionPlanItem[];
   createdAt: number;
   schemaVersion: number;
+}
+
+function buildCollectionPlanItems(patternTypeCounts: PatternTypeCounts, now: number): CollectionPlanItem[] {
+  const items: CollectionPlanItem[] = [];
+  for (const patternType of COLLECTION_PATTERN_TYPE_VALUES) {
+    const count = patternTypeCounts[patternType] ?? 0;
+    for (let i = 1; i <= count; i++) {
+      items.push({
+        id: collectionPlanItemId.generate(now),
+        patternType,
+        index: i,
+        label: `${COLLECTION_PATTERN_TYPE_LABELS[patternType]} #${i}`,
+        status: 'planned',
+      });
+    }
+  }
+  return items;
+}
+
+/** Safe accessor — always use this (or `plan.items ?? []`) rather than
+ * `plan.items` directly, so a pre-Build-028C plan with no `items` array
+ * reads as "no items" instead of throwing. */
+export function getCollectionPlanItems(plan: CollectionPlan): CollectionPlanItem[] {
+  return plan.items ?? [];
+}
+
+export function getCollectionPlanItemById(plan: CollectionPlan, itemId: string): CollectionPlanItem | null {
+  return getCollectionPlanItems(plan).find((i) => i.id === itemId) ?? null;
+}
+
+export function markCollectionPlanItemStatus(plan: CollectionPlan, itemId: string, status: CollectionPlanItemStatus): CollectionPlan {
+  return {
+    ...plan,
+    items: getCollectionPlanItems(plan).map((i) => (i.id === itemId ? { ...i, status } : i)),
+  };
 }
 
 export class InvalidCollectionPlanInputError extends Error {
@@ -84,6 +145,7 @@ export interface CreateCollectionPlanInput {
   roadmap?: RoadmapStep[];
   targetMarketplace?: string;
   targetProducts?: string[];
+  items?: CollectionPlanItem[];
   now?: number;
 }
 
@@ -106,6 +168,7 @@ export function createCollectionPlan(input: CreateCollectionPlanInput): Collecti
     roadmap: input.roadmap ?? [],
     targetMarketplace: input.targetMarketplace ?? '',
     targetProducts: input.targetProducts ?? [],
+    items: input.items ?? buildCollectionPlanItems(input.patternTypeCounts, now),
     createdAt: now,
     schemaVersion: COLLECTION_PLAN_SCHEMA_VERSION,
   };

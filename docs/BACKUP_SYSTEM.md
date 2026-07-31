@@ -42,9 +42,10 @@ writes data another one owns.
   `researchSources`, `marketObservations`, `marketSnapshots`,
   `marketKeywords`, `seasonalEvents`, `scoringProfiles`,
   `marketOpportunities`, `dailyMissions` (Build 028 Marketing
-  Intelligence), and `designBriefs`, `designConfigurations`,
-  `collectionPlans` (Build 028B AI Creative Director). `designStrategies`,
-  `marketingDesignHandoffs`, `commercialFeedbackSignals`, and
+  Intelligence), `designBriefs`, `designConfigurations`,
+  `collectionPlans` (Build 028B AI Creative Director), and
+  `marketingDesignHandoffs` (Build 028C, Marketing to Creative Director
+  Workflow). `designStrategies`, `commercialFeedbackSignals`, and
   `recommendationHistory` are pre-provisioned in `storage/db.ts`'s schema
   but stay unregistered here until a store module actually writes to them
   — see `appBackupFormat.ts`'s own comment for this list's "register only

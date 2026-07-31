@@ -36,3 +36,4 @@ export const marketingDesignHandoffId = makeIdKit('HOF');
 export const commercialFeedbackSignalId = makeIdKit('SIG');
 export const recommendationHistoryId = makeIdKit('REC');
 export const collectionPlanId = makeIdKit('CPLAN');
+export const collectionPlanItemId = makeIdKit('CITEM');

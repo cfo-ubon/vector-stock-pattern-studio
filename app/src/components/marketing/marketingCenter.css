@@ -443,6 +443,79 @@
   gap: 0.5rem;
 }
 
+/* Marketing Handoff Review (Build 028C — Send to Creative Director) */
+
+.marketing-handoff-review {
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--panel, #1c1c22);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.marketing-handoff-review-intro {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.marketing-handoff-review-table-wrap {
+  overflow-x: auto;
+}
+
+.marketing-handoff-review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.marketing-handoff-review-table th,
+.marketing-handoff-review-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border, #333);
+  vertical-align: top;
+}
+
+.marketing-handoff-review-table input[type='text'] {
+  width: 100%;
+  min-width: 10rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-alt, #26262e);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 0.3rem 0.4rem;
+}
+
+.marketing-handoff-status-flag {
+  color: #d9a441;
+  font-weight: 600;
+}
+
+.marketing-handoff-review-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.marketing-handoff-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem 1rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  background: var(--panel, #1c1c22);
+  font-size: 0.85rem;
+}
+
+.marketing-handoff-status dt {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
 @media (max-width: 1100px) {
   .marketing-center {
     padding: 1rem;
@@ -463,6 +536,15 @@
   }
 
   .marketplace-comparison-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .marketing-handoff-review-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .marketing-handoff-status {
     grid-template-columns: 1fr;
   }
 }

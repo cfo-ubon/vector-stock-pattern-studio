@@ -427,9 +427,12 @@ export interface GenerateParams {
 
 /** See `GenerateParams.sourceLineage`'s doc comment. Every id here is the
  * real record id from its own domain module (never a fabricated/derived
- * value) — `collectionItemId` is `null` because `CollectionPlan` (Build
- * 028B) tracks pattern-type COUNTS, not individually-identified planned
- * items yet, so there is honestly no per-item id to reference. */
+ * value) — `collectionItemId` references a real `CollectionPlanItem.id`
+ * (`design-director/domain/collectionPlan.ts`, added in Build 028C) when
+ * the Generator Handoff was configured for one specific planned item;
+ * `null` for a handoff not tied to one exact item (including every handoff
+ * created before Build 028C, when `CollectionPlan` only tracked pattern-type
+ * COUNTS with no individually-identified items to reference). */
 export interface GeneratorHandoffLineage {
   marketSnapshotId: string | null;
   marketOpportunityId: string | null;

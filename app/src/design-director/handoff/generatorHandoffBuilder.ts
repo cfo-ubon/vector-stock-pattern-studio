@@ -75,7 +75,12 @@ function deriveSpacing(density: number): HandoffSpacing {
   return 'balanced';
 }
 
-export function buildGeneratorHandoff(brief: CreativeBrief, plan: CollectionPlan, colorwayPlans: ColorwayStrategyPlan[]): GeneratorHandoff {
+export function buildGeneratorHandoff(
+  brief: CreativeBrief,
+  plan: CollectionPlan,
+  colorwayPlans: ColorwayStrategyPlan[],
+  collectionItemId?: string | null,
+): GeneratorHandoff {
   const mappingRationale: Record<string, string> = {};
 
   const { categoryId, matched } = deriveCategoryId(brief.theme || plan.theme);
@@ -114,6 +119,7 @@ export function buildGeneratorHandoff(brief: CreativeBrief, plan: CollectionPlan
   return createGeneratorHandoff({
     briefId: brief.id,
     collectionPlanId: plan.id,
+    collectionItemId: collectionItemId ?? null,
     heroMotif: brief.heroStyle || brief.theme,
     secondaryMotifs: brief.secondaryAssets,
     patternType: 'hero',

@@ -164,7 +164,11 @@ export function buildGeneratorHandoffApplication(
     marketOpportunityId: opportunity?.id ?? brief.sourceOpportunityId ?? null,
     designBriefId: brief.id,
     collectionPlanId: plan.id,
-    collectionItemId: null,
+    // Build 028C — real per-item id when the handoff was configured for a
+    // specific CollectionPlanItem (see collectionPlan.ts); still honestly
+    // null for a handoff that isn't tied to one exact planned item (e.g.
+    // every handoff created before Build 028C).
+    collectionItemId: handoff.collectionItemId ?? null,
     generatorHandoffId: handoff.id,
     generatorVersion: handoff.generatorVersion,
     seed: handoff.seedStrategy,

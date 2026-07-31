@@ -348,6 +348,14 @@
   color: var(--text-dim);
 }
 
+.handoff-item-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
 .handoff-status {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

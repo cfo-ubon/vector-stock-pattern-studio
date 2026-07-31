@@ -5,6 +5,10 @@ import { COLLECTION_PATTERN_TYPE_VALUES, COLLECTION_PATTERN_TYPE_LABELS, type Co
 import { buildCollectionPlan, defaultPatternTypeRatios } from '../../design-director/planner/collectionPlanner';
 import { putCollectionPlan } from '../../design-director/storage/collectionPlanStore';
 import type { RecommendColorwayPlansResult } from '../../design-director/colorway/colorwayStrategist';
+import type { MarketingDesignHandoff } from '../../design-director/domain/marketingDesignHandoff';
+import type { WorkflowStatus } from '../../design-director/domain/workflowStatus';
+import type { MarketOpportunity } from '../../marketing/domain/marketOpportunity';
+import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 interface Props {
   data: DesignDirectorData;
@@ -12,6 +16,15 @@ interface Props {
   activeBrief: CreativeBrief | null;
   activePlan: CollectionPlan | null;
   colorwayResult: RecommendColorwayPlansResult | null;
+  /** Build 028C — the Marketing -> Creative Director workflow record for
+   * this brief, so creating a plan can transition it to COLLECTION_PLANNED. */
+  activeMarketingHandoff: MarketingDesignHandoff | null;
+  onUpdateMarketingHandoff: (patch: Partial<MarketingDesignHandoff>, status: WorkflowStatus, note?: string) => Promise<void>;
+  activeOpportunity: MarketOpportunity | null;
+  onViewSourceOpportunity?: (opportunityId: string) => void;
+  /** Build 028C, requirement #13 — Collection Plan -> Generator
+   * cross-navigation. */
+  onGoToHandoffTab: () => void;
 }
 
 /** Section 2 (Collection Planner) + Section 9 (Colorway Strategist, folded
@@ -19,7 +32,18 @@ interface Props {
  * Strategist has no dedicated page). The pattern-type ratio is always
  * editable per the module's own requirement; `defaultPatternTypeRatios`
  * only supplies the starting point. */
-export function CollectionPlannerTab({ data, reload, activeBrief, activePlan, colorwayResult }: Props) {
+export function CollectionPlannerTab({
+  data,
+  reload,
+  activeBrief,
+  activePlan,
+  colorwayResult,
+  activeMarketingHandoff,
+  onUpdateMarketingHandoff,
+  activeOpportunity,
+  onViewSourceOpportunity,
+  onGoToHandoffTab,
+}: Props) {
   const [counts, setCounts] = useState<PatternTypeCounts | null>(null);
   const [colorwayCount, setColorwayCount] = useState(3);
   const [busy, setBusy] = useState(false);
@@ -52,7 +76,11 @@ export function CollectionPlannerTab({ data, reload, activeBrief, activePlan, co
     try {
       const plan = buildCollectionPlan(activeBrief, { patternTypeCounts: counts, colorwayCount });
       await putCollectionPlan(plan);
-      await reload();
+      if (activeMarketingHandoff) {
+        await onUpdateMarketingHandoff({ collectionPlanId: plan.id }, 'COLLECTION_PLANNED');
+      } else {
+        await reload();
+      }
     } finally {
       setBusy(false);
     }
@@ -60,6 +88,14 @@ export function CollectionPlannerTab({ data, reload, activeBrief, activePlan, co
 
   return (
     <div className="design-director-tab collection-planner-tab">
+      {activeMarketingHandoff && (
+        <WorkflowStatusCard
+          handoff={activeMarketingHandoff}
+          opportunity={activeOpportunity}
+          onViewSourceOpportunity={onViewSourceOpportunity}
+          generatorReady={!!activeMarketingHandoff.generatorHandoffId}
+        />
+      )}
       <h2>{activeBrief.collectionName} — Collection Plan</h2>
       {counts && (
         <>
@@ -94,6 +130,11 @@ export function CollectionPlannerTab({ data, reload, activeBrief, activePlan, co
           <button type="button" className="btn btn--primary" disabled={busy} onClick={() => void handleSave()}>
             {activePlan ? 'Save Updated Plan' : 'Create Collection Plan'}
           </button>
+          {activePlan && (
+            <button type="button" className="btn" onClick={onGoToHandoffTab}>
+              Go to Generator Handoff →
+            </button>
+          )}
         </>
       )}
 

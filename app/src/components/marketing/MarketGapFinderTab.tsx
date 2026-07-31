@@ -2,10 +2,18 @@ import { useMemo, useState } from 'react';
 import type { MarketingData } from './MarketingIntelligenceView';
 import { findMarketGaps } from '../../marketing/gap/marketGapFinder';
 import type { EvidenceBand } from '../../marketing/domain/evidence';
+import type { MarketKeyword } from '../../marketing/domain/marketKeyword';
 import { BandBadge } from './evidenceDisplay';
 
 interface Props {
   data: MarketingData;
+  /** Build 028C — "ส่งให้นักออกแบบ / Send to Creative Director" from a Market
+   * Gap. A `MarketGap` is a live, computed object (see
+   * `marketing/gap/marketGapFinder.ts`) with no persisted id of its own, so
+   * the real `MarketKeyword` record it was computed from is resolved and
+   * passed here instead — there is no Market Opportunity yet at this point
+   * in the workflow, which is exactly the gap this button closes. */
+  onSendToCreativeDirector: (keyword: MarketKeyword) => void;
 }
 
 const BAND_OPTIONS: EvidenceBand[] = ['very-low', 'low', 'medium', 'high', 'very-high'];
@@ -14,7 +22,7 @@ const BAND_OPTIONS: EvidenceBand[] = ['very-low', 'low', 'medium', 'high', 'very
  * direct output of findMarketGaps(keywords) — a real comparison of each
  * keyword's opportunityEstimate against its portfolioCoverage, not an
  * ML-style inferred score. */
-export function MarketGapFinderTab({ data }: Props) {
+export function MarketGapFinderTab({ data, onSendToCreativeDirector }: Props) {
   const [minBand, setMinBand] = useState<EvidenceBand>('medium');
   const [maxCoverage, setMaxCoverage] = useState(2);
 
@@ -71,6 +79,14 @@ export function MarketGapFinderTab({ data }: Props) {
               <strong>Recommended collection:</strong> a focused collection targeting "{gap.keyword}" would close this gap — currently only{' '}
               {gap.portfolioCoverage} pattern(s) cover it.
             </p>
+            {(() => {
+              const keyword = data.keywords.find((k) => k.keyword === gap.keyword);
+              return keyword ? (
+                <button type="button" className="btn" onClick={() => onSendToCreativeDirector(keyword)}>
+                  ส่งให้นักออกแบบ (Send to Creative Director)
+                </button>
+              ) : null;
+            })()}
           </li>
         ))}
       </ul>
