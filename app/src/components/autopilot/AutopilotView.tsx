@@ -17,12 +17,16 @@ import { createAutonomousDesignRun, transitionAutonomousDesignRun, type Autonomo
 import { putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
 import { prepareRunForGeneration } from '../../autopilot/runPreparation';
 import { putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
-import { putCreativeBrief } from '../../design-director/storage/creativeBriefStore';
-import { putCollectionPlan } from '../../design-director/storage/collectionPlanStore';
+import { putCreativeBrief, getCreativeBrief } from '../../design-director/storage/creativeBriefStore';
+import { putCollectionPlan, getCollectionPlan } from '../../design-director/storage/collectionPlanStore';
+import type { CreativeBrief } from '../../design-director/domain/creativeBrief';
+import type { CollectionPlan } from '../../design-director/domain/collectionPlan';
+import type { MarketOpportunity } from '../../marketing/domain/marketOpportunity';
 import { runAutonomousGeneration, type GenerationProgressEvent } from '../../autopilot/generationOrchestrator';
 import { buildAutopilotResultSummary, type AutopilotResultSummary } from '../../autopilot/resultSummary';
 import { promoteReadyToPortfolio, promoteAllToPortfolioWithStatus } from '../../autopilot/portfolioPromotion';
 import { loadGenerateParamsForAsset, prepareAutopilotSeoForItem } from '../../autopilot/seoPreparation';
+import { AutopilotHistoryView } from './AutopilotHistoryView';
 import './autopilot.css';
 
 // Build 029 — Autonomous Design Autopilot. The one screen that satisfies
@@ -33,7 +37,7 @@ import './autopilot.css';
 // Portfolio screens already use — this view builds no parallel pipeline,
 // it only sequences the existing one automatically.
 
-type AutopilotStep = 'goal' | 'plan' | 'constraints' | 'generating' | 'review';
+type AutopilotStep = 'goal' | 'plan' | 'constraints' | 'generating' | 'review' | 'history';
 
 interface Props {
   onClose: () => void;
@@ -169,15 +173,47 @@ export function AutopilotView({ onClose }: Props) {
     setStep('goal');
   }, [run]);
 
+  /** The actual generation loop invocation — shared by a fresh run (after
+   * `prepareRunForGeneration`) and a resumed run loaded from History
+   * (Module 11), which must never re-run `prepareRunForGeneration` (that
+   * step only belongs at PLAN_READY -> GENERATING, once per run). */
+  const executeGeneration = useCallback(async (runToProcess: AutonomousDesignRun, brief: CreativeBrief, collectionPlan: CollectionPlan, opportunity: MarketOpportunity | null) => {
+    abortControllerRef.current = new AbortController();
+    pauseRequestedRef.current = false;
+    setGenerationError(null);
+    setStep('generating');
+
+    try {
+      const existingAssets = await loadPortfolioAssets();
+      const finalRun = await runAutonomousGeneration({
+        run: runToProcess,
+        brief,
+        plan: collectionPlan,
+        opportunity,
+        existingAssets,
+        signal: abortControllerRef.current.signal,
+        shouldPause: () => pauseRequestedRef.current,
+        persistRun: async (r) => {
+          await putAutonomousDesignRun(r);
+          setRun(r);
+        },
+        onProgress: (event) => setProgress(event),
+      });
+
+      if (finalRun.status === 'COMPLETED') {
+        const snapshots = await loadQualitySnapshots();
+        setSummary(buildAutopilotResultSummary(finalRun, collectionPlan, snapshots));
+        setStep('review');
+      }
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : String(err));
+    }
+  }, []);
+
   const runGeneration = useCallback(
     async (startingRun: AutonomousDesignRun) => {
       const input = buildDecisionInput();
       const evidence = selectEvidence(input);
-      abortControllerRef.current = new AbortController();
-      pauseRequestedRef.current = false;
-      setGenerationError(null);
-      setStep('generating');
-
       try {
         const prepared = prepareRunForGeneration(startingRun);
         await putAutonomousDesignRun(prepared.run);
@@ -185,33 +221,12 @@ export function AutopilotView({ onClose }: Props) {
         await putCreativeBrief(prepared.brief);
         await putCollectionPlan(prepared.collectionPlan);
         setRun(prepared.run);
-
-        const existingAssets = await loadPortfolioAssets();
-        const finalRun = await runAutonomousGeneration({
-          run: prepared.run,
-          brief: prepared.brief,
-          plan: prepared.collectionPlan,
-          opportunity: evidence.opportunity,
-          existingAssets,
-          signal: abortControllerRef.current.signal,
-          shouldPause: () => pauseRequestedRef.current,
-          persistRun: async (r) => {
-            await putAutonomousDesignRun(r);
-            setRun(r);
-          },
-          onProgress: (event) => setProgress(event),
-        });
-
-        if (finalRun.status === 'COMPLETED') {
-          const snapshots = await loadQualitySnapshots();
-          setSummary(buildAutopilotResultSummary(finalRun, prepared.collectionPlan, snapshots));
-          setStep('review');
-        }
+        await executeGeneration(prepared.run, prepared.brief, prepared.collectionPlan, evidence.opportunity);
       } catch (err) {
         setGenerationError(err instanceof Error ? err.message : String(err));
       }
     },
-    [buildDecisionInput],
+    [buildDecisionInput, executeGeneration],
   );
 
   const handleGenerateNow = useCallback(async () => {
@@ -284,6 +299,71 @@ export function AutopilotView({ onClose }: Props) {
     setSeoStatus(statuses);
   }, [run, plan, portfolioAssets]);
 
+  const handleResumeFromHistory = useCallback(
+    async (historyRun: AutonomousDesignRun) => {
+      try {
+        const [brief, collectionPlan] = await Promise.all([
+          historyRun.creativeBriefId ? getCreativeBrief(historyRun.creativeBriefId) : undefined,
+          historyRun.collectionPlanId ? getCollectionPlan(historyRun.collectionPlanId) : undefined,
+        ]);
+        if (!brief || !collectionPlan) {
+          setGenerationError('Cannot resume — the run is missing its Creative Brief or Collection Plan.');
+          setStep('generating');
+          return;
+        }
+        setPlan(historyRun.designPlan);
+        let resumed = historyRun;
+        if (resumed.status === 'PAUSED') {
+          resumed = transitionAutonomousDesignRun(resumed, 'GENERATING', Date.now(), 'Resumed from Autopilot History.');
+          await putAutonomousDesignRun(resumed);
+        }
+        setRun(resumed);
+        const opportunity = resumed.sourceEvidence.marketOpportunityId ? opportunities.find((o) => o.id === resumed.sourceEvidence.marketOpportunityId) ?? null : null;
+        await executeGeneration(resumed, brief, collectionPlan, opportunity);
+      } catch (err) {
+        setGenerationError(err instanceof Error ? err.message : String(err));
+        setStep('generating');
+      }
+    },
+    [opportunities, executeGeneration],
+  );
+
+  const handleOpenCompletedFromHistory = useCallback(async (historyRun: AutonomousDesignRun) => {
+    try {
+      const collectionPlan = historyRun.collectionPlanId ? await getCollectionPlan(historyRun.collectionPlanId) : undefined;
+      if (!collectionPlan) {
+        setGenerationError('Cannot open — the run is missing its Collection Plan.');
+        setStep('generating');
+        return;
+      }
+      const snapshots = await loadQualitySnapshots();
+      setRun(historyRun);
+      setPlan(historyRun.designPlan);
+      setSummary(buildAutopilotResultSummary(historyRun, collectionPlan, snapshots));
+      setStep('review');
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : String(err));
+    }
+  }, []);
+
+  const handleDuplicateFromHistory = useCallback(async (historyRun: AutonomousDesignRun) => {
+    if (!historyRun.designPlan) return;
+    let duplicated = createAutonomousDesignRun({
+      mode: historyRun.mode,
+      requestedCount: historyRun.requestedCount,
+      sourceEvidence: historyRun.sourceEvidence,
+      constraints: historyRun.constraints,
+    });
+    duplicated = { ...duplicated, designPlan: historyRun.designPlan };
+    duplicated = transitionAutonomousDesignRun(duplicated, 'PLAN_READY', Date.now(), `Duplicated from run ${historyRun.id} with a new seed — not yet regenerated.`);
+    await putAutonomousDesignRun(duplicated);
+    setMode(historyRun.mode);
+    setRequestedCount(historyRun.requestedCount);
+    setRun(duplicated);
+    setPlan(historyRun.designPlan);
+    setStep('plan');
+  }, []);
+
   const availableCategories = useMemo(() => supportedCategoryIds(), []);
   const constraintConflicts = useMemo(() => detectConstraintConflicts(constraints, availableCategories), [constraints, availableCategories]);
 
@@ -297,15 +377,31 @@ export function AutopilotView({ onClose }: Props) {
     <div className="autopilot">
       <div className="autopilot-header">
         <h1>✨ ออกแบบให้ฉันวันนี้ / Design for Me Today</h1>
-        <button type="button" className="btn" onClick={onClose}>
-          ← กลับ
-        </button>
+        <div>
+          {step !== 'history' && (
+            <button type="button" className="btn" onClick={() => setStep('history')}>
+              📜 ประวัติ
+            </button>
+          )}
+          <button type="button" className="btn" onClick={onClose}>
+            ← กลับ
+          </button>
+        </div>
       </div>
 
       {loadError && (
         <div className="autopilot-error" role="alert">
           Could not load Autopilot data: {loadError}
         </div>
+      )}
+
+      {step === 'history' && (
+        <AutopilotHistoryView
+          onResume={handleResumeFromHistory}
+          onOpenCompleted={handleOpenCompletedFromHistory}
+          onDuplicate={handleDuplicateFromHistory}
+          onClose={() => setStep('goal')}
+        />
       )}
 
       {step === 'goal' && (

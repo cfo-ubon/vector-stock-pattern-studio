@@ -80,9 +80,23 @@ export interface AutonomousDesignRun {
   /** The index of the next item to process — what `resume` continues from
    * after a reload or a pause, never re-running an already-completed item. */
   resumeFromIndex: number;
+  /** Module 11 (Autopilot History) — an archived run is hidden from the
+   * default history list but never deleted, mirroring `PortfolioAsset`'s
+   * own `isArchived`/`archivedAt` convention. Optional for backward
+   * compatibility with runs persisted before this field existed — always
+   * read via `isAutonomousRunArchived()` below, never `run.archived`
+   * directly. */
+  archived?: boolean;
+  archivedAt?: number | null;
   createdAt: number;
   updatedAt: number;
   schemaVersion: number;
+}
+
+/** Safe accessor for `archived` — a run persisted before this field
+ * existed reads as "not archived" rather than `undefined`. */
+export function isAutonomousRunArchived(run: AutonomousDesignRun): boolean {
+  return run.archived === true;
 }
 
 export const AUTONOMOUS_DESIGN_RUN_SCHEMA_VERSION = 1;
@@ -153,6 +167,8 @@ export function createAutonomousDesignRun(input: CreateAutonomousDesignRunInput)
     errors: [],
     cancelledAt: null,
     resumeFromIndex: 0,
+    archived: false,
+    archivedAt: null,
     createdAt: now,
     updatedAt: now,
     schemaVersion: AUTONOMOUS_DESIGN_RUN_SCHEMA_VERSION,
@@ -196,6 +212,18 @@ export function transitionAutonomousDesignRun(run: AutonomousDesignRun, status: 
 
 export function currentAutonomousRunStatus(run: AutonomousDesignRun): AutonomousRunStatus {
   return run.status;
+}
+
+/** Archives a run — never changes `status`/`history` (archiving is
+ * orthogonal to the run's own lifecycle, same separation
+ * `PortfolioAsset.isArchived` keeps from `workflowStatus`), so an archived
+ * run still honestly reports what actually happened to it. */
+export function archiveAutonomousDesignRun(run: AutonomousDesignRun, now: number = Date.now()): AutonomousDesignRun {
+  return { ...run, archived: true, archivedAt: now, updatedAt: now };
+}
+
+export function unarchiveAutonomousDesignRun(run: AutonomousDesignRun, now: number = Date.now()): AutonomousDesignRun {
+  return { ...run, archived: false, archivedAt: null, updatedAt: now };
 }
 
 export function isValidAutonomousDesignRun(value: unknown): value is AutonomousDesignRun {

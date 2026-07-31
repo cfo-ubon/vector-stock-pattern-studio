@@ -3,6 +3,9 @@ import {
   createAutonomousDesignRun,
   transitionAutonomousDesignRun,
   isValidAutonomousDesignRun,
+  isAutonomousRunArchived,
+  archiveAutonomousDesignRun,
+  unarchiveAutonomousDesignRun,
   InvalidAutonomousDesignRunInputError,
   InvalidAutonomousRunTransitionError,
 } from './autonomousDesignRun';
@@ -68,6 +71,26 @@ describe('transitionAutonomousDesignRun', () => {
       run = transitionAutonomousDesignRun(run, 'CANCELLED', 4);
       expect(run.status).toBe('CANCELLED');
     }
+  });
+});
+
+describe('archiveAutonomousDesignRun / unarchiveAutonomousDesignRun', () => {
+  it('archives without touching status or history, and a pre-archive-field run reads as not archived', () => {
+    let run = createAutonomousDesignRun({ mode: 'FULL_AUTOPILOT', requestedCount: 5, now: 1 });
+    expect(isAutonomousRunArchived(run)).toBe(false);
+
+    const legacyRun = { ...run, archived: undefined };
+    expect(isAutonomousRunArchived(legacyRun)).toBe(false);
+
+    run = archiveAutonomousDesignRun(run, 100);
+    expect(isAutonomousRunArchived(run)).toBe(true);
+    expect(run.archivedAt).toBe(100);
+    expect(run.status).toBe('PLAN_DRAFT');
+    expect(run.history).toHaveLength(1);
+
+    run = unarchiveAutonomousDesignRun(run, 200);
+    expect(isAutonomousRunArchived(run)).toBe(false);
+    expect(run.archivedAt).toBeNull();
   });
 });
 
