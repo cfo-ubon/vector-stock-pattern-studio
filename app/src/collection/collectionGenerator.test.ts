@@ -75,14 +75,22 @@ describe('generateCollection: Style DNA / palette / motif family sharing (accept
     expect(manifest.consistency.consistent).toBe(true);
   });
 
-  it('the positive-path guarantee holds across a sample of built-in Style DNA presets', () => {
-    const sample = [STYLE_DNA_PRESETS.editorialBotanical, STYLE_DNA_PRESETS.luxuryWallpaper, STYLE_DNA_PRESETS.modernTropical, STYLE_DNA_PRESETS.kidsPlayful];
-    for (const dna of sample) {
-      const params = { ...defaultParams(), ...resolveStyleDna(dna, 'collection-consistency-sweep') };
-      const { manifest } = generateCollection(params, dna);
-      expect(manifest.consistency.consistent).toBe(true);
-    }
-  });
+  it(
+    'the positive-path guarantee holds across a sample of built-in Style DNA presets',
+    () => {
+      // Four full collection builds in one test — past the global 15000ms
+      // default under full-suite worker contention on slower/fewer-core CI
+      // runners; same headroom reasoning as the layout-diversity sweep
+      // test below and the Design Spec determinism test's own override.
+      const sample = [STYLE_DNA_PRESETS.editorialBotanical, STYLE_DNA_PRESETS.luxuryWallpaper, STYLE_DNA_PRESETS.modernTropical, STYLE_DNA_PRESETS.kidsPlayful];
+      for (const dna of sample) {
+        const params = { ...defaultParams(), ...resolveStyleDna(dna, 'collection-consistency-sweep') };
+        const { manifest } = generateCollection(params, dna);
+        expect(manifest.consistency.consistent).toBe(true);
+      }
+    },
+    30000,
+  );
 
   it('verifyConsistency genuinely flags a real disagreement (palette/style/category) — regression guard', () => {
     const base = defaultParams();
@@ -342,15 +350,23 @@ describe('generateCollection: Layout Variation (Section 5)', () => {
     expect(new Set(layouts).size).toBe(layouts.length);
   });
 
-  it('layout diversity holds across a sample of built-in Style DNA presets too', () => {
-    const sample = [STYLE_DNA_PRESETS.editorialBotanical, STYLE_DNA_PRESETS.luxuryWallpaper, STYLE_DNA_PRESETS.kidsPlayful];
-    for (const dna of sample) {
-      const params = { ...defaultParams(), ...resolveStyleDna(dna, 'collection-layout-dna-sweep') };
-      const { patternTiles } = generateCollection(params, dna);
-      const layouts = patternTiles.map((t) => t.params.layoutId);
-      expect(new Set(layouts).size).toBe(layouts.length);
-    }
-  });
+  it(
+    'layout diversity holds across a sample of built-in Style DNA presets too',
+    () => {
+      // Three full collection builds in one test (one per preset) — past
+      // the global 15000ms default under full-suite worker contention on
+      // slower/fewer-core CI runners; same headroom reasoning as the
+      // Design Spec determinism test's own override.
+      const sample = [STYLE_DNA_PRESETS.editorialBotanical, STYLE_DNA_PRESETS.luxuryWallpaper, STYLE_DNA_PRESETS.kidsPlayful];
+      for (const dna of sample) {
+        const params = { ...defaultParams(), ...resolveStyleDna(dna, 'collection-layout-dna-sweep') };
+        const { patternTiles } = generateCollection(params, dna);
+        const layouts = patternTiles.map((t) => t.params.layoutId);
+        expect(new Set(layouts).size).toBe(layouts.length);
+      }
+    },
+    30000,
+  );
 
   it('mini pattern no longer silently inherits the hero pattern layout', () => {
     const { patternParams } = generateCollection({ ...defaultParams(), layoutId: 'grid', seed: 'collection-mini-layout' });

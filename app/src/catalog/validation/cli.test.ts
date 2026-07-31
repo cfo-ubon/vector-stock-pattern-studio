@@ -17,9 +17,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, '..', '..', '..');
 const OUTPUT_DIR = path.join(APP_ROOT, 'validation-results', 'collections');
 
+// `execFileSync` (unlike `exec`) does not go through a shell, so on
+// Windows it needs the real `npx.cmd` shim name — plain `npx` isn't a
+// resolvable executable there and the spawn fails before the child
+// process even starts.
+const NPX_BIN = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+
 function runCli(mode: string): { stdout: string; status: number } {
   try {
-    const stdout = execFileSync('npx', ['tsx', 'scripts/validateCollections.ts', mode], { cwd: APP_ROOT, encoding: 'utf-8', timeout: 60000 });
+    const stdout = execFileSync(NPX_BIN, ['tsx', 'scripts/validateCollections.ts', mode], { cwd: APP_ROOT, encoding: 'utf-8', timeout: 60000 });
     return { stdout, status: 0 };
   } catch (err) {
     const e = err as { stdout?: string; status?: number | null };

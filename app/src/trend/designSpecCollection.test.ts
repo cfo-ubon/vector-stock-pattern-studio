@@ -84,13 +84,17 @@ describe('buildCollectionFromDesignSpec', () => {
       // pattern-type tiles instead of 6 (Commercial Collection Engine
       // Phase 4b adds Dense Pattern + Airy Pattern) — bumped past the
       // previous 15000ms override for the same reason it existed at all.
+      // Bumped again to 60000ms: under full-suite worker contention on
+      // slower/fewer-core CI runners (e.g. GitHub's windows-latest), the
+      // 30000ms budget was observed timing out even though the same test
+      // completes in a few seconds in isolation.
       const spec = buildDesignSpecification({ keywordBundle: makeBundle(), trendPackId: '2026-Q2', createdAt: 1000 });
       const a = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       const b = buildCollectionFromDesignSpec(spec, 'seed-collection-det');
       expect({ ...a.manifest, createdAt: null }).toEqual({ ...b.manifest, createdAt: null });
       expect(a.assets).toEqual(b.assets);
     },
-    30000,
+    60000,
   );
 
   it(
