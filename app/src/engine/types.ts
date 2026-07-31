@@ -443,6 +443,12 @@ export interface GeneratorHandoffLineage {
   generatorVersion: string;
   seed: string;
   appliedAt: number;
+  /** Build 029 — the `AutonomousDesignRun.id` this pattern was generated
+   * under, when generation happened through the "ออกแบบให้ฉันวันนี้"
+   * Autopilot pipeline rather than a manual Send-to-Generator handoff.
+   * `null`/undefined for every manually-applied handoff (Build 028B/028C),
+   * never fabricated for those. */
+  autonomousDesignRunId?: string | null;
 }
 
 export interface TileData {
