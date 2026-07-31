@@ -4,7 +4,7 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.83
+> **Application Version:** v1.84
 > **Development Build:** Build 027 (Offline PC and iPad Application
 > Package — in progress; see `BUILD_027_AUDIT.md`)
 > **Source Commit:** (see the commit that introduced this line)
@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v1.84 | Build 027 (Phase 5) | *(see the commit that introduced this line)* | Responsive iPad UI audit + fixes, GitHub Actions Windows build workflow | On branch `claude/build-027-offline-pc-ipad`, not merged to `main` |
 | v1.83 | Build 027 (Phase 4) | *(see the commit that introduced this line)* | Windows desktop app (Electron) — installer + portable build, verified on Linux only | On branch `claude/build-027-offline-pc-ipad`, not merged to `main` |
 | v1.82 | Build 027 (Phase 2-3) | *(see prior commit)* | iPad offline PWA (service worker, storage/backup safety) | On branch `claude/build-027-offline-pc-ipad`, not merged to `main` |
 | v1.80 | Build 026 | `d45498f` | Production Portfolio & Commercial Feedback Engine | On branch `claude/build-026-production-commercial-feedback`, not merged to `main` |
@@ -1339,6 +1340,29 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.84 — 31 ก.ค. 2026 — ปรับปรุงการใช้งานบน iPad (Responsive iPad UI Audit) 🆕
+
+- 📱 **แก้ไขจุดที่ใช้งานยากบน iPad**: ปุ่มเมนู JSON ใน Design Workbench ที่เดิม
+  ซ่อนอยู่จนกว่าจะเอาเมาส์ชี้ (ใช้ไม่ได้บนหน้าจอสัมผัส) ตอนนี้แสดงตลอดเวลาบน
+  อุปกรณ์สัมผัส, ปุ่มในแถบสถานะออฟไลน์ขยายเป็นขนาดอย่างน้อย 44px ตามมาตรฐาน
+  การแตะ, ตารางในศูนย์การผลิตและ Backup Manager เลื่อนแนวนอนได้ในตัวเองแทน
+  ที่จะดันทั้งหน้าให้เลื่อนเบี้ยว
+- 📐 **แก้ปัญหาความสูงหน้าจอ iPad Safari**: เปลี่ยนจุดที่ใช้ `100vh` เป็น
+  `100dvh` (พร้อม fallback) ทั่วแอป — ป้องกันเนื้อหาถูกตัดขาดเมื่อแถบเครื่องมือ
+  ของ Safari ยุบ/ขยายระหว่างเลื่อนหน้าจอ, กล่องโต้ตอบ (modal) ทั้งหมดเพิ่ม
+  `overscroll-behavior: contain` ป้องกันการเลื่อนทะลุไปหน้าหลังกล่อง
+- 📲 **แนวความกว้างจอสำหรับ iPad**: ปรับจุดพับเลย์เอาต์จาก 800px เป็น 850px
+  ให้ครอบคลุม iPad mini/Air/Pro 11" แนวตั้งพอดี และเพิ่มกติกา
+  `@media (hover: none)` แยกสำหรับขนาดปุ่มสัมผัส ซึ่งใช้ได้แม้ในแนวนอนของ
+  iPad ที่กว้างเกินจุดพับเลย์เอาต์
+- ✅ **ตรวจสอบจริงด้วยเบราว์เซอร์จำลอง iPad**: ทดสอบอัตโนมัติ 22 รายการ
+  ครอบคลุมแนวตั้ง/แนวนอน, การนำทาง, การสร้าง/กู้คืนไฟล์ `.vspsb` จริง,
+  การรีโหลดแบบออฟไลน์, และไม่มี error ใน console — ผ่าน 21/22 (รายการเดียวที่
+  ไม่ผ่านเป็นลำดับการตรวจสอบของสคริปต์เอง ไม่ใช่ข้อบกพร่องของแอป)
+- ⚠️ **สถานะการติดตั้งจริงบน iPad**: ยังไม่ได้ทดสอบการติดตั้งจริงบน iPad
+  จริง — จำลองผ่านเบราว์เซอร์เท่านั้น (PASS); การติดตั้งจริงยังคง **PENDING
+  USER VERIFICATION**
 
 ### v1.83 — 30 ก.ค. 2026 — แอปพลิเคชัน Windows แบบออฟไลน์ (Electron Desktop App) 🆕
 

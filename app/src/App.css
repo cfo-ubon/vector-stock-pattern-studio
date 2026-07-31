@@ -30,7 +30,8 @@ body {
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* fallback for browsers without dvh support */
+  min-height: 100dvh; /* iPad/mobile Safari: excludes the collapsing toolbar so content isn't clipped */
 }
 
 .app-header {
@@ -987,7 +988,10 @@ body {
   font-size: 0.75rem;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 850px) {
+  /* 850px (not 800px) so this also covers iPad mini/Air portrait (768px)
+     and iPad Pro 11" portrait (834px) — both are genuinely too narrow for
+     a 300px-fixed control column + content area to be comfortable. */
   .app-body {
     grid-template-columns: 1fr;
   }
@@ -997,17 +1001,9 @@ body {
     /* Bounded height turns this into its own scroll region (instead of the
        whole page scrolling past a long stacked control list before
        reaching Generate/Export), which is what makes the sticky action
-       bar below actually stick to something meaningful on a phone. */
+       bar below actually stick to something meaningful on a phone/iPad. */
     max-height: 65vh;
-  }
-  /* Real touch targets — Apple/Google's ~44px guideline — instead of the
-     desktop-sized chips/buttons that were previously the only option here. */
-  .control-section summary,
-  .btn,
-  .chip,
-  .stepper-btn,
-  .palette-swatch {
-    min-height: 44px;
+    max-height: 65dvh;
   }
   .chip-row {
     gap: 0.4rem;
@@ -1016,6 +1012,21 @@ body {
     border-top: 1px solid var(--border);
     margin: 0 -1rem -1rem;
     padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Real touch targets — Apple/Google's ~44px guideline — gated on actual
+   touch capability (not viewport width) so it also applies on iPad
+   landscape (1024px+) and iPad Pro 12.9" portrait (1024px), which are too
+   wide to match the 850px layout-stacking breakpoint above but are still
+   touch-only devices that need larger hit targets than a mouse cursor. */
+@media (hover: none) and (pointer: coarse) {
+  .control-section summary,
+  .btn,
+  .chip,
+  .stepper-btn,
+  .palette-swatch {
+    min-height: 44px;
   }
 }
 

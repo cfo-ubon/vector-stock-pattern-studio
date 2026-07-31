@@ -53,6 +53,17 @@
   text-decoration: underline;
 }
 
+/* Bump to the ~44px touch-target guideline on touch-only devices (iPad
+   included) — 32px is fine for a mouse cursor but too small to reliably
+   tap, and this bar's buttons (persist storage, install guide, cleanup)
+   are functionally important, not decorative. */
+@media (hover: none) and (pointer: coarse) {
+  .offline-status-link {
+    min-height: 44px;
+    padding: 6px 10px;
+  }
+}
+
 .offline-update-banner {
   display: flex;
   align-items: center;
@@ -85,7 +96,9 @@
   max-width: 480px;
   width: 100%;
   max-height: 90vh;
+  max-height: 90dvh; /* excludes iPad Safari's collapsing toolbar height */
   overflow-y: auto;
+  overscroll-behavior: contain; /* stop scroll chaining to the page body once the panel's own scroll ends */
   -webkit-overflow-scrolling: touch;
   padding: 20px;
 }

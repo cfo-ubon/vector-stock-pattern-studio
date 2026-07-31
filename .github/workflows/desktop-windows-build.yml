@@ -1,0 +1,125 @@
+name: Windows Desktop Build
+
+# Build 027 Phase 4/5 — builds the Windows desktop app (installer +
+# portable) natively on a real windows-latest runner. Unlike the Linux
+# sandbox this project is otherwise developed in (which needed
+# wine/wine32:i386 installed manually to cross-compile), a Windows runner
+# builds electron-builder's NSIS installer with no workaround needed —
+# this is the authoritative, reproducible way to produce these artifacts.
+#
+# This workflow does NOT install or launch the built .exe — GitHub-hosted
+# Windows runners are themselves sandboxed/ephemeral and cannot stand in
+# for a real user's Windows 11 machine. Actual install/launch verification
+# stays a manual step for a human on real hardware; see
+# docs/WINDOWS_INSTALLATION.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Publish a prerelease GitHub Release with the built artifacts"
+        type: boolean
+        default: false
+  push:
+    branches:
+      - claude/build-027-offline-pc-ipad
+      - main
+    paths:
+      - "app/electron/**"
+      - "app/src/**"
+      - "app/package.json"
+      - "app/package-lock.json"
+      - "app/electron-builder.yml"
+      - "app/tsconfig.electron.json"
+      - "app/vite.config.desktop.ts"
+      - ".github/workflows/desktop-windows-build.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Type-check (renderer + full /app)
+        run: npx tsc -b
+
+      - name: Type-check (Electron main/preload)
+        run: npx tsc -p tsconfig.electron.json --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run full test suite
+        run: npm test
+
+      - name: Build Windows installer + portable (native, no wine needed)
+        run: npm run desktop:build:windows
+
+      - name: Compute SHA-256 checksums
+        shell: pwsh
+        run: |
+          $dir = "release/VectorStockPatternStudio_Desktop/build-tmp"
+          $lines = Get-ChildItem "$dir/*.exe" | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)"
+          }
+          $lines | Set-Content "$dir/SHA256SUMS.txt"
+          Get-Content "$dir/SHA256SUMS.txt"
+
+      - name: Stage verification docs alongside artifacts
+        shell: pwsh
+        run: |
+          $dir = "release/VectorStockPatternStudio_Desktop/build-tmp"
+          Copy-Item scripts/verifyWindowsInstall.ps1 "$dir/"
+          Copy-Item ../docs/WINDOWS_INSTALLATION.md "$dir/"
+
+      - name: Report artifact sizes
+        shell: pwsh
+        run: |
+          Get-ChildItem "release/VectorStockPatternStudio_Desktop/build-tmp/*.exe" |
+            Select-Object Name, @{Name = "SizeMB"; Expression = { [math]::Round($_.Length / 1MB, 1) } }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vector-stock-pattern-studio-windows-${{ github.sha }}
+          path: |
+            app/release/VectorStockPatternStudio_Desktop/build-tmp/*.exe
+            app/release/VectorStockPatternStudio_Desktop/build-tmp/SHA256SUMS.txt
+            app/release/VectorStockPatternStudio_Desktop/build-tmp/verifyWindowsInstall.ps1
+            app/release/VectorStockPatternStudio_Desktop/build-tmp/WINDOWS_INSTALLATION.md
+          retention-days: 30
+
+      - name: Create prerelease
+        if: ${{ inputs.create_release == true }}
+        shell: bash
+        working-directory: app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          short_sha="${GITHUB_SHA:0:7}"
+          gh release create "desktop-windows-${short_sha}" \
+            release/VectorStockPatternStudio_Desktop/build-tmp/VectorStockPatternStudio-Setup-x64.exe \
+            release/VectorStockPatternStudio_Desktop/build-tmp/VectorStockPatternStudio-Portable-x64.exe \
+            release/VectorStockPatternStudio_Desktop/build-tmp/SHA256SUMS.txt \
+            --title "Windows Desktop Build (${short_sha})" \
+            --notes "Automated Windows desktop build from commit ${GITHUB_SHA}. Source/tests/native Windows build: PASS. Real install/launch verification on a physical Windows 11 machine: PENDING — see docs/WINDOWS_INSTALLATION.md." \
+            --prerelease

@@ -69,6 +69,21 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/testSetup.ts'],
+    // `tests/e2e/*.spec.ts` are Playwright Test files (see
+    // playwright.config.ts, run via `npm run test:e2e`) — they import
+    // `test`/`expect` from the `playwright/test` package, not vitest, and
+    // vitest's default glob would otherwise pick them up and fail trying
+    // to execute Playwright's own test-registration API as if it were
+    // vitest's.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/dist-desktop/**',
+      '**/dist-electron/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cjs,mocha,eslint}.config.*',
+      'tests/e2e/**',
+    ],
     // Project Phoenix V2's Cluster Composition Engine places more motifs
     // per tile than the old independent-scatter layouts did (by design —
     // richer clusters instead of isolated points, see

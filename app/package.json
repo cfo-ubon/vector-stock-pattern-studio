@@ -36,8 +36,12 @@
     "desktop:build": "npm run desktop:build:renderer && npm run desktop:build:main",
     "desktop:installer": "npm run desktop:build && electron-builder --win nsis --x64",
     "desktop:portable": "npm run desktop:build && electron-builder --win portable --x64",
+    "desktop:build:windows": "npm run desktop:build && electron-builder --win nsis portable --x64",
     "desktop:test": "npm test && tsc -p tsconfig.electron.json --noEmit",
-    "desktop:smoke": "node scripts/electronSmokeTest.mjs"
+    "desktop:smoke": "node scripts/electronSmokeTest.mjs",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:ipad-portrait": "npm run build && playwright test --project=ipad-portrait",
+    "test:e2e:ipad-landscape": "npm run build && playwright test --project=ipad-landscape"
   },
   "dependencies": {
     "react": "^19.2.7",

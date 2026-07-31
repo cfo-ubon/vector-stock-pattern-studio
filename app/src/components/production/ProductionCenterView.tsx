@@ -648,6 +648,9 @@ function HistoricalImportTab() {
       <section className="production-card">
         <h2>นำเข้าผลงานเก่า</h2>
         <p>เลือกโฟลเดอร์ portfolio_phase_1/, portfolio_phase_1b_review/ หรือ reports/build_02x/ — ไฟล์ต้นฉบับจะไม่ถูกแก้ไขหรือลบ</p>
+        <p className="production-hint">
+          บน iPad (Safari) ไม่รองรับการเลือกทั้งโฟลเดอร์ — กรุณาเลือกไฟล์ทั้งหมดในโฟลเดอร์พร้อมกันแทน (แตะเลือกหลายไฟล์ได้ในหน้าต่างเลือกไฟล์)
+        </p>
         <input
           type="file"
           multiple

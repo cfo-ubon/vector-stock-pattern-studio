@@ -64,6 +64,14 @@
 }
 
 .production-table {
+  /* `display: block` on the table itself (its rows/cells keep their normal
+     table display values) turns the table into its own horizontally-
+     scrollable region instead of forcing the whole page to scroll
+     sideways — needed since these tables have 4+ columns of Thai-language
+     content that won't fit on a 768px iPad-portrait viewport. */
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
@@ -79,6 +87,11 @@
 
 .production-error-text {
   color: #e07a7a;
+}
+
+.production-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
 }
 
 .btn--small {

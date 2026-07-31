@@ -63,6 +63,13 @@
 }
 
 .backup-table {
+  /* See productionCenter.css's `.production-table` for why this uses
+     `display: block` + `overflow-x: auto` on the table element itself
+     rather than a wrapper div — contains horizontal overflow to the
+     table on a narrow iPad-portrait viewport instead of the whole page. */
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;

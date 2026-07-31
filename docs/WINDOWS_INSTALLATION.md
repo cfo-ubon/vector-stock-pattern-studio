@@ -20,6 +20,46 @@ see `app/electron/main.ts` and `app/electron/preload.ts`.
 A `SHA256SUMS.txt` is included alongside both files. **Verify the hash
 before running either .exe** — see Step 1 below.
 
+## How to get the files
+
+These `.exe` files (~90-100 MB each) are never committed to git — they are
+build output, not source. There are two ways to get real copies:
+
+**Option A — GitHub Actions (recommended, no local build needed).**
+`.github/workflows/desktop-windows-build.yml` builds both artifacts on a
+real `windows-latest` GitHub Actions runner (native NSIS build, no `wine`
+workaround needed — that was only required for this project's own Linux
+development sandbox). On GitHub, go to **Actions → Windows Desktop
+Build → Run workflow** (or let it run automatically on a push to
+`claude/build-027-offline-pc-ipad`/`main` that touches `app/electron/**`),
+wait for the run to finish, then open the run and download the
+`vector-stock-pattern-studio-windows-<commit-sha>` artifact zip from the
+**Artifacts** section at the bottom of the run page. It contains both
+`.exe` files, `SHA256SUMS.txt`, `verifyWindowsInstall.ps1`, and this
+document. Workflow artifacts expire after 30 days; if you need a
+longer-lived copy, re-run the workflow with **Publish a prerelease GitHub
+Release** enabled — it uploads the same files to a `desktop-windows-<sha>`
+prerelease under the repo's Releases tab.
+
+**Option B — build from source on your own Windows machine** (also useful
+to reproduce the exact bits yourself, or to build a newer commit before a
+workflow run exists for it):
+
+```powershell
+git clone https://github.com/cfo-ubon/vector-stock-pattern-studio.git
+cd vector-stock-pattern-studio\app
+npm ci
+npm run desktop:build:windows
+```
+
+This produces both `.exe` files under
+`release\VectorStockPatternStudio_Desktop\build-tmp\`. Compute your own
+`SHA256SUMS.txt` with `Get-FileHash *.exe -Algorithm SHA256` — a
+locally-built copy will not match a CI-built copy byte-for-byte (build
+timestamps differ), so only compare a file's hash against the
+`SHA256SUMS.txt` that shipped alongside *that specific* file, never a
+different build's.
+
 ## Why this document exists
 
 This project is built inside a Linux sandbox with no Windows runtime, no

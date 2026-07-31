@@ -120,6 +120,7 @@
   flex-direction: column;
   gap: 0.75rem;
   max-height: calc(100vh - 10rem);
+  max-height: calc(100dvh - 10rem);
   overflow-y: auto;
   position: sticky;
   top: 1rem;
@@ -240,6 +241,17 @@
 .json-tree-branch:hover > .json-tree-toggle + .json-tree-menu .json-tree-menu-trigger,
 .json-tree-menu-trigger:focus {
   visibility: visible;
+}
+
+/* Touch devices have no :hover state, so a trigger that's only revealed on
+   hover (or on keyboard focus, which a tap doesn't grant) would be
+   invisible and untappable — visibility: hidden elements don't receive
+   pointer events at all. Keep it always visible when there's no hover
+   capability, so tapping the row directly reveals/uses the menu. */
+@media (hover: none) {
+  .json-tree-menu-trigger {
+    visibility: visible;
+  }
 }
 
 .json-tree-menu-popup {
