@@ -4,6 +4,12 @@ dist-ssr
 *.local
 .DS_Store
 
+# Desktop packaging output and one-off review/report artifacts — never part
+# of the committed source tree per this repo's standing build rules.
+/release/
+/portfolio_phase_1/
+/portfolio_phase_1b_review/
+
 # Build 013 (Portfolio Intelligence): the raw 5,000-pattern generation
 # manifest and its resume checkpoint are large (tens of MB) intermediate
 # working data, not the "lightweight manifest" artifact the build brief asks

@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Desktop packaging output and Playwright test artifacts — never part of
+# the committed source tree per this repo's standing build rules.
+dist-desktop/
+dist-electron/
+dist-standalone/
+test-results/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
