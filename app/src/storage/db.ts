@@ -101,7 +101,21 @@ export const DB_NAME = 'vsp-db';
 // exactly that shape already — this build is simply its first real writer,
 // matching this file's own "schema ahead of the module that first uses it"
 // convention (see the v8 comment).
-export const DB_VERSION = 12;
+// v13 (Build 031A, Commercial Production Pipeline): adds one new store,
+// `commercialPackageHistory` — the append-only record of every Commercial
+// Package actually built (Phase 2/8: Business Metrics' Packages-per-Hour/
+// Ready-Today/Ready-This-Week/Owner-Time-Saved figures all read this, the
+// same "derive from a real append-only event log, never a live counter
+// that can drift" pattern `recommendationHistory` (v8) and
+// `aiCeoBriefs`/`portfolioDiagnoses` (v12) already use). Everything else
+// Build 031A needs — Commercial Readiness, the Export Readiness Dashboard,
+// Collection Completeness, the AI Recommendation — is computed live from
+// stores that already exist (`portfolioAssets`, `qualitySnapshots`,
+// `submissions`, `collections`), matching `catalog/dashboard/
+// readinessAnalytics.ts`'s and `recommendationEngine.ts`'s own
+// "derived, not stored" convention, so no new store is needed for those.
+export const DB_VERSION = 13;
+export const COMMERCIAL_PACKAGE_HISTORY_STORE = 'commercialPackageHistory';
 export const AI_CEO_BRIEFS_STORE = 'aiCeoBriefs';
 export const BUSINESS_GOALS_STORE = 'businessGoals';
 export const AI_CONVERSATIONS_STORE = 'aiConversations';
@@ -332,6 +346,11 @@ export function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(BUSINESS_COACH_RECOMMENDATIONS_STORE)) {
           const coachRecs = db.createObjectStore(BUSINESS_COACH_RECOMMENDATIONS_STORE, { keyPath: 'id' });
           coachRecs.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(COMMERCIAL_PACKAGE_HISTORY_STORE)) {
+          const packageHistory = db.createObjectStore(COMMERCIAL_PACKAGE_HISTORY_STORE, { keyPath: 'id' });
+          packageHistory.createIndex('createdAt', 'createdAt', { unique: false });
+          packageHistory.createIndex('assetId', 'assetId', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
