@@ -22,6 +22,7 @@ function fakeRecommendation(overrides: Partial<AiCeoRecommendation> = {}): AiCeo
     autopilotAction: { mode: 'FULL_AUTOPILOT', requestedCount: 10, marketplace: null, productionGoal: 'auto' },
     navigateTarget: null,
     memoryInfluence: [],
+    decisionTrace: null,
     ...overrides,
   };
 }

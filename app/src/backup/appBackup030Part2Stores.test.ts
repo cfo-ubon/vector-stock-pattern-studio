@@ -90,6 +90,7 @@ describe('.vspsb — non-empty round trip across every new store', () => {
         autopilotAction: null,
         navigateTarget: null,
         memoryInfluence: [],
+        decisionTrace: null,
       },
       alternativeRecommendations: [],
       portfolioImpact: 'Unknown',

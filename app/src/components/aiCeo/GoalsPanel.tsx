@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { loadActiveBusinessGoals, saveNewBusinessGoal, completeBusinessGoal, archiveBusinessGoal, REVENUE_GOAL_WARNING } from '../../aiCeo/businessGoals';
 import { BUSINESS_GOAL_TYPE_VALUES, type BusinessGoal, type BusinessGoalType } from '../../aiCeo/domain/types';
 
@@ -30,17 +30,25 @@ export function GoalsPanel() {
   const [notes, setNotes] = useState('');
   const [showRevenueWarning, setShowRevenueWarning] = useState(false);
 
+  const mountedRef = useRef(true);
+
   const reload = useCallback(async () => {
     try {
-      setGoals(await loadActiveBusinessGoals());
+      const loaded = await loadActiveBusinessGoals();
+      if (!mountedRef.current) return;
+      setGoals(loaded);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      if (mountedRef.current) setError(err instanceof Error ? err.message : String(err));
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     void reload();
+    return () => {
+      mountedRef.current = false;
+    };
   }, [reload]);
 
   const handleSubmit = useCallback(

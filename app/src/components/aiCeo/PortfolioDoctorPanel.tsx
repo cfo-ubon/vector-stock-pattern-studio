@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateAndSavePortfolioDiagnosis, defaultPortfolioDoctorPreferences, DEFAULT_OVERSUPPLY_SHARE, type PortfolioDoctorPreferences } from '../../aiCeo/portfolioDoctor';
 import type { PortfolioDiagnosis, AiCeoAutopilotHandoff, DecisionTrace } from '../../aiCeo/domain/types';
 import type { AiCeoNavigateTarget } from './BusinessCoachPanel';
@@ -51,14 +51,24 @@ export function PortfolioDoctorPanel({ onAction }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [oversupplyPercent, setOversupplyPercent] = useState(Math.round(DEFAULT_OVERSUPPLY_SHARE * 100));
 
+  const mountedRef = useRef(true);
+
   const run = useCallback((preferences: PortfolioDoctorPreferences) => {
     generateAndSavePortfolioDiagnosis(preferences)
-      .then((d) => setDiagnosis(d))
-      .catch((err) => setError(err instanceof Error ? err.message : String(err)));
+      .then((d) => {
+        if (mountedRef.current) setDiagnosis(d);
+      })
+      .catch((err) => {
+        if (mountedRef.current) setError(err instanceof Error ? err.message : String(err));
+      });
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     run(defaultPortfolioDoctorPreferences());
+    return () => {
+      mountedRef.current = false;
+    };
   }, [run]);
 
   return (

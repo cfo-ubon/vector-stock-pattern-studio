@@ -25,6 +25,7 @@ export function ConversationPanel({ requestedCount, onAction }: Props) {
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const contextRef = useRef<ConversationContext | null>(null);
+  const mountedRef = useRef(true);
 
   const loadContext = useCallback(async () => {
     const [loaded, diagnosis] = await Promise.all([loadAiCeoDecisionContext(), generateAndSavePortfolioDiagnosis()]);
@@ -36,11 +37,15 @@ export function ConversationPanel({ requestedCount, onAction }: Props) {
       defaultRequestedCount: requestedCount,
     };
     contextRef.current = built;
-    setContext(built);
+    if (mountedRef.current) setContext(built);
   }, [requestedCount]);
 
   useEffect(() => {
+    mountedRef.current = true;
     void loadContext();
+    return () => {
+      mountedRef.current = false;
+    };
   }, [loadContext]);
 
   const handleSubmit = useCallback(
@@ -50,14 +55,15 @@ export function ConversationPanel({ requestedCount, onAction }: Props) {
       if (!trimmed || !contextRef.current) return;
       try {
         const result = await submitConversationMessage(trimmed, contextRef.current, { conversationId: conversationId ?? undefined });
-        setConversationId(result.conversation.id);
         const all = await loadAiConversationMessages(result.conversation.id);
+        if (!mountedRef.current) return;
+        setConversationId(result.conversation.id);
         setMessages(all);
         setText('');
         setError(null);
         onAction(result.response.autopilotAction, result.response.navigateTarget as AiCeoNavigateTarget | null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        if (mountedRef.current) setError(err instanceof Error ? err.message : String(err));
       }
     },
     [text, conversationId, onAction],

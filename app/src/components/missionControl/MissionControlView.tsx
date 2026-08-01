@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { loadMarketOpportunities } from '../../marketing/storage/marketOpportunityStore';
 import { loadDailyMissions } from '../../marketing/storage/dailyMissionStore';
 import { loadSeasonalEvents } from '../../marketing/storage/seasonalEventStore';
@@ -64,6 +64,14 @@ function formatGapLabel(gap: 'HIGH' | 'MEDIUM' | 'LOW'): string {
 }
 
 export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector, onOpenAutopilotHistory, onOpenAdvancedMode }: Props) {
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const [hero, setHero] = useState<HeroOpportunity | null>(null);
   const [status, setStatus] = useState<BusinessStatus | null>(null);
   const [offline, setOffline] = useState<OfflineSnapshotResult | null>(null);
@@ -78,10 +86,12 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
 
   const reloadBrief = useCallback(async () => {
     try {
-      setBrief(await generateAndSaveAiCeoBrief(DEFAULT_REQUESTED_COUNT));
+      const nextBrief = await generateAndSaveAiCeoBrief(DEFAULT_REQUESTED_COUNT);
+      if (!mountedRef.current) return;
+      setBrief(nextBrief);
       setBriefError(null);
     } catch (err) {
-      setBriefError(err instanceof Error ? err.message : String(err));
+      if (mountedRef.current) setBriefError(err instanceof Error ? err.message : String(err));
     }
   }, []);
 
@@ -137,6 +147,7 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
         getMostRecentSnapshotForOfflineUse(),
         loadBusinessStatus(),
       ]);
+      if (!mountedRef.current) return;
       setHero(
         buildHeroOpportunity({
           opportunities,
@@ -154,7 +165,7 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
       setOffline(offlineResult);
       setLoadError(null);
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : String(err));
+      if (mountedRef.current) setLoadError(err instanceof Error ? err.message : String(err));
     }
   }, []);
 

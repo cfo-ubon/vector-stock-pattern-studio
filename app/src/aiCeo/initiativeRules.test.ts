@@ -20,6 +20,7 @@ function fakeRecommendation(overrides: Partial<AiCeoRecommendation> = {}): AiCeo
     autopilotAction: null,
     navigateTarget: null,
     memoryInfluence: [],
+    decisionTrace: null,
     ...overrides,
   };
 }

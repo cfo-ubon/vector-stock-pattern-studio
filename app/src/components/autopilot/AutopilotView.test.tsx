@@ -95,17 +95,11 @@ describe('AutopilotView', () => {
 
     fireEvent.click(screen.getByText('สร้าง 5 ลาย'));
 
-    // `reload()` (including `loadAutonomousDesignRuns()`) resolves
-    // asynchronously after mount — retry the click until the Decision-OS-
-    // backed Generation Gate has real data to evaluate against, rather
-    // than racing a single click against that load.
-    await waitFor(
-      () => {
-        fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
-        expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    // `handleBuildPlan` fetches fresh portfolio/quality/run data at click
+    // time (rather than relying on `reload()`'s mount-time state), so the
+    // Generation Gate always evaluates against real data on the first click.
+    fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
+    await waitFor(() => expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument());
     expect(screen.getByText(/factory.completeExistingWorkFirst/)).toBeInTheDocument();
     expect(screen.queryByText('เหตุผลของแต่ละการตัดสินใจ')).not.toBeInTheDocument();
   });
@@ -119,13 +113,8 @@ describe('AutopilotView', () => {
     await waitFor(() => expect(screen.getByText('Autopilot Mode')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('สร้าง 5 ลาย'));
-    await waitFor(
-      () => {
-        fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
-        expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
+    await waitFor(() => expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('Generate Anyway'));
     await waitFor(() => expect(screen.getByText('เหตุผลของแต่ละการตัดสินใจ')).toBeInTheDocument());

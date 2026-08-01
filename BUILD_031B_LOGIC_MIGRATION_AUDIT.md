@@ -129,3 +129,33 @@ parallel decision. The one exception plausibly worth calling out is
 opportunity > seasonal > portfolio-gap > evergreen), which is structurally
 identical in spirit to the already-migrated marketplace 3-way fallback but
 was not migrated in this pass (see Autopilot section above).
+
+## 8. Hardening fixes found during verification
+
+Two real, non-obvious bugs were found and fixed while verifying this pass
+against a full regression run — neither was pre-supposed; both were caught
+by genuine test failures.
+
+**Autopilot generation-gate race condition.** `AutopilotView.handleBuildPlan`
+originally evaluated the new gate against component state
+(`portfolioAssets`/`qualitySnapshots`/`autonomousRuns`) populated by an
+async `Promise.all` fired on mount (`reload()`). Under load, a user (or a
+test) clicking "Build Plan" before that mount-time load resolved would have
+the gate evaluate against stale/empty data and incorrectly recommend
+`generate` even when real unfinished work existed — a genuine production
+race condition, not just a test artifact. Fixed by making `handleBuildPlan`
+fetch `loadPortfolioAssets()` / `loadQualitySnapshots()` /
+`loadAutonomousDesignRuns()` fresh at click time, closing the race
+structurally (verified clean across repeated runs) rather than papering
+over it with a test-side retry loop.
+
+**setState-after-unmount in four AI CEO panels.** `PortfolioDoctorPanel`,
+`ConversationPanel`, `GoalsPanel`, and `MissionControlView` each kick off
+async work in a mount-time `useEffect` and call `setState` on resolution.
+None guarded against the component having unmounted before that promise
+settled — under full-suite test load (many mount/unmount cycles in quick
+succession) this surfaced as an `Unhandled Rejection: ReferenceError:
+window is not defined` from React's `dispatchSetState` firing after jsdom
+teardown, reproduced independently of the Autopilot race above. Fixed with
+a standard `mountedRef` guard around every `setState` call reachable from
+async resolution in all four components.

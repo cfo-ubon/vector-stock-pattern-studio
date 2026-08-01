@@ -20,6 +20,7 @@ function fakeRecommendation(overrides: Partial<AiCeoRecommendation> = {}): AiCeo
     autopilotAction: { mode: 'FULL_AUTOPILOT', requestedCount: 10, marketplace: null, productionGoal: 'auto' },
     navigateTarget: null,
     memoryInfluence: [],
+    decisionTrace: null,
     ...overrides,
   };
 }
@@ -115,7 +116,7 @@ describe('respondToConversationIntent — real evidence-carrying responses', () 
     const response = respondToConversationIntent(
       { intent: 'checkPortfolio', extractedParameters: null },
       'ตรวจ Portfolio',
-      baseContext({ portfolioDiagnosis: { id: 'DIAG-1', createdAt: 1, overallVerdict: 'NEEDS_ATTENTION', findings: [{ code: 'x', verdict: 'NEEDS_ATTENTION', finding: 'Real finding text.', evidence: 'e', affectedCount: 1, confidence: 'high', recommendedAction: 'do x', sendToAutopilotAction: null }], schemaVersion: 1 } }),
+      baseContext({ portfolioDiagnosis: { id: 'DIAG-1', createdAt: 1, overallVerdict: 'NEEDS_ATTENTION', findings: [{ code: 'x', verdict: 'NEEDS_ATTENTION', finding: 'Real finding text.', evidence: 'e', affectedCount: 1, confidence: 'high', recommendedAction: 'do x', sendToAutopilotAction: null, decisionTrace: null }], schemaVersion: 1 } }),
     );
     expect(response.responseText).toContain('NEEDS_ATTENTION');
     expect(response.responseText).toContain('Real finding text.');

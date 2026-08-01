@@ -4,7 +4,7 @@ import { loadDailyMissions } from '../../marketing/storage/dailyMissionStore';
 import { loadSeasonalEvents } from '../../marketing/storage/seasonalEventStore';
 import { getMostRecentSnapshotForOfflineUse, type OfflineSnapshotResult } from '../../marketing/snapshot/snapshotService';
 import { loadPortfolioAssets } from '../../catalog/storage/portfolioStore';
-import { loadQualitySnapshots, type QualitySnapshot } from '../../catalog/quality/qualitySnapshotStore';
+import { loadQualitySnapshots } from '../../catalog/quality/qualitySnapshotStore';
 import type { PortfolioAsset } from '../../catalog/domain/types';
 
 import { AUTOPILOT_MODE_VALUES, AUTOPILOT_MODE_LABEL_TH, AUTOPILOT_MODE_LABEL_EN, GUIDED_MODES, type AutopilotMode } from '../../autopilot/domain/autopilotMode';
@@ -81,30 +81,25 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
   const [portfolioAssets, setPortfolioAssets] = useState<PortfolioAsset[]>([]);
   const [offline, setOffline] = useState<OfflineSnapshotResult | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  // Build 031B Hardening — real evidence the Generation Gate reads so it
-  // never has to guess whether unfinished work exists.
-  const [qualitySnapshots, setQualitySnapshots] = useState<QualitySnapshot[]>([]);
-  const [autonomousRuns, setAutonomousRuns] = useState<AutonomousDesignRun[]>([]);
+  // Build 031B Hardening — the Generation Gate's own evidence (real
+  // pipeline/QA state) is fetched fresh at click time (`handleBuildPlan`
+  // below), not tracked as component state here.
   const [gateResult, setGateResult] = useState<GenerationGateResult | null>(null);
 
   const reload = useCallback(async () => {
     try {
-      const [opps, miss, seasonal, assets, offlineResult, snapshots, runs] = await Promise.all([
+      const [opps, miss, seasonal, assets, offlineResult] = await Promise.all([
         loadMarketOpportunities(),
         loadDailyMissions(),
         loadSeasonalEvents(),
         loadPortfolioAssets(),
         getMostRecentSnapshotForOfflineUse(),
-        loadQualitySnapshots(),
-        loadAutonomousDesignRuns(),
       ]);
       setOpportunities(opps);
       setMissions(miss);
       setSeasonalEvents(seasonal);
       setPortfolioAssets(assets);
       setOffline(offlineResult);
-      setQualitySnapshots(snapshots);
-      setAutonomousRuns(runs);
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
@@ -173,9 +168,15 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
    * best next action (`autopilot/generationGate.ts`). If it recommends
    * resuming/repairing existing work instead, the user sees that
    * recommendation on a dedicated step rather than the plan being built
-   * silently — they can still generate anyway via an explicit override. */
-  const handleBuildPlan = useCallback(() => {
-    const gate = evaluateGenerationGate(portfolioAssets, qualitySnapshots, autonomousRuns, Date.now());
+   * silently — they can still generate anyway via an explicit override.
+   * Loads its own fresh evidence rather than reusing this component's
+   * mount-time `reload()` state, which may not have resolved yet if the
+   * user reaches the goal screen and clicks Build Plan very quickly
+   * (`reload()`'s own `portfolioAssets`/`qualitySnapshots`/`autonomousRuns`
+   * are otherwise only as fresh as the last render). */
+  const handleBuildPlan = useCallback(async () => {
+    const [freshAssets, freshSnapshots, freshRuns] = await Promise.all([loadPortfolioAssets(), loadQualitySnapshots(), loadAutonomousDesignRuns()]);
+    const gate = evaluateGenerationGate(freshAssets, freshSnapshots, freshRuns, Date.now());
     if (!gate.recommendGenerate) {
       setGateResult(gate);
       setStep('gate');
@@ -183,7 +184,7 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
     }
     setGateResult(null);
     buildPlanNow();
-  }, [portfolioAssets, qualitySnapshots, autonomousRuns, buildPlanNow]);
+  }, [buildPlanNow]);
 
   const handleOverrideGateAndBuildPlan = useCallback(() => {
     setGateResult(null);
