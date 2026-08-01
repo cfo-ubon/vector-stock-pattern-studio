@@ -60,6 +60,7 @@ import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
 import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
 import { AutopilotView } from './components/autopilot/AutopilotView';
+import { MissionControlView, type MissionControlAutopilotAction } from './components/missionControl/MissionControlView';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
@@ -157,7 +158,14 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('editor');
+  const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('missionControl');
+  // Build 030 (Mission Control) — the action a Mission Control button (Hero
+  // Card / AI CEO Panel / Goal Mode / Command Bar) chose, handed to
+  // `AutopilotView`'s `initialAction` prop so it skips straight to the
+  // reviewed plan instead of the goal screen. `null` (opened via the
+  // regular "✨ ออกแบบให้ฉันวันนี้" button, or "Adjust Goal") means the
+  // normal manual goal screen.
+  const [pendingAutopilotAction, setPendingAutopilotAction] = useState<MissionControlAutopilotAction | null>(null);
   // Build 028C — cross-navigation state for the Marketing <-> Creative
   // Director workflow (requirement #13): which brief/opportunity to
   // preselect the next time each view opens, set by the view being left
@@ -1132,23 +1140,44 @@ function App() {
         activeProjectId={activeProjectId}
         onSwitch={handleSwitchProject}
         onCreate={handleCreateProject}
+        onOpenMissionControl={() => setView('missionControl')}
         onOpenDashboard={() => setView('dashboard')}
         onOpenTrendStudio={() => setView('trendStudio')}
         onOpenPortfolioManager={() => setView('portfolio')}
         onOpenBackupManager={() => setView('backup')}
         onOpenMarketing={() => setView('marketing')}
         onOpenDesignDirector={() => setView('designDirector')}
-        onOpenAutopilot={() => setView('autopilot')}
+        onOpenAutopilot={() => {
+          setPendingAutopilotAction(null);
+          setView('autopilot');
+        }}
+        onOpenAdvancedMode={() => setView('editor')}
       />
-      {view === 'autopilot' ? (
-        <AutopilotView onClose={() => setView('editor')} />
+      {view === 'missionControl' ? (
+        <MissionControlView
+          onStartAutopilot={(action) => {
+            setPendingAutopilotAction(action);
+            setView('autopilot');
+          }}
+          onOpenPortfolio={() => setView('portfolio')}
+          onOpenMarketing={() => setView('marketing')}
+          onOpenDesignDirector={() => setView('designDirector')}
+        />
+      ) : view === 'autopilot' ? (
+        <AutopilotView
+          onClose={() => {
+            setPendingAutopilotAction(null);
+            setView('missionControl');
+          }}
+          initialAction={pendingAutopilotAction}
+        />
       ) : view === 'portfolio' ? (
-        <PortfolioManagerView onClose={() => setView('editor')} />
+        <PortfolioManagerView onClose={() => setView('missionControl')} />
       ) : view === 'backup' ? (
-        <BackupManagerView onClose={() => setView('editor')} />
+        <BackupManagerView onClose={() => setView('missionControl')} />
       ) : view === 'marketing' ? (
         <MarketingIntelligenceView
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onSentToCreativeDirector={(briefId) => {
             setPendingDesignDirectorBriefId(briefId);
             setView('designDirector');
@@ -1157,7 +1186,7 @@ function App() {
         />
       ) : view === 'designDirector' ? (
         <AIDesignDirectorView
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onSendToGenerator={handleSendGeneratorHandoffToEditor}
           initialSelectedBriefId={pendingDesignDirectorBriefId}
           onViewSourceOpportunity={(opportunityId) => {
@@ -1173,7 +1202,7 @@ function App() {
           collectionStatus={collectionStatus}
           activeProject={projects.find((p) => p.id === activeProjectId) ?? null}
           onSaveProject={(updated) => updateProject(updated.id, () => updated)}
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           allProjects={projects}
           onSwitchProject={handleSwitchProject}
         />
@@ -1188,7 +1217,7 @@ function App() {
           onToggleFavorite={handleToggleFavoriteProject}
           onDelete={handleDeleteProject}
           onCreate={handleCreateProject}
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onExportJson={handleExportProjectJson}
           onImportJson={handleImportProjectJson}
         />

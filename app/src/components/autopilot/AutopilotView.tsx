@@ -41,6 +41,16 @@ type AutopilotStep = 'goal' | 'plan' | 'constraints' | 'generating' | 'review' |
 
 interface Props {
   onClose: () => void;
+  /** Build 030 (Mission Control) — when set, the view skips the goal
+   * screen and builds the Design Plan immediately with this mode/count/
+   * marketplace already chosen, landing straight on "review one final
+   * plan, press Generate" (still 2 of the spec's 4 allowed decisions, not
+   * a new bypass of them) — the same `handleQuickAction` +
+   * `handleBuildPlan` a manual click on a Start Screen quick action would
+   * trigger, just invoked once automatically on mount. Never re-triggers
+   * on a prop identity change after the initial mount, so returning to an
+   * already-in-progress Autopilot session never resets it. */
+  initialAction?: { mode: AutopilotMode; requestedCount: number; marketplace?: string | null; productionGoal?: AutopilotProductionGoal; userInstruction?: string } | null;
 }
 
 const MARKETPLACE_OPTIONS = ['Auto', 'Shutterstock', 'Adobe Stock', 'Freepik', 'Getty-iStock', 'Etsy'];
@@ -52,7 +62,7 @@ const PRODUCTION_GOAL_OPTIONS: Array<[AutopilotProductionGoal, string]> = [
   ['seasonal', 'Seasonal Collection'],
 ];
 
-export function AutopilotView({ onClose }: Props) {
+export function AutopilotView({ onClose, initialAction = null }: Props) {
   const [step, setStep] = useState<AutopilotStep>('goal');
 
   // Real, already-verified data every mode's evidence selection reads —
@@ -140,6 +150,57 @@ export function AutopilotView({ onClose }: Props) {
       setPlanError(err instanceof Error ? err.message : String(err));
     }
   }, [buildDecisionInput]);
+
+  // Build 030 (Mission Control) — `initialAction`'s one-shot auto-start.
+  // Builds the input directly from `initialAction` (never from `mode`/
+  // `requestedCount`/`marketplaceChoice` state, which a `setMode(...)`
+  // call in this same effect would not have updated yet for
+  // `buildDecisionInput`'s closure) so the very first plan build is
+  // correct on the first render — the `setMode`/`setRequestedCount`/
+  // `setMarketplaceChoice` calls alongside it only keep the visible
+  // fields and every *later* action (Generate, Adjust Goal) consistent
+  // with what was actually planned. Waits for `reload()`'s data before
+  // running (an empty `opportunities`/`missions` would silently produce
+  // the offline evergreen fallback instead of real evidence), and the
+  // `autoStartedRef` guard means it fires exactly once per mount even
+  // though its dependencies change again once loading finishes.
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!initialAction || autoStartedRef.current || loadError) return;
+    if (opportunities.length === 0 && missions.length === 0 && seasonalEvents.length === 0 && !offline) return;
+    autoStartedRef.current = true;
+    const resolvedMarketplace = initialAction.marketplace ?? 'Auto';
+    const resolvedProductionGoal = initialAction.productionGoal ?? 'auto';
+    const resolvedInstruction = initialAction.userInstruction ?? '';
+    setMode(initialAction.mode);
+    setRequestedCount(initialAction.requestedCount);
+    setMarketplaceChoice(resolvedMarketplace);
+    setProductionGoal(resolvedProductionGoal);
+    setUserInstruction(resolvedInstruction);
+    try {
+      const input: DecisionEngineInput = {
+        mode: initialAction.mode,
+        requestedCount: initialAction.requestedCount,
+        colorwayCount,
+        marketplacePreference: resolvedMarketplace === 'Auto' ? null : resolvedMarketplace,
+        productionGoal: resolvedProductionGoal,
+        userInstruction: resolvedInstruction,
+        constraints,
+        opportunities,
+        missions,
+        seasonalEvents,
+        portfolioAssets,
+        offline: offline ?? { snapshot: null, freshnessLabel: '', classification: 'NO_DATA', message: '' },
+        now: Date.now(),
+      };
+      const newPlan = buildAutonomousDesignPlan(input);
+      setPlan(newPlan);
+      setPlanError(null);
+      setStep('plan');
+    } catch (err) {
+      setPlanError(err instanceof Error ? err.message : String(err));
+    }
+  }, [initialAction, opportunities, missions, seasonalEvents, portfolioAssets, offline, loadError, colorwayCount, userInstruction, constraints]);
 
   const handleQuickAction = useCallback((newMode: AutopilotMode, count: number, goal: AutopilotProductionGoal = 'auto') => {
     setMode(newMode);

@@ -77,7 +77,11 @@ function evergreenCategory(constraints: AutopilotConstraints): string {
  * Portfolio assets (using `PortfolioAsset.presetId`, the field the catalog
  * already stores the generator category under), never a fabricated "trend"
  * claim. Ties broken by category list order for determinism. */
-function leastCoveredCategory(portfolioAssets: PortfolioAsset[], constraints: AutopilotConstraints): { categoryId: string; count: number } {
+/** Exported (Build 030, AI CEO Panel) so Mission Control can show a real
+ * "Portfolio Gap" reading for whichever theme/category the Hero Card is
+ * about to recommend, using the exact same coverage count the PORTFOLIO_GAP
+ * mode itself selects on — never a second, possibly-inconsistent count. */
+export function leastCoveredCategory(portfolioAssets: PortfolioAsset[], constraints: AutopilotConstraints): { categoryId: string; count: number } {
   const counts = new Map<string, number>();
   for (const c of supportedCategoryIds()) counts.set(c, 0);
   for (const asset of portfolioAssets) {

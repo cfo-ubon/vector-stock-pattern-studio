@@ -5,6 +5,7 @@ interface Props {
   activeProjectId: string | null;
   onSwitch: (id: string) => void;
   onCreate: () => void;
+  onOpenMissionControl: () => void;
   onOpenDashboard: () => void;
   onOpenTrendStudio: () => void;
   onOpenPortfolioManager: () => void;
@@ -12,6 +13,11 @@ interface Props {
   onOpenMarketing: () => void;
   onOpenDesignDirector: () => void;
   onOpenAutopilot: () => void;
+  /** Build 030 — "unless Advanced Mode is explicitly opened": the classic
+   * single-pattern editor (Style DNA/generator settings/manual export)
+   * that Mission Control's business-language home screen intentionally
+   * hides by default. Still one click away, never removed. */
+  onOpenAdvancedMode: () => void;
 }
 
 /** Active-Project bar — persistent header strip (chosen over a Figma/Canva-
@@ -25,6 +31,7 @@ export function ProjectBar({
   activeProjectId,
   onSwitch,
   onCreate,
+  onOpenMissionControl,
   onOpenDashboard,
   onOpenTrendStudio,
   onOpenPortfolioManager,
@@ -32,12 +39,16 @@ export function ProjectBar({
   onOpenMarketing,
   onOpenDesignDirector,
   onOpenAutopilot,
+  onOpenAdvancedMode,
 }: Props) {
   const visible = projects.filter((p) => !p.archived);
   const active = projects.find((p) => p.id === activeProjectId);
 
   return (
     <div className="project-bar">
+      <button type="button" className="btn project-bar-btn" onClick={onOpenMissionControl}>
+        🏠 Mission Control
+      </button>
       <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenAutopilot}>
         ✨ ออกแบบให้ฉันวันนี้
       </button>
@@ -60,22 +71,25 @@ export function ProjectBar({
         + โปรเจกต์ใหม่
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenDashboard}>
-        📊 Project Dashboard
+        📊 Overview
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenTrendStudio}>
-        🧭 Design Workbench
+        🎨 Pattern Studio
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenPortfolioManager}>
-        🗂 Portfolio Manager
+        📂 Portfolio
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenBackupManager}>
-        💾 Backup Manager
+        💾 Backup
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenMarketing}>
-        📈 นักการตลาด
+        📈 AI Market Advisor
       </button>
       <button type="button" className="btn project-bar-btn" onClick={onOpenDesignDirector}>
-        🎨 นักออกแบบ
+        🎨 AI Design Director
+      </button>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenAdvancedMode}>
+        ⚙️ Advanced Mode
       </button>
     </div>
   );

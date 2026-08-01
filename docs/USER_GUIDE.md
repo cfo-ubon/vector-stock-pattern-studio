@@ -4,21 +4,22 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.85
-> **Development Build:** Build 028C (Marketing to Creative Director
-> Workflow — "ส่งให้นักออกแบบ / Send to Creative Director") — on top of
-> Build 028B Hardening, Build 028B, and Build 028 Phases 1-4
+> **Application Version:** v1.87
+> **Development Build:** Build 030 Part 1 (AI CEO & Mission Control) — on
+> top of Build 029 (Autonomous Design Autopilot), which is now merged to
+> `main`
 > **Source Commit:** *(see this build's commit on branch
-> `claude/build-028-marketing-design-intelligence`)*
-> **Documentation Status:** Current for Build 028C on branch
-> `claude/build-028-marketing-design-intelligence` — **not yet merged to
-> `main`**. The `main` branch is currently at **Application Version v1.74 /
-> Development Build 021** (merged via Release Candidate RC-1, covering
-> Builds 006–021). If you are reading this file on `main`, the "📈
-> นักการตลาด" Marketing Intelligence Center, the "🎨 นักออกแบบ" AI Creative
-> Director, the Production Portfolio & Commercial Feedback Engine, and the
-> Application Backup System described below are **not yet present** — they
-> ship only once their branches are merged. See
+> `claude/build-030-ai-ceo-mission-control`)*
+> **Documentation Status:** Current for Build 030 Part 1 on branch
+> `claude/build-030-ai-ceo-mission-control` — **not yet merged to
+> `main`**. The `main` branch is currently at **Application Version v1.86 /
+> Development Build 029**, so it already has the Marketing Intelligence
+> Center, AI Creative Director, and Autonomous Design Autopilot described
+> below. If you are reading this file on `main`, the new Mission Control
+> home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar,
+> Goal Modes) described below is **not yet present** — it ships once this
+> branch is merged. Build 030 is being delivered in parts per its own
+> multi-part spec; this document covers Part 1 only. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -57,7 +58,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.86 | Build 029 | *(this build's commit)* | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | On branch `claude/build-029-autonomous-design-autopilot`, not merged to `main` |
+| v1.87 | Build 030 (Part 1) | *(this build's commit)* | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
+| v1.86 | Build 029 | `03c419d` | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | Merged to `main` |
 | v1.85 | Build 028C | `d1078c5` | Marketing to Creative Director Workflow — "ส่งให้นักออกแบบ / Send to Creative Director" handoff review, 13-status workflow tracking, collectionItemId traceability, cross-navigation | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.84 | Build 028B Hardening | `e2904a1` | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.83 | Build 028B | `422c2be` | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
@@ -77,6 +79,69 @@ Build 005") are left as originally written — they are accurate records
 of past milestones, not errors to correct, even though the Build-numbering
 convention shown above wasn't formalized until later in the project's
 history.
+
+---
+
+## 🏠 Mission Control — หน้าแรกใหม่ (AI CEO) 🆕
+
+**Build 030 Part 1.** เมื่อเปิดแอป หน้าแรกที่เห็นตอนนี้คือ **Mission
+Control** แทนที่หน้าตัวสร้างลวดลายแบบเดิม — ปรัชญาของหน้านี้คือผู้ใช้ไม่ต้อง
+คิดเรื่อง Style DNA / Hero Motif / Density / Composition / Palette /
+ตั้งค่า Generator เอง (ค่าพวกนี้ยังอยู่ครบใน **⚙️ Advanced Mode** สำหรับใคร
+ที่อยากปรับเอง) — ผู้ใช้ทั่วไปแค่บอกเป้าหมายทางธุรกิจ ระบบจัดการที่เหลือให้
+
+หน้า Mission Control ตอบ 5 คำถามทันทีที่เปิดแอป:
+
+1. **วันนี้ควรสร้างอะไร?** — Hero Card แสดงโอกาสที่ดีที่สุดวันนี้ (ธีม,
+   marketplace, คะแนนความน่าจะขายได้ ★, Estimated Commercial Score,
+   Estimated Beauty Score, Portfolio Gap, เวลาที่คาดว่าจะใช้ผลิต)
+2. **ทำไม?** — แผง AI CEO อธิบายเหตุผลจริงทุกข้อ (ดึงจากเหตุผลเดียวกับที่
+   Autopilot's Decision Engine ใช้จริง ไม่ใช่ข้อความสำเร็จรูป)
+3. **คุ้มค่าแค่ไหน?** — Today's Business Status: Portfolio Health,
+   คิวส่งขาย (READY / Pending Review / Pending Upload), ผลงานเดือนนี้,
+   Commercial Readiness — ตัวเลขจริงทั้งหมด ไม่มีค่าโชว์
+4. **ใช้เวลานานแค่ไหน?** — Estimated Production Time คำนวณจากเวลาเฉลี่ย
+   จริงของการรันที่เสร็จแล้วในเครื่อง (ถ้ายังไม่เคยรันจะบอกตรง ๆ ว่า "Not
+   yet estimated" ไม่เดาตัวเลข)
+5. **เริ่มเลยไหม?** — ปุ่ม **✨ Start Today's Mission** เดียว พาไปหน้า
+   ตรวจแผนของ Autopilot ทันที (ข้ามหน้าเลือกโหมด/ตั้งค่า) — เหลือแค่กด
+   Generate
+
+### แผง AI CEO
+พูดกับผู้ใช้ก่อนเสมอ: "Good morning. I analyzed your portfolio. Today's
+best opportunity is [ธีม]." ตามด้วยเหตุผลจริงเป็นข้อ ๆ แล้วถามว่า "Would you
+like me to create a collection?" มีปุ่ม **Start** / **Adjust Goal** (กลับ
+ไปหน้าเลือกโหมดของ Autopilot) / **Ask AI** (โฟกัส AI Command Bar)
+
+### AI Goal Modes
+กริดปุ่มเป้าหมายภาษาธุรกิจ 10 แบบ — Earn Faster, Grow Portfolio, Seasonal
+Collection, Fill Portfolio Gaps, Evergreen Income, Expand Adobe Stock,
+Expand Shutterstock, Expand Etsy, Use Today's Recommendation, AI Chooses
+Everything — แต่ละปุ่มแค่ map ไปยังโหมด Autopilot ที่มีอยู่แล้วจริง (ไม่มี
+ตรรกะการตัดสินใจใหม่) แล้วพาไปหน้าแผนที่สร้างเสร็จแล้วทันที
+
+### AI Command Bar
+ช่องพิมพ์ "Ask AI..." ที่ด้านล่างของหน้า พิมพ์ประโยคเดียวได้เลย เช่น
+"Create 20 Botanical patterns", "Analyze my portfolio", "Help me earn
+faster" — ระบบตีความคำสั่งเป็นอย่างใดอย่างหนึ่งจริงเสมอ: (1) การนำทางไปหน้า
+จริง (เช่น "Analyze my portfolio" → เปิด Portfolio Manager) (2) Goal Mode
+ที่มีอยู่จริง หรือ (3) fallback ไปยัง Custom Goal parser เดิมของ Autopilot
+(ตีความ marketplace/จำนวน/ธีมจากประโยค) — ไม่มีการเรียก AI API ภายนอก ไม่มี
+การตีความมั่ว
+
+### เมนูเปลี่ยนชื่อใหม่ (Human-Centered Naming)
+| เดิม | ใหม่ |
+|---|---|
+| Project Dashboard | 📊 Overview |
+| Design Workbench | 🎨 Pattern Studio |
+| Portfolio Manager | 📂 Portfolio |
+| Backup Manager | 💾 Backup |
+| นักการตลาด (Marketing Intelligence) | 📈 AI Market Advisor |
+| นักออกแบบ (Creative Director) | 🎨 AI Design Director |
+
+ปุ่ม "✨ ออกแบบให้ฉันวันนี้" (Autopilot) ยังอยู่เหมือนเดิม และหน้าตัวสร้าง
+ลวดลายแบบเดิม (Style DNA/generator settings ทั้งหมด) ยังอยู่ครบ เข้าถึงได้
+ผ่านปุ่ม **⚙️ Advanced Mode**
 
 ---
 
@@ -1600,6 +1665,52 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.87 — 1 ส.ค. 2026 — Build 030 Part 1: AI CEO & Mission Control
+
+- 🆕 **หน้าแรกใหม่ทั้งหมด: Mission Control** แทนที่หน้าตัวสร้างลวดลายเดิม
+  ที่เคยเป็นค่าเริ่มต้น — ผู้ใช้ทั่วไปไม่ต้องเห็น Style DNA/Hero
+  Motif/Density/Composition/Palette/Generator settings จนกว่าจะเปิด
+  **⚙️ Advanced Mode** เอง
+- 🎯 **Top Hero Card** — โอกาสที่ดีที่สุดวันนี้ (ธีม, marketplace, ★1-5,
+  Estimated Commercial Score, Estimated Beauty Score, Portfolio Gap,
+  Estimated Production Time) พร้อมปุ่ม **✨ Start Today's Mission** เดียว
+  ที่พาตรงไปหน้าตรวจแผนของ Autopilot (ข้ามหน้าเลือกโหมด) — ทุกตัวเลขคำนวณ
+  จากข้อมูลจริง มี fallback ที่ซื่อสัตย์ ("—" / "No data yet" / "Not yet
+  estimated") แทนการเดาตัวเลขเมื่อยังไม่มีข้อมูลพอ
+- 🤖 **แผง AI CEO** — พูดกับผู้ใช้ก่อนเสมอพร้อมเหตุผลจริงเป็นข้อ ๆ (ดึงจาก
+  Decision Engine ตัวเดียวกับ Autopilot) และปุ่ม Start / Adjust Goal /
+  Ask AI
+- 📊 **Today's Business Status** — Portfolio Health, คิวส่งขาย (READY /
+  Pending Review / Pending Upload จาก Production Queue จริง), ผลงานเดือน
+  นี้, Commercial Readiness — reshape จาก Dashboard Snapshot (Build 017)
+  และ Production Queue (Build 026) ที่มีอยู่แล้ว ไม่มีตัวเลขปลอม
+- 🎯 **AI Goal Modes** — ปุ่มเป้าหมายภาษาธุรกิจ 10 แบบ (Earn Faster, Grow
+  Portfolio, Seasonal Collection, Fill Portfolio Gaps, Evergreen Income,
+  Expand Adobe Stock, Expand Shutterstock, Expand Etsy, Use Today's
+  Recommendation, AI Chooses Everything) — แต่ละปุ่ม map ไปยัง Autopilot
+  mode ที่มีอยู่จริงแล้วพาไปหน้าแผนที่สร้างเสร็จทันที
+- 💬 **AI Command Bar** — ช่อง "Ask AI..." ตีความประโยคเดียวเป็นการนำทาง
+  จริง / Goal Mode จริง / หรือ fallback ไปยัง Custom Goal parser เดิมของ
+  Autopilot เสมอ ไม่มีการเรียก AI API ภายนอก
+- 🏷 **เปลี่ยนชื่อเมนูเป็นภาษาธุรกิจ**: Project Dashboard → 📊 Overview,
+  Design Workbench → 🎨 Pattern Studio, Portfolio Manager → 📂 Portfolio,
+  Backup Manager → 💾 Backup, นักการตลาด → 📈 AI Market Advisor, นักออกแบบ
+  → 🎨 AI Design Director
+- ⚙️ **Advanced Mode ยังอยู่ครบ** — ปุ่มใหม่เปิดหน้าตัวสร้างลวดลายแบบเดิม
+  ทั้งหมด ไม่มีฟีเจอร์เดิมถูกถอดออก
+- 🔧 **Autopilot ขยาย prop `initialAction`** — Mission Control ส่งโหมด/
+  จำนวน/marketplace/ประโยคเป้าหมายให้ Autopilot ข้ามหน้าเลือกโหมดแล้วสร้าง
+  แผนอัตโนมัติทันทีที่ข้อมูลตลาดโหลดเสร็จ (ยังคงเป็น "สร้างแผนครั้งเดียวต่อ
+  รัน" เหมือนเดิม)
+- ✅ ทดสอบผ่านครบ 3,834/3,834 การทดสอบทั้งระบบ (397 ไฟล์) รวมการทดสอบใหม่
+  เฉพาะ Mission Control 33 รายการ (unit + component-level ด้วย React
+  Testing Library) และตรวจสอบด้วยเบราว์เซอร์จริง — Mission Control โหลด
+  เป็นหน้าแรก, "Start Today's Mission" ข้ามหน้าเลือกโหมดไปหน้าตรวจแผนได้
+  จริง, ไม่มี console error
+- 📌 **หมายเหตุ**: นี่คือ Part 1 ของสเปก Build 030 หลายส่วน (AI CEO & Mission
+  Control) — Part 2 เป็นต้นไปยังไม่ได้รับ ยังไม่ implement การแชท AI แบบ
+  อิสระ (free-form conversation) หรือ Developer Mode toggle
 
 ### v1.86 — 31 ก.ค. 2026 — Build 029: Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้"
 

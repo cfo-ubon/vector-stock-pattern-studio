@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildAutonomousDesignPlan, type DecisionEngineInput } from './decisionEngine';
+import { buildAutonomousDesignPlan, leastCoveredCategory, type DecisionEngineInput } from './decisionEngine';
 import { createMarketOpportunity } from '../marketing/domain/marketOpportunity';
 import { createDailyMission } from '../marketing/domain/dailyMission';
 import { createSeasonalEvent } from '../marketing/domain/seasonalEvent';
@@ -181,5 +181,19 @@ describe('buildAutonomousDesignPlan — no active opportunities at all', () => {
     const plan = buildAutonomousDesignPlan(baseInput({ opportunities: [] }));
     expect(plan.offline).toBe(true);
     expect(plan.marketEvidence).toEqual([]);
+  });
+});
+
+describe('leastCoveredCategory (Build 030, exported for Mission Control\'s Portfolio Gap reading)', () => {
+  it('returns a supported category with count 0 when the Portfolio is empty', () => {
+    const { count } = leastCoveredCategory([], emptyAutopilotConstraints());
+    expect(count).toBe(0);
+  });
+
+  it('picks the real minimum-count category from real Portfolio assets, never a fabricated one', () => {
+    const asset = createPortfolioAsset({ displayName: 'A', originalFilename: 'a.svg', sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'botanical' });
+    const { categoryId, count } = leastCoveredCategory([asset], emptyAutopilotConstraints());
+    expect(categoryId).not.toBe('botanical');
+    expect(count).toBe(0);
   });
 });

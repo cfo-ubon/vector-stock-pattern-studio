@@ -77,4 +77,10 @@ describe('AutopilotView', () => {
     await waitFor(() => expect(screen.getByText('Autopilot Mode')).toBeInTheDocument());
     expect(await loadPortfolioAssets()).toHaveLength(0);
   });
+
+  it('Build 030 — an initialAction (from Mission Control) skips the goal screen and lands straight on the reviewed plan', async () => {
+    render(<AutopilotView onClose={() => {}} initialAction={{ mode: 'FULL_AUTOPILOT', requestedCount: 5 }} />);
+    await waitFor(() => expect(screen.getByText('เหตุผลของแต่ละการตัดสินใจ')).toBeInTheDocument());
+    expect(screen.queryByText('Autopilot Mode')).not.toBeInTheDocument();
+  });
 });
