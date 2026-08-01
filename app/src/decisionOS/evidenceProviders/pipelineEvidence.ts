@@ -11,6 +11,11 @@ import { classifyFreshness } from '../evidenceEngine';
 export interface PipelineEvidenceInput {
   resumableRunCount: number;
   readyNotImportedCount: number;
+  /** Build 031C, Part 3 — count of QA-READY assets/tasks awaiting
+   * Commercial Packaging, used only by the Factory Priority Engine's
+   * "large READY backlog -> packaging first" signal. `undefined` for
+   * every other caller (e.g. the Generation Gate), which never sets it. */
+  readyBacklogCount?: number;
   timestamp: number;
 }
 
@@ -28,7 +33,7 @@ export function pipelineEvidenceProvider(context: DecisionRequestContext): Evide
       completeness: 1,
       confidenceImpact: 0.5,
       missingData: [],
-      value: { resumableRunCount: input.resumableRunCount, readyNotImportedCount: input.readyNotImportedCount },
+      value: { resumableRunCount: input.resumableRunCount, readyNotImportedCount: input.readyNotImportedCount, readyBacklogCount: input.readyBacklogCount ?? null },
     },
   ];
 }

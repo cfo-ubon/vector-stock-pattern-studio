@@ -124,7 +124,23 @@ export const DB_NAME = 'vsp-db';
 // defined entirely in code (`decisionOS/policies/*.ts`) — this store is
 // deliberately tiny (one row per overridden policy, not one row per
 // policy) since most policies never need an override.
-export const DB_VERSION = 14;
+// v14 -> v15 (Build 031C, Factory Controller) — three new stores for the
+// execution layer that coordinates Mission -> Decision -> Queue ->
+// Generator -> QA -> Repair -> SEO -> Commercial Package -> Export Ready
+// using the existing Autopilot/Commercial Pipeline/Decision OS modules.
+// `factoryQueue` holds every `FactoryTask` (live and terminal — a task's
+// own `history` field is its per-task audit trail, mirroring
+// `AutonomousDesignRun.history`, so no separate "task history" store is
+// needed). `factoryTimeline` is the append-only global execution log
+// (Part 6), carrying the same Decision ID/policy/evidence/confidence
+// fields a `DecisionTimelineEntry` already carries. `factorySchedulerState`
+// is a single-row store (id `'scheduler'`) recording whether the
+// Scheduler is currently running/paused and why, so a pause survives a
+// reload.
+export const DB_VERSION = 15;
+export const FACTORY_QUEUE_STORE = 'factoryQueue';
+export const FACTORY_TIMELINE_STORE = 'factoryTimeline';
+export const FACTORY_SCHEDULER_STATE_STORE = 'factorySchedulerState';
 export const DECISION_TIMELINE_STORE = 'decisionTimeline';
 export const DECISION_POLICY_OVERRIDES_STORE = 'decisionPolicyOverrides';
 export const COMMERCIAL_PACKAGE_HISTORY_STORE = 'commercialPackageHistory';
@@ -371,6 +387,20 @@ export function openDb(): Promise<IDBDatabase> {
         }
         if (!db.objectStoreNames.contains(DECISION_POLICY_OVERRIDES_STORE)) {
           db.createObjectStore(DECISION_POLICY_OVERRIDES_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_QUEUE_STORE)) {
+          const factoryQueue = db.createObjectStore(FACTORY_QUEUE_STORE, { keyPath: 'id' });
+          factoryQueue.createIndex('status', 'status', { unique: false });
+          factoryQueue.createIndex('batchId', 'batchId', { unique: false });
+          factoryQueue.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_TIMELINE_STORE)) {
+          const factoryTimeline = db.createObjectStore(FACTORY_TIMELINE_STORE, { keyPath: 'id' });
+          factoryTimeline.createIndex('at', 'at', { unique: false });
+          factoryTimeline.createIndex('taskId', 'taskId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_SCHEDULER_STATE_STORE)) {
+          db.createObjectStore(FACTORY_SCHEDULER_STATE_STORE, { keyPath: 'id' });
         }
       };
       req.onsuccess = () => resolve(req.result);

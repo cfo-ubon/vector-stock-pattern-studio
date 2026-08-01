@@ -114,7 +114,7 @@ describe('factoryPolicies', () => {
     expect(result.blockedReason).toMatch(/colorway/);
   });
 
-  it('every FACTORY_POLICIES entry declares the 7 policies named in the spec', () => {
+  it('every FACTORY_POLICIES entry declares the 7 Build 031B policies plus the 4 Build 031C dynamic-priority policies', () => {
     expect(FACTORY_POLICIES.map((p) => p.id).sort()).toEqual(
       [
         'factory.completeExistingWorkFirst',
@@ -124,6 +124,10 @@ describe('factoryPolicies', () => {
         'factory.packagingBeforeExport',
         'factory.noDuplicatePackage',
         'factory.noIncompleteCollectionExport',
+        'factory.prioritizeRepairOnHighReviewRate',
+        'factory.prioritizePackagingOnLargeBacklog',
+        'factory.prioritizeExportValidationWhenBlocked',
+        'factory.prioritizeCollectionCompletionWhenNear',
       ].sort(),
     );
   });

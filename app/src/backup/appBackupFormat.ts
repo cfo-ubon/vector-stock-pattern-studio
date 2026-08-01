@@ -229,6 +229,18 @@ export const APP_BACKUP_STORE_NAMES = [
   // read/write module.
   'decisionTimeline',
   'decisionPolicyOverrides',
+  // Build 031C (Factory Controller) — `factoryQueue` (Part 1, every
+  // FactoryTask, live and terminal — a task's own `history` field is its
+  // per-task audit trail), `factoryTimeline` (Part 6, append-only global
+  // execution log, also covering Part 12's "Task History" backup item —
+  // see BUILD_031C_REPORT.md for why a separate history store would only
+  // duplicate this one), and `factorySchedulerState` (Part 1/12, single-row
+  // running/paused state) — all new stores added in this build (DB
+  // version 14 -> 15), registered here immediately per this list's own
+  // convention.
+  'factoryQueue',
+  'factoryTimeline',
+  'factorySchedulerState',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

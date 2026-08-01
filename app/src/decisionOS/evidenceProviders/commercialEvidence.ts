@@ -18,6 +18,11 @@ export interface CommercialEvidenceInput {
    * Pipeline adapter reuses the existing `qa:assetQaStatus` evidence
    * record (`qaEvidenceProvider`) instead of a second copy. */
   collectionAssigned: boolean | null;
+  /** Build 031C, Part 3 — count of queued Export Validation tasks/assets
+   * currently below the Commercial Readiness threshold, used only by the
+   * Factory Priority Engine's "export blocked -> validation first"
+   * signal. `undefined` for every other caller. */
+  exportBlockedCount?: number;
   timestamp: number;
 }
 
@@ -69,6 +74,17 @@ export function commercialEvidenceProvider(context: DecisionRequestContext): Evi
       confidenceImpact: 0.3,
       missingData: input.collectionAssigned === null ? ['collectionAssignment'] : [],
       value: { assigned: input.collectionAssigned },
+    },
+    {
+      id: 'commercial:exportBlockedSummary',
+      source: 'commercial',
+      label: 'Export-blocked package count',
+      timestamp: input.timestamp,
+      freshness,
+      completeness: input.exportBlockedCount === undefined ? 0 : 1,
+      confidenceImpact: 0.3,
+      missingData: input.exportBlockedCount === undefined ? ['exportBlockedCount'] : [],
+      value: { exportBlockedCount: input.exportBlockedCount ?? null },
     },
   ];
 }

@@ -212,4 +212,130 @@ const noIncompleteCollectionExport: PolicyDefinition = {
   },
 };
 
-export const FACTORY_POLICIES: PolicyDefinition[] = [completeExistingWorkFirst, repairBeforeGenerate, qaBeforeExport, seoBeforePackaging, packagingBeforeExport, noDuplicatePackage, noIncompleteCollectionExport];
+// Build 031C, Part 3 — Dynamic Priority policies. The Factory Priority
+// Engine (`factory/priorityEngine.ts`) evaluates each of these under a
+// `requestedAction: 'reprioritizeQueue'` context; `applies: true` means
+// "boost this task type's queue priority now," never a blocking decision.
+// Each reuses an existing evidence record already gathered by one of the
+// 7 policies above — no new evidence type invented beyond the two small
+// optional fields added to `PipelineEvidenceInput`/`CommercialEvidenceInput`
+// for the two signals (backlog size, export-blocked count) that have no
+// existing single-asset evidence record to reuse.
+
+const HIGH_REVIEW_RATE_THRESHOLD = 0.3; // 30% of evaluated items in REVIEW/REJECT
+const LARGE_READY_BACKLOG_THRESHOLD = 10;
+const COLLECTION_NEAR_COMPLETE_MAX_MISSING_ROLES = 1;
+
+const prioritizeRepairOnHighReviewRate: PolicyDefinition = {
+  id: 'factory.prioritizeRepairOnHighReviewRate',
+  name: 'Prioritize repair on high REVIEW rate',
+  description: 'When a large share of evaluated items are REVIEW/REJECT, move Repair tasks to the front of the queue.',
+  domain: 'factory',
+  version: 1,
+  defaultPriority: 2,
+  defaultStatus: 'ENABLED',
+  requiredEvidence: ['qa'],
+  expectedOutcome: 'Repair tasks run before new Generate tasks when the REVIEW/REJECT rate is high.',
+  impactWhenApplies: 'HIGH',
+  examples: ['40% of evaluated items are REVIEW/REJECT -> boost repair task priority.'],
+  evaluate: (evidence, context): PolicyEvaluation => {
+    const qa = evaluationOf<{ reviewCount: number; rejectCount: number; totalEvaluated: number }>(evidence.records, 'qa:reviewRejectCounts');
+    const evidenceIds = evidence.records.filter((r) => r.id === 'qa:reviewRejectCounts').map((r) => r.id);
+    if (context.requestedAction !== 'reprioritizeRepair' || !qa || qa.totalEvaluated === 0) {
+      return { policyId: prioritizeRepairOnHighReviewRate.id, policyName: prioritizeRepairOnHighReviewRate.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: 'Not a reprioritize request, or no evaluated items yet.', evidenceIds };
+    }
+    const rate = (qa.reviewCount + qa.rejectCount) / qa.totalEvaluated;
+    if (rate < HIGH_REVIEW_RATE_THRESHOLD) {
+      return { policyId: prioritizeRepairOnHighReviewRate.id, policyName: prioritizeRepairOnHighReviewRate.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: `REVIEW/REJECT rate ${Math.round(rate * 100)}% is below the ${Math.round(HIGH_REVIEW_RATE_THRESHOLD * 100)}% threshold.`, evidenceIds };
+    }
+    return { policyId: prioritizeRepairOnHighReviewRate.id, policyName: prioritizeRepairOnHighReviewRate.name, domain: 'factory', applies: true, action: 'boostRepairPriority', blockedReason: null, warning: null, detail: `REVIEW/REJECT rate is ${Math.round(rate * 100)}% (${qa.reviewCount + qa.rejectCount} of ${qa.totalEvaluated}).`, evidenceIds };
+  },
+};
+
+const prioritizePackagingOnLargeBacklog: PolicyDefinition = {
+  id: 'factory.prioritizePackagingOnLargeBacklog',
+  name: 'Prioritize packaging on large READY backlog',
+  description: 'When many QA-READY assets are waiting to be packaged, move Package tasks to the front of the queue.',
+  domain: 'factory',
+  version: 1,
+  defaultPriority: 3,
+  defaultStatus: 'ENABLED',
+  requiredEvidence: ['pipeline'],
+  expectedOutcome: 'Package tasks run before new Generate tasks when the READY backlog is large.',
+  impactWhenApplies: 'MEDIUM',
+  examples: ['15 READY assets are awaiting packaging -> boost package task priority.'],
+  evaluate: (evidence, context): PolicyEvaluation => {
+    const pipeline = evaluationOf<{ readyBacklogCount: number | null }>(evidence.records, 'pipeline:unfinishedWork');
+    const evidenceIds = evidence.records.filter((r) => r.id === 'pipeline:unfinishedWork').map((r) => r.id);
+    if (context.requestedAction !== 'reprioritizePackaging' || !pipeline || pipeline.readyBacklogCount === null) {
+      return { policyId: prioritizePackagingOnLargeBacklog.id, policyName: prioritizePackagingOnLargeBacklog.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: 'Not a reprioritize request, or READY backlog unknown.', evidenceIds };
+    }
+    if (pipeline.readyBacklogCount < LARGE_READY_BACKLOG_THRESHOLD) {
+      return { policyId: prioritizePackagingOnLargeBacklog.id, policyName: prioritizePackagingOnLargeBacklog.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: `READY backlog (${pipeline.readyBacklogCount}) is below the ${LARGE_READY_BACKLOG_THRESHOLD} threshold.`, evidenceIds };
+    }
+    return { policyId: prioritizePackagingOnLargeBacklog.id, policyName: prioritizePackagingOnLargeBacklog.name, domain: 'factory', applies: true, action: 'boostPackagingPriority', blockedReason: null, warning: null, detail: `${pipeline.readyBacklogCount} READY asset(s) are awaiting packaging.`, evidenceIds };
+  },
+};
+
+const prioritizeExportValidationWhenBlocked: PolicyDefinition = {
+  id: 'factory.prioritizeExportValidationWhenBlocked',
+  name: 'Prioritize export validation when export is blocked',
+  description: 'When one or more packages are blocked from export, move Export Validation tasks to the front of the queue.',
+  domain: 'factory',
+  version: 1,
+  defaultPriority: 1,
+  defaultStatus: 'ENABLED',
+  requiredEvidence: ['commercial'],
+  expectedOutcome: 'Export Validation tasks run before new Generate tasks when any package is export-blocked.',
+  impactWhenApplies: 'HIGH',
+  examples: ['3 packages are below the readiness threshold -> boost export validation task priority.'],
+  evaluate: (evidence, context): PolicyEvaluation => {
+    const summary = evaluationOf<{ exportBlockedCount: number | null }>(evidence.records, 'commercial:exportBlockedSummary');
+    const evidenceIds = evidence.records.filter((r) => r.id === 'commercial:exportBlockedSummary').map((r) => r.id);
+    if (context.requestedAction !== 'reprioritizeExportValidation' || !summary || summary.exportBlockedCount === null) {
+      return { policyId: prioritizeExportValidationWhenBlocked.id, policyName: prioritizeExportValidationWhenBlocked.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: 'Not a reprioritize request, or export-blocked count unknown.', evidenceIds };
+    }
+    if (summary.exportBlockedCount === 0) {
+      return { policyId: prioritizeExportValidationWhenBlocked.id, policyName: prioritizeExportValidationWhenBlocked.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: 'No packages are export-blocked.', evidenceIds };
+    }
+    return { policyId: prioritizeExportValidationWhenBlocked.id, policyName: prioritizeExportValidationWhenBlocked.name, domain: 'factory', applies: true, action: 'boostExportValidationPriority', blockedReason: null, warning: null, detail: `${summary.exportBlockedCount} package(s) are export-blocked.`, evidenceIds };
+  },
+};
+
+const prioritizeCollectionCompletionWhenNear: PolicyDefinition = {
+  id: 'factory.prioritizeCollectionCompletionWhenNear',
+  name: 'Prioritize collection completion when nearly complete',
+  description: 'When a collection is missing only 1 tracked role, move its Collection Completion task to the front of the queue.',
+  domain: 'factory',
+  version: 1,
+  defaultPriority: 4,
+  defaultStatus: 'ENABLED',
+  requiredEvidence: ['collection'],
+  expectedOutcome: 'A nearly-finished collection is completed before starting unrelated new work.',
+  impactWhenApplies: 'MEDIUM',
+  examples: ['Collection is missing only its "colorway" role -> boost collection completion task priority.'],
+  evaluate: (evidence, context): PolicyEvaluation => {
+    const completeness = evaluationOf<{ collectionId: string; roleTrackingAvailable: boolean; missingRoles: string[] } | null>(evidence.records, 'collection:completeness');
+    const evidenceIds = evidence.records.filter((r) => r.id === 'collection:completeness').map((r) => r.id);
+    if (context.requestedAction !== 'reprioritizeCollectionCompletion' || !completeness || !completeness.roleTrackingAvailable) {
+      return { policyId: prioritizeCollectionCompletionWhenNear.id, policyName: prioritizeCollectionCompletionWhenNear.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: 'Not a reprioritize request, or role tracking unavailable.', evidenceIds };
+    }
+    if (completeness.missingRoles.length === 0 || completeness.missingRoles.length > COLLECTION_NEAR_COMPLETE_MAX_MISSING_ROLES) {
+      return { policyId: prioritizeCollectionCompletionWhenNear.id, policyName: prioritizeCollectionCompletionWhenNear.name, domain: 'factory', applies: false, action: null, blockedReason: null, warning: null, detail: completeness.missingRoles.length === 0 ? 'Collection is already complete.' : `Collection is missing ${completeness.missingRoles.length} roles — not near-complete.`, evidenceIds };
+    }
+    return { policyId: prioritizeCollectionCompletionWhenNear.id, policyName: prioritizeCollectionCompletionWhenNear.name, domain: 'factory', applies: true, action: 'boostCollectionCompletionPriority', blockedReason: null, warning: null, detail: `Collection ${completeness.collectionId} is missing only: ${completeness.missingRoles.join(', ')}.`, evidenceIds };
+  },
+};
+
+export const FACTORY_PRIORITY_POLICIES: PolicyDefinition[] = [prioritizeRepairOnHighReviewRate, prioritizePackagingOnLargeBacklog, prioritizeExportValidationWhenBlocked, prioritizeCollectionCompletionWhenNear];
+
+export const FACTORY_POLICIES: PolicyDefinition[] = [
+  completeExistingWorkFirst,
+  repairBeforeGenerate,
+  qaBeforeExport,
+  seoBeforePackaging,
+  packagingBeforeExport,
+  noDuplicatePackage,
+  noIncompleteCollectionExport,
+  ...FACTORY_PRIORITY_POLICIES,
+];
