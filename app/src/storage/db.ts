@@ -114,7 +114,19 @@ export const DB_NAME = 'vsp-db';
 // `submissions`, `collections`), matching `catalog/dashboard/
 // readinessAnalytics.ts`'s and `recommendationEngine.ts`'s own
 // "derived, not stored" convention, so no new store is needed for those.
-export const DB_VERSION = 13;
+//
+// v14 (Build 031B, Decision OS / "the Business Brain"): adds 2 new
+// stores. `decisionTimeline` is the append-only audit log of every
+// Decision Engine evaluation (Part 8 — explicitly NOT a learning table:
+// nothing reads its own past rows to influence a future decision).
+// `decisionPolicyOverrides` holds only user-configured
+// enabled/disabled/priority overrides for policies that are otherwise
+// defined entirely in code (`decisionOS/policies/*.ts`) — this store is
+// deliberately tiny (one row per overridden policy, not one row per
+// policy) since most policies never need an override.
+export const DB_VERSION = 14;
+export const DECISION_TIMELINE_STORE = 'decisionTimeline';
+export const DECISION_POLICY_OVERRIDES_STORE = 'decisionPolicyOverrides';
 export const COMMERCIAL_PACKAGE_HISTORY_STORE = 'commercialPackageHistory';
 export const AI_CEO_BRIEFS_STORE = 'aiCeoBriefs';
 export const BUSINESS_GOALS_STORE = 'businessGoals';
@@ -351,6 +363,14 @@ export function openDb(): Promise<IDBDatabase> {
           const packageHistory = db.createObjectStore(COMMERCIAL_PACKAGE_HISTORY_STORE, { keyPath: 'id' });
           packageHistory.createIndex('createdAt', 'createdAt', { unique: false });
           packageHistory.createIndex('assetId', 'assetId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DECISION_TIMELINE_STORE)) {
+          const decisionTimeline = db.createObjectStore(DECISION_TIMELINE_STORE, { keyPath: 'id' });
+          decisionTimeline.createIndex('createdAt', 'createdAt', { unique: false });
+          decisionTimeline.createIndex('domain', 'domain', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DECISION_POLICY_OVERRIDES_STORE)) {
+          db.createObjectStore(DECISION_POLICY_OVERRIDES_STORE, { keyPath: 'id' });
         }
       };
       req.onsuccess = () => resolve(req.result);

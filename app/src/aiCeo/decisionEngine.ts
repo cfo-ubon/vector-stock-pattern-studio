@@ -10,6 +10,8 @@ import { selectEvidence, leastCoveredCategory, type DecisionEngineInput, type Ev
 import { emptyAutopilotConstraints, type AutopilotConstraints } from '../autopilot/domain/constraints';
 import { aiCeoRecommendationId } from './domain/id';
 import type { AiCeoRecommendation, AiCeoActionType, AiCeoDataStatus, AiMemory } from './domain/types';
+import { runDecisionSync } from '../decisionOS/index';
+import { marketplaceFallbackContext, MARKETPLACE_FALLBACK_SOURCES } from '../decisionOS/adapters/marketplaceAdapter';
 
 // Build 030 Part 2, Module 2 — AI CEO Decision Engine. Combines only
 // already-real, already-computed outputs (Build 029's `selectEvidence`/
@@ -254,14 +256,22 @@ export function rankAiCeoRecommendations(input: AiCeoDecisionInput): AiCeoRecomm
   const evidence = selectEvidence(decisionInput);
   const hasLiveEvidence = evidence.source === 'marketOpportunity' || evidence.source === 'dailyMission' || evidence.source === 'seasonalCalendar' || evidence.source === 'customGoal';
   const { categoryId: gapCategory, count: gapCount } = leastCoveredCategory(input.portfolioAssets, memoryConstraints);
-  const hasPortfolio = input.portfolioAssets.length > 0;
 
-  if (hasLiveEvidence) {
-    recommendations.push(marketDrivenRecommendation(evidence, decisionInput, memoryInfluence, input.now));
-  } else if (hasPortfolio) {
+  // Build 031B, Part 10 — this 3-way choice (live evidence / Portfolio
+  // gap / evergreen fallback) is no longer decided by this if/else chain
+  // itself; it is delegated to the Decision OS's `MARKETPLACE_POLICIES`
+  // (`decisionOS/policies/marketplacePolicies.ts`), the one shared place
+  // that priority order is now defined and testable. The recommendation-
+  // building functions below are unchanged — only which one gets called
+  // is now Decision-Engine-routed, so the produced `AiCeoRecommendation`
+  // shape and UX stay identical.
+  const marketplaceDecision = runDecisionSync(marketplaceFallbackContext(evidence, hasLiveEvidence, input.portfolioAssets.length, input.now), MARKETPLACE_FALLBACK_SOURCES);
+  if (marketplaceDecision.recommendedAction === 'targetPortfolioGap') {
     recommendations.push(portfolioGapRecommendation(gapCategory, gapCount, decisionInput, memoryInfluence, input.now));
-  } else {
+  } else if (marketplaceDecision.recommendedAction === 'targetEvergreen') {
     recommendations.push(evergreenFallbackRecommendation(decisionInput, input.offline.classification === 'SAVED_SNAPSHOT', memoryInfluence, input.now));
+  } else {
+    recommendations.push(marketDrivenRecommendation(evidence, decisionInput, memoryInfluence, input.now));
   }
 
   return recommendations;

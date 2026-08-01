@@ -217,6 +217,18 @@ export const APP_BACKUP_STORE_NAMES = [
   'portfolioDiagnoses',
   'businessCoachRecommendations',
   'recommendationHistory',
+  // Build 031A (Commercial Production Pipeline) — `commercialPackageHistory`
+  // was added in that build (DB version 12 -> 13) but missed registration
+  // here at the time; closed as part of Build 031B's backup coverage pass.
+  'commercialPackageHistory',
+  // Build 031B (Decision OS) — `decisionTimeline` (Part 8, append-only
+  // audit history) and `decisionPolicyOverrides` (Part 9, invisible
+  // backend policy config) are both new stores added in this build (DB
+  // version 13 -> 14), registered here immediately per this list's own
+  // convention of registering a store as soon as it gains a real
+  // read/write module.
+  'decisionTimeline',
+  'decisionPolicyOverrides',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

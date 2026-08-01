@@ -10,6 +10,8 @@ import { loadAutonomousDesignRuns } from '../autopilot/storage/autonomousDesignR
 import { loadDashboardSnapshot } from '../catalog/dashboard/portfolioDashboardService';
 import { putPortfolioDiagnosis } from './storage/portfolioDiagnosisStore';
 import { supportedCategoryIds } from '../autopilot/categoryInference';
+import { runDecisionSync } from '../decisionOS/index';
+import { categoryConcentrationContext, CATEGORY_CONCENTRATION_SOURCES } from '../decisionOS/adapters/portfolioAdapter';
 
 // Build 030 Part 2, Module 4 — Portfolio Doctor. Every finding below is a
 // real join over real Build 026/029 data (Portfolio assets, QualitySnapshot,
@@ -46,7 +48,14 @@ function latestSnapshotByAsset(snapshots: QualitySnapshot[]): Map<string, Qualit
   return map;
 }
 
-function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: PortfolioDoctorPreferences): PortfolioDiagnosisFinding {
+/** Build 031B, Part 10 — the UNBALANCED-vs-HEALTHY threshold call is
+ * delegated to the Decision OS's `portfolio.avoidOversaturation` policy
+ * (`decisionOS/policies/portfolioPolicies.ts`) rather than the inline
+ * `share >= preferences.oversupplyShare` check this function used to make
+ * itself — the max-category/share math is still computed here (the
+ * Decision OS never recomputes business data, only reasons about it), so
+ * the finding's own wording and shape are unchanged. */
+function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: PortfolioDoctorPreferences, now: number): PortfolioDiagnosisFinding {
   if (assets.length === 0) {
     return {
       code: 'category-concentration',
@@ -64,7 +73,8 @@ function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: Por
   for (const a of assets) if (a.presetId && counts.has(a.presetId)) counts.set(a.presetId, (counts.get(a.presetId) ?? 0) + 1);
   const [maxCategory, maxCount] = [...counts.entries()].sort((x, y) => y[1] - x[1])[0];
   const share = maxCount / assets.length;
-  if (share >= preferences.oversupplyShare) {
+  const decision = runDecisionSync(categoryConcentrationContext(maxCategory, maxCount, assets.length, preferences.oversupplyShare, now), CATEGORY_CONCENTRATION_SOURCES);
+  if (decision.recommendedAction === 'diversifyPortfolio') {
     return {
       code: 'category-concentration',
       verdict: 'UNBALANCED',
@@ -200,7 +210,7 @@ function overallVerdictFrom(findings: PortfolioDiagnosisFinding[]): PortfolioDia
 
 export function buildPortfolioDiagnosis(input: PortfolioDoctorInput): PortfolioDiagnosis {
   const findings = [
-    categoryConcentrationFinding(input.portfolioAssets, input.preferences),
+    categoryConcentrationFinding(input.portfolioAssets, input.preferences, input.now),
     emptyCollectionsFinding(input.dashboard),
     reviewRejectFinding(input.portfolioAssets, input.qualitySnapshots),
     readyNotImportedFinding(input.autonomousRuns),
