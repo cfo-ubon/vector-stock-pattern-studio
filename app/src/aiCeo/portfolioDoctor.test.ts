@@ -20,8 +20,8 @@ function baseInput(overrides: Partial<PortfolioDoctorInput> = {}): PortfolioDoct
 }
 
 describe('buildPortfolioDiagnosis — honest empty-portfolio state', () => {
-  it('an empty Portfolio is diagnosed INSUFFICIENT_DATA, never HEALTHY or UNBALANCED by guesswork', () => {
-    const diagnosis = buildPortfolioDiagnosis(baseInput());
+  it('an empty Portfolio is diagnosed INSUFFICIENT_DATA, never HEALTHY or UNBALANCED by guesswork', async () => {
+    const diagnosis = await buildPortfolioDiagnosis(baseInput());
     expect(diagnosis.overallVerdict).toBe('INSUFFICIENT_DATA');
     expect(diagnosis.findings.length).toBeGreaterThan(0);
     // Findings that genuinely have nothing to evaluate (category
@@ -36,31 +36,33 @@ describe('buildPortfolioDiagnosis — honest empty-portfolio state', () => {
 });
 
 describe('buildPortfolioDiagnosis — category concentration is evidence-based and configurable', () => {
-  it('flags UNBALANCED only once a category crosses the configured oversupply share', () => {
+  it('flags UNBALANCED only once a category crosses the configured oversupply share', async () => {
     const heavy = Array.from({ length: 6 }, (_, i) => createPortfolioAsset({ displayName: `B${i}`, originalFilename: `b${i}.svg`, sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'botanical' }));
     const other = createPortfolioAsset({ displayName: 'G', originalFilename: 'g.svg', sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'geometric' });
-    const diagnosis = buildPortfolioDiagnosis(baseInput({ portfolioAssets: [...heavy, other] }));
+    const diagnosis = await buildPortfolioDiagnosis(baseInput({ portfolioAssets: [...heavy, other] }));
     const finding = diagnosis.findings.find((f) => f.code === 'category-concentration')!;
     expect(finding.verdict).toBe('UNBALANCED');
     expect(finding.affectedCount).toBe(6);
     expect(finding.sendToAutopilotAction?.mode).toBe('PORTFOLIO_GAP');
+    expect(finding.decisionTrace).not.toBeNull();
+    expect(finding.decisionTrace?.policyIds).toContain('portfolio.avoidOversaturation');
   });
 
-  it('a higher configured oversupply threshold can turn the same Portfolio HEALTHY (user-configurable rule)', () => {
+  it('a higher configured oversupply threshold can turn the same Portfolio HEALTHY (user-configurable rule)', async () => {
     const heavy = Array.from({ length: 6 }, (_, i) => createPortfolioAsset({ displayName: `B${i}`, originalFilename: `b${i}.svg`, sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'botanical' }));
     const other = createPortfolioAsset({ displayName: 'G', originalFilename: 'g.svg', sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'geometric' });
-    const diagnosis = buildPortfolioDiagnosis(baseInput({ portfolioAssets: [...heavy, other], preferences: { oversupplyShare: 0.95 } }));
+    const diagnosis = await buildPortfolioDiagnosis(baseInput({ portfolioAssets: [...heavy, other], preferences: { oversupplyShare: 0.95 } }));
     expect(diagnosis.findings.find((f) => f.code === 'category-concentration')!.verdict).toBe('HEALTHY');
   });
 });
 
 describe('buildPortfolioDiagnosis — real REVIEW/REJECT rate from QualitySnapshot', () => {
-  it('a high REVIEW/REJECT rate is NEEDS_ATTENTION with a real count, never fabricated', () => {
+  it('a high REVIEW/REJECT rate is NEEDS_ATTENTION with a real count, never fabricated', async () => {
     const assets = Array.from({ length: 4 }, (_, i) => createPortfolioAsset({ displayName: `A${i}`, originalFilename: `a${i}.svg`, sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'botanical' }));
     const snapshots = assets.map((a, i) =>
       createQualitySnapshot({ assetId: a.assetId, beautyScore: 50, commercialScore: 50, fragmented: false, deadSpace: false, decision: i < 2 ? 'REJECT' : 'READY', generatorVersion: 'test', now: 1 }),
     );
-    const diagnosis = buildPortfolioDiagnosis(baseInput({ portfolioAssets: assets, qualitySnapshots: snapshots }));
+    const diagnosis = await buildPortfolioDiagnosis(baseInput({ portfolioAssets: assets, qualitySnapshots: snapshots }));
     const finding = diagnosis.findings.find((f) => f.code === 'review-reject-rate')!;
     expect(finding.verdict).toBe('NEEDS_ATTENTION');
     expect(finding.affectedCount).toBe(2);
@@ -68,22 +70,24 @@ describe('buildPortfolioDiagnosis — real REVIEW/REJECT rate from QualitySnapsh
 });
 
 describe('buildPortfolioDiagnosis — real un-imported READY items from AutonomousDesignRun', () => {
-  it('counts real READY items with no portfolioAssetId across runs', () => {
+  it('counts real READY items with no portfolioAssetId across runs', async () => {
     let run = createAutonomousDesignRun({ mode: 'FULL_AUTOPILOT', requestedCount: 1, now: 1 });
     run = { ...run, items: [{ collectionItemId: 'CI-1', generatorHandoffId: null, portfolioAssetId: null, qualitySnapshotId: null, decision: 'READY', repairAttempts: 0, error: null, completedAt: 4 }] };
-    const diagnosis = buildPortfolioDiagnosis(baseInput({ autonomousRuns: [run] }));
+    const diagnosis = await buildPortfolioDiagnosis(baseInput({ autonomousRuns: [run] }));
     const finding = diagnosis.findings.find((f) => f.code === 'ready-not-imported')!;
     expect(finding.verdict).toBe('NEEDS_ATTENTION');
     expect(finding.affectedCount).toBe(1);
+    expect(finding.decisionTrace?.policyIds).toContain('factory.completeExistingWorkFirst');
   });
 });
 
 describe('buildPortfolioDiagnosis — submission-prep readiness from PortfolioAsset.workflowStatus', () => {
-  it('counts real DRAFT/READY_FOR_REVIEW assets as not prepared for submission', () => {
+  it('counts real DRAFT/READY_FOR_REVIEW assets as not prepared for submission', async () => {
     const draft = createPortfolioAsset({ displayName: 'D', originalFilename: 'd.svg', sourceFileReferences: [], previewReference: null, metadataReference: null, presetId: 'botanical' });
-    const diagnosis = buildPortfolioDiagnosis(baseInput({ portfolioAssets: [draft] }));
+    const diagnosis = await buildPortfolioDiagnosis(baseInput({ portfolioAssets: [draft] }));
     const finding = diagnosis.findings.find((f) => f.code === 'not-prepared-for-submission')!;
     expect(finding.verdict).toBe('NEEDS_ATTENTION');
     expect(finding.affectedCount).toBe(1);
+    expect(finding.decisionTrace?.policyIds).toContain('portfolio.completeSubmissionPrep');
   });
 });

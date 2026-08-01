@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { AiCeoExplanation } from '../../aiCeo/domain/types';
+import type { AiCeoExplanation, DecisionTrace } from '../../aiCeo/domain/types';
 
 // Build 030 Part 2, Module 12 — AI CEO Explanation. One shared expandable
 // component every proactive statement (Morning Brief, a single
@@ -9,9 +9,15 @@ import type { AiCeoExplanation } from '../../aiCeo/domain/types';
 
 interface Props {
   explanation: AiCeoExplanation;
+  /** Build 031B Hardening (Section 1/7) — when the recommendation this
+   * explanation belongs to was actually produced by a Decision OS
+   * Decision, render its policies/business-impact/blocked-reasons too.
+   * Purely additive: every existing `dt`/`dd` above stays exactly as it
+   * was, this only appends a new section when a real trace exists. */
+  decisionTrace?: DecisionTrace | null;
 }
 
-export function ExplanationBlock({ explanation }: Props) {
+export function ExplanationBlock({ explanation, decisionTrace = null }: Props) {
   const [expanded, setExpanded] = useState(false);
   return (
     <div className="aiceo-explanation-block">
@@ -97,6 +103,41 @@ export function ExplanationBlock({ explanation }: Props) {
                   ))}
                 </ul>
               </dd>
+            </>
+          )}
+
+          {decisionTrace && (
+            <>
+              <dt>Decision Policies</dt>
+              <dd>{decisionTrace.policyIds.length > 0 ? decisionTrace.policyIds.join(', ') : 'No policy fired — no objection to the requested action.'}</dd>
+
+              <dt>Decision Evidence</dt>
+              <dd>{decisionTrace.evidenceIds.length > 0 ? decisionTrace.evidenceIds.join(', ') : 'No evidence was gathered for this decision.'}</dd>
+
+              <dt>Business Impact</dt>
+              <dd>{decisionTrace.businessImpact}</dd>
+
+              {decisionTrace.alternative && (
+                <>
+                  <dt>Decision Alternative</dt>
+                  <dd>
+                    {decisionTrace.alternative.action} — {decisionTrace.alternative.reason}
+                  </dd>
+                </>
+              )}
+
+              {decisionTrace.blockedReasons.length > 0 && (
+                <>
+                  <dt>Blocked Reasons</dt>
+                  <dd>
+                    <ul>
+                      {decisionTrace.blockedReasons.map((b, i) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </>
+              )}
             </>
           )}
         </dl>

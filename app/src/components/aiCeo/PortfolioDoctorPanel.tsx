@@ -1,7 +1,34 @@
 import { useEffect, useState, useCallback } from 'react';
 import { generateAndSavePortfolioDiagnosis, defaultPortfolioDoctorPreferences, DEFAULT_OVERSUPPLY_SHARE, type PortfolioDoctorPreferences } from '../../aiCeo/portfolioDoctor';
-import type { PortfolioDiagnosis, AiCeoAutopilotHandoff } from '../../aiCeo/domain/types';
+import type { PortfolioDiagnosis, AiCeoAutopilotHandoff, DecisionTrace } from '../../aiCeo/domain/types';
 import type { AiCeoNavigateTarget } from './BusinessCoachPanel';
+
+/** Build 031B Hardening (Section 5/7) — a finding's underlying Decision OS
+ * trace, when it has one. Purely additive next to the existing
+ * finding/evidence text (e.g. review-reject-rate stays local logic and
+ * has no trace to show). */
+function FindingDecisionTrace({ trace }: { trace: DecisionTrace }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="aiceo-finding-trace">
+      <button type="button" className="btn btn--link" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
+        {expanded ? 'Hide Why' : 'Why?'}
+      </button>
+      {expanded && (
+        <dl>
+          <dt>Policies</dt>
+          <dd>{trace.policyIds.length > 0 ? trace.policyIds.join(', ') : 'None fired.'}</dd>
+          <dt>Evidence</dt>
+          <dd>{trace.evidenceIds.length > 0 ? trace.evidenceIds.join(', ') : 'None gathered.'}</dd>
+          <dt>Confidence</dt>
+          <dd>{trace.confidenceBand} ({trace.confidenceScore})</dd>
+          <dt>Business Impact</dt>
+          <dd>{trace.businessImpact}</dd>
+        </dl>
+      )}
+    </div>
+  );
+}
 
 // Build 030 Part 2, Module 4 — Portfolio Doctor panel. Exposes the
 // user-configurable oversupply threshold directly in the UI (spec's own
@@ -69,6 +96,7 @@ export function PortfolioDoctorPanel({ onAction }: Props) {
                 <span className="aiceo-finding-verdict">{VERDICT_LABEL[finding.verdict]}</span>
                 <p>{finding.finding}</p>
                 <p className="aiceo-finding-evidence">{finding.evidence}</p>
+                {finding.decisionTrace && <FindingDecisionTrace trace={finding.decisionTrace} />}
                 {finding.sendToAutopilotAction && (
                   <button type="button" className="btn" onClick={() => onAction(finding.sendToAutopilotAction, null)}>
                     Send to Autopilot

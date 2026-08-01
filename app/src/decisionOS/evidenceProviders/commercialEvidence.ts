@@ -8,9 +8,16 @@ import { classifyFreshness } from '../evidenceEngine';
 // — never a second readiness computation.
 
 export interface CommercialEvidenceInput {
-  readiness: { assetId: string; score: number; threshold: number } | null;
+  readiness: { assetId: string; score: number; threshold: number; failingChecksCount: number } | null;
   hasSeo: boolean | null;
   recentPackage: { found: boolean; builtAt: number | null; cooldownMs: number } | null;
+  /** Build 031B Hardening — whether this asset is assigned to at least
+   * one Collection (the `collectionAssignment` Commercial Readiness
+   * check). `null` when the caller has no assignment data to offer.
+   * QA-passed status is deliberately NOT duplicated here — the Commercial
+   * Pipeline adapter reuses the existing `qa:assetQaStatus` evidence
+   * record (`qaEvidenceProvider`) instead of a second copy. */
+  collectionAssigned: boolean | null;
   timestamp: number;
 }
 
@@ -51,6 +58,17 @@ export function commercialEvidenceProvider(context: DecisionRequestContext): Evi
       confidenceImpact: 0.4,
       missingData: input.recentPackage ? [] : ['packageHistory'],
       value: input.recentPackage,
+    },
+    {
+      id: 'commercial:collectionAssignment',
+      source: 'commercial',
+      label: 'Asset assigned to a Collection',
+      timestamp: input.timestamp,
+      freshness,
+      completeness: input.collectionAssigned === null ? 0 : 1,
+      confidenceImpact: 0.3,
+      missingData: input.collectionAssigned === null ? ['collectionAssignment'] : [],
+      value: { assigned: input.collectionAssigned },
     },
   ];
 }

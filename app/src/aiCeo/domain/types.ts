@@ -81,6 +81,24 @@ export interface AiCeoExplanation {
   missingData: string[];
 }
 
+/** Build 031B Hardening (Section 7) — end-to-end decision traceability.
+ * Attached to any visible recommendation/finding/card that was actually
+ * produced by a Decision OS `Decision` (`decisionOS/decisionEngine.ts`),
+ * so the UI can show — and the Decision Timeline can already store —
+ * exactly which policies/evidence produced it, `null` for anything still
+ * decided by a module's own local logic (never fabricated for those). */
+export interface DecisionTrace {
+  decisionId: string;
+  domain: string;
+  policyIds: string[];
+  evidenceIds: string[];
+  confidenceScore: number;
+  confidenceBand: 'high' | 'medium' | 'low' | 'unknown';
+  businessImpact: string;
+  alternative: { action: string; reason: string } | null;
+  blockedReasons: string[];
+}
+
 export interface AiCeoRecommendation {
   id: string;
   action: AiCeoActionType;
@@ -105,6 +123,9 @@ export interface AiCeoRecommendation {
    * both real at once. */
   navigateTarget: 'autopilotHistory' | 'portfolio' | 'marketing' | null;
   memoryInfluence: string[];
+  /** `null` when this recommendation was not routed through the Decision
+   * OS (see `DecisionTrace`'s own header comment). */
+  decisionTrace: DecisionTrace | null;
 }
 
 export function isValidAiCeoRecommendation(value: unknown): value is AiCeoRecommendation {
@@ -344,6 +365,10 @@ export interface PortfolioDiagnosisFinding {
   confidence: EvidenceBand;
   recommendedAction: string;
   sendToAutopilotAction: AiCeoAutopilotHandoff | null;
+  /** Build 031B Hardening (Section 7) — traceability back to the Decision OS
+   * Decision that produced this finding's verdict. `null` only for findings
+   * not (yet) routed through Decision OS. */
+  decisionTrace: DecisionTrace | null;
 }
 
 export const PORTFOLIO_DIAGNOSIS_SCHEMA_VERSION = 1;
@@ -376,6 +401,10 @@ export interface BusinessCoachCard {
   actionLabel: string | null;
   autopilotAction: AiCeoAutopilotHandoff | null;
   navigateTarget: 'autopilotHistory' | 'portfolio' | 'marketing' | null;
+  /** Build 031B Hardening (Section 7) — traceability back to the Decision OS
+   * Decision behind this card, when the underlying recommendation carries
+   * one (e.g. sourced from an `AiCeoRecommendation`). `null` otherwise. */
+  decisionTrace: DecisionTrace | null;
 }
 
 export const BUSINESS_COACH_RUN_SCHEMA_VERSION = 1;

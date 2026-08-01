@@ -70,6 +70,25 @@ describe('generateCommercialRecommendations', () => {
     expect(recs[0].collectionId).toBe(collection.id);
   });
 
+  it('Build 031B Hardening — every asset-level recommendation carries a Decision OS trace', () => {
+    const readyAsset = makeAsset('Ready Pattern', {
+      collectionIds: ['c1'],
+      metadataReference: 'f3',
+      sourceFileReferences: [
+        { fileId: 'f1', role: 'svg', filename: 'a.svg', mimeType: 'image/svg+xml', fileSize: 10, sha256: 'h' },
+        { fileId: 'f2', role: 'eps', filename: 'a.eps', mimeType: 'application/postscript', fileSize: 10, sha256: 'h2' },
+        { fileId: 'f3', role: 'json', filename: 'a.json', mimeType: 'application/json', fileSize: 10, sha256: 'h3' },
+      ],
+    });
+    const readySnapshot = createQualitySnapshot({ assetId: readyAsset.assetId, beautyScore: 92, commercialScore: 92, fragmented: false, deadSpace: false, decision: 'READY', generatorVersion: 'v1.0' });
+    const readySubmission = { ...createSubmissionRecord({ patternId: readyAsset.assetId, marketplaceId: 'etsy' }), titleSnapshot: 'T', keywordSnapshot: ['a', 'b'] };
+    const readyReport = computeCommercialReadiness({ asset: readyAsset, qualitySnapshot: readySnapshot, submissionsForAsset: [readySubmission], siblingAssets: [] });
+    const recs = generateCommercialRecommendations({ reports: [readyReport], assetsById: new Map([[readyAsset.assetId, readyAsset]]) });
+    expect(recs[0].action).toBe('exportReady');
+    expect(recs[0].decisionTrace).not.toBeNull();
+    expect(recs[0].decisionTrace?.policyIds).toContain('commercial.recommendExportWhenReady');
+  });
+
   it('respects the limit parameter', () => {
     const assets = Array.from({ length: 10 }, (_, i) => makeAsset(`Pattern ${i}`, { collectionIds: [] }));
     const reports = assets.map((a) => computeCommercialReadiness({ asset: a, qualitySnapshot: null, submissionsForAsset: [], siblingAssets: [] }));

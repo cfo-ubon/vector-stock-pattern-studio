@@ -70,7 +70,25 @@ describe('portfolioPolicies', () => {
     expect(result.applies).toBe(false);
   });
 
-  it('declares the 3 policies named in the spec', () => {
-    expect(PORTFOLIO_POLICIES.map((p) => p.id).sort()).toEqual(['portfolio.avoidOversaturation', 'portfolio.preferCollectionDiversity', 'portfolio.preferMissingCategories'].sort());
+  it('completeSubmissionPrep recommends finishing prep for assets still in DRAFT/READY_FOR_REVIEW', () => {
+    const policy = policyById('portfolio.completeSubmissionPrep');
+    const evidence = bundle(record('portfolio:notPreparedForSubmission', { count: 4, total: 12 }));
+    const result = policy.evaluate(evidence, ctx());
+    expect(result.applies).toBe(true);
+    expect(result.action).toBe('completeSubmissionPrep');
+    expect(result.detail).toMatch(/4 of 12/);
+  });
+
+  it('completeSubmissionPrep does not fire when every asset is prepared', () => {
+    const policy = policyById('portfolio.completeSubmissionPrep');
+    const evidence = bundle(record('portfolio:notPreparedForSubmission', { count: 0, total: 12 }));
+    const result = policy.evaluate(evidence, ctx());
+    expect(result.applies).toBe(false);
+  });
+
+  it('declares the 4 Portfolio-domain policies (3 named in the spec + Build 031B Hardening submission-prep completion)', () => {
+    expect(PORTFOLIO_POLICIES.map((p) => p.id).sort()).toEqual(
+      ['portfolio.avoidOversaturation', 'portfolio.preferCollectionDiversity', 'portfolio.preferMissingCategories', 'portfolio.completeSubmissionPrep'].sort(),
+    );
   });
 });

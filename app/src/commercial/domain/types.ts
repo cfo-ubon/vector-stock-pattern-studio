@@ -1,3 +1,5 @@
+import type { DecisionTrace } from '../../aiCeo/domain/types';
+
 // Build 031A — Commercial Production Pipeline. Domain types shared by every
 // module under `commercial/`. Nothing here re-derives data another engine
 // already owns: a `CommercialReadinessReport` is built from real
@@ -191,6 +193,10 @@ export interface CommercialRecommendation {
   reason: string;
   evidence: string[];
   expectedImpact: string;
+  /** Build 031B Hardening (Section 7) — traceability back to the Decision
+   * OS Decision that produced `action`. `null` only for recommendations
+   * not (yet) routed through Decision OS. */
+  decisionTrace: DecisionTrace | null;
 }
 
 /** Phase 8 — Business Metrics. Every field here is computed from real,

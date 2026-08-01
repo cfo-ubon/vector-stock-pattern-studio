@@ -14,6 +14,11 @@ export interface PortfolioEvidenceInput {
   categoryConcentration: { maxCategoryId: string; maxCount: number; share: number } | null;
   leastCoveredCategory: { categoryId: string; count: number } | null;
   oversupplyShare: number;
+  /** Build 031B Hardening — Portfolio Doctor's "not prepared for
+   * submission" count (assets still in DRAFT/READY_FOR_REVIEW). `null`
+   * when the caller has no submission-prep data to offer, never a
+   * fabricated 0. */
+  notPreparedForSubmission: { count: number; total: number } | null;
   timestamp: number;
 }
 
@@ -36,7 +41,13 @@ export function portfolioEvidenceProvider(context: DecisionRequestContext): Evid
       completeness: input.categoryConcentration ? 1 : 0,
       confidenceImpact: 0.6,
       missingData: input.categoryConcentration ? [] : ['categoryConcentration'],
-      value: { ...input.categoryConcentration, total: input.totalAssets, oversupplyShare: input.oversupplyShare },
+      // Build 031B Hardening — spreading a `null` `categoryConcentration`
+      // used to produce a truthy `{ total, oversupplyShare }` object with
+      // `share: undefined`, which fooled `avoidOversaturation`'s `!concentration`
+      // null check (an `undefined < number` comparison is always `false`,
+      // so the policy fired as if a category *were* concentrated). Stay
+      // `null` when there's genuinely no concentration data.
+      value: input.categoryConcentration ? { ...input.categoryConcentration, total: input.totalAssets, oversupplyShare: input.oversupplyShare } : null,
     },
     {
       id: 'portfolio:leastCoveredCategory',
@@ -59,6 +70,17 @@ export function portfolioEvidenceProvider(context: DecisionRequestContext): Evid
       confidenceImpact: 0.2,
       missingData,
       value: { hasPortfolio: input.totalAssets > 0, totalAssets: input.totalAssets },
+    },
+    {
+      id: 'portfolio:notPreparedForSubmission',
+      source: 'portfolio',
+      label: 'Portfolio assets not yet prepared for submission',
+      timestamp: input.timestamp,
+      freshness,
+      completeness: input.notPreparedForSubmission ? 1 : 0,
+      confidenceImpact: 0.3,
+      missingData: input.notPreparedForSubmission ? [] : ['notPreparedForSubmission'],
+      value: input.notPreparedForSubmission,
     },
   ];
 }

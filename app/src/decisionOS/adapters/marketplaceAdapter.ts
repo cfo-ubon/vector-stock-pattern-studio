@@ -18,7 +18,7 @@ export function marketplaceFallbackContext(evidence: EvidenceSelection, hasLiveE
     now,
     data: {
       mission: { hasLiveEvidence, note: evidence.note, confidenceBand: evidence.confidence, timestamp: now },
-      portfolio: { totalAssets: portfolioAssetCount, categoryConcentration: null, leastCoveredCategory: null, oversupplyShare: 0.4, timestamp: now },
+      portfolio: { totalAssets: portfolioAssetCount, categoryConcentration: null, leastCoveredCategory: null, oversupplyShare: 0.4, notPreparedForSubmission: null, timestamp: now },
     },
   };
 }

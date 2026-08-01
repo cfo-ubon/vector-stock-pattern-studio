@@ -86,4 +86,36 @@ const preferCollectionDiversity: PolicyDefinition = {
   },
 };
 
-export const PORTFOLIO_POLICIES: PolicyDefinition[] = [avoidOversaturation, preferMissingCategories, preferCollectionDiversity];
+const completeSubmissionPrep: PolicyDefinition = {
+  id: 'portfolio.completeSubmissionPrep',
+  name: 'Complete submission prep',
+  description: 'Recommend finishing SEO/metadata for Portfolio assets still in DRAFT or READY_FOR_REVIEW before they can be submitted.',
+  domain: 'portfolio',
+  version: 1,
+  defaultPriority: 25,
+  defaultStatus: 'ENABLED',
+  requiredEvidence: ['portfolio'],
+  expectedOutcome: 'Assets not yet prepared for submission are surfaced as a real, countable follow-up, never silently ignored.',
+  impactWhenApplies: 'MEDIUM',
+  examples: ['4 of 12 Portfolio assets are still DRAFT/READY_FOR_REVIEW -> recommend completing submission prep.'],
+  evaluate: (evidence): PolicyEvaluation => {
+    const notPrepared = evaluationOf<{ count: number; total: number }>(evidence.records, 'portfolio:notPreparedForSubmission');
+    const evidenceIds = evidence.records.filter((r) => r.id === 'portfolio:notPreparedForSubmission').map((r) => r.id);
+    if (!notPrepared || notPrepared.count === 0) {
+      return { policyId: completeSubmissionPrep.id, policyName: completeSubmissionPrep.name, domain: 'portfolio', applies: false, action: null, blockedReason: null, warning: null, detail: 'Every Portfolio asset has been prepared beyond the draft/review stage.', evidenceIds };
+    }
+    return {
+      policyId: completeSubmissionPrep.id,
+      policyName: completeSubmissionPrep.name,
+      domain: 'portfolio',
+      applies: true,
+      action: 'completeSubmissionPrep',
+      blockedReason: null,
+      warning: null,
+      detail: `${notPrepared.count} of ${notPrepared.total} Portfolio asset(s) are not yet prepared for submission.`,
+      evidenceIds,
+    };
+  },
+};
+
+export const PORTFOLIO_POLICIES: PolicyDefinition[] = [avoidOversaturation, preferMissingCategories, preferCollectionDiversity, completeSubmissionPrep];

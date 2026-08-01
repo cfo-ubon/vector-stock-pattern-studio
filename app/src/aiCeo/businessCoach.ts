@@ -44,6 +44,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: top.autopilotAction ? 'Start' : top.navigateTarget ? 'Open' : null,
       autopilotAction: top.autopilotAction,
       navigateTarget: top.navigateTarget,
+      decisionTrace: top.decisionTrace,
     },
     {
       code: 'quick-win',
@@ -53,6 +54,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: quickWin ? (quickWin.autopilotAction ? 'Start' : 'Open') : null,
       autopilotAction: quickWin?.autopilotAction ?? null,
       navigateTarget: quickWin?.navigateTarget ?? null,
+      decisionTrace: quickWin?.decisionTrace ?? null,
     },
     {
       code: 'blocker',
@@ -62,6 +64,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: blocker ? (blocker.autopilotAction ? 'Start' : 'Open') : null,
       autopilotAction: blocker?.autopilotAction ?? null,
       navigateTarget: blocker?.navigateTarget ?? null,
+      decisionTrace: blocker?.decisionTrace ?? null,
     },
     {
       code: 'unfinished-work',
@@ -71,6 +74,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: unfinished ? (unfinished.autopilotAction ? 'Start' : 'Open') : null,
       autopilotAction: unfinished?.autopilotAction ?? null,
       navigateTarget: unfinished?.navigateTarget ?? null,
+      decisionTrace: unfinished?.decisionTrace ?? null,
     },
     {
       code: 'next-action',
@@ -80,6 +84,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: top.autopilotAction ? 'Start' : top.navigateTarget ? 'Open' : null,
       autopilotAction: top.autopilotAction,
       navigateTarget: top.navigateTarget,
+      decisionTrace: top.decisionTrace,
     },
     {
       code: 'weekly-progress',
@@ -89,6 +94,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: null,
       autopilotAction: null,
       navigateTarget: null,
+      decisionTrace: null,
     },
     {
       code: 'portfolio-growth',
@@ -98,6 +104,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: null,
       autopilotAction: null,
       navigateTarget: null,
+      decisionTrace: null,
     },
     {
       code: 'submission-readiness',
@@ -107,6 +114,7 @@ export function buildBusinessCoach(input: BuildBusinessCoachInput): BusinessCoac
       actionLabel: null,
       autopilotAction: null,
       navigateTarget: null,
+      decisionTrace: null,
     },
   ];
 

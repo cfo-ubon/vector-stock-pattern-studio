@@ -264,7 +264,7 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
                 Adjust Goal
               </button>
             </div>
-            <ExplanationBlock explanation={brief.explanation} />
+            <ExplanationBlock explanation={brief.explanation} decisionTrace={brief.topRecommendation.decisionTrace} />
           </div>
         )}
       </section>

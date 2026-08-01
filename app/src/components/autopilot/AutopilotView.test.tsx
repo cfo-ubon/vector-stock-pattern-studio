@@ -3,7 +3,8 @@ import { File as NodeFile } from 'node:buffer';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AutopilotView } from './AutopilotView';
 import { clearPortfolioStores, loadPortfolioAssets } from '../../catalog/storage/portfolioStore';
-import { clearAutonomousDesignRuns } from '../../autopilot/storage/autonomousDesignRunStore';
+import { clearAutonomousDesignRuns, putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
+import { createAutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
 import { clearMarketOpportunities } from '../../marketing/storage/marketOpportunityStore';
 import { clearDailyMissions } from '../../marketing/storage/dailyMissionStore';
 import { clearSeasonalEvents } from '../../marketing/storage/seasonalEventStore';
@@ -82,5 +83,51 @@ describe('AutopilotView', () => {
     render(<AutopilotView onClose={() => {}} initialAction={{ mode: 'FULL_AUTOPILOT', requestedCount: 5 }} />);
     await waitFor(() => expect(screen.getByText('เหตุผลของแต่ละการตัดสินใจ')).toBeInTheDocument());
     expect(screen.queryByText('Autopilot Mode')).not.toBeInTheDocument();
+  });
+
+  it('Build 031B Hardening — recommends finishing existing work instead of generating when a run is interrupted, citing the real Decision OS policy', async () => {
+    let run = createAutonomousDesignRun({ mode: 'FULL_AUTOPILOT', requestedCount: 5, now: Date.now() - 60000 });
+    run = { ...run, status: 'PAUSED' };
+    await putAutonomousDesignRun(run);
+
+    render(<AutopilotView onClose={() => {}} />);
+    await waitFor(() => expect(screen.getByText('Autopilot Mode')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText('สร้าง 5 ลาย'));
+
+    // `reload()` (including `loadAutonomousDesignRuns()`) resolves
+    // asynchronously after mount — retry the click until the Decision-OS-
+    // backed Generation Gate has real data to evaluate against, rather
+    // than racing a single click against that load.
+    await waitFor(
+      () => {
+        fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
+        expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+    expect(screen.getByText(/factory.completeExistingWorkFirst/)).toBeInTheDocument();
+    expect(screen.queryByText('เหตุผลของแต่ละการตัดสินใจ')).not.toBeInTheDocument();
+  });
+
+  it('Build 031B Hardening — user can explicitly override the non-generation recommendation and still build the plan', async () => {
+    let run = createAutonomousDesignRun({ mode: 'FULL_AUTOPILOT', requestedCount: 5, now: Date.now() - 60000 });
+    run = { ...run, status: 'PAUSED' };
+    await putAutonomousDesignRun(run);
+
+    render(<AutopilotView onClose={() => {}} />);
+    await waitFor(() => expect(screen.getByText('Autopilot Mode')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText('สร้าง 5 ลาย'));
+    await waitFor(
+      () => {
+        fireEvent.click(screen.getByText(/สร้างแผนการออกแบบ/));
+        expect(screen.getByText('AI does not recommend new generation yet.')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    fireEvent.click(screen.getByText('Generate Anyway'));
+    await waitFor(() => expect(screen.getByText('เหตุผลของแต่ละการตัดสินใจ')).toBeInTheDocument());
   });
 });

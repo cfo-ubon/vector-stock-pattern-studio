@@ -10,8 +10,27 @@ import { loadAutonomousDesignRuns } from '../autopilot/storage/autonomousDesignR
 import { loadDashboardSnapshot } from '../catalog/dashboard/portfolioDashboardService';
 import { putPortfolioDiagnosis } from './storage/portfolioDiagnosisStore';
 import { supportedCategoryIds } from '../autopilot/categoryInference';
-import { runDecisionSync } from '../decisionOS/index';
-import { categoryConcentrationContext, CATEGORY_CONCENTRATION_SOURCES } from '../decisionOS/adapters/portfolioAdapter';
+import { runDecisionSync, recordDecision } from '../decisionOS/index';
+import type { Decision } from '../decisionOS/domain/types';
+import {
+  categoryConcentrationContext,
+  CATEGORY_CONCENTRATION_SOURCES,
+  emptyCollectionsContext,
+  EMPTY_COLLECTIONS_SOURCES,
+  readyNotImportedContext,
+  READY_NOT_IMPORTED_SOURCES,
+  submissionPrepContext,
+  SUBMISSION_PREP_SOURCES,
+} from '../decisionOS/adapters/portfolioAdapter';
+import { decisionTraceFrom } from './decisionTrace';
+
+/** Build 031B Hardening — a finding plus the real Decision (if any) that
+ * produced it, so `buildPortfolioDiagnosis` can persist every Decision-OS-
+ * routed finding to the Decision Timeline without re-deriving it. */
+interface FindingWithDecision {
+  finding: PortfolioDiagnosisFinding;
+  decision: Decision | null;
+}
 
 // Build 030 Part 2, Module 4 — Portfolio Doctor. Every finding below is a
 // real join over real Build 026/029 data (Portfolio assets, QualitySnapshot,
@@ -55,17 +74,21 @@ function latestSnapshotByAsset(snapshots: QualitySnapshot[]): Map<string, Qualit
  * itself — the max-category/share math is still computed here (the
  * Decision OS never recomputes business data, only reasons about it), so
  * the finding's own wording and shape are unchanged. */
-function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: PortfolioDoctorPreferences, now: number): PortfolioDiagnosisFinding {
+function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: PortfolioDoctorPreferences, now: number): FindingWithDecision {
   if (assets.length === 0) {
     return {
-      code: 'category-concentration',
-      verdict: 'INSUFFICIENT_DATA',
-      finding: 'No Portfolio assets exist yet — category balance cannot be evaluated.',
-      evidence: 'Portfolio is empty.',
-      affectedCount: 0,
-      confidence: 'unknown',
-      recommendedAction: 'Generate your first patterns to begin tracking category balance.',
-      sendToAutopilotAction: null,
+      finding: {
+        code: 'category-concentration',
+        verdict: 'INSUFFICIENT_DATA',
+        finding: 'No Portfolio assets exist yet — category balance cannot be evaluated.',
+        evidence: 'Portfolio is empty.',
+        affectedCount: 0,
+        confidence: 'unknown',
+        recommendedAction: 'Generate your first patterns to begin tracking category balance.',
+        sendToAutopilotAction: null,
+        decisionTrace: null,
+      },
+      decision: null,
     };
   }
   const counts = new Map<string, number>();
@@ -74,48 +97,75 @@ function categoryConcentrationFinding(assets: PortfolioAsset[], preferences: Por
   const [maxCategory, maxCount] = [...counts.entries()].sort((x, y) => y[1] - x[1])[0];
   const share = maxCount / assets.length;
   const decision = runDecisionSync(categoryConcentrationContext(maxCategory, maxCount, assets.length, preferences.oversupplyShare, now), CATEGORY_CONCENTRATION_SOURCES);
+  const decisionTrace = decisionTraceFrom(decision);
   if (decision.recommendedAction === 'diversifyPortfolio') {
     return {
-      code: 'category-concentration',
-      verdict: 'UNBALANCED',
-      finding: `"${maxCategory}" makes up ${Math.round(share * 100)}% of your Portfolio, at or above your configured ${Math.round(preferences.oversupplyShare * 100)}% oversupply threshold.`,
-      evidence: `${maxCount} of ${assets.length} Portfolio assets are "${maxCategory}".`,
-      affectedCount: maxCount,
-      confidence: 'high',
-      recommendedAction: 'Diversify into a less-covered category.',
-      sendToAutopilotAction: { mode: 'PORTFOLIO_GAP', requestedCount: 10, productionGoal: 'portfolioExpansion' },
+      finding: {
+        code: 'category-concentration',
+        verdict: 'UNBALANCED',
+        finding: `"${maxCategory}" makes up ${Math.round(share * 100)}% of your Portfolio, at or above your configured ${Math.round(preferences.oversupplyShare * 100)}% oversupply threshold.`,
+        evidence: `${maxCount} of ${assets.length} Portfolio assets are "${maxCategory}".`,
+        affectedCount: maxCount,
+        confidence: 'high',
+        recommendedAction: 'Diversify into a less-covered category.',
+        sendToAutopilotAction: { mode: 'PORTFOLIO_GAP', requestedCount: 10, productionGoal: 'portfolioExpansion' },
+        decisionTrace,
+      },
+      decision,
     };
   }
   return {
-    code: 'category-concentration',
-    verdict: 'HEALTHY',
-    finding: `No category reaches your configured ${Math.round(preferences.oversupplyShare * 100)}% oversupply threshold.`,
-    evidence: `Largest category "${maxCategory}" is ${Math.round(share * 100)}% of the Portfolio.`,
-    affectedCount: maxCount,
-    confidence: 'high',
-    recommendedAction: 'No action needed.',
-    sendToAutopilotAction: null,
+    finding: {
+      code: 'category-concentration',
+      verdict: 'HEALTHY',
+      finding: `No category reaches your configured ${Math.round(preferences.oversupplyShare * 100)}% oversupply threshold.`,
+      evidence: `Largest category "${maxCategory}" is ${Math.round(share * 100)}% of the Portfolio.`,
+      affectedCount: maxCount,
+      confidence: 'high',
+      recommendedAction: 'No action needed.',
+      sendToAutopilotAction: null,
+      decisionTrace,
+    },
+    decision,
   };
 }
 
-function emptyCollectionsFinding(dashboard: DashboardSnapshot): PortfolioDiagnosisFinding {
+/** Build 031B Hardening — the empty-vs-non-empty verdict is delegated to
+ * the Decision OS's `portfolio.preferCollectionDiversity` policy, which
+ * fires on the identical `count > 0` condition this function used to check
+ * itself, so behavior is unchanged. */
+function emptyCollectionsFinding(dashboard: DashboardSnapshot, now: number): FindingWithDecision {
   const count = dashboard.collectionAnalytics.emptyCollections.length;
-  if (count === 0) {
-    return { code: 'empty-collections', verdict: 'HEALTHY', finding: 'No empty collections found.', evidence: '0 collections with zero assigned patterns.', affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null };
+  const decision = runDecisionSync(emptyCollectionsContext(count, now), EMPTY_COLLECTIONS_SOURCES);
+  const decisionTrace = decisionTraceFrom(decision);
+  if (decision.recommendedAction !== 'fillEmptyCollections') {
+    return { finding: { code: 'empty-collections', verdict: 'HEALTHY', finding: 'No empty collections found.', evidence: '0 collections with zero assigned patterns.', affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null, decisionTrace }, decision };
   }
   return {
-    code: 'empty-collections',
-    verdict: 'NEEDS_ATTENTION',
-    finding: `${count} collection(s) have no patterns assigned.`,
-    evidence: `${count} empty collection(s).`,
-    affectedCount: count,
-    confidence: 'high',
-    recommendedAction: 'Fill or archive empty collections.',
-    sendToAutopilotAction: { mode: 'SELLABLE_COLLECTION', requestedCount: 10, productionGoal: 'collection' },
+    finding: {
+      code: 'empty-collections',
+      verdict: 'NEEDS_ATTENTION',
+      finding: `${count} collection(s) have no patterns assigned.`,
+      evidence: `${count} empty collection(s).`,
+      affectedCount: count,
+      confidence: 'high',
+      recommendedAction: 'Fill or archive empty collections.',
+      sendToAutopilotAction: { mode: 'SELLABLE_COLLECTION', requestedCount: 10, productionGoal: 'collection' },
+      decisionTrace,
+    },
+    decision,
   };
 }
 
-function reviewRejectFinding(assets: PortfolioAsset[], snapshots: QualitySnapshot[]): PortfolioDiagnosisFinding {
+/** Build 031B Hardening — not one of the spec's 6 named Portfolio Doctor
+ * Decision OS ownership items (oversaturation / category gap / duplication
+ * concern / incomplete collection / ready-not-imported / not-packaged), and
+ * its 30%-rate threshold has no matching policy (the closest policy,
+ * `factory.repairBeforeGenerate`, fires on any nonzero count — a different,
+ * non-equivalent threshold). Left as local business logic rather than
+ * delegated under a policy that would silently change its behavior; see
+ * `BUILD_031B_LOGIC_MIGRATION_AUDIT.md`. */
+function reviewRejectFinding(assets: PortfolioAsset[], snapshots: QualitySnapshot[]): FindingWithDecision {
   const latest = latestSnapshotByAsset(snapshots);
   const assetIds = new Set(assets.map((a) => a.assetId));
   let review = 0;
@@ -129,69 +179,103 @@ function reviewRejectFinding(assets: PortfolioAsset[], snapshots: QualitySnapsho
   }
   if (total === 0) {
     return {
-      code: 'review-reject-rate',
-      verdict: 'INSUFFICIENT_DATA',
-      finding: 'No quality-evaluated Portfolio assets exist yet.',
-      evidence: 'No QualitySnapshot record references an existing Portfolio asset.',
-      affectedCount: 0,
-      confidence: 'unknown',
-      recommendedAction: 'Generate and evaluate patterns to begin tracking quality outcomes.',
-      sendToAutopilotAction: null,
+      finding: {
+        code: 'review-reject-rate',
+        verdict: 'INSUFFICIENT_DATA',
+        finding: 'No quality-evaluated Portfolio assets exist yet.',
+        evidence: 'No QualitySnapshot record references an existing Portfolio asset.',
+        affectedCount: 0,
+        confidence: 'unknown',
+        recommendedAction: 'Generate and evaluate patterns to begin tracking quality outcomes.',
+        sendToAutopilotAction: null,
+        decisionTrace: null,
+      },
+      decision: null,
     };
   }
   const rate = (review + reject) / total;
   const verdict: PortfolioDiagnosisVerdict = rate > 0.3 ? 'NEEDS_ATTENTION' : 'HEALTHY';
   return {
-    code: 'review-reject-rate',
-    verdict,
-    finding: `${Math.round(rate * 100)}% of quality-evaluated Portfolio assets are REVIEW or REJECT.`,
-    evidence: `${review} REVIEW, ${reject} REJECT, out of ${total} evaluated.`,
-    affectedCount: review + reject,
-    confidence: 'high',
-    recommendedAction: verdict === 'NEEDS_ATTENTION' ? 'Review REVIEW/REJECT items before producing more of the same category.' : 'No action needed.',
-    sendToAutopilotAction: null,
+    finding: {
+      code: 'review-reject-rate',
+      verdict,
+      finding: `${Math.round(rate * 100)}% of quality-evaluated Portfolio assets are REVIEW or REJECT.`,
+      evidence: `${review} REVIEW, ${reject} REJECT, out of ${total} evaluated.`,
+      affectedCount: review + reject,
+      confidence: 'high',
+      recommendedAction: verdict === 'NEEDS_ATTENTION' ? 'Review REVIEW/REJECT items before producing more of the same category.' : 'No action needed.',
+      sendToAutopilotAction: null,
+      decisionTrace: null,
+    },
+    decision: null,
   };
 }
 
-function readyNotImportedFinding(runs: AutonomousDesignRun[]): PortfolioDiagnosisFinding {
+/** Build 031B Hardening — delegated to `factory.completeExistingWorkFirst`,
+ * which fires on the identical `readyNotImportedCount > 0` condition (the
+ * adapter always supplies `resumableRunCount: 0` for this finding, so the
+ * policy's other trigger never contributes here) this function used to
+ * check itself. */
+function readyNotImportedFinding(runs: AutonomousDesignRun[], now: number): FindingWithDecision {
   let count = 0;
   for (const run of runs) {
     for (const item of run.items) {
       if (item.decision === 'READY' && item.portfolioAssetId === null) count++;
     }
   }
-  if (count === 0) {
-    return { code: 'ready-not-imported', verdict: 'HEALTHY', finding: 'No generated READY items are waiting to be added to your Portfolio.', evidence: '0 un-imported READY items.', affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null };
+  const decision = runDecisionSync(readyNotImportedContext(count, now), READY_NOT_IMPORTED_SOURCES);
+  const decisionTrace = decisionTraceFrom(decision);
+  if (decision.recommendedAction !== 'resumeExistingWork') {
+    return { finding: { code: 'ready-not-imported', verdict: 'HEALTHY', finding: 'No generated READY items are waiting to be added to your Portfolio.', evidence: '0 un-imported READY items.', affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null, decisionTrace }, decision };
   }
   return {
-    code: 'ready-not-imported',
-    verdict: 'NEEDS_ATTENTION',
-    finding: `${count} generated pattern(s) passed quality review as READY but are not yet in your Portfolio.`,
-    evidence: `${count} un-imported READY item(s) across your Autopilot runs.`,
-    affectedCount: count,
-    confidence: 'high',
-    recommendedAction: 'Import READY items into your Portfolio from Autopilot History.',
-    sendToAutopilotAction: null,
+    finding: {
+      code: 'ready-not-imported',
+      verdict: 'NEEDS_ATTENTION',
+      finding: `${count} generated pattern(s) passed quality review as READY but are not yet in your Portfolio.`,
+      evidence: `${count} un-imported READY item(s) across your Autopilot runs.`,
+      affectedCount: count,
+      confidence: 'high',
+      recommendedAction: 'Import READY items into your Portfolio from Autopilot History.',
+      sendToAutopilotAction: null,
+      decisionTrace,
+    },
+    decision,
   };
 }
 
-function notPreparedForSubmissionFinding(assets: PortfolioAsset[]): PortfolioDiagnosisFinding {
+/** Build 031B Hardening — delegated to `portfolio.completeSubmissionPrep`,
+ * which fires on the identical `count > 0` condition (assets still in
+ * DRAFT/READY_FOR_REVIEW) this function used to check itself. */
+function notPreparedForSubmissionFinding(assets: PortfolioAsset[], now: number): FindingWithDecision {
   if (assets.length === 0) {
-    return { code: 'not-prepared-for-submission', verdict: 'INSUFFICIENT_DATA', finding: 'No Portfolio assets exist yet.', evidence: 'Portfolio is empty.', affectedCount: 0, confidence: 'unknown', recommendedAction: 'Generate your first patterns.', sendToAutopilotAction: null };
+    return {
+      finding: { code: 'not-prepared-for-submission', verdict: 'INSUFFICIENT_DATA', finding: 'No Portfolio assets exist yet.', evidence: 'Portfolio is empty.', affectedCount: 0, confidence: 'unknown', recommendedAction: 'Generate your first patterns.', sendToAutopilotAction: null, decisionTrace: null },
+      decision: null,
+    };
   }
   const notPrepared = assets.filter((a) => a.workflowStatus === 'DRAFT' || a.workflowStatus === 'READY_FOR_REVIEW');
-  if (notPrepared.length === 0) {
-    return { code: 'not-prepared-for-submission', verdict: 'HEALTHY', finding: 'Every Portfolio asset has been prepared beyond the draft/review stage.', evidence: `0 of ${assets.length} assets are in DRAFT or READY_FOR_REVIEW.`, affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null };
+  const decision = runDecisionSync(submissionPrepContext(notPrepared.length, assets.length, now), SUBMISSION_PREP_SOURCES);
+  const decisionTrace = decisionTraceFrom(decision);
+  if (decision.recommendedAction !== 'completeSubmissionPrep') {
+    return {
+      finding: { code: 'not-prepared-for-submission', verdict: 'HEALTHY', finding: 'Every Portfolio asset has been prepared beyond the draft/review stage.', evidence: `0 of ${assets.length} assets are in DRAFT or READY_FOR_REVIEW.`, affectedCount: 0, confidence: 'high', recommendedAction: 'No action needed.', sendToAutopilotAction: null, decisionTrace },
+      decision,
+    };
   }
   return {
-    code: 'not-prepared-for-submission',
-    verdict: 'NEEDS_ATTENTION',
-    finding: `${notPrepared.length} of ${assets.length} Portfolio asset(s) are not yet prepared for submission.`,
-    evidence: `${notPrepared.length} assets are in DRAFT or READY_FOR_REVIEW.`,
-    affectedCount: notPrepared.length,
-    confidence: 'high',
-    recommendedAction: 'Complete SEO/metadata and move these toward READY_TO_UPLOAD.',
-    sendToAutopilotAction: null,
+    finding: {
+      code: 'not-prepared-for-submission',
+      verdict: 'NEEDS_ATTENTION',
+      finding: `${notPrepared.length} of ${assets.length} Portfolio asset(s) are not yet prepared for submission.`,
+      evidence: `${notPrepared.length} assets are in DRAFT or READY_FOR_REVIEW.`,
+      affectedCount: notPrepared.length,
+      confidence: 'high',
+      recommendedAction: 'Complete SEO/metadata and move these toward READY_TO_UPLOAD.',
+      sendToAutopilotAction: null,
+      decisionTrace,
+    },
+    decision,
   };
 }
 
@@ -208,14 +292,19 @@ function overallVerdictFrom(findings: PortfolioDiagnosisFinding[]): PortfolioDia
   return 'HEALTHY';
 }
 
-export function buildPortfolioDiagnosis(input: PortfolioDoctorInput): PortfolioDiagnosis {
-  const findings = [
+/** Build 031B Hardening (Section 7) — `async` so every Decision-OS-routed
+ * finding's real Decision can be awaited into the Decision Timeline before
+ * the diagnosis is returned, keeping every visible verdict traceable. */
+export async function buildPortfolioDiagnosis(input: PortfolioDoctorInput): Promise<PortfolioDiagnosis> {
+  const withDecisions = [
     categoryConcentrationFinding(input.portfolioAssets, input.preferences, input.now),
-    emptyCollectionsFinding(input.dashboard),
+    emptyCollectionsFinding(input.dashboard, input.now),
     reviewRejectFinding(input.portfolioAssets, input.qualitySnapshots),
-    readyNotImportedFinding(input.autonomousRuns),
-    notPreparedForSubmissionFinding(input.portfolioAssets),
+    readyNotImportedFinding(input.autonomousRuns, input.now),
+    notPreparedForSubmissionFinding(input.portfolioAssets, input.now),
   ];
+  await Promise.all(withDecisions.filter((w) => w.decision !== null).map((w) => recordDecision(w.decision as Decision)));
+  const findings = withDecisions.map((w) => w.finding);
   return { id: portfolioDiagnosisId.generate(input.now), createdAt: input.now, overallVerdict: overallVerdictFrom(findings), findings, schemaVersion: 1 };
 }
 
@@ -226,7 +315,7 @@ export async function generateAndSavePortfolioDiagnosis(preferences: PortfolioDo
     loadAutonomousDesignRuns(),
     loadDashboardSnapshot(),
   ]);
-  const diagnosis = buildPortfolioDiagnosis({ portfolioAssets, qualitySnapshots, autonomousRuns, dashboard, preferences, now });
+  const diagnosis = await buildPortfolioDiagnosis({ portfolioAssets, qualitySnapshots, autonomousRuns, dashboard, preferences, now });
   await putPortfolioDiagnosis(diagnosis);
   return diagnosis;
 }

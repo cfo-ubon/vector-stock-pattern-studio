@@ -4,7 +4,7 @@ import { loadDailyMissions } from '../../marketing/storage/dailyMissionStore';
 import { loadSeasonalEvents } from '../../marketing/storage/seasonalEventStore';
 import { getMostRecentSnapshotForOfflineUse, type OfflineSnapshotResult } from '../../marketing/snapshot/snapshotService';
 import { loadPortfolioAssets } from '../../catalog/storage/portfolioStore';
-import { loadQualitySnapshots } from '../../catalog/quality/qualitySnapshotStore';
+import { loadQualitySnapshots, type QualitySnapshot } from '../../catalog/quality/qualitySnapshotStore';
 import type { PortfolioAsset } from '../../catalog/domain/types';
 
 import { AUTOPILOT_MODE_VALUES, AUTOPILOT_MODE_LABEL_TH, AUTOPILOT_MODE_LABEL_EN, GUIDED_MODES, type AutopilotMode } from '../../autopilot/domain/autopilotMode';
@@ -15,6 +15,8 @@ import { supportedCategoryIds } from '../../autopilot/categoryInference';
 import type { DesignPlan } from '../../autopilot/domain/designPlan';
 import { createAutonomousDesignRun, transitionAutonomousDesignRun, type AutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
 import { putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
+import { loadAutonomousDesignRuns } from '../../autopilot/storage/autonomousDesignRunStore';
+import { evaluateGenerationGate, type GenerationGateResult } from '../../autopilot/generationGate';
 import { prepareRunForGeneration } from '../../autopilot/runPreparation';
 import { putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
 import { putCreativeBrief, getCreativeBrief } from '../../design-director/storage/creativeBriefStore';
@@ -37,7 +39,7 @@ import './autopilot.css';
 // Portfolio screens already use — this view builds no parallel pipeline,
 // it only sequences the existing one automatically.
 
-type AutopilotStep = 'goal' | 'plan' | 'constraints' | 'generating' | 'review' | 'history';
+type AutopilotStep = 'goal' | 'gate' | 'plan' | 'constraints' | 'generating' | 'review' | 'history';
 
 interface Props {
   onClose: () => void;
@@ -79,21 +81,30 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
   const [portfolioAssets, setPortfolioAssets] = useState<PortfolioAsset[]>([]);
   const [offline, setOffline] = useState<OfflineSnapshotResult | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // Build 031B Hardening — real evidence the Generation Gate reads so it
+  // never has to guess whether unfinished work exists.
+  const [qualitySnapshots, setQualitySnapshots] = useState<QualitySnapshot[]>([]);
+  const [autonomousRuns, setAutonomousRuns] = useState<AutonomousDesignRun[]>([]);
+  const [gateResult, setGateResult] = useState<GenerationGateResult | null>(null);
 
   const reload = useCallback(async () => {
     try {
-      const [opps, miss, seasonal, assets, offlineResult] = await Promise.all([
+      const [opps, miss, seasonal, assets, offlineResult, snapshots, runs] = await Promise.all([
         loadMarketOpportunities(),
         loadDailyMissions(),
         loadSeasonalEvents(),
         loadPortfolioAssets(),
         getMostRecentSnapshotForOfflineUse(),
+        loadQualitySnapshots(),
+        loadAutonomousDesignRuns(),
       ]);
       setOpportunities(opps);
       setMissions(miss);
       setSeasonalEvents(seasonal);
       setPortfolioAssets(assets);
       setOffline(offlineResult);
+      setQualitySnapshots(snapshots);
+      setAutonomousRuns(runs);
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
@@ -145,7 +156,7 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
     [mode, requestedCount, colorwayCount, marketplaceChoice, productionGoal, userInstruction, constraints, opportunities, missions, seasonalEvents, portfolioAssets, offline],
   );
 
-  const handleBuildPlan = useCallback(() => {
+  const buildPlanNow = useCallback(() => {
     try {
       const input = buildDecisionInput();
       const newPlan = buildAutonomousDesignPlan(input);
@@ -156,6 +167,28 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
       setPlanError(err instanceof Error ? err.message : String(err));
     }
   }, [buildDecisionInput]);
+
+  /** Build 031B Hardening — before building a Design Plan for NEW
+   * generation, ask the Decision OS whether generation is actually the
+   * best next action (`autopilot/generationGate.ts`). If it recommends
+   * resuming/repairing existing work instead, the user sees that
+   * recommendation on a dedicated step rather than the plan being built
+   * silently — they can still generate anyway via an explicit override. */
+  const handleBuildPlan = useCallback(() => {
+    const gate = evaluateGenerationGate(portfolioAssets, qualitySnapshots, autonomousRuns, Date.now());
+    if (!gate.recommendGenerate) {
+      setGateResult(gate);
+      setStep('gate');
+      return;
+    }
+    setGateResult(null);
+    buildPlanNow();
+  }, [portfolioAssets, qualitySnapshots, autonomousRuns, buildPlanNow]);
+
+  const handleOverrideGateAndBuildPlan = useCallback(() => {
+    setGateResult(null);
+    buildPlanNow();
+  }, [buildPlanNow]);
 
   // Build 030 (Mission Control) — `initialAction`'s one-shot auto-start.
   // Builds the input directly from `initialAction` (never from `mode`/
@@ -547,6 +580,41 @@ export function AutopilotView({ onClose, initialAction = null, initialStep }: Pr
           <button type="button" className="btn btn--primary autopilot-primary-action" onClick={handleBuildPlan}>
             สร้างแผนการออกแบบ →
           </button>
+        </div>
+      )}
+
+      {step === 'gate' && gateResult && (
+        <div className="autopilot-step">
+          <div className="autopilot-gate-card" role="alert">
+            <h2>AI does not recommend new generation yet.</h2>
+            <p className="autopilot-gate-reason">{gateResult.reason}</p>
+            <p className="autopilot-gate-alternative">
+              Recommended alternative: <strong>{gateResult.action === 'resumeExistingWork' ? 'Resume or import your existing unfinished work first (see Autopilot History).' : 'Repair your REVIEW/REJECT items first (see Portfolio).'}</strong>
+            </p>
+            <dl className="autopilot-gate-detail">
+              <dt>Policies</dt>
+              <dd>{gateResult.decisionTrace.policyIds.join(', ')}</dd>
+              <dt>Evidence</dt>
+              <dd>{gateResult.decisionTrace.evidenceIds.length > 0 ? gateResult.decisionTrace.evidenceIds.join(', ') : 'None gathered.'}</dd>
+              <dt>Confidence</dt>
+              <dd>
+                {gateResult.decisionTrace.confidenceBand} ({gateResult.decisionTrace.confidenceScore})
+              </dd>
+              <dt>Business Impact</dt>
+              <dd>{gateResult.decisionTrace.businessImpact}</dd>
+            </dl>
+            <div className="autopilot-gate-actions">
+              <button type="button" className="btn" onClick={() => setStep('history')}>
+                Go to Autopilot History
+              </button>
+              <button type="button" className="btn btn--primary" onClick={handleOverrideGateAndBuildPlan}>
+                Generate Anyway
+              </button>
+              <button type="button" className="btn btn--link" onClick={() => setStep('goal')}>
+                Back
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

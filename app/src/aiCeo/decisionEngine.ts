@@ -9,9 +9,10 @@ import type { Recommendation as DashboardRecommendation } from '../catalog/dashb
 import { selectEvidence, leastCoveredCategory, type DecisionEngineInput, type EvidenceSelection } from '../autopilot/decisionEngine';
 import { emptyAutopilotConstraints, type AutopilotConstraints } from '../autopilot/domain/constraints';
 import { aiCeoRecommendationId } from './domain/id';
-import type { AiCeoRecommendation, AiCeoActionType, AiCeoDataStatus, AiMemory } from './domain/types';
-import { runDecisionSync } from '../decisionOS/index';
+import type { AiCeoRecommendation, AiCeoActionType, AiCeoDataStatus, AiMemory, DecisionTrace } from './domain/types';
+import { runDecisionSync, recordDecision } from '../decisionOS/index';
 import { marketplaceFallbackContext, MARKETPLACE_FALLBACK_SOURCES } from '../decisionOS/adapters/marketplaceAdapter';
+import { decisionTraceFrom } from './decisionTrace';
 
 // Build 030 Part 2, Module 2 — AI CEO Decision Engine. Combines only
 // already-real, already-computed outputs (Build 029's `selectEvidence`/
@@ -85,6 +86,7 @@ function buildContinueRunRecommendation(run: AutonomousDesignRun, now: number): 
     autopilotAction: null,
     navigateTarget: 'autopilotHistory',
     memoryInfluence: [],
+    decisionTrace: null,
   };
 }
 
@@ -116,6 +118,7 @@ function buildMoveReadyRecommendation(count: number, now: number): AiCeoRecommen
     autopilotAction: null,
     navigateTarget: 'autopilotHistory',
     memoryInfluence: [],
+    decisionTrace: null,
   };
 }
 
@@ -147,10 +150,11 @@ function mapDashboardRecommendation(dr: DashboardRecommendation, now: number): A
     autopilotAction: null,
     navigateTarget: 'portfolio',
     memoryInfluence: [],
+    decisionTrace: null,
   };
 }
 
-function marketDrivenRecommendation(evidence: EvidenceSelection, decisionInput: DecisionEngineInput, memoryInfluence: string[], now: number): AiCeoRecommendation {
+function marketDrivenRecommendation(evidence: EvidenceSelection, decisionInput: DecisionEngineInput, memoryInfluence: string[], now: number, decisionTrace: DecisionTrace | null): AiCeoRecommendation {
   const freshness: AiCeoDataStatus = !evidence.offline ? 'LIVE_DATA' : decisionInput.offline.classification === 'SAVED_SNAPSHOT' ? 'SAVED_SNAPSHOT' : 'OFFLINE_RECOMMENDATION';
   const lowConfidence = evidence.confidence === 'low' || evidence.confidence === 'very-low' || evidence.confidence === 'unknown';
   return {
@@ -170,10 +174,11 @@ function marketDrivenRecommendation(evidence: EvidenceSelection, decisionInput: 
     autopilotAction: { mode: 'FULL_AUTOPILOT', requestedCount: decisionInput.requestedCount, marketplace: decisionInput.marketplacePreference, productionGoal: 'auto' },
     navigateTarget: null,
     memoryInfluence,
+    decisionTrace,
   };
 }
 
-function portfolioGapRecommendation(categoryId: string, count: number, decisionInput: DecisionEngineInput, memoryInfluence: string[], now: number): AiCeoRecommendation {
+function portfolioGapRecommendation(categoryId: string, count: number, decisionInput: DecisionEngineInput, memoryInfluence: string[], now: number, decisionTrace: DecisionTrace | null): AiCeoRecommendation {
   return {
     id: aiCeoRecommendationId.generate(now),
     action: 'DIVERSIFY_PORTFOLIO',
@@ -191,10 +196,11 @@ function portfolioGapRecommendation(categoryId: string, count: number, decisionI
     autopilotAction: { mode: 'PORTFOLIO_GAP', requestedCount: decisionInput.requestedCount, marketplace: decisionInput.marketplacePreference, productionGoal: 'portfolioExpansion' },
     navigateTarget: null,
     memoryInfluence,
+    decisionTrace,
   };
 }
 
-function evergreenFallbackRecommendation(decisionInput: DecisionEngineInput, hasAnyLocalData: boolean, memoryInfluence: string[], now: number): AiCeoRecommendation {
+function evergreenFallbackRecommendation(decisionInput: DecisionEngineInput, hasAnyLocalData: boolean, memoryInfluence: string[], now: number, decisionTrace: DecisionTrace | null): AiCeoRecommendation {
   const freshness: AiCeoDataStatus = hasAnyLocalData ? 'OFFLINE_RECOMMENDATION' : 'INSUFFICIENT_DATA';
   return {
     id: aiCeoRecommendationId.generate(now),
@@ -215,6 +221,7 @@ function evergreenFallbackRecommendation(decisionInput: DecisionEngineInput, has
     autopilotAction: { mode: 'EVERGREEN_COMMERCIAL', requestedCount: decisionInput.requestedCount, marketplace: decisionInput.marketplacePreference, productionGoal: 'auto' },
     navigateTarget: null,
     memoryInfluence,
+    decisionTrace,
   };
 }
 
@@ -266,12 +273,18 @@ export function rankAiCeoRecommendations(input: AiCeoDecisionInput): AiCeoRecomm
   // is now Decision-Engine-routed, so the produced `AiCeoRecommendation`
   // shape and UX stay identical.
   const marketplaceDecision = runDecisionSync(marketplaceFallbackContext(evidence, hasLiveEvidence, input.portfolioAssets.length, input.now), MARKETPLACE_FALLBACK_SOURCES);
+  // Build 031B Hardening (Section 7) — every visible recommendation must be
+  // traceable to the Decision that produced it. `rankAiCeoRecommendations`
+  // stays synchronous (its own docstring promises purity), so the Decision
+  // Timeline write is fire-and-forget rather than awaited.
+  void recordDecision(marketplaceDecision).catch(() => {});
+  const marketplaceTrace = decisionTraceFrom(marketplaceDecision);
   if (marketplaceDecision.recommendedAction === 'targetPortfolioGap') {
-    recommendations.push(portfolioGapRecommendation(gapCategory, gapCount, decisionInput, memoryInfluence, input.now));
+    recommendations.push(portfolioGapRecommendation(gapCategory, gapCount, decisionInput, memoryInfluence, input.now, marketplaceTrace));
   } else if (marketplaceDecision.recommendedAction === 'targetEvergreen') {
-    recommendations.push(evergreenFallbackRecommendation(decisionInput, input.offline.classification === 'SAVED_SNAPSHOT', memoryInfluence, input.now));
+    recommendations.push(evergreenFallbackRecommendation(decisionInput, input.offline.classification === 'SAVED_SNAPSHOT', memoryInfluence, input.now, marketplaceTrace));
   } else {
-    recommendations.push(marketDrivenRecommendation(evidence, decisionInput, memoryInfluence, input.now));
+    recommendations.push(marketDrivenRecommendation(evidence, decisionInput, memoryInfluence, input.now, marketplaceTrace));
   }
 
   return recommendations;

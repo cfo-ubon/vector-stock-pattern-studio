@@ -1,6 +1,10 @@
 import type { PortfolioAsset } from '../catalog/domain/types';
 import type { CommercialReadinessReport, CollectionCompletenessReport, CommercialRecommendation, CommercialRecommendationAction } from './domain/types';
 import { DEFAULT_READINESS_THRESHOLD } from './domain/types';
+import { runDecisionSync, recordDecision } from '../decisionOS/index';
+import { commercialNextActionContext, COMMERCIAL_NEXT_ACTION_SOURCES } from '../decisionOS/adapters/commercialAdapter';
+import { decisionTraceFrom } from '../aiCeo/decisionTrace';
+import type { DecisionTrace } from '../aiCeo/domain/types';
 
 // Build 031A, Phase 7 — AI Recommendation. Deliberately reuses the same
 // "why/evidence" shape `aiCeo/domain/types.ts`'s `AiCeoExplanation` already
@@ -18,14 +22,27 @@ import { DEFAULT_READINESS_THRESHOLD } from './domain/types';
 // commercial package with the least remaining effort. This is a stated
 // heuristic, not a claimed prediction of actual revenue impact.
 
-function actionForBucket(report: CommercialReadinessReport, threshold: number): CommercialRecommendationAction | null {
+/** Build 031B Hardening (Section 3) — the "what's next for this asset"
+ * business decision (completeCollection > repair > finishSeo > exportReady,
+ * in that priority order) is now owned by the Decision OS's
+ * `commercial.completeCollectionFirst` / `commercial.repairBeforeSeo` /
+ * `commercial.finishSeoBeforePackaging` / `commercial.recommendExportWhenReady`
+ * policies (`decisionOS/policies/commercialPolicies.ts`) rather than this
+ * local if/else-if chain. The generatorCompleted/svgExists gate stays here
+ * — it is technical validation ("can this asset be reasoned about at all"),
+ * not a business decision. Returns the underlying `Decision` alongside the
+ * action so the caller can attach a `decisionTrace` and record it. */
+function actionForBucket(report: CommercialReadinessReport, threshold: number): { action: CommercialRecommendationAction | null; decision: import('../decisionOS/domain/types').Decision | null } {
   const byId = new Map(report.checks.map((c) => [c.id, c] as const));
-  if (byId.get('generatorCompleted')!.status === 'FAIL' || byId.get('svgExists')!.status === 'FAIL') return null; // nothing actionable here — needs regeneration, out of this pipeline's scope
-  if (byId.get('collectionAssignment')!.status !== 'PASS') return 'completeCollection';
-  if (byId.get('qaPassed')!.status !== 'PASS') return 'repair';
-  if (byId.get('metadataExists')!.status !== 'PASS' || byId.get('seoExists')!.status !== 'PASS') return 'finishSeo';
-  if (report.score >= threshold && report.failingChecks.length === 0) return 'exportReady';
-  return null; // e.g. only a marketplace-review or export-validation WARNING remains — not one of the 5 named actions
+  if (byId.get('generatorCompleted')!.status === 'FAIL' || byId.get('svgExists')!.status === 'FAIL') return { action: null, decision: null }; // nothing actionable here — needs regeneration, out of this pipeline's scope
+
+  const collectionAssigned = byId.get('collectionAssignment')!.status === 'PASS';
+  const qaPassed = byId.get('qaPassed')!.status === 'PASS';
+  const hasSeo = byId.get('metadataExists')!.status === 'PASS' && byId.get('seoExists')!.status === 'PASS';
+  const context = commercialNextActionContext(report.score, threshold, report.failingChecks.length, hasSeo, collectionAssigned, qaPassed, report.assetId, report.computedAt);
+  const decision = runDecisionSync(context, COMMERCIAL_NEXT_ACTION_SOURCES);
+  const action = decision.recommendedAction as CommercialRecommendationAction | null;
+  return { action, decision };
 }
 
 function titleFor(action: CommercialRecommendationAction, assetName: string): string {
@@ -56,8 +73,13 @@ export function generateCommercialRecommendations(input: CommercialRecommendatio
   const recommendations: CommercialRecommendation[] = [];
 
   for (const report of reports) {
-    const action = actionForBucket(report, threshold);
+    const { action, decision } = actionForBucket(report, threshold);
     if (!action) continue;
+    // Fire-and-forget: `generateCommercialRecommendations` stays
+    // synchronous (its own caller renders a list directly from the
+    // return value), so the Decision Timeline write does not block it.
+    if (decision) void recordDecision(decision).catch(() => {});
+    const decisionTrace: DecisionTrace | null = decision ? decisionTraceFrom(decision) : null;
     const asset = assetsById.get(report.assetId);
     const assetName = asset?.displayName ?? report.assetId;
     const firstIssue = report.checks.find((c) => c.status !== 'PASS');
@@ -70,6 +92,7 @@ export function generateCommercialRecommendations(input: CommercialRecommendatio
       reason: action === 'exportReady' ? `Commercial Readiness ${report.score}% — every check passed.` : (firstIssue?.detail ?? 'Not yet ready.'),
       evidence: report.checks.filter((c) => c.status !== 'PASS').map((c) => `${c.label}: ${c.detail}`),
       expectedImpact: action === 'exportReady' ? 'Zero remaining work — can become a Commercial Package now.' : `Currently at ${report.score}% readiness — closest to unlocking a package.`,
+      decisionTrace,
     });
   }
 
@@ -84,6 +107,10 @@ export function generateCommercialRecommendations(input: CommercialRecommendatio
         reason: `"${completeness.collectionName}" has no asset tagged "colorway".`,
         evidence: [completeness.explanation],
         expectedImpact: 'Completes the collection\'s tracked role coverage.',
+        // Build 031B Hardening — collection-level colorway-gap detection
+        // is not yet routed through Decision OS (documented as a known
+        // limitation in BUILD_031B_LOGIC_MIGRATION_AUDIT.md).
+        decisionTrace: null,
       });
     }
   }
