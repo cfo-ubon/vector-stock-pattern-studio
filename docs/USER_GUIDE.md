@@ -4,22 +4,20 @@
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.87
-> **Development Build:** Build 030 Part 1 (AI CEO & Mission Control) — on
-> top of Build 029 (Autonomous Design Autopilot), which is now merged to
-> `main`
+> **Application Version:** v1.88
+> **Development Build:** Build 030 Part 2 (AI Starts the Conversation — AI
+> CEO Conversation, Business Coach, Portfolio Doctor & Memory) — on top of
+> Build 030 Part 1 (AI CEO & Mission Control)
 > **Source Commit:** *(see this build's commit on branch
 > `claude/build-030-ai-ceo-mission-control`)*
-> **Documentation Status:** Current for Build 030 Part 1 on branch
+> **Documentation Status:** Current for Build 030 Part 2 on branch
 > `claude/build-030-ai-ceo-mission-control` — **not yet merged to
 > `main`**. The `main` branch is currently at **Application Version v1.86 /
-> Development Build 029**, so it already has the Marketing Intelligence
-> Center, AI Creative Director, and Autonomous Design Autopilot described
-> below. If you are reading this file on `main`, the new Mission Control
-> home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar,
-> Goal Modes) described below is **not yet present** — it ships once this
-> branch is merged. Build 030 is being delivered in parts per its own
-> multi-part spec; this document covers Part 1 only. See
+> Development Build 029**, so it does not yet have Mission Control, the AI
+> CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, or
+> the AI Conversation Engine described below. If you are reading this file
+> on `main`, those sections describe **not yet present** functionality —
+> it ships once this branch is merged. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -58,7 +56,8 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.87 | Build 030 (Part 1) | *(this build's commit)* | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
+| v1.88 | Build 030 (Part 2) | *(this build's commit)* | AI Starts the Conversation — proactive AI CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, local AI Conversation Engine with persisted history, user-confirmed AI Memory | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 2 of a multi-part spec |
+| v1.87 | Build 030 (Part 1) | `9f1154b` | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
 | v1.86 | Build 029 | `03c419d` | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | Merged to `main` |
 | v1.85 | Build 028C | `d1078c5` | Marketing to Creative Director Workflow — "ส่งให้นักออกแบบ / Send to Creative Director" handoff review, 13-status workflow tracking, collectionItemId traceability, cross-navigation | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.84 | Build 028B Hardening | `e2904a1` | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
@@ -142,6 +141,67 @@ faster" — ระบบตีความคำสั่งเป็นอย�
 ปุ่ม "✨ ออกแบบให้ฉันวันนี้" (Autopilot) ยังอยู่เหมือนเดิม และหน้าตัวสร้าง
 ลวดลายแบบเดิม (Style DNA/generator settings ทั้งหมด) ยังอยู่ครบ เข้าถึงได้
 ผ่านปุ่ม **⚙️ Advanced Mode**
+
+### 🗣 AI Starts the Conversation (Build 030 Part 2) 🆕
+
+หน้า Mission Control ตอนนี้ไม่ใช่แค่แผงข้อมูล — AI CEO **เริ่มบทสนทนาเองทุก
+ครั้งที่เปิดแอป** ผู้ใช้ไม่ต้องถามว่า "วันนี้ควรทำอะไร" อีกต่อไป ระบบตอบให้
+อัตโนมัติจากข้อมูลจริงในเครื่อง — **ไม่มีการเรียก Cloud AI ใด ๆ** ทุกอย่าง
+เป็นตรรกะที่กำหนดผลลัพธ์แน่นอน (deterministic) รันในเบราว์เซอร์ล้วน ๆ
+
+- **AI CEO Morning Brief** — สรุปสถานะวันนี้ทันทีที่เปิดหน้า: คำทักทาย,
+  วันที่, สถานะข้อมูล (Live Data / Saved Snapshot / Local Portfolio
+  Analysis / Offline Recommendation / Insufficient Data — ไม่เคยอ้างว่า
+  "สด" ถ้าไม่ได้เชื่อมข้อมูลตลาดจริง), สรุปครั้งก่อน (ถ้ามีบันทึกจริง),
+  ภารกิจที่แนะนำวันนี้พร้อมเหตุผล, ทางเลือกอื่นที่ไม่ถูกเลือกพร้อมเหตุผลว่า
+  ทำไม, ผลกระทบต่อ Portfolio (เชิงคุณภาพ ไม่ใช่ตัวเลขรายได้), ขนาดการผลิตที่
+  แนะนำ, ระดับความมั่นใจ, ความเสี่ยง, ข้อมูลที่ยังขาด — กด **View
+  Explanation** เพื่อดูเหตุผลแบบเต็ม (evidence, confidence, assumptions,
+  ทางเลือกอื่น, memory ที่ใช้)
+- **Continue Unfinished Work** — ถ้ามีงานค้าง (รันที่ค้างอยู่, READY items
+  ที่ยังไม่ได้นำเข้า Portfolio, รายการที่ต้องตรวจสอบ) จะแสดงเป็นการ์ดเดียวที่
+  ชัดเจนที่สุด พร้อมปุ่ม **Continue** ที่พาไปยังหน้าจริงที่เกี่ยวข้อง —
+  ไม่เคยเริ่มรันใหม่ทั้งหมดถ้ายังมีงานที่ทำเสร็จบางส่วนอยู่
+- **Business Coach** — การ์ด 8 ใบจากข้อมูลจริงเท่านั้น: Today's Focus,
+  Quick Win, Most Important Blocker, Unfinished Work, Recommended Next
+  Action, Weekly Production Progress, Portfolio Growth, Submission
+  Readiness — ถ้าไม่มีข้อมูลจะแสดงข้อความที่ซื่อสัตย์ เช่น "No quick win
+  available right now" ไม่ใช่ตัวเลขปลอม
+- **Portfolio Doctor** — วินิจฉัยสุขภาพ Portfolio: ความสมดุลของหมวดหมู่
+  (ปรับเกณฑ์ "หมวดล้นตลาด" ได้เองผ่านช่อง Oversupply threshold — ค่าเริ่ม
+  ต้น 40%), collection ที่ว่างเปล่า, อัตรา REVIEW/REJECT จาก QualitySnapshot
+  จริง, READY items ที่ยังไม่นำเข้า Portfolio, งานที่ยังไม่พร้อมส่งขาย —
+  แต่ละข้อมีปุ่ม **Send to Autopilot** เมื่อมีการแก้ไขที่ทำได้จริง
+- **Business Goals** — ตั้งเป้าหมายทางธุรกิจได้เอง (Grow Portfolio, Improve
+  Diversity, Complete Collections, เพิ่มพอร์ต Adobe/Shutterstock/Etsy,
+  Evergreen/Seasonal, ลดอัตราถูกปฏิเสธ, Custom) พร้อมวันที่เป้าหมาย/จำนวนที่
+  ต้องการ/marketplace ที่สนใจ/หมายเหตุ — **ถ้าพิมพ์เป้าหมายที่มีคำเกี่ยวกับ
+  รายได้ (เช่น "$", "บาท", "รายได้") ระบบจะเตือนทันทีว่า "Revenue cannot be
+  predicted reliably from portfolio size alone"** ไม่แปลงเป้ารายได้เป็น
+  จำนวนรูปที่ต้องผลิตให้เองเด็ดขาด
+- **Ask Your AI CEO (Conversation)** — ช่องสนทนาแยกจาก AI Command Bar เดิม
+  ด้านบน รองรับประโยคภาษาไทย/อังกฤษที่กำหนดไว้ชัดเจน เช่น "วันนี้ควรทำ
+  อะไร", "เริ่มภารกิจวันนี้", "สร้าง 10 ลาย", "สร้าง Collection สำหรับ
+  Adobe", "เพิ่ม Portfolio", "เติมหมวดที่ขาด", "ทำงานต่อจากเมื่อวาน", "ตรวจ
+  Portfolio", "ดูงานที่ยังไม่เสร็จ", "สร้าง Colorway เพิ่ม", "เตรียมงานพร้อม
+  ส่งขาย", "เปิดโหมดขั้นสูง" (และภาษาอังกฤษที่ตรงความหมาย) — ทุกคำสั่งที่
+  ไม่รู้จักจะได้รับคำตอบที่ซื่อสัตย์ว่า "I cannot complete this command
+  locally yet" พร้อมตัวอย่างคำสั่งที่ใช้ได้ ไม่แสร้งว่าทำสำเร็จ —
+  บทสนทนาทุกครั้งถูกบันทึกไว้ (Conversation History) เปิดดูย้อนหลังได้
+- **User-Confirmed AI Memory** — ระบบจะ "สังเกต" ถ้าผู้ใช้เลือกสิ่งเดิมซ้ำ ๆ
+  (เช่น เลือก marketplace เดียวกัน 3 ครั้งติดต่อกัน) แล้ว **เสนอ** เป็น
+  memory ที่รอการยืนยัน — จะไม่ถูกนำไปใช้จนกว่าผู้ใช้กด **Confirm** เอง
+  เท่านั้น และทุกคำแนะนำที่ได้รับอิทธิพลจาก memory ที่ยืนยันแล้วจะระบุชัดเจน
+  ว่า "Based on your confirmed preference…" — ไม่มี memory ที่ถูกอนุมาน
+  และนำไปใช้แบบเงียบ ๆ
+
+**ข้อจำกัดที่ยังไม่ครบตามสเปกเต็ม (ระบุอย่างซื่อสัตย์)**: Cloud AI Provider
+Boundary เป็น interface ว่างเปล่าเท่านั้น (ยังไม่เชื่อมผู้ให้บริการ Cloud
+AI จริง — ตามที่สเปกกำหนดว่า "core AI CEO behavior must work without a
+cloud provider" ในบิลด์นี้), Memory ตรวจจับรูปแบบซ้ำได้เฉพาะ Preferred
+Marketplace เท่านั้น (ยังไม่ครบทั้ง 12 ประเภทที่สเปกระบุ), "Continue Run"
+เปิดหน้า Autopilot History ให้ผู้ใช้กด Resume เอง (ยังไม่ deep-link ตรงเข้า
+รันที่ค้างอยู่โดยอัตโนมัติทันที)
 
 ---
 
@@ -1665,6 +1725,71 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v1.88 — 1 ส.ค. 2026 — Build 030 Part 2: AI Starts the Conversation
+
+- 🌅 **AI CEO Morning Brief** — สร้างและบันทึกทุกครั้งที่เปิด Mission
+  Control: คำทักทาย, วันที่, สถานะข้อมูล (Live Data/Saved Snapshot/Local
+  Portfolio Analysis/Offline Recommendation/Insufficient Data), สรุปครั้ง
+  ก่อน (ถ้ามีบันทึกจริง), ภารกิจแนะนำวันนี้พร้อมเหตุผล, ทางเลือกอื่น,
+  ผลกระทบต่อ Portfolio เชิงคุณภาพ, ขนาดผลิตแนะนำ, ความมั่นใจ, ความเสี่ยง,
+  ข้อมูลที่ขาด — ทุกอย่างมาจาก `aiCeo/decisionEngine.ts` (Module 2) ซึ่งนำ
+  `selectEvidence`/`leastCoveredCategory` ของ Autopilot (Build 029) และ
+  Dashboard Snapshot Recommendations (Build 017) มาจัดอันดับใหม่ ไม่มีการ
+  ให้คะแนนซ้ำหรือเดาตัวเลข
+- 🔁 **Continue Unfinished Work** — ตรวจจับรันที่ค้างอยู่/READY items ที่ยัง
+  ไม่นำเข้า Portfolio/collection ที่ว่างเปล่า แล้วแสดงเป็นการ์ดเดียวที่
+  สำคัญที่สุด พร้อมพาไปหน้า Autopilot History จริง (ไม่เคยรีสตาร์ทรันที่
+  ทำเสร็จบางส่วนแล้ว)
+- 🧑‍💼 **Business Coach** — การ์ด 8 ใบ (Today's Focus, Quick Win, Most
+  Important Blocker, Unfinished Work, Recommended Next Action, Weekly
+  Production Progress, Portfolio Growth, Submission Readiness) reshape
+  จาก Decision Engine + `missionControl/businessStatus.ts` เดิม
+- 🩺 **Portfolio Doctor** — วินิจฉัย 5 หัวข้อ (ความสมดุลหมวดหมู่ที่ปรับเกณฑ์
+  oversupply ได้เอง — ค่าเริ่มต้น 40%, collection ว่างเปล่า, อัตรา
+  REVIEW/REJECT จาก QualitySnapshot จริง, READY items ที่ยังไม่นำเข้า
+  Portfolio, งานที่ยังไม่พร้อมส่งขาย) พร้อมปุ่ม Send to Autopilot
+- 🎯 **Business Goals** — CRUD เป้าหมายธุรกิจ 11 ประเภท พร้อมคำเตือนอัตโนมัติ
+  "Revenue cannot be predicted reliably from portfolio size alone" เมื่อ
+  ข้อความมีคำเกี่ยวกับรายได้ — ไม่แปลงเป้ารายได้เป็นจำนวนรูปที่ต้องผลิต
+- 💬 **AI Conversation Engine + Conversation History** — ช่องสนทนาใหม่
+  (แยกจาก AI Command Bar เดิม) รู้จำประโยคไทย/อังกฤษที่กำหนดตายตัว 12 แบบ
+  ตามสเปก (วันนี้ควรทำอะไร, เริ่มภารกิจวันนี้, สร้าง N ลาย, สร้าง
+  Collection สำหรับ X, เพิ่ม Portfolio, เติมหมวดที่ขาด, ทำงานต่อจากเมื่อ
+  วาน, ตรวจ Portfolio, ดูงานที่ยังไม่เสร็จ, สร้าง Colorway เพิ่ม, เตรียมงาน
+  พร้อมส่งขาย, เปิดโหมดขั้นสูง) แล้ว fallback ไปยัง Command Bar/Custom Goal
+  parser เดิม ไม่มีการเรียก Cloud AI — คำสั่งที่ไม่รู้จักได้รับข้อความ
+  ซื่อสัตย์ "I cannot complete this command locally yet" — ทุกบทสนทนา
+  บันทึกจริงใน `aiConversations`/`aiConversationMessages` (archive/delete/
+  export JSON ได้)
+- 🧠 **User-Confirmed AI Memory** — ตรวจจับการเลือก marketplace ซ้ำกัน 3
+  ครั้งติดต่อกันแล้ว **เสนอ** เป็น memory ที่รอยืนยัน — มีผลต่อคำแนะนำก็
+  ต่อเมื่อผู้ใช้กด Confirm เท่านั้น (เก็บแยกคนละ store จาก candidate เพื่อ
+  ป้องกันไม่ให้ logic คำแนะนำอ่านค่าที่ยังไม่ยืนยันได้เลย) ทุกคำแนะนำที่ใช้
+  memory จะระบุ "Based on your confirmed preference…"
+- 🔒 **Initiative Rules** — ทุกคำแนะนำที่มี Autopilot hand-off ยังคงต้องผ่าน
+  หน้าตรวจแผนของ Autopilot ก่อนเสมอ (ไม่เคยสร้างลายอัตโนมัติโดยไม่ผ่านการ
+  อนุมัติ) ไม่มีโค้ดใดใน `aiCeo/` ที่เรียก submission/delete/QA-decision
+  function โดยตรง
+- ☁️ **Cloud AI Provider Boundary** — เตรียม interface สำหรับผู้ให้บริการ
+  Cloud AI ในอนาคต (`getActiveCloudAiProvider()` คืนค่า `null` เสมอในบิลด์
+  นี้) ไม่มี API key ฝังในโค้ด ไม่มี API key ถูกบันทึกใน `.vspsb`
+- 💾 **Data Model** — เพิ่ม 8 store ใหม่ (`aiCeoBriefs`, `businessGoals`,
+  `aiConversations`, `aiConversationMessages`, `aiMemoryCandidates`,
+  `aiMemories`, `portfolioDiagnoses`, `businessCoachRecommendations`) และ
+  ใช้ store `recommendationHistory` เดิม (เตรียมไว้ตั้งแต่ Build 028) เป็น
+  `proactiveRecommendationHistory` — DB_VERSION 11 → 12 พร้อม migration
+  test ครบ ทุก store ใหม่รวมอยู่ใน `.vspsb` backup/restore แล้ว
+- ✅ ทดสอบใหม่ 79+ รายการเฉพาะโมดูล AI CEO (decision engine ranking,
+  Business Coach, Portfolio Doctor, Business Goals, deterministic
+  intent — ไทย/อังกฤษครบ 12 คำสั่ง, memory suggest/confirm/reject,
+  conversation persistence, backup round trip, DB migration) รวมกับชุด
+  ทดสอบเดิมทั้งระบบผ่านครบ ไม่มี regression ในหน้าจอ Mission Control เดิม
+- 📌 **หมายเหตุ (ข้อจำกัดที่ยังไม่ครบสเปกเต็ม)**: Cloud AI Provider เป็น
+  interface ว่างเท่านั้น, Memory ตรวจจับรูปแบบซ้ำได้เฉพาะ Preferred
+  Marketplace (ยังไม่ครบทั้ง 12 ประเภทที่สเปกระบุ), "Continue Run" เปิดหน้า
+  Autopilot History ให้ผู้ใช้กด Resume เอง (ยังไม่ deep-link อัตโนมัติเข้า
+  รันที่ค้างอยู่ทันที)
 
 ### v1.87 — 1 ส.ค. 2026 — Build 030 Part 1: AI CEO & Mission Control
 

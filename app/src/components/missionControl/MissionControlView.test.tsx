@@ -40,16 +40,20 @@ function renderView(overrides: Partial<Parameters<typeof MissionControlView>[0]>
   const onOpenPortfolio = vi.fn();
   const onOpenMarketing = vi.fn();
   const onOpenDesignDirector = vi.fn();
+  const onOpenAutopilotHistory = vi.fn();
+  const onOpenAdvancedMode = vi.fn();
   render(
     <MissionControlView
       onStartAutopilot={onStartAutopilot}
       onOpenPortfolio={onOpenPortfolio}
       onOpenMarketing={onOpenMarketing}
       onOpenDesignDirector={onOpenDesignDirector}
+      onOpenAutopilotHistory={onOpenAutopilotHistory}
+      onOpenAdvancedMode={onOpenAdvancedMode}
       {...overrides}
     />,
   );
-  return { onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector };
+  return { onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector, onOpenAutopilotHistory, onOpenAdvancedMode };
 }
 
 describe('MissionControlView', () => {

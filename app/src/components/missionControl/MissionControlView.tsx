@@ -12,7 +12,16 @@ import { MISSION_GOAL_MODE_VALUES, MISSION_GOAL_MODE_LABEL_EN, MISSION_GOAL_MODE
 import { parseCommandBarInput } from '../../missionControl/commandBarParser';
 import type { AutopilotMode } from '../../autopilot/domain/autopilotMode';
 import type { AutopilotProductionGoal } from '../../autopilot/collectionRolePlanner';
+import { generateAndSaveAiCeoBrief } from '../../aiCeo/morningBrief';
+import { findContinueYesterdayAction } from '../../aiCeo/continueYesterday';
+import type { AiCeoBrief, AiCeoAutopilotHandoff } from '../../aiCeo/domain/types';
+import { ExplanationBlock } from '../aiCeo/ExplanationBlock';
+import { BusinessCoachPanel, type AiCeoNavigateTarget } from '../aiCeo/BusinessCoachPanel';
+import { PortfolioDoctorPanel } from '../aiCeo/PortfolioDoctorPanel';
+import { GoalsPanel } from '../aiCeo/GoalsPanel';
+import { ConversationPanel } from '../aiCeo/ConversationPanel';
 import './missionControl.css';
+import '../aiCeo/aiCeo.css';
 
 // Build 030 ("AI CEO & Mission Control") — the new home screen. Every
 // number shown here comes from `missionControl/heroOpportunity.ts` and
@@ -35,6 +44,11 @@ interface Props {
   onOpenPortfolio: () => void;
   onOpenMarketing: () => void;
   onOpenDesignDirector: () => void;
+  /** Build 030 Part 2, Module 11 — real navigation targets the AI CEO's
+   * recommendations/Business Coach/Portfolio Doctor/Conversation can point
+   * to, reusing the same existing screens rather than inventing new ones. */
+  onOpenAutopilotHistory: () => void;
+  onOpenAdvancedMode: () => void;
 }
 
 const DEFAULT_REQUESTED_COUNT = 10;
@@ -49,13 +63,67 @@ function formatGapLabel(gap: 'HIGH' | 'MEDIUM' | 'LOW'): string {
   return 'Low';
 }
 
-export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector }: Props) {
+export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector, onOpenAutopilotHistory, onOpenAdvancedMode }: Props) {
   const [hero, setHero] = useState<HeroOpportunity | null>(null);
   const [status, setStatus] = useState<BusinessStatus | null>(null);
   const [offline, setOffline] = useState<OfflineSnapshotResult | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [commandText, setCommandText] = useState('');
   const [showExplanation, setShowExplanation] = useState(false);
+
+  // Build 030 Part 2, Module 1 — the real AI CEO Morning Brief, loaded
+  // (and persisted) alongside the existing Hero Card data.
+  const [brief, setBrief] = useState<AiCeoBrief | null>(null);
+  const [briefError, setBriefError] = useState<string | null>(null);
+
+  const reloadBrief = useCallback(async () => {
+    try {
+      setBrief(await generateAndSaveAiCeoBrief(DEFAULT_REQUESTED_COUNT));
+      setBriefError(null);
+    } catch (err) {
+      setBriefError(err instanceof Error ? err.message : String(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    void reloadBrief();
+  }, [reloadBrief]);
+
+  /** Module 9 — the single dispatch point every AI CEO surface (Morning
+   * Brief, Business Coach, Portfolio Doctor, Conversation) routes its
+   * chosen action through: a real Autopilot hand-off always lands on
+   * Autopilot's own Design Plan review screen (never auto-generates), a
+   * navigation target always opens a real existing screen. */
+  const handleAiCeoAction = useCallback(
+    (autopilotAction: AiCeoAutopilotHandoff | null, navigateTarget: AiCeoNavigateTarget | null) => {
+      if (autopilotAction) {
+        onStartAutopilot(autopilotAction as MissionControlAutopilotAction);
+        return;
+      }
+      switch (navigateTarget) {
+        case 'portfolio':
+          onOpenPortfolio();
+          break;
+        case 'marketing':
+          onOpenMarketing();
+          break;
+        case 'designDirector':
+          onOpenDesignDirector();
+          break;
+        case 'autopilotHistory':
+          onOpenAutopilotHistory();
+          break;
+        case 'advancedMode':
+          onOpenAdvancedMode();
+          break;
+        default:
+          break;
+      }
+    },
+    [onStartAutopilot, onOpenPortfolio, onOpenMarketing, onOpenDesignDirector, onOpenAutopilotHistory, onOpenAdvancedMode],
+  );
+
+  const continueAction = brief ? findContinueYesterdayAction([brief.topRecommendation, ...brief.alternativeRecommendations]) : null;
 
   const reload = useCallback(async () => {
     try {
@@ -149,6 +217,66 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
         <div className="mission-control-error" role="alert">
           Could not load today's data: {loadError}
         </div>
+      )}
+
+      <section className="aiceo-morning-brief">
+        <h2>AI CEO Morning Brief</h2>
+        {briefError && (
+          <p role="alert" className="aiceo-error">
+            Could not load Morning Brief: {briefError}
+          </p>
+        )}
+        {!brief && !briefError && <p className="aiceo-loading">Loading Morning Brief…</p>}
+        {brief && (
+          <div className="aiceo-brief-body">
+            <p className="aiceo-brief-greeting">
+              {brief.greeting} Today is {brief.dateLabel}. Data status: {brief.dataStatusLabel}.
+            </p>
+            {brief.yesterdaySummary && <p className="aiceo-brief-yesterday">{brief.yesterdaySummary}</p>}
+            <h3 className="aiceo-brief-recommendation">{brief.topRecommendation.title}</h3>
+            <p className="aiceo-brief-reason">{brief.topRecommendation.reason}</p>
+            <p className="aiceo-brief-meta">
+              Confidence: {brief.confidence} · Portfolio impact: {brief.portfolioImpact} · Production size: {brief.productionSizeRecommendation}
+            </p>
+            {brief.risks.length > 0 && (
+              <ul className="aiceo-brief-risks">
+                {brief.risks.map((r, i) => (
+                  <li key={i}>{r}</li>
+                ))}
+              </ul>
+            )}
+            {brief.missingInformation.length > 0 && (
+              <ul className="aiceo-brief-missing">
+                {brief.missingInformation.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
+              </ul>
+            )}
+            <div className="aiceo-brief-actions">
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => handleAiCeoAction(brief.topRecommendation.autopilotAction, brief.topRecommendation.navigateTarget)}
+              >
+                Start Today's Mission
+              </button>
+              <button type="button" className="btn" onClick={() => onStartAutopilot(null)}>
+                Adjust Goal
+              </button>
+            </div>
+            <ExplanationBlock explanation={brief.explanation} />
+          </div>
+        )}
+      </section>
+
+      {continueAction && (
+        <section className="aiceo-continue-work">
+          <h3>Continue Unfinished Work</h3>
+          <p>{continueAction.reason}</p>
+          <button type="button" className="btn btn--primary" onClick={() => handleAiCeoAction(continueAction.autopilotAction, continueAction.navigateTarget)}>
+            Continue
+          </button>
+        </section>
       )}
 
       <section className="mc-hero-card">
@@ -299,6 +427,14 @@ export function MissionControlView({ onStartAutopilot, onOpenPortfolio, onOpenMa
           Ask AI
         </button>
       </form>
+
+      <BusinessCoachPanel requestedCount={DEFAULT_REQUESTED_COUNT} onAction={handleAiCeoAction} />
+
+      <PortfolioDoctorPanel onAction={handleAiCeoAction} />
+
+      <GoalsPanel />
+
+      <ConversationPanel requestedCount={DEFAULT_REQUESTED_COUNT} onAction={handleAiCeoAction} />
     </div>
   );
 }

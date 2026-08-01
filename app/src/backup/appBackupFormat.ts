@@ -201,6 +201,22 @@ export const APP_BACKUP_STORE_NAMES = [
   // immediately since `autopilot/storage/autonomousDesignRunStore.ts`
   // writes real data from the first run.
   'autonomousDesignRuns',
+  // Build 030 Part 2 (AI CEO Conversation, Business Coach, Portfolio
+  // Doctor & Memory) — 8 new stores (DB version 11 -> 12), all registered
+  // immediately since every one gains a real store module in this build.
+  // `recommendationHistory` was pre-provisioned back in v8 (Build 028) but
+  // stayed unregistered here (per this list's own convention) until a
+  // build actually wrote to it — this build's `proactiveRecommendationHistory`
+  // requirement is that first real write, so it is registered here too.
+  'aiCeoBriefs',
+  'businessGoals',
+  'aiConversations',
+  'aiConversationMessages',
+  'aiMemoryCandidates',
+  'aiMemories',
+  'portfolioDiagnoses',
+  'businessCoachRecommendations',
+  'recommendationHistory',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

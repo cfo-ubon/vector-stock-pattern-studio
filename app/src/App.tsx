@@ -166,6 +166,12 @@ function App() {
   // regular "✨ ออกแบบให้ฉันวันนี้" button, or "Adjust Goal") means the
   // normal manual goal screen.
   const [pendingAutopilotAction, setPendingAutopilotAction] = useState<MissionControlAutopilotAction | null>(null);
+  // Build 030 Part 2, Module 11 ("Continue Yesterday") — lands directly on
+  // the Autopilot History screen instead of the Start Screen when a
+  // Mission Control recommendation's primary action is "continue" rather
+  // than "start something new". Cleared once consumed by the same
+  // one-shot pattern `pendingAutopilotAction` already uses.
+  const [pendingAutopilotInitialStep, setPendingAutopilotInitialStep] = useState<'history' | undefined>(undefined);
   // Build 028C — cross-navigation state for the Marketing <-> Creative
   // Director workflow (requirement #13): which brief/opportunity to
   // preselect the next time each view opens, set by the view being left
@@ -1149,6 +1155,7 @@ function App() {
         onOpenDesignDirector={() => setView('designDirector')}
         onOpenAutopilot={() => {
           setPendingAutopilotAction(null);
+          setPendingAutopilotInitialStep(undefined);
           setView('autopilot');
         }}
         onOpenAdvancedMode={() => setView('editor')}
@@ -1157,16 +1164,25 @@ function App() {
         <MissionControlView
           onStartAutopilot={(action) => {
             setPendingAutopilotAction(action);
+            setPendingAutopilotInitialStep(undefined);
             setView('autopilot');
           }}
           onOpenPortfolio={() => setView('portfolio')}
           onOpenMarketing={() => setView('marketing')}
           onOpenDesignDirector={() => setView('designDirector')}
+          onOpenAutopilotHistory={() => {
+            setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep('history');
+            setView('autopilot');
+          }}
+          onOpenAdvancedMode={() => setView('editor')}
         />
       ) : view === 'autopilot' ? (
         <AutopilotView
+          initialStep={pendingAutopilotInitialStep}
           onClose={() => {
             setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep(undefined);
             setView('missionControl');
           }}
           initialAction={pendingAutopilotAction}

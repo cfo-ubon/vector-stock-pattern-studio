@@ -1,0 +1,174 @@
+/* Build 030 Part 2 — AI CEO Conversation, Business Coach, Portfolio Doctor
+   & Memory. Minimal, functional styling matching Mission Control's own
+   card/section conventions (missionControl.css) rather than introducing a
+   parallel design system. */
+
+.aiceo-morning-brief,
+.aiceo-continue-work,
+.aiceo-business-coach,
+.aiceo-portfolio-doctor,
+.aiceo-goals,
+.aiceo-conversation {
+  background: var(--panel-bg, #fff);
+  border: 1px solid var(--border-color, #e2e2e2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.aiceo-loading,
+.aiceo-error {
+  color: var(--muted-text, #666);
+}
+
+.aiceo-error {
+  color: #b91c1c;
+}
+
+.aiceo-brief-meta {
+  font-size: 0.9rem;
+  color: var(--muted-text, #666);
+}
+
+.aiceo-brief-actions,
+.aiceo-goal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.aiceo-explanation-block {
+  margin-top: 0.75rem;
+}
+
+.aiceo-explanation-detail dt {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.aiceo-explanation-detail dd {
+  margin-left: 0;
+}
+
+.aiceo-coach-grid,
+.aiceo-doctor-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.aiceo-coach-card {
+  border: 1px solid var(--border-color, #e2e2e2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.aiceo-coach-title {
+  font-weight: 600;
+}
+
+.aiceo-coach-value {
+  font-size: 1.1rem;
+}
+
+.aiceo-doctor-settings {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.aiceo-doctor-findings {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aiceo-finding {
+  border-left: 4px solid var(--border-color, #ccc);
+  padding: 0.5rem 0.75rem;
+}
+
+.aiceo-finding--healthy {
+  border-left-color: #16a34a;
+}
+
+.aiceo-finding--needs_attention {
+  border-left-color: #d97706;
+}
+
+.aiceo-finding--unbalanced {
+  border-left-color: #b91c1c;
+}
+
+.aiceo-finding--insufficient_data {
+  border-left-color: #6b7280;
+}
+
+.aiceo-goal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aiceo-goal-item {
+  border: 1px solid var(--border-color, #e2e2e2);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.aiceo-goal-warning {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.aiceo-goal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 420px;
+}
+
+.aiceo-conversation-log {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.aiceo-conversation-message {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+}
+
+.aiceo-conversation-message--user {
+  align-self: flex-end;
+  background: var(--accent-bg, #e0e7ff);
+}
+
+.aiceo-conversation-message--ai {
+  align-self: flex-start;
+  background: var(--panel-alt-bg, #f3f4f6);
+}
+
+.aiceo-conversation-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.aiceo-conversation-form input {
+  flex: 1;
+}

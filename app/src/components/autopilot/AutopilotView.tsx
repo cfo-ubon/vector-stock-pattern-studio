@@ -51,6 +51,12 @@ interface Props {
    * on a prop identity change after the initial mount, so returning to an
    * already-in-progress Autopilot session never resets it. */
   initialAction?: { mode: AutopilotMode; requestedCount: number; marketplace?: string | null; productionGoal?: AutopilotProductionGoal; userInstruction?: string } | null;
+  /** Build 030 Part 2, Module 11 ("Continue Yesterday") — when set to
+   * `'history'`, lands directly on the real Autopilot History screen
+   * instead of the Start Screen, so a Mission Control "Continue" action
+   * doesn't make the user re-navigate there themselves. Ignored whenever
+   * `initialAction` is also set (a real new plan takes priority). */
+  initialStep?: 'history';
 }
 
 const MARKETPLACE_OPTIONS = ['Auto', 'Shutterstock', 'Adobe Stock', 'Freepik', 'Getty-iStock', 'Etsy'];
@@ -62,8 +68,8 @@ const PRODUCTION_GOAL_OPTIONS: Array<[AutopilotProductionGoal, string]> = [
   ['seasonal', 'Seasonal Collection'],
 ];
 
-export function AutopilotView({ onClose, initialAction = null }: Props) {
-  const [step, setStep] = useState<AutopilotStep>('goal');
+export function AutopilotView({ onClose, initialAction = null, initialStep }: Props) {
+  const [step, setStep] = useState<AutopilotStep>(initialAction ? 'goal' : (initialStep ?? 'goal'));
 
   // Real, already-verified data every mode's evidence selection reads —
   // loaded once on mount, exactly like every other screen's `reload()`.

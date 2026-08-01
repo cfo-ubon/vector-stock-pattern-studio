@@ -80,7 +80,36 @@ export const DB_NAME = 'vsp-db';
 // Design Plan, per-item progress, READY/REVIEW/REJECT counts, resume
 // state). Indexed by `status` (Autopilot History's active/completed
 // filter) and `mode` (grouping runs by entry mode).
-export const DB_VERSION = 11;
+//
+// v12 (Build 030 Part 2, AI CEO Conversation/Coach/Doctor/Memory): adds 8
+// stores backing the proactive AI CEO — `aiCeoBriefs` (one row per Morning
+// Brief actually generated, indexed by `createdAt`), `businessGoals`
+// (user-confirmed goals, indexed by `status`), `aiConversations` +
+// `aiConversationMessages` (Conversation History, the messages store
+// indexed by `conversationId` so a whole thread loads without a full-store
+// scan), `aiMemoryCandidates` + `aiMemories` (the SUGGESTED -> CONFIRMED/
+// REJECTED workflow — candidates and confirmed memory are deliberately two
+// separate stores, not one store with a status field, so "what may
+// influence a recommendation" (`aiMemories`, CONFIRMED only) can never be
+// accidentally queried from the same table as "what the system merely
+// noticed" (`aiMemoryCandidates`)), `portfolioDiagnoses` (Portfolio
+// Doctor's own run history, indexed by `createdAt`), and
+// `businessCoachRecommendations` (Business Coach's own run history,
+// indexed by `createdAt`). `proactiveRecommendationHistory` needs no new
+// store: `recommendationHistory` (created in v8, indexed by
+// `recommendationType`/`refId`, never given a real consumer until now) is
+// exactly that shape already — this build is simply its first real writer,
+// matching this file's own "schema ahead of the module that first uses it"
+// convention (see the v8 comment).
+export const DB_VERSION = 12;
+export const AI_CEO_BRIEFS_STORE = 'aiCeoBriefs';
+export const BUSINESS_GOALS_STORE = 'businessGoals';
+export const AI_CONVERSATIONS_STORE = 'aiConversations';
+export const AI_CONVERSATION_MESSAGES_STORE = 'aiConversationMessages';
+export const AI_MEMORY_CANDIDATES_STORE = 'aiMemoryCandidates';
+export const AI_MEMORIES_STORE = 'aiMemories';
+export const PORTFOLIO_DIAGNOSES_STORE = 'portfolioDiagnoses';
+export const BUSINESS_COACH_RECOMMENDATIONS_STORE = 'businessCoachRecommendations';
 export const AUTONOMOUS_DESIGN_RUNS_STORE = 'autonomousDesignRuns';
 export const COLLECTION_PLANS_STORE = 'collectionPlans';
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
@@ -270,6 +299,39 @@ export function openDb(): Promise<IDBDatabase> {
           const autonomousRuns = db.createObjectStore(AUTONOMOUS_DESIGN_RUNS_STORE, { keyPath: 'id' });
           autonomousRuns.createIndex('status', 'status', { unique: false });
           autonomousRuns.createIndex('mode', 'mode', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CEO_BRIEFS_STORE)) {
+          const briefs = db.createObjectStore(AI_CEO_BRIEFS_STORE, { keyPath: 'id' });
+          briefs.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(BUSINESS_GOALS_STORE)) {
+          const goals = db.createObjectStore(BUSINESS_GOALS_STORE, { keyPath: 'id' });
+          goals.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CONVERSATIONS_STORE)) {
+          const conversations = db.createObjectStore(AI_CONVERSATIONS_STORE, { keyPath: 'id' });
+          conversations.createIndex('updatedAt', 'updatedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CONVERSATION_MESSAGES_STORE)) {
+          const messages = db.createObjectStore(AI_CONVERSATION_MESSAGES_STORE, { keyPath: 'id' });
+          messages.createIndex('conversationId', 'conversationId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_MEMORY_CANDIDATES_STORE)) {
+          const memoryCandidates = db.createObjectStore(AI_MEMORY_CANDIDATES_STORE, { keyPath: 'id' });
+          memoryCandidates.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_MEMORIES_STORE)) {
+          const memories = db.createObjectStore(AI_MEMORIES_STORE, { keyPath: 'id' });
+          memories.createIndex('status', 'status', { unique: false });
+          memories.createIndex('type', 'type', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(PORTFOLIO_DIAGNOSES_STORE)) {
+          const diagnoses = db.createObjectStore(PORTFOLIO_DIAGNOSES_STORE, { keyPath: 'id' });
+          diagnoses.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(BUSINESS_COACH_RECOMMENDATIONS_STORE)) {
+          const coachRecs = db.createObjectStore(BUSINESS_COACH_RECOMMENDATIONS_STORE, { keyPath: 'id' });
+          coachRecs.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
