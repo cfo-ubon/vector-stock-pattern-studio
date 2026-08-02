@@ -8,11 +8,13 @@ import {
   executeFactoryRun,
   cancelFactoryRun,
   completeFactoryRun,
+  attachOrchestrationRunBatch,
 } from '../../factoryOrchestrator';
 import type { OrchestrationRun } from '../../factoryOrchestrator';
 import { loadFactoryTasks, putFactoryTask } from '../../factory/storage/factoryQueueStore';
 import { loadFactoryTimeline } from '../../factory/storage/factoryTimelineStore';
 import { createFactoryTask } from '../../factory/domain/factoryTask';
+import { drainFactoryQueue } from '../../factory/scheduler';
 import type { FactoryTask, FactoryTimelineEntry } from '../../factory/domain/types';
 import { computeFactoryHealth, type FactoryHealth } from '../../factory/factoryMetrics';
 import { computeFactoryIntelligenceMetrics } from '../../factoryIntelligence/metricsEngine';
@@ -32,6 +34,7 @@ import {
   putOwnerDecisionRecord,
   getProductionSession,
   putProductionSession,
+  attachProductionSessionBatch,
 } from '../../productionAutopilot';
 import type { ProductionDailyBrief, ContinueYesterdayCheck, ProductionSession, ProductionCompletionReview } from '../../productionAutopilot/domain/types';
 import { loadCommercialPipelineContext } from '../../commercial/loadCommercialPipelineContext';
@@ -189,11 +192,33 @@ export function ProductionHomeView({ onClose }: Props) {
         setError(executed.error.message);
         return;
       }
+      let nextRun = executed.value.run;
+      let nextSession = executed.value.session;
+
+      // Mission 7 (Release Candidate hardening) — StartFactory() never
+      // attaches a real batchId (see RELEASE_CANDIDATE_REPORT.md); if the
+      // plan is actually continuing real, already-queued work, attach
+      // that real batchId now so the Factory Controller Scheduler
+      // (already-existing, already-tested — see factory/scheduler.ts)
+      // has something to drain. Never invents a batch — only ever
+      // attaches one that genuinely already exists in the queue.
+      if (!nextRun.batchId && dailyBrief) {
+        const targetTaskId = dailyBrief.topRecommendation.sourceTaskIds[0];
+        const targetBatchId = targetTaskId ? (tasks.find((t) => t.id === targetTaskId)?.batchId ?? null) : null;
+        if (targetBatchId) {
+          nextRun = attachOrchestrationRunBatch(nextRun, targetBatchId, Date.now());
+          nextSession = attachProductionSessionBatch(nextSession, targetBatchId, Date.now());
+        }
+      }
+
       const decision = recordOwnerDecision('APPROVE_SESSION', session.id, Date.now() - decisionStart, Date.now());
-      await Promise.all([putOrchestrationRun(executed.value.run), putProductionSession(executed.value.session), putOwnerDecisionRecord(decision)]);
+      await Promise.all([putOrchestrationRun(nextRun), putProductionSession(nextSession), putOwnerDecisionRecord(decision)]);
+      if (nextRun.batchId) {
+        await drainFactoryQueue(Date.now());
+      }
       if (!mountedRef.current) return;
-      setRun(executed.value.run);
-      setSession(executed.value.session);
+      setRun(nextRun);
+      setSession(nextSession);
       setScreen('progress');
     } finally {
       if (mountedRef.current) setBusy(false);
@@ -429,6 +454,17 @@ export function ProductionHomeView({ onClose }: Props) {
                 <button type="button" className="btn btn--primary" onClick={handleCompleteSession} disabled={busy}>
                   Mark Session Complete
                 </button>
+              )}
+              {run.status === 'RUNNING' && !run.batchId && (
+                <>
+                  <p className="pe-empty">
+                    This session's plan is to generate new patterns — there is no existing batch to continue running here. Use "✨ ออกแบบให้ฉันวันนี้" (Autopilot) or Pattern Studio to generate the patterns, then
+                    come back to Today's Production to review and export them.
+                  </p>
+                  <button type="button" className="btn" onClick={handleCancelBlockedRun} disabled={busy}>
+                    Cancel this run
+                  </button>
+                </>
               )}
             </>
           )}

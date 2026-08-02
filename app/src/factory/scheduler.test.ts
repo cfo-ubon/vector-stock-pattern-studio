@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { runNextFactoryTask, replanFactoryQueue, pauseFactoryScheduler, resumeFactoryScheduler, pauseGenerationOnRepairSpike } from './scheduler';
+import { runNextFactoryTask, replanFactoryQueue, pauseFactoryScheduler, resumeFactoryScheduler, pauseGenerationOnRepairSpike, drainFactoryQueue } from './scheduler';
 import { createFactoryTask } from './domain/factoryTask';
 import { clearFactoryQueueForTest, putFactoryTask, loadFactoryTasks } from './storage/factoryQueueStore';
 import { clearFactoryTimelineForTest, loadFactoryTimeline } from './storage/factoryTimelineStore';
 import { clearFactorySchedulerStateForTest, loadFactorySchedulerState } from './storage/factorySchedulerStateStore';
-import { clearQualitySnapshots } from '../catalog/quality/qualitySnapshotStore';
+import { clearQualitySnapshots, putQualitySnapshot, createQualitySnapshot } from '../catalog/quality/qualitySnapshotStore';
 import { clearCollectionsStore, putCollectionRecord } from '../catalog/storage/collectionStore';
 import { createCollection } from '../catalog/domain/collection';
+import { clearPortfolioStores, putPortfolioAsset } from '../catalog/storage/portfolioStore';
+import { createPortfolioAsset } from '../catalog/domain/asset';
 
 const NO_SIGNALS = { reviewCount: 0, rejectCount: 0, totalEvaluated: 0, readyBacklogCount: 0, exportBlockedCount: 0, collectionsNearCompletion: [] };
 
@@ -16,6 +18,7 @@ beforeEach(async () => {
   await clearFactorySchedulerStateForTest();
   await clearQualitySnapshots();
   await clearCollectionsStore();
+  await clearPortfolioStores();
 });
 
 describe('runNextFactoryTask', () => {
@@ -99,6 +102,44 @@ describe('replanFactoryQueue', () => {
     await replanFactoryQueue(NO_SIGNALS, 3000);
     const state = await loadFactorySchedulerState();
     expect(state.lastReplanAt).toBe(3000);
+  });
+});
+
+describe('drainFactoryQueue', () => {
+  it('reports no runnable tasks on an empty queue without error', async () => {
+    const result = await drainFactoryQueue(1000);
+    expect(result.ranTaskIds).toEqual([]);
+  });
+
+  it('runs a whole WAITING->READY dependency chain to completion in one call — Mission 7: without this, a task whose dependency just completed stays WAITING forever, because runNextFactoryTask never re-resolves dependencies on its own', async () => {
+    const asset = createPortfolioAsset({ displayName: 'A-1', originalFilename: 'a.svg', sourceFileReferences: [], previewReference: null, metadataReference: null });
+    await putPortfolioAsset(asset);
+    const snapshot = createQualitySnapshot({ assetId: asset.assetId, beautyScore: 80, commercialScore: 80, fragmented: false, deadSpace: false, decision: 'READY', generatorVersion: 'v1', now: 1000 });
+    await putQualitySnapshot(snapshot);
+
+    const qa = createFactoryTask({ type: 'qa', reason: 'confirm', assetId: asset.assetId, now: 1000 });
+    const portfolioUpdate = createFactoryTask({ type: 'portfolioUpdate', reason: 'sync status', assetId: asset.assetId, dependsOnTaskIds: [qa.id], now: 1000 });
+    await putFactoryTask(qa);
+    await putFactoryTask(portfolioUpdate);
+
+    let tasks = await loadFactoryTasks();
+    expect(tasks.find((t) => t.id === portfolioUpdate.id)?.status).toBe('WAITING');
+
+    const result = await drainFactoryQueue(2000);
+    expect(result.ranTaskIds).toEqual(expect.arrayContaining([qa.id, portfolioUpdate.id]));
+
+    tasks = await loadFactoryTasks();
+    expect(tasks.find((t) => t.id === qa.id)?.status).toBe('COMPLETED');
+    expect(tasks.find((t) => t.id === portfolioUpdate.id)?.status).toBe('COMPLETED');
+  });
+
+  it('never runs a generate task and stops cleanly once it is the only thing left', async () => {
+    const generate = createFactoryTask({ type: 'generate', reason: 'batch', now: 1000 });
+    await putFactoryTask(generate);
+    const result = await drainFactoryQueue(2000);
+    expect(result.ranTaskIds).toEqual([]);
+    const tasks = await loadFactoryTasks();
+    expect(tasks.find((t) => t.id === generate.id)?.status).toBe('READY');
   });
 });
 

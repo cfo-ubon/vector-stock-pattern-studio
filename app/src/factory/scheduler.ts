@@ -156,3 +156,50 @@ export async function pauseGenerationOnRepairSpike(repairRatio: number, threshol
   await pauseFactoryScheduler(`Repair ratio ${repairRatio.toFixed(1)}% exceeds the ${thresholdPercent}% threshold — Scheduler paused until repairs catch up.`, now);
   return true;
 }
+
+export interface DrainFactoryQueueResult {
+  ranTaskIds: string[];
+}
+
+// Mission 7 (Release Candidate hardening) — completes the wiring Build
+// 031C's own report explicitly deferred: "every call in this build is a
+// function a future caller (UI button, scheduled job) must invoke
+// explicitly." `runNextFactoryTask` runs one task; `resolveTaskDependencies`
+// promotes newly-unblocked WAITING tasks to READY. Neither loops on its
+// own, so without a caller like this one, an approved run's queue never
+// advances past its first task. This composes only those two already-real,
+// already-tested functions — no new execution logic, no priority-boost
+// fabrication (that needs real `FactoryPriorityInputs` a caller must
+// supply itself; skipping it here only means priority *ordering* stays
+// default, never that a runnable task goes unrun). Still never touches a
+// `generate` task (Part 9) — it stops the moment nothing else is
+// runnable, exactly like calling `runNextFactoryTask` by hand would.
+//
+// Performance (measured, Mission 7 Part 4/7 — see
+// RELEASE_CANDIDATE_REPORT.md): both `runNextFactoryTask` and this loop's
+// own dependency-resolve step do a full `loadFactoryTasks()` read, so
+// draining N tasks is O(N) full-queue reads — real cost that only shows
+// up at hundreds of tasks or more; changing it would mean redesigning the
+// Scheduler's one-task-per-call contract (Build 031C's explicit "no
+// parallel execution" guarantee), which is out of this mission's "no
+// architecture changes" scope. Disclosed as a known limitation, not
+// silently accepted.
+export async function drainFactoryQueue(now: number = Date.now(), maxIterations = 10000): Promise<DrainFactoryQueueResult> {
+  const ranTaskIds: string[] = [];
+  for (let i = 0; i < maxIterations; i++) {
+    const tasks = await loadFactoryTasks();
+    const { tasks: resolved, changedTaskIds } = resolveTaskDependencies(tasks, now);
+    if (changedTaskIds.length > 0) {
+      const resolvedById = new Map(resolved.map((t) => [t.id, t]));
+      const changed = changedTaskIds.map((id) => resolvedById.get(id)).filter((t): t is FactoryTask => t !== undefined);
+      await putFactoryTasks(changed);
+    }
+    const result = await runNextFactoryTask(now);
+    if (result.ranTaskId === null) {
+      if (changedTaskIds.length === 0) break;
+      continue;
+    }
+    ranTaskIds.push(result.ranTaskId);
+  }
+  return { ranTaskIds };
+}
