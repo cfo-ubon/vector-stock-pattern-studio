@@ -270,6 +270,19 @@ export const APP_BACKUP_STORE_NAMES = [
   'factoryPolicyExperiments',
   'factoryImprovementReviews',
   'factoryEvolutionTimeline',
+  // Mission 4 (Production Autopilot) — three new stores for the
+  // owner-facing production-session orchestration layer:
+  // `factoryProductionSessions` (Part 9, one row per session spanning
+  // Plan through Execution through Outcome), `factoryOwnerDecisions`
+  // (Part 5, real timestamped Owner Decision records — the basis for the
+  // "<=3 decisions/day" target), `factoryProductionAutopilotState` (Part
+  // 13, single-row most-recent-session pointer, mirrors
+  // `factorySchedulerState`'s own single-row pattern). All new stores
+  // added in this build (DB version 17 -> 18), registered here
+  // immediately per this list's own convention.
+  'factoryProductionSessions',
+  'factoryOwnerDecisions',
+  'factoryProductionAutopilotState',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

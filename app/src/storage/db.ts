@@ -162,7 +162,19 @@ export const DB_NAME = 'vsp-db';
 // Monthly reviews. `factoryEvolutionTimeline` is Part 10's append-only
 // history of real improvement events, each `refId`-linked back to a real
 // record in one of the other four new stores.
-export const DB_VERSION = 17;
+// v17 -> v18 (Mission 4, Production Autopilot) — three new stores.
+// `factoryProductionSessions` holds Part 9's Production Session History
+// (one row per session spanning Plan through Execution through
+// Outcome). `factoryOwnerDecisions` holds Part 5's real, timestamped
+// Owner Decision records (Approve Session / Approve Override / Approve
+// Export) — the basis for the "≤3 decisions/day" target. `factoryProductionAutopilotState`
+// is a single-row store (id `'productionAutopilot'`) recording the most
+// recent session, mirroring `factorySchedulerState`'s own single-row
+// pattern.
+export const DB_VERSION = 18;
+export const FACTORY_PRODUCTION_SESSIONS_STORE = 'factoryProductionSessions';
+export const FACTORY_OWNER_DECISIONS_STORE = 'factoryOwnerDecisions';
+export const FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE = 'factoryProductionAutopilotState';
 export const FACTORY_DAILY_KPI_STORE = 'factoryDailyKpi';
 export const FACTORY_REVIEWS_STORE = 'factoryReviews';
 export const FACTORY_IMPROVEMENT_QUEUE_STORE = 'factoryImprovementQueue';
@@ -478,6 +490,19 @@ export function openDb(): Promise<IDBDatabase> {
           const evolutionTimeline = db.createObjectStore(FACTORY_EVOLUTION_TIMELINE_STORE, { keyPath: 'id' });
           evolutionTimeline.createIndex('at', 'at', { unique: false });
           evolutionTimeline.createIndex('type', 'type', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_PRODUCTION_SESSIONS_STORE)) {
+          const productionSessions = db.createObjectStore(FACTORY_PRODUCTION_SESSIONS_STORE, { keyPath: 'id' });
+          productionSessions.createIndex('status', 'status', { unique: false });
+          productionSessions.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_OWNER_DECISIONS_STORE)) {
+          const ownerDecisions = db.createObjectStore(FACTORY_OWNER_DECISIONS_STORE, { keyPath: 'id' });
+          ownerDecisions.createIndex('type', 'type', { unique: false });
+          ownerDecisions.createIndex('at', 'at', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE)) {
+          db.createObjectStore(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE, { keyPath: 'id' });
         }
       };
       req.onsuccess = () => resolve(req.result);
