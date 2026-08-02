@@ -241,6 +241,20 @@ export const APP_BACKUP_STORE_NAMES = [
   'factoryQueue',
   'factoryTimeline',
   'factorySchedulerState',
+  // Mission 2 (Factory Intelligence) — four new stores for the
+  // measurement/analysis layer over the Factory Controller:
+  // `factoryDailyKpi` (Part 1/6/10, one snapshot row per calendar day —
+  // the Trend Engine's data source), `factoryReviews` (Part 4, one row
+  // per completed batch), `factoryImprovementQueue` (Part 9,
+  // recommendation-only, never read by any policy/decision code), and
+  // `factoryBusinessOutcomeHistory` (Part 7, one row per computed
+  // Business Outcome Score, so the score itself is traceable over time).
+  // All new stores added in this build (DB version 15 -> 16), registered
+  // here immediately per this list's own convention.
+  'factoryDailyKpi',
+  'factoryReviews',
+  'factoryImprovementQueue',
+  'factoryBusinessOutcomeHistory',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

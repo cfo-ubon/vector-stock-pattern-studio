@@ -141,9 +141,9 @@ beforeEach(async () => {
 });
 
 describe('storage/db.ts migration — DB_VERSION reports (before/after)', () => {
-  it('the current DB_VERSION is 15 (Build 031C bumped it from the Build 031B value of 14)', async () => {
+  it('the current DB_VERSION is 16 (Mission 2 bumped it from the Build 031C value of 15)', async () => {
     const { DB_VERSION } = await import('./db');
-    expect(DB_VERSION).toBe(15);
+    expect(DB_VERSION).toBe(16);
   });
 });
 
@@ -151,13 +151,14 @@ describe('storage/db.ts migration — fresh database creation', () => {
   it('creates every store (including the new AI CEO stores) in one pass', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(15);
+    expect(conn.version).toBe(16);
     for (const store of [
       'saved', 'projects', 'assets', 'portfolioAssets', 'portfolioFiles', 'collections', 'researchSources', 'marketObservations',
       'marketSnapshots', 'designBriefs', 'designConfigurations', 'collectionPlans', 'autonomousDesignRuns',
       'aiCeoBriefs', 'businessGoals', 'aiConversations', 'aiConversationMessages', 'aiMemoryCandidates', 'aiMemories',
       'portfolioDiagnoses', 'businessCoachRecommendations', 'recommendationHistory', 'commercialPackageHistory',
       'decisionTimeline', 'decisionPolicyOverrides', 'factoryQueue', 'factoryTimeline', 'factorySchedulerState',
+      'factoryDailyKpi', 'factoryReviews', 'factoryImprovementQueue', 'factoryBusinessOutcomeHistory',
     ]) {
       expect(conn.objectStoreNames.contains(store)).toBe(true);
     }
@@ -211,7 +212,7 @@ describe('storage/db.ts migration — upgrade from a real Build 029 (v11) databa
   it('upgrades v11 -> v12, adds every new AI CEO store, and preserves pre-existing autonomousDesignRuns data', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(15);
+    expect(conn.version).toBe(16);
     for (const store of [
       'aiCeoBriefs', 'businessGoals', 'aiConversations', 'aiConversationMessages', 'aiMemoryCandidates', 'aiMemories',
       'portfolioDiagnoses', 'businessCoachRecommendations',
@@ -239,7 +240,7 @@ describe('storage/db.ts migration — upgrade from a real Build 029 (v11) databa
     vi.resetModules();
     const second = await import('./db');
     const conn2 = track(await second.openDb());
-    expect(conn2.version).toBe(15);
+    expect(conn2.version).toBe(16);
     expect(conn2.objectStoreNames.contains('aiCeoBriefs')).toBe(true);
   });
 });
@@ -253,7 +254,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
   it('opening the v4 database via openDb() upgrades it to the current version and preserves existing assets', async () => {
     const dbModule = await import('./db');
     const conn = track(await dbModule.openDb());
-    expect(conn.version).toBe(15);
+    expect(conn.version).toBe(16);
 
     const asset = await new Promise((resolve, reject) => {
       const req = conn.transaction('portfolioAssets', 'readonly').objectStore('portfolioAssets').get(SAMPLE_ASSET.assetId);
@@ -309,7 +310,7 @@ describe('storage/db.ts migration — upgrade from a real P1 (v4) database', () 
     vi.resetModules();
     const second = await import('./db');
     const conn2 = track(await second.openDb());
-    expect(conn2.version).toBe(15);
+    expect(conn2.version).toBe(16);
     expect(conn2.objectStoreNames.contains('collections')).toBe(true);
   });
 

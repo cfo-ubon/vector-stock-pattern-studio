@@ -137,7 +137,23 @@ export const DB_NAME = 'vsp-db';
 // is a single-row store (id `'scheduler'`) recording whether the
 // Scheduler is currently running/paused and why, so a pause survives a
 // reload.
-export const DB_VERSION = 15;
+// v15 -> v16 (Mission 2, Factory Intelligence) — four new stores for the
+// measurement/analysis layer over the Factory Controller. `factoryDailyKpi`
+// holds one snapshot row per calendar day (keyed by date string), the
+// basis for Part 6's Trend Engine (today/yesterday/7d/30d comparisons
+// read this store, never recomputed from the full task/timeline history —
+// Part 11's "incremental, never recompute the whole factory history"
+// requirement). `factoryReviews` is one row per completed batch (Part 4).
+// `factoryImprovementQueue` holds user-visible improvement recommendations
+// (Part 9 — recommendation-only, no automatic policy changes, so this
+// store is never read by any policy/decision code). `factoryBusinessOutcomeHistory`
+// is one row per computed Business Outcome Score (Part 7), so the score's
+// own trend is itself traceable over time.
+export const DB_VERSION = 16;
+export const FACTORY_DAILY_KPI_STORE = 'factoryDailyKpi';
+export const FACTORY_REVIEWS_STORE = 'factoryReviews';
+export const FACTORY_IMPROVEMENT_QUEUE_STORE = 'factoryImprovementQueue';
+export const FACTORY_BUSINESS_OUTCOME_HISTORY_STORE = 'factoryBusinessOutcomeHistory';
 export const FACTORY_QUEUE_STORE = 'factoryQueue';
 export const FACTORY_TIMELINE_STORE = 'factoryTimeline';
 export const FACTORY_SCHEDULER_STATE_STORE = 'factorySchedulerState';
@@ -401,6 +417,24 @@ export function openDb(): Promise<IDBDatabase> {
         }
         if (!db.objectStoreNames.contains(FACTORY_SCHEDULER_STATE_STORE)) {
           db.createObjectStore(FACTORY_SCHEDULER_STATE_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_DAILY_KPI_STORE)) {
+          const dailyKpi = db.createObjectStore(FACTORY_DAILY_KPI_STORE, { keyPath: 'dateKey' });
+          dailyKpi.createIndex('capturedAt', 'capturedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_REVIEWS_STORE)) {
+          const reviews = db.createObjectStore(FACTORY_REVIEWS_STORE, { keyPath: 'id' });
+          reviews.createIndex('batchId', 'batchId', { unique: false });
+          reviews.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_QUEUE_STORE)) {
+          const improvementQueue = db.createObjectStore(FACTORY_IMPROVEMENT_QUEUE_STORE, { keyPath: 'id' });
+          improvementQueue.createIndex('status', 'status', { unique: false });
+          improvementQueue.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE)) {
+          const outcomeHistory = db.createObjectStore(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE, { keyPath: 'id' });
+          outcomeHistory.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
