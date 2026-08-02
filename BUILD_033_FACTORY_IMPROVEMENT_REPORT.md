@@ -170,9 +170,13 @@ blocks in the shared `onupgradeneeded` handler.
   round-trip tests, all passing.
 - `storage/db.migration.test.ts` — passing after the `DB_VERSION` 17
   update.
-- Full regression, run twice (learning from Build 032's own documented
-  cache-corruption anomaly — `node_modules/.vite` cleared before each
-  full run this time): results appended below once both runs complete.
+- **Full regression, run twice, both clean** (applying the lesson learned
+  in Build 032 — `node_modules/.vite`/`node_modules/.vite-temp` cleared
+  before each full run this time, avoiding the stale-cache artifact that
+  build documented): Run 1 — `457 Test Files passed (457)`,
+  `4187 Tests passed (4187)`, `EXIT_CODE=0`. Run 2 — identical:
+  `457 Test Files passed (457)`, `4187 Tests passed (4187)`,
+  `EXIT_CODE=0`. No anomalies this time.
 
 ## Business Safety / architecture note (Part 14 requirement)
 
