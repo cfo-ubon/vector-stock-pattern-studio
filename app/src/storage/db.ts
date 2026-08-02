@@ -171,7 +171,19 @@ export const DB_NAME = 'vsp-db';
 // is a single-row store (id `'productionAutopilot'`) recording the most
 // recent session, mirroring `factorySchedulerState`'s own single-row
 // pattern.
-export const DB_VERSION = 18;
+// v18 -> v19 (Mission 5, Factory Orchestrator) — two new stores.
+// `factoryOrchestrationRuns` holds Part 2's `OrchestrationRun` records —
+// one row per `StartFactory()` invocation, carrying the 11-state
+// orchestration-level lifecycle layered on top of (never replacing)
+// `factoryProductionSessions`'s own 5-state machine. `factoryOrchestrationArchives`
+// holds Part 9's Production Session Archives — one row per
+// completed/cancelled run, composed entirely from already-real records
+// (execution timeline, decision timeline, factory KPIs, business
+// outcome, improvement history, owner decisions) with no field
+// recomputed a second time.
+export const DB_VERSION = 19;
+export const FACTORY_ORCHESTRATION_RUNS_STORE = 'factoryOrchestrationRuns';
+export const FACTORY_ORCHESTRATION_ARCHIVES_STORE = 'factoryOrchestrationArchives';
 export const FACTORY_PRODUCTION_SESSIONS_STORE = 'factoryProductionSessions';
 export const FACTORY_OWNER_DECISIONS_STORE = 'factoryOwnerDecisions';
 export const FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE = 'factoryProductionAutopilotState';
@@ -503,6 +515,16 @@ export function openDb(): Promise<IDBDatabase> {
         }
         if (!db.objectStoreNames.contains(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE)) {
           db.createObjectStore(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_ORCHESTRATION_RUNS_STORE)) {
+          const orchestrationRuns = db.createObjectStore(FACTORY_ORCHESTRATION_RUNS_STORE, { keyPath: 'id' });
+          orchestrationRuns.createIndex('status', 'status', { unique: false });
+          orchestrationRuns.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_ORCHESTRATION_ARCHIVES_STORE)) {
+          const orchestrationArchives = db.createObjectStore(FACTORY_ORCHESTRATION_ARCHIVES_STORE, { keyPath: 'id' });
+          orchestrationArchives.createIndex('runId', 'runId', { unique: false });
+          orchestrationArchives.createIndex('archivedAt', 'archivedAt', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);

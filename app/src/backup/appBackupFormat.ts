@@ -283,6 +283,18 @@ export const APP_BACKUP_STORE_NAMES = [
   'factoryProductionSessions',
   'factoryOwnerDecisions',
   'factoryProductionAutopilotState',
+  // Mission 5 (Factory Orchestrator) — two new stores for the
+  // coordination layer over all five prior factory subsystems:
+  // `factoryOrchestrationRuns` (Part 2, one row per `StartFactory()`
+  // invocation carrying the 11-state orchestration-level lifecycle) and
+  // `factoryOrchestrationArchives` (Part 9, one row per archived run —
+  // execution timeline, decision timeline, factory KPIs, business
+  // outcome, improvement history, owner decisions, all composed from
+  // already-real records). Both new stores added in this build (DB
+  // version 18 -> 19), registered here immediately per this list's own
+  // convention.
+  'factoryOrchestrationRuns',
+  'factoryOrchestrationArchives',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];
