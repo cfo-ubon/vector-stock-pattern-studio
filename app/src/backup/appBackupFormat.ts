@@ -255,6 +255,21 @@ export const APP_BACKUP_STORE_NAMES = [
   'factoryReviews',
   'factoryImprovementQueue',
   'factoryBusinessOutcomeHistory',
+  // Mission 3 (Continuous Factory Improvement) — five new stores for the
+  // recommendation/experimentation layer over Factory Intelligence:
+  // `factoryImprovementBacklog` (Part 2, ranked recommendation-only
+  // tasks), `factoryExperiments` (Part 6, one-batch before/after trials),
+  // `factoryPolicyExperiments` (Part 7, named-policy comparisons, never
+  // activated), `factoryImprovementReviews` (Part 8, generated Daily/
+  // Weekly/Monthly reviews), `factoryEvolutionTimeline` (Part 10,
+  // append-only improvement history). All new stores added in this build
+  // (DB version 16 -> 17), registered here immediately per this list's
+  // own convention.
+  'factoryImprovementBacklog',
+  'factoryExperiments',
+  'factoryPolicyExperiments',
+  'factoryImprovementReviews',
+  'factoryEvolutionTimeline',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

@@ -149,11 +149,29 @@ export const DB_NAME = 'vsp-db';
 // store is never read by any policy/decision code). `factoryBusinessOutcomeHistory`
 // is one row per computed Business Outcome Score (Part 7), so the score's
 // own trend is itself traceable over time.
-export const DB_VERSION = 16;
+// v16 -> v17 (Mission 3, Continuous Factory Improvement) — five new
+// stores for the recommendation/experimentation layer over Factory
+// Intelligence. `factoryImprovementBacklog` holds Part 2's persistent,
+// ranked Improvement Backlog tasks (recommendation-only, same "no policy
+// ever reads this" guarantee Mission 2's `factoryImprovementQueue`
+// already established). `factoryExperiments` and `factoryPolicyExperiments`
+// hold Part 6/7's one-batch trial and policy-comparison records — both
+// are read-only measurements; nothing in either store can ever change
+// production behavior (`PolicyExperiment.activated` is always `false`).
+// `factoryImprovementReviews` holds Part 8's generated Daily/Weekly/
+// Monthly reviews. `factoryEvolutionTimeline` is Part 10's append-only
+// history of real improvement events, each `refId`-linked back to a real
+// record in one of the other four new stores.
+export const DB_VERSION = 17;
 export const FACTORY_DAILY_KPI_STORE = 'factoryDailyKpi';
 export const FACTORY_REVIEWS_STORE = 'factoryReviews';
 export const FACTORY_IMPROVEMENT_QUEUE_STORE = 'factoryImprovementQueue';
 export const FACTORY_BUSINESS_OUTCOME_HISTORY_STORE = 'factoryBusinessOutcomeHistory';
+export const FACTORY_IMPROVEMENT_BACKLOG_STORE = 'factoryImprovementBacklog';
+export const FACTORY_EXPERIMENTS_STORE = 'factoryExperiments';
+export const FACTORY_POLICY_EXPERIMENTS_STORE = 'factoryPolicyExperiments';
+export const FACTORY_IMPROVEMENT_REVIEWS_STORE = 'factoryImprovementReviews';
+export const FACTORY_EVOLUTION_TIMELINE_STORE = 'factoryEvolutionTimeline';
 export const FACTORY_QUEUE_STORE = 'factoryQueue';
 export const FACTORY_TIMELINE_STORE = 'factoryTimeline';
 export const FACTORY_SCHEDULER_STATE_STORE = 'factorySchedulerState';
@@ -435,6 +453,31 @@ export function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE)) {
           const outcomeHistory = db.createObjectStore(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE, { keyPath: 'id' });
           outcomeHistory.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_BACKLOG_STORE)) {
+          const improvementBacklog = db.createObjectStore(FACTORY_IMPROVEMENT_BACKLOG_STORE, { keyPath: 'id' });
+          improvementBacklog.createIndex('status', 'status', { unique: false });
+          improvementBacklog.createIndex('category', 'category', { unique: false });
+          improvementBacklog.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_EXPERIMENTS_STORE)) {
+          const factoryExperiments = db.createObjectStore(FACTORY_EXPERIMENTS_STORE, { keyPath: 'id' });
+          factoryExperiments.createIndex('targetBatchId', 'targetBatchId', { unique: false });
+          factoryExperiments.createIndex('startedAt', 'startedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_POLICY_EXPERIMENTS_STORE)) {
+          const policyExperiments = db.createObjectStore(FACTORY_POLICY_EXPERIMENTS_STORE, { keyPath: 'id' });
+          policyExperiments.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_REVIEWS_STORE)) {
+          const improvementReviews = db.createObjectStore(FACTORY_IMPROVEMENT_REVIEWS_STORE, { keyPath: 'id' });
+          improvementReviews.createIndex('period', 'period', { unique: false });
+          improvementReviews.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_EVOLUTION_TIMELINE_STORE)) {
+          const evolutionTimeline = db.createObjectStore(FACTORY_EVOLUTION_TIMELINE_STORE, { keyPath: 'id' });
+          evolutionTimeline.createIndex('at', 'at', { unique: false });
+          evolutionTimeline.createIndex('type', 'type', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);
