@@ -60,6 +60,7 @@ import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
 import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
 import { AutopilotView } from './components/autopilot/AutopilotView';
+import { ProductionHomeView } from './components/productionExperience/ProductionHomeView';
 import { MissionControlView, type MissionControlAutopilotAction } from './components/missionControl/MissionControlView';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
@@ -158,7 +159,7 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('missionControl');
+  const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot' | 'production'>('missionControl');
   // Build 030 (Mission Control) — the action a Mission Control button (Hero
   // Card / AI CEO Panel / Goal Mode / Command Bar) chose, handed to
   // `AutopilotView`'s `initialAction` prop so it skips straight to the
@@ -1158,6 +1159,7 @@ function App() {
           setPendingAutopilotInitialStep(undefined);
           setView('autopilot');
         }}
+        onOpenProduction={() => setView('production')}
         onOpenAdvancedMode={() => setView('editor')}
       />
       {view === 'missionControl' ? (
@@ -1187,6 +1189,8 @@ function App() {
           }}
           initialAction={pendingAutopilotAction}
         />
+      ) : view === 'production' ? (
+        <ProductionHomeView onClose={() => setView('missionControl')} />
       ) : view === 'portfolio' ? (
         <PortfolioManagerView onClose={() => setView('missionControl')} />
       ) : view === 'backup' ? (

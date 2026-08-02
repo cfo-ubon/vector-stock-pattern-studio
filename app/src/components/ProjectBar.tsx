@@ -13,6 +13,9 @@ interface Props {
   onOpenMarketing: () => void;
   onOpenDesignDirector: () => void;
   onOpenAutopilot: () => void;
+  /** Mission 6 — Production Experience Layer, the one daily-production
+   * workflow (Home -> Start Factory -> Review -> Export). */
+  onOpenProduction: () => void;
   /** Build 030 — "unless Advanced Mode is explicitly opened": the classic
    * single-pattern editor (Style DNA/generator settings/manual export)
    * that Mission Control's business-language home screen intentionally
@@ -39,6 +42,7 @@ export function ProjectBar({
   onOpenMarketing,
   onOpenDesignDirector,
   onOpenAutopilot,
+  onOpenProduction,
   onOpenAdvancedMode,
 }: Props) {
   const visible = projects.filter((p) => !p.archived);
@@ -48,6 +52,9 @@ export function ProjectBar({
     <div className="project-bar">
       <button type="button" className="btn project-bar-btn" onClick={onOpenMissionControl}>
         🏠 Mission Control
+      </button>
+      <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenProduction}>
+        🏭 Today's Production
       </button>
       <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenAutopilot}>
         ✨ ออกแบบให้ฉันวันนี้
