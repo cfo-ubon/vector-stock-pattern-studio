@@ -11,10 +11,11 @@ import {
   attachOrchestrationRunBatch,
 } from '../../factoryOrchestrator';
 import type { OrchestrationRun } from '../../factoryOrchestrator';
-import { loadFactoryTasks, putFactoryTask } from '../../factory/storage/factoryQueueStore';
+import { loadFactoryTasks, putFactoryTask, putFactoryTasks } from '../../factory/storage/factoryQueueStore';
 import { loadFactoryTimeline } from '../../factory/storage/factoryTimelineStore';
-import { createFactoryTask } from '../../factory/domain/factoryTask';
+import { createFactoryTask, transitionFactoryTask } from '../../factory/domain/factoryTask';
 import { drainFactoryQueue } from '../../factory/scheduler';
+import { createFactoryBatch, expandFactoryBatchForAssets } from '../../factory/batchController';
 import type { FactoryTask, FactoryTimelineEntry } from '../../factory/domain/types';
 import { computeFactoryHealth, type FactoryHealth } from '../../factory/factoryMetrics';
 import { computeFactoryIntelligenceMetrics } from '../../factoryIntelligence/metricsEngine';
@@ -23,8 +24,16 @@ import { loadQualitySnapshots, putQualitySnapshot, createQualitySnapshot } from 
 import type { PortfolioAsset } from '../../catalog/domain/types';
 import type { QualitySnapshot } from '../../catalog/quality/qualitySnapshotStore';
 import { latestQualitySnapshotsByAsset } from '../../productionExperience/reviewWorkspace';
-import { loadAutonomousDesignRuns } from '../../autopilot/storage/autonomousDesignRunStore';
-import type { AutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
+import { loadAutonomousDesignRuns, putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
+import { createAutonomousDesignRun, transitionAutonomousDesignRun, type AutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
+import { buildAutonomousDesignPlan, selectEvidence, type DecisionEngineInput } from '../../autopilot/decisionEngine';
+import { emptyAutopilotConstraints } from '../../autopilot/domain/constraints';
+import { prepareRunForGeneration } from '../../autopilot/runPreparation';
+import { runAutonomousGeneration } from '../../autopilot/generationOrchestrator';
+import { defaultParams } from '../../engine/defaults';
+import { putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
+import { putCreativeBrief } from '../../design-director/storage/creativeBriefStore';
+import { putCollectionPlan } from '../../design-director/storage/collectionPlanStore';
 import {
   generateProductionDailyBrief,
   checkContinueYesterday,
@@ -248,6 +257,122 @@ export function ProductionHomeView({ onClose }: Props) {
     }
   }
 
+  // Mission 7.5 (Production Certification) Part 2 — closes Mission 7's
+  // disclosed gap: a brand-new session with zero backlog (the Daily Brief's
+  // `GENERATE` recommendation) could reach RUNNING but never Completed,
+  // because no batch existed for it to continue. This composes the same
+  // real, already-tested Autopilot pipeline `AutopilotView.tsx` uses
+  // end-to-end (`buildAutonomousDesignPlan` -> `selectEvidence` ->
+  // `createAutonomousDesignRun` -> `prepareRunForGeneration` ->
+  // `runAutonomousGeneration`), then builds a real Factory Batch from the
+  // real assets that generation actually produced (`createFactoryBatch` +
+  // `expandFactoryBatchForAssets`) and drains it — no new decision logic,
+  // no fabricated data. The owner already approved this session via
+  // "Approve today's production session" before reaching RUNNING; this
+  // button is the second explicit click that starts real generation, so
+  // approval is never bypassed (Part 10). Uses `EVERGREEN_COMMERCIAL` — one
+  // of the two modes `autopilot/domain/autopilotMode.ts` documents as
+  // needing zero live market evidence — since Today's Production has no
+  // goal-setting screen of its own to collect a mode/count from the owner.
+  async function handleGenerateNow() {
+    if (!run || !session) return;
+    setBusy(true);
+    setError(null);
+    const decisionStart = Date.now();
+    try {
+      const now = Date.now();
+      const input: DecisionEngineInput = {
+        mode: 'EVERGREEN_COMMERCIAL',
+        requestedCount: 10,
+        colorwayCount: 3,
+        marketplacePreference: null,
+        productionGoal: 'auto',
+        constraints: emptyAutopilotConstraints(),
+        opportunities: [],
+        missions: [],
+        seasonalEvents: [],
+        portfolioAssets,
+        offline: { snapshot: null, freshnessLabel: '', classification: 'NO_DATA', message: '' },
+        now,
+      };
+      const evidence = selectEvidence(input);
+      const designPlan = buildAutonomousDesignPlan(input);
+
+      let newRun = createAutonomousDesignRun({
+        mode: 'EVERGREEN_COMMERCIAL',
+        requestedCount: 10,
+        sourceEvidence: {
+          marketOpportunityId: evidence.opportunity?.id ?? null,
+          dailyMissionId: evidence.mission?.id ?? null,
+          marketSnapshotId: null,
+        },
+        constraints: emptyAutopilotConstraints(),
+        now,
+      });
+      newRun = { ...newRun, designPlan };
+      newRun = transitionAutonomousDesignRun(newRun, 'PLAN_READY', now, "Design Plan approved — owner already approved today's production session.");
+      await putAutonomousDesignRun(newRun);
+
+      const prepared = prepareRunForGeneration(newRun);
+      await putAutonomousDesignRun(prepared.run);
+      await putMarketingDesignHandoff(prepared.marketingHandoff);
+      await putCreativeBrief(prepared.brief);
+      await putCollectionPlan(prepared.collectionPlan);
+
+      const existingAssets = await loadPortfolioAssets();
+      const finalRun = await runAutonomousGeneration({
+        run: prepared.run,
+        brief: prepared.brief,
+        plan: prepared.collectionPlan,
+        opportunity: evidence.opportunity,
+        existingAssets,
+        persistRun: async (r) => {
+          await putAutonomousDesignRun(r);
+        },
+      });
+
+      if (finalRun.status !== 'COMPLETED') {
+        setError(`Generation did not finish (status: ${finalRun.status}). Open Autopilot History to review or resume this run, then return here.`);
+        return;
+      }
+
+      const createdAssetIds = finalRun.items.map((item) => item.portfolioAssetId).filter((id): id is string => id !== null);
+      if (createdAssetIds.length === 0) {
+        setError('Generation completed but produced no importable patterns — nothing to build a Commercial Package batch from.');
+        return;
+      }
+
+      const batchNow = Date.now();
+      // `params` is stored on the batch's `generate` task for record-keeping
+      // only (`createFactoryBatch` never reads it back) — real generation
+      // already happened above via `runAutonomousGeneration`, each item with
+      // its own per-item params, so there is no single real value to pass;
+      // `defaultParams()` is the same neutral baseline used whenever no
+      // one-true-params exists yet (see `generationOrchestrator.ts`).
+      const { batchId, generateTask } = createFactoryBatch({ count: createdAssetIds.length, params: defaultParams(), now: batchNow });
+      const runningGenerateTask = transitionFactoryTask(generateTask, 'RUNNING', batchNow, 'Generated via the real Autopilot pipeline (Today\'s Production "Generate Now").');
+      const completedGenerateTask = transitionFactoryTask(runningGenerateTask, 'COMPLETED', batchNow, `Generated ${createdAssetIds.length} real pattern(s).`);
+      const expansionTasks = expandFactoryBatchForAssets({ generateTask: completedGenerateTask, createdAssetIds, targetMarketplace: evidence.marketplace, now: batchNow });
+      await putFactoryTasks([completedGenerateTask, ...expansionTasks]);
+
+      const nextRun = attachOrchestrationRunBatch(run, batchId, batchNow);
+      const nextSession = attachProductionSessionBatch(session, batchId, batchNow);
+      const decision = recordOwnerDecision('APPROVE_SESSION', session.id, Date.now() - decisionStart, batchNow);
+      await Promise.all([putOrchestrationRun(nextRun), putProductionSession(nextSession), putOwnerDecisionRecord(decision)]);
+
+      await drainFactoryQueue(Date.now());
+
+      if (!mountedRef.current) return;
+      setRun(nextRun);
+      setSession(nextSession);
+    } catch (err) {
+      if (mountedRef.current) setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      if (mountedRef.current) setBusy(false);
+      await reload();
+    }
+  }
+
   async function handleCompleteSession() {
     if (!run || !session || !run.batchId) return;
     setBusy(true);
@@ -270,6 +395,48 @@ export function ProductionHomeView({ onClose }: Props) {
       setSession(result.value.session);
       setCompletionReview(outcome);
       setScreen('summary');
+    } finally {
+      if (mountedRef.current) setBusy(false);
+      await reload();
+    }
+  }
+
+  // Mission 7.5 Part 3 (Workflow Integrity) — closes a real dead end found
+  // during Part 2's certification run: a batch task that BLOCKs on the
+  // Commercial Readiness safety threshold (`commercial/safetyThreshold.ts`,
+  // Build 031A Phase 9 — "never export below threshold without explicit
+  // override") has no path back to a terminal status through the Factory
+  // Task queue, so `createFactoryReview` can never treat the batch as
+  // finished and "Mark Session Complete" stays permanently unreachable.
+  // This composes only already-real, already-tested pieces
+  // (`transitionFactoryTask(..., 'CANCELLED', ...)`, already a valid
+  // BLOCKED transition; `putFactoryTasks`) to let the owner explicitly
+  // exclude those specific low-quality patterns from this batch — nothing
+  // is exported and the safety threshold itself is untouched, only the
+  // asset is dropped from the batch being completed, mirroring what a
+  // REJECT decision in the Review Workspace already does for other assets.
+  async function handleSkipBlockedBatchTasks() {
+    if (!run?.batchId) return;
+    const batchId = run.batchId;
+    setBusy(true);
+    setError(null);
+    try {
+      // Cancelling a BLOCKED task can cascade: a downstream task that
+      // depended on it sees a CANCELLED (not COMPLETED) dependency and
+      // becomes BLOCKED itself on the next `drainFactoryQueue` pass (e.g.
+      // package -> seo, exportValidation -> package). Loop until the batch
+      // has no BLOCKED tasks left rather than requiring the owner to click
+      // this once per dependency level — bounded the same way
+      // `drainFactoryQueue` bounds its own convergence loop.
+      for (let i = 0; i < 20; i++) {
+        const currentTasks = await loadFactoryTasks();
+        const blocked = currentTasks.filter((t) => t.batchId === batchId && t.status === 'BLOCKED');
+        if (blocked.length === 0) break;
+        const now = Date.now();
+        const cancelled = blocked.map((t) => transitionFactoryTask(t, 'CANCELLED', now, `Owner skipped: ${t.blockedReason ?? 'blocked task'}`));
+        await putFactoryTasks(cancelled);
+        await drainFactoryQueue(now);
+      }
     } finally {
       if (mountedRef.current) setBusy(false);
       await reload();
@@ -356,6 +523,7 @@ export function ProductionHomeView({ onClose }: Props) {
   const reviewItems = buildReviewWorkspaceItems(portfolioAssets, qualitySnapshots);
   const ownerActionItems = buildOwnerActionCenter(run, reviewWaitingCount, exportReadyCount);
   const canCompleteSession = run?.status === 'RUNNING' && !!run.batchId;
+  const blockedBatchTasks = run?.batchId ? tasks.filter((t) => t.batchId === run.batchId && t.status === 'BLOCKED') : [];
 
   return (
     <div className="pe">
@@ -455,12 +623,25 @@ export function ProductionHomeView({ onClose }: Props) {
                   Mark Session Complete
                 </button>
               )}
+              {canCompleteSession && blockedBatchTasks.length > 0 && (
+                <div className="pe-blocked-tasks">
+                  <p className="pe-empty">
+                    {blockedBatchTasks.length} pattern task(s) in this batch are blocked and won't let the session complete: {blockedBatchTasks.map((t) => t.blockedReason).filter((r): r is string => !!r).slice(0, 3).join(' ')}
+                  </p>
+                  <button type="button" className="btn" onClick={handleSkipBlockedBatchTasks} disabled={busy}>
+                    Skip these and continue
+                  </button>
+                </div>
+              )}
               {run.status === 'RUNNING' && !run.batchId && (
                 <>
                   <p className="pe-empty">
-                    This session's plan is to generate new patterns — there is no existing batch to continue running here. Use "✨ ออกแบบให้ฉันวันนี้" (Autopilot) or Pattern Studio to generate the patterns, then
-                    come back to Today's Production to review and export them.
+                    This session's plan is to generate new patterns — there is no existing batch to continue running here yet. Click "Generate Now" to run real generation right here, or use "✨
+                    ออกแบบให้ฉันวันนี้" (Autopilot) if you want to choose the mode, count, or theme yourself first.
                   </p>
+                  <button type="button" className="btn btn--primary" onClick={handleGenerateNow} disabled={busy}>
+                    ✨ Generate Now
+                  </button>
                   <button type="button" className="btn" onClick={handleCancelBlockedRun} disabled={busy}>
                     Cancel this run
                   </button>

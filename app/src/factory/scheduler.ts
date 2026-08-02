@@ -184,11 +184,31 @@ export interface DrainFactoryQueueResult {
 // parallel execution" guarantee), which is out of this mission's "no
 // architecture changes" scope. Disclosed as a known limitation, not
 // silently accepted.
+// Mission 7.5 (Production Certification) Part 3/6 — a task can end up
+// BLOCKED for two different reasons that `FactoryTask.status` doesn't
+// distinguish: a missing/cancelled *dependency* (which really can resolve
+// itself once the dependency finishes) or a *content* failure the task
+// hit while actually running (e.g. `executePackageTask`'s Commercial
+// Readiness threshold gate). `resolveTaskDependencies` only ever looks at
+// dependency edges, so once a content-failed task's dependencies are all
+// COMPLETED, it keeps proposing the identical BLOCKED->READY promotion on
+// every call — and since nothing about a content failure changes on
+// retry, the Scheduler re-runs the exact same doomed task every
+// iteration, burning the whole `maxIterations` budget without the queue
+// ever reaching a terminal state (found via Mission 7.5's real
+// end-to-end Generate Now certification run, Part 1 Case A). `resolveTaskDependencies`
+// itself stays untouched (it's pure and reused elsewhere); this only
+// stops *this* loop from persisting that one specific resurrection once a
+// task has already been run and failed within the same drain call — the
+// task stays honestly BLOCKED for a human to act on, exactly like a
+// genuine dependency-blocked task the owner hasn't resolved yet.
 export async function drainFactoryQueue(now: number = Date.now(), maxIterations = 10000): Promise<DrainFactoryQueueResult> {
   const ranTaskIds: string[] = [];
+  const failedTaskIds = new Set<string>();
   for (let i = 0; i < maxIterations; i++) {
     const tasks = await loadFactoryTasks();
-    const { tasks: resolved, changedTaskIds } = resolveTaskDependencies(tasks, now);
+    const { tasks: resolved, changedTaskIds: rawChangedTaskIds } = resolveTaskDependencies(tasks, now);
+    const changedTaskIds = rawChangedTaskIds.filter((id) => !failedTaskIds.has(id));
     if (changedTaskIds.length > 0) {
       const resolvedById = new Map(resolved.map((t) => [t.id, t]));
       const changed = changedTaskIds.map((id) => resolvedById.get(id)).filter((t): t is FactoryTask => t !== undefined);
@@ -200,6 +220,7 @@ export async function drainFactoryQueue(now: number = Date.now(), maxIterations 
       continue;
     }
     ranTaskIds.push(result.ranTaskId);
+    if (!result.ok) failedTaskIds.add(result.ranTaskId);
   }
   return { ranTaskIds };
 }

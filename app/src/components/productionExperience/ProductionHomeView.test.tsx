@@ -94,4 +94,53 @@ describe('ProductionHomeView', () => {
     fireEvent.click(screen.getByText('← Back'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  // Mission 7.5 Part 2 — a brand-new session with zero backlog (the
+  // GENERATE recommendation) must be able to reach Completed without an
+  // Autopilot detour. Covers the full real path: Start Factory -> Approve
+  // -> "Generate Now" (real Autopilot generation + real Factory Batch) ->
+  // Mark Session Complete.
+  it('a brand-new session with zero backlog reaches Completed via "Generate Now", with no Autopilot detour required', async () => {
+    render(<ProductionHomeView onClose={() => {}} />);
+    await waitFor(() => expect(screen.getByText('▶ START FACTORY')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('▶ START FACTORY'));
+    await waitFor(() => expect(screen.getByText('Production Progress')).toBeInTheDocument());
+
+    const approveButton = await screen.findByText("Approve today's production session");
+    fireEvent.click(approveButton);
+
+    const generateNowButton = await screen.findByText('✨ Generate Now', {}, { timeout: 10000 });
+    fireEvent.click(generateNowButton);
+
+    // Real generation can legitimately leave some patterns below the
+    // Commercial Readiness safety threshold (Build 031A Phase 9) — those
+    // package/exportValidation tasks stay honestly BLOCKED rather than
+    // being silently exported, in which case "Skip these and continue"
+    // must be used before the session can complete. The app's own
+    // established pattern (used by every handler in this file) clears
+    // `busy` right before its final `await reload()`, so a button can
+    // render enabled for one render with data from just before that
+    // reload finishes — retry the click loop rather than assuming the
+    // first enabled render already has fully fresh data.
+    let completed = false;
+    for (let attempt = 0; attempt < 10 && !completed; attempt++) {
+      await waitFor(() => expect(screen.getByText('Mark Session Complete')).not.toBeDisabled(), { timeout: 30000 });
+      const skipButton = screen.queryByText('Skip these and continue');
+      if (skipButton && !skipButton.closest('button')?.disabled) {
+        fireEvent.click(skipButton);
+        await waitFor(() => expect(screen.getByText('Mark Session Complete')).not.toBeDisabled(), { timeout: 15000 });
+        continue;
+      }
+      fireEvent.click(screen.getByText('Mark Session Complete'));
+      try {
+        await waitFor(() => expect(screen.queryByText('Mark Session Complete')).not.toBeInTheDocument(), { timeout: 3000 });
+        completed = true;
+      } catch {
+        // Clicked during the stale-data window described above — the
+        // completion review legitimately found un-terminal tasks it
+        // hadn't seen yet. Loop back and re-observe the real state.
+      }
+    }
+    expect(completed).toBe(true);
+  }, 60000);
 });
