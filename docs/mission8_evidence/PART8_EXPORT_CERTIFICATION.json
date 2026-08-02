@@ -1,0 +1,66 @@
+{
+  "runAt": "2026-08-02T15:16:07.256Z",
+  "batchSize": 8,
+  "checks": [
+    {
+      "name": "Batch generation (generateBatchToPortfolio)",
+      "status": "PASS",
+      "detail": "generatedCount=8 importedCount=8 possibleDuplicateCount=0 blockedDuplicateCount=0 errorCount=0"
+    },
+    {
+      "name": "SVG well-formedness (jsdom DOMParser, real XML parse)",
+      "status": "PASS",
+      "detail": "8/8 SVG documents parsed cleanly with a root <svg> element and no <parsererror>."
+    },
+    {
+      "name": "EPS export (export/epsExporter.ts buildEps, via productionBundleService.buildProductionItemFiles)",
+      "status": "PASS",
+      "detail": "8/8 EPS documents non-empty, start with \"%!PS-Adobe-3.0 EPSF-3.0\", end with \"%%EOF\". Mean length 553404 bytes."
+    },
+    {
+      "name": "PNG export path (Playwright screenshot of real generated SVG, same technique as scripts/build023Portfolio100.ts)",
+      "status": "PASS",
+      "detail": "3/3 PNG files rendered with a valid PNG magic-number header and non-zero size. Saved to /home/user/vector-stock-pattern-studio/docs/mission8_evidence/export_png"
+    },
+    {
+      "name": "ZIP bundling — build (batch/batchExportService.ts exportAssetsAsZip)",
+      "status": "PASS",
+      "detail": "filename=mission8-export-cert-8-patterns.zip size=3243736 bytes, 8 assets bundled."
+    },
+    {
+      "name": "ZIP bundling — read-back verification (backup/zipArchive.ts readZipArchive, a real ZIP parser, read-only reuse against export/zip.ts buildZip output)",
+      "status": "PASS",
+      "detail": "Re-parsed the ZIP: 17 entries, manifest.json present=true, manifest.assetCount=8 (expected 8)."
+    },
+    {
+      "name": "Metadata JSON sidecar (per-asset json role file inside the ZIP, alongside the svg)",
+      "status": "PASS",
+      "detail": "8 per-asset .json sidecar file(s) found (>= 8 imported assets expected), 8 .svg file(s)."
+    },
+    {
+      "name": "CSV metadata export (metadata/csv.ts buildShutterstockCsv/buildAdobeStockCsv, via productionBundleService.buildProductionCsvBundle)",
+      "status": "PASS",
+      "detail": "Shutterstock CSV: 8 data rows, Adobe Stock CSV: 8 data rows (expected 8 each). Header row: \"Filename,Description,Keywords,Categories,Editorial,Mature content,Illustration\""
+    },
+    {
+      "name": "SEO fields populated (metadata/shutterstock.ts buildSiteMetadata, every field, every site, every item)",
+      "status": "PASS",
+      "detail": "All SEO fields non-empty across 8 items × all sites."
+    },
+    {
+      "name": "Filename uniqueness across batch (productionBundleService.productionBundleBaseName)",
+      "status": "PASS",
+      "detail": "8/8 unique base filenames (0 collisions)."
+    },
+    {
+      "name": "Marketplace-profile compatibility validation (metadata/marketplaceValidation.ts validateMarketplaceSeo + validateExportPackage, Shutterstock + Adobe Stock profiles)",
+      "status": "PASS",
+      "detail": "0 blocking (\"error\"-severity) SEO validation issues across 8 items × 2 marketplaces."
+    },
+    {
+      "name": "Storage sanity (portfolioStore.loadPortfolioAssets)",
+      "status": "PASS",
+      "detail": "8 assets in IndexedDB (fake-indexeddb) after batch, expected importedCount=8."
+    }
+  ]
+}
