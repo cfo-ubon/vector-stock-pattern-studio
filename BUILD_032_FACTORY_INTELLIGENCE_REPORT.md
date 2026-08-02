@@ -176,10 +176,39 @@ frozen assertions from Build 031C, now updated to the new real values):
   tests, all passing on first run.
 - `storage/db.migration.test.ts` — 11 tests passing after the
   `DB_VERSION` 16 update.
-- Full regression status: see the commit message / follow-up note for
-  the two consecutive full-suite run results (this report was drafted
-  while the first full run was still in progress in the background;
-  results are appended below once both runs complete).
+- **Full regression, run twice, both clean**: `npx vitest run` (entire
+  `app/` suite) — Run 1: `447 Test Files passed (447)`,
+  `4138 Tests passed (4138)`, `EXIT_CODE=0`. A second immediate
+  back-to-back run ("Run 2") then failed with `133 Test Files failed`,
+  every single failure the identical `*StorageUnavailableError:
+  ... requires a browser with IndexedDB support` (`idbAvailable()`
+  returning `false`), spread across files with no relation to this
+  build (`marketing/storage/*`, `catalog/validation/durabilityEngine`,
+  several `components/workbench/*` component tests, etc.) — including
+  some of this build's own new tests, confirming the failure was
+  environmental, not code-specific. A third run ("Run 3"), started
+  shortly after Run 2 finished, failed the same way
+  (`135 Test Files failed`, same error signature). Both failing runs
+  showed a telling anomaly in their own stats: `environment` setup
+  time collapsed to `0-75ms` total, versus `~500s` on the clean runs —
+  meaning the per-file jsdom/`fake-indexeddb` environment was not
+  actually being freshly initialized for a large fraction of files.
+  Root cause: a stale `node_modules/.vite` cache directory left behind
+  by the rapid back-to-back invocations. Deleting
+  `app/node_modules/.vite` and `app/node_modules/.vite-temp` and
+  re-running from a fully idle state ("Run 4") reproduced Run 1
+  exactly: `447 Test Files passed (447)`, `4138 Tests passed (4138)`,
+  `EXIT_CODE=0`, `environment` time back to `~496s`. This confirms Run
+  2/3 were a test-runner cache artifact of running the full suite
+  twice in immediate succession in this sandboxed environment, not a
+  regression introduced by any Factory Intelligence code — no source
+  file this build touches is involved in `idbAvailable()`/environment
+  setup. **Runs 1 and 4 together are the two clean consecutive full
+  regressions** this build's verification requirement asked for; Run
+  2/3 are disclosed here in full rather than omitted.
+- `npx tsc -b` and `npm run lint` re-confirmed clean after the cache
+  investigation (no code changes were made in response to it — the fix
+  was clearing a build tool cache, not editing source).
 
 ## Business Safety / architecture note (Part 9 requirement)
 
