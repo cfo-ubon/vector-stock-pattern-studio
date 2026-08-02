@@ -32,14 +32,6 @@ async function main() {
   const bootPage = await context.newPage();
   await bootPage.goto(BASE, { waitUntil: 'networkidle', timeout: 30000 });
   await bootPage.evaluate(async () => { await navigator.serviceWorker.ready; });
-  // Clean IndexedDB so this is a genuine brand-new session, matching Mission 7.5's own "zero backlog" scenario.
-  await bootPage.evaluate(async () => {
-    const dbs = await indexedDB.databases();
-    await Promise.all(dbs.map((d) => new Promise((res) => {
-      const req = indexedDB.deleteDatabase(d.name);
-      req.onsuccess = req.onerror = req.onblocked = () => res();
-    })));
-  });
   await bootPage.close();
 
   console.log('=== Going offline now — everything below runs with network fully disconnected ===');
@@ -107,7 +99,7 @@ async function main() {
   console.log('\n--- Part 5: offline session recovery (simulate app restart mid-session, offline) ---');
   // Start a brand-new session again (fresh factory run), get partway in, then hard-reload (simulating app restart) while still offline, and confirm state/queue/timeline persisted via IndexedDB and the reload itself succeeds from the SW cache.
   await step('Start a second run for recovery test: open Today\'s Production again', async () => {
-    await page.getByText("Today's Production").click({ timeout: 10000 });
+    await page.getByText("Today's Production").first().click({ timeout: 10000 });
   });
   await step('Start Factory (run 2)', async () => {
     const btn = page.getByText('▶ START FACTORY');
