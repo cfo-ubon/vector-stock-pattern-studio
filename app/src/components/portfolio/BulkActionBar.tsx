@@ -5,6 +5,10 @@ interface Props {
   onAssign: () => void;
   onRemove: () => void;
   busy: boolean;
+  /** Hotfix v1.0.1, Part 5 — bulk export entry point. Optional so callers
+   * that don't need it (none remain, but kept backward-compatible) don't
+   * have to pass it. */
+  onExport?: () => void;
 }
 
 /** Portfolio Manager P2 Stage 2, Section 13 — appears above the asset
@@ -15,7 +19,7 @@ interface Props {
  * is intentionally cleared whenever the search/filter query changes (see
  * `PortfolioManagerView.tsx`), so a stale selection can never silently
  * apply to a different result set. */
-export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection, onAssign, onRemove, busy }: Props) {
+export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection, onAssign, onRemove, busy, onExport }: Props) {
   return (
     <div className="portfolio-bulk-action-bar" role="toolbar" aria-label="การดำเนินการหลายรายการ">
       <span>เลือกแล้ว {selectedCount} รายการ</span>
@@ -31,6 +35,11 @@ export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection
       <button type="button" className="btn btn--small" onClick={onRemove} disabled={busy || selectedCount === 0}>
         นำออกจากคอลเลกชัน
       </button>
+      {onExport && (
+        <button type="button" className="btn btn--small btn--primary" onClick={onExport} disabled={busy || selectedCount === 0}>
+          📤 Export
+        </button>
+      )}
     </div>
   );
 }

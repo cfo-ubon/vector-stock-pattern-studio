@@ -25,7 +25,7 @@ describe('PortfolioManagerView', () => {
     await waitFor(() => expect(screen.getByText('Stored Asset')).toBeInTheDocument());
   });
 
-  it('selecting an asset in the grid opens its detail panel; closing it deselects', async () => {
+  it('selecting an asset in the grid opens the Preview Dialog (Hotfix v1.0.1 Part 1); "แก้ไขรายละเอียด" opens the full detail panel', async () => {
     const asset = createPortfolioAsset({ displayName: 'Clickable Asset', originalFilename: 'x.svg', sourceFileReferences: [], previewReference: null, metadataReference: null });
     await importAssetTransaction(asset, []);
 
@@ -33,19 +33,26 @@ describe('PortfolioManagerView', () => {
     await waitFor(() => expect(screen.getByText('Clickable Asset')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('Clickable Asset'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    // Preview Dialog does not itself contain the full editor's ZIP export button.
+    expect(screen.queryByText('ส่งออกเป็น ZIP')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
     await waitFor(() => expect(screen.getByText('ส่งออกเป็น ZIP')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('ปิด'));
     await waitFor(() => expect(screen.queryByText('ส่งออกเป็น ZIP')).not.toBeInTheDocument());
   });
 
-  it('archiving an asset from the detail panel persists and updates the dashboard summary live', async () => {
+  it('archiving an asset from the detail panel (reached via the Preview Dialog) persists and updates the dashboard summary live', async () => {
     const asset = createPortfolioAsset({ displayName: 'Archive Me', originalFilename: 'x.svg', sourceFileReferences: [], previewReference: null, metadataReference: null });
     await importAssetTransaction(asset, []);
 
     render(<PortfolioManagerView onClose={() => {}} />);
     await waitFor(() => expect(screen.getByText('Archive Me')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Archive Me'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
     await waitFor(() => expect(screen.getByText('เก็บเข้าที่เก็บถาวร')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('เก็บเข้าที่เก็บถาวร'));
@@ -56,13 +63,15 @@ describe('PortfolioManagerView', () => {
     await waitFor(() => expect(screen.getByText('พบ 0 รายการ')).toBeInTheDocument());
   });
 
-  it('deleting an asset (record only) removes it from the grid and clears the selection', async () => {
+  it('deleting an asset (record only, reached via the Preview Dialog) removes it from the grid and clears the selection', async () => {
     const asset = createPortfolioAsset({ displayName: 'Delete Me', originalFilename: 'x.svg', sourceFileReferences: [], previewReference: null, metadataReference: null });
     await importAssetTransaction(asset, []);
 
     render(<PortfolioManagerView onClose={() => {}} />);
     await waitFor(() => expect(screen.getByText('Delete Me')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Delete Me'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
     await waitFor(() => expect(screen.getByText('ลบออกจากคลัง')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('ลบออกจากคลัง'));

@@ -11,8 +11,14 @@ beforeEach(async () => {
   await clearCollectionsStore();
 });
 
+/** Returns the topmost open dialog. Since Hotfix v1.0.1 the asset detail
+ * panel itself renders inside a `role="dialog"` wrapper (reached via the
+ * Preview Dialog's "แก้ไขรายละเอียด" button) — dialogs opened on top of it
+ * (e.g. `CollectionAssignmentDialog`) mean `getByRole('dialog')` can match
+ * more than one element, so this always picks the most-recently-mounted one. */
 function dialog() {
-  return within(screen.getByRole('dialog'));
+  const dialogs = screen.getAllByRole('dialog');
+  return within(dialogs[dialogs.length - 1]);
 }
 
 function collectionsNav() {
@@ -95,6 +101,8 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
     await waitFor(() => expect(screen.getByText('Floral A')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Floral A'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
     await waitFor(() => expect(screen.getByText('+ เพิ่มเข้าคอลเลกชัน')).toBeInTheDocument());
     fireEvent.click(screen.getByText('+ เพิ่มเข้าคอลเลกชัน'));
     fireEvent.click(dialog().getByText('Florals'));
@@ -190,6 +198,9 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
     await waitFor(() => expect(screen.getByText('Member Asset')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Member Asset'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
+    await waitFor(() => expect(screen.getByText('+ เพิ่มเข้าคอลเลกชัน')).toBeInTheDocument());
     fireEvent.click(screen.getByText('+ เพิ่มเข้าคอลเลกชัน'));
     // The archived collection must not appear as a pickable option.
     expect(dialog().queryByText('Archived Target')).not.toBeInTheDocument();
@@ -208,12 +219,20 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
     await waitFor(() => expect(screen.getByText('Survivor')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Survivor'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
+    await waitFor(() => expect(screen.getByText('+ เพิ่มเข้าคอลเลกชัน')).toBeInTheDocument());
     fireEvent.click(screen.getByText('+ เพิ่มเข้าคอลเลกชัน'));
     fireEvent.click(dialog().getByText('Doomed'));
     fireEvent.click(dialog().getByText('ยืนยัน'));
     await waitFor(() => expect(dialog().getByText('เสร็จสิ้น')).toBeInTheDocument());
     fireEvent.click(dialog().getByText('เสร็จสิ้น'));
     await waitFor(async () => expect((await getPortfolioAsset(asset.assetId))?.collectionIds.length).toBe(1));
+
+    // Close the detail panel first — it stays open across tab switches
+    // (Hotfix v1.0.1), so leaving it open would make "Doomed" match twice.
+    fireEvent.click(screen.getByText('ปิด'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'คอลเลกชัน' }));
     await waitFor(() => expect(screen.getByText('Doomed')).toBeInTheDocument());
@@ -240,6 +259,9 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
     await waitFor(() => expect(screen.getByText('In Collection')).toBeInTheDocument());
     fireEvent.click(screen.getByText('In Collection'));
+    await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('✏️ แก้ไขรายละเอียด'));
+    await waitFor(() => expect(screen.getByText('+ เพิ่มเข้าคอลเลกชัน')).toBeInTheDocument());
     fireEvent.click(screen.getByText('+ เพิ่มเข้าคอลเลกชัน'));
     fireEvent.click(dialog().getByText('Filter Target'));
     fireEvent.click(dialog().getByText('ยืนยัน'));

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PortfolioAsset } from '../../catalog/domain/types';
 import type { PortfolioFilterQuery, PortfolioSortKey } from '../../catalog/domain/search';
 import { describeActiveFilters } from '../../catalog/domain/search';
+import type { AssetExportStatus } from '../../commercial/exportWorkflow';
 import { PortfolioThumbnail } from './PortfolioThumbnail';
 import { BulkActionBar } from './BulkActionBar';
 
@@ -38,6 +39,13 @@ interface Props {
   onBulkAssign?: () => void;
   onBulkRemove?: () => void;
   bulkBusy?: boolean;
+  /** Hotfix v1.0.1, Part 5 — bulk export entry point, forwarded to
+   * `BulkActionBar`'s optional Export button. */
+  onBulkExport?: () => void;
+  /** Hotfix v1.0.1, Part 7 — per-asset Export Status, batch-derived once
+   * by the caller (see `PortfolioManagerView.tsx`'s `exportStatusByAsset`)
+   * and forwarded to each `PortfolioThumbnail` for its status badge. */
+  exportStatusByAsset?: Map<string, AssetExportStatus>;
 }
 
 /** Sprint P1, Section 7 (main area) + Section 8 (search/filter/sort UI).
@@ -60,6 +68,8 @@ export function PortfolioGrid({
   onBulkAssign,
   onBulkRemove,
   bulkBusy,
+  onBulkExport,
+  exportStatusByAsset,
 }: Props) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const shown = assets.slice(0, visible);
@@ -101,6 +111,7 @@ export function PortfolioGrid({
           onAssign={onBulkAssign}
           onRemove={onBulkRemove}
           busy={!!bulkBusy}
+          onExport={onBulkExport}
         />
       )}
 
@@ -119,6 +130,7 @@ export function PortfolioGrid({
                 multiSelectable={!!onToggleMultiSelect}
                 multiChecked={multiSelectedIds?.has(asset.assetId)}
                 onToggleMultiSelect={onToggleMultiSelect}
+                exportStatus={exportStatusByAsset?.get(asset.assetId)}
               />
             ))}
           </div>

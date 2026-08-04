@@ -37,4 +37,21 @@ describe('BulkActionBar', () => {
     expect(onAssign).toHaveBeenCalled();
     expect(onRemove).toHaveBeenCalled();
   });
+
+  it('does not render an Export button when onExport is not passed', () => {
+    render(<BulkActionBar selectedCount={1} onSelectVisible={() => {}} onClearSelection={() => {}} onAssign={() => {}} onRemove={() => {}} busy={false} />);
+    expect(screen.queryByText('📤 Export')).not.toBeInTheDocument();
+  });
+
+  it('renders an Export button that calls onExport, disabled when nothing is selected or busy', () => {
+    const onExport = vi.fn();
+    const { rerender } = render(
+      <BulkActionBar selectedCount={0} onSelectVisible={() => {}} onClearSelection={() => {}} onAssign={() => {}} onRemove={() => {}} busy={false} onExport={onExport} />,
+    );
+    expect(screen.getByText('📤 Export')).toBeDisabled();
+
+    rerender(<BulkActionBar selectedCount={2} onSelectVisible={() => {}} onClearSelection={() => {}} onAssign={() => {}} onRemove={() => {}} busy={false} onExport={onExport} />);
+    fireEvent.click(screen.getByText('📤 Export'));
+    expect(onExport).toHaveBeenCalled();
+  });
 });

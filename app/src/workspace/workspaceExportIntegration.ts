@@ -16,7 +16,7 @@ const MARKETPLACE_ID_TO_FOLDER: Record<string, string> = {
   etsy: 'Etsy',
 };
 
-function folderForMarketplaceId(marketplaceId: string): string {
+export function folderForMarketplaceId(marketplaceId: string): string {
   return MARKETPLACE_ID_TO_FOLDER[marketplaceId] ?? marketplaceId.charAt(0).toUpperCase() + marketplaceId.slice(1);
 }
 
