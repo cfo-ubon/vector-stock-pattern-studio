@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -58,6 +58,15 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/testSetup.ts'],
+    // `dist-electron`/`dist-desktop` are gitignored build output from the
+    // Electron desktop shell (`tsconfig.electron.json`/`vite.config.desktop.ts`)
+    // — vitest's default include glob is broad enough to also pick up
+    // compiled `.test.js` duplicates that land there, which fail outright
+    // (CommonJS output can't `require('vitest')`) and needlessly compete
+    // for CPU with the real suite. Excluded explicitly rather than relying
+    // on `tsconfig.electron.json` alone to keep test files out of that
+    // build, since either one drifting would silently reintroduce this.
+    exclude: [...configDefaults.exclude, 'dist-electron/**', 'dist-desktop/**'],
     // Project Phoenix V2's Cluster Composition Engine places more motifs
     // per tile than the old independent-scatter layouts did (by design —
     // richer clusters instead of isolated points, see

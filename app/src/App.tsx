@@ -69,6 +69,8 @@ import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
 import { buildCollectionFromDesignSpec } from './trend/designSpecCollection';
 import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
+import { isDesktopRuntime, getConfiguredWorkspacePath } from './workspace/workspaceApi';
+import { WorkspaceOnboarding } from './workspace/WorkspaceOnboarding';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -102,6 +104,18 @@ const ASSET_FOLDER: Record<string, string> = {
 };
 
 function App() {
+  // Production Deployment Phase 1, Part 2 — first-launch Workspace Manager
+  // gate. `needsWorkspaceOnboarding === null` means "still checking" (avoids
+  // a flash of the normal app before we know); stays `false` forever on the
+  // plain browser build since `isDesktopRuntime()` is always false there.
+  const [needsWorkspaceOnboarding, setNeedsWorkspaceOnboarding] = useState<boolean | null>(() => (isDesktopRuntime() ? null : false));
+  useEffect(() => {
+    if (!isDesktopRuntime()) return;
+    getConfiguredWorkspacePath()
+      .then((path) => setNeedsWorkspaceOnboarding(!path))
+      .catch(() => setNeedsWorkspaceOnboarding(true)); // IPC unavailable/erroring — fail toward onboarding, never a permanently blank screen
+  }, []);
+
   const [params, setParams] = useState<GenerateParams>(defaultParams);
   const [tileData, setTileData] = useState(() => buildTile(defaultParams()));
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
@@ -1125,6 +1139,11 @@ function App() {
     },
     [params],
   );
+
+  if (needsWorkspaceOnboarding === null) return null; // desktop shell, still checking for a configured Workspace path
+  if (needsWorkspaceOnboarding) {
+    return <WorkspaceOnboarding onDone={() => setNeedsWorkspaceOnboarding(false)} />;
+  }
 
   return (
     <div className="app-shell">

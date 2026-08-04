@@ -1,17 +1,45 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_CHANNELS, type IpcChannel } from './ipcContract';
+import type { IpcChannel } from './ipcContract';
 
 // The ONLY bridge between the renderer and the OS. `contextIsolation: true`
 // + `nodeIntegration: false` (set in `main.ts`) mean the renderer has zero
 // access to Node/Electron APIs except through `window.workspaceAPI` below —
 // every method here calls `ipcRenderer.invoke` with a channel name drawn
-// from the shared `IPC_CHANNELS` allowlist, never a renderer-supplied
+// from the `IPC_CHANNELS` allowlist below, never a renderer-supplied
 // string, so there is no way for renderer code to invoke an arbitrary
 // main-process IPC handler. Same pattern as
 // `codex/offline-windows-desktop`'s `preload.ts`, reused because it is a
 // generic Electron security pattern, not something tied to that branch's
 // app model — the exposed API surface below is new and specific to this
 // app's actual Workspace/Backup/Export needs.
+//
+// The allowlist is duplicated here (not imported from `./ipcContract.ts`)
+// deliberately: Electron's sandboxed preload environment does not support
+// `require()`-ing sibling project files — only Electron/Node built-ins —
+// so a preload script must be fully self-contained. Verified directly in
+// this session: importing `./ipcContract` from preload.ts produced a real
+// runtime failure ("Unable to load preload script... module not found:
+// ./ipcContract") the very first time this shell was launched in Electron,
+// not just a theoretical concern. `import type` above is compile-time only
+// (erased, no runtime require) and stays safe to keep in sync with
+// `ipcContract.ts`'s `IpcChannel` union.
+const IPC_CHANNELS: readonly IpcChannel[] = [
+  'workspace:selectFolder',
+  'workspace:getConfiguredPath',
+  'workspace:setConfiguredPath',
+  'workspace:getDefaultSuggestedPath',
+  'workspace:initialize',
+  'workspace:verify',
+  'workspace:migrate',
+  'workspace:writeFile',
+  'workspace:readFile',
+  'workspace:listDir',
+  'workspace:publishRelease',
+  'app:getVersion',
+  'app:getPlatformInfo',
+  'app:openPath',
+];
+
 function safeInvoke(channel: IpcChannel, ...args: unknown[]): Promise<unknown> {
   if (!IPC_CHANNELS.includes(channel)) return Promise.reject(new Error(`Channel "${channel}" is not allowlisted.`));
   return ipcRenderer.invoke(channel, ...args);
