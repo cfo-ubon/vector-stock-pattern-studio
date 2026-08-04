@@ -2,6 +2,8 @@
   "name": "app",
   "private": true,
   "version": "1.0.0",
+  "description": "AI-SBOS — offline-first vector seamless pattern production studio",
+  "author": "CFO Ubon",
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {

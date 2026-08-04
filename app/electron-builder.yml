@@ -1,0 +1,47 @@
+# electron-builder configuration — Windows installer (NSIS) + portable
+# build (Production Deployment Phase 1, Parts 4-5). Per-user install (no
+# admin rights required for normal use), user data/Workspace preserved
+# across upgrade and never deleted on uninstall, no internet required at
+# runtime — this app is already offline-first (see AI_SBOS_V1_CERTIFICATION.md).
+#
+# No native modules (no better-sqlite3 or similar) — unlike the reference
+# config this was adapted from, there is nothing here that needs an
+# Electron-ABI rebuild step, which removes a real, previously-flagged risk
+# from that reference config.
+appId: com.cfoubon.aisbos
+productName: AI-SBOS
+copyright: Copyright © CFO Ubon
+
+directories:
+  output: ../release/AI-SBOS_Desktop/build-tmp
+  buildResources: build
+
+files:
+  - dist-desktop/**/*
+  - dist-electron/**/*
+  - package.json
+  - "!node_modules/electron-builder${/*}"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  requestedExecutionLevel: asInvoker # per-user install, no admin required for normal use
+
+nsis:
+  oneClick: false
+  perMachine: false # per-user install
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: AI-SBOS
+  uninstallDisplayName: AI-SBOS
+  deleteAppDataOnUninstall: false # never delete user data/Workspace config on uninstall without explicit confirmation
+  artifactName: "AI-SBOS-Setup-x64.${ext}"
+
+portable:
+  artifactName: "AI-SBOS-Portable-x64.${ext}"
+
+publish: null # no auto-update/publish server — fully offline, no cloud dependency
