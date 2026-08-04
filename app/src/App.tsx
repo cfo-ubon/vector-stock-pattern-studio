@@ -71,6 +71,7 @@ import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
 import { isDesktopRuntime, getConfiguredWorkspacePath } from './workspace/workspaceApi';
 import { WorkspaceOnboarding } from './workspace/WorkspaceOnboarding';
+import { saveExportToWorkspace } from './workspace/workspaceExportIntegration';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -358,6 +359,7 @@ function App() {
     if (importedIds.length === 0) return;
     const { blob, filename } = await exportAssetsAsZip(importedIds, `batch-${new Date().toISOString().slice(0, 10)}`);
     downloadBlobFile(filename, blob);
+    void saveExportToWorkspace({ blob, filename });
   }, [batchProductionResult]);
 
   // Composition Candidate Engine: build a deterministic pool of candidate

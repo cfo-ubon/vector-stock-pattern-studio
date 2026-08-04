@@ -11,6 +11,7 @@ import { computeBusinessMetrics, MANUAL_MINUTES_PER_PACKAGE_BASELINE } from '../
 import { loadCommercialPackageHistory, recordCommercialPackageBuilt } from '../../commercial/storage/commercialPackageHistoryStore';
 import { loadSafetyThresholdConfig, saveSafetyThresholdConfig, canExportPackage } from '../../commercial/safetyThreshold';
 import { buildCommercialPackage } from '../../commercial/packageBuilder';
+import { saveCommercialPackageToWorkspace } from '../../workspace/workspaceExportIntegration';
 import type { ExportReadinessDashboard, CommercialRecommendation, BusinessMetricsSnapshot, SafetyThresholdConfig, CommercialReadinessReport } from '../../commercial/domain/types';
 import './commercialPipeline.css';
 
@@ -114,6 +115,7 @@ export function CommercialPipelineTab({ assets: _assets }: Props) {
         });
 
         downloadBlobFile(result.filename, result.blob);
+        void saveCommercialPackageToWorkspace(result);
         await recordCommercialPackageBuilt({ assetId: asset.assetId, marketplaceId: selectedMarketplace, status: result.manifest.status, readinessScore: selectedReport.score });
 
         setBuildStatus('done');

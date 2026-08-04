@@ -9,6 +9,8 @@ import { listBackupHistory, deleteBackupHistoryRecord, addBackupHistoryRecord, p
 import type { AppBackupHistoryRecord } from '../../backup/appBackupHistoryStore';
 import { loadAutoBackupSettings, saveAutoBackupSettings } from '../../backup/autoBackupSettings';
 import type { AutoBackupSettings, AutoBackupFrequency, AutoBackupRetention } from '../../backup/autoBackupSettings';
+import { isDesktopRuntime } from '../../workspace/workspaceApi';
+import { saveBackupToWorkspace } from '../../workspace/workspaceBackupIntegration';
 import './backupManager.css';
 
 // Application Backup System — first UI for `backup/appBackup*.ts` (built
@@ -90,12 +92,14 @@ function CreateBackupTab() {
   const [result, setResult] = useState<AppBackupBuildResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [workspaceSaveStatus, setWorkspaceSaveStatus] = useState<string | null>(null);
 
   const handleCreate = useCallback(async () => {
     setBusy(true);
     setError(null);
     setResult(null);
     setProgress(null);
+    setWorkspaceSaveStatus(null);
     const startedAt = Date.now();
     try {
       const backup = await buildAppBackup({
@@ -103,6 +107,10 @@ function CreateBackupTab() {
         onProgress: setProgress,
       });
       setResult(backup);
+      if (isDesktopRuntime()) {
+        const saved = await saveBackupToWorkspace(backup).catch(() => null);
+        setWorkspaceSaveStatus(saved ? `บันทึกสำเนาไว้ที่ Workspace แล้ว: ${saved.path}` : 'บันทึกสำเนาไปยัง Workspace ไม่สำเร็จ (ยังมีไฟล์ดาวน์โหลดปกติให้ใช้งาน)');
+      }
       const settings = loadAutoBackupSettings();
       await addBackupHistoryRecord({
         historyId: backup.manifest.backupId,
@@ -184,6 +192,7 @@ function CreateBackupTab() {
             <button type="button" className="btn" onClick={handleDownload}>
               ดาวน์โหลดไฟล์ {result.fileName}
             </button>
+            {workspaceSaveStatus && <p>{workspaceSaveStatus}</p>}
           </div>
         )}
       </section>
