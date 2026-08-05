@@ -66,7 +66,10 @@ export function CommercialPipelineTab({ assets: _assets }: Props) {
       setDashboard(buildExportReadinessDashboard(ctx.readinessReports, currentThreshold.minReadinessScore));
       setRecommendations(generateCommercialRecommendations({ reports: ctx.readinessReports, assetsById: ctx.assetsById, collectionCompleteness: ctx.collectionCompleteness }));
       setMetrics(computeBusinessMetrics(history, ctx.readinessReports));
-      if (!selectedAssetId && ctx.assets.length > 0) setSelectedAssetId(ctx.assets[0].assetId);
+      if (!selectedAssetId && ctx.assets.length > 0) {
+        const mostRecent = ctx.assets.reduce((latest, a) => (a.createdAt > latest.createdAt ? a : latest), ctx.assets[0]);
+        setSelectedAssetId(mostRecent.assetId);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {

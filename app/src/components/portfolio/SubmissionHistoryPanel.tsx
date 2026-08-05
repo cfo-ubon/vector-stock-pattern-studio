@@ -1,5 +1,6 @@
 import type { SubmissionRecord } from '../../catalog/submission/submissionRecord';
 import { EXPORT_MARKETPLACE_OPTIONS } from '../../commercial/exportWorkflow';
+import { useModalDismiss } from './useModalDismiss';
 
 const STATUS_LABEL_TH: Record<string, string> = {
   DRAFT: 'ฉบับร่าง',
@@ -28,9 +29,10 @@ interface Props {
  * the existing Stock Submission Center, per "No duplicated screens"). */
 export function SubmissionHistoryPanel({ displayName, submissions, onClose }: Props) {
   const sorted = [...submissions].sort((a, b) => b.updatedAt - a.updatedAt);
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
 
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label={`ประวัติการส่งขาย — ${displayName}`}>
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label={`ประวัติการส่งขาย — ${displayName}`}>
       <div className="portfolio-modal submission-history-dialog">
         <div className="portfolio-detail-header">
           <h2>ประวัติการส่งขาย — {displayName}</h2>

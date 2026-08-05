@@ -5,6 +5,7 @@ import type { CommercialReadinessReport } from '../../commercial/domain/types';
 import type { SeoScoreReport } from '../../catalog/seo/seoScoring';
 import type { AssetExportStatus } from '../../commercial/exportWorkflow';
 import { usePreviewUrl } from './usePreviewUrl';
+import { useModalDismiss } from './useModalDismiss';
 
 const WORKFLOW_LABEL_TH: Record<PortfolioAsset['workflowStatus'], string> = {
   DRAFT: 'ฉบับร่าง',
@@ -46,9 +47,10 @@ export function AssetPreviewDialog({ asset, readiness, seoScore, collections, ex
   const activeFileId = previewRole === 'svg' ? (svgRef?.fileId ?? asset.previewReference) : (pngRef?.fileId ?? asset.previewReference);
   const { url, broken } = usePreviewUrl(activeFileId);
   const assignedCollections = collections.filter((c) => asset.collectionIds.includes(c.id));
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
 
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label={`ตัวอย่าง ${asset.displayName}`}>
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label={`ตัวอย่าง ${asset.displayName}`}>
       <div className="portfolio-modal asset-preview-dialog">
         <div className="portfolio-detail-header">
           <h2>{asset.displayName}</h2>

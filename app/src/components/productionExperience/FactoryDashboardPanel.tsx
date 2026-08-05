@@ -35,8 +35,8 @@ export function FactoryDashboardPanel({
           <span className="pe-tile-label">Business Outcome</span>
           <span className="pe-tile-value">{businessOutcomeScore !== null ? Math.round(businessOutcomeScore) : '—'}</span>
         </div>
-        <div className="pe-tile">
-          <span className="pe-tile-label">Factory Efficiency</span>
+        <div className="pe-tile" title="Share of factory tasks that finished successfully — not the same as how many packages are commercially Ready to sell.">
+          <span className="pe-tile-label">Task Completion Rate</span>
           <span className="pe-tile-value">{factoryEfficiency !== null ? `${Math.round(factoryEfficiency)}%` : '—'}</span>
         </div>
         <div className="pe-tile">

@@ -1163,26 +1163,29 @@ function App() {
           📖 คู่มือการใช้งาน
         </a>
       </header>
-      <ProjectBar
-        projects={projects}
-        activeProjectId={activeProjectId}
-        onSwitch={handleSwitchProject}
-        onCreate={handleCreateProject}
-        onOpenMissionControl={() => setView('missionControl')}
-        onOpenDashboard={() => setView('dashboard')}
-        onOpenTrendStudio={() => setView('trendStudio')}
-        onOpenPortfolioManager={() => setView('portfolio')}
-        onOpenBackupManager={() => setView('backup')}
-        onOpenMarketing={() => setView('marketing')}
-        onOpenDesignDirector={() => setView('designDirector')}
-        onOpenAutopilot={() => {
-          setPendingAutopilotAction(null);
-          setPendingAutopilotInitialStep(undefined);
-          setView('autopilot');
-        }}
-        onOpenProduction={() => setView('production')}
-        onOpenAdvancedMode={() => setView('editor')}
-      />
+      <nav aria-label="Main navigation">
+        <ProjectBar
+          projects={projects}
+          activeProjectId={activeProjectId}
+          onSwitch={handleSwitchProject}
+          onCreate={handleCreateProject}
+          onOpenMissionControl={() => setView('missionControl')}
+          onOpenDashboard={() => setView('dashboard')}
+          onOpenTrendStudio={() => setView('trendStudio')}
+          onOpenPortfolioManager={() => setView('portfolio')}
+          onOpenBackupManager={() => setView('backup')}
+          onOpenMarketing={() => setView('marketing')}
+          onOpenDesignDirector={() => setView('designDirector')}
+          onOpenAutopilot={() => {
+            setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep(undefined);
+            setView('autopilot');
+          }}
+          onOpenProduction={() => setView('production')}
+          onOpenAdvancedMode={() => setView('editor')}
+        />
+      </nav>
+      <main>
       {view === 'missionControl' ? (
         <MissionControlView
           onStartAutopilot={(action) => {
@@ -1298,7 +1301,7 @@ function App() {
           collectionStatus={collectionStatus}
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
-        <main className="app-main">
+        <div className="app-main">
           {tileData.params.sourceLineage && (
             <div className="lineage-banner" role="note">
               <span>Generated from the AI Creative Director</span>
@@ -1352,9 +1355,10 @@ function App() {
             onImportBackup={handleImportLibrary}
             onExportCsv={handleExportCsv}
           />
-        </main>
+        </div>
       </div>
       )}
+      </main>
     </div>
   );
 }

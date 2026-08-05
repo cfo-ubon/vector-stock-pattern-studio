@@ -61,6 +61,13 @@ export interface ImportGroupOptions {
   displayName?: string;
   parentAssetId?: string | null;
   variationGroupId?: string | null;
+  /** The generator that produced this file group, when it came from an
+   * in-app generation pipeline (Factory/Autopilot) rather than a manual
+   * drag-and-drop import — passed straight through to `createPortfolioAsset`
+   * so the Commercial Readiness engine's "Generator completed" check has a
+   * real value to read. Omitted (or left undefined) for manual imports,
+   * which correctly have no generator to record. */
+  generatorVersion?: string | null;
 }
 
 async function readFileSafely(file: File): Promise<ArrayBuffer | null> {
@@ -148,6 +155,7 @@ export async function importFileGroup(
     colorPalette: extractedMetadata?.colorPalette ?? [],
     parentAssetId: options.parentAssetId ?? (duplicate.kind === 'possible' ? duplicate.existingAsset.assetId : null),
     variationGroupId: options.variationGroupId ?? null,
+    generatorVersion: options.generatorVersion ?? null,
   });
 
   const now = Date.now();

@@ -132,6 +132,15 @@ export interface BatchProductionResult {
   aborted: boolean;
 }
 
+/** The Factory pipeline's generator identity, in the same `'v1'` form the
+ * Design Director / Autopilot handoff already stamps on every pattern it
+ * hands to the generator (`design-director/handoff/generatorHandoffBuilder.ts`,
+ * `autopilot/roleGeneratorHandoff.ts`) — reused here rather than invented,
+ * so `PortfolioAsset.generatorVersion` (Commercial Readiness's "Generator
+ * completed" check) is populated for Factory-path assets too, not just
+ * Autopilot ones. */
+const FACTORY_GENERATOR_VERSION = 'v1';
+
 /** Generates `count` diverse patterns and saves each straight into the
  * Portfolio catalog via the existing import pipeline — the "Batch
  * Generate (10/20/50/100)" feature. Sequential (never parallel), the
@@ -172,7 +181,10 @@ export async function generateBatchToPortfolio(input: BatchProductionInput): Pro
     const jsonFile = new File([JSON.stringify(variantParams)], `${baseName}.json`, { type: 'application/json' });
     const group: FileGroup<File> = { basename: baseName, files: [svgFile, jsonFile] };
 
-    const outcome = await importFileGroup(group, knownAssets, {});
+    const outcome = await importFileGroup(group, knownAssets, {
+      generatorVersion: FACTORY_GENERATOR_VERSION,
+      displayName: `${buildFilenameParts(variantParams).slice(0, 2).join(' ')} pattern`,
+    });
     if (outcome.status === 'imported') knownAssets.push(outcome.asset);
     items.push({ index: i, variantParams, tileData, outcome, attempts, regenerated });
   }

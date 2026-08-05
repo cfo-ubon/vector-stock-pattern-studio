@@ -53,10 +53,10 @@ export function ProjectBar({
       <button type="button" className="btn project-bar-btn" onClick={onOpenMissionControl}>
         🏠 Mission Control
       </button>
-      <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenProduction}>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenProduction}>
         🏭 Today's Production
       </button>
-      <button type="button" className="btn btn--primary project-bar-btn" onClick={onOpenAutopilot}>
+      <button type="button" className="btn project-bar-btn" onClick={onOpenAutopilot}>
         ✨ ออกแบบให้ฉันวันนี้
       </button>
       <span className="project-bar-label">📁 Project:</span>

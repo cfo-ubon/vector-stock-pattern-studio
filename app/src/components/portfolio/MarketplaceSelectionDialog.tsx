@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EXPORT_MARKETPLACE_OPTIONS, type ExportMarketplaceId } from '../../commercial/exportWorkflow';
+import { useModalDismiss } from './useModalDismiss';
 
 interface Props {
   assetCount: number;
@@ -26,8 +27,10 @@ export function MarketplaceSelectionDialog({ assetCount, onConfirm, onClose, bus
     });
   };
 
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label="เลือกมาร์เก็ตเพลส">
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="เลือกมาร์เก็ตเพลส">
       <div className="portfolio-modal marketplace-selection-dialog">
         <div className="portfolio-detail-header">
           <h2>เลือกมาร์เก็ตเพลส</h2>

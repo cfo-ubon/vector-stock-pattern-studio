@@ -55,6 +55,7 @@ import type { OwnerActionType } from '../../productionExperience/ownerActionCent
 import { ProgressStepper } from './ProgressStepper';
 import { OwnerActionCenterList } from './OwnerActionCenterList';
 import { ReviewWorkspacePanel } from './ReviewWorkspacePanel';
+import { RepairActivityPanel } from './RepairActivityPanel';
 import { FactoryDashboardPanel } from './FactoryDashboardPanel';
 import { SessionSummaryPanel } from './SessionSummaryPanel';
 import { CommercialPipelineTab } from '../commercial/CommercialPipelineTab';
@@ -626,7 +627,13 @@ export function ProductionHomeView({ onClose }: Props) {
               {canCompleteSession && blockedBatchTasks.length > 0 && (
                 <div className="pe-blocked-tasks">
                   <p className="pe-empty">
-                    {blockedBatchTasks.length} pattern task(s) in this batch are blocked and won't let the session complete: {blockedBatchTasks.map((t) => t.blockedReason).filter((r): r is string => !!r).slice(0, 3).join(' ')}
+                    {blockedBatchTasks.length} pattern task(s) in this batch are blocked and won't let the session complete:{' '}
+                    {[...new Set(blockedBatchTasks.map((t) => t.blockedReason).filter((r): r is string => !!r))]
+                      .map((reason) => {
+                        const count = blockedBatchTasks.filter((t) => t.blockedReason === reason).length;
+                        return count > 1 ? `${reason} (${count} tasks)` : reason;
+                      })
+                      .join(' ')}
                   </p>
                   <button type="button" className="btn" onClick={handleSkipBlockedBatchTasks} disabled={busy}>
                     Skip these and continue
@@ -652,7 +659,12 @@ export function ProductionHomeView({ onClose }: Props) {
         </section>
       )}
 
-      {screen === 'review' && <ReviewWorkspacePanel items={reviewItems} onApprove={handleReviewApprove} onReject={handleReviewReject} onRepair={handleReviewRepair} busy={busy} />}
+      {screen === 'review' && (
+        <>
+          <ReviewWorkspacePanel items={reviewItems} onApprove={handleReviewApprove} onReject={handleReviewReject} onRepair={handleReviewRepair} busy={busy} />
+          <RepairActivityPanel repairTasks={run?.batchId ? tasks.filter((t) => t.batchId === run.batchId && t.type === 'repair') : []} assets={portfolioAssets} />
+        </>
+      )}
 
       {screen === 'export' && <CommercialPipelineTab assets={[]} />}
 

@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.03 | Hotfix v1.0.2 | *(this hotfix's commit)* | Production Hotfix — fixed the P0 metadata-wiring bug blocking every freshly-generated pattern from commercial export, plus every verified P1/P2/P3 finding from the full UI/UX production audit | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main` |
 | v1.88 | Build 030 (Part 2) | *(this build's commit)* | AI Starts the Conversation — proactive AI CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, local AI Conversation Engine with persisted history, user-confirmed AI Memory | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 2 of a multi-part spec |
 | v1.87 | Build 030 (Part 1) | `9f1154b` | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
 | v1.86 | Build 029 | `03c419d` | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | Merged to `main` |
@@ -1903,6 +1904,55 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.03 — 5 ส.ค. 2026 — Hotfix v1.0.2: แก้บั๊กที่พบจากการตรวจสอบทั้งแอป (Full UI/UX Production Audit)
+
+แก้เฉพาะบั๊กที่พิสูจน์แล้วจากรายงาน `FULL_UI_UX_AUDIT_REPORT.md` — **ไม่มีฟีเจอร์
+ใหม่ ไม่มี AI ใหม่ ไม่มีการปรับสถาปัตยกรรมใดๆ** ทุกจุดที่แก้ใช้ข้อมูล/ระบบเดิม
+ที่มีอยู่แล้วในแอป ไม่มีการสร้างตรรกะคำนวณใหม่
+
+- 🔴 **[P0] แก้ปัญหาลายที่เพิ่งสร้างส่งออกขายไม่ได้เลย**: ต้นเหตุคือ pipeline
+  การสร้างลาย (ทั้งจาก "▶ START FACTORY" และ "✨ ออกแบบให้ฉันวันนี้") ไม่เคย
+  บันทึกเวอร์ชัน generator ลงในชิ้นงาน ทำให้เช็ค "Generator completed" ใน
+  Commercial Readiness ล้มเหลวเสมอ — แก้โดยส่งค่า `generatorVersion` จริง
+  (ใช้ค่า `'v1'` เดิมที่ระบบใช้อยู่แล้วใน Generator Handoff) เข้าไปในทั้งสอง
+  pipeline ตอนบันทึกชิ้นงาน ยืนยันแล้วว่า "Generator completed" ผ่าน (PASS)
+  จริงหลังแก้
+- 🟠 **[P1] เลิกใช้คำว่า "Factory Efficiency" ที่ทำให้เข้าใจผิด**: เปลี่ยนป้าย
+  เป็น "Task Completion Rate" พร้อมคำอธิบายชัดเจนว่าวัดอัตราความสำเร็จของ
+  งาน ไม่ใช่จำนวนแพ็กเกจที่ขายได้จริง (ตัวเลขเดิมไม่เปลี่ยน แก้แค่ป้ายกำกับ)
+- 🟠 **[P1] เพิ่มหน้าจอ "Repair Activity" ในแท็บ Review**: ก่อนหน้านี้ตัวเลข
+  "Repair" ใน Session Summary ไม่มีที่ให้ดูรายละเอียดเลย ตอนนี้ดูสถานะ/ผลลัพธ์
+  ของแต่ละชิ้นงานที่ผ่านการตรวจซ่อมอัตโนมัติได้จากแท็บ Review โดยตรง
+- 🟠 **[P1] แก้เลย์เอาต์ Design Workbench บน iPad แนวตั้ง (834px)**: แผงที่ 3
+  เคยถูกบีบจนอ่านไม่ออก — สาเหตุคือ inline style ทับ media query เดิมที่มีอยู่
+  แล้ว แก้โดยย้าย logic ความกว้างไปใช้ CSS custom property แทน ทำให้ media
+  query กลับมาทำงานได้ตามที่ออกแบบไว้เดิม (เลย์เอาต์ยุบเป็นคอลัมน์เดียวที่
+  หน้าจอแคบ)
+- 🟡 **[P2] ข้อความแจ้งเหตุผลบล็อกไม่ซ้ำกันอีกต่อไป**: หน้า Progress เคยแสดง
+  ข้อความเดียวกันซ้ำ 3 รอบเมื่อหลายงานบล็อกด้วยเหตุผลเดียวกัน ตอนนี้แสดง
+  เหตุผลที่ไม่ซ้ำ พร้อมจำนวนงานที่บล็อกด้วยเหตุผลนั้น
+- 🟡 **[P2] เมนูบนไม่ไฮไลต์ 2 ปุ่มพร้อมกันอีกต่อไป**: "🏭 Today's Production"
+  และ "✨ ออกแบบให้ฉันวันนี้" เคยแสดงสีไฮไลต์ตลอดเวลาทุกหน้า ทำให้ดูเหมือน
+  ทั้งสองเป็นหน้าปัจจุบันพร้อมกัน แก้ให้เป็นปุ่มปกติเหมือนปุ่มอื่นในแถบเดียวกัน
+- 🟡 **[P2] Escape ปิดหน้าต่างได้แล้วทุกหน้าต่าง + โฟกัสเข้าหน้าต่างอัตโนมัติ**:
+  เพิ่ม shared hook ให้ 6 หน้าต่างที่ยังไม่รองรับ (ตัวอย่างชิ้นงาน, เลือก
+  มาร์เก็ตเพลส, Download Center, ประวัติการส่งขาย, ตรวจสุขภาพคลัง, นำเข้า
+  ไฟล์) กด Escape ปิดได้เหมือน 3 หน้าต่างเดิมที่มีอยู่แล้ว
+- 🟡 **[P2] เพิ่ม landmark สำหรับ screen reader**: ครอบเมนูบนด้วย `<nav>` และ
+  เนื้อหาหลักด้วย `<main>` (ก่อนหน้านี้ไม่มีทั้งคู่)
+- 🟡 **[P2] Export tab เลือกชิ้นงานล่าสุดเป็นค่าเริ่มต้น**: เดิมสุ่มเลือกชิ้นงาน
+  เก่าที่ไม่เกี่ยวข้องกับ session ปัจจุบัน ตอนนี้เลือกชิ้นงานที่สร้างล่าสุดจาก
+  `createdAt` จริงเสมอ
+- 🟢 **[P3] ชื่อชิ้นงานอ่านง่ายขึ้น**: ลายที่สร้างจาก Factory/Autopilot แสดงชื่อ
+  เช่น "Pastel Dream Botanical / Floral pattern" แทน slug เทคนิคยาวๆ
+  (Asset ID เดิมยังอยู่ครบสำหรับใช้อ้างอิงทางเทคนิค)
+
+**ยังไม่แก้ (บันทึกไว้อย่างตรงไปตรงมา ไม่ปิดบัง)**: ช่องว่าง Collection
+assignment/SEO ที่ยังทำให้ Commercial Readiness ไม่ถึง READY เป็นขั้นตอนจริง
+ที่เจ้าของร้านต้องทำเอง (ไม่ใช่บั๊ก — ตรวจสอบแล้วว่าระบบทำงานถูกต้อง);
+สี contrast (WCAG AA) และการทดสอบด้วยโปรแกรมอ่านหน้าจอจริงยังไม่ได้ทำ
+(ไม่มีเครื่องมือในสภาพแวดล้อมที่ใช้พัฒนา)
 
 ### v2.02 — 4 ส.ค. 2026 — Hotfix v1.0.1: Commercial Export UX (Preview → Marketplace → ZIP)
 

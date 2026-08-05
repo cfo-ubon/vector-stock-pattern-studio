@@ -1,4 +1,5 @@
 import type { HealthCheckReport } from '../../catalog/services/healthCheck';
+import { useModalDismiss } from './useModalDismiss';
 
 interface Props {
   report: HealthCheckReport | null;
@@ -11,8 +12,10 @@ interface Props {
  * action. Read-only: reports issues, never auto-repairs them (per the
  * brief: "Do not silently repair destructive issues"). */
 export function PortfolioHealthCheckPanel({ report, loading, onRefresh, onClose }: Props) {
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label="ตรวจสุขภาพคลัง">
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="ตรวจสุขภาพคลัง">
       <div className="portfolio-modal">
         <div className="portfolio-modal-header">
           <h2>ตรวจสุขภาพคลัง</h2>

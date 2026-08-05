@@ -38,8 +38,8 @@ export function SessionSummaryPanel({ review, onDone }: Props) {
           <span className="pe-tile-label">Business Outcome</span>
           <span className="pe-tile-value">{review.businessOutcomeScore !== null ? Math.round(review.businessOutcomeScore) : '—'}</span>
         </div>
-        <div className="pe-tile">
-          <span className="pe-tile-label">Factory Efficiency</span>
+        <div className="pe-tile" title="Share of factory tasks that finished successfully — not the same as how many packages are commercially Ready to sell (see Ready above).">
+          <span className="pe-tile-label">Task Completion Rate</span>
           <span className="pe-tile-value">{review.factoryEfficiency !== null ? `${Math.round(review.factoryEfficiency)}%` : '—'}</span>
         </div>
         <div className="pe-tile">

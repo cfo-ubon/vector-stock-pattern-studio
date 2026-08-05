@@ -2,6 +2,7 @@ import type { BulkExportResult } from '../../commercial/exportWorkflow';
 import { downloadBlobFile } from '../../export/svgExporter';
 import { isDesktopRuntime, openWorkspacePath, getConfiguredWorkspacePath } from '../../workspace/workspaceApi';
 import { folderForMarketplaceId } from '../../workspace/workspaceExportIntegration';
+import { useModalDismiss } from './useModalDismiss';
 
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -31,8 +32,10 @@ export function DownloadCenter({ packages, onClose }: Props) {
     await openWorkspacePath(`${workspacePath}/Marketplace/${folderForMarketplaceId(marketplaceId)}`);
   };
 
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label="Download Center">
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="Download Center">
       <div className="portfolio-modal download-center-dialog">
         <div className="portfolio-detail-header">
           <h2>📦 Download Center</h2>
