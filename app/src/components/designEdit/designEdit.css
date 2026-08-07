@@ -114,17 +114,23 @@
   font-size: 0.85rem;
 }
 
-/* Floating Design Inspector (Mission 2) */
+/* Floating Design Inspector + AI Design Coach (Mission 2) */
+
+.design-edit-inspector-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  max-height: calc(96vh - 6rem);
+  overflow-y: auto;
+}
 
 .design-inspector {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 0.75rem;
-  position: sticky;
-  top: 0;
-  max-height: calc(96vh - 6rem);
-  overflow-y: auto;
   font-size: 0.85rem;
 }
 
@@ -200,4 +206,9 @@
 
 .design-inspector-issue--low {
   border-left: 3px solid var(--text-dim);
+}
+
+.design-coach-suggestion {
+  color: var(--text-dim);
+  margin-top: 0.15rem;
 }

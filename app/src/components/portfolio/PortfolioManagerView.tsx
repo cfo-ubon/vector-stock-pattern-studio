@@ -729,7 +729,7 @@ export function PortfolioManagerView({ onClose }: Props) {
               originalReadiness={readinessByAsset.get(editAsset.assetId) ?? null}
               onClose={() => setEditDesignAssetId(null)}
               onSaved={() => {
-                void refreshAssetsQuietly();
+                void refreshAssetsQuietly().then(() => loadCommercialData());
               }}
             />
           );

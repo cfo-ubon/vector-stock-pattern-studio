@@ -5,10 +5,12 @@ import type { CommercialReadinessReport } from '../../commercial/domain/types';
 import { loadDesignParamsForAsset } from '../../design/designParamsIO';
 import { evaluateDesign, type DesignEvaluation } from '../../design/designEvaluation';
 import { saveDesignVersion } from '../../design/designVersioning';
+import { revalidateDesignVersion } from '../../design/designRevalidation';
 import { createHistory, pushHistory, undoHistory, redoHistory, canUndo, canRedo, type HistoryState } from '../../workbench/workbenchHistory';
 import { PreviewCanvas } from '../PreviewCanvas';
 import { DesignEditControls } from './DesignEditControls';
 import { DesignInspectorPanel } from './DesignInspectorPanel';
+import { DesignCoachPanel } from './DesignCoachPanel';
 import type { ImportOutcome } from '../../catalog/import/importPipeline';
 import './designEdit.css';
 
@@ -40,6 +42,9 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
   const [saving, setSaving] = useState(false);
   const [saveOutcome, setSaveOutcome] = useState<ImportOutcome | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [revalidating, setRevalidating] = useState(false);
+  const [revalidationError, setRevalidationError] = useState<string | null>(null);
+  const [revalidatedScore, setRevalidatedScore] = useState<{ commercialScore: number; band: string } | null>(null);
   const [actionCount, setActionCount] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,11 +94,26 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
     if (!params || !evaluation) return;
     setSaving(true);
     setSaveError(null);
+    setRevalidationError(null);
+    setRevalidatedScore(null);
     setActionCount((n) => n + 1);
     try {
       const outcome = await saveDesignVersion(asset, params, evaluation.tileData, existingAssets, { forceImportAsNew });
       setSaveOutcome(outcome);
       if (outcome.status === 'imported') {
+        setRevalidating(true);
+        try {
+          // Mission 2 — Commercial Revalidation: a brand-new Design Version
+          // has no QualitySnapshot yet; re-run the exact same QA/readiness
+          // pipeline Factory/Autopilot already run on every asset so it
+          // isn't left permanently "never evaluated."
+          const revalidation = await revalidateDesignVersion(outcome.asset, evaluation.tileData, existingAssets, []);
+          setRevalidatedScore({ commercialScore: revalidation.snapshot.commercialScore, band: revalidation.readiness.band });
+        } catch (e) {
+          setRevalidationError(e instanceof Error ? e.message : 'ตรวจสอบ Commercial Readiness ของเวอร์ชันใหม่ไม่สำเร็จ');
+        } finally {
+          setRevalidating(false);
+        }
         onSaved();
       }
     } catch (e) {
@@ -141,7 +161,7 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
             <div className="design-edit-preview-col">
               <PreviewCanvas tileData={evaluation?.tileData ?? null} />
               <div className="design-edit-approve-bar">
-                <button type="button" className="btn btn--primary" disabled={saving || !hasEdits} onClick={() => handleApprove(false)}>
+                <button type="button" className="btn btn--primary" disabled={saving || revalidating || !hasEdits} onClick={() => handleApprove(false)}>
                   {saving ? 'กำลังบันทึก…' : '✅ Approve — Save as New Version'}
                 </button>
                 {saveOutcome?.status === 'possibleDuplicate' && (
@@ -158,6 +178,17 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
                   </p>
                 )}
                 {saveOutcome?.status === 'imported' && <p className="metadata-hint">✅ บันทึกเวอร์ชันใหม่แล้ว — ต้นฉบับยังอยู่ครบ</p>}
+                {revalidating && <p className="metadata-hint">กำลังตรวจสอบ Commercial Readiness ของเวอร์ชันใหม่…</p>}
+                {revalidatedScore && (
+                  <p className="metadata-hint">
+                    📊 Commercial Revalidation: score {revalidatedScore.commercialScore} — {revalidatedScore.band}
+                  </p>
+                )}
+                {revalidationError && (
+                  <p className="portfolio-error-text" role="alert">
+                    {revalidationError}
+                  </p>
+                )}
                 {saveError && (
                   <p className="portfolio-error-text" role="alert">
                     {saveError}
@@ -166,7 +197,10 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
               </div>
             </div>
 
-            <DesignInspectorPanel evaluation={evaluation} evaluating={evaluating} originalReadiness={originalReadiness} />
+            <div className="design-edit-inspector-col">
+              <DesignInspectorPanel evaluation={evaluation} evaluating={evaluating} originalReadiness={originalReadiness} />
+              <DesignCoachPanel evaluation={evaluation} originalReadiness={originalReadiness} />
+            </div>
           </div>
         )}
       </div>

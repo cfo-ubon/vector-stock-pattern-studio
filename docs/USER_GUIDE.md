@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.05 | Design Refinement Studio Pro — M2 | *(this milestone's commit)* | AI Design Coach + Commercial Revalidation — human-readable, deterministic improvement advice inside Design Edit Mode, and automatic QA/Commercial Readiness re-scoring for every newly-approved Design Version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a 6-milestone mission |
 | v2.04 | Design Refinement Studio Pro — M1 | *(this milestone's commit)* | Design Edit Mode — non-destructive parameter editing (Floating Design Inspector, live re-evaluation, undo/redo, Approve-as-new-version) for any Factory/Autopilot-produced pattern, opened from the Portfolio Preview Dialog | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a 6-milestone mission |
 | v2.03 | Hotfix v1.0.2 | *(this hotfix's commit)* | Production Hotfix — fixed the P0 metadata-wiring bug blocking every freshly-generated pattern from commercial export, plus every verified P1/P2/P3 finding from the full UI/UX production audit | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main` |
 | v1.88 | Build 030 (Part 2) | *(this build's commit)* | AI Starts the Conversation — proactive AI CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, local AI Conversation Engine with persisted history, user-confirmed AI Memory | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 2 of a multi-part spec |
@@ -1265,7 +1266,7 @@ JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด —
 
 ---
 
-## 🎨 Design Edit Mode — แก้ไขลายแบบไม่ทำลายต้นฉบับ 🆕
+## 🎨 Design Edit Mode + AI Design Coach — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ 🆕
 
 เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
 ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
@@ -1287,11 +1288,22 @@ secondary/accent) ของลายที่สร้างจาก Factory �
   เสมอ ระบบตรวจจับชิ้นงานซ้ำจริงยังทำงานอยู่ (ถ้าผลลัพธ์เหมือนต้นฉบับทุก byte
   จะไม่ให้บันทึกซ้ำ) แต่การแก้ไขจริงที่ใช้ seed เดิม (กรณีปกติของการปรับแต่ง)
   จะไม่ถูกบล็อกผิดพลาดว่าเป็นของซ้ำ
+- 🆕 **🤖 AI Design Coach**: แผงคำแนะนำใต้ Design Inspector — แปลงปัญหา/
+  Visual Issue ที่ตรวจพบจริง (Detected Problems, Visual Issues) และเช็ก
+  Commercial Readiness ที่ยังไม่ผ่าน (FAIL/WARNING) ให้เป็นคำแนะนำที่อ่านง่าย
+  พร้อมชี้ตรงไปที่ตัวควบคุมที่ควรปรับ (เช่น "Repeated Rotation → Increase
+  Rotation Jitter") **ไม่ใช่ AI/โมเดลใหม่** — เป็นการแปลผลข้อมูลจริงที่เอนจิน
+  เดิมตรวจพบแล้วเท่านั้น ไม่มีการทายผลหรือสร้างคะแนนใหม่
+- 🆕 **Commercial Revalidation**: ทันทีที่กด Approve ระบบจะรัน QA/Commercial
+  Readiness ของเวอร์ชันใหม่ทันที (ใช้ pipeline เดียวกับที่ Factory/Autopilot
+  ใช้ตอนสร้างลายทุกครั้ง) แสดงคะแนน Commercial Score และ Band (READY/
+  NEEDS_WORK/BLOCKED) ทันทีในหน้าจอแก้ไข — เวอร์ชันใหม่จึงไม่ค้างอยู่ในสถานะ
+  "ยังไม่เคยตรวจ QA" เหมือนก่อนหน้านี้
 
-ฟีเจอร์นี้เป็นก้าวแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่รวม
-เครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), AI Design
-Coach, ประวัติเวอร์ชันแบบเต็ม, Compare Center, และ Batch Refinement ซึ่งจะ
-ตามมาในไมล์สโตนถัดไป
+ฟีเจอร์นี้เป็น 2 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
+รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), ประวัติ
+เวอร์ชันแบบเต็ม, Compare Center, และ Batch Refinement ซึ่งจะตามมาในไมล์สโตน
+ถัดไป
 
 ---
 
@@ -1935,6 +1947,38 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.05 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 2: AI Design Coach + Commercial Revalidation
+
+ไมล์สโตนที่ 2 ของภารกิจ "Design Refinement Studio Pro" — เพิ่มคำแนะนำ
+อัตโนมัติและการตรวจ QA/Commercial Readiness ซ้ำให้ Design Edit Mode (M1)
+โดยยึดกติกาเดิม: **ไม่มี AI engine ใหม่ ไม่มีตรรกะคำนวณคะแนนซ้ำซ้อน** ทุกจุด
+อ้างอิงข้อมูลจริงจากเอนจินเดิมที่แอปมีอยู่แล้วเท่านั้น
+
+- 🆕 **🤖 AI Design Coach** (`src/design/designCoach.ts`): ตารางคำแนะนำแบบ
+  กำหนดตายตัว (deterministic) ที่แปล Detected Problems/Visual Issues จริง
+  (จาก `critic/problems.ts`/`critic/visualAnalysis.ts` ที่ M1 ใช้อยู่แล้ว)
+  และเช็ก Commercial Readiness ที่ยังไม่ผ่าน (FAIL/WARNING) ให้เป็นข้อความ
+  แนะนำที่ชี้ตรงไปที่ตัวควบคุมพารามิเตอร์จริงที่ควรปรับ — เรียงตามความรุนแรง
+  สูงสุดก่อน ไม่มีการทายผล/สร้างคะแนนใหม่ใดๆ ทั้งสิ้น
+- 🆕 **Commercial Revalidation** (`src/design/designRevalidation.ts`):
+  ทันทีที่ Approve เวอร์ชันใหม่สำเร็จ ระบบจะรัน pipeline การประเมินคุณภาพ
+  เดียวกับที่ Factory/Autopilot ใช้ (`evaluateGeneratedPattern` →
+  `createQualitySnapshot` → บันทึก QualitySnapshot → คำนวณ
+  `computeCommercialReadiness` ใหม่) ทันที — เวอร์ชันใหม่จึงมีคะแนน
+  Commercial Score/Band (READY/NEEDS_WORK/BLOCKED) แสดงในหน้าจอทันที
+  แทนที่จะค้างเป็น "ยังไม่เคยตรวจ QA" จนกว่าจะมีคนกดตรวจซ้ำเอง
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (advice ผูกกับปัญหา/issue/readiness check
+  จริงเท่านั้น, เรียงความรุนแรงถูกต้อง, snapshot/asset/readiness หลัง
+  revalidate ถูกต้องและไม่รวมตัวเองเป็น "ของซ้ำ") รวม regression เต็มชุดผ่าน
+  ทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: แก้พารามิเตอร์ให้เกิด Visual Issue
+  จริง ("Repeated Rotation") → Coach แนะนำ "Increase Rotation Jitter" ตรงตัว
+  → Approve → เห็นคะแนน "Commercial Revalidation: score 71 — BLOCKED"
+  ทันทีโดยไม่มี error
+
+**ยังไม่ทำในไมล์สโตนนี้**: ประวัติเวอร์ชันแบบเต็ม + Compare Center (M3),
+Batch Refinement (M4), Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ
+interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งเดิม
 
 ### v2.04 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 1: Design Edit Mode
 
