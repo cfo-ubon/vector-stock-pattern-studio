@@ -279,7 +279,7 @@ export function CollectionDetailPanel({
           </div>
         )}
         {memberAssets.length === 0 ? (
-          <p className="gallery-empty">คอลเลกชันนี้ยังไม่มีชิ้นงาน — ไปที่แท็บ "ชิ้นงาน" เลือกชิ้นงาน แล้วกด "เพิ่มเข้าคอลเลกชัน" เพื่อเพิ่มสมาชิก</p>
+          <p className="gallery-empty">คอลเลกชันนี้ยังไม่มีชิ้นงาน — ไปที่แท็บ "📁 Library & Search" เลือกชิ้นงาน แล้วกด "เพิ่มเข้าคอลเลกชัน" เพื่อเพิ่มสมาชิก</p>
         ) : (
           <>
             <div className="portfolio-grid collection-member-grid">

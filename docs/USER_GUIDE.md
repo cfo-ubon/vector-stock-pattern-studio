@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.12 | AI-SBOS — M4 | *(this milestone's commit)* | Portfolio role repositioning — relabeled as Library/Search/Analytics/Collections/History & Submissions, with a new dedicated Analytics tab; no longer the primary path for routine export | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a new AI-SBOS mission |
 | v2.11 | AI-SBOS — M3 | *(this milestone's commit)* | Today's Production Workspace — consolidated Generate → Preview Gallery → Marketplace Export → Download Center in one screen, no Portfolio navigation required for routine production | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a new AI-SBOS mission |
 | v2.10 | AI-SBOS — M2 | *(this milestone's commit)* | What's New — a one-time-per-version dialog summarizing the latest changelog entry, with a persistent "Don't show again" opt-out | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a new AI-SBOS mission |
 | v2.09 | AI-SBOS — M1 | *(this milestone's commit)* | Product Identity + Consistent Header + Version Center — app rebranded to "AI-SBOS" (AI Stock Business Operating System) with Vector Stock Pattern Studio as its module name; every page shows a persistent identity bar (environment, project, version/build) and a clickable "About AI-SBOS" Version Center | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a new AI-SBOS mission |
@@ -1067,6 +1068,27 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 สถานะขาย/ลบทิ้งอย่างปลอดภัย โดย**ไม่แก้ไขหรือบีบอัดไฟล์ต้นฉบับเลยแม้แต่ไบต์
 เดียว**
 
+### บทบาทของ Portfolio Manager (อัปเดต AI-SBOS Milestone 4)
+
+ตั้งแต่ v2.12 Portfolio Manager **ไม่ใช่จุดหลักสำหรับงาน Export ประจำวัน
+อีกต่อไป** — งานผลิตประจำวันแบบครบวงจร (Generate → Preview → Refine →
+Approve → Marketplace → Export → Download) ทำได้เร็วกว่าจากหน้า
+**"🏭 Today's Production"** โดยตรง (ดูหัวข้อด้านบน) Portfolio Manager
+ยังคงใช้งานได้ตามปกติทุกฟังก์ชัน แต่เปลี่ยนบทบาทมาเน้น **Library, Search,
+Analytics, Collections, และ History & Submissions** — 4 แท็บ:
+
+- **📁 Library & Search** — เดิมชื่อ "ชิ้นงาน": คลังไฟล์ทั้งหมด + ค้นหา/
+  กรองตามสถานะ/ชนิดไฟล์/คอลเลกชัน (ของเดิมทั้งหมด ไม่มีอะไรเปลี่ยน)
+- 🆕 **📊 Analytics**: แท็บใหม่ แยกภาพรวมคลัง (ทั้งหมด/ใช้งานอยู่/เก็บถาวร/
+  รอตรวจ/พร้อมอัปโหลด/ส่งแล้ว/อนุมัติแล้ว/ถูกปฏิเสธ/ไม่มีภาพตัวอย่าง/อาจซ้ำ)
+  ออกมาเป็นหน้าเดียวที่ชัดเจน (เดิมฝังอยู่ในแถบข้างของ Library) พร้อมรายการ
+  ชิ้นงานที่นำเข้า/สร้างล่าสุด กดเพื่อเปิดดูได้ทันที — ทุกตัวเลขคำนวณจาก
+  ข้อมูลจริงเหมือนเดิม ไม่มีการคำนวณใหม่
+- **📚 Collections** — เดิมชื่อ "คอลเลกชัน": จัดกลุ่มชิ้นงาน (ของเดิมทั้งหมด)
+- **🕓 History & Submissions** — เดิมชื่อ "ศูนย์การผลิต": ติดตามการส่งขาย,
+  นำเข้าผลลัพธ์, ผลตอบรับเชิงพาณิชย์, คิวการผลิต, นำเข้าผลงานเก่า, สำรอง/
+  กู้คืน (ของเดิมทั้งหมด)
+
 ### เก็บข้อมูลไว้ที่ไหน
 
 ทุกอย่างเก็บใน **IndexedDB ของเบราว์เซอร์เครื่องนี้เท่านั้น** (ไม่มีเซิร์ฟเวอร์
@@ -2061,6 +2083,33 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.12 — 7 ส.ค. 2026 — AI-SBOS, Milestone 4: Portfolio Role Repositioning
+
+ไมล์สโตนที่ 4 ของภารกิจ AI-SBOS — **ไม่มีการเปลี่ยนตรรกะธุรกิจ ไม่มีการ
+ปรับสถาปัตยกรรมใหม่** เป็นการจัดวาง/เปลี่ยนชื่อ UI ของ Portfolio Manager ที่
+มีอยู่แล้วให้ตรงกับบทบาทใหม่ตามสเปก (Library, History, Search, Collections,
+Analytics, Submission History) หลังจาก Milestone 3 ทำให้ Today's Production
+มีทางลัด Export/Download ครบวงจรของตัวเองแล้ว
+
+- 🆕 **เปลี่ยนชื่อแท็บให้สื่อความหมายชัดเจน**: "ชิ้นงาน" → "📁 Library &
+  Search", "คอลเลกชัน" → "📚 Collections", "ศูนย์การผลิต" → "🕓 History &
+  Submissions" — เนื้อหาข้างในแต่ละแท็บเหมือนเดิมทุกประการ เปลี่ยนแค่ป้าย
+- 🆕 **แท็บ "📊 Analytics" ใหม่** (`components/portfolio/
+  PortfolioAnalyticsView.tsx`): ดึง `DashboardSummary` เดิมจาก
+  `computeDashboardSummary()` (ตัวเดียวกับที่ sidebar ของ Library ใช้อยู่
+  แล้ว) มาแสดงเป็นหน้าเฉพาะที่ชัดเจนขึ้น พร้อมรายการชิ้นงานที่นำเข้า/สร้าง
+  ล่าสุด (`recentlyImported`) กดเปิดดูได้ทันที
+- 🆕 **หัวข้อ Portfolio Manager แจ้งบทบาทใหม่อย่างตรงไปตรงมา**: ข้อความใต้
+  หัวข้อบอกชัดเจนว่าไม่จำเป็นสำหรับ Export ประจำวันอีกต่อไป พร้อมชี้ไปที่
+  "🏭 Today's Production" สำหรับงานประจำวัน
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 4 เคส (Analytics แสดงค่าจริงจาก DashboardSummary
+  ไม่ใช่ตัวเลขสมมติ, สถานะว่างที่ซื่อสัตย์เมื่อยังไม่มีข้อมูล, กดชิ้นงานล่าสุด
+  แล้วส่ง assetId ถูกต้อง) พร้อมแก้ไขเทสต์เดิม 7 จุดให้ตรงกับป้ายแท็บใหม่ รวม
+  regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: ทุกแท็บที่เปลี่ยน
+  ชื่อแสดงผลถูกต้อง, Analytics แสดงจำนวนชิ้นงานจริงตรงกับที่เพิ่งสร้าง (12
+  ชิ้น), History & Submissions และ Library & Search ยังทำงานได้ตามปกติ โดย
+  ไม่มี console error เลย
 
 ### v2.11 — 7 ส.ค. 2026 — AI-SBOS, Milestone 3: Today's Production Workspace
 

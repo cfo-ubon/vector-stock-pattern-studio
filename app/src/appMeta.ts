@@ -15,9 +15,9 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
-export const APP_VERSION = '2.11';
-export const BUILD_NAME = 'AI-SBOS M3';
-export const BUILD_DESCRIPTION = "Today's Production Workspace — Preview Gallery, Marketplace Export, Download Center";
+export const APP_VERSION = '2.12';
+export const BUILD_NAME = 'AI-SBOS M4';
+export const BUILD_DESCRIPTION = 'Portfolio role repositioning — Library, Analytics, Collections, History & Submissions';
 export const RELEASE_DATE = '2026-08-07';
 
 /** The real commit this build was produced from — injected at build time
@@ -38,7 +38,7 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * silently drifting from what was actually verified. */
 export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission in progress';
 export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks';
-export const REGRESSION_RESULT = '511 test files / 4461 tests passing (last full regression run)';
+export const REGRESSION_RESULT = '512 test files / 4465 tests passing (last full regression run)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -51,6 +51,16 @@ export interface WhatsNewEntry {
  * by the What's New dialog (which shows only `CHANGELOG[0]` once per
  * version, see `components/appIdentity/WhatsNewDialog.tsx`). */
 export const CHANGELOG: WhatsNewEntry[] = [
+  {
+    version: '2.12',
+    date: '2026-08-07',
+    title: 'AI-SBOS: Portfolio role repositioning',
+    highlights: [
+      'Portfolio Manager เปลี่ยนบทบาทเป็น Library/Search/Analytics/Collections/History & Submissions — ไม่ใช่จุดหลักสำหรับ Export ประจำวันอีกต่อไป (ใช้ Today\'s Production แทน)',
+      'แท็บ "📊 Analytics" ใหม่ — ดูภาพรวมคลังและชิ้นงานที่นำเข้า/สร้างล่าสุดในหน้าเดียว',
+      'ป้ายแท็บทั้งหมดเปลี่ยนชื่อให้สื่อความหมายชัดเจนขึ้น: Library & Search, Collections, History & Submissions',
+    ],
+  },
   {
     version: '2.11',
     date: '2026-08-07',

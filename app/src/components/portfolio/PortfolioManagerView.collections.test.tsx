@@ -30,7 +30,7 @@ async function waitUntilLoaded() {
 }
 
 async function openCollectionsTab() {
-  fireEvent.click(screen.getByRole('button', { name: 'คอลเลกชัน' }));
+  fireEvent.click(screen.getByRole('button', { name: '📚 Collections' }));
 }
 
 async function createCollection(name: string) {
@@ -98,7 +98,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     await openCollectionsTab();
     await createCollection('Florals');
 
-    fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📁 Library & Search' }));
     await waitFor(() => expect(screen.getByText('Floral A')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Floral A'));
     await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
@@ -133,7 +133,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     await openCollectionsTab();
     await createCollection('Bulk Target');
 
-    fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📁 Library & Search' }));
     await waitFor(() => expect(screen.getByText('Bulk A')).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText(/เลือก Bulk A/));
     fireEvent.click(screen.getByLabelText(/เลือก Bulk B/));
@@ -195,7 +195,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByText('ยืนยันเก็บถาวร'));
     await waitFor(() => expect(screen.getByText('กู้คืนจากที่เก็บถาวร')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📁 Library & Search' }));
     await waitFor(() => expect(screen.getByText('Member Asset')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Member Asset'));
     await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
@@ -216,7 +216,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     await openCollectionsTab();
     await createCollection('Doomed');
 
-    fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📁 Library & Search' }));
     await waitFor(() => expect(screen.getByText('Survivor')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Survivor'));
     await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());
@@ -234,7 +234,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     fireEvent.click(screen.getByText('ปิด'));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: 'คอลเลกชัน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📚 Collections' }));
     await waitFor(() => expect(screen.getByText('Doomed')).toBeInTheDocument());
     fireEvent.click(screen.getByText('ลบคอลเลกชันนี้'));
     fireEvent.click(screen.getByText('ยืนยันลบ'));
@@ -256,7 +256,7 @@ describe('PortfolioManagerView — Collections (P2 Stage 2 integration)', () => 
     await openCollectionsTab();
     await createCollection('Filter Target');
 
-    fireEvent.click(screen.getByRole('button', { name: 'ชิ้นงาน' }));
+    fireEvent.click(screen.getByRole('button', { name: '📁 Library & Search' }));
     await waitFor(() => expect(screen.getByText('In Collection')).toBeInTheDocument());
     fireEvent.click(screen.getByText('In Collection'));
     await waitFor(() => expect(screen.getByText('✏️ แก้ไขรายละเอียด')).toBeInTheDocument());

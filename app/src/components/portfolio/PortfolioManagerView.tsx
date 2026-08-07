@@ -30,6 +30,7 @@ import {
   type CollectionIntegrityReport,
 } from '../../catalog/services/collectionService';
 import { PortfolioSidebar } from './PortfolioSidebar';
+import { PortfolioAnalyticsView } from './PortfolioAnalyticsView';
 import { PortfolioGrid } from './PortfolioGrid';
 import { PortfolioDetailPanel } from './PortfolioDetailPanel';
 import { PortfolioImportPanel } from './PortfolioImportPanel';
@@ -64,7 +65,7 @@ interface Props {
   onClose: () => void;
 }
 
-type ManagerSection = 'assets' | 'collections' | 'production';
+type ManagerSection = 'assets' | 'analytics' | 'collections' | 'production';
 
 /** Sprint P1 / Portfolio Manager P2 Stage 2 — Top-level container: owns
  * the loaded catalog, the loaded collection list, filters/sort/selection,
@@ -525,7 +526,13 @@ export function PortfolioManagerView({ onClose }: Props) {
   return (
     <div className="portfolio-manager">
       <div className="portfolio-manager-header">
-        <h1>🗂 Portfolio Manager</h1>
+        <div>
+          <h1>🗂 Portfolio — Library, History &amp; Analytics</h1>
+          <p className="metadata-hint">
+            ไม่จำเป็นสำหรับงาน Export ประจำวันอีกต่อไป — งานผลิตประจำวัน (Generate → Preview → Export → Download) ใช้ "🏭 Today's Production" แทน ที่นี่ใช้สำหรับค้นหา/จัดการคลัง, ดู
+            Analytics, จัดกลุ่ม Collections และดูประวัติการส่งขาย
+          </p>
+        </div>
         <button type="button" className="btn" onClick={() => setShowDownloadCenter(true)}>
           📦 Download Center{downloadPackages.length > 0 ? ` (${downloadPackages.length})` : ''}
         </button>
@@ -536,7 +543,15 @@ export function PortfolioManagerView({ onClose }: Props) {
 
       <nav className="portfolio-section-nav" aria-label="ส่วนของ Portfolio Manager">
         <button type="button" className={`btn${section === 'assets' ? ' btn--primary' : ''}`} aria-pressed={section === 'assets'} onClick={() => setSection('assets')}>
-          ชิ้นงาน
+          📁 Library &amp; Search
+        </button>
+        <button
+          type="button"
+          className={`btn${section === 'analytics' ? ' btn--primary' : ''}`}
+          aria-pressed={section === 'analytics'}
+          onClick={() => setSection('analytics')}
+        >
+          📊 Analytics
         </button>
         <button
           type="button"
@@ -544,7 +559,7 @@ export function PortfolioManagerView({ onClose }: Props) {
           aria-pressed={section === 'collections'}
           onClick={() => setSection('collections')}
         >
-          คอลเลกชัน
+          📚 Collections
         </button>
         <button
           type="button"
@@ -552,7 +567,7 @@ export function PortfolioManagerView({ onClose }: Props) {
           aria-pressed={section === 'production'}
           onClick={() => setSection('production')}
         >
-          ศูนย์การผลิต
+          🕓 History &amp; Submissions
         </button>
       </nav>
 
@@ -589,6 +604,14 @@ export function PortfolioManagerView({ onClose }: Props) {
             exportStatusByAsset={exportStatusByAsset}
           />
         </div>
+      ) : section === 'analytics' ? (
+        <PortfolioAnalyticsView
+          summary={dashboardSummary}
+          onOpenAsset={(assetId) => {
+            setSection('assets');
+            setPreviewAssetId(assetId);
+          }}
+        />
       ) : section === 'collections' ? (
         <CollectionsView
           collections={collections}
