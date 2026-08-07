@@ -1,0 +1,203 @@
+/* Design Refinement Studio Pro, Mission 1 — Design Edit Mode. Reuses the
+ * same dark-theme CSS variables every other screen already reads
+ * (--bg/--panel/--panel-alt/--border/--text/--text-dim/--accent, see
+ * App.css's :root) and the same full-screen modal-backdrop convention
+ * `.portfolio-modal-backdrop` already uses, kept as its own class only
+ * because this screen is a full workspace (3 columns), not a small dialog. */
+
+.design-edit-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.design-edit-view {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1600px;
+  height: 100%;
+  max-height: 96vh;
+  overflow-y: auto;
+  padding: 1rem 1.25rem 1.5rem;
+}
+
+.design-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.design-edit-header h2 {
+  margin: 0 0 0.25rem;
+}
+
+.design-edit-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.design-edit-body {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr) 320px;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .design-edit-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.design-edit-controls-col,
+.design-edit-preview-col {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.design-edit-history-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.design-edit-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: calc(96vh - 12rem);
+  overflow-y: auto;
+}
+
+.design-edit-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.design-edit-field-row label {
+  color: var(--text-dim);
+}
+
+.design-edit-field-row input[type='range'] {
+  width: 100%;
+}
+
+.design-edit-approve-bar {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.design-edit-save-warning {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Floating Design Inspector (Mission 2) */
+
+.design-inspector {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  position: sticky;
+  top: 0;
+  max-height: calc(96vh - 6rem);
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.design-inspector h3 {
+  margin: 0 0 0.5rem;
+}
+
+.design-inspector section {
+  margin-bottom: 0.75rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+}
+
+.design-inspector h4 {
+  margin: 0 0 0.35rem;
+  color: var(--accent);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.design-inspector-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.1rem 0;
+}
+
+.design-inspector-label {
+  color: var(--text-dim);
+}
+
+.design-inspector-score {
+  font-weight: 700;
+}
+
+.design-inspector-score--good {
+  color: #3ecf8e;
+}
+
+.design-inspector-score--warn {
+  color: #e0b34c;
+}
+
+.design-inspector-score--bad {
+  color: #e0645c;
+}
+
+.design-inspector-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.design-inspector-issue {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  background: var(--panel-alt);
+}
+
+.design-inspector-issue--high {
+  border-left: 3px solid #e0645c;
+}
+
+.design-inspector-issue--medium,
+.design-inspector-issue--warn {
+  border-left: 3px solid #e0b34c;
+}
+
+.design-inspector-issue--low {
+  border-left: 3px solid var(--text-dim);
+}

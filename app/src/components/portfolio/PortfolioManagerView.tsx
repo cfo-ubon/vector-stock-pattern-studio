@@ -34,6 +34,7 @@ import { PortfolioSidebar } from './PortfolioSidebar';
 import { PortfolioGrid } from './PortfolioGrid';
 import { PortfolioDetailPanel } from './PortfolioDetailPanel';
 import { PortfolioImportPanel } from './PortfolioImportPanel';
+import { DesignEditView } from '../designEdit/DesignEditView';
 import { PortfolioHealthCheckPanel } from './PortfolioHealthCheckPanel';
 import { CollectionsView } from './CollectionsView';
 import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
@@ -107,6 +108,7 @@ export function PortfolioManagerView({ onClose }: Props) {
 
   // --- Hotfix v1.0.1: Commercial Export UX ---------------------------
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
+  const [editDesignAssetId, setEditDesignAssetId] = useState<string | null>(null);
   const [previewSeoScore, setPreviewSeoScore] = useState<SeoScoreReport | null>(null);
   const [marketplaceSelectionAssetIds, setMarketplaceSelectionAssetIds] = useState<string[] | null>(null);
   const [duplicateWarnings, setDuplicateWarnings] = useState<string[] | null>(null);
@@ -709,8 +711,29 @@ export function PortfolioManagerView({ onClose }: Props) {
             setSubmissionHistoryAssetId(previewAsset.assetId);
             setPreviewAssetId(null);
           }}
+          onOpenEditDesign={() => {
+            setEditDesignAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
         />
       )}
+
+      {editDesignAssetId &&
+        (() => {
+          const editAsset = assets.find((a) => a.assetId === editDesignAssetId);
+          if (!editAsset) return null;
+          return (
+            <DesignEditView
+              asset={editAsset}
+              existingAssets={assets}
+              originalReadiness={readinessByAsset.get(editAsset.assetId) ?? null}
+              onClose={() => setEditDesignAssetId(null)}
+              onSaved={() => {
+                void refreshAssetsQuietly();
+              }}
+            />
+          );
+        })()}
 
       {marketplaceSelectionAssetIds && !duplicateWarnings && (
         <MarketplaceSelectionDialog

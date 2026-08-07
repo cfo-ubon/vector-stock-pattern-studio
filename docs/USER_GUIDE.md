@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.04 | Design Refinement Studio Pro — M1 | *(this milestone's commit)* | Design Edit Mode — non-destructive parameter editing (Floating Design Inspector, live re-evaluation, undo/redo, Approve-as-new-version) for any Factory/Autopilot-produced pattern, opened from the Portfolio Preview Dialog | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a 6-milestone mission |
 | v2.03 | Hotfix v1.0.2 | *(this hotfix's commit)* | Production Hotfix — fixed the P0 metadata-wiring bug blocking every freshly-generated pattern from commercial export, plus every verified P1/P2/P3 finding from the full UI/UX production audit | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main` |
 | v1.88 | Build 030 (Part 2) | *(this build's commit)* | AI Starts the Conversation — proactive AI CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, local AI Conversation Engine with persisted history, user-confirmed AI Memory | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 2 of a multi-part spec |
 | v1.87 | Build 030 (Part 1) | `9f1154b` | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
@@ -1264,6 +1265,36 @@ JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด —
 
 ---
 
+## 🎨 Design Edit Mode — แก้ไขลายแบบไม่ทำลายต้นฉบับ 🆕
+
+เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
+ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
+layout, palette, จำนวนสี, ความหนาแน่น, negative space, overlap, rotation/
+scale jitter, pattern scale, mirror, radial symmetry, hierarchy hero/
+secondary/accent) ของลายที่สร้างจาก Factory หรือ "✨ ออกแบบให้ฉันวันนี้"
+ได้โดยตรง โดย**ไม่เขียนทับหรือลบชิ้นงานต้นฉบับเลย**
+
+- **Floating Design Inspector**: แผงด้านขวาอัปเดตคะแนนแบบเรียลไทม์ทุกครั้งที่
+  แก้พารามิเตอร์ (หน่วงเวลา 200ms) — Quality Score (Overall, Hierarchy,
+  Composition, Flow, Rhythm/Density, Negative Space, Cluster Quality,
+  Commercial Look, Repeat Quality), Real-Time Metrics (Hero Balance, Color
+  Harmony, Contrast, Overlap Quality, Seamless Integrity, SVG Health),
+  Detected Problems และ Visual Issues — ทุกตัวเลขคำนวณจากเอนจินเดิมที่แอปใช้
+  อยู่แล้ว (ไม่มีการคำนวณซ้ำซ้อนหรือสร้างระบบให้คะแนนใหม่)
+- **Undo/Redo**: ย้อน/ทำซ้ำการแก้ไขระหว่าง session ได้ก่อนกด Approve
+- **Approve — Save as New Version**: บันทึกผลลัพธ์เป็นชิ้นงานใหม่ที่เชื่อมโยง
+  กับต้นฉบับ (`parentAssetId`/`variationGroupId`) — ต้นฉบับยังอยู่ครบทุก byte
+  เสมอ ระบบตรวจจับชิ้นงานซ้ำจริงยังทำงานอยู่ (ถ้าผลลัพธ์เหมือนต้นฉบับทุก byte
+  จะไม่ให้บันทึกซ้ำ) แต่การแก้ไขจริงที่ใช้ seed เดิม (กรณีปกติของการปรับแต่ง)
+  จะไม่ถูกบล็อกผิดพลาดว่าเป็นของซ้ำ
+
+ฟีเจอร์นี้เป็นก้าวแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่รวม
+เครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), AI Design
+Coach, ประวัติเวอร์ชันแบบเต็ม, Compare Center, และ Batch Refinement ซึ่งจะ
+ตามมาในไมล์สโตนถัดไป
+
+---
+
 ## 💾 Backup Manager — สำรอง/กู้คืนข้อมูลทั้งแอปในไฟล์เดียว 🆕
 
 เปิดจากปุ่ม **"💾 Backup Manager"** บนแถบเมนูบนสุด — แยกจากปุ่มสำรองข้อมูล
@@ -1904,6 +1935,44 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.04 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 1: Design Edit Mode
+
+ก้าวแรกของภารกิจ "Design Refinement Studio Pro" — เพิ่มความสามารถแก้ไขลาย
+ที่สร้างไปแล้วได้โดยตรงในแอป (ไม่ต้องใช้ Illustrator/Affinity) โดยยึดหลัก
+**non-destructive editing**: ทุกการแก้ไขบันทึกเป็นชิ้นงานใหม่เสมอ ต้นฉบับไม่
+ถูกเขียนทับหรือลบเด็ดขาด — ไม่มี AI engine ใหม่, ไม่มีตรรกะคำนวณคะแนนซ้ำซ้อน
+ทุกจุดใช้เอนจินเดิม (`buildTileForGenerate`, `computeMetrics`,
+`detectProblems`/`detectVisualIssues`, `importFileGroup`) ที่แอปมีอยู่แล้ว
+
+- 🆕 **Design Edit Mode**: ปุ่ม "🎨 Edit Design" ใหม่ในหน้าต่างตัวอย่างชิ้นงาน
+  ของ Portfolio Manager เปิดหน้าจอแก้ไขพารามิเตอร์เต็มจอ 3 คอลัมน์ (ตัวควบคุม
+  พารามิเตอร์ | ตัวอย่างลายสด | Design Inspector)
+- 🆕 **Floating Design Inspector**: คะแนน Quality Score และ Real-Time Metrics
+  อัปเดตสดทุกครั้งที่แก้พารามิเตอร์ พร้อมรายการ Detected Problems/Visual
+  Issues และสรุป Commercial Readiness ที่บันทึกไว้ล่าสุดของต้นฉบับ
+- 🆕 **แก้ไขพารามิเตอร์ได้ตรง**: seed (สุ่มใหม่ได้), category, layout, palette,
+  จำนวนสี, color harmony, ความหนาแน่น, negative space, overlap, rotation/
+  scale jitter, pattern scale, mirror, radial symmetry, hierarchy preset
+- 🆕 **Undo/Redo** ระหว่าง session ก่อนกด Approve
+- 🆕 **Approve — Save as New Version**: บันทึกเป็นชิ้นงานใหม่ที่เชื่อมโยงกับ
+  ต้นฉบับผ่าน `parentAssetId`/`variationGroupId` (ฟิลด์เดิมที่มีอยู่แล้วใน
+  ระบบคลัง ไม่ต้องเพิ่ม schema ใหม่) — ยืนยันด้วยการทดสอบจริงว่าต้นฉบับไม่ถูก
+  แก้ไขแม้แต่ byte เดียวหลังบันทึกเวอร์ชันใหม่ ระบบตรวจจับของซ้ำจริงยังทำงาน
+  ปกติ (ผลลัพธ์ที่เหมือนต้นฉบับทุก byte จะไม่ให้บันทึกซ้ำ) พร้อมแก้จุดที่
+  อาจแจ้งเตือน "อาจซ้ำ" ผิดพลาดเมื่อแก้พารามิเตอร์จริงแต่ยังใช้ seed เดิม (กรณี
+  ปกติของการปรับแต่ง ไม่ใช่ของซ้ำ)
+- ทดสอบแล้ว: หน่วยทดสอบ 14 เคสใหม่ (round-trip พารามิเตอร์จริงผ่าน
+  IndexedDB, การประเมินผลจากเอนจินจริง, การบันทึกเวอร์ชันใหม่แบบไม่ทำลาย
+  ต้นฉบับ) รวมถึง regression เต็มชุด (500 ไฟล์ทดสอบ/4,410 เคส ผ่านทั้งหมด)
+  และตรวจสอบจริงในเบราว์เซอร์ตั้งแต่ Factory → Portfolio → Edit Design →
+  แก้พารามิเตอร์ → Approve → ยืนยันต้นฉบับยังอยู่ครบ
+
+**ยังไม่ทำในไมล์สโตนนี้ (ตามลำดับที่วางแผนไว้)**: AI Design Coach + Commercial
+Revalidation (M2), ประวัติเวอร์ชันเต็มรูปแบบ + Compare Center (M3), Batch
+Refinement (M4), Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ interactive
+(ลาก/หมุน/ปรับขนาดจุดต่อจุด) ถูกเลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งของเจ้าของ
+ร้านโดยตรง (ไม่ใช่ขอบเขตของภารกิจนี้)
 
 ### v2.03 — 5 ส.ค. 2026 — Hotfix v1.0.2: แก้บั๊กที่พบจากการตรวจสอบทั้งแอป (Full UI/UX Production Audit)
 
