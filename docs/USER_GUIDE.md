@@ -1,4 +1,10 @@
-# 📖 คู่มือการใช้งาน Vector Stock Pattern Studio
+# 📖 คู่มือการใช้งาน AI-SBOS (AI Stock Business Operating System)
+
+> ตั้งแต่ v2.09 เป็นต้นไป แอปนี้เปลี่ยนชื่อผลิตภัณฑ์เป็น **AI-SBOS** — ส่วนสร้าง
+> ลายเดิม (**Vector Stock Pattern Studio**) กลายเป็นชื่อโมดูลหนึ่งภายใน AI-SBOS
+> ไม่ใช่ชื่อผลิตภัณฑ์หลักอีกต่อไป เนื้อหาด้านล่างที่อ้างถึง "Vector Stock Pattern
+> Studio" ในบริบทของฟีเจอร์เดิมยังคงถูกต้อง (เป็นชื่อโมดูล) เว้นแต่จะระบุไว้เป็น
+> อย่างอื่น
 
 > **ลิงก์เข้าใช้งาน:** https://cfo-ubon.github.io/vector-stock-pattern-studio/studio/
 >
@@ -56,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.09 | AI-SBOS — M1 | *(this milestone's commit)* | Product Identity + Consistent Header + Version Center — app rebranded to "AI-SBOS" (AI Stock Business Operating System) with Vector Stock Pattern Studio as its module name; every page shows a persistent identity bar (environment, project, version/build) and a clickable "About AI-SBOS" Version Center | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a new AI-SBOS mission |
 | v2.08 | Design Refinement Studio Pro — M5 | *(this milestone's commit)* | Pattern Safety — Design Inspector now surfaces the real seam-break signal (Corner Continuity, not the always-100 seamlessIntegrity constant), Approve requires explicit confirmation when it's at risk, and Preview gained a tile-border overlay toggle | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 of a 6-milestone mission |
 | v2.07 | Design Refinement Studio Pro — M4 | *(this milestone's commit)* | Batch Refinement — apply one owner-defined adjustment (palette/hierarchy override, density/negative-space/overlap/rotation/scale deltas) across many selected patterns at once, each saved as its own non-destructive version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a 6-milestone mission |
 | v2.06 | Design Refinement Studio Pro — M3 | *(this milestone's commit)* | Version Control + Compare Center — full version-history browser (continue editing/duplicate/rename/delete) for any Design Edit lineage, plus a two-version Compare Center (side-by-side, slider overlay, Quality Score diff, parameter diff) | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a 6-milestone mission |
@@ -84,6 +91,34 @@ Build 005") are left as originally written — they are accurate records
 of past milestones, not errors to correct, even though the Build-numbering
 convention shown above wasn't formalized until later in the project's
 history.
+
+---
+
+## 🆔 AI-SBOS — ตัวตนแอปและ Version Center 🆕
+
+ตั้งแต่ v2.09 แอปเปลี่ยนชื่อผลิตภัณฑ์เป็น **AI-SBOS (AI Stock Business
+Operating System)** — ส่วนสร้างลายเดิม **Vector Stock Pattern Studio**
+กลายเป็นชื่อ**โมดูล**ภายใน AI-SBOS ไม่ใช่ชื่อแอปหลักอีกต่อไป
+
+- **แถบข้อมูลแอป (Identity Bar)**: แสดงอยู่ตลอดที่หัวแอปทุกหน้า ไม่ว่าจะอยู่ที่
+  Mission Control, Today's Production, Portfolio หรือหน้าไหนก็ตาม — ไม่ต้อง
+  กดปุ่มเพิ่มเพื่อดู ประกอบด้วย:
+  - ป้ายสถานะ **Production / Development** (ค่าจริงจาก Vite build mode —
+    `Production` เฉพาะไฟล์ build จริงที่ deploy เท่านั้น `Development` ตอนรัน
+    `npm run dev`)
+  - ชื่อ**โปรเจกต์**ที่กำลังใช้งานอยู่
+  - ป้าย**เวอร์ชัน** (เช่น "v2.09 · AI-SBOS M1") — กดได้
+- **🔍 Version Center ("About AI-SBOS")**: กดที่ป้ายเวอร์ชันเพื่อเปิด แสดง:
+  Product Name, Version, Build (พร้อมคำอธิบาย), Release Date, Commit (hash
+  จริงจาก build — ฝังตอน build ด้วย `git rev-parse`, ไม่ใช่ค่าคงที่ปลอม),
+  Environment, Production Status, **Offline Status** (สถานะเน็ตจริงจาก
+  เบราว์เซอร์ อัปเดตสด), Commercial Certification, Regression Result, และ
+  **Latest Changes** (สรุปการอัปเดตล่าสุด)
+
+รายละเอียดตัวเลขเวอร์ชัน/Build ทั้งหมดยังคงยึดตามหลักเกณฑ์เดิมที่อธิบายไว้ใน
+[Version and Build Numbering](#-version-and-build-numbering) ด้านบน — Version
+Center เป็นเพียงหน้าต่างแสดงข้อมูลชุดเดียวกันนี้ให้เห็นในแอปโดยตรง ไม่ต้องเปิด
+เอกสารแยก
 
 ---
 
@@ -1994,6 +2029,40 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.09 — 7 ส.ค. 2026 — AI-SBOS, Milestone 1: Product Identity + Consistent Header + Version Center
+
+เริ่มภารกิจใหม่ "AI-SBOS — Production Workspace & Product Identity" ต่อจาก
+Design Refinement Studio Pro (v2.04-v2.08, เสร็จสมบูรณ์ครบ 6 ไมล์สโตน) —
+**ไม่มีการเปลี่ยนตรรกะธุรกิจใดๆ ทั้งสิ้น** เป็นการเปลี่ยนตัวตนแอป (branding)
+และเพิ่มการแสดงข้อมูล version/build เท่านั้น ทุกจุดยังใช้ engine เดิมทั้งหมด
+
+- 🆕 **เปลี่ยนชื่อผลิตภัณฑ์เป็น "AI-SBOS"**: หัวแอป (`<h1>`), page title,
+  PWA manifest name/short_name เปลี่ยนจาก "Vector Stock Pattern Studio" เป็น
+  "AI-SBOS" พร้อม subtitle "AI Stock Business Operating System" —
+  Vector Stock Pattern Studio กลายเป็นชื่อโมดูล (แสดงเป็นข้อความรองใต้หัวแอป)
+  เปลือก Electron desktop (`electron/main.ts`, `electron-builder.yml`) มีชื่อ
+  AI-SBOS อยู่แล้วตั้งแต่ก่อนไมล์สโตนนี้ — ไม่ต้องแก้เพิ่ม
+- 🆕 **แถบข้อมูลแอปที่แสดงตลอดทุกหน้า** (`src/App.tsx`'s header, ไม่ต้องสร้าง
+  ระบบ header ใหม่ — ใช้ `<header>` เดิมที่ render อยู่แล้วทุก view เนื่องจาก
+  ไม่มี router แยก แค่ state `view` เดียว): ป้าย Production/Development
+  (จาก `import.meta.env.PROD` จริง), ชื่อโปรเจกต์ปัจจุบัน, ป้ายเวอร์ชันที่กดได้
+- 🆕 **Version Center ("About AI-SBOS")** (`components/appIdentity/
+  VersionCenterDialog.tsx`): Product Name/Version/Build/Release
+  Date/Commit (hash จริงฝังตอน build ผ่าน `git rev-parse` ใน
+  `vite.config.ts`)/Environment/Production Status/**Offline Status**
+  (สถานะเน็ตจริงจาก `navigator.onLine` + `online`/`offline` event, อัปเดต
+  สด ไม่ใช่ค่าคงที่)/Commercial Certification/Regression Result/Latest
+  Changes — ทุกค่าที่ไม่ใช่สัญญาณสดมาจากค่าคงที่ที่ดูแลเองใน `src/appMeta.ts`
+  จุดเดียว (ตามธรรมเนียมเดียวกับ `electron/main.ts`'s `APP_VERSION` เดิม)
+  ไม่มีการคำนวณหรือสมมติค่าใดๆ
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 10 เคส (`appMeta.ts` มีค่าจริงไม่ใช่ placeholder,
+  commit hash จริงไม่ว่างเปล่า, ENVIRONMENT ตรงกับ Vite build mode จริง,
+  Version Center แสดงข้อมูลจาก appMeta ถูกต้องครบทุกช่อง) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: แถบข้อมูลแอปและ AI-SBOS
+  branding แสดงอยู่ครบทุกหน้า (Mission Control, Portfolio, Today's
+  Production) โดยไม่ต้องนำทางเพิ่ม, Version Center เปิด/ปิดได้ครบทุกช่อง
+  ข้อมูล โดยไม่มี console error เลย
 
 ### v2.08 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 5: Pattern Safety
 

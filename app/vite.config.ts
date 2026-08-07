@@ -1,6 +1,22 @@
 import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+
+// AI-SBOS, Part 2 (Version Center) — the "Commit" field the in-app About
+// dialog shows is the real commit this build was produced from, read once
+// at build time (the standard way any app's about-dialog commit hash is
+// ever populated — the commit a build embeds can only ever be the parent
+// commit it was built from, never the commit it's about to be saved into,
+// same as any CI-stamped release). Falls back to 'unknown' rather than
+// failing the build if git isn't available in the build environment.
+function readCommitHash(): string {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'unknown';
+  }
+}
 
 // https://vite.dev/config/
 //
@@ -40,8 +56,9 @@ export default defineConfig({
         navigateFallback: '/vector-stock-pattern-studio/studio/index.html',
       },
       manifest: {
-        name: 'Vector Stock Pattern Studio',
-        short_name: 'VSP Studio',
+        name: 'AI-SBOS',
+        short_name: 'AI-SBOS',
+        description: 'AI-SBOS — AI Stock Business Operating System (Vector Stock Pattern Studio module)',
         start_url: '/vector-stock-pattern-studio/studio/',
         scope: '/vector-stock-pattern-studio/studio/',
         display: 'standalone',
@@ -51,6 +68,9 @@ export default defineConfig({
     }),
   ],
   base: '/vector-stock-pattern-studio/studio/',
+  define: {
+    __COMMIT_HASH__: JSON.stringify(readCommitHash()),
+  },
   build: {
     outDir: '../studio',
     emptyOutDir: true,

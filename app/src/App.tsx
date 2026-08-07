@@ -62,6 +62,8 @@ import { AIDesignDirectorView } from './components/design-director/AIDesignDirec
 import { AutopilotView } from './components/autopilot/AutopilotView';
 import { ProductionHomeView } from './components/productionExperience/ProductionHomeView';
 import { MissionControlView, type MissionControlAutopilotAction } from './components/missionControl/MissionControlView';
+import { VersionCenterDialog } from './components/appIdentity/VersionCenterDialog';
+import { PRODUCT_NAME, PRODUCT_SUBTITLE, MODULE_NAME, APP_VERSION, BUILD_NAME, ENVIRONMENT } from './appMeta';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
@@ -175,6 +177,7 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot' | 'production'>('missionControl');
+  const [showVersionCenter, setShowVersionCenter] = useState(false);
   // Build 030 (Mission Control) — the action a Mission Control button (Hero
   // Card / AI CEO Panel / Goal Mode / Command Bar) chose, handed to
   // `AutopilotView`'s `initialAction` prop so it skips straight to the
@@ -1151,18 +1154,30 @@ function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>Vector Stock Pattern Studio</h1>
-          <p>Generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.</p>
+          <h1>
+            {PRODUCT_NAME} <span className="app-subtitle-inline">{PRODUCT_SUBTITLE}</span>
+          </h1>
+          <p>
+            {MODULE_NAME} module — generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.
+          </p>
         </div>
-        <a
-          className="guide-link"
-          href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
-          target="_blank"
-          rel="noreferrer"
-        >
-          📖 คู่มือการใช้งาน
-        </a>
+        <div className="app-identity-bar">
+          <span className={`app-env-badge app-env-badge--${ENVIRONMENT}`}>{ENVIRONMENT === 'production' ? 'Production' : 'Development'}</span>
+          <span className="app-project-name">{projects.find((p) => p.id === activeProjectId)?.name ?? 'ไม่มีโปรเจกต์ที่เลือก'}</span>
+          <button type="button" className="app-version-badge" onClick={() => setShowVersionCenter(true)}>
+            v{APP_VERSION} · {BUILD_NAME}
+          </button>
+          <a
+            className="guide-link"
+            href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            📖 คู่มือการใช้งาน
+          </a>
+        </div>
       </header>
+      {showVersionCenter && <VersionCenterDialog onClose={() => setShowVersionCenter(false)} />}
       <nav aria-label="Main navigation">
         <ProjectBar
           projects={projects}
