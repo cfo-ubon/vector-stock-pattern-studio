@@ -52,6 +52,12 @@ describe('ProductionCenterView', () => {
     expect(screen.getByText('เครื่องมือผลตอบรับเชิงพาณิชย์')).toBeInTheDocument();
   });
 
+  it('switches to the commercial pipeline tab', () => {
+    render(<ProductionCenterView assets={[]} onClose={() => {}} />);
+    fireEvent.click(screen.getByText('สายการผลิตเชิงพาณิชย์'));
+    expect(screen.getByText('สร้างแพ็กเกจเชิงพาณิชย์ (Commercial Package Builder)')).toBeInTheDocument();
+  });
+
   it('switches to the recommendations tab', () => {
     render(<ProductionCenterView assets={[]} onClose={() => {}} />);
     fireEvent.click(screen.getByText('คำแนะนำการผลิต'));

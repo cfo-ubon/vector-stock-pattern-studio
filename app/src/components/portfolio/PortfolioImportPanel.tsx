@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { PortfolioAsset } from '../../catalog/domain/types';
 import { importFileGroup, importFiles, type ImportOutcome } from '../../catalog/import/importPipeline';
+import { useModalDismiss } from './useModalDismiss';
 
 interface Props {
   existingAssets: PortfolioAsset[];
@@ -64,8 +65,10 @@ export function PortfolioImportPanel({ existingAssets, onImported, onClose }: Pr
     [runImport],
   );
 
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+
   return (
-    <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label="นำเข้าไฟล์">
+    <div className="portfolio-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="นำเข้าไฟล์">
       <div className="portfolio-modal portfolio-import-modal">
         <div className="portfolio-modal-header">
           <h2>นำเข้าไฟล์เข้าคลัง</h2>

@@ -60,6 +60,12 @@ import { BackupManagerView } from './components/backup/BackupManagerView';
 import { MarketingIntelligenceView } from './components/marketing/MarketingIntelligenceView';
 import { AIDesignDirectorView } from './components/design-director/AIDesignDirectorView';
 import { AutopilotView } from './components/autopilot/AutopilotView';
+import { ProductionHomeView } from './components/productionExperience/ProductionHomeView';
+import { MissionControlView, type MissionControlAutopilotAction } from './components/missionControl/MissionControlView';
+import { VersionCenterDialog } from './components/appIdentity/VersionCenterDialog';
+import { WhatsNewDialog } from './components/appIdentity/WhatsNewDialog';
+import { shouldShowWhatsNew } from './components/appIdentity/whatsNewStore';
+import { PRODUCT_NAME, PRODUCT_SUBTITLE, MODULE_NAME, APP_VERSION, BUILD_NAME, ENVIRONMENT } from './appMeta';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
@@ -67,6 +73,9 @@ import { buildDesignSpecPackageTextFiles } from './trend/designSpecPackage';
 import { buildCollectionFromDesignSpec } from './trend/designSpecCollection';
 import type { StockSiteId } from './metadata/shutterstock';
 import type { TileData } from './engine/types';
+import { isDesktopRuntime, getConfiguredWorkspacePath } from './workspace/workspaceApi';
+import { WorkspaceOnboarding } from './workspace/WorkspaceOnboarding';
+import { saveExportToWorkspace } from './workspace/workspaceExportIntegration';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -100,6 +109,18 @@ const ASSET_FOLDER: Record<string, string> = {
 };
 
 function App() {
+  // Production Deployment Phase 1, Part 2 — first-launch Workspace Manager
+  // gate. `needsWorkspaceOnboarding === null` means "still checking" (avoids
+  // a flash of the normal app before we know); stays `false` forever on the
+  // plain browser build since `isDesktopRuntime()` is always false there.
+  const [needsWorkspaceOnboarding, setNeedsWorkspaceOnboarding] = useState<boolean | null>(() => (isDesktopRuntime() ? null : false));
+  useEffect(() => {
+    if (!isDesktopRuntime()) return;
+    getConfiguredWorkspacePath()
+      .then((path) => setNeedsWorkspaceOnboarding(!path))
+      .catch(() => setNeedsWorkspaceOnboarding(true)); // IPC unavailable/erroring — fail toward onboarding, never a permanently blank screen
+  }, []);
+
   const [params, setParams] = useState<GenerateParams>(defaultParams);
   const [tileData, setTileData] = useState(() => buildTile(defaultParams()));
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
@@ -157,7 +178,22 @@ function App() {
   // dashboard gate, so the editor stays the default screen.
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [view, setView] = useState<'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot'>('editor');
+  const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot' | 'production'>('missionControl');
+  const [showVersionCenter, setShowVersionCenter] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(() => shouldShowWhatsNew(APP_VERSION));
+  // Build 030 (Mission Control) — the action a Mission Control button (Hero
+  // Card / AI CEO Panel / Goal Mode / Command Bar) chose, handed to
+  // `AutopilotView`'s `initialAction` prop so it skips straight to the
+  // reviewed plan instead of the goal screen. `null` (opened via the
+  // regular "✨ ออกแบบให้ฉันวันนี้" button, or "Adjust Goal") means the
+  // normal manual goal screen.
+  const [pendingAutopilotAction, setPendingAutopilotAction] = useState<MissionControlAutopilotAction | null>(null);
+  // Build 030 Part 2, Module 11 ("Continue Yesterday") — lands directly on
+  // the Autopilot History screen instead of the Start Screen when a
+  // Mission Control recommendation's primary action is "continue" rather
+  // than "start something new". Cleared once consumed by the same
+  // one-shot pattern `pendingAutopilotAction` already uses.
+  const [pendingAutopilotInitialStep, setPendingAutopilotInitialStep] = useState<'history' | undefined>(undefined);
   // Build 028C — cross-navigation state for the Marketing <-> Creative
   // Director workflow (requirement #13): which brief/opportunity to
   // preselect the next time each view opens, set by the view being left
@@ -329,6 +365,7 @@ function App() {
     if (importedIds.length === 0) return;
     const { blob, filename } = await exportAssetsAsZip(importedIds, `batch-${new Date().toISOString().slice(0, 10)}`);
     downloadBlobFile(filename, blob);
+    void saveExportToWorkspace({ blob, filename });
   }, [batchProductionResult]);
 
   // Composition Candidate Engine: build a deterministic pool of candidate
@@ -1111,44 +1148,99 @@ function App() {
     [params],
   );
 
+  if (needsWorkspaceOnboarding === null) return null; // desktop shell, still checking for a configured Workspace path
+  if (needsWorkspaceOnboarding) {
+    return <WorkspaceOnboarding onDone={() => setNeedsWorkspaceOnboarding(false)} />;
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>Vector Stock Pattern Studio</h1>
-          <p>Generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.</p>
+          <h1>
+            {PRODUCT_NAME} <span className="app-subtitle-inline">{PRODUCT_SUBTITLE}</span>
+          </h1>
+          <p>
+            {MODULE_NAME} module — generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.
+          </p>
         </div>
-        <a
-          className="guide-link"
-          href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
-          target="_blank"
-          rel="noreferrer"
-        >
-          📖 คู่มือการใช้งาน
-        </a>
+        <div className="app-identity-bar">
+          <span className={`app-env-badge app-env-badge--${ENVIRONMENT}`}>{ENVIRONMENT === 'production' ? 'Production' : 'Development'}</span>
+          <span className="app-project-name">{projects.find((p) => p.id === activeProjectId)?.name ?? 'ไม่มีโปรเจกต์ที่เลือก'}</span>
+          <button type="button" className="app-version-badge" onClick={() => setShowVersionCenter(true)}>
+            v{APP_VERSION} · {BUILD_NAME}
+          </button>
+          <a
+            className="guide-link"
+            href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            📖 คู่มือการใช้งาน
+          </a>
+        </div>
       </header>
-      <ProjectBar
-        projects={projects}
-        activeProjectId={activeProjectId}
-        onSwitch={handleSwitchProject}
-        onCreate={handleCreateProject}
-        onOpenDashboard={() => setView('dashboard')}
-        onOpenTrendStudio={() => setView('trendStudio')}
-        onOpenPortfolioManager={() => setView('portfolio')}
-        onOpenBackupManager={() => setView('backup')}
-        onOpenMarketing={() => setView('marketing')}
-        onOpenDesignDirector={() => setView('designDirector')}
-        onOpenAutopilot={() => setView('autopilot')}
-      />
-      {view === 'autopilot' ? (
-        <AutopilotView onClose={() => setView('editor')} />
+      {showVersionCenter && <VersionCenterDialog onClose={() => setShowVersionCenter(false)} />}
+      {showWhatsNew && <WhatsNewDialog onDismiss={() => setShowWhatsNew(false)} />}
+      <nav aria-label="Main navigation">
+        <ProjectBar
+          projects={projects}
+          activeProjectId={activeProjectId}
+          onSwitch={handleSwitchProject}
+          onCreate={handleCreateProject}
+          onOpenMissionControl={() => setView('missionControl')}
+          onOpenDashboard={() => setView('dashboard')}
+          onOpenTrendStudio={() => setView('trendStudio')}
+          onOpenPortfolioManager={() => setView('portfolio')}
+          onOpenBackupManager={() => setView('backup')}
+          onOpenMarketing={() => setView('marketing')}
+          onOpenDesignDirector={() => setView('designDirector')}
+          onOpenAutopilot={() => {
+            setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep(undefined);
+            setView('autopilot');
+          }}
+          onOpenProduction={() => setView('production')}
+          onOpenAdvancedMode={() => setView('editor')}
+        />
+      </nav>
+      <main>
+      {view === 'missionControl' ? (
+        <MissionControlView
+          onStartAutopilot={(action) => {
+            setPendingAutopilotAction(action);
+            setPendingAutopilotInitialStep(undefined);
+            setView('autopilot');
+          }}
+          onOpenPortfolio={() => setView('portfolio')}
+          onOpenMarketing={() => setView('marketing')}
+          onOpenDesignDirector={() => setView('designDirector')}
+          onOpenAutopilotHistory={() => {
+            setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep('history');
+            setView('autopilot');
+          }}
+          onOpenAdvancedMode={() => setView('editor')}
+        />
+      ) : view === 'autopilot' ? (
+        <AutopilotView
+          initialStep={pendingAutopilotInitialStep}
+          onClose={() => {
+            setPendingAutopilotAction(null);
+            setPendingAutopilotInitialStep(undefined);
+            setView('missionControl');
+          }}
+          initialAction={pendingAutopilotAction}
+        />
+      ) : view === 'production' ? (
+        <ProductionHomeView onClose={() => setView('missionControl')} />
       ) : view === 'portfolio' ? (
-        <PortfolioManagerView onClose={() => setView('editor')} />
+        <PortfolioManagerView onClose={() => setView('missionControl')} />
       ) : view === 'backup' ? (
-        <BackupManagerView onClose={() => setView('editor')} />
+        <BackupManagerView onClose={() => setView('missionControl')} />
       ) : view === 'marketing' ? (
         <MarketingIntelligenceView
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onSentToCreativeDirector={(briefId) => {
             setPendingDesignDirectorBriefId(briefId);
             setView('designDirector');
@@ -1157,7 +1249,7 @@ function App() {
         />
       ) : view === 'designDirector' ? (
         <AIDesignDirectorView
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onSendToGenerator={handleSendGeneratorHandoffToEditor}
           initialSelectedBriefId={pendingDesignDirectorBriefId}
           onViewSourceOpportunity={(opportunityId) => {
@@ -1173,7 +1265,7 @@ function App() {
           collectionStatus={collectionStatus}
           activeProject={projects.find((p) => p.id === activeProjectId) ?? null}
           onSaveProject={(updated) => updateProject(updated.id, () => updated)}
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           allProjects={projects}
           onSwitchProject={handleSwitchProject}
         />
@@ -1188,7 +1280,7 @@ function App() {
           onToggleFavorite={handleToggleFavoriteProject}
           onDelete={handleDeleteProject}
           onCreate={handleCreateProject}
-          onClose={() => setView('editor')}
+          onClose={() => setView('missionControl')}
           onExportJson={handleExportProjectJson}
           onImportJson={handleImportProjectJson}
         />
@@ -1228,7 +1320,7 @@ function App() {
           collectionStatus={collectionStatus}
           aiPanel={<AiAssistPanel onApply={handleAiApply} />}
         />
-        <main className="app-main">
+        <div className="app-main">
           {tileData.params.sourceLineage && (
             <div className="lineage-banner" role="note">
               <span>Generated from the AI Creative Director</span>
@@ -1282,9 +1374,10 @@ function App() {
             onImportBackup={handleImportLibrary}
             onExportCsv={handleExportCsv}
           />
-        </main>
+        </div>
       </div>
       )}
+      </main>
     </div>
   );
 }

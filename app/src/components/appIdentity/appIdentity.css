@@ -1,0 +1,113 @@
+/* AI-SBOS Mission — Product Identity, Consistent Header, Version Center,
+ * What's New. Reuses the same `.portfolio-modal-backdrop`/`.portfolio-modal`
+ * dialog shell every other modal in the app already uses (see
+ * `components/portfolio/portfolio.css`) — this file only adds the new,
+ * genuinely new pieces (header identity bar, version/env badges, the
+ * About/What's New content layout). */
+
+.app-subtitle-inline {
+  font-size: 0.6em;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-left: 0.5rem;
+}
+
+.app-identity-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.app-product-mark {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.app-env-badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.app-env-badge--production {
+  background: rgba(62, 207, 142, 0.15);
+  border-color: #3ecf8e;
+  color: #3ecf8e;
+}
+
+.app-env-badge--development {
+  background: rgba(224, 179, 76, 0.15);
+  border-color: #e0b34c;
+  color: #e0b34c;
+}
+
+.app-project-name {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.app-version-badge {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.app-version-badge:hover {
+  border-color: var(--accent);
+}
+
+.version-center-modal,
+.whats-new-modal {
+  max-width: 640px;
+  width: 100%;
+}
+
+.version-center-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.version-center-grid dt {
+  color: var(--text-dim);
+}
+
+.version-center-grid dd {
+  margin: 0;
+}
+
+.version-center-changelog-entry {
+  margin-bottom: 0.75rem;
+}
+
+.version-center-changelog-entry ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.whats-new-highlights {
+  margin: 0.75rem 0;
+  padding-left: 1.2rem;
+}
+
+.whats-new-highlights li {
+  margin-bottom: 0.4rem;
+}
+
+.whats-new-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

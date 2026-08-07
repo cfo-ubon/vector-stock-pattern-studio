@@ -77,7 +77,11 @@ function evergreenCategory(constraints: AutopilotConstraints): string {
  * Portfolio assets (using `PortfolioAsset.presetId`, the field the catalog
  * already stores the generator category under), never a fabricated "trend"
  * claim. Ties broken by category list order for determinism. */
-function leastCoveredCategory(portfolioAssets: PortfolioAsset[], constraints: AutopilotConstraints): { categoryId: string; count: number } {
+/** Exported (Build 030, AI CEO Panel) so Mission Control can show a real
+ * "Portfolio Gap" reading for whichever theme/category the Hero Card is
+ * about to recommend, using the exact same coverage count the PORTFOLIO_GAP
+ * mode itself selects on — never a second, possibly-inconsistent count. */
+export function leastCoveredCategory(portfolioAssets: PortfolioAsset[], constraints: AutopilotConstraints): { categoryId: string; count: number } {
   const counts = new Map<string, number>();
   for (const c of supportedCategoryIds()) counts.set(c, 0);
   for (const asset of portfolioAssets) {
@@ -110,7 +114,7 @@ export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
       opportunity,
       mission: null,
       theme: parsed.theme,
-      marketplace: parsed.marketplace ?? input.marketplacePreference ?? opportunity?.marketplace ?? 'Etsy',
+      marketplace: parsed.marketplace ?? input.marketplacePreference ?? opportunity?.marketplace ?? 'etsy',
       niche: opportunity?.niche ?? parsed.theme,
       confidence: opportunity?.score.confidence ?? 'unknown',
       evidenceRefs: opportunity?.evidenceRefs ?? [],
@@ -148,7 +152,7 @@ export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
         opportunity: null,
         mission: null,
         theme: upcoming.eventName,
-        marketplace: input.marketplacePreference ?? 'Etsy',
+        marketplace: input.marketplacePreference ?? 'etsy',
         niche: upcoming.eventName,
         confidence: 'medium',
         evidenceRefs: [`seasonal:${upcoming.id}`],
@@ -166,7 +170,7 @@ export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
       opportunity: null,
       mission: null,
       theme: categoryId,
-      marketplace: input.marketplacePreference ?? 'Etsy',
+      marketplace: input.marketplacePreference ?? 'etsy',
       niche: categoryId,
       confidence: 'unknown',
       evidenceRefs: [],
@@ -182,7 +186,7 @@ export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
       opportunity: null,
       mission: null,
       theme: categoryId,
-      marketplace: input.marketplacePreference ?? 'Etsy',
+      marketplace: input.marketplacePreference ?? 'etsy',
       niche: categoryId,
       confidence: 'unknown',
       evidenceRefs: [],
@@ -217,7 +221,7 @@ export function selectEvidence(input: DecisionEngineInput): EvidenceSelection {
     opportunity: null,
     mission: null,
     theme: categoryId,
-    marketplace: input.marketplacePreference ?? 'Etsy',
+    marketplace: input.marketplacePreference ?? 'etsy',
     niche: categoryId,
     confidence: 'unknown',
     evidenceRefs: [],

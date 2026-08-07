@@ -201,6 +201,100 @@ export const APP_BACKUP_STORE_NAMES = [
   // immediately since `autopilot/storage/autonomousDesignRunStore.ts`
   // writes real data from the first run.
   'autonomousDesignRuns',
+  // Build 030 Part 2 (AI CEO Conversation, Business Coach, Portfolio
+  // Doctor & Memory) — 8 new stores (DB version 11 -> 12), all registered
+  // immediately since every one gains a real store module in this build.
+  // `recommendationHistory` was pre-provisioned back in v8 (Build 028) but
+  // stayed unregistered here (per this list's own convention) until a
+  // build actually wrote to it — this build's `proactiveRecommendationHistory`
+  // requirement is that first real write, so it is registered here too.
+  'aiCeoBriefs',
+  'businessGoals',
+  'aiConversations',
+  'aiConversationMessages',
+  'aiMemoryCandidates',
+  'aiMemories',
+  'portfolioDiagnoses',
+  'businessCoachRecommendations',
+  'recommendationHistory',
+  // Build 031A (Commercial Production Pipeline) — `commercialPackageHistory`
+  // was added in that build (DB version 12 -> 13) but missed registration
+  // here at the time; closed as part of Build 031B's backup coverage pass.
+  'commercialPackageHistory',
+  // Build 031B (Decision OS) — `decisionTimeline` (Part 8, append-only
+  // audit history) and `decisionPolicyOverrides` (Part 9, invisible
+  // backend policy config) are both new stores added in this build (DB
+  // version 13 -> 14), registered here immediately per this list's own
+  // convention of registering a store as soon as it gains a real
+  // read/write module.
+  'decisionTimeline',
+  'decisionPolicyOverrides',
+  // Build 031C (Factory Controller) — `factoryQueue` (Part 1, every
+  // FactoryTask, live and terminal — a task's own `history` field is its
+  // per-task audit trail), `factoryTimeline` (Part 6, append-only global
+  // execution log, also covering Part 12's "Task History" backup item —
+  // see BUILD_031C_REPORT.md for why a separate history store would only
+  // duplicate this one), and `factorySchedulerState` (Part 1/12, single-row
+  // running/paused state) — all new stores added in this build (DB
+  // version 14 -> 15), registered here immediately per this list's own
+  // convention.
+  'factoryQueue',
+  'factoryTimeline',
+  'factorySchedulerState',
+  // Mission 2 (Factory Intelligence) — four new stores for the
+  // measurement/analysis layer over the Factory Controller:
+  // `factoryDailyKpi` (Part 1/6/10, one snapshot row per calendar day —
+  // the Trend Engine's data source), `factoryReviews` (Part 4, one row
+  // per completed batch), `factoryImprovementQueue` (Part 9,
+  // recommendation-only, never read by any policy/decision code), and
+  // `factoryBusinessOutcomeHistory` (Part 7, one row per computed
+  // Business Outcome Score, so the score itself is traceable over time).
+  // All new stores added in this build (DB version 15 -> 16), registered
+  // here immediately per this list's own convention.
+  'factoryDailyKpi',
+  'factoryReviews',
+  'factoryImprovementQueue',
+  'factoryBusinessOutcomeHistory',
+  // Mission 3 (Continuous Factory Improvement) — five new stores for the
+  // recommendation/experimentation layer over Factory Intelligence:
+  // `factoryImprovementBacklog` (Part 2, ranked recommendation-only
+  // tasks), `factoryExperiments` (Part 6, one-batch before/after trials),
+  // `factoryPolicyExperiments` (Part 7, named-policy comparisons, never
+  // activated), `factoryImprovementReviews` (Part 8, generated Daily/
+  // Weekly/Monthly reviews), `factoryEvolutionTimeline` (Part 10,
+  // append-only improvement history). All new stores added in this build
+  // (DB version 16 -> 17), registered here immediately per this list's
+  // own convention.
+  'factoryImprovementBacklog',
+  'factoryExperiments',
+  'factoryPolicyExperiments',
+  'factoryImprovementReviews',
+  'factoryEvolutionTimeline',
+  // Mission 4 (Production Autopilot) — three new stores for the
+  // owner-facing production-session orchestration layer:
+  // `factoryProductionSessions` (Part 9, one row per session spanning
+  // Plan through Execution through Outcome), `factoryOwnerDecisions`
+  // (Part 5, real timestamped Owner Decision records — the basis for the
+  // "<=3 decisions/day" target), `factoryProductionAutopilotState` (Part
+  // 13, single-row most-recent-session pointer, mirrors
+  // `factorySchedulerState`'s own single-row pattern). All new stores
+  // added in this build (DB version 17 -> 18), registered here
+  // immediately per this list's own convention.
+  'factoryProductionSessions',
+  'factoryOwnerDecisions',
+  'factoryProductionAutopilotState',
+  // Mission 5 (Factory Orchestrator) — two new stores for the
+  // coordination layer over all five prior factory subsystems:
+  // `factoryOrchestrationRuns` (Part 2, one row per `StartFactory()`
+  // invocation carrying the 11-state orchestration-level lifecycle) and
+  // `factoryOrchestrationArchives` (Part 9, one row per archived run —
+  // execution timeline, decision timeline, factory KPIs, business
+  // outcome, improvement history, owner decisions, all composed from
+  // already-real records). Both new stores added in this build (DB
+  // version 18 -> 19), registered here immediately per this list's own
+  // convention.
+  'factoryOrchestrationRuns',
+  'factoryOrchestrationArchives',
 ] as const;
 
 export type AppBackupStoreName = (typeof APP_BACKUP_STORE_NAMES)[number];

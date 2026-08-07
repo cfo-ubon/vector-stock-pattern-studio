@@ -28,6 +28,7 @@ import { loadProductionQueueItems, putProductionQueueItem } from '../../catalog/
 import { createProductionBatch, addQueueItemToBatch, PRODUCTION_BATCH_TYPES } from '../../catalog/queue/productionBatch';
 import type { ProductionBatch, ProductionBatchType } from '../../catalog/queue/productionBatch';
 import { loadProductionBatches, putProductionBatch } from '../../catalog/queue/productionBatchStore';
+import { CommercialPipelineTab } from '../commercial/CommercialPipelineTab';
 import './productionCenter.css';
 
 // Build 026, Phase 17 — the first-ever UI for the Submission Center
@@ -41,7 +42,7 @@ import './productionCenter.css';
 // validation/scoring/classification logic that already lives in
 // `catalog/`.
 
-type ProductionTab = 'submissions' | 'import-results' | 'commercial' | 'recommendations' | 'queue' | 'historical-import' | 'backup';
+type ProductionTab = 'submissions' | 'import-results' | 'commercial' | 'commercial-pipeline' | 'recommendations' | 'queue' | 'historical-import' | 'backup';
 
 const QUEUE_STATUS_LABEL_TH: Record<ProductionQueueStatus, string> = {
   IDEA: 'ไอเดีย',
@@ -97,6 +98,7 @@ export function ProductionCenterView({ assets, onClose }: Props) {
             ['submissions', 'ติดตามการส่ง'],
             ['import-results', 'นำเข้าผลลัพธ์'],
             ['commercial', 'ผลตอบรับเชิงพาณิชย์'],
+            ['commercial-pipeline', 'สายการผลิตเชิงพาณิชย์'],
             ['recommendations', 'คำแนะนำการผลิต'],
             ['queue', 'คิวการผลิต'],
             ['historical-import', 'นำเข้าผลงานเก่า'],
@@ -112,6 +114,7 @@ export function ProductionCenterView({ assets, onClose }: Props) {
       {tab === 'submissions' && <SubmissionTrackerTab assets={assets} />}
       {tab === 'import-results' && <MarketplaceResultsTab assets={assets} />}
       {tab === 'commercial' && <CommercialDashboardTab assets={assets} />}
+      {tab === 'commercial-pipeline' && <CommercialPipelineTab assets={assets} />}
       {tab === 'recommendations' && <RecommendationsTab assets={assets} />}
       {tab === 'queue' && <ProductionQueueTab assets={assets} />}
       {tab === 'historical-import' && <HistoricalImportTab />}

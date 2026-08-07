@@ -97,7 +97,15 @@
 
 .workbench-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  /* Resizable dock widths come in as CSS custom properties, not a direct
+     `grid-template-columns` inline style, so the max-width media query
+     below (same property, later in the cascade) can still override them —
+     an inline style on the same property would always win regardless of
+     viewport, which is what previously crushed this layout on iPad
+     portrait (BUG-008: fixed left/right pixel widths never gave way, so
+     the flexible center column — and, once it hit its own floor, whichever
+     neighboring column ran out of room next — got squeezed to a sliver). */
+  grid-template-columns: var(--wb-left-width, 300px) auto minmax(0, 1fr) auto var(--wb-right-width, 340px);
   gap: 1rem;
   align-items: start;
 }

@@ -108,7 +108,10 @@ export async function runAutonomousGeneration(input: RunAutonomousGenerationInpu
     const svgFile = new File([svgText], `${baseName}.svg`, { type: 'image/svg+xml' });
     const jsonFile = new File([JSON.stringify(tileData.params)], `${baseName}.json`, { type: 'application/json' });
     const group: FileGroup<File> = { basename: baseName, files: [svgFile, jsonFile] };
-    const outcome: ImportOutcome = await importFileGroup(group, knownAssets, {});
+    const outcome: ImportOutcome = await importFileGroup(group, knownAssets, {
+      generatorVersion: handoff.generatorVersion,
+      displayName: `${buildFilenameParts(tileData.params).slice(0, 2).join(' ')} pattern`,
+    });
 
     const itemState = await recordItemOutcome(outcome, evaluation, item.id, handoff.id, handoff.generatorVersion, attempts, knownAssets);
 

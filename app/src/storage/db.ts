@@ -80,7 +80,136 @@ export const DB_NAME = 'vsp-db';
 // Design Plan, per-item progress, READY/REVIEW/REJECT counts, resume
 // state). Indexed by `status` (Autopilot History's active/completed
 // filter) and `mode` (grouping runs by entry mode).
-export const DB_VERSION = 11;
+//
+// v12 (Build 030 Part 2, AI CEO Conversation/Coach/Doctor/Memory): adds 8
+// stores backing the proactive AI CEO — `aiCeoBriefs` (one row per Morning
+// Brief actually generated, indexed by `createdAt`), `businessGoals`
+// (user-confirmed goals, indexed by `status`), `aiConversations` +
+// `aiConversationMessages` (Conversation History, the messages store
+// indexed by `conversationId` so a whole thread loads without a full-store
+// scan), `aiMemoryCandidates` + `aiMemories` (the SUGGESTED -> CONFIRMED/
+// REJECTED workflow — candidates and confirmed memory are deliberately two
+// separate stores, not one store with a status field, so "what may
+// influence a recommendation" (`aiMemories`, CONFIRMED only) can never be
+// accidentally queried from the same table as "what the system merely
+// noticed" (`aiMemoryCandidates`)), `portfolioDiagnoses` (Portfolio
+// Doctor's own run history, indexed by `createdAt`), and
+// `businessCoachRecommendations` (Business Coach's own run history,
+// indexed by `createdAt`). `proactiveRecommendationHistory` needs no new
+// store: `recommendationHistory` (created in v8, indexed by
+// `recommendationType`/`refId`, never given a real consumer until now) is
+// exactly that shape already — this build is simply its first real writer,
+// matching this file's own "schema ahead of the module that first uses it"
+// convention (see the v8 comment).
+// v13 (Build 031A, Commercial Production Pipeline): adds one new store,
+// `commercialPackageHistory` — the append-only record of every Commercial
+// Package actually built (Phase 2/8: Business Metrics' Packages-per-Hour/
+// Ready-Today/Ready-This-Week/Owner-Time-Saved figures all read this, the
+// same "derive from a real append-only event log, never a live counter
+// that can drift" pattern `recommendationHistory` (v8) and
+// `aiCeoBriefs`/`portfolioDiagnoses` (v12) already use). Everything else
+// Build 031A needs — Commercial Readiness, the Export Readiness Dashboard,
+// Collection Completeness, the AI Recommendation — is computed live from
+// stores that already exist (`portfolioAssets`, `qualitySnapshots`,
+// `submissions`, `collections`), matching `catalog/dashboard/
+// readinessAnalytics.ts`'s and `recommendationEngine.ts`'s own
+// "derived, not stored" convention, so no new store is needed for those.
+//
+// v14 (Build 031B, Decision OS / "the Business Brain"): adds 2 new
+// stores. `decisionTimeline` is the append-only audit log of every
+// Decision Engine evaluation (Part 8 — explicitly NOT a learning table:
+// nothing reads its own past rows to influence a future decision).
+// `decisionPolicyOverrides` holds only user-configured
+// enabled/disabled/priority overrides for policies that are otherwise
+// defined entirely in code (`decisionOS/policies/*.ts`) — this store is
+// deliberately tiny (one row per overridden policy, not one row per
+// policy) since most policies never need an override.
+// v14 -> v15 (Build 031C, Factory Controller) — three new stores for the
+// execution layer that coordinates Mission -> Decision -> Queue ->
+// Generator -> QA -> Repair -> SEO -> Commercial Package -> Export Ready
+// using the existing Autopilot/Commercial Pipeline/Decision OS modules.
+// `factoryQueue` holds every `FactoryTask` (live and terminal — a task's
+// own `history` field is its per-task audit trail, mirroring
+// `AutonomousDesignRun.history`, so no separate "task history" store is
+// needed). `factoryTimeline` is the append-only global execution log
+// (Part 6), carrying the same Decision ID/policy/evidence/confidence
+// fields a `DecisionTimelineEntry` already carries. `factorySchedulerState`
+// is a single-row store (id `'scheduler'`) recording whether the
+// Scheduler is currently running/paused and why, so a pause survives a
+// reload.
+// v15 -> v16 (Mission 2, Factory Intelligence) — four new stores for the
+// measurement/analysis layer over the Factory Controller. `factoryDailyKpi`
+// holds one snapshot row per calendar day (keyed by date string), the
+// basis for Part 6's Trend Engine (today/yesterday/7d/30d comparisons
+// read this store, never recomputed from the full task/timeline history —
+// Part 11's "incremental, never recompute the whole factory history"
+// requirement). `factoryReviews` is one row per completed batch (Part 4).
+// `factoryImprovementQueue` holds user-visible improvement recommendations
+// (Part 9 — recommendation-only, no automatic policy changes, so this
+// store is never read by any policy/decision code). `factoryBusinessOutcomeHistory`
+// is one row per computed Business Outcome Score (Part 7), so the score's
+// own trend is itself traceable over time.
+// v16 -> v17 (Mission 3, Continuous Factory Improvement) — five new
+// stores for the recommendation/experimentation layer over Factory
+// Intelligence. `factoryImprovementBacklog` holds Part 2's persistent,
+// ranked Improvement Backlog tasks (recommendation-only, same "no policy
+// ever reads this" guarantee Mission 2's `factoryImprovementQueue`
+// already established). `factoryExperiments` and `factoryPolicyExperiments`
+// hold Part 6/7's one-batch trial and policy-comparison records — both
+// are read-only measurements; nothing in either store can ever change
+// production behavior (`PolicyExperiment.activated` is always `false`).
+// `factoryImprovementReviews` holds Part 8's generated Daily/Weekly/
+// Monthly reviews. `factoryEvolutionTimeline` is Part 10's append-only
+// history of real improvement events, each `refId`-linked back to a real
+// record in one of the other four new stores.
+// v17 -> v18 (Mission 4, Production Autopilot) — three new stores.
+// `factoryProductionSessions` holds Part 9's Production Session History
+// (one row per session spanning Plan through Execution through
+// Outcome). `factoryOwnerDecisions` holds Part 5's real, timestamped
+// Owner Decision records (Approve Session / Approve Override / Approve
+// Export) — the basis for the "≤3 decisions/day" target. `factoryProductionAutopilotState`
+// is a single-row store (id `'productionAutopilot'`) recording the most
+// recent session, mirroring `factorySchedulerState`'s own single-row
+// pattern.
+// v18 -> v19 (Mission 5, Factory Orchestrator) — two new stores.
+// `factoryOrchestrationRuns` holds Part 2's `OrchestrationRun` records —
+// one row per `StartFactory()` invocation, carrying the 11-state
+// orchestration-level lifecycle layered on top of (never replacing)
+// `factoryProductionSessions`'s own 5-state machine. `factoryOrchestrationArchives`
+// holds Part 9's Production Session Archives — one row per
+// completed/cancelled run, composed entirely from already-real records
+// (execution timeline, decision timeline, factory KPIs, business
+// outcome, improvement history, owner decisions) with no field
+// recomputed a second time.
+export const DB_VERSION = 19;
+export const FACTORY_ORCHESTRATION_RUNS_STORE = 'factoryOrchestrationRuns';
+export const FACTORY_ORCHESTRATION_ARCHIVES_STORE = 'factoryOrchestrationArchives';
+export const FACTORY_PRODUCTION_SESSIONS_STORE = 'factoryProductionSessions';
+export const FACTORY_OWNER_DECISIONS_STORE = 'factoryOwnerDecisions';
+export const FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE = 'factoryProductionAutopilotState';
+export const FACTORY_DAILY_KPI_STORE = 'factoryDailyKpi';
+export const FACTORY_REVIEWS_STORE = 'factoryReviews';
+export const FACTORY_IMPROVEMENT_QUEUE_STORE = 'factoryImprovementQueue';
+export const FACTORY_BUSINESS_OUTCOME_HISTORY_STORE = 'factoryBusinessOutcomeHistory';
+export const FACTORY_IMPROVEMENT_BACKLOG_STORE = 'factoryImprovementBacklog';
+export const FACTORY_EXPERIMENTS_STORE = 'factoryExperiments';
+export const FACTORY_POLICY_EXPERIMENTS_STORE = 'factoryPolicyExperiments';
+export const FACTORY_IMPROVEMENT_REVIEWS_STORE = 'factoryImprovementReviews';
+export const FACTORY_EVOLUTION_TIMELINE_STORE = 'factoryEvolutionTimeline';
+export const FACTORY_QUEUE_STORE = 'factoryQueue';
+export const FACTORY_TIMELINE_STORE = 'factoryTimeline';
+export const FACTORY_SCHEDULER_STATE_STORE = 'factorySchedulerState';
+export const DECISION_TIMELINE_STORE = 'decisionTimeline';
+export const DECISION_POLICY_OVERRIDES_STORE = 'decisionPolicyOverrides';
+export const COMMERCIAL_PACKAGE_HISTORY_STORE = 'commercialPackageHistory';
+export const AI_CEO_BRIEFS_STORE = 'aiCeoBriefs';
+export const BUSINESS_GOALS_STORE = 'businessGoals';
+export const AI_CONVERSATIONS_STORE = 'aiConversations';
+export const AI_CONVERSATION_MESSAGES_STORE = 'aiConversationMessages';
+export const AI_MEMORY_CANDIDATES_STORE = 'aiMemoryCandidates';
+export const AI_MEMORIES_STORE = 'aiMemories';
+export const PORTFOLIO_DIAGNOSES_STORE = 'portfolioDiagnoses';
+export const BUSINESS_COACH_RECOMMENDATIONS_STORE = 'businessCoachRecommendations';
 export const AUTONOMOUS_DESIGN_RUNS_STORE = 'autonomousDesignRuns';
 export const COLLECTION_PLANS_STORE = 'collectionPlans';
 export const APP_BACKUP_HISTORY_STORE = 'appBackupHistory';
@@ -270,6 +399,132 @@ export function openDb(): Promise<IDBDatabase> {
           const autonomousRuns = db.createObjectStore(AUTONOMOUS_DESIGN_RUNS_STORE, { keyPath: 'id' });
           autonomousRuns.createIndex('status', 'status', { unique: false });
           autonomousRuns.createIndex('mode', 'mode', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CEO_BRIEFS_STORE)) {
+          const briefs = db.createObjectStore(AI_CEO_BRIEFS_STORE, { keyPath: 'id' });
+          briefs.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(BUSINESS_GOALS_STORE)) {
+          const goals = db.createObjectStore(BUSINESS_GOALS_STORE, { keyPath: 'id' });
+          goals.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CONVERSATIONS_STORE)) {
+          const conversations = db.createObjectStore(AI_CONVERSATIONS_STORE, { keyPath: 'id' });
+          conversations.createIndex('updatedAt', 'updatedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_CONVERSATION_MESSAGES_STORE)) {
+          const messages = db.createObjectStore(AI_CONVERSATION_MESSAGES_STORE, { keyPath: 'id' });
+          messages.createIndex('conversationId', 'conversationId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_MEMORY_CANDIDATES_STORE)) {
+          const memoryCandidates = db.createObjectStore(AI_MEMORY_CANDIDATES_STORE, { keyPath: 'id' });
+          memoryCandidates.createIndex('status', 'status', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(AI_MEMORIES_STORE)) {
+          const memories = db.createObjectStore(AI_MEMORIES_STORE, { keyPath: 'id' });
+          memories.createIndex('status', 'status', { unique: false });
+          memories.createIndex('type', 'type', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(PORTFOLIO_DIAGNOSES_STORE)) {
+          const diagnoses = db.createObjectStore(PORTFOLIO_DIAGNOSES_STORE, { keyPath: 'id' });
+          diagnoses.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(BUSINESS_COACH_RECOMMENDATIONS_STORE)) {
+          const coachRecs = db.createObjectStore(BUSINESS_COACH_RECOMMENDATIONS_STORE, { keyPath: 'id' });
+          coachRecs.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(COMMERCIAL_PACKAGE_HISTORY_STORE)) {
+          const packageHistory = db.createObjectStore(COMMERCIAL_PACKAGE_HISTORY_STORE, { keyPath: 'id' });
+          packageHistory.createIndex('createdAt', 'createdAt', { unique: false });
+          packageHistory.createIndex('assetId', 'assetId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DECISION_TIMELINE_STORE)) {
+          const decisionTimeline = db.createObjectStore(DECISION_TIMELINE_STORE, { keyPath: 'id' });
+          decisionTimeline.createIndex('createdAt', 'createdAt', { unique: false });
+          decisionTimeline.createIndex('domain', 'domain', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(DECISION_POLICY_OVERRIDES_STORE)) {
+          db.createObjectStore(DECISION_POLICY_OVERRIDES_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_QUEUE_STORE)) {
+          const factoryQueue = db.createObjectStore(FACTORY_QUEUE_STORE, { keyPath: 'id' });
+          factoryQueue.createIndex('status', 'status', { unique: false });
+          factoryQueue.createIndex('batchId', 'batchId', { unique: false });
+          factoryQueue.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_TIMELINE_STORE)) {
+          const factoryTimeline = db.createObjectStore(FACTORY_TIMELINE_STORE, { keyPath: 'id' });
+          factoryTimeline.createIndex('at', 'at', { unique: false });
+          factoryTimeline.createIndex('taskId', 'taskId', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_SCHEDULER_STATE_STORE)) {
+          db.createObjectStore(FACTORY_SCHEDULER_STATE_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_DAILY_KPI_STORE)) {
+          const dailyKpi = db.createObjectStore(FACTORY_DAILY_KPI_STORE, { keyPath: 'dateKey' });
+          dailyKpi.createIndex('capturedAt', 'capturedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_REVIEWS_STORE)) {
+          const reviews = db.createObjectStore(FACTORY_REVIEWS_STORE, { keyPath: 'id' });
+          reviews.createIndex('batchId', 'batchId', { unique: false });
+          reviews.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_QUEUE_STORE)) {
+          const improvementQueue = db.createObjectStore(FACTORY_IMPROVEMENT_QUEUE_STORE, { keyPath: 'id' });
+          improvementQueue.createIndex('status', 'status', { unique: false });
+          improvementQueue.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE)) {
+          const outcomeHistory = db.createObjectStore(FACTORY_BUSINESS_OUTCOME_HISTORY_STORE, { keyPath: 'id' });
+          outcomeHistory.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_BACKLOG_STORE)) {
+          const improvementBacklog = db.createObjectStore(FACTORY_IMPROVEMENT_BACKLOG_STORE, { keyPath: 'id' });
+          improvementBacklog.createIndex('status', 'status', { unique: false });
+          improvementBacklog.createIndex('category', 'category', { unique: false });
+          improvementBacklog.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_EXPERIMENTS_STORE)) {
+          const factoryExperiments = db.createObjectStore(FACTORY_EXPERIMENTS_STORE, { keyPath: 'id' });
+          factoryExperiments.createIndex('targetBatchId', 'targetBatchId', { unique: false });
+          factoryExperiments.createIndex('startedAt', 'startedAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_POLICY_EXPERIMENTS_STORE)) {
+          const policyExperiments = db.createObjectStore(FACTORY_POLICY_EXPERIMENTS_STORE, { keyPath: 'id' });
+          policyExperiments.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_IMPROVEMENT_REVIEWS_STORE)) {
+          const improvementReviews = db.createObjectStore(FACTORY_IMPROVEMENT_REVIEWS_STORE, { keyPath: 'id' });
+          improvementReviews.createIndex('period', 'period', { unique: false });
+          improvementReviews.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_EVOLUTION_TIMELINE_STORE)) {
+          const evolutionTimeline = db.createObjectStore(FACTORY_EVOLUTION_TIMELINE_STORE, { keyPath: 'id' });
+          evolutionTimeline.createIndex('at', 'at', { unique: false });
+          evolutionTimeline.createIndex('type', 'type', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_PRODUCTION_SESSIONS_STORE)) {
+          const productionSessions = db.createObjectStore(FACTORY_PRODUCTION_SESSIONS_STORE, { keyPath: 'id' });
+          productionSessions.createIndex('status', 'status', { unique: false });
+          productionSessions.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_OWNER_DECISIONS_STORE)) {
+          const ownerDecisions = db.createObjectStore(FACTORY_OWNER_DECISIONS_STORE, { keyPath: 'id' });
+          ownerDecisions.createIndex('type', 'type', { unique: false });
+          ownerDecisions.createIndex('at', 'at', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE)) {
+          db.createObjectStore(FACTORY_PRODUCTION_AUTOPILOT_STATE_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_ORCHESTRATION_RUNS_STORE)) {
+          const orchestrationRuns = db.createObjectStore(FACTORY_ORCHESTRATION_RUNS_STORE, { keyPath: 'id' });
+          orchestrationRuns.createIndex('status', 'status', { unique: false });
+          orchestrationRuns.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+        if (!db.objectStoreNames.contains(FACTORY_ORCHESTRATION_ARCHIVES_STORE)) {
+          const orchestrationArchives = db.createObjectStore(FACTORY_ORCHESTRATION_ARCHIVES_STORE, { keyPath: 'id' });
+          orchestrationArchives.createIndex('runId', 'runId', { unique: false });
+          orchestrationArchives.createIndex('archivedAt', 'archivedAt', { unique: false });
         }
       };
       req.onsuccess = () => resolve(req.result);

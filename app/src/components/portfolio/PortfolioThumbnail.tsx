@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PortfolioAsset } from '../../catalog/domain/types';
+import type { AssetExportStatus } from '../../commercial/exportWorkflow';
 import { usePreviewUrl } from './usePreviewUrl';
 
 const WORKFLOW_LABEL_TH: Record<PortfolioAsset['workflowStatus'], string> = {
@@ -25,9 +26,13 @@ interface Props {
   multiSelectable?: boolean;
   multiChecked?: boolean;
   onToggleMultiSelect?: (assetId: string) => void;
+  /** Hotfix v1.0.1, Part 7 — Export Status badge, batch-derived by the
+   * caller (`deriveAssetExportStatus` in `commercial/exportWorkflow.ts`).
+   * Optional so existing callers/tests that don't pass it keep working. */
+  exportStatus?: AssetExportStatus;
 }
 
-export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect, multiSelectable, multiChecked, onToggleMultiSelect }: Props) {
+export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect, multiSelectable, multiChecked, onToggleMultiSelect, exportStatus }: Props) {
   const { url, broken } = usePreviewUrl(asset.previewReference);
   const [loadFailed, setLoadFailed] = useState(false);
   const fileTypes = [...new Set(asset.sourceFileReferences.map((r) => r.role))];
@@ -68,6 +73,7 @@ export function PortfolioThumbnail({ asset, selected, isDuplicate, onSelect, mul
         <div className="portfolio-thumb-id">{asset.assetId}</div>
         <div className="portfolio-thumb-badges">
           <span className={`portfolio-badge portfolio-badge--${asset.workflowStatus.toLowerCase()}`}>{WORKFLOW_LABEL_TH[asset.workflowStatus]}</span>
+          {exportStatus && <span className={`portfolio-badge portfolio-badge--${exportStatus.id}`}>{exportStatus.label}</span>}
           {isDuplicate && <span className="portfolio-badge portfolio-badge--warning">⚠ ซ้ำ</span>}
           {asset.isArchived && <span className="portfolio-badge portfolio-badge--archived">เก็บถาวร</span>}
         </div>

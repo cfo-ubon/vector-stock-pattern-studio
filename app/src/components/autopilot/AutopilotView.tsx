@@ -15,6 +15,8 @@ import { supportedCategoryIds } from '../../autopilot/categoryInference';
 import type { DesignPlan } from '../../autopilot/domain/designPlan';
 import { createAutonomousDesignRun, transitionAutonomousDesignRun, type AutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
 import { putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
+import { loadAutonomousDesignRuns } from '../../autopilot/storage/autonomousDesignRunStore';
+import { evaluateGenerationGate, type GenerationGateResult } from '../../autopilot/generationGate';
 import { prepareRunForGeneration } from '../../autopilot/runPreparation';
 import { putMarketingDesignHandoff } from '../../design-director/storage/marketingDesignHandoffStore';
 import { putCreativeBrief, getCreativeBrief } from '../../design-director/storage/creativeBriefStore';
@@ -37,10 +39,26 @@ import './autopilot.css';
 // Portfolio screens already use — this view builds no parallel pipeline,
 // it only sequences the existing one automatically.
 
-type AutopilotStep = 'goal' | 'plan' | 'constraints' | 'generating' | 'review' | 'history';
+type AutopilotStep = 'goal' | 'gate' | 'plan' | 'constraints' | 'generating' | 'review' | 'history';
 
 interface Props {
   onClose: () => void;
+  /** Build 030 (Mission Control) — when set, the view skips the goal
+   * screen and builds the Design Plan immediately with this mode/count/
+   * marketplace already chosen, landing straight on "review one final
+   * plan, press Generate" (still 2 of the spec's 4 allowed decisions, not
+   * a new bypass of them) — the same `handleQuickAction` +
+   * `handleBuildPlan` a manual click on a Start Screen quick action would
+   * trigger, just invoked once automatically on mount. Never re-triggers
+   * on a prop identity change after the initial mount, so returning to an
+   * already-in-progress Autopilot session never resets it. */
+  initialAction?: { mode: AutopilotMode; requestedCount: number; marketplace?: string | null; productionGoal?: AutopilotProductionGoal; userInstruction?: string } | null;
+  /** Build 030 Part 2, Module 11 ("Continue Yesterday") — when set to
+   * `'history'`, lands directly on the real Autopilot History screen
+   * instead of the Start Screen, so a Mission Control "Continue" action
+   * doesn't make the user re-navigate there themselves. Ignored whenever
+   * `initialAction` is also set (a real new plan takes priority). */
+  initialStep?: 'history';
 }
 
 const MARKETPLACE_OPTIONS = ['Auto', 'Shutterstock', 'Adobe Stock', 'Freepik', 'Getty-iStock', 'Etsy'];
@@ -52,8 +70,8 @@ const PRODUCTION_GOAL_OPTIONS: Array<[AutopilotProductionGoal, string]> = [
   ['seasonal', 'Seasonal Collection'],
 ];
 
-export function AutopilotView({ onClose }: Props) {
-  const [step, setStep] = useState<AutopilotStep>('goal');
+export function AutopilotView({ onClose, initialAction = null, initialStep }: Props) {
+  const [step, setStep] = useState<AutopilotStep>(initialAction ? 'goal' : (initialStep ?? 'goal'));
 
   // Real, already-verified data every mode's evidence selection reads —
   // loaded once on mount, exactly like every other screen's `reload()`.
@@ -63,6 +81,10 @@ export function AutopilotView({ onClose }: Props) {
   const [portfolioAssets, setPortfolioAssets] = useState<PortfolioAsset[]>([]);
   const [offline, setOffline] = useState<OfflineSnapshotResult | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // Build 031B Hardening — the Generation Gate's own evidence (real
+  // pipeline/QA state) is fetched fresh at click time (`handleBuildPlan`
+  // below), not tracked as component state here.
+  const [gateResult, setGateResult] = useState<GenerationGateResult | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -129,7 +151,7 @@ export function AutopilotView({ onClose }: Props) {
     [mode, requestedCount, colorwayCount, marketplaceChoice, productionGoal, userInstruction, constraints, opportunities, missions, seasonalEvents, portfolioAssets, offline],
   );
 
-  const handleBuildPlan = useCallback(() => {
+  const buildPlanNow = useCallback(() => {
     try {
       const input = buildDecisionInput();
       const newPlan = buildAutonomousDesignPlan(input);
@@ -140,6 +162,85 @@ export function AutopilotView({ onClose }: Props) {
       setPlanError(err instanceof Error ? err.message : String(err));
     }
   }, [buildDecisionInput]);
+
+  /** Build 031B Hardening — before building a Design Plan for NEW
+   * generation, ask the Decision OS whether generation is actually the
+   * best next action (`autopilot/generationGate.ts`). If it recommends
+   * resuming/repairing existing work instead, the user sees that
+   * recommendation on a dedicated step rather than the plan being built
+   * silently — they can still generate anyway via an explicit override.
+   * Loads its own fresh evidence rather than reusing this component's
+   * mount-time `reload()` state, which may not have resolved yet if the
+   * user reaches the goal screen and clicks Build Plan very quickly
+   * (`reload()`'s own `portfolioAssets`/`qualitySnapshots`/`autonomousRuns`
+   * are otherwise only as fresh as the last render). */
+  const handleBuildPlan = useCallback(async () => {
+    const [freshAssets, freshSnapshots, freshRuns] = await Promise.all([loadPortfolioAssets(), loadQualitySnapshots(), loadAutonomousDesignRuns()]);
+    const gate = evaluateGenerationGate(freshAssets, freshSnapshots, freshRuns, Date.now());
+    if (!gate.recommendGenerate) {
+      setGateResult(gate);
+      setStep('gate');
+      return;
+    }
+    setGateResult(null);
+    buildPlanNow();
+  }, [buildPlanNow]);
+
+  const handleOverrideGateAndBuildPlan = useCallback(() => {
+    setGateResult(null);
+    buildPlanNow();
+  }, [buildPlanNow]);
+
+  // Build 030 (Mission Control) — `initialAction`'s one-shot auto-start.
+  // Builds the input directly from `initialAction` (never from `mode`/
+  // `requestedCount`/`marketplaceChoice` state, which a `setMode(...)`
+  // call in this same effect would not have updated yet for
+  // `buildDecisionInput`'s closure) so the very first plan build is
+  // correct on the first render — the `setMode`/`setRequestedCount`/
+  // `setMarketplaceChoice` calls alongside it only keep the visible
+  // fields and every *later* action (Generate, Adjust Goal) consistent
+  // with what was actually planned. Waits for `reload()`'s data before
+  // running (an empty `opportunities`/`missions` would silently produce
+  // the offline evergreen fallback instead of real evidence), and the
+  // `autoStartedRef` guard means it fires exactly once per mount even
+  // though its dependencies change again once loading finishes.
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!initialAction || autoStartedRef.current || loadError) return;
+    if (opportunities.length === 0 && missions.length === 0 && seasonalEvents.length === 0 && !offline) return;
+    autoStartedRef.current = true;
+    const resolvedMarketplace = initialAction.marketplace ?? 'Auto';
+    const resolvedProductionGoal = initialAction.productionGoal ?? 'auto';
+    const resolvedInstruction = initialAction.userInstruction ?? '';
+    setMode(initialAction.mode);
+    setRequestedCount(initialAction.requestedCount);
+    setMarketplaceChoice(resolvedMarketplace);
+    setProductionGoal(resolvedProductionGoal);
+    setUserInstruction(resolvedInstruction);
+    try {
+      const input: DecisionEngineInput = {
+        mode: initialAction.mode,
+        requestedCount: initialAction.requestedCount,
+        colorwayCount,
+        marketplacePreference: resolvedMarketplace === 'Auto' ? null : resolvedMarketplace,
+        productionGoal: resolvedProductionGoal,
+        userInstruction: resolvedInstruction,
+        constraints,
+        opportunities,
+        missions,
+        seasonalEvents,
+        portfolioAssets,
+        offline: offline ?? { snapshot: null, freshnessLabel: '', classification: 'NO_DATA', message: '' },
+        now: Date.now(),
+      };
+      const newPlan = buildAutonomousDesignPlan(input);
+      setPlan(newPlan);
+      setPlanError(null);
+      setStep('plan');
+    } catch (err) {
+      setPlanError(err instanceof Error ? err.message : String(err));
+    }
+  }, [initialAction, opportunities, missions, seasonalEvents, portfolioAssets, offline, loadError, colorwayCount, userInstruction, constraints]);
 
   const handleQuickAction = useCallback((newMode: AutopilotMode, count: number, goal: AutopilotProductionGoal = 'auto') => {
     setMode(newMode);
@@ -480,6 +581,41 @@ export function AutopilotView({ onClose }: Props) {
           <button type="button" className="btn btn--primary autopilot-primary-action" onClick={handleBuildPlan}>
             สร้างแผนการออกแบบ →
           </button>
+        </div>
+      )}
+
+      {step === 'gate' && gateResult && (
+        <div className="autopilot-step">
+          <div className="autopilot-gate-card" role="alert">
+            <h2>AI does not recommend new generation yet.</h2>
+            <p className="autopilot-gate-reason">{gateResult.reason}</p>
+            <p className="autopilot-gate-alternative">
+              Recommended alternative: <strong>{gateResult.action === 'resumeExistingWork' ? 'Resume or import your existing unfinished work first (see Autopilot History).' : 'Repair your REVIEW/REJECT items first (see Portfolio).'}</strong>
+            </p>
+            <dl className="autopilot-gate-detail">
+              <dt>Policies</dt>
+              <dd>{gateResult.decisionTrace.policyIds.join(', ')}</dd>
+              <dt>Evidence</dt>
+              <dd>{gateResult.decisionTrace.evidenceIds.length > 0 ? gateResult.decisionTrace.evidenceIds.join(', ') : 'None gathered.'}</dd>
+              <dt>Confidence</dt>
+              <dd>
+                {gateResult.decisionTrace.confidenceBand} ({gateResult.decisionTrace.confidenceScore})
+              </dd>
+              <dt>Business Impact</dt>
+              <dd>{gateResult.decisionTrace.businessImpact}</dd>
+            </dl>
+            <div className="autopilot-gate-actions">
+              <button type="button" className="btn" onClick={() => setStep('history')}>
+                Go to Autopilot History
+              </button>
+              <button type="button" className="btn btn--primary" onClick={handleOverrideGateAndBuildPlan}>
+                Generate Anyway
+              </button>
+              <button type="button" className="btn btn--link" onClick={() => setStep('goal')}>
+                Back
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

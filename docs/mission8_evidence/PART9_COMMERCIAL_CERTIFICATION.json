@@ -1,0 +1,80 @@
+{
+  "runAt": "2026-08-02T15:17:41.233Z",
+  "collections": [
+    {
+      "name": "Mission 8 — Boho Botanical Vol. 1",
+      "assetCount": 4
+    },
+    {
+      "name": "Mission 8 — Dark Botanical Vol. 1",
+      "assetCount": 4
+    },
+    {
+      "name": "Mission 8 — Editorial Botanical Vol. 1",
+      "assetCount": 4
+    }
+  ],
+  "totalAssets": 12,
+  "checks": [
+    {
+      "name": "Batch generation for 3 collections (generateBatchToPortfolio)",
+      "status": "PASS",
+      "detail": "generatedCount=12 importedCount=12 possibleDuplicateCount=0 blockedDuplicateCount=0 (real-time import-pipeline detectDuplicate outcome, catalog/import/duplicates.ts) errorCount=0"
+    },
+    {
+      "name": "Collection \"Mission 8 — Boho Botanical Vol. 1\" created + populated (catalog/services/collectionService.ts)",
+      "status": "PASS",
+      "detail": "collectionId=COL-20260802-VQT0WA, 4 assets assigned, changedCount=4, failedCount=0."
+    },
+    {
+      "name": "Collection \"Mission 8 — Dark Botanical Vol. 1\" created + populated (catalog/services/collectionService.ts)",
+      "status": "PASS",
+      "detail": "collectionId=COL-20260802-XG1BDQ, 4 assets assigned, changedCount=4, failedCount=0."
+    },
+    {
+      "name": "Collection \"Mission 8 — Editorial Botanical Vol. 1\" created + populated (catalog/services/collectionService.ts)",
+      "status": "PASS",
+      "detail": "collectionId=COL-20260802-PU2S2E, 4 assets assigned, changedCount=4, failedCount=0."
+    },
+    {
+      "name": "Uniqueness — productionAssetId fingerprint set (catalog/domain/productionAssetId.ts computeProductionAssetId)",
+      "status": "PASS",
+      "detail": "12/12 unique fingerprints across all 3 collections combined."
+    },
+    {
+      "name": "Uniqueness — commercial/readinessEngine.ts checkDuplicateComplete (real duplicate-detection module, cross-collection)",
+      "status": "PASS",
+      "detail": "12/12 assets PASS duplicateCheckComplete, 0 WARNING (no fingerprint), 0 FAIL (shares a fingerprint with a sibling)."
+    },
+    {
+      "name": "Metadata completeness (commercial/readinessEngine.ts checkMetadataExists, real per-asset check)",
+      "status": "PASS",
+      "detail": "12/12 assets have metadataExists=PASS."
+    },
+    {
+      "name": "SEO completeness (commercial/readinessEngine.ts checkSeoExists, backed by real SubmissionRecords with generateAllMarketplaceSeo title/description/keywords)",
+      "status": "PASS",
+      "detail": "12/12 assets have seoExists=PASS."
+    },
+    {
+      "name": "Preview generation — previewReference populated on import (catalog/import/previewSelection.ts, via generateBatchToPortfolio -> importFileGroup)",
+      "status": "PASS",
+      "detail": "12/12 assets have a non-null previewReference."
+    },
+    {
+      "name": "Preview generation — real PNG rendered (Playwright screenshot of real generated SVG)",
+      "status": "PASS",
+      "detail": "3/3 preview PNGs rendered with valid headers, saved to /home/user/vector-stock-pattern-studio/docs/mission8_evidence/commercial_previews."
+    },
+    {
+      "name": "Commercial Package build (commercial/packageBuilder.ts buildCommercialPackage, exact input shape of factory/taskExecutors.ts executePackageTask)",
+      "status": "PASS",
+      "detail": "3/3 packages built (one per collection). Statuses: BUILT, BUILT, BUILT. (3 with status BUILT — the rest, if any, NEEDS_VERIFICATION per the marketplace profile's own contributorUrlVerified/future flags, reported honestly, not silently upgraded.)"
+    },
+    {
+      "name": "Submission Package build (catalog/submission/submissionPackageBuilder.ts buildSubmissionPackage)",
+      "status": "PASS",
+      "detail": "3/3 submission packages built, 3/3 pass their own readiness checklist (checklist.valid)."
+    }
+  ]
+}

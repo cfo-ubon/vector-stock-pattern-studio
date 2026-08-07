@@ -1,0 +1,120 @@
+/* Build 031A — Commercial Pipeline tab. Reuses the Production Center's own
+ * `.production-*` classes (cards, panels, forms) and only adds the handful
+ * of layout/status classes specific to readiness scores, dashboard buckets
+ * and business metric tiles. */
+
+.commercial-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.commercial-metric-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: var(--panel-alt, #26262e);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+}
+
+.commercial-metric-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.commercial-metric-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.commercial-bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.commercial-bucket-card {
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  background: var(--panel-alt, #26262e);
+}
+
+.commercial-bucket-card--ready {
+  border-color: #3fae5c;
+}
+
+.commercial-bucket-card--blocked {
+  border-color: #c65a5a;
+}
+
+.commercial-bucket-count {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.commercial-bucket-label {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.commercial-bucket-explanation {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin: 0.25rem 0 0;
+}
+
+.commercial-selected-readiness {
+  margin: 0.75rem 0;
+}
+
+.commercial-score-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.commercial-score--ready {
+  background: #1f4d2c;
+  color: #7fe0a0;
+}
+
+.commercial-score--needs-work {
+  background: #4d431f;
+  color: #e0c67f;
+}
+
+.commercial-score--blocked {
+  background: #4d1f1f;
+  color: #e07a7a;
+}
+
+.commercial-check-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+}
+
+.commercial-check {
+  padding: 0.15rem 0;
+}
+
+.commercial-check--pass {
+  color: #7fe0a0;
+}
+
+.commercial-check--warning {
+  color: #e0c67f;
+}
+
+.commercial-check--fail {
+  color: #e07a7a;
+}

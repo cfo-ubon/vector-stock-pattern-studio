@@ -30,20 +30,42 @@ import {
   type CollectionIntegrityReport,
 } from '../../catalog/services/collectionService';
 import { PortfolioSidebar } from './PortfolioSidebar';
+import { PortfolioAnalyticsView } from './PortfolioAnalyticsView';
 import { PortfolioGrid } from './PortfolioGrid';
 import { PortfolioDetailPanel } from './PortfolioDetailPanel';
 import { PortfolioImportPanel } from './PortfolioImportPanel';
+import { DesignEditView } from '../designEdit/DesignEditView';
+import { VersionHistoryView } from '../designEdit/VersionHistoryView';
+import { CompareCenterView } from '../designEdit/CompareCenterView';
+import { BatchRefinementView } from '../designEdit/BatchRefinementView';
 import { PortfolioHealthCheckPanel } from './PortfolioHealthCheckPanel';
 import { CollectionsView } from './CollectionsView';
 import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
 import { ProductionCenterView } from '../production/ProductionCenterView';
+import { AssetPreviewDialog } from './AssetPreviewDialog';
+import { MarketplaceSelectionDialog } from './MarketplaceSelectionDialog';
+import { DownloadCenter } from './DownloadCenter';
+import { SubmissionHistoryPanel } from './SubmissionHistoryPanel';
+import {
+  deriveAssetExportStatus,
+  type ExportMarketplaceId,
+  type BulkExportResult,
+  type AssetExportStatus,
+} from '../../commercial/exportWorkflow';
+import { computeDuplicateSubmissionWarnings, executeBulkMarketplaceExport } from '../../commercial/bulkMarketplaceExport';
+import { loadCommercialPipelineContext } from '../../commercial/loadCommercialPipelineContext';
+import type { CommercialReadinessReport, CommercialPackageHistoryEntry } from '../../commercial/domain/types';
+import { loadSubmissions } from '../../catalog/submission/submissionStore';
+import type { SubmissionRecord } from '../../catalog/submission/submissionRecord';
+import { loadCommercialPackageHistory } from '../../commercial/storage/commercialPackageHistoryStore';
+import { computeSeoScore, type SeoScoreReport } from '../../catalog/seo/seoScoring';
 import './portfolio.css';
 
 interface Props {
   onClose: () => void;
 }
 
-type ManagerSection = 'assets' | 'collections' | 'production';
+type ManagerSection = 'assets' | 'analytics' | 'collections' | 'production';
 
 /** Sprint P1 / Portfolio Manager P2 Stage 2 — Top-level container: owns
  * the loaded catalog, the loaded collection list, filters/sort/selection,
@@ -82,6 +104,26 @@ export function PortfolioManagerView({ onClose }: Props) {
 
   const [multiSelectedIds, setMultiSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDialogMode, setBulkDialogMode] = useState<'assign' | 'remove' | null>(null);
+
+  // --- Hotfix v1.0.1: Commercial Export UX ---------------------------
+  const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
+  const [editDesignAssetId, setEditDesignAssetId] = useState<string | null>(null);
+  const [versionHistoryAssetId, setVersionHistoryAssetId] = useState<string | null>(null);
+  const [compareAssetIds, setCompareAssetIds] = useState<[string, string] | null>(null);
+  const [batchRefineAssetIds, setBatchRefineAssetIds] = useState<string[] | null>(null);
+  const [previewSeoScore, setPreviewSeoScore] = useState<SeoScoreReport | null>(null);
+  const [marketplaceSelectionAssetIds, setMarketplaceSelectionAssetIds] = useState<string[] | null>(null);
+  const [duplicateWarnings, setDuplicateWarnings] = useState<string[] | null>(null);
+  const [pendingMarketplaceIds, setPendingMarketplaceIds] = useState<ExportMarketplaceId[] | null>(null);
+  const [downloadPackages, setDownloadPackages] = useState<BulkExportResult[]>([]);
+  const [showDownloadCenter, setShowDownloadCenter] = useState(false);
+  const [bulkExportBusy, setBulkExportBusy] = useState(false);
+  const [bulkExportError, setBulkExportError] = useState<string | null>(null);
+  const [submissionHistoryAssetId, setSubmissionHistoryAssetId] = useState<string | null>(null);
+
+  const [readinessByAsset, setReadinessByAsset] = useState<Map<string, CommercialReadinessReport>>(new Map());
+  const [submissions, setSubmissions] = useState<SubmissionRecord[]>([]);
+  const [packageHistory, setPackageHistory] = useState<CommercialPackageHistoryEntry[]>([]);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -139,6 +181,24 @@ export function PortfolioManagerView({ onClose }: Props) {
     void reloadCollections();
   }, [reload, reloadCollections]);
 
+  /** Hotfix v1.0.1 — loads the same real, already-computed Commercial
+   * Readiness reports (`loadCommercialPipelineContext`, Build 031A) and
+   * package-build history (`commercialPackageHistoryStore`, Build 031A
+   * Phase 8) every other Commercial Pipeline surface already reads, once
+   * per Portfolio Manager session/refresh rather than per-card — Part 11's
+   * "Preview must open instantly" requirement, satisfied by batch-loading
+   * once instead of computing readiness on every click. */
+  const loadCommercialData = useCallback(async () => {
+    const [ctx, history] = await Promise.all([loadCommercialPipelineContext(), loadCommercialPackageHistory()]);
+    setReadinessByAsset(new Map(ctx.readinessReports.map((r) => [r.assetId, r])));
+    setSubmissions(loadSubmissions());
+    setPackageHistory(history);
+  }, []);
+
+  useEffect(() => {
+    void loadCommercialData();
+  }, [loadCommercialData]);
+
   /** Portfolio Manager P2 Stage 2, Section 11 — multi-selection is cleared
    * whenever the active filter/search query changes, so a selection can
    * never silently carry over to a different, unrelated result set. */
@@ -168,6 +228,125 @@ export function PortfolioManagerView({ onClose }: Props) {
   }, [assets, query, duplicateAssetIds, sortKey]);
 
   const selectedAsset = assets.find((a) => a.assetId === selectedAssetId) ?? null;
+
+  // --- Hotfix v1.0.1: Commercial Export UX derived data ----------------
+
+  const submissionsByAsset = useMemo(() => {
+    const map = new Map<string, SubmissionRecord[]>();
+    for (const submission of submissions) {
+      const list = map.get(submission.patternId) ?? [];
+      list.push(submission);
+      map.set(submission.patternId, list);
+    }
+    return map;
+  }, [submissions]);
+
+  const packageHistoryByAsset = useMemo(() => {
+    const map = new Map<string, CommercialPackageHistoryEntry[]>();
+    for (const entry of packageHistory) {
+      const list = map.get(entry.assetId) ?? [];
+      list.push(entry);
+      map.set(entry.assetId, list);
+    }
+    return map;
+  }, [packageHistory]);
+
+  /** Part 7 — Export Status per asset, batch-derived once (not per card)
+   * from real readiness/submission/package-history data via
+   * `exportWorkflow.ts`'s `deriveAssetExportStatus`. */
+  const exportStatusByAsset = useMemo(() => {
+    const map = new Map<string, AssetExportStatus>();
+    for (const asset of assets) {
+      map.set(
+        asset.assetId,
+        deriveAssetExportStatus({
+          readiness: readinessByAsset.get(asset.assetId) ?? null,
+          submissionsForAsset: submissionsByAsset.get(asset.assetId) ?? [],
+          packageHistoryForAsset: packageHistoryByAsset.get(asset.assetId) ?? [],
+        }),
+      );
+    }
+    return map;
+  }, [assets, readinessByAsset, submissionsByAsset, packageHistoryByAsset]);
+
+  const previewAsset = assets.find((a) => a.assetId === previewAssetId) ?? null;
+
+  useEffect(() => {
+    if (!previewAssetId) {
+      setPreviewSeoScore(null);
+      return;
+    }
+    const relevant = submissionsByAsset.get(previewAssetId) ?? [];
+    const best = relevant.find((s) => s.titleSnapshot.trim().length > 0 && s.keywordSnapshot.length > 0);
+    if (!best) {
+      setPreviewSeoScore(null);
+      return;
+    }
+    setPreviewSeoScore(computeSeoScore({ title: best.titleSnapshot, description: best.descriptionSnapshot, keywords: best.keywordSnapshot }, best.marketplaceId));
+  }, [previewAssetId, submissionsByAsset]);
+
+  /** Part 8 — soft duplicate-submission gate: an already-`SUBMITTED`/
+   * `APPROVED` submission to the same marketplace produces a warning the
+   * owner must acknowledge before the export proceeds, reusing
+   * `submissionDuplicateDetection.ts`'s existing, unmodified rules rather
+   * than a new check. This never blocks silently and never uploads
+   * anything — it only guards the local export action.
+   *
+   * AI-SBOS, Part 6 — both this and the bulk-export execution below are
+   * thin wrappers over `commercial/bulkMarketplaceExport.ts`, extracted
+   * from what used to be this component's own only implementation so
+   * Today's Production Workspace can offer the identical export flow
+   * without a second copy of this logic. */
+  const bulkExportContext = useMemo(
+    () => ({ assets, submissions, submissionsByAsset, readinessByAsset, collections }),
+    [assets, submissions, submissionsByAsset, readinessByAsset, collections],
+  );
+
+  const computeDuplicateWarnings = useCallback(
+    (assetIds: string[], marketplaceIds: ExportMarketplaceId[]): string[] => computeDuplicateSubmissionWarnings(assetIds, marketplaceIds, bulkExportContext),
+    [bulkExportContext],
+  );
+
+  const executeBulkExport = useCallback(
+    async (assetIds: string[], marketplaceIds: ExportMarketplaceId[]) => {
+      setBulkExportBusy(true);
+      setBulkExportError(null);
+      try {
+        const results = await executeBulkMarketplaceExport(assetIds, marketplaceIds, bulkExportContext);
+        setDownloadPackages((prev) => [...results, ...prev]);
+        setMarketplaceSelectionAssetIds(null);
+        setDuplicateWarnings(null);
+        setPendingMarketplaceIds(null);
+        setShowDownloadCenter(true);
+        await loadCommercialData();
+      } catch (err) {
+        setBulkExportError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setBulkExportBusy(false);
+      }
+    },
+    [bulkExportContext, loadCommercialData],
+  );
+
+  const handleExportRequested = useCallback(
+    (marketplaceIds: ExportMarketplaceId[]) => {
+      const assetIds = marketplaceSelectionAssetIds ?? [];
+      const warnings = computeDuplicateWarnings(assetIds, marketplaceIds);
+      if (warnings.length > 0) {
+        setDuplicateWarnings(warnings);
+        setPendingMarketplaceIds(marketplaceIds);
+        return;
+      }
+      void executeBulkExport(assetIds, marketplaceIds);
+    },
+    [marketplaceSelectionAssetIds, computeDuplicateWarnings, executeBulkExport],
+  );
+
+  const handleConfirmDespiteDuplicates = useCallback(() => {
+    if (!pendingMarketplaceIds) return;
+    const assetIds = marketplaceSelectionAssetIds ?? [];
+    void executeBulkExport(assetIds, pendingMarketplaceIds);
+  }, [pendingMarketplaceIds, marketplaceSelectionAssetIds, executeBulkExport]);
 
   const handleUpdateAsset = useCallback(async (updated: PortfolioAsset) => {
     await putPortfolioAsset(updated);
@@ -347,7 +526,16 @@ export function PortfolioManagerView({ onClose }: Props) {
   return (
     <div className="portfolio-manager">
       <div className="portfolio-manager-header">
-        <h1>🗂 Portfolio Manager</h1>
+        <div>
+          <h1>🗂 Portfolio — Library, History &amp; Analytics</h1>
+          <p className="metadata-hint">
+            ไม่จำเป็นสำหรับงาน Export ประจำวันอีกต่อไป — งานผลิตประจำวัน (Generate → Preview → Export → Download) ใช้ "🏭 Today's Production" แทน ที่นี่ใช้สำหรับค้นหา/จัดการคลัง, ดู
+            Analytics, จัดกลุ่ม Collections และดูประวัติการส่งขาย
+          </p>
+        </div>
+        <button type="button" className="btn" onClick={() => setShowDownloadCenter(true)}>
+          📦 Download Center{downloadPackages.length > 0 ? ` (${downloadPackages.length})` : ''}
+        </button>
         <button type="button" className="btn" onClick={onClose}>
           ← กลับหน้าสร้างลาย
         </button>
@@ -355,7 +543,15 @@ export function PortfolioManagerView({ onClose }: Props) {
 
       <nav className="portfolio-section-nav" aria-label="ส่วนของ Portfolio Manager">
         <button type="button" className={`btn${section === 'assets' ? ' btn--primary' : ''}`} aria-pressed={section === 'assets'} onClick={() => setSection('assets')}>
-          ชิ้นงาน
+          📁 Library &amp; Search
+        </button>
+        <button
+          type="button"
+          className={`btn${section === 'analytics' ? ' btn--primary' : ''}`}
+          aria-pressed={section === 'analytics'}
+          onClick={() => setSection('analytics')}
+        >
+          📊 Analytics
         </button>
         <button
           type="button"
@@ -363,7 +559,7 @@ export function PortfolioManagerView({ onClose }: Props) {
           aria-pressed={section === 'collections'}
           onClick={() => setSection('collections')}
         >
-          คอลเลกชัน
+          📚 Collections
         </button>
         <button
           type="button"
@@ -371,7 +567,7 @@ export function PortfolioManagerView({ onClose }: Props) {
           aria-pressed={section === 'production'}
           onClick={() => setSection('production')}
         >
-          ศูนย์การผลิต
+          🕓 History &amp; Submissions
         </button>
       </nav>
 
@@ -396,31 +592,26 @@ export function PortfolioManagerView({ onClose }: Props) {
             onSortChange={setSortKey}
             duplicateAssetIds={duplicateAssetIds}
             selectedAssetId={selectedAssetId}
-            onSelect={(id) => {
-              setSelectedAssetId(id);
-              setAssetDetailModal(false);
-            }}
+            onSelect={(id) => setPreviewAssetId(id)}
             multiSelectedIds={multiSelectedIds}
             onToggleMultiSelect={toggleMultiSelect}
             onSelectVisible={(ids) => setMultiSelectedIds(new Set(ids))}
             onClearSelection={() => setMultiSelectedIds(new Set())}
             onBulkAssign={() => setBulkDialogMode('assign')}
             onBulkRemove={() => setBulkDialogMode('remove')}
+            onBulkExport={() => setMarketplaceSelectionAssetIds([...multiSelectedIds])}
+            onBulkRefine={() => setBatchRefineAssetIds([...multiSelectedIds])}
+            exportStatusByAsset={exportStatusByAsset}
           />
-          {selectedAsset && !assetDetailModal && (
-            <PortfolioDetailPanel
-              asset={selectedAsset}
-              isDuplicate={duplicateAssetIds.has(selectedAsset.assetId)}
-              onUpdate={handleUpdateAsset}
-              onDeleteRecordOnly={handleDeleteRecordOnly}
-              onDeleteRecordAndFiles={handleDeleteRecordAndFiles}
-              onClose={() => setSelectedAssetId(null)}
-              collections={collections}
-              onAssignToCollections={handleAssignSingle}
-              onRemoveFromCollection={handleRemoveSingle}
-            />
-          )}
         </div>
+      ) : section === 'analytics' ? (
+        <PortfolioAnalyticsView
+          summary={dashboardSummary}
+          onOpenAsset={(assetId) => {
+            setSection('assets');
+            setPreviewAssetId(assetId);
+          }}
+        />
       ) : section === 'collections' ? (
         <CollectionsView
           collections={collections}
@@ -488,6 +679,155 @@ export function PortfolioManagerView({ onClose }: Props) {
       {showHealthCheck && (
         <PortfolioHealthCheckPanel report={healthReport} loading={healthLoading} onRefresh={refreshHealthCheck} onClose={() => setShowHealthCheck(false)} />
       )}
+
+      {previewAsset && (
+        <AssetPreviewDialog
+          asset={previewAsset}
+          readiness={readinessByAsset.get(previewAsset.assetId) ?? null}
+          seoScore={previewSeoScore}
+          collections={collections}
+          exportStatus={exportStatusByAsset.get(previewAsset.assetId) ?? { id: 'never-exported', label: 'ยังไม่เคย Export', at: null }}
+          onClose={() => setPreviewAssetId(null)}
+          onOpenEditDetails={() => {
+            setSelectedAssetId(previewAsset.assetId);
+            setAssetDetailModal(true);
+            setPreviewAssetId(null);
+          }}
+          onExport={() => {
+            setMarketplaceSelectionAssetIds([previewAsset.assetId]);
+            setPreviewAssetId(null);
+          }}
+          onOpenSubmissionHistory={() => {
+            setSubmissionHistoryAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+          onOpenEditDesign={() => {
+            setEditDesignAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+          onOpenVersionHistory={() => {
+            setVersionHistoryAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+        />
+      )}
+
+      {editDesignAssetId &&
+        (() => {
+          const editAsset = assets.find((a) => a.assetId === editDesignAssetId);
+          if (!editAsset) return null;
+          return (
+            <DesignEditView
+              asset={editAsset}
+              existingAssets={assets}
+              originalReadiness={readinessByAsset.get(editAsset.assetId) ?? null}
+              onClose={() => setEditDesignAssetId(null)}
+              onSaved={() => {
+                void refreshAssetsQuietly().then(() => loadCommercialData());
+              }}
+            />
+          );
+        })()}
+
+      {versionHistoryAssetId && (
+        <VersionHistoryView
+          rootAssetId={versionHistoryAssetId}
+          allAssets={assets}
+          readinessByAsset={readinessByAsset}
+          onClose={() => setVersionHistoryAssetId(null)}
+          onContinueEditing={(assetId) => {
+            setEditDesignAssetId(assetId);
+            setVersionHistoryAssetId(null);
+          }}
+          onCompare={(assetIdA, assetIdB) => setCompareAssetIds([assetIdA, assetIdB])}
+          onUpdateAsset={handleUpdateAsset}
+          onDeleteRecordOnly={handleDeleteRecordOnly}
+          onDeleteRecordAndFiles={handleDeleteRecordAndFiles}
+          onDuplicated={() => {
+            void refreshAssetsQuietly().then(() => loadCommercialData());
+          }}
+        />
+      )}
+
+      {compareAssetIds &&
+        (() => {
+          const compareA = assets.find((a) => a.assetId === compareAssetIds[0]);
+          const compareB = assets.find((a) => a.assetId === compareAssetIds[1]);
+          if (!compareA || !compareB) return null;
+          return <CompareCenterView assetA={compareA} assetB={compareB} onClose={() => setCompareAssetIds(null)} />;
+        })()}
+
+      {batchRefineAssetIds &&
+        (() => {
+          const batchAssets = assets.filter((a) => batchRefineAssetIds.includes(a.assetId));
+          if (batchAssets.length === 0) return null;
+          return (
+            <BatchRefinementView
+              assets={batchAssets}
+              existingAssets={assets}
+              onClose={() => setBatchRefineAssetIds(null)}
+              onFinished={() => {
+                setMultiSelectedIds(new Set());
+                void refreshAssetsQuietly().then(() => loadCommercialData());
+              }}
+            />
+          );
+        })()}
+
+      {marketplaceSelectionAssetIds && !duplicateWarnings && (
+        <MarketplaceSelectionDialog
+          assetCount={marketplaceSelectionAssetIds.length}
+          busy={bulkExportBusy}
+          onConfirm={handleExportRequested}
+          onClose={() => setMarketplaceSelectionAssetIds(null)}
+        />
+      )}
+
+      {duplicateWarnings && (
+        <div className="portfolio-modal-backdrop" role="dialog" aria-modal="true" aria-label="คำเตือนการส่งซ้ำ">
+          <div className="portfolio-modal">
+            <div className="portfolio-detail-header">
+              <h2>⚠️ พบการส่งซ้ำ</h2>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setDuplicateWarnings(null);
+                  setPendingMarketplaceIds(null);
+                }}
+              >
+                ยกเลิก
+              </button>
+            </div>
+            <ul>
+              {duplicateWarnings.map((warning, i) => (
+                <li key={i} className="portfolio-error-text">
+                  {warning}
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="btn btn--primary" disabled={bulkExportBusy} onClick={handleConfirmDespiteDuplicates}>
+              {bulkExportBusy ? 'กำลัง Export…' : 'ยืนยัน Export ต่อไป'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {bulkExportError && (
+        <p className="portfolio-error-text" role="alert">
+          Export ไม่สำเร็จ: {bulkExportError}
+        </p>
+      )}
+
+      {submissionHistoryAssetId && (
+        <SubmissionHistoryPanel
+          displayName={assets.find((a) => a.assetId === submissionHistoryAssetId)?.displayName ?? submissionHistoryAssetId}
+          submissions={submissionsByAsset.get(submissionHistoryAssetId) ?? []}
+          onClose={() => setSubmissionHistoryAssetId(null)}
+        />
+      )}
+
+      {showDownloadCenter && <DownloadCenter packages={downloadPackages} onClose={() => setShowDownloadCenter(false)} />}
     </div>
   );
 }

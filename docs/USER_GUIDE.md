@@ -1,24 +1,29 @@
-# 📖 คู่มือการใช้งาน Vector Stock Pattern Studio
+# 📖 คู่มือการใช้งาน AI-SBOS (AI Stock Business Operating System)
+
+> ตั้งแต่ v2.09 เป็นต้นไป แอปนี้เปลี่ยนชื่อผลิตภัณฑ์เป็น **AI-SBOS** — ส่วนสร้าง
+> ลายเดิม (**Vector Stock Pattern Studio**) กลายเป็นชื่อโมดูลหนึ่งภายใน AI-SBOS
+> ไม่ใช่ชื่อผลิตภัณฑ์หลักอีกต่อไป เนื้อหาด้านล่างที่อ้างถึง "Vector Stock Pattern
+> Studio" ในบริบทของฟีเจอร์เดิมยังคงถูกต้อง (เป็นชื่อโมดูล) เว้นแต่จะระบุไว้เป็น
+> อย่างอื่น
 
 > **ลิงก์เข้าใช้งาน:** https://cfo-ubon.github.io/vector-stock-pattern-studio/studio/
 >
 > คู่มือนี้จะถูกอัปเดตทุกครั้งที่แอปมีการเปลี่ยนแปลง — ดู[บันทึกการอัปเดต](#-บันทึกการอัปเดต)ท้ายเอกสาร
 
-> **Application Version:** v1.85
-> **Development Build:** Build 028C (Marketing to Creative Director
-> Workflow — "ส่งให้นักออกแบบ / Send to Creative Director") — on top of
-> Build 028B Hardening, Build 028B, and Build 028 Phases 1-4
+> **Application Version:** v1.88
+> **Development Build:** Build 030 Part 2 (AI Starts the Conversation — AI
+> CEO Conversation, Business Coach, Portfolio Doctor & Memory) — on top of
+> Build 030 Part 1 (AI CEO & Mission Control)
 > **Source Commit:** *(see this build's commit on branch
-> `claude/build-028-marketing-design-intelligence`)*
-> **Documentation Status:** Current for Build 028C on branch
-> `claude/build-028-marketing-design-intelligence` — **not yet merged to
-> `main`**. The `main` branch is currently at **Application Version v1.74 /
-> Development Build 021** (merged via Release Candidate RC-1, covering
-> Builds 006–021). If you are reading this file on `main`, the "📈
-> นักการตลาด" Marketing Intelligence Center, the "🎨 นักออกแบบ" AI Creative
-> Director, the Production Portfolio & Commercial Feedback Engine, and the
-> Application Backup System described below are **not yet present** — they
-> ship only once their branches are merged. See
+> `claude/build-030-ai-ceo-mission-control`)*
+> **Documentation Status:** Current for Build 030 Part 2 on branch
+> `claude/build-030-ai-ceo-mission-control` — **not yet merged to
+> `main`**. The `main` branch is currently at **Application Version v1.86 /
+> Development Build 029**, so it does not yet have Mission Control, the AI
+> CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, or
+> the AI Conversation Engine described below. If you are reading this file
+> on `main`, those sections describe **not yet present** functionality —
+> it ships once this branch is merged. See
 > [Version and Build Numbering](#-version-and-build-numbering) below for
 > what these two numbers mean and why they differ.
 
@@ -57,7 +62,20 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
-| v1.86 | Build 029 | *(this build's commit)* | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | On branch `claude/build-029-autonomous-design-autopilot`, not merged to `main` |
+| v2.13 | AI-SBOS — M5 | *(this milestone's commit)* | Closing verification — Desktop/Laptop/iPad Portrait/iPad Landscape device checks, full offline verification of Today's Production + Version Center + Portfolio Analytics, full regression suite run twice back-to-back, new `PRODUCTION_WORKSPACE_GUIDE.md` | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 (final) of the AI-SBOS mission |
+| v2.12 | AI-SBOS — M4 | *(this milestone's commit)* | Portfolio role repositioning — relabeled as Library/Search/Analytics/Collections/History & Submissions, with a new dedicated Analytics tab; no longer the primary path for routine export | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a new AI-SBOS mission |
+| v2.11 | AI-SBOS — M3 | *(this milestone's commit)* | Today's Production Workspace — consolidated Generate → Preview Gallery → Marketplace Export → Download Center in one screen, no Portfolio navigation required for routine production | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a new AI-SBOS mission |
+| v2.10 | AI-SBOS — M2 | *(this milestone's commit)* | What's New — a one-time-per-version dialog summarizing the latest changelog entry, with a persistent "Don't show again" opt-out | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a new AI-SBOS mission |
+| v2.09 | AI-SBOS — M1 | *(this milestone's commit)* | Product Identity + Consistent Header + Version Center — app rebranded to "AI-SBOS" (AI Stock Business Operating System) with Vector Stock Pattern Studio as its module name; every page shows a persistent identity bar (environment, project, version/build) and a clickable "About AI-SBOS" Version Center | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a new AI-SBOS mission |
+| v2.08 | Design Refinement Studio Pro — M5 | *(this milestone's commit)* | Pattern Safety — Design Inspector now surfaces the real seam-break signal (Corner Continuity, not the always-100 seamlessIntegrity constant), Approve requires explicit confirmation when it's at risk, and Preview gained a tile-border overlay toggle | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 of a 6-milestone mission |
+| v2.07 | Design Refinement Studio Pro — M4 | *(this milestone's commit)* | Batch Refinement — apply one owner-defined adjustment (palette/hierarchy override, density/negative-space/overlap/rotation/scale deltas) across many selected patterns at once, each saved as its own non-destructive version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a 6-milestone mission |
+| v2.06 | Design Refinement Studio Pro — M3 | *(this milestone's commit)* | Version Control + Compare Center — full version-history browser (continue editing/duplicate/rename/delete) for any Design Edit lineage, plus a two-version Compare Center (side-by-side, slider overlay, Quality Score diff, parameter diff) | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a 6-milestone mission |
+| v2.05 | Design Refinement Studio Pro — M2 | *(this milestone's commit)* | AI Design Coach + Commercial Revalidation — human-readable, deterministic improvement advice inside Design Edit Mode, and automatic QA/Commercial Readiness re-scoring for every newly-approved Design Version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a 6-milestone mission |
+| v2.04 | Design Refinement Studio Pro — M1 | *(this milestone's commit)* | Design Edit Mode — non-destructive parameter editing (Floating Design Inspector, live re-evaluation, undo/redo, Approve-as-new-version) for any Factory/Autopilot-produced pattern, opened from the Portfolio Preview Dialog | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a 6-milestone mission |
+| v2.03 | Hotfix v1.0.2 | *(this hotfix's commit)* | Production Hotfix — fixed the P0 metadata-wiring bug blocking every freshly-generated pattern from commercial export, plus every verified P1/P2/P3 finding from the full UI/UX production audit | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main` |
+| v1.88 | Build 030 (Part 2) | *(this build's commit)* | AI Starts the Conversation — proactive AI CEO Morning Brief, Business Coach, Portfolio Doctor, Business Goals, local AI Conversation Engine with persisted history, user-confirmed AI Memory | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 2 of a multi-part spec |
+| v1.87 | Build 030 (Part 1) | `9f1154b` | AI CEO & Mission Control — new home screen (Hero Card, AI CEO Panel, Business Status, AI Command Bar, Goal Modes) replacing the old landing screen; renamed menus | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Part 1 of a multi-part spec |
+| v1.86 | Build 029 | `03c419d` | Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้ / Design for Me Today" one-click Goal→Plan→Generate→Review→Portfolio workflow | Merged to `main` |
 | v1.85 | Build 028C | `d1078c5` | Marketing to Creative Director Workflow — "ส่งให้นักออกแบบ / Send to Creative Director" handoff review, 13-status workflow tracking, collectionItemId traceability, cross-navigation | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.84 | Build 028B Hardening | `e2904a1` | Flaky-test root-cause fix, full `.vspsb` coverage, Generator Handoff integration, traceability lineage | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
 | v1.83 | Build 028B | `422c2be` | AI Creative Director / Collection Strategy Engine | On branch `claude/build-028-marketing-design-intelligence`, not merged to `main` |
@@ -80,6 +98,254 @@ history.
 
 ---
 
+## 🆔 AI-SBOS — ตัวตนแอปและ Version Center 🆕
+
+ตั้งแต่ v2.09 แอปเปลี่ยนชื่อผลิตภัณฑ์เป็น **AI-SBOS (AI Stock Business
+Operating System)** — ส่วนสร้างลายเดิม **Vector Stock Pattern Studio**
+กลายเป็นชื่อ**โมดูล**ภายใน AI-SBOS ไม่ใช่ชื่อแอปหลักอีกต่อไป
+
+- **แถบข้อมูลแอป (Identity Bar)**: แสดงอยู่ตลอดที่หัวแอปทุกหน้า ไม่ว่าจะอยู่ที่
+  Mission Control, Today's Production, Portfolio หรือหน้าไหนก็ตาม — ไม่ต้อง
+  กดปุ่มเพิ่มเพื่อดู ประกอบด้วย:
+  - ป้ายสถานะ **Production / Development** (ค่าจริงจาก Vite build mode —
+    `Production` เฉพาะไฟล์ build จริงที่ deploy เท่านั้น `Development` ตอนรัน
+    `npm run dev`)
+  - ชื่อ**โปรเจกต์**ที่กำลังใช้งานอยู่
+  - ป้าย**เวอร์ชัน** (เช่น "v2.09 · AI-SBOS M1") — กดได้
+- **🔍 Version Center ("About AI-SBOS")**: กดที่ป้ายเวอร์ชันเพื่อเปิด แสดง:
+  Product Name, Version, Build (พร้อมคำอธิบาย), Release Date, Commit (hash
+  จริงจาก build — ฝังตอน build ด้วย `git rev-parse`, ไม่ใช่ค่าคงที่ปลอม),
+  Environment, Production Status, **Offline Status** (สถานะเน็ตจริงจาก
+  เบราว์เซอร์ อัปเดตสด), Commercial Certification, Regression Result, และ
+  **Latest Changes** (สรุปการอัปเดตล่าสุด)
+
+รายละเอียดตัวเลขเวอร์ชัน/Build ทั้งหมดยังคงยึดตามหลักเกณฑ์เดิมที่อธิบายไว้ใน
+[Version and Build Numbering](#-version-and-build-numbering) ด้านบน — Version
+Center เป็นเพียงหน้าต่างแสดงข้อมูลชุดเดียวกันนี้ให้เห็นในแอปโดยตรง ไม่ต้องเปิด
+เอกสารแยก
+
+- **✨ What's New**: เปิดแอปครั้งแรกหลังมีอัปเดตเวอร์ชันใหม่ จะเห็นหน้าต่างนี้
+  ขึ้นอัตโนมัติ 1 ครั้ง สรุปการเปลี่ยนแปลงล่าสุด (ข้อมูลเดียวกับ "Latest
+  Changes" ใน Version Center) ปิดแล้วจะไม่ขึ้นซ้ำสำหรับเวอร์ชันเดิมอีก —
+  ติ๊ก "ไม่ต้องแสดงอีก" เพื่อปิดการแจ้งเตือนนี้ถาวรได้ทุกเมื่อ (บันทึกไว้ใน
+  เบราว์เซอร์เครื่องนี้เท่านั้น)
+
+---
+
+## 🏠 Mission Control — หน้าแรกใหม่ (AI CEO) 🆕
+
+**Build 030 Part 1.** เมื่อเปิดแอป หน้าแรกที่เห็นตอนนี้คือ **Mission
+Control** แทนที่หน้าตัวสร้างลวดลายแบบเดิม — ปรัชญาของหน้านี้คือผู้ใช้ไม่ต้อง
+คิดเรื่อง Style DNA / Hero Motif / Density / Composition / Palette /
+ตั้งค่า Generator เอง (ค่าพวกนี้ยังอยู่ครบใน **⚙️ Advanced Mode** สำหรับใคร
+ที่อยากปรับเอง) — ผู้ใช้ทั่วไปแค่บอกเป้าหมายทางธุรกิจ ระบบจัดการที่เหลือให้
+
+หน้า Mission Control ตอบ 5 คำถามทันทีที่เปิดแอป:
+
+1. **วันนี้ควรสร้างอะไร?** — Hero Card แสดงโอกาสที่ดีที่สุดวันนี้ (ธีม,
+   marketplace, คะแนนความน่าจะขายได้ ★, Estimated Commercial Score,
+   Estimated Beauty Score, Portfolio Gap, เวลาที่คาดว่าจะใช้ผลิต)
+2. **ทำไม?** — แผง AI CEO อธิบายเหตุผลจริงทุกข้อ (ดึงจากเหตุผลเดียวกับที่
+   Autopilot's Decision Engine ใช้จริง ไม่ใช่ข้อความสำเร็จรูป)
+3. **คุ้มค่าแค่ไหน?** — Today's Business Status: Portfolio Health,
+   คิวส่งขาย (READY / Pending Review / Pending Upload), ผลงานเดือนนี้,
+   Commercial Readiness — ตัวเลขจริงทั้งหมด ไม่มีค่าโชว์
+4. **ใช้เวลานานแค่ไหน?** — Estimated Production Time คำนวณจากเวลาเฉลี่ย
+   จริงของการรันที่เสร็จแล้วในเครื่อง (ถ้ายังไม่เคยรันจะบอกตรง ๆ ว่า "Not
+   yet estimated" ไม่เดาตัวเลข)
+5. **เริ่มเลยไหม?** — ปุ่ม **✨ Start Today's Mission** เดียว พาไปหน้า
+   ตรวจแผนของ Autopilot ทันที (ข้ามหน้าเลือกโหมด/ตั้งค่า) — เหลือแค่กด
+   Generate
+
+### แผง AI CEO
+พูดกับผู้ใช้ก่อนเสมอ: "Good morning. I analyzed your portfolio. Today's
+best opportunity is [ธีม]." ตามด้วยเหตุผลจริงเป็นข้อ ๆ แล้วถามว่า "Would you
+like me to create a collection?" มีปุ่ม **Start** / **Adjust Goal** (กลับ
+ไปหน้าเลือกโหมดของ Autopilot) / **Ask AI** (โฟกัส AI Command Bar)
+
+### AI Goal Modes
+กริดปุ่มเป้าหมายภาษาธุรกิจ 10 แบบ — Earn Faster, Grow Portfolio, Seasonal
+Collection, Fill Portfolio Gaps, Evergreen Income, Expand Adobe Stock,
+Expand Shutterstock, Expand Etsy, Use Today's Recommendation, AI Chooses
+Everything — แต่ละปุ่มแค่ map ไปยังโหมด Autopilot ที่มีอยู่แล้วจริง (ไม่มี
+ตรรกะการตัดสินใจใหม่) แล้วพาไปหน้าแผนที่สร้างเสร็จแล้วทันที
+
+### AI Command Bar
+ช่องพิมพ์ "Ask AI..." ที่ด้านล่างของหน้า พิมพ์ประโยคเดียวได้เลย เช่น
+"Create 20 Botanical patterns", "Analyze my portfolio", "Help me earn
+faster" — ระบบตีความคำสั่งเป็นอย่างใดอย่างหนึ่งจริงเสมอ: (1) การนำทางไปหน้า
+จริง (เช่น "Analyze my portfolio" → เปิด Portfolio Manager) (2) Goal Mode
+ที่มีอยู่จริง หรือ (3) fallback ไปยัง Custom Goal parser เดิมของ Autopilot
+(ตีความ marketplace/จำนวน/ธีมจากประโยค) — ไม่มีการเรียก AI API ภายนอก ไม่มี
+การตีความมั่ว
+
+### เมนูเปลี่ยนชื่อใหม่ (Human-Centered Naming)
+| เดิม | ใหม่ |
+|---|---|
+| Project Dashboard | 📊 Overview |
+| Design Workbench | 🎨 Pattern Studio |
+| Portfolio Manager | 📂 Portfolio |
+| Backup Manager | 💾 Backup |
+| นักการตลาด (Marketing Intelligence) | 📈 AI Market Advisor |
+| นักออกแบบ (Creative Director) | 🎨 AI Design Director |
+
+ปุ่ม "✨ ออกแบบให้ฉันวันนี้" (Autopilot) ยังอยู่เหมือนเดิม และหน้าตัวสร้าง
+ลวดลายแบบเดิม (Style DNA/generator settings ทั้งหมด) ยังอยู่ครบ เข้าถึงได้
+ผ่านปุ่ม **⚙️ Advanced Mode**
+
+### 🗣 AI Starts the Conversation (Build 030 Part 2) 🆕
+
+หน้า Mission Control ตอนนี้ไม่ใช่แค่แผงข้อมูล — AI CEO **เริ่มบทสนทนาเองทุก
+ครั้งที่เปิดแอป** ผู้ใช้ไม่ต้องถามว่า "วันนี้ควรทำอะไร" อีกต่อไป ระบบตอบให้
+อัตโนมัติจากข้อมูลจริงในเครื่อง — **ไม่มีการเรียก Cloud AI ใด ๆ** ทุกอย่าง
+เป็นตรรกะที่กำหนดผลลัพธ์แน่นอน (deterministic) รันในเบราว์เซอร์ล้วน ๆ
+
+- **AI CEO Morning Brief** — สรุปสถานะวันนี้ทันทีที่เปิดหน้า: คำทักทาย,
+  วันที่, สถานะข้อมูล (Live Data / Saved Snapshot / Local Portfolio
+  Analysis / Offline Recommendation / Insufficient Data — ไม่เคยอ้างว่า
+  "สด" ถ้าไม่ได้เชื่อมข้อมูลตลาดจริง), สรุปครั้งก่อน (ถ้ามีบันทึกจริง),
+  ภารกิจที่แนะนำวันนี้พร้อมเหตุผล, ทางเลือกอื่นที่ไม่ถูกเลือกพร้อมเหตุผลว่า
+  ทำไม, ผลกระทบต่อ Portfolio (เชิงคุณภาพ ไม่ใช่ตัวเลขรายได้), ขนาดการผลิตที่
+  แนะนำ, ระดับความมั่นใจ, ความเสี่ยง, ข้อมูลที่ยังขาด — กด **View
+  Explanation** เพื่อดูเหตุผลแบบเต็ม (evidence, confidence, assumptions,
+  ทางเลือกอื่น, memory ที่ใช้)
+- **Continue Unfinished Work** — ถ้ามีงานค้าง (รันที่ค้างอยู่, READY items
+  ที่ยังไม่ได้นำเข้า Portfolio, รายการที่ต้องตรวจสอบ) จะแสดงเป็นการ์ดเดียวที่
+  ชัดเจนที่สุด พร้อมปุ่ม **Continue** ที่พาไปยังหน้าจริงที่เกี่ยวข้อง —
+  ไม่เคยเริ่มรันใหม่ทั้งหมดถ้ายังมีงานที่ทำเสร็จบางส่วนอยู่
+- **Business Coach** — การ์ด 8 ใบจากข้อมูลจริงเท่านั้น: Today's Focus,
+  Quick Win, Most Important Blocker, Unfinished Work, Recommended Next
+  Action, Weekly Production Progress, Portfolio Growth, Submission
+  Readiness — ถ้าไม่มีข้อมูลจะแสดงข้อความที่ซื่อสัตย์ เช่น "No quick win
+  available right now" ไม่ใช่ตัวเลขปลอม
+- **Portfolio Doctor** — วินิจฉัยสุขภาพ Portfolio: ความสมดุลของหมวดหมู่
+  (ปรับเกณฑ์ "หมวดล้นตลาด" ได้เองผ่านช่อง Oversupply threshold — ค่าเริ่ม
+  ต้น 40%), collection ที่ว่างเปล่า, อัตรา REVIEW/REJECT จาก QualitySnapshot
+  จริง, READY items ที่ยังไม่นำเข้า Portfolio, งานที่ยังไม่พร้อมส่งขาย —
+  แต่ละข้อมีปุ่ม **Send to Autopilot** เมื่อมีการแก้ไขที่ทำได้จริง
+- **Business Goals** — ตั้งเป้าหมายทางธุรกิจได้เอง (Grow Portfolio, Improve
+  Diversity, Complete Collections, เพิ่มพอร์ต Adobe/Shutterstock/Etsy,
+  Evergreen/Seasonal, ลดอัตราถูกปฏิเสธ, Custom) พร้อมวันที่เป้าหมาย/จำนวนที่
+  ต้องการ/marketplace ที่สนใจ/หมายเหตุ — **ถ้าพิมพ์เป้าหมายที่มีคำเกี่ยวกับ
+  รายได้ (เช่น "$", "บาท", "รายได้") ระบบจะเตือนทันทีว่า "Revenue cannot be
+  predicted reliably from portfolio size alone"** ไม่แปลงเป้ารายได้เป็น
+  จำนวนรูปที่ต้องผลิตให้เองเด็ดขาด
+- **Ask Your AI CEO (Conversation)** — ช่องสนทนาแยกจาก AI Command Bar เดิม
+  ด้านบน รองรับประโยคภาษาไทย/อังกฤษที่กำหนดไว้ชัดเจน เช่น "วันนี้ควรทำ
+  อะไร", "เริ่มภารกิจวันนี้", "สร้าง 10 ลาย", "สร้าง Collection สำหรับ
+  Adobe", "เพิ่ม Portfolio", "เติมหมวดที่ขาด", "ทำงานต่อจากเมื่อวาน", "ตรวจ
+  Portfolio", "ดูงานที่ยังไม่เสร็จ", "สร้าง Colorway เพิ่ม", "เตรียมงานพร้อม
+  ส่งขาย", "เปิดโหมดขั้นสูง" (และภาษาอังกฤษที่ตรงความหมาย) — ทุกคำสั่งที่
+  ไม่รู้จักจะได้รับคำตอบที่ซื่อสัตย์ว่า "I cannot complete this command
+  locally yet" พร้อมตัวอย่างคำสั่งที่ใช้ได้ ไม่แสร้งว่าทำสำเร็จ —
+  บทสนทนาทุกครั้งถูกบันทึกไว้ (Conversation History) เปิดดูย้อนหลังได้
+- **User-Confirmed AI Memory** — ระบบจะ "สังเกต" ถ้าผู้ใช้เลือกสิ่งเดิมซ้ำ ๆ
+  (เช่น เลือก marketplace เดียวกัน 3 ครั้งติดต่อกัน) แล้ว **เสนอ** เป็น
+  memory ที่รอการยืนยัน — จะไม่ถูกนำไปใช้จนกว่าผู้ใช้กด **Confirm** เอง
+  เท่านั้น และทุกคำแนะนำที่ได้รับอิทธิพลจาก memory ที่ยืนยันแล้วจะระบุชัดเจน
+  ว่า "Based on your confirmed preference…" — ไม่มี memory ที่ถูกอนุมาน
+  และนำไปใช้แบบเงียบ ๆ
+
+**ข้อจำกัดที่ยังไม่ครบตามสเปกเต็ม (ระบุอย่างซื่อสัตย์)**: Cloud AI Provider
+Boundary เป็น interface ว่างเปล่าเท่านั้น (ยังไม่เชื่อมผู้ให้บริการ Cloud
+AI จริง — ตามที่สเปกกำหนดว่า "core AI CEO behavior must work without a
+cloud provider" ในบิลด์นี้), Memory ตรวจจับรูปแบบซ้ำได้เฉพาะ Preferred
+Marketplace เท่านั้น (ยังไม่ครบทั้ง 12 ประเภทที่สเปกระบุ), "Continue Run"
+เปิดหน้า Autopilot History ให้ผู้ใช้กด Resume เอง (ยังไม่ deep-link ตรงเข้า
+รันที่ค้างอยู่โดยอัตโนมัติทันที)
+
+---
+
+## 🏭 Today's Production — หน้าการผลิตประจำวัน 🆕
+
+ปุ่ม **"🏭 Today's Production"** บนแถบเมนูบนสุด (ถัดจาก Mission Control) เปิด
+หน้าจอเดียวที่รวมทุกเอนจินจาก Mission 1-5 (Decision OS, Factory Controller,
+Factory Intelligence, Continuous Improvement, Production Autopilot, Factory
+Orchestrator) ให้เป็นขั้นตอนการทำงานประจำวันเดียว — เจ้าของไม่ต้องคิดเรื่อง
+ระบบอีกต่อไป คิดแค่ **"วันนี้ผลิตอะไร"**
+
+### หน้า Home
+
+เปิดมาเจอทันที: คำทักทายตามเวลาจริง + สถานะโรงงาน, เวลาที่คาดว่าเจ้าของจะใช้,
+Business Outcome, แพ็กเกจพร้อมส่ง, งานรอตรวจสอบ, สุขภาพโรงงาน — และปุ่มหลัก
+ปุ่มเดียว: **▶ START FACTORY** (เชื่อมตรงเข้า `FactoryOrchestrator.
+startFactory()` ไม่มีการข้าม Factory Orchestrator) ถ้ามีงานค้างจาก Batch เดิม
+ปุ่มจะเปลี่ยนเป็น **Continue Yesterday** โดยอัตโนมัติ
+
+### แถบนำทาง 6 หน้าจอ
+
+- **Home** — ภาพรวมวันนี้ (ด้านบน)
+- **Progress** — แถบขั้นตอนการผลิต 7 ระยะ (เตรียม → วางแผน → รออนุมัติ →
+  กำลังทำงาน → ตรวจสอบคุณภาพ → บรรจุภัณฑ์ → เสร็จสิ้น) คำนวณจากสถานะจริงของ
+  Factory Orchestrator Run เท่านั้น — ถ้างานค้าง/ถูกหยุด แถบจะหยุดที่ขั้นตอน
+  จริงล่าสุดพร้อมเหตุผลจริงเสมอ **ไม่มีการสร้างความคืบหน้าปลอม** ถ้าเซสชันนี้
+  เป็นเซสชันใหม่ล้วนที่ไม่มีงานค้าง (คำแนะนำ "สร้างลายใหม่") จะมีปุ่ม
+  **"✨ Generate Now"** ให้กดสร้างลายจริงและสร้าง Commercial Package Batch
+  ต่อทันทีในหน้านี้เลย (Mission 7.5) — ถ้าบางชิ้นคุณภาพต่ำกว่าเกณฑ์ความ
+  ปลอดภัยจะมีปุ่ม **"Skip these and continue"** ให้คัดชิ้นนั้นออกจากชุดก่อน
+  กด Mark Session Complete — **กด Generate Now เสร็จแล้วระบบพาไปหน้า Gallery
+  ให้อัตโนมัติทันที (AI-SBOS Milestone 3)** ไม่ต้องกดเพิ่ม
+- 🆕 **Gallery** (AI-SBOS Milestone 3, "Today's Production Workspace"): เห็น
+  ทุกลายที่เพิ่งสร้างเป็นรูปทันที แต่ละใบมี **Commercial Score**, **Quality
+  Score**, ป้าย **Marketplace Ready**/**SEO Ready**, สถานะงาน และปุ่ม 👁
+  **Preview** / 🎨 **Edit** (เปิด Design Edit Mode ตรง) / 📤 **Export** —
+  เลือกหลายใบพร้อมกันได้ (กล่องกาเครื่องหมายที่มุมซ้ายบนแต่ละใบ) แล้วกด
+  "Export ที่เลือก" เพื่อส่งออกหลายชิ้นงานไปหลาย Marketplace
+  (Shutterstock/Adobe Stock/Freepik/Getty/Etsy) พร้อมกันได้เลย โดยไม่ต้อง
+  ออกจากหน้า Today's Production ไปที่ Portfolio Manager เลย — ส่งออกเสร็จ
+  แล้ว **Download Center เปิดให้อัตโนมัติ** ดาวน์โหลด ZIP ทีละไฟล์ หรือ (บน
+  เดสก์ท็อป) เปิดโฟลเดอร์ที่บันทึกไว้ได้ทันที
+- **Review** — Review Workspace: แสดงเฉพาะชิ้นงานที่ยังต้องตรวจสอบจริง (ชิ้น
+  ที่พร้อมอยู่แล้วจะไม่โผล่มาให้เสียเวลา) แต่ละชิ้นมีปุ่ม **Approve / Reject /
+  Repair** ทั้งแบบทีละชิ้นและแบบเลือกหลายชิ้นพร้อมกัน — Approve/Reject บันทึก
+  การจำแนกคุณภาพใหม่จริงพร้อมเวลาจริง ไม่ใช่การซ่อนชิ้นงานแบบผิวเผิน
+- **Export** — ใช้หน้า Commercial Pipeline เดิม (Build 031A) ทั้งหมด: สาย
+  การผลิตเชิงพาณิชย์, ตัวชี้วัดธุรกิจ, Export Readiness Dashboard, Commercial
+  Package Builder — Export ยังต้องอนุมัติจากเจ้าของเสมอ ไม่มีการอัปโหลด
+  อัตโนมัติ (สำหรับ Export หลายชิ้นงาน/หลาย Marketplace พร้อมกัน ใช้แท็บ
+  Gallery ด้านบนแทน — เร็วกว่าและไม่ต้องเลือกทีละชิ้น)
+- **Dashboard** — สรุปย่อ: สถานะโรงงาน, Business Outcome, ประสิทธิภาพโรงงาน,
+  จำนวนการตัดสินใจของเจ้าของวันนี้, เวลาที่ประหยัดได้, จำนวนพร้อมขายเชิง
+  พาณิชย์, คำแนะนำอันดับ 1 — ไม่มีกราฟที่ไม่จำเป็น
+
+### ปรัชญา "Today's Production Workspace" (AI-SBOS Milestone 3)
+
+เจ้าของทำงานประจำวันได้ครบวงจร **Generate → Preview → Refine → Approve →
+Marketplace → Export → Download** โดยไม่ต้องออกจากหน้า Today's Production
+ไปที่ Portfolio Manager เลย — วัดจริงด้วยการทดสอบอัตโนมัติในเบราว์เซอร์จริง:
+ครบทั้งวงจรใช้เพียง **9 คลิก** (🏭 Today's Production → ▶ START FACTORY →
+Approve session → ✨ Generate Now → [ระบบพาไป Gallery อัตโนมัติ] → เลือก 2
+ชิ้นงาน (2 คลิก) → Export ที่เลือก → เลือก Marketplace → ยืนยันส่งออก) เทียบ
+กับก่อนหน้านี้ที่ต้องสลับไปหน้า Portfolio Manager เพื่อเลือก Export/Download
+ต่างหาก Portfolio Manager ยังใช้งานได้ตามปกติสำหรับงานที่ไม่ใช่รูทีนประจำวัน
+(ดูหัวข้อ "🗂 Portfolio Manager" ด้านล่าง)
+
+### Owner Action Center
+
+ในหน้า Home จะแสดงกล่องแยกเฉพาะเมื่อมีงานที่ต้องให้เจ้าของตัดสินใจจริงเท่านั้น
+(อนุมัติเซสชัน / อนุมัติข้อยกเว้น / ตรวจสอบภาพ / ส่งออกแพ็กเกจ) — ถ้าไม่มีงาน
+ค้างจะไม่แสดงกล่องนี้เลย ตามหลักการ "ซ่อนทุกอย่างที่ไม่ต้องการการตัดสินใจ"
+
+### Session Summary
+
+หลังปิดงานเสร็จ ระบบแสดงสรุป: แพ็กเกจที่ผลิตได้, พร้อมขาย, ต้องตรวจสอบ,
+ต้องซ่อม, เวลาที่เจ้าของใช้, Business Outcome, ประสิทธิภาพโรงงาน, งานปรับปรุง
+ที่สร้างขึ้น, คำแนะนำถัดไป — ดึงจากผลลัพธ์จริงของ Mission 4 ทั้งหมด
+
+### ปรัชญาหนึ่งคลิก
+
+**เปิดแอป → Start Factory → Review → Export** — ทดสอบจริงด้วยเบราว์เซอร์แล้ว
+ว่าไม่เกิน 3 การตัดสินใจของเจ้าของ และไม่เกิน 5 คลิกตามเป้าหมายที่กำหนด
+ทุกข้อมูลบนหน้าจอนี้มาจากเอนจินเดิมทั้งหมด ไม่มีการคำนวณซ้ำ (Progress /
+Review / Dashboard ใช้ค่าที่คำนวณจาก Factory Execution Context เดียวกัน)
+
+**ข้อจำกัดที่ยังไม่ครบ (ระบุอย่างซื่อสัตย์)**: ไม่มี Light Mode (ทั้งแอปยังเป็น
+Dark Mode เท่านั้น); Review Workspace แสดงชื่อ/คะแนน/ธง fragmented หรือ dead
+space เป็นข้อความ ยังไม่มีภาพตัวอย่าง SVG จริงในรายการ — ดูรายละเอียดครบใน
+`BUILD_036_PRODUCTION_EXPERIENCE_REPORT.md`
+
+---
+
 ## 🚀 เริ่มใช้งานใน 1 นาที
 
 1. เปิดแอปที่ลิงก์ด้านบน
@@ -89,6 +355,11 @@ history.
 5. กด **Export single tile (.svg)** เพื่อดาวน์โหลดไฟล์
 6. เปิดแผง **SEO สำหรับ Stock** ใต้ preview → กดคัดลอก Title / Description /
    Keywords ไปวางในฟอร์มอัปโหลดของ Shutterstock ได้ทันที
+
+> 📴 **ใช้งานออฟไลน์ได้เต็มรูปแบบ:** เข้าแอปออนไลน์อย่างน้อย 1 ครั้งก่อน (ให้
+> ระบบติดตั้ง Service Worker อัตโนมัติ) หลังจากนั้นปิดอินเทอร์เน็ตแล้วเปิดแอปใหม่
+> ได้ตามปกติ — Production Home, Factory, สร้างลาย, ตรวจงาน, และ Backup Manager
+> ใช้งานได้ครบโดยไม่ต้องต่อเน็ตอีกเลย
 
 ---
 
@@ -798,6 +1069,27 @@ variations") ยังคงสร้าง+ดาวน์โหลด zip อ�
 สถานะขาย/ลบทิ้งอย่างปลอดภัย โดย**ไม่แก้ไขหรือบีบอัดไฟล์ต้นฉบับเลยแม้แต่ไบต์
 เดียว**
 
+### บทบาทของ Portfolio Manager (อัปเดต AI-SBOS Milestone 4)
+
+ตั้งแต่ v2.12 Portfolio Manager **ไม่ใช่จุดหลักสำหรับงาน Export ประจำวัน
+อีกต่อไป** — งานผลิตประจำวันแบบครบวงจร (Generate → Preview → Refine →
+Approve → Marketplace → Export → Download) ทำได้เร็วกว่าจากหน้า
+**"🏭 Today's Production"** โดยตรง (ดูหัวข้อด้านบน) Portfolio Manager
+ยังคงใช้งานได้ตามปกติทุกฟังก์ชัน แต่เปลี่ยนบทบาทมาเน้น **Library, Search,
+Analytics, Collections, และ History & Submissions** — 4 แท็บ:
+
+- **📁 Library & Search** — เดิมชื่อ "ชิ้นงาน": คลังไฟล์ทั้งหมด + ค้นหา/
+  กรองตามสถานะ/ชนิดไฟล์/คอลเลกชัน (ของเดิมทั้งหมด ไม่มีอะไรเปลี่ยน)
+- 🆕 **📊 Analytics**: แท็บใหม่ แยกภาพรวมคลัง (ทั้งหมด/ใช้งานอยู่/เก็บถาวร/
+  รอตรวจ/พร้อมอัปโหลด/ส่งแล้ว/อนุมัติแล้ว/ถูกปฏิเสธ/ไม่มีภาพตัวอย่าง/อาจซ้ำ)
+  ออกมาเป็นหน้าเดียวที่ชัดเจน (เดิมฝังอยู่ในแถบข้างของ Library) พร้อมรายการ
+  ชิ้นงานที่นำเข้า/สร้างล่าสุด กดเพื่อเปิดดูได้ทันที — ทุกตัวเลขคำนวณจาก
+  ข้อมูลจริงเหมือนเดิม ไม่มีการคำนวณใหม่
+- **📚 Collections** — เดิมชื่อ "คอลเลกชัน": จัดกลุ่มชิ้นงาน (ของเดิมทั้งหมด)
+- **🕓 History & Submissions** — เดิมชื่อ "ศูนย์การผลิต": ติดตามการส่งขาย,
+  นำเข้าผลลัพธ์, ผลตอบรับเชิงพาณิชย์, คิวการผลิต, นำเข้าผลงานเก่า, สำรอง/
+  กู้คืน (ของเดิมทั้งหมด)
+
 ### เก็บข้อมูลไว้ที่ไหน
 
 ทุกอย่างเก็บใน **IndexedDB ของเบราว์เซอร์เครื่องนี้เท่านั้น** (ไม่มีเซิร์ฟเวอร์
@@ -851,15 +1143,63 @@ import เอง (ยังไม่มีปุ่ม import ZIP ทั้ง�
 สรุปตัวกรองที่เปิดอยู่ รองรับคลังขนาดใหญ่ (ทดสอบแล้วที่ 1,000+ ชิ้นงาน) ด้วย
 การโหลดทีละหน้า (กด "แสดงเพิ่ม") ไม่โหลดรูปทั้งหมดพร้อมกัน
 
-### รายละเอียดชิ้นงาน (แผงขวา — คลิกที่ชิ้นงานในตาราง)
+### ดูตัวอย่างชิ้นงาน (คลิกที่ชิ้นงานในตาราง) 🆕
 
-ดูภาพตัวอย่างขนาดใหญ่, Asset ID (มีปุ่มคัดลอก), ไฟล์ต้นฉบับทุกไฟล์พร้อมแฮช/
-ขนาด, เมทาดาทาทั้งหมด, และแก้ไขได้: เปลี่ยนสถานะงาน (ฉบับร่าง/รอตรวจ/
-พร้อมอัปโหลด/ส่งแล้ว/อนุมัติแล้ว/ถูกปฏิเสธ/ต้องแก้ไข), ให้คะแนนดาว, เพิ่ม/
-ลบแท็ก, จดโน้ต, เก็บเข้า/กู้คืนจากที่เก็บถาวร (แยกจากสถานะงานโดยสิ้นเชิง —
-ชิ้นงานที่ "อนุมัติแล้ว" ก็เก็บเข้าที่เก็บถาวรได้โดยสถานะงานไม่เปลี่ยน) และ
-**"ส่งออกเป็น ZIP"** (ไฟล์ต้นฉบับทุกไฟล์ + manifest.json ที่มีแฮช/เมทาดาทา
-ครบ — ตรวจสอบความถูกต้องของไฟล์ก่อนส่งออกทุกครั้ง)
+คลิกที่ชิ้นงานในตารางจะเปิด**หน้าต่างตัวอย่าง (Preview Dialog)** ทันที
+(แทนที่หน้ารายละเอียดแบบเดิม — เปิดเร็วเพราะข้อมูล Commercial Readiness/
+SEO/สถานะ Export ถูกโหลดไว้ล่วงหน้าครั้งเดียวต่อการเปิด Portfolio Manager
+ไม่คำนวณใหม่ทุกครั้งที่คลิก) แสดง: ภาพตัวอย่างขนาดใหญ่ (สลับ SVG/PNG ได้
+ถ้ามีทั้งสองไฟล์), Asset ID, **Commercial Score** (คะแนนความพร้อมขายจาก
+Commercial Pipeline เดิม ไม่คำนวณซ้ำ), **SEO Score** (แสดงเฉพาะเมื่อมี
+ข้อมูลจาก Production Center — ไม่มีข้อมูลจะบอกตรงๆ ว่า "ยังไม่มีข้อมูล SEO"
+ไม่มีการสมมติคะแนน), **สถานะ Export** (ดูหัวข้อถัดไป), รายการตรวจ
+Marketplace Readiness ทั้งหมด, และคอลเลกชันที่สังกัดอยู่ — พร้อมปุ่ม
+**"📤 Export"**, **"✏️ แก้ไขรายละเอียด"** (เปิดหน้ารายละเอียดแบบเต็มเดิม
+สำหรับแก้สถานะงาน/ดาว/แท็ก/โน้ต/เก็บถาวร/ส่งออก ZIP ไฟล์ต้นฉบับ — ยังอยู่
+ครบทุกฟังก์ชันเดิม เพียงย้ายมาอยู่อีกขั้นหนึ่งจากหน้าต่างตัวอย่าง) และ
+**"🕓 ประวัติการส่งขาย"**
+
+### 📤 ส่งออกขายหลายตลาดพร้อมกัน (Export → Marketplace → ZIP) 🆕
+
+จากหน้าต่างตัวอย่างหรือจากแถบเลือกหลายชิ้นงาน (ติ๊กเลือกในตาราง แล้วกด
+"📤 Export" บนแถบที่ปรากฏด้านบน) — ส่งออกได้ตั้งแต่ 1 ถึงหลายร้อยชิ้นงาน
+พร้อมกัน ภายใน 3 คลิก (เลือกชิ้นงาน → เลือกตลาด → Export):
+
+1. **เลือกตลาด**: หน้าต่าง "เลือกมาร์เก็ตเพลส" แสดง 6 ตลาด (Shutterstock,
+   Adobe Stock, Freepik, Getty Images, Etsy, กำหนดเอง) เลือกได้มากกว่าหนึ่ง
+   ตลาดพร้อมกัน — 4 ตลาดแรก (Shutterstock/Adobe/Freepik/Etsy) ใช้ **Export
+   Profile จริงเฉพาะเว็บ** จาก Marketplace Profile System เดิม (ไฟล์ที่
+   ได้ต่างกันตามเว็บจริง เช่น Shutterstock ได้ SVG/EPS/PNG/CSV/SEO) ส่วน
+   Getty และ "กำหนดเอง" ยังไม่มีโปรไฟล์เฉพาะจริงในระบบ (มีป้าย "ไฟล์ทั่วไป"
+   กำกับไว้ตรงๆ ไม่ปลอมว่ามีโปรไฟล์) จึงได้ไฟล์ส่งออกแบบทั่วไปแทน
+2. **สร้างแพ็กเกจ**: ระบบเรียกใช้ Commercial Pipeline เดิม (การคำนวณคะแนน/
+   บรรจุไฟล์เดิมทั้งหมด ไม่มีตรรกะซ้ำซ้อนใหม่) สร้าง **1 ไฟล์ ZIP ต่อ 1
+   ตลาดที่เลือก** (ไม่ว่าจะเลือกกี่ชิ้นงานก็ตาม) — ถ้าพบว่าชิ้นงานใดเคยส่ง
+   ไปตลาดเดียวกันแล้วและอยู่ในสถานะอนุมัติแล้ว/รออนุมัติอยู่ ระบบจะเตือน
+   ก่อนเสมอ ต้องกดยืนยันอีกครั้งจึงจะดำเนินการต่อ (ไม่บล็อกเงียบ ไม่ปล่อย
+   ผ่านเงียบ — เป็นแค่การเตือนสำหรับการ Export ในเครื่อง ไม่มีการอัปโหลด
+   อัตโนมัติไปตลาดใดๆ ทั้งสิ้น)
+3. **ดาวน์โหลด**: ไฟล์ ZIP ดาวน์โหลดผ่านเบราว์เซอร์ทันที และปรากฏใน
+   **"📦 Download Center"** (ปุ่มบนแถบหัวข้อของ Portfolio Manager แสดง
+   จำนวนแพ็กเกจที่พร้อมในเซสชันนี้) — แต่ละแพ็กเกจแสดงชื่อตลาด/ขนาดไฟล์/
+   จำนวนไฟล์/เวลาที่สร้าง พร้อมปุ่ม "ดาวน์โหลด ZIP" ซ้ำได้ตลอดเวลา และปุ่ม
+   "เปิดโฟลเดอร์" (เฉพาะเวอร์ชันเดสก์ท็อป — เปิดโฟลเดอร์จริงใน
+   `<Workspace>\Marketplace\<ชื่อตลาด>\`)
+
+### สถานะ Export ต่อชิ้นงาน 🆕
+
+ทุกชิ้นงานมีป้ายสถานะ Export หนึ่งใน 7 แบบ: ยังไม่เคย Export / พร้อม
+Export / Export แล้ว / ส่งแล้ว / อนุมัติแล้ว / ถูกปฏิเสธ / เก็บถาวร —
+คำนวณจากเหตุการณ์จริงล่าสุดเท่านั้น (ประวัติการส่งขายจริงจาก Production
+Center มาก่อนเสมอ ถ้ายังไม่เคยส่งขายจะดูจากคะแนน Commercial Readiness
+แทน) ไม่มีสถานะสมมติ — เป็นแค่การแสดงผล ไม่มีการอัปโหลดอัตโนมัติใดๆ
+
+### ประวัติการส่งขาย (จากหน้าต่างตัวอย่าง) 🆕
+
+กด "🕓 ประวัติการส่งขาย" จากหน้าต่างตัวอย่างเพื่อดูตาราง (อ่านอย่างเดียว)
+ของทุกการส่งขายจริงของชิ้นงานนั้น (ตลาด/วันที่/เวอร์ชัน/สถานะ) เรียงจาก
+ล่าสุดไปเก่าสุด — ดึงข้อมูลจาก Production Center ตัวเดิมทั้งหมด ไม่มีข้อมูล
+ซ้ำซ้อนหรือหน้าจอที่สองที่ทำหน้าที่เดียวกัน
 
 ### ลบชิ้นงานอย่างปลอดภัย
 
@@ -966,6 +1306,37 @@ Style DNA, ประเภทการจัดองค์ประกอบ �
 ได้ 6 แบบ (คอลเลกชัน, ชุดผลิต, ชุดส่งงาน, แคมเปญตามฤดูกาล, ชุดตามตลาด,
 ชุดทดลอง)
 
+**สายการผลิตเชิงพาณิชย์ (Commercial Pipeline) 🆕**: แท็บใหม่ในศูนย์การผลิตที่
+เปลี่ยนโฟกัสจาก "สร้างลาย" เป็น "ทำให้ลายที่มีอยู่ขายได้จริง" — ทุกชิ้นงาน
+(ที่ยังไม่ถูก archive) จะได้ **คะแนน Commercial Readiness 0-100%** จาก 14
+รายการตรวจสอบจริง (มีไฟล์ SVG, ผ่าน QA, มีคอลเลกชัน, มี SEO ครบ, มีไฟล์ EPS/
+JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด — คะแนนต่ำกว่าไม่มีทาง "ดูดี" ได้จากคะแนน
+หมวดอื่นเพราะรายการที่ขาดพื้นฐานจริง (ไม่มี SVG/ไม่ผ่าน QA/ไม่มีคอลเลกชัน)
+จะถูกล็อกเป็นสถานะ **BLOCKED** เสมอไม่ว่าคะแนนรวมจะเท่าไร
+
+- **Export Readiness Dashboard**: จัดกลุ่มชิ้นงานทั้งหมดเป็น 7 กลุ่มพร้อม
+  เหตุผล (พร้อมส่งออก, ต้องมีคอลเลกชัน, ต้องผ่าน QA, ต้องมีข้อมูล
+  metadata, ต้องทำ SEO, ต้องตรวจสอบตลาด, ถูกบล็อก)
+- **AI แนะนำ**: จัดอันดับ "ควรทำอะไรต่อ" ตามคุณค่าเชิงพาณิชย์สูงสุดก่อน (เช่น
+  ชิ้นงานที่พร้อมส่งออกอยู่แล้ว หรือคอลเลกชันที่ขาดแค่ Colorway เดียวจะครบ)
+  พร้อมปุ่มเลือกชิ้นงานนั้นทันที
+- **ตรวจสอบความสมบูรณ์คอลเลกชัน**: ตรวจว่าคอลเลกชันมีบทบาทครบ (hero/
+  secondary/blender/coordinate/stripe/texture ฯลฯ) จาก tag จริงของแต่ละ
+  ชิ้นงานเท่านั้น — ไม่เคยสมมติว่ามีบทบาทที่ไม่ได้ติด tag ไว้
+- **สร้างแพ็กเกจเชิงพาณิชย์ (Commercial Package Builder)**: เลือกชิ้นงาน +
+  ตลาด แล้วกดปุ่มเดียว "สร้างแพ็กเกจเชิงพาณิชย์" — ระบบตรวจสอบ (Review) →
+  สร้างแพ็กเกจ ZIP (Build) → ตรวจเกณฑ์ความปลอดภัย (Validate) → ดาวน์โหลด
+  ทันที (Export Ready) รวมเป็นคลิกเดียว ไฟล์ที่ต่ำกว่าคุณภาพจะได้ป้าย
+  "ต้องตรวจสอบ" (NEEDS_VERIFICATION) กำกับไว้เสมอ ไม่เคยติดป้ายพร้อมขายเท็จ
+- **เกณฑ์ความปลอดภัยขั้นต่ำ (Safety Threshold)**: ตั้งค่าคะแนนขั้นต่ำที่
+  อนุญาตให้ส่งออกได้ (ค่าเริ่มต้น 95%) — ต่ำกว่าเกณฑ์นี้ระบบจะ**บล็อกการ
+  ส่งออกเสมอ** จนกว่าจะกด "ข้ามเกณฑ์และสร้างแพ็กเกจต่อ" อย่างชัดเจนเท่านั้น
+  ไม่มีการอนุญาตให้ผ่านแบบเงียบๆ
+- **ตัวชี้วัดธุรกิจ (Business Metrics)**: แพ็กเกจที่สร้างวันนี้/สัปดาห์นี้,
+  แพ็กเกจ/ชั่วโมง, Commercial Readiness เฉลี่ยของทั้งคลัง, นาทีที่ประหยัดได้
+  (ประมาณการจากเวลาทำมือ 15 นาที/แพ็กเกจ), Automation % — ทุกตัวเลขคำนวณจาก
+  ประวัติการสร้างแพ็กเกจจริงที่บันทึกไว้ ไม่มีการสมมติค่า
+
 **นำเข้าผลงานเก่า**: นำเข้าโฟลเดอร์ผลงานที่เคยสร้างไว้ก่อนหน้า (เช่น
 `portfolio_phase_1/`, `reports/build_02x/`) เข้าคลังปัจจุบันได้โดย**ไม่แก้ไข
 หรือลบไฟล์ต้นฉบับเลย** ระบบจะแยกไฟล์รายงานสรุป (CSV/JSON manifest) ออกจาก
@@ -985,6 +1356,91 @@ Style DNA, ประเภทการจัดองค์ประกอบ �
 
 รายละเอียดทางเทคนิคทั้งหมดอยู่ใน `docs/PRODUCTION_PORTFOLIO.md` และเอกสาร
 ที่เชื่อมโยงจากที่นั่น
+
+---
+
+## 🎨 Design Edit Mode + AI Design Coach + Version Control + Batch Refinement + Pattern Safety — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ ประวัติเวอร์ชัน ปรับหลายชิ้นงานพร้อมกัน และตรวจสอบความปลอดภัยของลาย 🆕
+
+เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
+ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
+layout, palette, จำนวนสี, ความหนาแน่น, negative space, overlap, rotation/
+scale jitter, pattern scale, mirror, radial symmetry, hierarchy hero/
+secondary/accent) ของลายที่สร้างจาก Factory หรือ "✨ ออกแบบให้ฉันวันนี้"
+ได้โดยตรง โดย**ไม่เขียนทับหรือลบชิ้นงานต้นฉบับเลย**
+
+- **Floating Design Inspector**: แผงด้านขวาอัปเดตคะแนนแบบเรียลไทม์ทุกครั้งที่
+  แก้พารามิเตอร์ (หน่วงเวลา 200ms) — Quality Score (Overall, Hierarchy,
+  Composition, Flow, Rhythm/Density, Negative Space, Cluster Quality,
+  Commercial Look, Repeat Quality), Real-Time Metrics (Hero Balance, Color
+  Harmony, Contrast, Overlap Quality, Seamless Integrity, SVG Health),
+  Detected Problems และ Visual Issues — ทุกตัวเลขคำนวณจากเอนจินเดิมที่แอปใช้
+  อยู่แล้ว (ไม่มีการคำนวณซ้ำซ้อนหรือสร้างระบบให้คะแนนใหม่)
+- **Undo/Redo**: ย้อน/ทำซ้ำการแก้ไขระหว่าง session ได้ก่อนกด Approve
+- **Approve — Save as New Version**: บันทึกผลลัพธ์เป็นชิ้นงานใหม่ที่เชื่อมโยง
+  กับต้นฉบับ (`parentAssetId`/`variationGroupId`) — ต้นฉบับยังอยู่ครบทุก byte
+  เสมอ ระบบตรวจจับชิ้นงานซ้ำจริงยังทำงานอยู่ (ถ้าผลลัพธ์เหมือนต้นฉบับทุก byte
+  จะไม่ให้บันทึกซ้ำ) แต่การแก้ไขจริงที่ใช้ seed เดิม (กรณีปกติของการปรับแต่ง)
+  จะไม่ถูกบล็อกผิดพลาดว่าเป็นของซ้ำ
+- 🆕 **🤖 AI Design Coach**: แผงคำแนะนำใต้ Design Inspector — แปลงปัญหา/
+  Visual Issue ที่ตรวจพบจริง (Detected Problems, Visual Issues) และเช็ก
+  Commercial Readiness ที่ยังไม่ผ่าน (FAIL/WARNING) ให้เป็นคำแนะนำที่อ่านง่าย
+  พร้อมชี้ตรงไปที่ตัวควบคุมที่ควรปรับ (เช่น "Repeated Rotation → Increase
+  Rotation Jitter") **ไม่ใช่ AI/โมเดลใหม่** — เป็นการแปลผลข้อมูลจริงที่เอนจิน
+  เดิมตรวจพบแล้วเท่านั้น ไม่มีการทายผลหรือสร้างคะแนนใหม่
+- 🆕 **Commercial Revalidation**: ทันทีที่กด Approve ระบบจะรัน QA/Commercial
+  Readiness ของเวอร์ชันใหม่ทันที (ใช้ pipeline เดียวกับที่ Factory/Autopilot
+  ใช้ตอนสร้างลายทุกครั้ง) แสดงคะแนน Commercial Score และ Band (READY/
+  NEEDS_WORK/BLOCKED) ทันทีในหน้าจอแก้ไข — เวอร์ชันใหม่จึงไม่ค้างอยู่ในสถานะ
+  "ยังไม่เคยตรวจ QA" เหมือนก่อนหน้านี้
+- 🆕 **🕓 Version History**: ปุ่มใหม่ในหน้าต่างตัวอย่างชิ้นงาน เปิดรายการ
+  เวอร์ชันทั้งหมดของลายนี้ (ต้นฉบับ + ทุกเวอร์ชันที่ Approve ไว้ เรียงใหม่สุด
+  ก่อน) แต่ละแถวมีคะแนน Commercial Readiness ล่าสุด และปุ่ม:
+  - **🎨 แก้ไขต่อจากเวอร์ชันนี้** — เปิด Design Edit Mode โดยใช้เวอร์ชันนั้น
+    เป็นจุดเริ่มต้น (แก้ต่อจากเวอร์ชันเก่าได้โดยไม่ต้องย้อนกลับไปแก้ต้นฉบับ)
+  - **📄 ทำสำเนา** — สร้างชิ้นงานใหม่ที่เหมือนเวอร์ชันนั้นทุกประการ (เผื่อ
+    อยากแตกแขนงจากจุดนั้นโดยไม่กระทบเวอร์ชันเดิม)
+  - **✏️ เปลี่ยนชื่อ** และ **🗑 ลบเวอร์ชันนี้** (เลือกได้ว่าจะลบเฉพาะรายการ
+    หรือรายการ+ไฟล์ — ระบบเตือนถ้าเวอร์ชันนั้นมีเวอร์ชันอื่นแตกต่อจากมัน)
+  - เลือก 2 เวอร์ชันด้วยกล่องกาเครื่องหมายเพื่อเปิด Compare Center
+- 🆕 **🔍 Compare Center**: เปรียบเทียบ 2 เวอร์ชันแบบ **Side-by-side** (ตัวอย่าง
+  ลายเต็มทั้งคู่ ปรับ repeat ได้อิสระต่อกัน) หรือ **Slider Overlay** (ลากแถบ
+  เพื่อเผยอีกเวอร์ชันทับอีกอัน) พร้อมตาราง **Quality Score เปรียบเทียบ**
+  (ผลต่างของทุกมิติคะแนน) และรายการ **พารามิเตอร์ที่ต่างกัน** (บอกตรงๆ ว่า
+  ฟิลด์ไหนเปลี่ยนจากค่าอะไรเป็นค่าอะไร) — ทั้งสองใช้เอนจินประเมินผลเดิมกับ
+  Design Inspector เป๊ะๆ ไม่มีระบบให้คะแนนใหม่
+
+- 🆕 **🎨 Batch Refine**: เลือกหลายชิ้นงานพร้อมกันในหน้า Portfolio (ใช้กล่อง
+  กาเครื่องหมายที่มีอยู่แล้วสำหรับการดำเนินการหลายรายการ) แล้วกด "🎨 Batch
+  Refine" ในแถบเครื่องมือ — ตั้งการปรับ **ทีเดียว** ให้ใช้กับทุกชิ้นงานที่เลือก:
+  - **Palette** / **Hierarchy preset**: กำหนดค่าตายตัวให้ทุกชิ้นงานที่เลือก
+  - **Motif Density / Negative Space / Overlap / Rotation Jitter / Scale
+    Jitter**: ปรับแบบ "บวก/ลบ" จากค่าเดิมของแต่ละชิ้นงานเอง (ไม่ใช่ตั้งค่า
+    เดียวกันหมดทุกชิ้น) เช่น "+10% density" จะเพิ่มความหนาแน่นของทุกชิ้นงาน
+    จากฐานเดิมของมันเอง ลายที่หนาแน่นอยู่แล้วกับลายที่โปร่งอยู่แล้วจะได้ผลลัพธ์
+    ต่างกันตามจริง ไม่ใช่ถูกบังคับให้เท่ากันหมด
+  - แต่ละชิ้นงานที่เลือกจะได้ **เวอร์ชันใหม่ของตัวเอง** ผ่าน pipeline
+    เดียวกับ Design Edit Mode (บันทึกเวอร์ชัน + ตรวจ QA/Commercial
+    Readiness ทันที) — ต้นฉบับทุกชิ้นไม่ถูกแตะต้องเลย ระบบตรวจจับของซ้ำจริง
+    ยังทำงานอยู่ (ชิ้นงานที่ไม่มีการเปลี่ยนแปลงจริงจะถูกข้าม ไม่ถูกบันทึกซ้ำ)
+    และแสดงสรุปผลลัพธ์ท้ายสุด (สำเร็จ/ข้าม/ผิดพลาด กี่ชิ้น)
+- 🆕 **🧵 Pattern Safety**: แผงใหม่ใน Design Inspector แสดง **Corner
+  Continuity** — คะแนนความเสี่ยง "รอยกากบาทว่าง" ที่จุดที่ 4 มุมของ tile
+  มาบรรจบกันตอนต่อลายซ้ำ (สัญญาณจริงที่วัดได้จริง ต่างจาก "Seamless
+  Integrity" ที่การันตีโดยตัวสร้างลายเสมอและไม่เปลี่ยนค่าเลยไม่ว่าจะแก้
+  อะไร — ช่องนี้จึงถูกเอาออกจากแผง Real-Time Metrics เพราะไม่ใช่สัญญาณที่
+  บอกอะไรได้จริง) ถ้าคะแนนต่ำจนเสี่ยงจริง ปุ่ม Approve จะต้องกดยืนยัน
+  "เข้าใจแล้ว บันทึกต่อ" ก่อนหนึ่งครั้ง (เหมือนกรณี "อาจซ้ำ" เดิม) ไม่บล็อก
+  แบบเงียบๆ และไม่ปล่อยผ่านแบบเงียบๆ
+- 🆕 **🔲 แสดงเส้นขอบ Tile**: ปุ่มใหม่ในแถบเครื่องมือของพรีวิว (ใช้ได้ทุกที่ที่
+  มี Preview Canvas ไม่ใช่แค่ Design Edit Mode) วาดเส้นประขอบ tile ทับตัวอย่าง
+  ลาย ช่วยดูตำแหน่งรอยต่อจริงเวลาต่อลายซ้ำ (เปิดพร้อมโหมด 2×2/3×3/4×4 ที่มี
+  อยู่แล้วจะเห็นชัดสุด) — Repeat Preview เดิม (1×1/2×2/3×3/4×4) ก็คือ Pattern
+  Safety ส่วนหนึ่งอยู่แล้วตั้งแต่ต้น ไม่ต้องสร้างใหม่
+
+ฟีเจอร์นี้เป็นครบ 5 ไมล์สโตนของภารกิจ "Design Refinement Studio Pro" ตามลำดับ
+ที่เจ้าของร้านกำหนด — เหลือเพียงเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/
+ปรับขนาดจุดต่อจุด) ที่เลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งเดิม และ Milestone 6
+(Offline / Regression / Production Verification / รายงานสรุป) ที่จะตามมา
 
 ---
 
@@ -1024,6 +1480,34 @@ Backup ที่สร้างอัตโนมัติก่อนกู้�
 
 รายละเอียดทางเทคนิคทั้งหมด (รูปแบบไฟล์, สถาปัตยกรรม, กลยุทธ์ความเข้ากันได้
 ระหว่างเวอร์ชัน, ความปลอดภัย) อยู่ใน `docs/BACKUP_SYSTEM.md`
+
+**บนเวอร์ชันเดสก์ท็อป (Windows)**: หลังกดดาวน์โหลดไฟล์สำรองแล้ว ระบบจะบันทึก
+สำเนาที่สองไว้ที่ `<Workspace>\Backups\` ให้อัตโนมัติด้วย (ไฟล์ดาวน์โหลดปกติ
+ยังเป็นทางหลักเสมอ — สำเนานี้เป็นส่วนเสริม) ดู `WORKSPACE_LAYOUT.md`
+
+---
+
+## 🖥 เวอร์ชันเดสก์ท็อป (Windows) และ Production Workspace 🆕
+
+นอกจากเวอร์ชันเว็บ (GitHub Pages) แอปนี้มีเวอร์ชันเดสก์ท็อป Windows
+(ตัวติดตั้งและแบบพกพา/portable ไม่ต้องติดตั้ง) ที่ทำงานออฟไลน์ทั้งหมดและ
+เพิ่มความสามารถเดียวที่เว็บทำไม่ได้: **Production Workspace** —
+โฟลเดอร์บนดิสก์จริงที่เก็บ Portfolio, แพ็กเกจเชิงพาณิชย์, ไฟล์ที่ส่งไปแต่ละ
+มาร์เก็ตเพลส, ไฟล์ export, ไฟล์สำรอง, และไฟล์ติดตั้งรุ่นต่างๆ ทั้งหมด
+
+**เปิดแอปเดสก์ท็อปครั้งแรก**: หน้าจอจะถาม "Workspace ของคุณอยู่ที่ไหน" —
+เลือกสร้างใหม่ (ค่าเริ่มต้นแนะนำในโฟลเดอร์เอกสารของคุณ), ย้ายจากที่เดิม,
+หรือเปิด Workspace ที่มีอยู่แล้ว ระบบจะสร้างโฟลเดอร์ย่อยทั้งหมดให้อัตโนมัติ
+และตรวจสอบพื้นที่ว่าง/สิทธิ์เขียนไฟล์ก่อนเสมอ — ไม่มีการเขียนทับข้อมูลเดิม
+ในทุกกรณี (ติดตั้งซ้ำ/อัปเกรด/ย้าย Workspace)
+
+**ระบบสำรองข้อมูลและไฟล์ที่ export/สร้างแพ็กเกจเชิงพาณิชย์** จะบันทึกสำเนา
+ลง Workspace ให้อัตโนมัติเมื่อรันบนเดสก์ท็อป (ดูหัวข้อ Backup Manager และ
+Commercial Pipeline ด้านบน) — ไฟล์ดาวน์โหลดผ่านเบราว์เซอร์ปกติยังใช้งานได้
+เหมือนเดิมเสมอ ส่วนนี้เป็นแค่ปลายทางเพิ่มเติม
+
+ขั้นตอนติดตั้ง/รันแบบพกพา และผังโฟลเดอร์ Workspace ทั้งหมดโดยละเอียด อยู่ใน
+`INSTALLATION.md` และ `WORKSPACE_LAYOUT.md` ที่รากของ repository
 
 ---
 
@@ -1600,6 +2084,1054 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.13 — 7 ส.ค. 2026 — AI-SBOS, Milestone 5 (ปิดภารกิจ): การตรวจสอบขั้นสุดท้าย
+
+ไมล์สโตนสุดท้ายของภารกิจ AI-SBOS — **ไม่มีฟีเจอร์ใหม่ ไม่มีการเปลี่ยนตรรกะ
+ธุรกิจ** เป็นการตรวจสอบปิดภารกิจตามสเปก Part 13/14/15: ทดสอบอุปกรณ์หลาย
+ขนาดหน้าจอ, ทดสอบออฟไลน์เต็มรูปแบบ, รัน regression ซ้ำสองครั้ง และจัดทำ
+เอกสารสรุป
+
+- ✅ **ทดสอบหลายอุปกรณ์ (Part 13)**: Desktop (1920×1080), Laptop
+  (1366×768), iPad แนวตั้ง (834×1112), iPad แนวนอน (1112×834) — ทุกอุปกรณ์
+  ไม่มี scroll แนวนอน, ป้ายเวอร์ชันแสดงผลถูกต้อง, แท็บ Portfolio และหน้า
+  Today's Production render ได้ปกติ ไม่มี console error เลยแม้แต่จุดเดียว
+- ✅ **ทดสอบออฟไลน์เต็มรูปแบบ (Part 11)**: โหลดแอปจริงจาก `/studio` build
+  ให้ Service Worker ติดตั้งก่อน แล้วตัดเครือข่ายทั้งหมด (`context.setOffline
+  (true)`) — ยืนยันว่าแบรนด์ AI-SBOS, หน้าต่าง What's New, Version Center
+  (แสดงสถานะ "🔴 Offline" ถูกต้อง), ขั้นตอน Today's Production ครบวงจร
+  (Generate → Gallery → Marketplace Export → Download Center) และแท็บ
+  Portfolio Analytics ทำงานได้ครบทุกจุดโดยไม่ใช้เครือข่ายเลย
+- ✅ **Regression เต็มชุด ซ้ำ 2 ครั้งติดต่อกัน (Part 13)**: ผ่านทั้งหมดทั้ง
+  สองรอบ ยืนยันว่าไม่มีความไม่เสถียร (flaky) หลงเหลือจากไมล์สโตนก่อนหน้า
+- 🆕 **เอกสารใหม่ `PRODUCTION_WORKSPACE_GUIDE.md`** (ที่ root ของ repo):
+  อธิบายขั้นตอนการทำงานประจำวันของ Today's Production Workspace, ตาราง
+  จำนวนคลิกที่วัดจริง (9 คลิกสำหรับ Generate → Preview → Marketplace →
+  Export → Download), และตารางฟังก์ชันเดิมที่ถูกใช้ซ้ำ (ไม่มีโค้ดซ้ำซ้อน)
+- สรุปเกณฑ์ผ่านภารกิจ (Part 15) ทั้งหมดยืนยันแล้ว: แบรนด์ AI-SBOS ปรากฏทุก
+  หน้า, Version Center ทำงาน, What's New ทำงาน, Today's Production Workspace
+  ทำงาน, Preview Gallery ทำงาน, Marketplace Export ทำงาน, Download Center
+  ทำงาน, Regression ผ่านสองรอบ — ดูรายละเอียดทั้งหมดใน
+  `AI_SBOS_MISSION_REPORT.md`
+
+### v2.12 — 7 ส.ค. 2026 — AI-SBOS, Milestone 4: Portfolio Role Repositioning
+
+ไมล์สโตนที่ 4 ของภารกิจ AI-SBOS — **ไม่มีการเปลี่ยนตรรกะธุรกิจ ไม่มีการ
+ปรับสถาปัตยกรรมใหม่** เป็นการจัดวาง/เปลี่ยนชื่อ UI ของ Portfolio Manager ที่
+มีอยู่แล้วให้ตรงกับบทบาทใหม่ตามสเปก (Library, History, Search, Collections,
+Analytics, Submission History) หลังจาก Milestone 3 ทำให้ Today's Production
+มีทางลัด Export/Download ครบวงจรของตัวเองแล้ว
+
+- 🆕 **เปลี่ยนชื่อแท็บให้สื่อความหมายชัดเจน**: "ชิ้นงาน" → "📁 Library &
+  Search", "คอลเลกชัน" → "📚 Collections", "ศูนย์การผลิต" → "🕓 History &
+  Submissions" — เนื้อหาข้างในแต่ละแท็บเหมือนเดิมทุกประการ เปลี่ยนแค่ป้าย
+- 🆕 **แท็บ "📊 Analytics" ใหม่** (`components/portfolio/
+  PortfolioAnalyticsView.tsx`): ดึง `DashboardSummary` เดิมจาก
+  `computeDashboardSummary()` (ตัวเดียวกับที่ sidebar ของ Library ใช้อยู่
+  แล้ว) มาแสดงเป็นหน้าเฉพาะที่ชัดเจนขึ้น พร้อมรายการชิ้นงานที่นำเข้า/สร้าง
+  ล่าสุด (`recentlyImported`) กดเปิดดูได้ทันที
+- 🆕 **หัวข้อ Portfolio Manager แจ้งบทบาทใหม่อย่างตรงไปตรงมา**: ข้อความใต้
+  หัวข้อบอกชัดเจนว่าไม่จำเป็นสำหรับ Export ประจำวันอีกต่อไป พร้อมชี้ไปที่
+  "🏭 Today's Production" สำหรับงานประจำวัน
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 4 เคส (Analytics แสดงค่าจริงจาก DashboardSummary
+  ไม่ใช่ตัวเลขสมมติ, สถานะว่างที่ซื่อสัตย์เมื่อยังไม่มีข้อมูล, กดชิ้นงานล่าสุด
+  แล้วส่ง assetId ถูกต้อง) พร้อมแก้ไขเทสต์เดิม 7 จุดให้ตรงกับป้ายแท็บใหม่ รวม
+  regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: ทุกแท็บที่เปลี่ยน
+  ชื่อแสดงผลถูกต้อง, Analytics แสดงจำนวนชิ้นงานจริงตรงกับที่เพิ่งสร้าง (12
+  ชิ้น), History & Submissions และ Library & Search ยังทำงานได้ตามปกติ โดย
+  ไม่มี console error เลย
+
+### v2.11 — 7 ส.ค. 2026 — AI-SBOS, Milestone 3: Today's Production Workspace
+
+ไมล์สโตนที่ 3 ของภารกิจ AI-SBOS — **ไม่มีการเพิ่ม business logic ใหม่**
+เป็นการรวมหน้าจอที่มีอยู่แล้ว (Factory, Commercial Pipeline, Portfolio
+Export/Download) เข้าเป็นขั้นตอนเดียวใน Today's Production ตามที่ระบุไว้ใน
+สเปกอย่างเคร่งครัด — ทุกจุดเรียกฟังก์ชันเดิมที่มีอยู่แล้วเท่านั้น
+
+- 🆕 **Preview Gallery** (`components/productionExperience/
+  ProductionPreviewGallery.tsx`): เห็นทุกลายที่เพิ่งสร้างทันทีหลัง
+  "✨ Generate Now" (ระบบพาไปหน้านี้ให้อัตโนมัติ) พร้อม Commercial Score/
+  Quality Score/Marketplace Ready/SEO Ready/สถานะงาน — ทุกตัวเลขมาจาก
+  `readinessEngine.ts`/`qualitySnapshotStore.ts` เดิมที่ Commercial
+  Pipeline ใช้อยู่แล้ว ไม่มีการคำนวณคะแนนใหม่
+- 🆕 **Marketplace Export จาก Gallery**: เลือกหลายชิ้นงาน + หลาย Marketplace
+  พร้อมกัน — ดึงตรรกะจาก `commercial/bulkMarketplaceExport.ts` ที่แยกออกมา
+  จาก Portfolio Manager (ของเดิมชิ้นเดียวที่มีตรรกะนี้) ให้ทั้งสองหน้าจอเรียก
+  ใช้ฟังก์ชันเดียวกันจริง ไม่มีโค้ด export ซ้ำสองชุด
+- 🆕 **Download Center เปิดอัตโนมัติหลัง Export**: ใช้คอมโพเนนต์ Download
+  Center ตัวเดิมจาก Portfolio Manager ตรงๆ (ไม่สร้างใหม่) — ดาวน์โหลด ZIP
+  ทีละไฟล์ หรือเปิดโฟลเดอร์บนเดสก์ท็อป (ฟีเจอร์เดิมที่มีอยู่แล้ว)
+- 🆕 **Preview/Edit เต็มรูปแบบจาก Gallery**: ปุ่ม Preview เปิด Asset Preview
+  Dialog เดิม (คะแนน/สถานะ/ปุ่มปฏิบัติการครบ), ปุ่ม Edit เปิด Design Edit
+  Mode ตรง (Design Refinement Studio Pro เดิม) — ไม่มีหน้าต่างซ้ำซ้อน
+- **วัดจำนวนคลิกจริง (Part 8)**: ครบวงจร Generate → Preview → Marketplace →
+  Export → Download ใช้เพียง **9 คลิก** วัดจริงด้วย Playwright ในเบราว์เซอร์
+  จริง (ไม่ใช่ตัวเลขประมาณ) — ดูรายละเอียดในหัวข้อ "ปรัชญา Today's
+  Production Workspace" ด้านบน
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 9 เคส (Gallery แสดงคะแนน/ป้ายสถานะจากข้อมูลจริง
+  ถูกต้อง, ปุ่ม Preview/Edit/Export ส่ง assetId ถูกต้อง, bulk export สร้าง
+  ZIP จริงต่อ marketplace และบันทึกประวัติถูกต้อง, ตรวจจับการส่งซ้ำถูกต้อง)
+  พร้อมแก้ไขเทสต์เดิม 1 จุดให้สอดคล้องกับพฤติกรรมใหม่ (Generate Now พาไปหน้า
+  Gallery แทนที่จะค้างอยู่หน้า Progress) รวม regression เต็มชุดผ่านทั้งหมด
+  และตรวจสอบจริงในเบราว์เซอร์ตลอดทั้งวงจร
+  Generate → Gallery (อัตโนมัติ) → เลือกหลายชิ้น → Export → Marketplace →
+  Download Center (เปิดอัตโนมัติ) รวมถึง Preview/Edit จาก Gallery แยกต่างหาก
+  โดยไม่มี console error เลยตลอดการทดสอบ
+
+### v2.10 — 7 ส.ค. 2026 — AI-SBOS, Milestone 2: What's New
+
+ไมล์สโตนที่ 2 ของภารกิจ AI-SBOS — ไม่มีการเปลี่ยนตรรกะธุรกิจใดๆ เช่นเดียวกับ
+Milestone 1
+
+- 🆕 **✨ What's New dialog** (`components/appIdentity/WhatsNewDialog.tsx`):
+  แสดงอัตโนมัติครั้งแรกที่เปิดแอปหลังมีเวอร์ชันใหม่ อ่านข้อมูลจาก
+  `CHANGELOG[0]` ใน `appMeta.ts` — แหล่งข้อมูลเดียวกับที่ Version Center
+  ใช้แสดง "Latest Changes" ไม่มีชุดข้อมูลซ้ำซ้อน 2 ชุด
+- 🆕 **สถานะการปิด/ไม่แสดงอีก** (`components/appIdentity/whatsNewStore.ts`):
+  เก็บ "เวอร์ชันล่าสุดที่เห็นแล้ว" และ "ไม่ต้องแสดงอีก" ใน localStorage ของ
+  เบราว์เซอร์เครื่องนี้ (รูปแบบเดียวกับ key อื่นที่แอปใช้อยู่แล้ว เช่น
+  gallery storage ใน `App.tsx`) — ปิด dialog เฉยๆ จะไม่โชว์ซ้ำสำหรับเวอร์ชัน
+  เดิม แต่จะโชว์อีกครั้งถ้ามีเวอร์ชันใหม่จริง เว้นแต่ติ๊ก "ไม่ต้องแสดงอีก"
+  ซึ่งจะปิดถาวรทุกเวอร์ชันในเบราว์เซอร์นี้
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 9 เคส (โชว์ครั้งแรกจริง, ไม่โชว์ซ้ำเวอร์ชันเดิม
+  หลังปิด, โชว์ใหม่เมื่อมีเวอร์ชันใหม่จริงแม้เคยปิดเวอร์ชันเก่าไปแล้ว, "ไม่ต้อง
+  แสดงอีก" บล็อกทุกเวอร์ชันจริง ไม่ใช่แค่เวอร์ชันปัจจุบัน) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์ด้วย browser profile ใหม่ 2
+  ชุด: ชุดแรกยืนยันโชว์ครั้งแรก→ปิด→reload ไม่โชว์ซ้ำ, ชุดที่สองยืนยันติ๊ก
+  "ไม่ต้องแสดงอีก"→reload ยังคงไม่โชว์ โดยไม่มี console error เลย
+
+### v2.09 — 7 ส.ค. 2026 — AI-SBOS, Milestone 1: Product Identity + Consistent Header + Version Center
+
+เริ่มภารกิจใหม่ "AI-SBOS — Production Workspace & Product Identity" ต่อจาก
+Design Refinement Studio Pro (v2.04-v2.08, เสร็จสมบูรณ์ครบ 6 ไมล์สโตน) —
+**ไม่มีการเปลี่ยนตรรกะธุรกิจใดๆ ทั้งสิ้น** เป็นการเปลี่ยนตัวตนแอป (branding)
+และเพิ่มการแสดงข้อมูล version/build เท่านั้น ทุกจุดยังใช้ engine เดิมทั้งหมด
+
+- 🆕 **เปลี่ยนชื่อผลิตภัณฑ์เป็น "AI-SBOS"**: หัวแอป (`<h1>`), page title,
+  PWA manifest name/short_name เปลี่ยนจาก "Vector Stock Pattern Studio" เป็น
+  "AI-SBOS" พร้อม subtitle "AI Stock Business Operating System" —
+  Vector Stock Pattern Studio กลายเป็นชื่อโมดูล (แสดงเป็นข้อความรองใต้หัวแอป)
+  เปลือก Electron desktop (`electron/main.ts`, `electron-builder.yml`) มีชื่อ
+  AI-SBOS อยู่แล้วตั้งแต่ก่อนไมล์สโตนนี้ — ไม่ต้องแก้เพิ่ม
+- 🆕 **แถบข้อมูลแอปที่แสดงตลอดทุกหน้า** (`src/App.tsx`'s header, ไม่ต้องสร้าง
+  ระบบ header ใหม่ — ใช้ `<header>` เดิมที่ render อยู่แล้วทุก view เนื่องจาก
+  ไม่มี router แยก แค่ state `view` เดียว): ป้าย Production/Development
+  (จาก `import.meta.env.PROD` จริง), ชื่อโปรเจกต์ปัจจุบัน, ป้ายเวอร์ชันที่กดได้
+- 🆕 **Version Center ("About AI-SBOS")** (`components/appIdentity/
+  VersionCenterDialog.tsx`): Product Name/Version/Build/Release
+  Date/Commit (hash จริงฝังตอน build ผ่าน `git rev-parse` ใน
+  `vite.config.ts`)/Environment/Production Status/**Offline Status**
+  (สถานะเน็ตจริงจาก `navigator.onLine` + `online`/`offline` event, อัปเดต
+  สด ไม่ใช่ค่าคงที่)/Commercial Certification/Regression Result/Latest
+  Changes — ทุกค่าที่ไม่ใช่สัญญาณสดมาจากค่าคงที่ที่ดูแลเองใน `src/appMeta.ts`
+  จุดเดียว (ตามธรรมเนียมเดียวกับ `electron/main.ts`'s `APP_VERSION` เดิม)
+  ไม่มีการคำนวณหรือสมมติค่าใดๆ
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 10 เคส (`appMeta.ts` มีค่าจริงไม่ใช่ placeholder,
+  commit hash จริงไม่ว่างเปล่า, ENVIRONMENT ตรงกับ Vite build mode จริง,
+  Version Center แสดงข้อมูลจาก appMeta ถูกต้องครบทุกช่อง) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: แถบข้อมูลแอปและ AI-SBOS
+  branding แสดงอยู่ครบทุกหน้า (Mission Control, Portfolio, Today's
+  Production) โดยไม่ต้องนำทางเพิ่ม, Version Center เปิด/ปิดได้ครบทุกช่อง
+  ข้อมูล โดยไม่มี console error เลย
+
+### v2.08 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 5: Pattern Safety
+
+ไมล์สโตนที่ 5 (สุดท้ายก่อน Milestone 6 regression/รายงานสรุป) ของภารกิจ
+"Design Refinement Studio Pro" — ระหว่างการค้นคว้าพบว่าช่อง "Seamless
+Integrity" ที่แผง Design Inspector แสดงมาตั้งแต่ Milestone 2 เป็นค่าคงที่
+100 เสมอ (`engine/qualityScore.ts`: การันตีโดยเทคนิค wrap-clone ของตัวสร้าง
+ลายเอง ไม่ใช่ค่าที่วัดจากลายจริงหรือเปลี่ยนแปลงได้) — จึงแก้ให้ตรงไปตรงมา
+โดยเอาช่องนี้ออกจาก Real-Time Metrics และแทนที่ด้วยสัญญาณจริงที่วัดได้จริง
+
+- 🆕 **Pattern Safety** (`design/patternSafety.ts`): `hasSeamBreakRisk()`
+  อ่านจาก `cornerDeadZone` ที่ `detectProblems` ตรวจจับอยู่แล้วตั้งแต่
+  Milestone 1/2 (สัญญาณจริงจาก `cornerContinuity` — ความหนาแน่นที่ 4 มุม
+  tile เทียบกับค่าเฉลี่ยทั้ง tile) ไม่มีการสร้าง threshold ใหม่หรือคำนวณ
+  ซ้ำซ้อน ใช้ฟังก์ชันเดียวกันทั้งใน Design Inspector และ Approve gate
+- 🆕 **Design Inspector**: เพิ่มแผง "🧵 Pattern Safety" แสดง Corner
+  Continuity พร้อมข้อความอธิบายชัดเจนว่า seamless wrap รับประกันเสมอ
+  (ไม่ใช่ความเสี่ยง) แต่มุม tile ยังเสี่ยงเป็นรอยกากบาทว่างได้จริง
+- 🆕 **Approve gate**: ถ้า `hasSeamBreakRisk()` เป็นจริง ปุ่ม Approve จะถูก
+  ปิดใช้งานจนกว่าจะกดยืนยัน "เข้าใจแล้ว บันทึกต่อ" หนึ่งครั้ง (รูปแบบเดียวกับ
+  การยืนยัน "อาจซ้ำ" ที่มีอยู่แล้วจาก Milestone 1) — การแก้พารามิเตอร์ใหม่
+  ต้องยืนยันใหม่เสมอ
+- 🆕 **🔲 แสดงเส้นขอบ Tile**: ปุ่มใหม่ใน `PreviewCanvas` (ใช้ร่วมกันทุกหน้าที่
+  มีพรีวิว ไม่ผูกกับ Design Edit Mode) วาดเส้นประที่ตำแหน่งขอบ tile จริงตาม
+  พิกัดที่คำนวณได้ (`i × tileSize, j × tileSize`) ต่อกันเป็น `<g>` เดียวกับ
+  markup เดิมจาก `buildPreviewMarkup` ไม่ต้องเพิ่ม overlay element ใหม่
+- ✅ **Repeat Preview**: ยืนยันว่ามีอยู่แล้วตั้งแต่ต้น (ปุ่ม 1×1/2×2/3×3/4×4
+  ใน `PreviewCanvas`) — ไม่ต้องสร้างใหม่ ถือเป็นส่วนหนึ่งของ Pattern Safety
+  ที่ทำสำเร็จไปแล้วตั้งแต่ก่อน Milestone นี้
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (`hasSeamBreakRisk` ตรงกับข้อมูลจริงจาก
+  เอนจิน ไม่ false positive/negative, เส้นขอบ tile วาดตำแหน่งถูกต้องตาม
+  จำนวนและพิกัดจริงเมื่อ repeat เปลี่ยน, ปิดปุ่มแล้ว overlay หายจริง) รวม
+  regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: เปิด Design
+  Edit Mode เห็นแผง Pattern Safety จริง, สลับ 3×3 ได้ viewBox ถูกต้อง
+  (3600×3600 จาก tileSize 1200), เปิดเส้นขอบ tile ได้ 9 เส้นตรงตามจำนวน
+  tile จริงที่ 3×3 และหายครบเมื่อปิด โดยไม่มี console error เลย
+  (หมายเหตุตรงไปตรงมา: ค้นหาพารามิเตอร์จริงที่ทำให้ cornerDeadZone ติด
+  จริงในหลายร้อยชุดค่าไม่พบสักครั้ง — คะแนนต่ำสุดที่เจอคือ ~51 ยังสูงกว่า
+  threshold 40 เสมอ แสดงว่าเงื่อนไขนี้เกิดยากในทางปฏิบัติจริงตามการออกแบบ
+  เอนจิน จึงยืนยัน logic การยืนยัน Approve gate ด้วย fixture ที่สร้างขึ้น
+  จากโครงสร้างข้อมูลจริงแทนการค้นหาแบบสุ่มที่ไม่น่าจะเจอ)
+
+### v2.07 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 4: Batch Refinement
+
+ไมล์สโตนที่ 4 ของภารกิจ "Design Refinement Studio Pro" — ปรับหลายชิ้นงาน
+พร้อมกันโดยไม่มีเอนจิน/สตอเรจใหม่: ใช้ pipeline เดียวกับ Design Edit Mode
+(M1-M3) วนซ้ำทีละชิ้นงาน
+
+- 🆕 **Batch Refinement** (`design/batchRefinement.ts`): `applyBatchAdjustments`
+  ปรับพารามิเตอร์แบบ **สัมพัทธ์** (delta บวก/ลบจากค่าเดิมของแต่ละชิ้นงานเอง
+  แล้ว clamp 0..1) สำหรับ density/negativeSpace/overlap/rotationJitter/
+  scaleJitter หรือ **ค่าตายตัว** (absolute override) สำหรับ palette/
+  hierarchy preset — `runBatchRefinement` วนทีละชิ้นงานตามลำดับ (ต้อง
+  sequential ตามกติกาเดิมของ `importFileGroup`'s ตรวจของซ้ำ) เรียก
+  `loadDesignParamsForAsset` → `evaluateDesign` → `saveDesignVersion` →
+  `revalidateDesignVersion` — path เดียวกับ Approve เป๊ะๆ ทุกชิ้นงานได้
+  เวอร์ชันใหม่ของตัวเอง ต้นฉบับไม่ถูกแตะต้องเลย
+- 🆕 **ปุ่ม "🎨 Batch Refine"** ในแถบเครื่องมือการเลือกหลายรายการที่มีอยู่แล้ว
+  (ข้าง "เพิ่มเข้าคอลเลกชัน"/"📤 Export") เปิดฟอร์มปรับค่าและแสดงความคืบหน้า
+  "กำลังประมวลผล X/N" พร้อมสรุปผลท้ายสุด (สำเร็จ/ข้าม (ซ้ำ)/ข้าม (ไม่มี
+  พารามิเตอร์)/ผิดพลาด)
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (delta สัมพัทธ์ถูก clamp ถูกต้อง, ฟิลด์ที่
+  ไม่ปรับไม่เปลี่ยน, ต้นฉบับไม่เปลี่ยนหลัง batch, ชิ้นงานที่ไม่มีพารามิเตอร์จริง
+  ถูกข้ามโดยไม่กระทบชิ้นอื่นในชุดเดียวกัน, progress callback ถูกต้อง,
+  การปรับที่ไม่เปลี่ยนอะไรจริงยังถูกระบบตรวจของซ้ำจริงจับได้) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: เลือก 3 ชิ้นงานจริง → ตั้ง
+  density +50% → กด Apply → ได้ 3 เวอร์ชันใหม่จริง (จำนวนชิ้นงานในคลังเพิ่ม
+  จาก 10 เป็น 13 ตรงตามจริง) โดยไม่มี console error เลย
+
+**ยังไม่ทำในไมล์สโตนนี้**: Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ
+interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลัง
+
+### v2.06 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 3: Version Control + Compare Center
+
+ไมล์สโตนที่ 3 ของภารกิจ "Design Refinement Studio Pro" — ยังคงกติกาเดิม
+เต็มรูปแบบ: **ไม่มีสตอเรจใหม่ ไม่มีเอนจินคำนวณคะแนนใหม่** ทุกจุดอ่านจาก
+`PortfolioAsset.parentAssetId`/`variationGroupId` ที่มีอยู่แล้วตั้งแต่ M1
+(`listDesignVersions`) และเอนจินประเมินผลเดิมจาก M2
+
+- 🆕 **🕓 Version History** (`VersionHistoryView.tsx`): เปิดจากหน้าต่าง
+  ตัวอย่างชิ้นงาน — แสดงทุกเวอร์ชันในสาย lineage เดียวกัน พร้อม:
+  - **แก้ไขต่อจากเวอร์ชันนี้** — เปิด Design Edit Mode ด้วยเวอร์ชันเก่าเป็น
+    จุดเริ่มต้น (ของเดิมที่มีอยู่แล้วตั้งแต่ M1 — ทุกเวอร์ชันเป็น
+    `PortfolioAsset` จริงที่แก้ไขต่อได้อยู่แล้ว แค่เพิ่มทางเข้าใหม่)
+  - **ทำสำเนา** (`duplicateDesignVersion` ใน `design/designVersioning.ts`) —
+    ใช้ path เดียวกับ Approve (`saveDesignVersion` + `forceImportAsNew`)
+  - **เปลี่ยนชื่อ** — เขียนผ่าน `putPortfolioAsset` เดิม
+  - **ลบ** — ใช้ `deletePortfolioAssetRecordOnly`/`AndFiles` เดิมที่มีอยู่แล้ว
+    ในหน้าแก้ไขรายละเอียด พร้อมคำเตือนถ้าเวอร์ชันนั้นมีเวอร์ชันลูก
+- 🆕 **🔍 Compare Center** (`CompareCenterView.tsx`): เลือก 2 เวอร์ชันจาก
+  Version History มาเปรียบเทียบ — Side-by-side ใช้ `PreviewCanvas` เดิม
+  (เพิ่ม prop `instanceId` ให้ mount 2 อันพร้อมกันได้โดยไม่ชน SVG id กัน),
+  Slider Overlay ใช้ CSS `clip-path` ธรรมดาบนมาร์กอัปจาก `buildPreviewMarkup`
+  เดิม, ตาราง Quality Score ใช้ `evaluateDesign` เดิมจาก M2 ทั้งสองฝั่ง,
+  และรายการพารามิเตอร์ที่ต่างกันใช้ `workbench/jsonDiff.ts`'s `diffJson`
+  ที่ Design Workbench ใช้อยู่แล้ว (generic ไม่ผูกกับโมเดลไหนเป็นการเฉพาะ)
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 2 เคส (`duplicateDesignVersion` สร้างสำเนาจริง
+  โดยต้นฉบับไม่เปลี่ยน, คืนค่า null อย่างตรงไปตรงมาเมื่อไม่มีพารามิเตอร์จริง
+  ให้สำเนา) รวม regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์:
+  สร้างเวอร์ชันที่ 2 จริง → เปิด Version History เห็นครบ 2 เวอร์ชัน → เลือก
+  เปรียบเทียบ → เห็นตาราง Quality Score จริงพร้อมผลต่างที่ถูกต้อง (เช่น
+  "flow -11", "spacing +6") และพารามิเตอร์ที่ต่างจริงแค่จุดเดียว (`density`)
+  ตรงกับสิ่งที่แก้จริง → Slider Overlay ใช้งานได้ → เปลี่ยนชื่อสำเร็จ →
+  ทำสำเนาสำเร็จ (จำนวนเวอร์ชันเพิ่มขึ้นจริง) โดยไม่มี console error เลย
+
+**ยังไม่ทำในไมล์สโตนนี้**: Batch Refinement (M4), Pattern Safety (M5) —
+เครื่องมือแก้ไข SVG แบบ interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลัง
+
+### v2.05 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 2: AI Design Coach + Commercial Revalidation
+
+ไมล์สโตนที่ 2 ของภารกิจ "Design Refinement Studio Pro" — เพิ่มคำแนะนำ
+อัตโนมัติและการตรวจ QA/Commercial Readiness ซ้ำให้ Design Edit Mode (M1)
+โดยยึดกติกาเดิม: **ไม่มี AI engine ใหม่ ไม่มีตรรกะคำนวณคะแนนซ้ำซ้อน** ทุกจุด
+อ้างอิงข้อมูลจริงจากเอนจินเดิมที่แอปมีอยู่แล้วเท่านั้น
+
+- 🆕 **🤖 AI Design Coach** (`src/design/designCoach.ts`): ตารางคำแนะนำแบบ
+  กำหนดตายตัว (deterministic) ที่แปล Detected Problems/Visual Issues จริง
+  (จาก `critic/problems.ts`/`critic/visualAnalysis.ts` ที่ M1 ใช้อยู่แล้ว)
+  และเช็ก Commercial Readiness ที่ยังไม่ผ่าน (FAIL/WARNING) ให้เป็นข้อความ
+  แนะนำที่ชี้ตรงไปที่ตัวควบคุมพารามิเตอร์จริงที่ควรปรับ — เรียงตามความรุนแรง
+  สูงสุดก่อน ไม่มีการทายผล/สร้างคะแนนใหม่ใดๆ ทั้งสิ้น
+- 🆕 **Commercial Revalidation** (`src/design/designRevalidation.ts`):
+  ทันทีที่ Approve เวอร์ชันใหม่สำเร็จ ระบบจะรัน pipeline การประเมินคุณภาพ
+  เดียวกับที่ Factory/Autopilot ใช้ (`evaluateGeneratedPattern` →
+  `createQualitySnapshot` → บันทึก QualitySnapshot → คำนวณ
+  `computeCommercialReadiness` ใหม่) ทันที — เวอร์ชันใหม่จึงมีคะแนน
+  Commercial Score/Band (READY/NEEDS_WORK/BLOCKED) แสดงในหน้าจอทันที
+  แทนที่จะค้างเป็น "ยังไม่เคยตรวจ QA" จนกว่าจะมีคนกดตรวจซ้ำเอง
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (advice ผูกกับปัญหา/issue/readiness check
+  จริงเท่านั้น, เรียงความรุนแรงถูกต้อง, snapshot/asset/readiness หลัง
+  revalidate ถูกต้องและไม่รวมตัวเองเป็น "ของซ้ำ") รวม regression เต็มชุดผ่าน
+  ทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: แก้พารามิเตอร์ให้เกิด Visual Issue
+  จริง ("Repeated Rotation") → Coach แนะนำ "Increase Rotation Jitter" ตรงตัว
+  → Approve → เห็นคะแนน "Commercial Revalidation: score 71 — BLOCKED"
+  ทันทีโดยไม่มี error
+
+**ยังไม่ทำในไมล์สโตนนี้**: ประวัติเวอร์ชันแบบเต็ม + Compare Center (M3),
+Batch Refinement (M4), Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ
+interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งเดิม
+
+### v2.04 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 1: Design Edit Mode
+
+ก้าวแรกของภารกิจ "Design Refinement Studio Pro" — เพิ่มความสามารถแก้ไขลาย
+ที่สร้างไปแล้วได้โดยตรงในแอป (ไม่ต้องใช้ Illustrator/Affinity) โดยยึดหลัก
+**non-destructive editing**: ทุกการแก้ไขบันทึกเป็นชิ้นงานใหม่เสมอ ต้นฉบับไม่
+ถูกเขียนทับหรือลบเด็ดขาด — ไม่มี AI engine ใหม่, ไม่มีตรรกะคำนวณคะแนนซ้ำซ้อน
+ทุกจุดใช้เอนจินเดิม (`buildTileForGenerate`, `computeMetrics`,
+`detectProblems`/`detectVisualIssues`, `importFileGroup`) ที่แอปมีอยู่แล้ว
+
+- 🆕 **Design Edit Mode**: ปุ่ม "🎨 Edit Design" ใหม่ในหน้าต่างตัวอย่างชิ้นงาน
+  ของ Portfolio Manager เปิดหน้าจอแก้ไขพารามิเตอร์เต็มจอ 3 คอลัมน์ (ตัวควบคุม
+  พารามิเตอร์ | ตัวอย่างลายสด | Design Inspector)
+- 🆕 **Floating Design Inspector**: คะแนน Quality Score และ Real-Time Metrics
+  อัปเดตสดทุกครั้งที่แก้พารามิเตอร์ พร้อมรายการ Detected Problems/Visual
+  Issues และสรุป Commercial Readiness ที่บันทึกไว้ล่าสุดของต้นฉบับ
+- 🆕 **แก้ไขพารามิเตอร์ได้ตรง**: seed (สุ่มใหม่ได้), category, layout, palette,
+  จำนวนสี, color harmony, ความหนาแน่น, negative space, overlap, rotation/
+  scale jitter, pattern scale, mirror, radial symmetry, hierarchy preset
+- 🆕 **Undo/Redo** ระหว่าง session ก่อนกด Approve
+- 🆕 **Approve — Save as New Version**: บันทึกเป็นชิ้นงานใหม่ที่เชื่อมโยงกับ
+  ต้นฉบับผ่าน `parentAssetId`/`variationGroupId` (ฟิลด์เดิมที่มีอยู่แล้วใน
+  ระบบคลัง ไม่ต้องเพิ่ม schema ใหม่) — ยืนยันด้วยการทดสอบจริงว่าต้นฉบับไม่ถูก
+  แก้ไขแม้แต่ byte เดียวหลังบันทึกเวอร์ชันใหม่ ระบบตรวจจับของซ้ำจริงยังทำงาน
+  ปกติ (ผลลัพธ์ที่เหมือนต้นฉบับทุก byte จะไม่ให้บันทึกซ้ำ) พร้อมแก้จุดที่
+  อาจแจ้งเตือน "อาจซ้ำ" ผิดพลาดเมื่อแก้พารามิเตอร์จริงแต่ยังใช้ seed เดิม (กรณี
+  ปกติของการปรับแต่ง ไม่ใช่ของซ้ำ)
+- ทดสอบแล้ว: หน่วยทดสอบ 14 เคสใหม่ (round-trip พารามิเตอร์จริงผ่าน
+  IndexedDB, การประเมินผลจากเอนจินจริง, การบันทึกเวอร์ชันใหม่แบบไม่ทำลาย
+  ต้นฉบับ) รวมถึง regression เต็มชุด (500 ไฟล์ทดสอบ/4,410 เคส ผ่านทั้งหมด)
+  และตรวจสอบจริงในเบราว์เซอร์ตั้งแต่ Factory → Portfolio → Edit Design →
+  แก้พารามิเตอร์ → Approve → ยืนยันต้นฉบับยังอยู่ครบ
+
+**ยังไม่ทำในไมล์สโตนนี้ (ตามลำดับที่วางแผนไว้)**: AI Design Coach + Commercial
+Revalidation (M2), ประวัติเวอร์ชันเต็มรูปแบบ + Compare Center (M3), Batch
+Refinement (M4), Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ interactive
+(ลาก/หมุน/ปรับขนาดจุดต่อจุด) ถูกเลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งของเจ้าของ
+ร้านโดยตรง (ไม่ใช่ขอบเขตของภารกิจนี้)
+
+### v2.03 — 5 ส.ค. 2026 — Hotfix v1.0.2: แก้บั๊กที่พบจากการตรวจสอบทั้งแอป (Full UI/UX Production Audit)
+
+แก้เฉพาะบั๊กที่พิสูจน์แล้วจากรายงาน `FULL_UI_UX_AUDIT_REPORT.md` — **ไม่มีฟีเจอร์
+ใหม่ ไม่มี AI ใหม่ ไม่มีการปรับสถาปัตยกรรมใดๆ** ทุกจุดที่แก้ใช้ข้อมูล/ระบบเดิม
+ที่มีอยู่แล้วในแอป ไม่มีการสร้างตรรกะคำนวณใหม่
+
+- 🔴 **[P0] แก้ปัญหาลายที่เพิ่งสร้างส่งออกขายไม่ได้เลย**: ต้นเหตุคือ pipeline
+  การสร้างลาย (ทั้งจาก "▶ START FACTORY" และ "✨ ออกแบบให้ฉันวันนี้") ไม่เคย
+  บันทึกเวอร์ชัน generator ลงในชิ้นงาน ทำให้เช็ค "Generator completed" ใน
+  Commercial Readiness ล้มเหลวเสมอ — แก้โดยส่งค่า `generatorVersion` จริง
+  (ใช้ค่า `'v1'` เดิมที่ระบบใช้อยู่แล้วใน Generator Handoff) เข้าไปในทั้งสอง
+  pipeline ตอนบันทึกชิ้นงาน ยืนยันแล้วว่า "Generator completed" ผ่าน (PASS)
+  จริงหลังแก้
+- 🟠 **[P1] เลิกใช้คำว่า "Factory Efficiency" ที่ทำให้เข้าใจผิด**: เปลี่ยนป้าย
+  เป็น "Task Completion Rate" พร้อมคำอธิบายชัดเจนว่าวัดอัตราความสำเร็จของ
+  งาน ไม่ใช่จำนวนแพ็กเกจที่ขายได้จริง (ตัวเลขเดิมไม่เปลี่ยน แก้แค่ป้ายกำกับ)
+- 🟠 **[P1] เพิ่มหน้าจอ "Repair Activity" ในแท็บ Review**: ก่อนหน้านี้ตัวเลข
+  "Repair" ใน Session Summary ไม่มีที่ให้ดูรายละเอียดเลย ตอนนี้ดูสถานะ/ผลลัพธ์
+  ของแต่ละชิ้นงานที่ผ่านการตรวจซ่อมอัตโนมัติได้จากแท็บ Review โดยตรง
+- 🟠 **[P1] แก้เลย์เอาต์ Design Workbench บน iPad แนวตั้ง (834px)**: แผงที่ 3
+  เคยถูกบีบจนอ่านไม่ออก — สาเหตุคือ inline style ทับ media query เดิมที่มีอยู่
+  แล้ว แก้โดยย้าย logic ความกว้างไปใช้ CSS custom property แทน ทำให้ media
+  query กลับมาทำงานได้ตามที่ออกแบบไว้เดิม (เลย์เอาต์ยุบเป็นคอลัมน์เดียวที่
+  หน้าจอแคบ)
+- 🟡 **[P2] ข้อความแจ้งเหตุผลบล็อกไม่ซ้ำกันอีกต่อไป**: หน้า Progress เคยแสดง
+  ข้อความเดียวกันซ้ำ 3 รอบเมื่อหลายงานบล็อกด้วยเหตุผลเดียวกัน ตอนนี้แสดง
+  เหตุผลที่ไม่ซ้ำ พร้อมจำนวนงานที่บล็อกด้วยเหตุผลนั้น
+- 🟡 **[P2] เมนูบนไม่ไฮไลต์ 2 ปุ่มพร้อมกันอีกต่อไป**: "🏭 Today's Production"
+  และ "✨ ออกแบบให้ฉันวันนี้" เคยแสดงสีไฮไลต์ตลอดเวลาทุกหน้า ทำให้ดูเหมือน
+  ทั้งสองเป็นหน้าปัจจุบันพร้อมกัน แก้ให้เป็นปุ่มปกติเหมือนปุ่มอื่นในแถบเดียวกัน
+- 🟡 **[P2] Escape ปิดหน้าต่างได้แล้วทุกหน้าต่าง + โฟกัสเข้าหน้าต่างอัตโนมัติ**:
+  เพิ่ม shared hook ให้ 6 หน้าต่างที่ยังไม่รองรับ (ตัวอย่างชิ้นงาน, เลือก
+  มาร์เก็ตเพลส, Download Center, ประวัติการส่งขาย, ตรวจสุขภาพคลัง, นำเข้า
+  ไฟล์) กด Escape ปิดได้เหมือน 3 หน้าต่างเดิมที่มีอยู่แล้ว
+- 🟡 **[P2] เพิ่ม landmark สำหรับ screen reader**: ครอบเมนูบนด้วย `<nav>` และ
+  เนื้อหาหลักด้วย `<main>` (ก่อนหน้านี้ไม่มีทั้งคู่)
+- 🟡 **[P2] Export tab เลือกชิ้นงานล่าสุดเป็นค่าเริ่มต้น**: เดิมสุ่มเลือกชิ้นงาน
+  เก่าที่ไม่เกี่ยวข้องกับ session ปัจจุบัน ตอนนี้เลือกชิ้นงานที่สร้างล่าสุดจาก
+  `createdAt` จริงเสมอ
+- 🟢 **[P3] ชื่อชิ้นงานอ่านง่ายขึ้น**: ลายที่สร้างจาก Factory/Autopilot แสดงชื่อ
+  เช่น "Pastel Dream Botanical / Floral pattern" แทน slug เทคนิคยาวๆ
+  (Asset ID เดิมยังอยู่ครบสำหรับใช้อ้างอิงทางเทคนิค)
+
+**ยังไม่แก้ (บันทึกไว้อย่างตรงไปตรงมา ไม่ปิดบัง)**: ช่องว่าง Collection
+assignment/SEO ที่ยังทำให้ Commercial Readiness ไม่ถึง READY เป็นขั้นตอนจริง
+ที่เจ้าของร้านต้องทำเอง (ไม่ใช่บั๊ก — ตรวจสอบแล้วว่าระบบทำงานถูกต้อง);
+สี contrast (WCAG AA) และการทดสอบด้วยโปรแกรมอ่านหน้าจอจริงยังไม่ได้ทำ
+(ไม่มีเครื่องมือในสภาพแวดล้อมที่ใช้พัฒนา)
+
+### v2.02 — 4 ส.ค. 2026 — Hotfix v1.0.1: Commercial Export UX (Preview → Marketplace → ZIP)
+
+ปรับปรุงเฉพาะประสบการณ์การส่งออกขายใน Portfolio Manager เท่านั้น —
+**ไม่แตะ** Decision OS, ศูนย์การผลิต (Factory), Autopilot, ตรรกะการคำนวณ
+Commercial Score/SEO Score หรือการสร้างลายใดๆ ทั้งสิ้น ทุกอย่างในหัวข้อนี้
+เรียกใช้สายการผลิตเชิงพาณิชย์ (Commercial Pipeline, Build 031A) เดิมซ้ำ
+100% ไม่มีตรรกะคำนวณคะแนน/บรรจุไฟล์ใหม่เลย
+
+- 🖼 **หน้าต่างตัวอย่าง (Preview Dialog) ใหม่**: คลิกชิ้นงานในตารางเปิด
+  หน้าต่างตัวอย่างทันที (เร็วเพราะข้อมูลถูกโหลดล่วงหน้าครั้งเดียวต่อเซสชัน
+  ไม่คำนวณซ้ำทุกคลิก) แสดงภาพ SVG/PNG, Commercial Score, SEO Score,
+  สถานะ Export, และรายการตรวจ Marketplace Readiness — หน้ารายละเอียดแบบ
+  เต็มเดิม (แก้สถานะงาน/ดาว/แท็ก/โน้ต/เก็บถาวร/ส่งออก ZIP ไฟล์ต้นฉบับ) ยัง
+  อยู่ครบ เข้าถึงได้ผ่านปุ่ม "✏️ แก้ไขรายละเอียด" ในหน้าต่างตัวอย่าง
+- 📤 **ส่งออกขายหลายตลาดพร้อมกัน**: เลือกชิ้นงาน 1 ถึงหลายร้อยชิ้น → เลือก
+  ตลาด (Shutterstock/Adobe Stock/Freepik/Getty/Etsy/กำหนดเอง เลือกได้
+  มากกว่าหนึ่ง) → กด Export ภายใน 3 คลิก ได้ **1 ไฟล์ ZIP ต่อ 1 ตลาด** ไม่ว่า
+  จะเลือกกี่ชิ้นงานก็ตาม — 4 ตลาดที่มีโปรไฟล์จริง (Shutterstock/Adobe/
+  Freepik/Etsy) ใช้ Export Profile เฉพาะเว็บเดิม ส่วน Getty/กำหนดเองยังไม่มี
+  โปรไฟล์เฉพาะจึงได้ไฟล์ทั่วไปแทน (มีป้ายกำกับตรงๆ ไม่ปลอมว่ามีโปรไฟล์)
+- 📦 **Download Center ใหม่**: รวมทุกแพ็กเกจที่ Export สำเร็จในเซสชันนี้ไว้
+  ที่เดียว พร้อมดาวน์โหลดซ้ำได้ตลอดเวลา และปุ่มเปิดโฟลเดอร์จริง (เฉพาะ
+  เวอร์ชันเดสก์ท็อป)
+- 🏷 **สถานะ Export ต่อชิ้นงาน**: ยังไม่เคย Export / พร้อม Export / Export
+  แล้ว / ส่งแล้ว / อนุมัติแล้ว / ถูกปฏิเสธ / เก็บถาวร — คำนวณจากเหตุการณ์
+  จริงล่าสุดเท่านั้น (ประวัติส่งขายจริงมาก่อนคะแนนความพร้อมเสมอ) เป็นแค่
+  การแสดงผล ไม่มีการอัปโหลดอัตโนมัติใดๆ ทั้งสิ้น
+- ⚠️ **เตือนก่อนส่งซ้ำ**: ถ้าชิ้นงานเคยส่งไปตลาดเดียวกันแล้วอยู่ในสถานะ
+  อนุมัติแล้ว/รออนุมัติอยู่ ระบบเตือนก่อนเสมอ ต้องกดยืนยันอีกครั้งจึงจะ
+  ดำเนินการต่อ (ไม่บล็อกเงียบ ไม่ปล่อยผ่านเงียบ)
+- 🕓 **ประวัติการส่งขาย**: ดูได้จากหน้าต่างตัวอย่างโดยตรง อ่านข้อมูลจาก
+  ศูนย์การผลิตเดิม ไม่มีหน้าจอซ้ำซ้อน
+- ✅ ไม่มีการทำ Auto Upload ไปตลาดใดๆ ทั้งสิ้น ไม่มีการแก้ตรรกะ Factory/
+  Decision OS — เป็นการปรับปรุง UX การส่งออกเท่านั้น
+
+### v2.01 — 4 ส.ค. 2026 — Production Deployment Phase 1: Windows Desktop + Production Workspace
+
+- 🖥 **เพิ่มเวอร์ชันเดสก์ท็อป Windows** (Electron): ตัวติดตั้ง (NSIS,
+  ติดตั้งระดับผู้ใช้ ไม่ต้องสิทธิ์ผู้ดูแลระบบ) และเวอร์ชันพกพา (portable —
+  รันจากโฟลเดอร์เดียว ไม่ต้องติดตั้ง, ใช้กับ USB/External SSD/โฟลเดอร์
+  เครือข่ายได้) — เป็นชั้นเสริมแยกจากเว็บแอปเดิมทั้งหมด ตรรกะธุรกิจ/UI/
+  หน้าจอต่างๆ ไม่เปลี่ยนแปลง
+- 📁 **Production Workspace**: โฟลเดอร์บนดิสก์จริงที่เก็บ Portfolio,
+  CommercialPackages, Marketplace (แยกโฟลเดอร์ต่อเว็บ), Export, Backups,
+  Releases — เปิดแอปเดสก์ท็อปครั้งแรกจะถามหาตำแหน่ง Workspace
+  (สร้างใหม่/ย้าย/เปิดที่มีอยู่แล้ว) ไม่มีการเขียนทับข้อมูลเดิมโดยไม่ยืนยัน
+- 💾 **Backup Manager และ Commercial Pipeline** จะบันทึกสำเนาไฟล์ลง
+  Workspace ให้อัตโนมัติเพิ่มเติมเมื่อรันบนเดสก์ท็อป (การดาวน์โหลดผ่าน
+  เบราว์เซอร์ยังเป็นทางหลักเสมอ ส่วนนี้เป็นปลายทางเสริม ไม่กระทบ
+  พฤติกรรมเดิมของเวอร์ชันเว็บเลย)
+- ✅ ยืนยันด้วยการรัน Electron จริง (headless) ทดสอบสร้าง/ตรวจสอบ/ย้าย
+  Workspace บนดิสก์จริง และ cross-build ตัวติดตั้ง/portable จริงผ่าน wine
+  ในสภาพแวดล้อมพัฒนา พร้อม checksum SHA-256 ของไฟล์ที่ได้
+- 📖 รายละเอียดการติดตั้งและผังโฟลเดอร์ทั้งหมดอยู่ใน `INSTALLATION.md` และ
+  `WORKSPACE_LAYOUT.md` ที่รากของ repository
+
+### v2.00 — 2 ส.ค. 2026 — Mission 7.5B: แก้ปัญหาเปิดแอปออฟไลน์ครั้งแรกไม่ได้ (Offline Boot Blocker)
+
+- 🐛 **แก้บั๊กจริงที่เป็นตัวขวางการปล่อยรุ่น (Release Blocker)**: ก่อนหน้านี้
+  แอปยังไม่มี Service Worker เลย ทำให้ถ้าปิดอินเทอร์เน็ตแล้ว "เปิดแอปใหม่"
+  (ไม่ใช่แค่รีเฟรชระหว่างใช้งาน) จะเข้าไม่ได้ทันที — ยืนยันด้วยการทดสอบจริงผ่าน
+  เบราว์เซอร์ Chromium: เปิดออนไลน์ครั้งแรก 1 ครั้ง → ปิดเน็ต → เปิดแอปใหม่ →
+  ล้มเหลว 100% ก่อนแก้ (`ERR_INTERNET_DISCONNECTED`)
+- 🛠 **วิธีแก้**: เพิ่มปลั๊กอิน `vite-plugin-pwa` (โหมด generateSW) เข้าไปใน
+  ขั้นตอน build ของ `/app` เท่านั้น — สร้าง Service Worker ที่แคชไฟล์ทั้งหมดของ
+  แอป (15 ไฟล์ ครบ 100%) ไว้ในเครื่องอัตโนมัติหลังเปิดใช้งานออนไลน์ครั้งแรก
+  ไม่มีการเพิ่มหน้าจอ ฟีเจอร์ หรือ business logic ใหม่ใดๆ ทั้งสิ้น
+- ✅ **ยืนยันด้วยเบราว์เซอร์จริง แบบปิดเน็ตทั้งหมด**: เปิดแอปออฟไลน์ 3/3 ครั้ง
+  ผ่าน, ทำงานครบวงจร Start Factory → Approve → Generate Now → Mark Session
+  Complete ได้ทั้งหมดโดยไม่ต่อเน็ตเลย, ปิดแอประหว่างทำงานแล้วเปิดใหม่ (จำลอง
+  รีสตาร์ทเครื่อง) ก็ยังทำงานต่อได้ปกติ, เปิด Backup Manager ได้ปกติ — ทุก
+  ขั้นตอนไม่มี console error เลยแม้แต่ครั้งเดียว
+- ⚡ **ความเร็ว (วัดจริง)**: เปิดแอปออฟไลน์เฉลี่ย 195 มิลลิวินาที (เร็วกว่าเปิด
+  ออนไลน์ครั้งแรกที่ 399 มิลลิวินาทีด้วยซ้ำ) ขนาดไฟล์ที่เพิ่มขึ้นจากฟีเจอร์นี้
+  ประมาณ 17KB เท่านั้น
+- ✅ **Regression 2 รอบติดต่อกัน**: 487/487 ไฟล์ทดสอบ, 4,348/4,348 เทสต์ผ่าน
+  ทั้งสองรอบ เหมือนเดิมทุกตัวเลข ยืนยันว่าไม่กระทบฟีเจอร์เดิม — ทดสอบเพิ่มบน
+  iPad (แนวตั้ง/แนวนอน) แบบออฟไลน์ล้วนก็ผ่านเช่นกัน ไม่มีเลย์เอาต์ล้น
+
+### v1.99 — 2 ส.ค. 2026 — Mission 7.5: Production Certification (ปิดข้อจำกัดที่เหลือจาก Mission 7)
+
+- 🛠 **ปิดข้อจำกัดที่เหลือจาก Mission 7**: ตอนนี้เซสชันใหม่ล้วนที่ไม่มีงานค้าง
+  (คำแนะนำ "สร้างลายใหม่") กด **"✨ Generate Now"** จากหน้า Today's Production
+  ได้เลย — ระบบเรียกใช้เอนจินสร้างลายจริงชุดเดียวกับ Autopilot ("✨
+  ออกแบบให้ฉันวันนี้") ผ่านโหมด Evergreen Commercial แบบไม่ต้องใช้ข้อมูล
+  ตลาดสด แล้วสร้าง Commercial Package Batch จริงต่ออัตโนมัติ (QA → SEO →
+  Package → Export Validation) — ไม่มีการเขียนตรรกะการตัดสินใจหรือการ
+  สร้างลายใหม่ซ้ำซ้อน ใช้ฟังก์ชันจริงที่มีอยู่แล้วทั้งหมด
+- 🐛 **แก้บั๊กจริงที่ตรวจพบระหว่างทดสอบ**: `drainFactoryQueue` (Mission 7)
+  มีช่องโหว่ที่ทำให้ค้างได้นานมาก (นับสิบวินาทีถึงเป็นนาที) เมื่องานใดงานหนึ่ง
+  ในคิวถูกบล็อกด้วยเหตุผลด้านเนื้อหา (เช่น คะแนน Commercial Readiness ต่ำกว่า
+  เกณฑ์ความปลอดภัย) เพราะระบบจะพยายามรันงานเดิมซ้ำไปเรื่อยๆ จนครบ
+  ขีดจำกัดสูงสุด — แก้แล้วโดยจำงานที่ล้มเหลวไว้ภายในการเรียกครั้งเดียว ไม่รัน
+  ซ้ำ ปล่อยให้ค้างเป็น BLOCKED อย่างตรงไปตรงมาให้เจ้าของตัดสินใจแทน — ยังพบ
+  บั๊กเล็กอีกจุดคือค่าตลาด "Etsy" เริ่มต้นของ Decision Engine สะกดผิดตัวพิมพ์
+  ใหญ่-เล็ก (ต้องเป็น `etsy` ตัวเล็กทั้งหมดให้ตรงกับ Marketplace Profile ที่
+  ลงทะเบียนจริง) แก้ไขแล้วทั้ง 5 จุดที่ใช้ค่านี้
+- ✅ **ปุ่ม "Skip these and continue" ใหม่**: ถ้าลายที่สร้างมีบางชิ้นคะแนน
+  Commercial Readiness ต่ำกว่าเกณฑ์ (Build 031A) งานนั้นจะค้างเป็น BLOCKED
+  ตรงไปตรงมา — ไม่มีทางกด "Mark Session Complete" ได้เลยก่อนหน้านี้ ตอนนี้
+  เจ้าของกดปุ่มนี้เพื่อคัดชิ้นงานคุณภาพต่ำออกจากชุดนี้ได้ทันที (ไม่ส่งออกเป็น
+  ไฟล์ขาย เกณฑ์ความปลอดภัยเดิมไม่เปลี่ยนแปลง) ระบบไล่คัดจนกว่าจะไม่มีงาน
+  ค้างเหลือในคลิกเดียว (รองรับกรณีคัดแล้วเกิดงานค้างต่อเนื่องเป็นทอดๆ)
+- 🌐 **ยืนยันด้วยเบราว์เซอร์จริง**: รันขั้นตอนทั้งหมด Start Factory → Approve
+  → Generate Now → (Skip ถ้าจำเป็น) → Mark Session Complete จนถึงหน้า
+  Session Summary ใน Chromium จริง ไม่มี console error ตลอดขั้นตอน
+- ✅ **Regression 2 รอบติดต่อกัน**: 487/487 ไฟล์ทดสอบ, 4,348/4,348 เทสต์ผ่าน
+  ทั้งสองรอบ (เพิ่ม 1 เทสต์ใหม่ที่พิสูจน์ว่าเซสชันใหม่ล้วนจบงานได้จริงแบบ
+  end-to-end) — build production สำเร็จ ไม่มี TypeScript/lint error
+
+### v1.98 — 2 ส.ค. 2026 — Mission 7: Production Hardening (แก้บั๊กจริง ไม่เพิ่มฟีเจอร์)
+
+- 🛠 **แก้บั๊กจริงที่ตรวจพบ**: หลังกด "Approve" เซสชันการผลิต ระบบไม่เคยผูก
+  Batch จริงเข้ากับ Run เลยตั้งแต่ Mission 6 — ทำให้แถบความคืบหน้าติดค้างที่
+  "Running" ตลอดไป ไม่มีทางกด "Mark Session Complete" ได้เลยในทุกเซสชันจริง
+  (หน้าจอว่างเปล่า ไม่มีคำอธิบาย ไม่มีปุ่มใดๆ) — พบจากการตรวจโค้ดจริงว่า
+  `createFactoryBatch`/`attachOrchestrationRunBatch`/`runNextFactoryTask`
+  ที่สร้างไว้ตั้งแต่ Build 031C ไม่เคยถูกเรียกใช้จริงนอกเหนือจากไฟล์ทดสอบเลย
+- ✅ **แก้ไขสำหรับกรณีทำงานต่อจากคิวเดิมที่มีอยู่จริง** (กรณีปกติของวันที่ 2
+  เป็นต้นไป เมื่อมีงานค้างอยู่แล้ว): ตอนกด Approve ระบบจะผูก Batch จริงที่มี
+  อยู่แล้วเข้ากับ Run โดยอัตโนมัติ แล้วเดินคิวงาน (Factory Scheduler) ต่อจนกว่า
+  จะไม่มีงานที่พร้อมรันเหลือ — ใช้ฟังก์ชันเดิมที่มีอยู่แล้วและผ่านการทดสอบแล้ว
+  ทั้งหมด (`resolveTaskDependencies`, `runNextFactoryTask`) ไม่มีการเขียน
+  ตรรกะการทำงานใหม่ ยืนยันด้วยเทสต์จริงที่พิสูจน์ปัญหาก่อนแก้และผ่านหลังแก้
+- 📝 **ข้อความตรงไปตรงมาสำหรับกรณีที่เหลือ** (เซสชันใหม่ล้วนที่ไม่มีงานค้างเลย
+  ต้องสร้างลายใหม่): แทนที่จอว่างเปล่า ตอนนี้แสดงคำอธิบายชัดเจนว่าเซสชันนี้
+  ต้องใช้ "✨ ออกแบบให้ฉันวันนี้" (Autopilot) หรือ Pattern Studio สร้างลายก่อน
+  แล้วค่อยกลับมาที่ Today's Production พร้อมปุ่ม "Cancel this run" ที่ใช้งานได้
+  จริง — เจ้าของไม่มีวันติดค้างโดยไม่มีทางออกอีกต่อไป
+- 📊 **วัดประสิทธิภาพจริง ไม่ประมาณ**: ทดสอบที่ 1,000/5,000/10,000 ชิ้นงาน และ
+  คิวงาน 100/500/1,000 รายการ พบว่า `loadCommercialPipelineContext` และการ
+  เดินคิวงาน (`drainFactoryQueue`) ช้าลงไม่เป็นเชิงเส้นที่ขนาดใหญ่มาก (คิวงาน
+  1,000 รายการใช้เวลา ~43 วินาที) — บันทึกไว้ตรงไปตรงมาเป็นข้อจำกัดที่ทราบ
+  ไม่ได้แก้ในบิลด์นี้ เพราะการแก้ต้องปรับสถาปัตยกรรมของ Scheduler ซึ่งอยู่
+  นอกขอบเขตภารกิจนี้ ("ห้ามเปลี่ยนสถาปัตยกรรม")
+- 🔍 **ตรวจสอบ Commercial Package**: ยืนยันด้วยการอ่านโค้ดจริงว่าแพ็กเกจที่
+  สร้างมีไฟล์ SVG/EPS/PNG จริง, SEO/Metadata/Keywords จริงหรือระบุตรงไปตรงมา
+  ว่ายังไม่มี, หมวดหมู่/Collection จริง, และสถานะความเข้ากันได้กับมาร์เก็ตเพลส
+  จริง — ไม่มีตรรกะซ้ำซ้อนกับ Commercial Pipeline เดิม (Build 031A)
+- ✅ **Regression 2 รอบติดต่อกัน**: 487/487 ไฟล์ทดสอบ, 4,347/4,347 เทสต์ผ่าน
+  ทั้งสองรอบ (เพิ่มจาก Mission 6 อีก 3 เทสต์ใหม่สำหรับการแก้บั๊กนี้) — ทดสอบ
+  จริงในเบราว์เซอร์ทั้ง Desktop และ iPad (แนวนอน/แนวตั้ง) ไม่มี error
+- ⚠️ **ข้อจำกัดที่ยังไม่ได้แก้ในบิลด์นี้** (บันทึกไว้ตรงไปตรงมา): เซสชันที่ต้อง
+  สร้างลายใหม่ล้วน (ไม่มีงานค้างให้ทำต่อ) ยังไม่สามารถกด "Mark Session
+  Complete" จาก Today's Production ได้เองจนกว่าจะไปสร้างลายผ่าน Autopilot/
+  Pattern Studio ก่อน — เป็นการตัดสินใจจำกัดขอบเขตอย่างตั้งใจ เพราะการเชื่อม
+  ต่อการสร้างลายจริงเข้ากับหน้าจอนี้จะต้องซ้ำซ้อนกับตรรกะการเลือกพารามิเตอร์
+  ของ Autopilot หรือรวมสองระบบที่ออกแบบแยกกันไว้เข้าด้วยกัน (เท่ากับเปลี่ยน
+  สถาปัตยกรรม) ดูรายละเอียดครบใน `AI_SBOS_RELEASE_CANDIDATE_REPORT.md`
+
+### v1.97 — 2 ส.ค. 2026 — Mission 6: Production Experience Layer (หน้าจอ "Today's Production" ใหม่)
+
+- 🏭 **ปุ่ม "🏭 Today's Production" ใหม่บนแถบเมนู** — จุดเริ่มต้นเดียวที่รวม
+  Decision OS / Factory Controller / Factory Intelligence / Continuous
+  Improvement / Production Autopilot / Factory Orchestrator (Mission 1-5)
+  ให้เป็นขั้นตอนการทำงานประจำวันเดียว **ไม่ใช่ AI ตัวใหม่ ไม่ออกแบบ
+  สถาปัตยกรรมใหม่ ไม่มีตรรกะธุรกิจซ้ำซ้อน** — ทุกตัวเลขและทุกการตัดสินใจ
+  มาจากเอนจินเดิมที่มีอยู่แล้วทั้งหมด
+- ▶️ **START FACTORY ปุ่มเดียว**: เชื่อมตรงเข้า `FactoryOrchestrator.
+  startFactory()` (Mission 5) — ไม่มีการข้าม Factory Orchestrator ไม่ว่า
+  กรณีใด
+- 🏠 **หน้า Production Home**: เปิดแอปแล้วเห็นทันที — คำทักทายตามเวลาจริง,
+  สถานะโรงงาน, ภารกิจวันนี้, เวลาที่คาดว่าเจ้าของจะใช้, Business Outcome,
+  แพ็กเกจพร้อมส่ง, งานรอตรวจสอบ, สุขภาพโรงงาน — พร้อมปุ่มหลักปุ่มเดียว
+- 📊 **Production Progress**: แถบขั้นตอน 7 ระยะ (เตรียม → วางแผน → รอ
+  อนุมัติ → กำลังทำงาน → ตรวจสอบคุณภาพ → บรรจุภัณฑ์ → เสร็จสิ้น) คำนวณจาก
+  สถานะจริงของ Factory Orchestrator Run และคิวงานจริงเท่านั้น — ถ้างาน
+  ค้าง/ถูกหยุด ระบบหยุดแถบไว้ที่ขั้นตอนจริงล่าสุดพร้อมเหตุผลจริง
+  **ไม่มีการสร้างความคืบหน้าปลอม**
+- 🎯 **Owner Action Center**: แสดงเฉพาะงานที่ต้องให้เจ้าของตัดสินใจจริง
+  (อนุมัติเซสชัน / อนุมัติข้อยกเว้น / ตรวจสอบภาพ / ส่งออกแพ็กเกจ) — ซ่อน
+  ทุกอย่างที่ไม่ต้องการการตัดสินใจ
+- 🔍 **Review Workspace**: แสดงเฉพาะชิ้นงานที่มี `QualitySnapshot.decision`
+  ล่าสุดเป็น "ต้องตรวจสอบ" เท่านั้น (ใช้ระบบจำแนกคุณภาพเดิมจาก Build 026
+  ไม่สร้างระบบให้คะแนนใหม่) ปุ่ม Approve / Reject บันทึก QualitySnapshot
+  ใหม่จริงพร้อมเวลาจริง (คัดลอกคะแนน/ค่าที่วัดได้จริงจากครั้งก่อน เปลี่ยน
+  แค่การตัดสินใจ) — ไม่ใช่การซ่อนชิ้นงานแบบผิวเผิน ปุ่ม Repair สร้างงาน
+  ซ่อมจริงเข้าคิว Factory มีปุ่มดำเนินการทีละชิ้นและแบบเลือกหลายชิ้น
+- 📤 **Commercial Export Workspace**: ใช้หน้า Commercial Pipeline เดิม
+  (Build 031A) ทั้งหมดโดยไม่สร้างหน้าใหม่ซ้ำซ้อน — Export ยังต้องอนุมัติ
+  จากเจ้าของเสมอ ไม่มีการอัปโหลดอัตโนมัติ
+- 📈 **Factory Dashboard แบบย่อ**: สถานะโรงงาน, Business Outcome,
+  ประสิทธิภาพโรงงาน, จำนวนการตัดสินใจของเจ้าของวันนี้, เวลาที่ประหยัดได้,
+  จำนวนพร้อมขายเชิงพาณิชย์, คำแนะนำอันดับ 1 — ไม่มีกราฟที่ไม่จำเป็น
+- ⏮ **Continue Yesterday**: ถ้ามีงานค้างจริงจาก Batch เดิม หน้า Home
+  แสดงปุ่ม "Continue Yesterday" แทน Start Factory โดยอัตโนมัติ (ใช้ระบบ
+  ตรวจสอบเดิมจาก Mission 4)
+- 🖱 **หนึ่งคลิกตามปรัชญาเดิม**: เปิดแอป → Start Factory → Review → Export
+  ยืนยันด้วยการทดสอบเบราว์เซอร์จริง — ไม่เกิน 3 การตัดสินใจของเจ้าของ,
+  ไม่เกิน 5 คลิก ตามเป้าหมายที่กำหนด
+- 📋 **Session Summary**: หลังปิดงานแสดงแพ็กเกจที่ผลิตได้, พร้อมขาย,
+  ต้องตรวจสอบ, ต้องซ่อม, เวลาที่เจ้าของใช้, Business Outcome,
+  ประสิทธิภาพโรงงาน, งานปรับปรุงที่สร้างขึ้น, คำแนะนำถัดไป — ดึงจาก
+  `reviewProductionCompletion` เดิมของ Mission 4 ทั้งหมด ไม่คำนวณซ้ำ
+- 💾 **ไม่มีตารางข้อมูลใหม่**: ใช้ Factory Queue / Timeline / Portfolio
+  Assets / Quality Snapshots / Orchestration Runs / Production Sessions /
+  Owner Decisions ที่มีอยู่แล้วทั้งหมด — `.vspsb` ครอบคลุมอยู่แล้วจาก
+  Mission 4-5 ไม่ต้องเพิ่ม
+- ♿ **รองรับ Desktop / Laptop / iPad / คีย์บอร์ด**: ใช้ breakpoint และ
+  `aria-*` เดียวกับทั้งแอป — ทดสอบจริงด้วยเบราว์เซอร์บนขนาดหน้าจอ Desktop
+  แล้ว ยังไม่ได้ทดสอบจริงบน iPad/แท็บเล็ตขนาดจริง (ดูรายละเอียดใน
+  `BUILD_036_PRODUCTION_EXPERIENCE_REPORT.md`)
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ไม่มี Light
+  Mode (แอปทั้งหมดยังเป็น Dark Mode เท่านั้น ไม่เคยมีโครงสร้าง Light Mode
+  มาก่อน Mission นี้จึงไม่สร้างใหม่); Review Workspace แสดงชื่อ/คะแนน/
+  ธง fragmented หรือ dead space เป็นข้อความ ยังไม่มีภาพตัวอย่าง SVG จริง
+  ในรายการ (ไม่มีคอมโพเนนต์แสดงภาพตัวอย่างที่ใช้ซ้ำได้อยู่แล้วในโค้ดเดิม) —
+  ดูรายละเอียดครบใน `BUILD_036_PRODUCTION_EXPERIENCE_REPORT.md`
+
+### v1.96 — 2 ส.ค. 2026 — Mission 5: Factory Orchestrator (ประสานทุกระบบให้เป็นโรงงานเดียว)
+
+- 🧭 **Factory Orchestrator ใหม่ทั้งระบบ** (`factoryOrchestrator/`) — **ไม่ใช่ AI
+  ตัวใหม่ ไม่ออกแบบ UI ใหม่ ไม่เพิ่มเมนู ไม่สร้างเครื่องมือตัดสินใจตัวใหม่**
+  รวม Decision OS / Factory Controller / Factory Intelligence / Continuous
+  Improvement / Production Autopilot ที่มีอยู่แล้วให้ทำงานเป็น "โรงงานเดียว"
+  ผ่านชั้นประสานงานเดียว โดยแต่ละระบบยังเป็นเจ้าของอำนาจตัดสินใจของตัวเอง
+  เหมือนเดิมทุกประการ — Factory Orchestrator ทำหน้าที่ประสานงานเท่านั้น
+- ▶️ **`StartFactory()` จุดเริ่มต้นการผลิตจุดเดียว**: เรียก Preflight → Plan →
+  สร้าง Production Session ครบในฟังก์ชันเดียว ต่อยอดจาก `startFactoryWorkflow`
+  ของ Mission 4 โดยตรง (ไม่เขียนลอจิกซ้ำ) และคืนค่า `requiresOwnerApproval:
+  true` เสมอ — ไม่มีการอนุมัติหรือรันงานเองเด็ดขาด
+- 🔀 **Factory State Machine 11 สถานะ**: Idle → Preparing → Preflight →
+  Planning → รออนุมัติ → Running → Paused/Blocked → Completed/Cancelled/
+  Failed ทุกการเปลี่ยนสถานะถูกตรวจสอบและบันทึกลำดับเวลาไว้ครบ — วางซ้อนอยู่
+  เหนือสถานะเซสชันเดิม 5 สถานะของ Mission 4 (Planned/Approved/Running/
+  Completed/Cancelled) โดยไม่แก้ไขหรือแทนที่ของเดิม
+- 🗂 **Factory Execution Context**: ที่เก็บข้อมูลใช้ร่วมกันของทุกโมดูล
+  (Session, รหัสการตัดสินใจ, นโยบาย, หลักฐาน, ไทม์ไลน์, คิว, Factory KPI,
+  Business Outcome, การตัดสินใจของเจ้าของ, การอ้างอิงงานปรับปรุง) คำนวณจาก
+  ข้อมูลจริงเท่านั้น อัปเดตแบบเฉพาะส่วนที่เปลี่ยน ไม่คำนวณซ้ำทั้งหมด
+- 🛡 **จัดการข้อผิดพลาดแบบเดียวกันทั้งระบบ**: ทุกขั้นตอนคืนผลลัพธ์ที่ระบุชนิด
+  ข้อผิดพลาดชัดเจน (ติดขัด/ลองใหม่ได้/ต้องย้อนกลับ/ล้มเหลว) ไม่มีการซ่อน
+  ความล้มเหลว พร้อมระบบลองใหม่และย้อนกลับในตัว
+- 🔁 **กู้คืนงานที่ถูกขัดจังหวะ**: ถ้าแอปปิดกลางคันระหว่างมีงานค้าง ระบบอ่าน
+  คิว/ไทม์ไลน์/สถานะโรงงานจากข้อมูลจริงที่บันทึกไว้แล้วกลับมาทำงานต่อได้ —
+  ไม่เคยสร้างข้อมูลที่ไม่มีจริงขึ้นมาแทน
+- 📦 **Production Session Archive**: เก็บบันทึกทุกเซสชันที่จบแล้วแบบครบถ้วน
+  (ไทม์ไลน์การทำงาน, ไทม์ไลน์การตัดสินใจ, Factory KPI, Business Outcome,
+  ประวัติการปรับปรุง, การตัดสินใจของเจ้าของ) ตรวจสอบย้อนหลังได้
+- 🚪 **Commercial Readiness Gate**: จะปิดงานเป็น "พร้อมขายเชิงพาณิชย์" ได้
+  ก็ต่อเมื่อ Decision OS, Factory Controller และ Factory Intelligence เห็น
+  ตรงกันทั้ง 3 ระบบเท่านั้น — ถ้าไม่ตรงกัน ระบบปฏิเสธการปิดงานทันทีพร้อม
+  เหตุผลจริง ไม่เคยอนุมัติเองแบบเดา
+- 👤 **สรุปการตัดสินใจของเจ้าของ**: นับจำนวนครั้ง/เวลารอ/การอนุมัติ/การขอ
+  ยกเว้นจริง เทียบเป้าหมายเดิม "ไม่เกิน 3 ครั้งต่อวัน" ของ Mission 4 — ไม่มี
+  ระบบนับซ้ำที่สอง
+- 💾 **ออฟไลน์ + สำรองข้อมูลเต็มรูปแบบ**: ทำงานได้ทั้งหมดโดยไม่ต้องต่อ
+  อินเทอร์เน็ต และเพิ่ม 2 ตารางใหม่ (`factoryOrchestrationRuns`,
+  `factoryOrchestrationArchives`) เข้าไฟล์สำรอง `.vspsb` แล้ว
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ยังไม่มีปุ่มหรือ
+  หน้าจอใหม่ให้เจ้าของกดเริ่มการผลิตจริงในหน้าเว็บ — `StartFactory()` ถูก
+  ออกแบบให้เป็นจุดเรียกเดียวที่ปุ่มดังกล่าวในอนาคตจะเรียกใช้ได้ทันที — ดู
+  รายละเอียดครบใน `BUILD_035_FACTORY_ORCHESTRATOR_REPORT.md` และตาราง
+  ตรวจสอบการเชื่อมต่อระบบใน `FACTORY_ORCHESTRATOR_AUDIT.md`
+
+### v1.95 — 2 ส.ค. 2026 — Mission 4: Production Autopilot (โรงงานวางแผนการผลิตเอง)
+
+- 🏭 **Production Autopilot ใหม่ทั้งระบบ** (`productionAutopilot/`) — ต่อยอด
+  จาก Decision OS (031B) / Factory Controller (031C) / Factory Intelligence
+  (Mission 2) / Continuous Factory Improvement (Mission 3) ให้โรงงาน
+  เตรียมเซสชันการผลิตทั้งหมดเองแทนเจ้าของ — **ไม่ใช่ AI ตัวใหม่ ไม่มีการ
+  ออกแบบ UX ใหม่ ไม่มีเมนูเพิ่มเติมใดๆ** ทุกฟังก์ชันนำ Decision OS Generation
+  Gate / Bottleneck Analyzer / Opportunity Finder / Optimization Simulator /
+  Improvement Engine ที่มีอยู่แล้วมาใช้ซ้ำ ไม่สร้างตรรกะตัดสินใจใหม่ซ้ำซ้อน
+- 🗓 **Production Session Planner**: สร้างแผนการผลิตวันนี้อัตโนมัติ — เป้าหมาย
+  การผลิต, จำนวนแพ็กเกจเป้าหมาย (นับจากงานจริงที่ใกล้เสร็จเท่านั้น), ระยะเวลา
+  คาดการณ์, ผลลัพธ์คาดการณ์ (พร้อมขาย/ตรวจสอบ/ซ่อม), ประสิทธิภาพโรงงาน
+  คาดการณ์, Business Outcome Score, Decision Trace, นโยบาย, หลักฐาน,
+  ความมั่นใจ และผลกระทบต่อธุรกิจ — **ทุกตัวเลขมาจากข้อมูลจริงหรือเป็น null
+  อย่างตรงไปตรงมา ไม่มีการเดา**
+- ▶️ **Start Factory Workflow เดียว**: ลำดับขั้นตอนเดียวไม่ซ้ำซ้อน — ทบทวน
+  การตัดสินใจ (Decision OS) → ตรวจคิวการผลิต → ตรวจ Dependency → ตรวจ
+  โอกาสปรับปรุง → สร้างแผนการผลิต → รอเจ้าของอนุมัติ (`requiresOwnerApproval`
+  เป็น `true` เสมอ — ไม่มีการอนุมัติหรือรันงานเองเด็ดขาด)
+- ✅ **Preflight Validation**: ตรวจ READY Backlog, งานคอลเลกชันค้าง, งานซ่อม/
+  SEO/บรรจุภัณฑ์/Export ค้าง ด้วยสถานะ OK/ต้องดู/ติดขัด จากจำนวนจริง และใช้
+  `evaluateGenerationGate` ของ Decision OS (Build 031B) ตัดสินว่าควรสร้างลาย
+  ใหม่หรือไม่ — **ไม่เคยสร้างลายใหม่โดยขัดกับ Decision OS**
+- 🎯 **Production Recommendation**: โรงงานเลือกงานที่ควรทำเอง (สร้าง/ซ่อม/
+  บรรจุภัณฑ์/SEO/Export/จบคอลเลกชัน/ทำงานเดิมต่อ) ตามลำดับนโยบายเดียวกับ
+  Decision OS จริง — **GENERATE เป็นตัวเลือกสุดท้ายเสมอ ไม่ใช่ค่าเริ่มต้น**
+- 📉 **Owner Decision Reduction**: บันทึกการตัดสินใจจริงของเจ้าของ (อนุมัติ
+  เซสชัน/อนุมัติข้อยกเว้น/อนุมัติ Export) พร้อมเวลาและระยะเวลาจริง เทียบกับ
+  เป้าหมาย "ไม่เกิน 3 ครั้งต่อวัน" ที่ประกาศไว้ชัดเจน
+- 📋 **Production Queue Review / Completion Review**: สรุปคิวก่อนรันงาน
+  (คิวปัจจุบัน, งานติดขัด, เวลาที่คาดว่าจะเสร็จ, คอขวดหลัก, ผลปรับปรุงที่คาด
+  การณ์) และสรุปหลังรันงาน (แพ็กเกจที่ผลิตได้, พร้อมขาย, ตรวจสอบ, ซ่อม,
+  ปฏิเสธ, Business Outcome, ประสิทธิภาพ, เวลาที่ประหยัดได้, งานปรับปรุงที่
+  สร้างขึ้น, คำแนะนำถัดไป)
+- ⏮ **Continue Yesterday (ระดับ Batch)**: ถ้ามีงานค้างจาก Batch เดิม แนะนำ
+  ให้ทำต่อแทนเริ่มใหม่เสมอ — แยกจาก Continue Yesterday เดิมของ AI CEO
+  (ระดับ Run การสร้างลาย) ซึ่งเป็นคนละโดเมนกัน
+- 🌅 **Daily Factory Brief**: เมื่อเปิดแอป แสดงภารกิจวันนี้, สถานะโรงงาน,
+  แพ็กเกจพร้อมขาย, เวลาที่คาดว่าจะประหยัดได้, จำนวนการตัดสินใจของเจ้าของ
+  วันนี้ (เทียบเป้าหมาย), คำแนะนำอันดับ 1 และ Business Outcome — ต่อยอดจาก
+  Daily Factory Brief เดิม (Mission 2) ไม่คำนวณซ้ำ
+- 🗂 **Production Session History**: บันทึกทุกเซสชันจริง (Plan → Execution →
+  Outcome) ด้วยสถานะ PLANNED/APPROVED/RUNNING/COMPLETED/CANCELLED
+  ตรวจสอบย้อนหลังได้ครบ
+- 🔒 **Export ยังต้องอนุมัติเสมอ**: ระบบไม่มีการอัปโหลดอัตโนมัติในทุกกรณี
+- 💾 **ออฟไลน์ + สำรองข้อมูลเต็มรูปแบบ**: ทำงานได้ทั้งหมดโดยไม่ต้องต่อ
+  อินเทอร์เน็ต และเพิ่ม 3 ตารางใหม่ (`factoryProductionSessions`,
+  `factoryOwnerDecisions`, `factoryProductionAutopilotState`) เข้าไฟล์สำรอง
+  `.vspsb` แล้ว
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ยังไม่มีปุ่ม
+  "START FACTORY" หรือหน้าจอใหม่ให้เจ้าของกดใช้งานจริง — `startFactoryWorkflow`
+  ถูกออกแบบให้เป็นฟังก์ชันเดียวที่ปุ่มดังกล่าวในอนาคตจะเรียกใช้ได้ทันที —
+  ดูรายละเอียดครบใน `BUILD_034_PRODUCTION_AUTOPILOT_REPORT.md`
+
+### v1.94 — 2 ส.ค. 2026 — Mission 3: Continuous Factory Improvement (โรงงานปรับปรุงตัวเอง)
+
+- 🔁 **Continuous Factory Improvement Engine ใหม่ทั้งระบบ**
+  (`factoryImprovement/`) — ต่อยอดจาก Factory Intelligence (Mission 2)
+  ตอบคำถาม "ควรปรับปรุงอะไรต่อ, ทำไม, คาดว่าจะได้ผลแค่ไหน" — **ไม่ใช่ AI ตัว
+  ใหม่ ไม่มีหน้าจอใหม่ใดๆ ในเวอร์ชันนี้** ทุกโมดูลนำ Bottleneck Analyzer /
+  Root Cause Analyzer / Opportunity Finder / Confidence Engine ที่มีอยู่
+  แล้วมาใช้ซ้ำ ไม่สร้างตรรกะวิเคราะห์ใหม่ซ้ำซ้อน
+- 📋 **Improvement Backlog**: งานปรับปรุงถาวรพร้อม Priority, Business
+  Impact, หลักฐานจริง, Confidence, ผลประโยชน์คาดการณ์, ความเสี่ยงคาดการณ์,
+  ผู้รับผิดชอบที่แนะนำ, สถานะ และ 8 หมวดหมู่ (ซ่อม/คิว/SEO/บรรจุภัณฑ์/
+  คอลเลกชัน/Export/Commercial/Portfolio) — **ไม่เคยแนะนำการสร้างลายใหม่**
+- 🎯 **Expected Impact Engine**: ประเมินผลกระทบเชิงคุณภาพเท่านั้น (สูงมาก/
+  สูง/กลาง/ต่ำ/ไม่ทราบ) โดยใช้ Decision OS Confidence Engine จริง —
+  **ไม่เคยประเมินเป็นตัวเลขรายได้**
+- 🧪 **Optimization Simulator**: จำลองผลของการเปลี่ยนลำดับงาน 4 แบบ (ซ่อม
+  ก่อน, ปรับปรุงคิว, บรรจุภัณฑ์เร็วขึ้น, จบคอลเลกชันก่อน) จากหลักฐานจริงของ
+  คอขวดปัจจุบันเท่านั้น — รายงาน "ไม่ทราบ" เมื่อหลักฐานไม่พอ
+- 🔬 **Factory Experiments**: ทดลองจริงหนึ่งชุดงาน เปรียบเทียบค่าก่อน/หลัง
+  จริง ให้ผล Success/Neutral/Failed — **ไม่มีการเปลี่ยนแปลงถาวรอัตโนมัติ**
+- ⚖️ **Policy Experiment Engine**: เปรียบเทียบนโยบายปัจจุบันกับนโยบาย
+  ทดลอง (เช่น จบคอลเลกชันก่อน) วัดผล 4 ตัวชี้วัด (พร้อมขาย, ซ่อม, คิว,
+  เวลาเจ้าของ) — **ไม่เปิดใช้งานถาวรเด็ดขาด**
+- 📆 **Improvement Review**: สรุปรายวัน/รายสัปดาห์/รายเดือน — อะไรดีขึ้น/
+  แย่ลง, จุดปรับปรุงที่ดีที่สุด, คอขวดแย่ที่สุด, คำแนะนำอันดับ 1
+- 📈 **Business Outcome Evolution**: ติดตาม Business Outcome Score ตาม
+  เวลา พร้อมอธิบายว่าทำไมคะแนนเปลี่ยน (องค์ประกอบใดขยับมากที่สุด)
+- 🕰 **Factory Evolution Timeline**: ประวัติการปรับปรุงแบบต่อท้ายอย่างเดียว
+  ทุกรายการอ้างอิงกลับไปยังงานจริง (Backlog/Experiment/Policy Experiment/
+  Review) เสมอ ตรวจสอบย้อนหลังได้ทุกครั้ง
+- 💾 **ออฟไลน์ + สำรองข้อมูลเต็มรูปแบบ**: ทำงานได้ทั้งหมดโดยไม่ต้องต่อ
+  อินเทอร์เน็ต และเพิ่ม 5 ตารางใหม่ (`factoryImprovementBacklog`,
+  `factoryExperiments`, `factoryPolicyExperiments`,
+  `factoryImprovementReviews`, `factoryEvolutionTimeline`) เข้าไฟล์สำรอง
+  `.vspsb` แล้ว
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ยังไม่มีหน้าจอ
+  ใหม่ให้ผู้ใช้ดูผลลัพธ์เหล่านี้โดยตรง และยังไม่มีตัวจับเวลาอัตโนมัติที่สร้าง
+  Backlog/Experiment/Review เอง — ต้องมีผู้เรียกใช้ฟังก์ชันเหล่านี้ (หน้าจอใน
+  อนาคต หรือตัวจับเวลา) — ดูรายละเอียดครบใน
+  `BUILD_033_FACTORY_IMPROVEMENT_REPORT.md`
+
+### v1.93 — 2 ส.ค. 2026 — Mission 2: Factory Intelligence (โรงงานเข้าใจตัวเอง)
+
+- 🧠 **Factory Intelligence ใหม่ทั้งระบบ** (`factoryIntelligence/`) — ชั้นวัดผล/
+  วิเคราะห์เหนือ Factory Controller (Build 031C) ตอบ 3 คำถาม: "ทำงานได้ดีแค่
+  ไหน", "อะไรทำให้ช้า", "ควรปรับปรุงอะไรต่อ" — **ไม่ใช่ AI ตัวใหม่ ไม่มีหน้าจอ
+  แดชบอร์ดเต็มไปด้วยกราฟ และไม่มีหน้าจอใหม่ใดๆ ที่ผู้ใช้เห็น** ในเวอร์ชันนี้
+  (ชั้นวัดผลภายในล้วนๆ ทุกตัวเลขต้องช่วยลดเวลาเจ้าของกิจการหรือเพิ่มจำนวน
+  Commercial Package จริง)
+- 📊 **Factory Metrics Engine**: ตัวชี้วัดเวลาเฉลี่ยแยกตามขั้นตอน (คิว, ซ่อม,
+  QA, SEO, บรรจุภัณฑ์, เตรียม Export, ทั้งชุดงาน) และ Commercial Ready Ratio —
+  ค่าที่ยังไม่มีข้อมูลจริงจะแสดง "ไม่ทราบ" เสมอ ไม่เดาตัวเลข
+- 🔍 **Bottleneck Analyzer**: หาขั้นตอนที่ช้าที่สุดจากหลักฐานจริงเท่านั้น (งาน
+  ติดค้างมากที่สุด หรือถ้าไม่มีงานติดค้างจะดูเวลาเฉลี่ยที่นานที่สุด) พร้อม
+  เหตุผล หลักฐาน ผลกระทบทางธุรกิจ และคำแนะนำที่ปรับปรุงได้จริง — ไม่เคย "เดา"
+  สาเหตุ
+- 🔗 **Root Cause Analysis**: เมื่อตัวชี้วัดใดตกเกณฑ์ (เช่น อัตราซ่อมสูงเกิน
+  30%) ระบบจะไล่สาย: QA reject/review เยอะ → SEO ติดค้าง → บรรจุภัณฑ์ติดค้าง →
+  Export ติดค้าง — ทุกขั้นอ้างอิงงานจริงจาก Factory Timeline เท่านั้น หยุดไล่
+  สายทันทีที่ไม่มีหลักฐานสนับสนุนต่อ (ไม่แต่งสายที่ไม่มีอยู่จริง)
+- 📋 **Factory Review**: สรุปผลอัตโนมัติหลังทุกชุดงานเสร็จสมบูรณ์ (Packages
+  ผลิตได้, พร้อมขาย, Review, Rejected, เวลาเฉลี่ย, จำนวนซ่อม, จุดคอขวดหลัก,
+  คำแนะนำหลัก) — คำนวณจากงานจริงในชุดนั้นเท่านั้น
+- 💡 **Opportunity Finder**: ชี้ "งานง่ายที่ทำได้เลย" จากงานที่ READY อยู่แล้ว
+  (ทำ SEO ให้เสร็จ, จัดคอลเลกชันให้ครบ, ซ่อมชิ้นที่พร้อม, บรรจุภัณฑ์งานที่มี
+  อยู่, Export งานที่พร้อม) — **ไม่แนะนำให้สร้างลายใหม่เด็ดขาด**
+- 📈 **Factory Trend Engine**: เทียบวันนี้กับเมื่อวาน/7 วัน/30 วันที่ผ่านมา
+  จากข้อมูลสแนปช็อตรายวันจริง แสดงผลเป็น "ดีขึ้น/แย่ลง/คงที่/ไม่ทราบ" เท่านั้น
+  ไม่มีเปอร์เซ็นต์ที่กุขึ้นมา
+- 🎯 **Business Outcome Score**: คะแนนรวมจาก KPI ของโรงงาน (ประสิทธิภาพ,
+  ความพร้อมขาย, ระดับอัตโนมัติ, เวลาที่เจ้าของประหยัดได้, ปริมาณ Commercial
+  Package, สุขภาพคิว, สัดส่วนงานติดค้าง) — อธิบายได้เสมอว่าแต่ละองค์ประกอบ
+  มีค่าเท่าไหร่ น้ำหนักเท่าไหร่ ส่วนไหนขาดข้อมูล
+- ☀️ **Daily Factory Brief**: สรุปสั้นๆ หนึ่งหน้า (Commercial Package พร้อม
+  ขาย, คอขวดอันดับ 1, โอกาสอันดับ 1, เวลาที่ประหยัดได้โดยประมาณ, คำแนะนำ
+  เดียว) — ไม่มีข้อความฟุ่มเฟือย
+- 🛠 **Continuous Improvement Queue**: รายการงานปรับปรุงที่แนะนำเท่านั้น (ลด
+  เวลาซ่อม, ปรับปรุง QA, ปรับปรุงบรรจุภัณฑ์, ลดความล่าช้าในคิว, ปรับปรุงความ
+  ครบถ้วนคอลเลกชัน) — **ไม่มีการเปลี่ยนนโยบายอัตโนมัติใดๆ** ไม่มีโมดูล
+  Decision OS หรือ Scheduler ตัวใดอ่านรายการนี้เลย
+- 💾 **ออฟไลน์ + สำรองข้อมูลเต็มรูปแบบ**: ทำงานได้ทั้งหมดโดยไม่ต้องต่อ
+  อินเทอร์เน็ต และเพิ่ม 4 ตารางใหม่ (`factoryDailyKpi`, `factoryReviews`,
+  `factoryImprovementQueue`, `factoryBusinessOutcomeHistory`) เข้าไฟล์สำรอง
+  `.vspsb` แล้ว — สแนปช็อตรายวันคำนวณครั้งเดียวต่อวัน ไม่คำนวณประวัติทั้งหมด
+  ใหม่ทุกครั้ง (Trend Engine ค้นหาจากสแนปช็อตที่มีอยู่แล้วเท่านั้น)
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ยังไม่มีหน้าจอ
+  ใหม่ให้ผู้ใช้ดูผลวิเคราะห์เหล่านี้โดยตรง (ต่อยอดจาก Build 031C ที่ก็ยังไม่มี
+  หน้าจอเช่นกัน) และยังไม่มีตัวจับเวลาอัตโนมัติที่สร้างสแนปช็อต/รีวิว/งาน
+  ปรับปรุงเอง — ต้องมีผู้เรียกใช้ฟังก์ชันเหล่านี้ (หน้าจอในอนาคต หรือ
+  ตัวจับเวลา) — ดูรายละเอียดครบใน `BUILD_032_FACTORY_INTELLIGENCE_REPORT.md`
+
+### v1.92 — 1 ส.ค. 2026 — Build 031C: AI Factory Controller (ชั้นควบคุมการทำงาน)
+
+- 🏭 **Factory Controller ใหม่ทั้งระบบ** (`factory/`) — Decision OS (Build
+  031B) ตัดสินใจว่า "ควรทำอะไร" ส่วน Factory Controller ตัดสินใจว่า "เมื่อไหร่
+  / อย่างไร / ลำดับไหน" โดยใช้โมดูลที่มีอยู่แล้วทั้งหมด (Autopilot, Commercial
+  Pipeline, Decision OS) — **ไม่ใช่ AI ตัวใหม่ ไม่ได้แทนที่ Decision OS และ
+  ไม่มีหน้าจอใหม่ใดๆ ที่ผู้ใช้เห็น** ในเวอร์ชันนี้ (ชั้นควบคุมภายในล้วนๆ
+  พร้อมสำหรับต่อยอด UI ในบิลด์ถัดไป)
+- 📋 **Factory Queue + Factory Task**: หน่วยงานเดียวมี 8 ประเภท (generate, qa,
+  repair, seo, package, exportValidation, collectionCompletion,
+  portfolioUpdate) และ 6 สถานะ (WAITING, READY, RUNNING, BLOCKED, COMPLETED,
+  CANCELLED) — ทุกงานเก็บเหตุผล ลำดับความสำคัญ Decision ที่สั่งงาน และ
+  ประวัติการเปลี่ยนสถานะแบบเต็ม
+- 🔗 **Task Dependency Engine**: งานจะ "พร้อมทำ (READY)" ก็ต่อเมื่องานที่ต้อง
+  ทำก่อนเสร็จจริงเท่านั้น (เช่น SEO ต้องรอ QA ผ่านก่อน, บรรจุภัณฑ์ต้องรอ SEO
+  เสร็จก่อน, Export ต้องรอบรรจุภัณฑ์เสร็จก่อน) — งานที่ "ติดค้าง (BLOCKED)"
+  จะบอกเหตุผลจริงเสมอว่าติดเพราะงานไหนยังไม่เสร็จ
+- ⚡ **จัดลำดับความสำคัญอัตโนมัติ (Dynamic Priority)**: เมื่ออัตรา REVIEW/REJECT
+  สูง, มีงานพร้อมแพ็กเกจค้างเยอะ, มีแพ็กเกจที่ export ไม่ผ่าน หรือคอลเลกชัน
+  ใกล้ครบ — ระบบจะเลื่อนงานที่เกี่ยวข้องขึ้นมาก่อน โดยทุกครั้งอ้างอิง Decision
+  ID จริงจาก Decision OS (ไม่ใช่การเดา และไม่มีการชนกันแม้มีหลายสัญญาณจริง
+  พร้อมกัน)
+- 📦 **Batch Controller**: สร้างชุดงาน 10/30/50/100 ชิ้นโดยผู้ใช้กดครั้งเดียว
+  (ไม่ต้องจัดการทีละงาน) — งาน "สร้างลาย (generate)" ต้องได้รับการอนุมัติจาก
+  ผู้ใช้เสมอ ระบบจะไม่รันงานสร้างลายให้อัตโนมัติเด็ดขาด (มาตรการความปลอดภัย
+  ทางธุรกิจ)
+- 📊 **Factory Timeline + Factory Health + Factory KPI**: ประวัติการทำงานแบบ
+  ละเอียด (Decision ID, นโยบาย, หลักฐาน, ความมั่นใจ ต่อเหตุการณ์) และตัวชี้วัด
+  สุขภาพ/ประสิทธิภาพสายการผลิต — ทุกค่าคำนวณจากข้อมูลจริงเท่านั้น ถ้าข้อมูล
+  ไม่พอจะแสดง "ยังไม่มีข้อมูลเพียงพอ" ไม่เดาตัวเลข
+- 🔁 **Automatic Replanning**: จัดคิวใหม่อัตโนมัติเมื่อสถานะ dependency
+  เปลี่ยนหรือสัญญาณ priority เปลี่ยน — ไม่แตะงานที่กำลังรันอยู่
+- 💾 **ออฟไลน์ + สำรองข้อมูลเต็มรูปแบบ**: ทำงานได้ทั้งหมดโดยไม่ต้องต่อ
+  อินเทอร์เน็ต (ไม่มีการเรียก API ภายนอกใดๆ) และเพิ่ม 3 ตารางใหม่
+  (`factoryQueue`, `factoryTimeline`, `factorySchedulerState`) เข้าไฟล์
+  สำรอง `.vspsb` แล้ว
+- ⚠️ **สิ่งที่ยังไม่ได้ทำในเวอร์ชันนี้** (บันทึกไว้ตรงไปตรงมา): ยังไม่มีหน้าจอ
+  ใหม่ให้ผู้ใช้ดู/สั่งงาน Factory Controller โดยตรง และยังไม่ได้ทดสอบรับ
+  ภาระงานระดับ 100+ ชิ้นในสภาพแวดล้อมจริง — ดูรายละเอียดครบใน
+  `BUILD_031C_REPORT.md`
+
+### v1.91 — 1 ส.ค. 2026 — Build 031B Hardening: เชื่อม Decision OS เข้าโมดูลจริงครบทั้ง 5 จุด
+
+- 🔌 **เชื่อม Decision OS เข้าโมดูลจริงเพิ่มอีก 4 จุด** (รวมของเดิมจาก v1.90
+  เป็น AI CEO + Portfolio Doctor + Business Coach + Commercial Pipeline +
+  Autopilot = 5 จุดตามที่กำหนด): (1) **Portfolio Doctor** — ครบทั้ง 5 การ
+  วินิจฉัย (คอลเลกชันว่าง, รายการ READY ที่ยังไม่นำเข้า, ชิ้นงานที่ยังไม่พร้อม
+  ส่งขาย ใช้นโยบายใหม่เพิ่ม) (2) **Business Coach** — ทุกการ์ดที่มาจากคำแนะนำ
+  AI CEO แสดงที่มา (นโยบาย/หลักฐาน/ความมั่นใจ/ผลกระทบ) ได้แล้ว (3)
+  **สายการผลิตเชิงพาณิชย์ (Commercial Pipeline)** — คำแนะนำ "ควรทำอะไรต่อ"
+  ต่อชิ้นงาน (จัดเข้าคอลเลกชันก่อน → ซ่อมก่อน SEO → ทำ SEO ก่อนพร้อม Export →
+  แนะนำ Export) ตอนนี้ตัดสินใจผ่าน Decision OS ทั้งหมดแล้ว ไม่ใช่โค้ด if/else
+  ในไฟล์เดิมอีกต่อไป — ผลลัพธ์ที่เห็นเหมือนเดิมทุกประการ (4) **Autopilot** —
+  ก่อนสร้างแผนออกแบบใหม่ ระบบจะถามตัวเองก่อนว่า "ควรสร้างใหม่จริงหรือควรทำงาน
+  ค้างให้เสร็จก่อน" (ดูหัวข้อถัดไป)
+- 🚦 **Autopilot ไม่รีบสร้างใหม่เสมอไป**: ก่อนแสดงแผนออกแบบ ระบบจะเช็คก่อนว่า
+  มีงานค้างจริงหรือไม่ (รันที่ค้างอยู่/หยุดชั่วคราว, รายการ READY ที่ยังไม่นำ
+  เข้าคลังผลงาน, ชิ้นงานที่ยัง REVIEW/REJECT) ถ้ามี ระบบจะแสดงข้อความ "AI
+  does not recommend new generation yet." พร้อมเหตุผลจริง นโยบาย หลักฐาน
+  และความมั่นใจ — ผู้ใช้เลือกได้ว่าจะไปจัดการงานค้างก่อน หรือกด "Generate
+  Anyway" เพื่อสร้างใหม่ต่อไปตามที่ต้องการ (ไม่มีการบล็อกแบบเด็ดขาด)
+- 🔍 **หน้าจอ "เหตุผล" (Explanation) แสดงข้อมูล Decision OS เพิ่ม**: ทุกจุดที่
+  มีคำอธิบาย "ทำไมระบบถึงแนะนำแบบนี้" (Morning Brief, การ์ด Business Coach,
+  ผลวินิจฉัย Portfolio Doctor) ตอนนี้ขยายดูเพิ่มได้ว่าใช้นโยบายอะไร หลักฐาน
+  อะไร ผลกระทบเชิงธุรกิจระดับไหน และทางเลือกอื่นคืออะไร — ข้อความเดิมที่
+  เคยแสดงอยู่แล้วไม่มีการเปลี่ยนแปลงถ้อยคำใดๆ เป็นการเพิ่มข้อมูลใหม่เท่านั้น
+- 🐛 **แก้บั๊กจริงที่พบระหว่างเชื่อมระบบ**: หลักฐาน "ความเข้มข้นของหมวดหมู่"
+  เคยมีช่องโหว่ที่ทำให้ระบบเข้าใจผิดว่ามีหมวดหมู่เยอะเกินไปทั้งที่ไม่มีข้อมูล
+  จริง (เกิดเฉพาะตอนใช้ evidence ร่วมกับการตรวจอื่นในโดเมนเดียวกัน) — แก้แล้ว
+  และมีเทสต์คลุมกันไม่ให้กลับมาอีก
+- 🐛 **แก้เงื่อนไขแข่งขัน (race condition) จริงใน Autopilot**: เดิมปุ่ม "สร้าง
+  แผนการออกแบบ" อ่านข้อมูลงานค้าง/คุณภาพจากสถานะที่โหลดตอนเปิดหน้าจอ ถ้าผู้ใช้
+  กดเร็วก่อนโหลดเสร็จ ระบบอาจแนะนำ "สร้างใหม่" ทั้งที่มีงานค้างจริงอยู่ — แก้
+  โดยให้ปุ่มนี้ดึงข้อมูลสดใหม่ทุกครั้งที่กด แทนการเชื่อสถานะที่โหลดไว้ตอนเปิด
+  หน้าจอ (แก้ที่ต้นเหตุจริง ไม่ใช่แค่แก้เทสต์)
+- 🐛 **แก้ปัญหา setState หลังปิดหน้าจอ** ใน 4 หน้าจอ (Portfolio Doctor,
+  AI Chat/Conversation, Business Goals, Mission Control) ที่เคยเรียก
+  setState หลังผู้ใช้ปิดหน้าจอไปแล้ว (พบระหว่างรันชุดทดสอบเต็มรูปแบบ) — ไม่มี
+  ผลต่อการใช้งานจริงที่เห็น แต่ป้องกัน error แปลกๆ ที่อาจเกิดขึ้นได้
+- 📄 ดูรายละเอียดครบทุกกฎที่ย้ายเข้า Decision OS และกฎที่ยังไม่ได้ย้าย (พร้อม
+  เหตุผล) ได้ที่ `BUILD_031B_LOGIC_MIGRATION_AUDIT.md`
+
+### v1.90 — 1 ส.ค. 2026 — Build 031B: Decision OS (สมองธุรกิจกลาง)
+
+- 🧠 **Decision OS ใหม่ทั้งระบบ** (`decisionOS/`) — ไม่ใช่ฟีเจอร์หรือแดชบอร์ด
+  ใหม่ที่ผู้ใช้เห็นโดยตรง แต่เป็น "สมองธุรกิจ" กลางหนึ่งเดียวที่ทุกโมดูล AI
+  ในแอปนี้ (AI CEO, Autopilot, Commercial Pipeline, Business Coach,
+  Portfolio Doctor) ค่อยๆ เปลี่ยนมาเรียกใช้แทนตรรกะ if/switch แยกกันของ
+  ตัวเอง — หน้าตาและการใช้งานของทุกหน้าจอเดิมไม่เปลี่ยนแปลง
+- 🔗 **สายงานเดียว Policy → Evidence → Confidence → Decision**: ทุก
+  คำแนะนำเชิงธุรกิจต้องผ่าน (1) นโยบายที่กำหนดไว้ชัดเจนเป็นข้อมูล ไม่ใช่โค้ด
+  ฝังตรรกะ (2) หลักฐานจริงจากระบบที่มีอยู่แล้ว (3) คะแนนความมั่นใจที่คำนวณ
+  จากหลักฐานจริงเท่านั้น (ไม่เคยสร้างตัวเลขความมั่นใจขึ้นเอง) (4) การตัดสินใจ
+  ที่อธิบายได้ทุกขั้นตอน
+- 📋 **นโยบายเริ่มต้น 15 ข้อ**: Factory 7 ข้อ (เช่น "ทำงานค้างให้เสร็จก่อน",
+  "QA ก่อน Export เสมอ", "ห้าม Export คอลเลกชันที่ยังไม่ครบบทบาท"), Portfolio
+  3 ข้อ (เช่น "หลีกเลี่ยงหมวดที่มีเยอะเกินไป"), Marketplace 4 ข้อ (ลำดับ
+  เลือกเป้าหมาย: หลักฐานตลาดจริงก่อน → ช่องว่างคลังผลงาน → หมวด evergreen),
+  Commercial 1 ข้อ ("ห้าม Export ต่ำกว่าเกณฑ์ความพร้อมเสมอ") — ทุกนโยบายเปิด/
+  ปิดและปรับลำดับได้จากหลังบ้าน (ไม่มีหน้าจอตั้งค่าใหม่ขนาดใหญ่ ตามเจตนาของ
+  ระบบนี้ที่ต้องการ "มองไม่เห็น" สำหรับผู้ใช้ทั่วไป)
+- 🎯 **ผลกระทบเชิงธุรกิจเป็นระดับคุณภาพเท่านั้น** (สูงมาก/สูง/ปานกลาง/ต่ำ/
+  ไม่ทราบ) — ไม่เคยประมาณเป็นตัวเลขรายได้ และลดระดับลงอัตโนมัติเมื่อความ
+  มั่นใจต่ำ (ความมั่นใจ "ไม่ทราบ" รายงานผลกระทบเป็น "ไม่ทราบ" เสมอ ไม่เคย
+  อ้างผลกระทบแม้แต่ระดับต่ำแบบเดา)
+- 🔌 **เชื่อมเข้ากับโมดูลจริงแล้ว 2 จุด**: (1) AI CEO — การเลือกเป้าหมาย 3
+  ทาง (หลักฐานตลาดจริง / ช่องว่างคลังผลงาน / evergreen) ตอนนี้ตัดสินใจผ่าน
+  Decision OS แล้ว ผลลัพธ์ที่ผู้ใช้เห็นเหมือนเดิมทุกประการ (2) Portfolio
+  Doctor — การเช็ค "หมวดใดหมวดหนึ่งเยอะเกินไป" ใช้นโยบายเดียวกันนี้แล้ว
+- 📜 **Decision Timeline**: บันทึกประวัติการตัดสินใจแบบ append-only
+  (เพิ่มอย่างเดียว ไม่แก้ไขย้อนหลัง) เพื่อตรวจสอบย้อนกลับได้ — ยังไม่ใช่ระบบ
+  เรียนรู้ ไม่มีการตัดสินใจครั้งใดย้อนกลับไปมีผลต่อครั้งถัดไป (ตามการออกแบบ
+  ของ build นี้)
+- 🛡 **ความปลอดภัย**: เมื่อหลักฐานไม่พอ (คะแนนความมั่นใจต่ำกว่าเกณฑ์ หรือไม่มี
+  หลักฐานเลย) ระบบรายงาน "ไม่ทราบ" อย่างตรงไปตรงมาแทนการเดา — ไม่มีการ
+  ตัดสินใจใดที่ถูก "เดา" เพื่อให้ดูมีคำตอบเสมอ
+- 💾 **Data Model**: เพิ่ม store ใหม่ 2 อัน (`decisionTimeline`,
+  `decisionPolicyOverrides`) พร้อมปิดช่องโหว่เดิมจาก Build 031A ที่ลืมเพิ่ม
+  `commercialPackageHistory` เข้าระบบสำรองข้อมูล — ทั้ง 3 store อยู่ใน
+  `.vspsb` แล้ว
+- 🔌 **ทำงานออฟไลน์ได้ 100%**: Decision OS ทั้งระบบไม่มีการเรียก network
+  ใดๆ ทั้งสิ้น อ่านเฉพาะข้อมูลที่โมดูลผู้เรียกโหลดมาให้แล้วเท่านั้น
+
+### v1.89 — 1 ส.ค. 2026 — Build 031A: Commercial Production Pipeline
+
+- 🆕 **แท็บใหม่ "🏗 สายการผลิตเชิงพาณิชย์" ในศูนย์การผลิต** — เปลี่ยนจุดสนใจ
+  จาก "สร้างลายเสร็จ" เป็น "ทำให้ลายเป็นแพ็กเกจพร้อมขายจริง" ตามหลักการ "ซ่อน
+  ความซับซ้อน ผู้ใช้เห็นแค่สถานะเชิงพาณิชย์"
+- 📊 **Commercial Readiness Engine**: 14 รายการตรวจสอบจริงถ่วงน้ำหนักเป็น 8
+  หมวด รวมเป็นคะแนน 0-100% ต่อชิ้นงาน — รายการที่ขาดพื้นฐานจริง (ไม่มี SVG/
+  ไม่ผ่าน QA/ไม่มีคอลเลกชัน/ไม่มี generator version) ถูกล็อกเป็น **BLOCKED**
+  เสมอไม่ว่าคะแนนรวมจะสูงแค่ไหน ป้องกันไม่ให้จุดอ่อนพื้นฐานถูกกลบด้วยคะแนน
+  หมวดอื่น
+- 📦 **Commercial Package Builder**: สร้าง ZIP พร้อมส่งขาย (ไฟล์ต้นฉบับ +
+  metadata + manifest) ต่อชิ้นงาน/ตลาด ต่อยอดจาก
+  `submissionPackageBuilder.ts` เดิม — แพ็กเกจที่คุณภาพยังไม่ครบได้ป้าย
+  "NEEDS_VERIFICATION" กำกับเสมอ ไม่เคยติดป้ายพร้อมขายเท็จ
+- 🧩 **ตรวจสอบความสมบูรณ์คอลเลกชัน (Collection Completeness)**: ตรวจบทบาท
+  (hero/secondary/blender/coordinate/stripe/texture ฯลฯ) จาก tag จริงของแต่
+  ละชิ้นงานในคอลเลกชันเท่านั้น ไม่เคยสมมติบทบาทที่ไม่มี tag รองรับ
+- 📋 **Export Readiness Dashboard**: จัดกลุ่มชิ้นงานทั้งคลังเป็น 7 กลุ่มพร้อม
+  เหตุผลชัดเจนทุกกลุ่ม (แม้กลุ่มที่ไม่มีชิ้นงานก็อธิบายว่าทำไมว่างจริง)
+- 🤖 **AI แนะนำ (Commercial Recommendation)**: จัดอันดับสิ่งที่ควรทำต่อตาม
+  คุณค่าเชิงพาณิชย์สูงสุดก่อน (พร้อมส่งออกอยู่แล้ว, ขาด SEO, คอลเลกชันขาดแค่
+  บทบาทเดียวจะครบ ฯลฯ) — ชิ้นงานที่ไม่มีไฟล์ต้นฉบับเลยจะไม่ได้รับคำแนะนำใดๆ
+  (ไม่มีอะไรให้แนะนำได้จริง)
+- 📈 **ตัวชี้วัดธุรกิจ (Business Metrics)**: แพ็กเกจวันนี้/สัปดาห์นี้,
+  แพ็กเกจ/ชั่วโมง, Commercial Readiness เฉลี่ยของคลัง, นาทีที่ประหยัดได้
+  (ประมาณการจากเวลาทำมือ 15 นาที/แพ็กเกจ), Automation % — คำนวณจากประวัติ
+  การสร้างแพ็กเกจจริง (`commercialPackageHistory`, เก็บแบบ append-only) ไม่
+  มีการสมมติค่าใดเมื่อยังไม่มีข้อมูลพอ (แสดง "—" แทน)
+- 🔒 **เกณฑ์ความปลอดภัยขั้นต่ำ (Safety Threshold)**: ตั้งค่าได้ (ค่าเริ่มต้น
+  95%) — ต่ำกว่าเกณฑ์บล็อกการส่งออกเสมอ ต้องกด "ข้ามเกณฑ์และสร้างแพ็กเกจต่อ"
+  อย่างชัดเจนเท่านั้นถึงจะส่งออกได้ ไม่มีทางผ่านเกณฑ์แบบเงียบๆ
+- 💾 **Data Model**: เพิ่ม store ใหม่ 1 อัน (`commercialPackageHistory`) —
+  ตัวเลขอื่นทั้งหมด (readiness, dashboard, คำแนะนำ, ความสมบูรณ์คอลเลกชัน)
+  คำนวณสดจาก store ที่มีอยู่แล้วเสมอ ไม่สร้างข้อมูลซ้ำซ้อน
+- ✅ ไม่มีการอัปโหลดอัตโนมัติไปยังตลาดใดๆ ไม่มีข้อมูลตลาดที่สมมติขึ้นเอง
+  ทุกตัวเลข Commercial Readiness ตรวจสอบย้อนกลับไปที่รายการตรวจสอบจริงได้
+  เสมอ — สร้างแพ็กเกจเชิงพาณิชย์จากคอลเลกชันที่มีอยู่ได้ภายใน 5 คลิกหรือน้อย
+  กว่า (เลือกชิ้นงาน → เลือกตลาด → กดสร้างแพ็กเกจ)
+
+### v1.88 — 1 ส.ค. 2026 — Build 030 Part 2: AI Starts the Conversation
+
+- 🌅 **AI CEO Morning Brief** — สร้างและบันทึกทุกครั้งที่เปิด Mission
+  Control: คำทักทาย, วันที่, สถานะข้อมูล (Live Data/Saved Snapshot/Local
+  Portfolio Analysis/Offline Recommendation/Insufficient Data), สรุปครั้ง
+  ก่อน (ถ้ามีบันทึกจริง), ภารกิจแนะนำวันนี้พร้อมเหตุผล, ทางเลือกอื่น,
+  ผลกระทบต่อ Portfolio เชิงคุณภาพ, ขนาดผลิตแนะนำ, ความมั่นใจ, ความเสี่ยง,
+  ข้อมูลที่ขาด — ทุกอย่างมาจาก `aiCeo/decisionEngine.ts` (Module 2) ซึ่งนำ
+  `selectEvidence`/`leastCoveredCategory` ของ Autopilot (Build 029) และ
+  Dashboard Snapshot Recommendations (Build 017) มาจัดอันดับใหม่ ไม่มีการ
+  ให้คะแนนซ้ำหรือเดาตัวเลข
+- 🔁 **Continue Unfinished Work** — ตรวจจับรันที่ค้างอยู่/READY items ที่ยัง
+  ไม่นำเข้า Portfolio/collection ที่ว่างเปล่า แล้วแสดงเป็นการ์ดเดียวที่
+  สำคัญที่สุด พร้อมพาไปหน้า Autopilot History จริง (ไม่เคยรีสตาร์ทรันที่
+  ทำเสร็จบางส่วนแล้ว)
+- 🧑‍💼 **Business Coach** — การ์ด 8 ใบ (Today's Focus, Quick Win, Most
+  Important Blocker, Unfinished Work, Recommended Next Action, Weekly
+  Production Progress, Portfolio Growth, Submission Readiness) reshape
+  จาก Decision Engine + `missionControl/businessStatus.ts` เดิม
+- 🩺 **Portfolio Doctor** — วินิจฉัย 5 หัวข้อ (ความสมดุลหมวดหมู่ที่ปรับเกณฑ์
+  oversupply ได้เอง — ค่าเริ่มต้น 40%, collection ว่างเปล่า, อัตรา
+  REVIEW/REJECT จาก QualitySnapshot จริง, READY items ที่ยังไม่นำเข้า
+  Portfolio, งานที่ยังไม่พร้อมส่งขาย) พร้อมปุ่ม Send to Autopilot
+- 🎯 **Business Goals** — CRUD เป้าหมายธุรกิจ 11 ประเภท พร้อมคำเตือนอัตโนมัติ
+  "Revenue cannot be predicted reliably from portfolio size alone" เมื่อ
+  ข้อความมีคำเกี่ยวกับรายได้ — ไม่แปลงเป้ารายได้เป็นจำนวนรูปที่ต้องผลิต
+- 💬 **AI Conversation Engine + Conversation History** — ช่องสนทนาใหม่
+  (แยกจาก AI Command Bar เดิม) รู้จำประโยคไทย/อังกฤษที่กำหนดตายตัว 12 แบบ
+  ตามสเปก (วันนี้ควรทำอะไร, เริ่มภารกิจวันนี้, สร้าง N ลาย, สร้าง
+  Collection สำหรับ X, เพิ่ม Portfolio, เติมหมวดที่ขาด, ทำงานต่อจากเมื่อ
+  วาน, ตรวจ Portfolio, ดูงานที่ยังไม่เสร็จ, สร้าง Colorway เพิ่ม, เตรียมงาน
+  พร้อมส่งขาย, เปิดโหมดขั้นสูง) แล้ว fallback ไปยัง Command Bar/Custom Goal
+  parser เดิม ไม่มีการเรียก Cloud AI — คำสั่งที่ไม่รู้จักได้รับข้อความ
+  ซื่อสัตย์ "I cannot complete this command locally yet" — ทุกบทสนทนา
+  บันทึกจริงใน `aiConversations`/`aiConversationMessages` (archive/delete/
+  export JSON ได้)
+- 🧠 **User-Confirmed AI Memory** — ตรวจจับการเลือก marketplace ซ้ำกัน 3
+  ครั้งติดต่อกันแล้ว **เสนอ** เป็น memory ที่รอยืนยัน — มีผลต่อคำแนะนำก็
+  ต่อเมื่อผู้ใช้กด Confirm เท่านั้น (เก็บแยกคนละ store จาก candidate เพื่อ
+  ป้องกันไม่ให้ logic คำแนะนำอ่านค่าที่ยังไม่ยืนยันได้เลย) ทุกคำแนะนำที่ใช้
+  memory จะระบุ "Based on your confirmed preference…"
+- 🔒 **Initiative Rules** — ทุกคำแนะนำที่มี Autopilot hand-off ยังคงต้องผ่าน
+  หน้าตรวจแผนของ Autopilot ก่อนเสมอ (ไม่เคยสร้างลายอัตโนมัติโดยไม่ผ่านการ
+  อนุมัติ) ไม่มีโค้ดใดใน `aiCeo/` ที่เรียก submission/delete/QA-decision
+  function โดยตรง
+- ☁️ **Cloud AI Provider Boundary** — เตรียม interface สำหรับผู้ให้บริการ
+  Cloud AI ในอนาคต (`getActiveCloudAiProvider()` คืนค่า `null` เสมอในบิลด์
+  นี้) ไม่มี API key ฝังในโค้ด ไม่มี API key ถูกบันทึกใน `.vspsb`
+- 💾 **Data Model** — เพิ่ม 8 store ใหม่ (`aiCeoBriefs`, `businessGoals`,
+  `aiConversations`, `aiConversationMessages`, `aiMemoryCandidates`,
+  `aiMemories`, `portfolioDiagnoses`, `businessCoachRecommendations`) และ
+  ใช้ store `recommendationHistory` เดิม (เตรียมไว้ตั้งแต่ Build 028) เป็น
+  `proactiveRecommendationHistory` — DB_VERSION 11 → 12 พร้อม migration
+  test ครบ ทุก store ใหม่รวมอยู่ใน `.vspsb` backup/restore แล้ว
+- ✅ ทดสอบใหม่ 79+ รายการเฉพาะโมดูล AI CEO (decision engine ranking,
+  Business Coach, Portfolio Doctor, Business Goals, deterministic
+  intent — ไทย/อังกฤษครบ 12 คำสั่ง, memory suggest/confirm/reject,
+  conversation persistence, backup round trip, DB migration) รวมกับชุด
+  ทดสอบเดิมทั้งระบบผ่านครบ ไม่มี regression ในหน้าจอ Mission Control เดิม
+- 📌 **หมายเหตุ (ข้อจำกัดที่ยังไม่ครบสเปกเต็ม)**: Cloud AI Provider เป็น
+  interface ว่างเท่านั้น, Memory ตรวจจับรูปแบบซ้ำได้เฉพาะ Preferred
+  Marketplace (ยังไม่ครบทั้ง 12 ประเภทที่สเปกระบุ), "Continue Run" เปิดหน้า
+  Autopilot History ให้ผู้ใช้กด Resume เอง (ยังไม่ deep-link อัตโนมัติเข้า
+  รันที่ค้างอยู่ทันที)
+
+### v1.87 — 1 ส.ค. 2026 — Build 030 Part 1: AI CEO & Mission Control
+
+- 🆕 **หน้าแรกใหม่ทั้งหมด: Mission Control** แทนที่หน้าตัวสร้างลวดลายเดิม
+  ที่เคยเป็นค่าเริ่มต้น — ผู้ใช้ทั่วไปไม่ต้องเห็น Style DNA/Hero
+  Motif/Density/Composition/Palette/Generator settings จนกว่าจะเปิด
+  **⚙️ Advanced Mode** เอง
+- 🎯 **Top Hero Card** — โอกาสที่ดีที่สุดวันนี้ (ธีม, marketplace, ★1-5,
+  Estimated Commercial Score, Estimated Beauty Score, Portfolio Gap,
+  Estimated Production Time) พร้อมปุ่ม **✨ Start Today's Mission** เดียว
+  ที่พาตรงไปหน้าตรวจแผนของ Autopilot (ข้ามหน้าเลือกโหมด) — ทุกตัวเลขคำนวณ
+  จากข้อมูลจริง มี fallback ที่ซื่อสัตย์ ("—" / "No data yet" / "Not yet
+  estimated") แทนการเดาตัวเลขเมื่อยังไม่มีข้อมูลพอ
+- 🤖 **แผง AI CEO** — พูดกับผู้ใช้ก่อนเสมอพร้อมเหตุผลจริงเป็นข้อ ๆ (ดึงจาก
+  Decision Engine ตัวเดียวกับ Autopilot) และปุ่ม Start / Adjust Goal /
+  Ask AI
+- 📊 **Today's Business Status** — Portfolio Health, คิวส่งขาย (READY /
+  Pending Review / Pending Upload จาก Production Queue จริง), ผลงานเดือน
+  นี้, Commercial Readiness — reshape จาก Dashboard Snapshot (Build 017)
+  และ Production Queue (Build 026) ที่มีอยู่แล้ว ไม่มีตัวเลขปลอม
+- 🎯 **AI Goal Modes** — ปุ่มเป้าหมายภาษาธุรกิจ 10 แบบ (Earn Faster, Grow
+  Portfolio, Seasonal Collection, Fill Portfolio Gaps, Evergreen Income,
+  Expand Adobe Stock, Expand Shutterstock, Expand Etsy, Use Today's
+  Recommendation, AI Chooses Everything) — แต่ละปุ่ม map ไปยัง Autopilot
+  mode ที่มีอยู่จริงแล้วพาไปหน้าแผนที่สร้างเสร็จทันที
+- 💬 **AI Command Bar** — ช่อง "Ask AI..." ตีความประโยคเดียวเป็นการนำทาง
+  จริง / Goal Mode จริง / หรือ fallback ไปยัง Custom Goal parser เดิมของ
+  Autopilot เสมอ ไม่มีการเรียก AI API ภายนอก
+- 🏷 **เปลี่ยนชื่อเมนูเป็นภาษาธุรกิจ**: Project Dashboard → 📊 Overview,
+  Design Workbench → 🎨 Pattern Studio, Portfolio Manager → 📂 Portfolio,
+  Backup Manager → 💾 Backup, นักการตลาด → 📈 AI Market Advisor, นักออกแบบ
+  → 🎨 AI Design Director
+- ⚙️ **Advanced Mode ยังอยู่ครบ** — ปุ่มใหม่เปิดหน้าตัวสร้างลวดลายแบบเดิม
+  ทั้งหมด ไม่มีฟีเจอร์เดิมถูกถอดออก
+- 🔧 **Autopilot ขยาย prop `initialAction`** — Mission Control ส่งโหมด/
+  จำนวน/marketplace/ประโยคเป้าหมายให้ Autopilot ข้ามหน้าเลือกโหมดแล้วสร้าง
+  แผนอัตโนมัติทันทีที่ข้อมูลตลาดโหลดเสร็จ (ยังคงเป็น "สร้างแผนครั้งเดียวต่อ
+  รัน" เหมือนเดิม)
+- ✅ ทดสอบผ่านครบ 3,834/3,834 การทดสอบทั้งระบบ (397 ไฟล์) รวมการทดสอบใหม่
+  เฉพาะ Mission Control 33 รายการ (unit + component-level ด้วย React
+  Testing Library) และตรวจสอบด้วยเบราว์เซอร์จริง — Mission Control โหลด
+  เป็นหน้าแรก, "Start Today's Mission" ข้ามหน้าเลือกโหมดไปหน้าตรวจแผนได้
+  จริง, ไม่มี console error
+- 📌 **หมายเหตุ**: นี่คือ Part 1 ของสเปก Build 030 หลายส่วน (AI CEO & Mission
+  Control) — Part 2 เป็นต้นไปยังไม่ได้รับ ยังไม่ implement การแชท AI แบบ
+  อิสระ (free-form conversation) หรือ Developer Mode toggle
 
 ### v1.86 — 31 ก.ค. 2026 — Build 029: Autonomous Design Autopilot — "✨ ออกแบบให้ฉันวันนี้"
 

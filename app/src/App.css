@@ -436,6 +436,24 @@ body {
   color: white;
 }
 
+/* Design Refinement Studio Pro, Mission 5 (Pattern Safety) — tile-border
+ * overlay toggle, same visual language as .repeat-toggle button. */
+.tile-border-toggle {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.tile-border-toggle.active {
+  background: #ff3b6f;
+  border-color: #ff3b6f;
+  color: white;
+}
+
 .rescale-row {
   display: flex;
   align-items: center;

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
 import type { GenerateParams } from '../../engine/types';
 import type { DesignSpecification, KeywordBundle } from '../../trend/designSpecTypes';
 import { buildDesignSpecification } from '../../trend/designIntelligence';
@@ -274,7 +274,7 @@ export function DesignWorkbench({ onApplyToEditor, onDownloadPackage, onGenerate
 
       <PanelVisibilityBar settings={settings} onToggle={handleTogglePanel} />
 
-      <div className="workbench-layout" style={{ gridTemplateColumns: `${settings.leftWidth}px auto minmax(0, 1fr) auto ${settings.rightWidth}px` }}>
+      <div className="workbench-layout" style={{ '--wb-left-width': `${settings.leftWidth}px`, '--wb-right-width': `${settings.rightWidth}px` } as CSSProperties}>
         <aside className="workbench-sidebar workbench-sidebar-left">
           <details open className="workbench-collapsible">
             <summary>🧠 Trend Studio</summary>

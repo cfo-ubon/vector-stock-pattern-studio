@@ -11,8 +11,9 @@
 // added to or overwritten record-by-record.
 
 import { sha256HexOfFile } from '../catalog/domain/hash';
-import { DB_VERSION, PORTFOLIO_FILES_STORE } from '../storage/db';
+import { DB_VERSION, PORTFOLIO_FILES_STORE, SUBMISSIONS_STORE } from '../storage/db';
 import type { PortfolioFileRecord } from '../catalog/domain/types';
+import { invalidateSubmissionStoreCache } from '../catalog/submission/submissionStore';
 import { validateAppBackupArchive, type AppBackupValidationResult } from './appBackupValidation';
 import { restoreAllStores, putAllRecords } from './appBackupIdb';
 import { applySettingsSnapshot, type AppBackupSettingsSnapshot } from './appBackupSettingsSnapshot';
@@ -120,6 +121,13 @@ export async function applyAppBackupRestore(blob: Blob, options: AppBackupRestor
   if (databaseEntry) {
     const dump = JSON.parse(new TextDecoder().decode(databaseEntry.data)) as AppBackupDatabaseDump;
     storeRecordCounts = await restoreAllStores(dump, APP_BACKUP_STORE_NAMES);
+    // `submissions` has its own synchronous in-memory cache
+    // (`catalog/submission/submissionStore.ts`) that this generic,
+    // store-name-driven restore bypasses — without this, a tab that
+    // already hydrated that cache once would keep showing pre-restore
+    // submission data until a manual page reload (Mission 8 certification
+    // finding).
+    if (SUBMISSIONS_STORE in storeRecordCounts) invalidateSubmissionStoreCache();
   }
 
   // assets/ — binary portfolio files, reconstructed from manifest metadata

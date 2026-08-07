@@ -1,0 +1,313 @@
+/* Mission 6 — Production Experience Layer. Reuses the same shared CSS
+ * custom properties and class-naming convention as
+ * components/autopilot/autopilot.css / components/missionControl/missionControl.css
+ * rather than inventing a parallel design language. 1100px/800px match
+ * the existing iPad/tablet and phone breakpoints used across the app. */
+
+.pe {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  color: var(--text);
+  min-height: 60vh;
+}
+
+.pe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pe-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.pe-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pe-nav button[aria-current='true'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.pe-error {
+  color: #e07a7a;
+  border: 1px solid #e07a7a;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.pe-greeting {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+}
+
+.pe-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.pe-tile {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pe-tile-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.pe-tile-value {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.pe-primary-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.pe-primary-action button {
+  font-size: 1.05rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.pe-action-center {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pe-action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.pe-action-item-detail {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.pe-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pe-step {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.pe-step--done {
+  background: var(--panel-alt);
+  color: var(--text);
+}
+
+.pe-step--current {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.pe-halted-banner {
+  border: 1px solid #e0b57a;
+  color: #e0b57a;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.pe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pe-review-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.pe-review-item-meta {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.pe-review-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pe-empty {
+  color: var(--text-dim);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .pe-tiles {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .pe {
+    padding: 1rem;
+  }
+  .pe-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pe-review-item,
+  .pe-action-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* AI-SBOS Mission, Part 5 — Preview Gallery */
+
+.pe-gallery-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pe-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.pe-gallery-card {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pe-gallery-card--selected {
+  border-color: var(--accent);
+}
+
+.pe-gallery-select {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1;
+}
+
+.pe-gallery-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel-alt);
+}
+
+.pe-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pe-gallery-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.pe-gallery-meta strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pe-gallery-scores {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.pe-gallery-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pe-gallery-badge {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.pe-gallery-badge--good {
+  background: rgba(62, 207, 142, 0.15);
+  color: #3ecf8e;
+}
+
+.pe-gallery-badge--warn {
+  background: rgba(224, 179, 76, 0.15);
+  color: #e0b34c;
+}
+
+.pe-gallery-status {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.pe-gallery-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 800px) {
+  .pe-gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

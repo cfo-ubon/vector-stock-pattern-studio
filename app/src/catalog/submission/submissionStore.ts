@@ -170,14 +170,27 @@ export async function resetSubmissionStoreForTest(): Promise<void> {
   await clearIndexedDb();
 }
 
-/** Test-only: forgets only the in-memory cache/hydration state, WITHOUT
- * touching whatever is already persisted in IndexedDB — simulates a fresh
- * page load against a database that already has real data in it (as
- * opposed to `resetSubmissionStoreForTest`, which also wipes IndexedDB
- * and is for isolating unrelated tests from each other). */
-export function forgetInMemoryStateForTest(): void {
+/** Forgets the in-memory cache/hydration state, WITHOUT touching whatever
+ * is already persisted in IndexedDB, so the next `loadSubmissions()` call
+ * (via a fresh `whenSubmissionStoreHydrated()`) re-reads real IndexedDB
+ * content instead of returning stale cached records. Needed by any writer
+ * that bypasses this module's own `put*`/`delete*` functions to write
+ * `submissions` directly to IndexedDB — currently only
+ * `backup/appBackupRestore.ts`, whose restore writes bypass this cache by
+ * design (restore is a generic, store-name-driven operation that doesn't
+ * know about this module's synchronous-cache trade-off). Without this
+ * call, a tab that already hydrated once would keep showing pre-restore
+ * submission data until a manual page reload. */
+export function invalidateSubmissionStoreCache(): void {
   cache = [];
   hydration = null;
+}
+
+/** Test-only alias of `invalidateSubmissionStoreCache` — kept so existing
+ * test call sites (which simulate "a fresh page load") don't need to be
+ * renamed. */
+export function forgetInMemoryStateForTest(): void {
+  invalidateSubmissionStoreCache();
 }
 
 export function loadSubmissions(): SubmissionRecord[] {
