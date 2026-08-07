@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.10 | AI-SBOS — M2 | *(this milestone's commit)* | What's New — a one-time-per-version dialog summarizing the latest changelog entry, with a persistent "Don't show again" opt-out | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a new AI-SBOS mission |
 | v2.09 | AI-SBOS — M1 | *(this milestone's commit)* | Product Identity + Consistent Header + Version Center — app rebranded to "AI-SBOS" (AI Stock Business Operating System) with Vector Stock Pattern Studio as its module name; every page shows a persistent identity bar (environment, project, version/build) and a clickable "About AI-SBOS" Version Center | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a new AI-SBOS mission |
 | v2.08 | Design Refinement Studio Pro — M5 | *(this milestone's commit)* | Pattern Safety — Design Inspector now surfaces the real seam-break signal (Corner Continuity, not the always-100 seamlessIntegrity constant), Approve requires explicit confirmation when it's at risk, and Preview gained a tile-border overlay toggle | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 of a 6-milestone mission |
 | v2.07 | Design Refinement Studio Pro — M4 | *(this milestone's commit)* | Batch Refinement — apply one owner-defined adjustment (palette/hierarchy override, density/negative-space/overlap/rotation/scale deltas) across many selected patterns at once, each saved as its own non-destructive version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a 6-milestone mission |
@@ -119,6 +120,12 @@ Operating System)** — ส่วนสร้างลายเดิม **Vecto
 [Version and Build Numbering](#-version-and-build-numbering) ด้านบน — Version
 Center เป็นเพียงหน้าต่างแสดงข้อมูลชุดเดียวกันนี้ให้เห็นในแอปโดยตรง ไม่ต้องเปิด
 เอกสารแยก
+
+- **✨ What's New**: เปิดแอปครั้งแรกหลังมีอัปเดตเวอร์ชันใหม่ จะเห็นหน้าต่างนี้
+  ขึ้นอัตโนมัติ 1 ครั้ง สรุปการเปลี่ยนแปลงล่าสุด (ข้อมูลเดียวกับ "Latest
+  Changes" ใน Version Center) ปิดแล้วจะไม่ขึ้นซ้ำสำหรับเวอร์ชันเดิมอีก —
+  ติ๊ก "ไม่ต้องแสดงอีก" เพื่อปิดการแจ้งเตือนนี้ถาวรได้ทุกเมื่อ (บันทึกไว้ใน
+  เบราว์เซอร์เครื่องนี้เท่านั้น)
 
 ---
 
@@ -2029,6 +2036,28 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.10 — 7 ส.ค. 2026 — AI-SBOS, Milestone 2: What's New
+
+ไมล์สโตนที่ 2 ของภารกิจ AI-SBOS — ไม่มีการเปลี่ยนตรรกะธุรกิจใดๆ เช่นเดียวกับ
+Milestone 1
+
+- 🆕 **✨ What's New dialog** (`components/appIdentity/WhatsNewDialog.tsx`):
+  แสดงอัตโนมัติครั้งแรกที่เปิดแอปหลังมีเวอร์ชันใหม่ อ่านข้อมูลจาก
+  `CHANGELOG[0]` ใน `appMeta.ts` — แหล่งข้อมูลเดียวกับที่ Version Center
+  ใช้แสดง "Latest Changes" ไม่มีชุดข้อมูลซ้ำซ้อน 2 ชุด
+- 🆕 **สถานะการปิด/ไม่แสดงอีก** (`components/appIdentity/whatsNewStore.ts`):
+  เก็บ "เวอร์ชันล่าสุดที่เห็นแล้ว" และ "ไม่ต้องแสดงอีก" ใน localStorage ของ
+  เบราว์เซอร์เครื่องนี้ (รูปแบบเดียวกับ key อื่นที่แอปใช้อยู่แล้ว เช่น
+  gallery storage ใน `App.tsx`) — ปิด dialog เฉยๆ จะไม่โชว์ซ้ำสำหรับเวอร์ชัน
+  เดิม แต่จะโชว์อีกครั้งถ้ามีเวอร์ชันใหม่จริง เว้นแต่ติ๊ก "ไม่ต้องแสดงอีก"
+  ซึ่งจะปิดถาวรทุกเวอร์ชันในเบราว์เซอร์นี้
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 9 เคส (โชว์ครั้งแรกจริง, ไม่โชว์ซ้ำเวอร์ชันเดิม
+  หลังปิด, โชว์ใหม่เมื่อมีเวอร์ชันใหม่จริงแม้เคยปิดเวอร์ชันเก่าไปแล้ว, "ไม่ต้อง
+  แสดงอีก" บล็อกทุกเวอร์ชันจริง ไม่ใช่แค่เวอร์ชันปัจจุบัน) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์ด้วย browser profile ใหม่ 2
+  ชุด: ชุดแรกยืนยันโชว์ครั้งแรก→ปิด→reload ไม่โชว์ซ้ำ, ชุดที่สองยืนยันติ๊ก
+  "ไม่ต้องแสดงอีก"→reload ยังคงไม่โชว์ โดยไม่มี console error เลย
 
 ### v2.09 — 7 ส.ค. 2026 — AI-SBOS, Milestone 1: Product Identity + Consistent Header + Version Center
 

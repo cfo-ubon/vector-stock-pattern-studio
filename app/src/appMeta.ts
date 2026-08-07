@@ -15,9 +15,9 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
-export const APP_VERSION = '2.09';
-export const BUILD_NAME = 'AI-SBOS M1';
-export const BUILD_DESCRIPTION = 'Product Identity + Consistent Header + Version Center';
+export const APP_VERSION = '2.10';
+export const BUILD_NAME = 'AI-SBOS M2';
+export const BUILD_DESCRIPTION = "What's New dialog";
 export const RELEASE_DATE = '2026-08-07';
 
 /** The real commit this build was produced from — injected at build time
@@ -38,7 +38,7 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * silently drifting from what was actually verified. */
 export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission in progress';
 export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks';
-export const REGRESSION_RESULT = '505 test files / 4433 tests passing (last full regression run)';
+export const REGRESSION_RESULT = '509 test files / 4452 tests passing (last full regression run)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -51,6 +51,15 @@ export interface WhatsNewEntry {
  * by the What's New dialog (which shows only `CHANGELOG[0]` once per
  * version, see `components/appIdentity/WhatsNewDialog.tsx`). */
 export const CHANGELOG: WhatsNewEntry[] = [
+  {
+    version: '2.10',
+    date: '2026-08-07',
+    title: "AI-SBOS: What's New",
+    highlights: [
+      'เปิดแอปครั้งแรกหลังมีอัปเดตเวอร์ชันใหม่ จะเห็นหน้าต่าง "What\'s New" สรุปสิ่งที่เปลี่ยนแปลงล่าสุดโดยอัตโนมัติ',
+      'ติ๊ก "ไม่ต้องแสดงอีก" เพื่อปิดการแจ้งเตือนนี้ถาวรได้ทุกเมื่อ',
+    ],
+  },
   {
     version: '2.09',
     date: '2026-08-07',

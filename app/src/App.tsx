@@ -63,6 +63,8 @@ import { AutopilotView } from './components/autopilot/AutopilotView';
 import { ProductionHomeView } from './components/productionExperience/ProductionHomeView';
 import { MissionControlView, type MissionControlAutopilotAction } from './components/missionControl/MissionControlView';
 import { VersionCenterDialog } from './components/appIdentity/VersionCenterDialog';
+import { WhatsNewDialog } from './components/appIdentity/WhatsNewDialog';
+import { shouldShowWhatsNew } from './components/appIdentity/whatsNewStore';
 import { PRODUCT_NAME, PRODUCT_SUBTITLE, MODULE_NAME, APP_VERSION, BUILD_NAME, ENVIRONMENT } from './appMeta';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
@@ -178,6 +180,7 @@ function App() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [view, setView] = useState<'missionControl' | 'editor' | 'dashboard' | 'trendStudio' | 'portfolio' | 'backup' | 'marketing' | 'designDirector' | 'autopilot' | 'production'>('missionControl');
   const [showVersionCenter, setShowVersionCenter] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(() => shouldShowWhatsNew(APP_VERSION));
   // Build 030 (Mission Control) — the action a Mission Control button (Hero
   // Card / AI CEO Panel / Goal Mode / Command Bar) chose, handed to
   // `AutopilotView`'s `initialAction` prop so it skips straight to the
@@ -1178,6 +1181,7 @@ function App() {
         </div>
       </header>
       {showVersionCenter && <VersionCenterDialog onClose={() => setShowVersionCenter(false)} />}
+      {showWhatsNew && <WhatsNewDialog onDismiss={() => setShowWhatsNew(false)} />}
       <nav aria-label="Main navigation">
         <ProjectBar
           projects={projects}
