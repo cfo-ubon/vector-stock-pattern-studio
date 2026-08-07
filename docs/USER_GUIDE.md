@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.08 | Design Refinement Studio Pro — M5 | *(this milestone's commit)* | Pattern Safety — Design Inspector now surfaces the real seam-break signal (Corner Continuity, not the always-100 seamlessIntegrity constant), Approve requires explicit confirmation when it's at risk, and Preview gained a tile-border overlay toggle | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 of a 6-milestone mission |
 | v2.07 | Design Refinement Studio Pro — M4 | *(this milestone's commit)* | Batch Refinement — apply one owner-defined adjustment (palette/hierarchy override, density/negative-space/overlap/rotation/scale deltas) across many selected patterns at once, each saved as its own non-destructive version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a 6-milestone mission |
 | v2.06 | Design Refinement Studio Pro — M3 | *(this milestone's commit)* | Version Control + Compare Center — full version-history browser (continue editing/duplicate/rename/delete) for any Design Edit lineage, plus a two-version Compare Center (side-by-side, slider overlay, Quality Score diff, parameter diff) | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a 6-milestone mission |
 | v2.05 | Design Refinement Studio Pro — M2 | *(this milestone's commit)* | AI Design Coach + Commercial Revalidation — human-readable, deterministic improvement advice inside Design Edit Mode, and automatic QA/Commercial Readiness re-scoring for every newly-approved Design Version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a 6-milestone mission |
@@ -1268,7 +1269,7 @@ JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด —
 
 ---
 
-## 🎨 Design Edit Mode + AI Design Coach + Version Control + Batch Refinement — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ ประวัติเวอร์ชัน และปรับหลายชิ้นงานพร้อมกัน 🆕
+## 🎨 Design Edit Mode + AI Design Coach + Version Control + Batch Refinement + Pattern Safety — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ ประวัติเวอร์ชัน ปรับหลายชิ้นงานพร้อมกัน และตรวจสอบความปลอดภัยของลาย 🆕
 
 เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
 ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
@@ -1332,10 +1333,24 @@ secondary/accent) ของลายที่สร้างจาก Factory �
     Readiness ทันที) — ต้นฉบับทุกชิ้นไม่ถูกแตะต้องเลย ระบบตรวจจับของซ้ำจริง
     ยังทำงานอยู่ (ชิ้นงานที่ไม่มีการเปลี่ยนแปลงจริงจะถูกข้าม ไม่ถูกบันทึกซ้ำ)
     และแสดงสรุปผลลัพธ์ท้ายสุด (สำเร็จ/ข้าม/ผิดพลาด กี่ชิ้น)
+- 🆕 **🧵 Pattern Safety**: แผงใหม่ใน Design Inspector แสดง **Corner
+  Continuity** — คะแนนความเสี่ยง "รอยกากบาทว่าง" ที่จุดที่ 4 มุมของ tile
+  มาบรรจบกันตอนต่อลายซ้ำ (สัญญาณจริงที่วัดได้จริง ต่างจาก "Seamless
+  Integrity" ที่การันตีโดยตัวสร้างลายเสมอและไม่เปลี่ยนค่าเลยไม่ว่าจะแก้
+  อะไร — ช่องนี้จึงถูกเอาออกจากแผง Real-Time Metrics เพราะไม่ใช่สัญญาณที่
+  บอกอะไรได้จริง) ถ้าคะแนนต่ำจนเสี่ยงจริง ปุ่ม Approve จะต้องกดยืนยัน
+  "เข้าใจแล้ว บันทึกต่อ" ก่อนหนึ่งครั้ง (เหมือนกรณี "อาจซ้ำ" เดิม) ไม่บล็อก
+  แบบเงียบๆ และไม่ปล่อยผ่านแบบเงียบๆ
+- 🆕 **🔲 แสดงเส้นขอบ Tile**: ปุ่มใหม่ในแถบเครื่องมือของพรีวิว (ใช้ได้ทุกที่ที่
+  มี Preview Canvas ไม่ใช่แค่ Design Edit Mode) วาดเส้นประขอบ tile ทับตัวอย่าง
+  ลาย ช่วยดูตำแหน่งรอยต่อจริงเวลาต่อลายซ้ำ (เปิดพร้อมโหมด 2×2/3×3/4×4 ที่มี
+  อยู่แล้วจะเห็นชัดสุด) — Repeat Preview เดิม (1×1/2×2/3×3/4×4) ก็คือ Pattern
+  Safety ส่วนหนึ่งอยู่แล้วตั้งแต่ต้น ไม่ต้องสร้างใหม่
 
-ฟีเจอร์นี้เป็น 4 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
-รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด) และ
-Pattern Safety ซึ่งจะตามมาในไมล์สโตนถัดไป
+ฟีเจอร์นี้เป็นครบ 5 ไมล์สโตนของภารกิจ "Design Refinement Studio Pro" ตามลำดับ
+ที่เจ้าของร้านกำหนด — เหลือเพียงเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/
+ปรับขนาดจุดต่อจุด) ที่เลื่อนออกไปเป็นเวอร์ชันหลังตามคำสั่งเดิม และ Milestone 6
+(Offline / Regression / Production Verification / รายงานสรุป) ที่จะตามมา
 
 ---
 
@@ -1979,6 +1994,47 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.08 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 5: Pattern Safety
+
+ไมล์สโตนที่ 5 (สุดท้ายก่อน Milestone 6 regression/รายงานสรุป) ของภารกิจ
+"Design Refinement Studio Pro" — ระหว่างการค้นคว้าพบว่าช่อง "Seamless
+Integrity" ที่แผง Design Inspector แสดงมาตั้งแต่ Milestone 2 เป็นค่าคงที่
+100 เสมอ (`engine/qualityScore.ts`: การันตีโดยเทคนิค wrap-clone ของตัวสร้าง
+ลายเอง ไม่ใช่ค่าที่วัดจากลายจริงหรือเปลี่ยนแปลงได้) — จึงแก้ให้ตรงไปตรงมา
+โดยเอาช่องนี้ออกจาก Real-Time Metrics และแทนที่ด้วยสัญญาณจริงที่วัดได้จริง
+
+- 🆕 **Pattern Safety** (`design/patternSafety.ts`): `hasSeamBreakRisk()`
+  อ่านจาก `cornerDeadZone` ที่ `detectProblems` ตรวจจับอยู่แล้วตั้งแต่
+  Milestone 1/2 (สัญญาณจริงจาก `cornerContinuity` — ความหนาแน่นที่ 4 มุม
+  tile เทียบกับค่าเฉลี่ยทั้ง tile) ไม่มีการสร้าง threshold ใหม่หรือคำนวณ
+  ซ้ำซ้อน ใช้ฟังก์ชันเดียวกันทั้งใน Design Inspector และ Approve gate
+- 🆕 **Design Inspector**: เพิ่มแผง "🧵 Pattern Safety" แสดง Corner
+  Continuity พร้อมข้อความอธิบายชัดเจนว่า seamless wrap รับประกันเสมอ
+  (ไม่ใช่ความเสี่ยง) แต่มุม tile ยังเสี่ยงเป็นรอยกากบาทว่างได้จริง
+- 🆕 **Approve gate**: ถ้า `hasSeamBreakRisk()` เป็นจริง ปุ่ม Approve จะถูก
+  ปิดใช้งานจนกว่าจะกดยืนยัน "เข้าใจแล้ว บันทึกต่อ" หนึ่งครั้ง (รูปแบบเดียวกับ
+  การยืนยัน "อาจซ้ำ" ที่มีอยู่แล้วจาก Milestone 1) — การแก้พารามิเตอร์ใหม่
+  ต้องยืนยันใหม่เสมอ
+- 🆕 **🔲 แสดงเส้นขอบ Tile**: ปุ่มใหม่ใน `PreviewCanvas` (ใช้ร่วมกันทุกหน้าที่
+  มีพรีวิว ไม่ผูกกับ Design Edit Mode) วาดเส้นประที่ตำแหน่งขอบ tile จริงตาม
+  พิกัดที่คำนวณได้ (`i × tileSize, j × tileSize`) ต่อกันเป็น `<g>` เดียวกับ
+  markup เดิมจาก `buildPreviewMarkup` ไม่ต้องเพิ่ม overlay element ใหม่
+- ✅ **Repeat Preview**: ยืนยันว่ามีอยู่แล้วตั้งแต่ต้น (ปุ่ม 1×1/2×2/3×3/4×4
+  ใน `PreviewCanvas`) — ไม่ต้องสร้างใหม่ ถือเป็นส่วนหนึ่งของ Pattern Safety
+  ที่ทำสำเร็จไปแล้วตั้งแต่ก่อน Milestone นี้
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (`hasSeamBreakRisk` ตรงกับข้อมูลจริงจาก
+  เอนจิน ไม่ false positive/negative, เส้นขอบ tile วาดตำแหน่งถูกต้องตาม
+  จำนวนและพิกัดจริงเมื่อ repeat เปลี่ยน, ปิดปุ่มแล้ว overlay หายจริง) รวม
+  regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: เปิด Design
+  Edit Mode เห็นแผง Pattern Safety จริง, สลับ 3×3 ได้ viewBox ถูกต้อง
+  (3600×3600 จาก tileSize 1200), เปิดเส้นขอบ tile ได้ 9 เส้นตรงตามจำนวน
+  tile จริงที่ 3×3 และหายครบเมื่อปิด โดยไม่มี console error เลย
+  (หมายเหตุตรงไปตรงมา: ค้นหาพารามิเตอร์จริงที่ทำให้ cornerDeadZone ติด
+  จริงในหลายร้อยชุดค่าไม่พบสักครั้ง — คะแนนต่ำสุดที่เจอคือ ~51 ยังสูงกว่า
+  threshold 40 เสมอ แสดงว่าเงื่อนไขนี้เกิดยากในทางปฏิบัติจริงตามการออกแบบ
+  เอนจิน จึงยืนยัน logic การยืนยัน Approve gate ด้วย fixture ที่สร้างขึ้น
+  จากโครงสร้างข้อมูลจริงแทนการค้นหาแบบสุ่มที่ไม่น่าจะเจอ)
 
 ### v2.07 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 4: Batch Refinement
 

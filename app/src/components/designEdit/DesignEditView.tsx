@@ -6,6 +6,7 @@ import { loadDesignParamsForAsset } from '../../design/designParamsIO';
 import { evaluateDesign, type DesignEvaluation } from '../../design/designEvaluation';
 import { saveDesignVersion } from '../../design/designVersioning';
 import { revalidateDesignVersion } from '../../design/designRevalidation';
+import { hasSeamBreakRisk } from '../../design/patternSafety';
 import { createHistory, pushHistory, undoHistory, redoHistory, canUndo, canRedo, type HistoryState } from '../../workbench/workbenchHistory';
 import { PreviewCanvas } from '../PreviewCanvas';
 import { DesignEditControls } from './DesignEditControls';
@@ -46,6 +47,7 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
   const [revalidationError, setRevalidationError] = useState<string | null>(null);
   const [revalidatedScore, setRevalidatedScore] = useState<{ commercialScore: number; band: string } | null>(null);
   const [actionCount, setActionCount] = useState(0);
+  const [safetyConfirmed, setSafetyConfirmed] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -88,10 +90,17 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
     setHistory((h) => pushHistory(h, { ...params, ...patch }));
     setActionCount((n) => n + 1);
     setSaveOutcome(null);
+    setSafetyConfirmed(false);
   };
+
+  // Mission 5 — Pattern Safety: Approve requires one explicit confirmation
+  // click when `hasSeamBreakRisk` is true, the same "warn, don't silently
+  // block or silently allow" pattern already used for possibleDuplicate.
+  const hasSeamRisk = evaluation ? hasSeamBreakRisk(evaluation) : false;
 
   const handleApprove = async (forceImportAsNew: boolean) => {
     if (!params || !evaluation) return;
+    if (hasSeamRisk && !safetyConfirmed) return;
     setSaving(true);
     setSaveError(null);
     setRevalidationError(null);
@@ -161,7 +170,23 @@ export function DesignEditView({ asset, existingAssets, originalReadiness, onClo
             <div className="design-edit-preview-col">
               <PreviewCanvas tileData={evaluation?.tileData ?? null} />
               <div className="design-edit-approve-bar">
-                <button type="button" className="btn btn--primary" disabled={saving || revalidating || !hasEdits} onClick={() => handleApprove(false)}>
+                {hasSeamRisk && !safetyConfirmed && (
+                  <div className="design-edit-save-warning" role="alert">
+                    <p>
+                      🧵 มุม tile 4 มุมเสี่ยงเป็นรอยกากบาทว่างเมื่อต่อลายซ้ำ (Corner Continuity ต่ำ) — ตรวจสอบที่พรีวิว 3×3/4×4 หรือเปิด "แสดงเส้นขอบ Tile"
+                      ก่อนบันทึก
+                    </p>
+                    <button type="button" className="btn btn--small" onClick={() => setSafetyConfirmed(true)}>
+                      เข้าใจแล้ว บันทึกต่อ
+                    </button>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  disabled={saving || revalidating || !hasEdits || (hasSeamRisk && !safetyConfirmed)}
+                  onClick={() => handleApprove(false)}
+                >
                   {saving ? 'กำลังบันทึก…' : '✅ Approve — Save as New Version'}
                 </button>
                 {saveOutcome?.status === 'possibleDuplicate' && (
