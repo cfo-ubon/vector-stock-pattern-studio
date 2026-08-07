@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.07 | Design Refinement Studio Pro — M4 | *(this milestone's commit)* | Batch Refinement — apply one owner-defined adjustment (palette/hierarchy override, density/negative-space/overlap/rotation/scale deltas) across many selected patterns at once, each saved as its own non-destructive version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a 6-milestone mission |
 | v2.06 | Design Refinement Studio Pro — M3 | *(this milestone's commit)* | Version Control + Compare Center — full version-history browser (continue editing/duplicate/rename/delete) for any Design Edit lineage, plus a two-version Compare Center (side-by-side, slider overlay, Quality Score diff, parameter diff) | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a 6-milestone mission |
 | v2.05 | Design Refinement Studio Pro — M2 | *(this milestone's commit)* | AI Design Coach + Commercial Revalidation — human-readable, deterministic improvement advice inside Design Edit Mode, and automatic QA/Commercial Readiness re-scoring for every newly-approved Design Version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a 6-milestone mission |
 | v2.04 | Design Refinement Studio Pro — M1 | *(this milestone's commit)* | Design Edit Mode — non-destructive parameter editing (Floating Design Inspector, live re-evaluation, undo/redo, Approve-as-new-version) for any Factory/Autopilot-produced pattern, opened from the Portfolio Preview Dialog | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a 6-milestone mission |
@@ -1267,7 +1268,7 @@ JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด —
 
 ---
 
-## 🎨 Design Edit Mode + AI Design Coach + Version Control — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติและประวัติเวอร์ชัน 🆕
+## 🎨 Design Edit Mode + AI Design Coach + Version Control + Batch Refinement — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ ประวัติเวอร์ชัน และปรับหลายชิ้นงานพร้อมกัน 🆕
 
 เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
 ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
@@ -1317,9 +1318,24 @@ secondary/accent) ของลายที่สร้างจาก Factory �
   ฟิลด์ไหนเปลี่ยนจากค่าอะไรเป็นค่าอะไร) — ทั้งสองใช้เอนจินประเมินผลเดิมกับ
   Design Inspector เป๊ะๆ ไม่มีระบบให้คะแนนใหม่
 
-ฟีเจอร์นี้เป็น 3 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
-รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), Batch
-Refinement, และ Pattern Safety ซึ่งจะตามมาในไมล์สโตนถัดไป
+- 🆕 **🎨 Batch Refine**: เลือกหลายชิ้นงานพร้อมกันในหน้า Portfolio (ใช้กล่อง
+  กาเครื่องหมายที่มีอยู่แล้วสำหรับการดำเนินการหลายรายการ) แล้วกด "🎨 Batch
+  Refine" ในแถบเครื่องมือ — ตั้งการปรับ **ทีเดียว** ให้ใช้กับทุกชิ้นงานที่เลือก:
+  - **Palette** / **Hierarchy preset**: กำหนดค่าตายตัวให้ทุกชิ้นงานที่เลือก
+  - **Motif Density / Negative Space / Overlap / Rotation Jitter / Scale
+    Jitter**: ปรับแบบ "บวก/ลบ" จากค่าเดิมของแต่ละชิ้นงานเอง (ไม่ใช่ตั้งค่า
+    เดียวกันหมดทุกชิ้น) เช่น "+10% density" จะเพิ่มความหนาแน่นของทุกชิ้นงาน
+    จากฐานเดิมของมันเอง ลายที่หนาแน่นอยู่แล้วกับลายที่โปร่งอยู่แล้วจะได้ผลลัพธ์
+    ต่างกันตามจริง ไม่ใช่ถูกบังคับให้เท่ากันหมด
+  - แต่ละชิ้นงานที่เลือกจะได้ **เวอร์ชันใหม่ของตัวเอง** ผ่าน pipeline
+    เดียวกับ Design Edit Mode (บันทึกเวอร์ชัน + ตรวจ QA/Commercial
+    Readiness ทันที) — ต้นฉบับทุกชิ้นไม่ถูกแตะต้องเลย ระบบตรวจจับของซ้ำจริง
+    ยังทำงานอยู่ (ชิ้นงานที่ไม่มีการเปลี่ยนแปลงจริงจะถูกข้าม ไม่ถูกบันทึกซ้ำ)
+    และแสดงสรุปผลลัพธ์ท้ายสุด (สำเร็จ/ข้าม/ผิดพลาด กี่ชิ้น)
+
+ฟีเจอร์นี้เป็น 4 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
+รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด) และ
+Pattern Safety ซึ่งจะตามมาในไมล์สโตนถัดไป
 
 ---
 
@@ -1963,6 +1979,36 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.07 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 4: Batch Refinement
+
+ไมล์สโตนที่ 4 ของภารกิจ "Design Refinement Studio Pro" — ปรับหลายชิ้นงาน
+พร้อมกันโดยไม่มีเอนจิน/สตอเรจใหม่: ใช้ pipeline เดียวกับ Design Edit Mode
+(M1-M3) วนซ้ำทีละชิ้นงาน
+
+- 🆕 **Batch Refinement** (`design/batchRefinement.ts`): `applyBatchAdjustments`
+  ปรับพารามิเตอร์แบบ **สัมพัทธ์** (delta บวก/ลบจากค่าเดิมของแต่ละชิ้นงานเอง
+  แล้ว clamp 0..1) สำหรับ density/negativeSpace/overlap/rotationJitter/
+  scaleJitter หรือ **ค่าตายตัว** (absolute override) สำหรับ palette/
+  hierarchy preset — `runBatchRefinement` วนทีละชิ้นงานตามลำดับ (ต้อง
+  sequential ตามกติกาเดิมของ `importFileGroup`'s ตรวจของซ้ำ) เรียก
+  `loadDesignParamsForAsset` → `evaluateDesign` → `saveDesignVersion` →
+  `revalidateDesignVersion` — path เดียวกับ Approve เป๊ะๆ ทุกชิ้นงานได้
+  เวอร์ชันใหม่ของตัวเอง ต้นฉบับไม่ถูกแตะต้องเลย
+- 🆕 **ปุ่ม "🎨 Batch Refine"** ในแถบเครื่องมือการเลือกหลายรายการที่มีอยู่แล้ว
+  (ข้าง "เพิ่มเข้าคอลเลกชัน"/"📤 Export") เปิดฟอร์มปรับค่าและแสดงความคืบหน้า
+  "กำลังประมวลผล X/N" พร้อมสรุปผลท้ายสุด (สำเร็จ/ข้าม (ซ้ำ)/ข้าม (ไม่มี
+  พารามิเตอร์)/ผิดพลาด)
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 7 เคส (delta สัมพัทธ์ถูก clamp ถูกต้อง, ฟิลด์ที่
+  ไม่ปรับไม่เปลี่ยน, ต้นฉบับไม่เปลี่ยนหลัง batch, ชิ้นงานที่ไม่มีพารามิเตอร์จริง
+  ถูกข้ามโดยไม่กระทบชิ้นอื่นในชุดเดียวกัน, progress callback ถูกต้อง,
+  การปรับที่ไม่เปลี่ยนอะไรจริงยังถูกระบบตรวจของซ้ำจริงจับได้) รวม regression
+  เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์: เลือก 3 ชิ้นงานจริง → ตั้ง
+  density +50% → กด Apply → ได้ 3 เวอร์ชันใหม่จริง (จำนวนชิ้นงานในคลังเพิ่ม
+  จาก 10 เป็น 13 ตรงตามจริง) โดยไม่มี console error เลย
+
+**ยังไม่ทำในไมล์สโตนนี้**: Pattern Safety (M5) — เครื่องมือแก้ไข SVG แบบ
+interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลัง
 
 ### v2.06 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 3: Version Control + Compare Center
 

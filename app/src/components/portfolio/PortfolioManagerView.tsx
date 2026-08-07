@@ -37,6 +37,7 @@ import { PortfolioImportPanel } from './PortfolioImportPanel';
 import { DesignEditView } from '../designEdit/DesignEditView';
 import { VersionHistoryView } from '../designEdit/VersionHistoryView';
 import { CompareCenterView } from '../designEdit/CompareCenterView';
+import { BatchRefinementView } from '../designEdit/BatchRefinementView';
 import { PortfolioHealthCheckPanel } from './PortfolioHealthCheckPanel';
 import { CollectionsView } from './CollectionsView';
 import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
@@ -113,6 +114,7 @@ export function PortfolioManagerView({ onClose }: Props) {
   const [editDesignAssetId, setEditDesignAssetId] = useState<string | null>(null);
   const [versionHistoryAssetId, setVersionHistoryAssetId] = useState<string | null>(null);
   const [compareAssetIds, setCompareAssetIds] = useState<[string, string] | null>(null);
+  const [batchRefineAssetIds, setBatchRefineAssetIds] = useState<string[] | null>(null);
   const [previewSeoScore, setPreviewSeoScore] = useState<SeoScoreReport | null>(null);
   const [marketplaceSelectionAssetIds, setMarketplaceSelectionAssetIds] = useState<string[] | null>(null);
   const [duplicateWarnings, setDuplicateWarnings] = useState<string[] | null>(null);
@@ -623,6 +625,7 @@ export function PortfolioManagerView({ onClose }: Props) {
             onBulkAssign={() => setBulkDialogMode('assign')}
             onBulkRemove={() => setBulkDialogMode('remove')}
             onBulkExport={() => setMarketplaceSelectionAssetIds([...multiSelectedIds])}
+            onBulkRefine={() => setBatchRefineAssetIds([...multiSelectedIds])}
             exportStatusByAsset={exportStatusByAsset}
           />
         </div>
@@ -769,6 +772,23 @@ export function PortfolioManagerView({ onClose }: Props) {
           const compareB = assets.find((a) => a.assetId === compareAssetIds[1]);
           if (!compareA || !compareB) return null;
           return <CompareCenterView assetA={compareA} assetB={compareB} onClose={() => setCompareAssetIds(null)} />;
+        })()}
+
+      {batchRefineAssetIds &&
+        (() => {
+          const batchAssets = assets.filter((a) => batchRefineAssetIds.includes(a.assetId));
+          if (batchAssets.length === 0) return null;
+          return (
+            <BatchRefinementView
+              assets={batchAssets}
+              existingAssets={assets}
+              onClose={() => setBatchRefineAssetIds(null)}
+              onFinished={() => {
+                setMultiSelectedIds(new Set());
+                void refreshAssetsQuietly().then(() => loadCommercialData());
+              }}
+            />
+          );
         })()}
 
       {marketplaceSelectionAssetIds && !duplicateWarnings && (

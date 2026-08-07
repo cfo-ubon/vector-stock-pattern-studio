@@ -9,6 +9,9 @@ interface Props {
    * that don't need it (none remain, but kept backward-compatible) don't
    * have to pass it. */
   onExport?: () => void;
+  /** Design Refinement Studio Pro, Mission 4 — Batch Refinement entry
+   * point. Optional for the same reason as `onExport`. */
+  onBatchRefine?: () => void;
 }
 
 /** Portfolio Manager P2 Stage 2, Section 13 — appears above the asset
@@ -19,7 +22,7 @@ interface Props {
  * is intentionally cleared whenever the search/filter query changes (see
  * `PortfolioManagerView.tsx`), so a stale selection can never silently
  * apply to a different result set. */
-export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection, onAssign, onRemove, busy, onExport }: Props) {
+export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection, onAssign, onRemove, busy, onExport, onBatchRefine }: Props) {
   return (
     <div className="portfolio-bulk-action-bar" role="toolbar" aria-label="การดำเนินการหลายรายการ">
       <span>เลือกแล้ว {selectedCount} รายการ</span>
@@ -38,6 +41,11 @@ export function BulkActionBar({ selectedCount, onSelectVisible, onClearSelection
       {onExport && (
         <button type="button" className="btn btn--small btn--primary" onClick={onExport} disabled={busy || selectedCount === 0}>
           📤 Export
+        </button>
+      )}
+      {onBatchRefine && (
+        <button type="button" className="btn btn--small" onClick={onBatchRefine} disabled={busy || selectedCount === 0}>
+          🎨 Batch Refine
         </button>
       )}
     </div>

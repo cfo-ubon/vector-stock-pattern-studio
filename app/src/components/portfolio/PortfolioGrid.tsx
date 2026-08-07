@@ -42,6 +42,9 @@ interface Props {
   /** Hotfix v1.0.1, Part 5 — bulk export entry point, forwarded to
    * `BulkActionBar`'s optional Export button. */
   onBulkExport?: () => void;
+  /** Design Refinement Studio Pro, Mission 4 — Batch Refinement entry
+   * point, forwarded to `BulkActionBar`'s optional Batch Refine button. */
+  onBulkRefine?: () => void;
   /** Hotfix v1.0.1, Part 7 — per-asset Export Status, batch-derived once
    * by the caller (see `PortfolioManagerView.tsx`'s `exportStatusByAsset`)
    * and forwarded to each `PortfolioThumbnail` for its status badge. */
@@ -69,6 +72,7 @@ export function PortfolioGrid({
   onBulkRemove,
   bulkBusy,
   onBulkExport,
+  onBulkRefine,
   exportStatusByAsset,
 }: Props) {
   const [visible, setVisible] = useState(PAGE_SIZE);
@@ -112,6 +116,7 @@ export function PortfolioGrid({
           onRemove={onBulkRemove}
           busy={!!bulkBusy}
           onExport={onBulkExport}
+          onBatchRefine={onBulkRefine}
         />
       )}
 
