@@ -35,6 +35,8 @@ import { PortfolioGrid } from './PortfolioGrid';
 import { PortfolioDetailPanel } from './PortfolioDetailPanel';
 import { PortfolioImportPanel } from './PortfolioImportPanel';
 import { DesignEditView } from '../designEdit/DesignEditView';
+import { VersionHistoryView } from '../designEdit/VersionHistoryView';
+import { CompareCenterView } from '../designEdit/CompareCenterView';
 import { PortfolioHealthCheckPanel } from './PortfolioHealthCheckPanel';
 import { CollectionsView } from './CollectionsView';
 import { CollectionAssignmentDialog } from './CollectionAssignmentDialog';
@@ -109,6 +111,8 @@ export function PortfolioManagerView({ onClose }: Props) {
   // --- Hotfix v1.0.1: Commercial Export UX ---------------------------
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
   const [editDesignAssetId, setEditDesignAssetId] = useState<string | null>(null);
+  const [versionHistoryAssetId, setVersionHistoryAssetId] = useState<string | null>(null);
+  const [compareAssetIds, setCompareAssetIds] = useState<[string, string] | null>(null);
   const [previewSeoScore, setPreviewSeoScore] = useState<SeoScoreReport | null>(null);
   const [marketplaceSelectionAssetIds, setMarketplaceSelectionAssetIds] = useState<string[] | null>(null);
   const [duplicateWarnings, setDuplicateWarnings] = useState<string[] | null>(null);
@@ -715,6 +719,10 @@ export function PortfolioManagerView({ onClose }: Props) {
             setEditDesignAssetId(previewAsset.assetId);
             setPreviewAssetId(null);
           }}
+          onOpenVersionHistory={() => {
+            setVersionHistoryAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
         />
       )}
 
@@ -733,6 +741,34 @@ export function PortfolioManagerView({ onClose }: Props) {
               }}
             />
           );
+        })()}
+
+      {versionHistoryAssetId && (
+        <VersionHistoryView
+          rootAssetId={versionHistoryAssetId}
+          allAssets={assets}
+          readinessByAsset={readinessByAsset}
+          onClose={() => setVersionHistoryAssetId(null)}
+          onContinueEditing={(assetId) => {
+            setEditDesignAssetId(assetId);
+            setVersionHistoryAssetId(null);
+          }}
+          onCompare={(assetIdA, assetIdB) => setCompareAssetIds([assetIdA, assetIdB])}
+          onUpdateAsset={handleUpdateAsset}
+          onDeleteRecordOnly={handleDeleteRecordOnly}
+          onDeleteRecordAndFiles={handleDeleteRecordAndFiles}
+          onDuplicated={() => {
+            void refreshAssetsQuietly().then(() => loadCommercialData());
+          }}
+        />
+      )}
+
+      {compareAssetIds &&
+        (() => {
+          const compareA = assets.find((a) => a.assetId === compareAssetIds[0]);
+          const compareB = assets.find((a) => a.assetId === compareAssetIds[1]);
+          if (!compareA || !compareB) return null;
+          return <CompareCenterView assetA={compareA} assetB={compareB} onClose={() => setCompareAssetIds(null)} />;
         })()}
 
       {marketplaceSelectionAssetIds && !duplicateWarnings && (

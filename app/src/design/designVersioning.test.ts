@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { describe, it, expect, beforeEach } from 'vitest';
 import { File as NodeFile } from 'node:buffer';
-import { saveDesignVersion, listDesignVersions } from './designVersioning';
+import { saveDesignVersion, listDesignVersions, duplicateDesignVersion } from './designVersioning';
 import { evaluateDesign } from './designEvaluation';
 import { importFileGroup } from '../catalog/import/importPipeline';
 import { groupFilesByBasename } from '../catalog/import/basenameGrouping';
@@ -64,6 +64,35 @@ describe('saveDesignVersion', () => {
     expect(outcome.status).toBe('imported');
     if (outcome.status !== 'imported') return;
     expect(outcome.asset.parentAssetId).toBe(original.assetId);
+  });
+});
+
+describe('duplicateDesignVersion', () => {
+  it('creates a new linked asset that renders byte-identical output to the source, using forceImportAsNew to skip the expected exact-duplicate block', async () => {
+    const source = await makeOriginalAsset('dup-source-seed');
+
+    const outcome = await duplicateDesignVersion(source, [source]);
+    expect(outcome).not.toBeNull();
+    expect(outcome?.status).toBe('imported');
+    if (!outcome || outcome.status !== 'imported') return;
+
+    expect(outcome.asset.assetId).not.toBe(source.assetId);
+    expect(outcome.asset.parentAssetId).toBe(source.assetId);
+    expect(outcome.asset.displayName).toContain('copy');
+
+    // The source itself is never modified by duplicating it.
+    const reloadedSource = await getPortfolioAsset(source.assetId);
+    expect(reloadedSource).toEqual(source);
+  });
+
+  it('returns null (never a fabricated copy) for an asset with no loadable GenerateParams', async () => {
+    const svg = makeFile('noMeta.svg', '<svg></svg>', 'image/svg+xml');
+    const group = groupFilesByBasename([svg])[0];
+    const outcome = await importFileGroup(group, []);
+    if (outcome.status !== 'imported') throw new Error('setup failed');
+
+    const dupOutcome = await duplicateDesignVersion(outcome.asset, [outcome.asset]);
+    expect(dupOutcome).toBeNull();
   });
 });
 

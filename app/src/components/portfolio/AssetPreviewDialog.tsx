@@ -34,6 +34,7 @@ interface Props {
   onExport: () => void;
   onOpenSubmissionHistory: () => void;
   onOpenEditDesign: () => void;
+  onOpenVersionHistory: () => void;
 }
 
 /** Hotfix v1.0.1, Part 1 — Preview Dialog. Every score shown here is read
@@ -41,7 +42,19 @@ interface Props {
  * Readiness from `readinessEngine.ts`, SEO Score from `seoScoring.ts`,
  * Export Status from `exportWorkflow.ts`) — this component computes
  * nothing itself, it only displays. */
-export function AssetPreviewDialog({ asset, readiness, seoScore, collections, exportStatus, onClose, onOpenEditDetails, onExport, onOpenSubmissionHistory, onOpenEditDesign }: Props) {
+export function AssetPreviewDialog({
+  asset,
+  readiness,
+  seoScore,
+  collections,
+  exportStatus,
+  onClose,
+  onOpenEditDetails,
+  onExport,
+  onOpenSubmissionHistory,
+  onOpenEditDesign,
+  onOpenVersionHistory,
+}: Props) {
   const svgRef = asset.sourceFileReferences.find((r) => r.role === 'svg') ?? null;
   const pngRef = asset.sourceFileReferences.find((r) => r.role === 'png') ?? null;
   const [previewRole, setPreviewRole] = useState<'svg' | 'png'>(svgRef ? 'svg' : 'png');
@@ -129,6 +142,9 @@ export function AssetPreviewDialog({ asset, readiness, seoScore, collections, ex
           </button>
           <button type="button" className="btn" onClick={onOpenEditDesign}>
             🎨 Edit Design
+          </button>
+          <button type="button" className="btn" onClick={onOpenVersionHistory}>
+            🕓 Version History
           </button>
           <button type="button" className="btn" onClick={onOpenEditDetails}>
             ✏️ แก้ไขรายละเอียด

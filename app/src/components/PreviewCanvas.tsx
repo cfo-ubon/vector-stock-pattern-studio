@@ -7,6 +7,12 @@ interface Props {
   /** Called when the user drags the post-gen pattern-scale slider.
    * Receives the new scale factor (1 = as generated). */
   onRescale?: (patternScale: number) => void;
+  /** `buildPreviewMarkup`'s own SVG-id namespace — must be unique among
+   * every `PreviewCanvas` mounted on the page at once (see that function's
+   * doc comment). Defaults to `'main'`, the single-canvas case every
+   * existing caller relies on; Compare Center (Mission 3) is the first
+   * caller that mounts two at once and must pass distinct ids. */
+  instanceId?: string;
 }
 
 const REPEAT_OPTIONS = [
@@ -16,12 +22,12 @@ const REPEAT_OPTIONS = [
   { n: 4, label: '4×4' },
 ];
 
-export function PreviewCanvas({ tileData, onRescale }: Props) {
+export function PreviewCanvas({ tileData, onRescale, instanceId = 'main' }: Props) {
   // Defaults to 1x1 since the primary sale format is a single standalone
   // image, not a repeated swatch — 3x3 stays one click away to verify
   // seamlessness before export.
   const [repeat, setRepeat] = useState(1);
-  const markup = useMemo(() => (tileData ? buildPreviewMarkup(tileData, repeat, 'main') : ''), [tileData, repeat]);
+  const markup = useMemo(() => (tileData ? buildPreviewMarkup(tileData, repeat, instanceId) : ''), [tileData, repeat, instanceId]);
 
   if (!tileData) {
     return (

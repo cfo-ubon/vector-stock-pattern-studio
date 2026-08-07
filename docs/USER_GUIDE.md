@@ -56,6 +56,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.06 | Design Refinement Studio Pro — M3 | *(this milestone's commit)* | Version Control + Compare Center — full version-history browser (continue editing/duplicate/rename/delete) for any Design Edit lineage, plus a two-version Compare Center (side-by-side, slider overlay, Quality Score diff, parameter diff) | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a 6-milestone mission |
 | v2.05 | Design Refinement Studio Pro — M2 | *(this milestone's commit)* | AI Design Coach + Commercial Revalidation — human-readable, deterministic improvement advice inside Design Edit Mode, and automatic QA/Commercial Readiness re-scoring for every newly-approved Design Version | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a 6-milestone mission |
 | v2.04 | Design Refinement Studio Pro — M1 | *(this milestone's commit)* | Design Edit Mode — non-destructive parameter editing (Floating Design Inspector, live re-evaluation, undo/redo, Approve-as-new-version) for any Factory/Autopilot-produced pattern, opened from the Portfolio Preview Dialog | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a 6-milestone mission |
 | v2.03 | Hotfix v1.0.2 | *(this hotfix's commit)* | Production Hotfix — fixed the P0 metadata-wiring bug blocking every freshly-generated pattern from commercial export, plus every verified P1/P2/P3 finding from the full UI/UX production audit | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main` |
@@ -1266,7 +1267,7 @@ JSON ฯลฯ) ถ่วงน้ำหนักเป็น 8 หมวด —
 
 ---
 
-## 🎨 Design Edit Mode + AI Design Coach — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติ 🆕
+## 🎨 Design Edit Mode + AI Design Coach + Version Control — แก้ไขลายแบบไม่ทำลายต้นฉบับ พร้อมคำแนะนำอัตโนมัติและประวัติเวอร์ชัน 🆕
 
 เปิดจากปุ่ม **"🎨 Edit Design"** ในหน้าต่างตัวอย่างชิ้นงาน (Preview Dialog)
 ของ Portfolio Manager — ใช้ปรับแต่งพารามิเตอร์การสร้างลาย (seed, category,
@@ -1299,11 +1300,26 @@ secondary/accent) ของลายที่สร้างจาก Factory �
   ใช้ตอนสร้างลายทุกครั้ง) แสดงคะแนน Commercial Score และ Band (READY/
   NEEDS_WORK/BLOCKED) ทันทีในหน้าจอแก้ไข — เวอร์ชันใหม่จึงไม่ค้างอยู่ในสถานะ
   "ยังไม่เคยตรวจ QA" เหมือนก่อนหน้านี้
+- 🆕 **🕓 Version History**: ปุ่มใหม่ในหน้าต่างตัวอย่างชิ้นงาน เปิดรายการ
+  เวอร์ชันทั้งหมดของลายนี้ (ต้นฉบับ + ทุกเวอร์ชันที่ Approve ไว้ เรียงใหม่สุด
+  ก่อน) แต่ละแถวมีคะแนน Commercial Readiness ล่าสุด และปุ่ม:
+  - **🎨 แก้ไขต่อจากเวอร์ชันนี้** — เปิด Design Edit Mode โดยใช้เวอร์ชันนั้น
+    เป็นจุดเริ่มต้น (แก้ต่อจากเวอร์ชันเก่าได้โดยไม่ต้องย้อนกลับไปแก้ต้นฉบับ)
+  - **📄 ทำสำเนา** — สร้างชิ้นงานใหม่ที่เหมือนเวอร์ชันนั้นทุกประการ (เผื่อ
+    อยากแตกแขนงจากจุดนั้นโดยไม่กระทบเวอร์ชันเดิม)
+  - **✏️ เปลี่ยนชื่อ** และ **🗑 ลบเวอร์ชันนี้** (เลือกได้ว่าจะลบเฉพาะรายการ
+    หรือรายการ+ไฟล์ — ระบบเตือนถ้าเวอร์ชันนั้นมีเวอร์ชันอื่นแตกต่อจากมัน)
+  - เลือก 2 เวอร์ชันด้วยกล่องกาเครื่องหมายเพื่อเปิด Compare Center
+- 🆕 **🔍 Compare Center**: เปรียบเทียบ 2 เวอร์ชันแบบ **Side-by-side** (ตัวอย่าง
+  ลายเต็มทั้งคู่ ปรับ repeat ได้อิสระต่อกัน) หรือ **Slider Overlay** (ลากแถบ
+  เพื่อเผยอีกเวอร์ชันทับอีกอัน) พร้อมตาราง **Quality Score เปรียบเทียบ**
+  (ผลต่างของทุกมิติคะแนน) และรายการ **พารามิเตอร์ที่ต่างกัน** (บอกตรงๆ ว่า
+  ฟิลด์ไหนเปลี่ยนจากค่าอะไรเป็นค่าอะไร) — ทั้งสองใช้เอนจินประเมินผลเดิมกับ
+  Design Inspector เป๊ะๆ ไม่มีระบบให้คะแนนใหม่
 
-ฟีเจอร์นี้เป็น 2 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
-รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), ประวัติ
-เวอร์ชันแบบเต็ม, Compare Center, และ Batch Refinement ซึ่งจะตามมาในไมล์สโตน
-ถัดไป
+ฟีเจอร์นี้เป็น 3 ไมล์สโตนแรกของภารกิจ "Design Refinement Studio Pro" — ยังไม่
+รวมเครื่องมือแก้ไข SVG แบบ interactive (ลาก/หมุน/ปรับขนาดจุดต่อจุด), Batch
+Refinement, และ Pattern Safety ซึ่งจะตามมาในไมล์สโตนถัดไป
 
 ---
 
@@ -1947,6 +1963,42 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.06 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 3: Version Control + Compare Center
+
+ไมล์สโตนที่ 3 ของภารกิจ "Design Refinement Studio Pro" — ยังคงกติกาเดิม
+เต็มรูปแบบ: **ไม่มีสตอเรจใหม่ ไม่มีเอนจินคำนวณคะแนนใหม่** ทุกจุดอ่านจาก
+`PortfolioAsset.parentAssetId`/`variationGroupId` ที่มีอยู่แล้วตั้งแต่ M1
+(`listDesignVersions`) และเอนจินประเมินผลเดิมจาก M2
+
+- 🆕 **🕓 Version History** (`VersionHistoryView.tsx`): เปิดจากหน้าต่าง
+  ตัวอย่างชิ้นงาน — แสดงทุกเวอร์ชันในสาย lineage เดียวกัน พร้อม:
+  - **แก้ไขต่อจากเวอร์ชันนี้** — เปิด Design Edit Mode ด้วยเวอร์ชันเก่าเป็น
+    จุดเริ่มต้น (ของเดิมที่มีอยู่แล้วตั้งแต่ M1 — ทุกเวอร์ชันเป็น
+    `PortfolioAsset` จริงที่แก้ไขต่อได้อยู่แล้ว แค่เพิ่มทางเข้าใหม่)
+  - **ทำสำเนา** (`duplicateDesignVersion` ใน `design/designVersioning.ts`) —
+    ใช้ path เดียวกับ Approve (`saveDesignVersion` + `forceImportAsNew`)
+  - **เปลี่ยนชื่อ** — เขียนผ่าน `putPortfolioAsset` เดิม
+  - **ลบ** — ใช้ `deletePortfolioAssetRecordOnly`/`AndFiles` เดิมที่มีอยู่แล้ว
+    ในหน้าแก้ไขรายละเอียด พร้อมคำเตือนถ้าเวอร์ชันนั้นมีเวอร์ชันลูก
+- 🆕 **🔍 Compare Center** (`CompareCenterView.tsx`): เลือก 2 เวอร์ชันจาก
+  Version History มาเปรียบเทียบ — Side-by-side ใช้ `PreviewCanvas` เดิม
+  (เพิ่ม prop `instanceId` ให้ mount 2 อันพร้อมกันได้โดยไม่ชน SVG id กัน),
+  Slider Overlay ใช้ CSS `clip-path` ธรรมดาบนมาร์กอัปจาก `buildPreviewMarkup`
+  เดิม, ตาราง Quality Score ใช้ `evaluateDesign` เดิมจาก M2 ทั้งสองฝั่ง,
+  และรายการพารามิเตอร์ที่ต่างกันใช้ `workbench/jsonDiff.ts`'s `diffJson`
+  ที่ Design Workbench ใช้อยู่แล้ว (generic ไม่ผูกกับโมเดลไหนเป็นการเฉพาะ)
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 2 เคส (`duplicateDesignVersion` สร้างสำเนาจริง
+  โดยต้นฉบับไม่เปลี่ยน, คืนค่า null อย่างตรงไปตรงมาเมื่อไม่มีพารามิเตอร์จริง
+  ให้สำเนา) รวม regression เต็มชุดผ่านทั้งหมด และตรวจสอบจริงในเบราว์เซอร์:
+  สร้างเวอร์ชันที่ 2 จริง → เปิด Version History เห็นครบ 2 เวอร์ชัน → เลือก
+  เปรียบเทียบ → เห็นตาราง Quality Score จริงพร้อมผลต่างที่ถูกต้อง (เช่น
+  "flow -11", "spacing +6") และพารามิเตอร์ที่ต่างจริงแค่จุดเดียว (`density`)
+  ตรงกับสิ่งที่แก้จริง → Slider Overlay ใช้งานได้ → เปลี่ยนชื่อสำเร็จ →
+  ทำสำเนาสำเร็จ (จำนวนเวอร์ชันเพิ่มขึ้นจริง) โดยไม่มี console error เลย
+
+**ยังไม่ทำในไมล์สโตนนี้**: Batch Refinement (M4), Pattern Safety (M5) —
+เครื่องมือแก้ไข SVG แบบ interactive ยังคงเลื่อนออกไปเป็นเวอร์ชันหลัง
 
 ### v2.05 — 7 ส.ค. 2026 — Design Refinement Studio Pro, Milestone 2: AI Design Coach + Commercial Revalidation
 

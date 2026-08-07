@@ -37,6 +37,7 @@ describe('AssetPreviewDialog', () => {
         onClose={() => {}}
         onOpenEditDetails={() => {}}
         onOpenEditDesign={() => {}}
+        onOpenVersionHistory={() => {}}
         onExport={() => {}}
         onOpenSubmissionHistory={() => {}}
       />,
@@ -57,6 +58,7 @@ describe('AssetPreviewDialog', () => {
         onClose={() => {}}
         onOpenEditDetails={() => {}}
         onOpenEditDesign={() => {}}
+        onOpenVersionHistory={() => {}}
         onExport={() => {}}
         onOpenSubmissionHistory={() => {}}
       />,
@@ -76,6 +78,7 @@ describe('AssetPreviewDialog', () => {
         onClose={() => {}}
         onOpenEditDetails={() => {}}
         onOpenEditDesign={() => {}}
+        onOpenVersionHistory={() => {}}
         onExport={() => {}}
         onOpenSubmissionHistory={() => {}}
       />,
@@ -98,6 +101,7 @@ describe('AssetPreviewDialog', () => {
         onClose={() => {}}
         onOpenEditDetails={onOpenEditDetails}
         onOpenEditDesign={() => {}}
+        onOpenVersionHistory={() => {}}
         onExport={onExport}
         onOpenSubmissionHistory={onOpenSubmissionHistory}
       />,
@@ -122,6 +126,7 @@ describe('AssetPreviewDialog', () => {
         onClose={onClose}
         onOpenEditDetails={() => {}}
         onOpenEditDesign={() => {}}
+        onOpenVersionHistory={() => {}}
         onExport={() => {}}
         onOpenSubmissionHistory={() => {}}
       />,
