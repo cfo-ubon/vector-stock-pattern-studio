@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.13 | AI-SBOS — M5 | *(this milestone's commit)* | Closing verification — Desktop/Laptop/iPad Portrait/iPad Landscape device checks, full offline verification of Today's Production + Version Center + Portfolio Analytics, full regression suite run twice back-to-back, new `PRODUCTION_WORKSPACE_GUIDE.md` | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 (final) of the AI-SBOS mission |
 | v2.12 | AI-SBOS — M4 | *(this milestone's commit)* | Portfolio role repositioning — relabeled as Library/Search/Analytics/Collections/History & Submissions, with a new dedicated Analytics tab; no longer the primary path for routine export | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a new AI-SBOS mission |
 | v2.11 | AI-SBOS — M3 | *(this milestone's commit)* | Today's Production Workspace — consolidated Generate → Preview Gallery → Marketplace Export → Download Center in one screen, no Portfolio navigation required for routine production | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a new AI-SBOS mission |
 | v2.10 | AI-SBOS — M2 | *(this milestone's commit)* | What's New — a one-time-per-version dialog summarizing the latest changelog entry, with a persistent "Don't show again" opt-out | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a new AI-SBOS mission |
@@ -2083,6 +2084,35 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.13 — 7 ส.ค. 2026 — AI-SBOS, Milestone 5 (ปิดภารกิจ): การตรวจสอบขั้นสุดท้าย
+
+ไมล์สโตนสุดท้ายของภารกิจ AI-SBOS — **ไม่มีฟีเจอร์ใหม่ ไม่มีการเปลี่ยนตรรกะ
+ธุรกิจ** เป็นการตรวจสอบปิดภารกิจตามสเปก Part 13/14/15: ทดสอบอุปกรณ์หลาย
+ขนาดหน้าจอ, ทดสอบออฟไลน์เต็มรูปแบบ, รัน regression ซ้ำสองครั้ง และจัดทำ
+เอกสารสรุป
+
+- ✅ **ทดสอบหลายอุปกรณ์ (Part 13)**: Desktop (1920×1080), Laptop
+  (1366×768), iPad แนวตั้ง (834×1112), iPad แนวนอน (1112×834) — ทุกอุปกรณ์
+  ไม่มี scroll แนวนอน, ป้ายเวอร์ชันแสดงผลถูกต้อง, แท็บ Portfolio และหน้า
+  Today's Production render ได้ปกติ ไม่มี console error เลยแม้แต่จุดเดียว
+- ✅ **ทดสอบออฟไลน์เต็มรูปแบบ (Part 11)**: โหลดแอปจริงจาก `/studio` build
+  ให้ Service Worker ติดตั้งก่อน แล้วตัดเครือข่ายทั้งหมด (`context.setOffline
+  (true)`) — ยืนยันว่าแบรนด์ AI-SBOS, หน้าต่าง What's New, Version Center
+  (แสดงสถานะ "🔴 Offline" ถูกต้อง), ขั้นตอน Today's Production ครบวงจร
+  (Generate → Gallery → Marketplace Export → Download Center) และแท็บ
+  Portfolio Analytics ทำงานได้ครบทุกจุดโดยไม่ใช้เครือข่ายเลย
+- ✅ **Regression เต็มชุด ซ้ำ 2 ครั้งติดต่อกัน (Part 13)**: ผ่านทั้งหมดทั้ง
+  สองรอบ ยืนยันว่าไม่มีความไม่เสถียร (flaky) หลงเหลือจากไมล์สโตนก่อนหน้า
+- 🆕 **เอกสารใหม่ `PRODUCTION_WORKSPACE_GUIDE.md`** (ที่ root ของ repo):
+  อธิบายขั้นตอนการทำงานประจำวันของ Today's Production Workspace, ตาราง
+  จำนวนคลิกที่วัดจริง (9 คลิกสำหรับ Generate → Preview → Marketplace →
+  Export → Download), และตารางฟังก์ชันเดิมที่ถูกใช้ซ้ำ (ไม่มีโค้ดซ้ำซ้อน)
+- สรุปเกณฑ์ผ่านภารกิจ (Part 15) ทั้งหมดยืนยันแล้ว: แบรนด์ AI-SBOS ปรากฏทุก
+  หน้า, Version Center ทำงาน, What's New ทำงาน, Today's Production Workspace
+  ทำงาน, Preview Gallery ทำงาน, Marketplace Export ทำงาน, Download Center
+  ทำงาน, Regression ผ่านสองรอบ — ดูรายละเอียดทั้งหมดใน
+  `AI_SBOS_MISSION_REPORT.md`
 
 ### v2.12 — 7 ส.ค. 2026 — AI-SBOS, Milestone 4: Portfolio Role Repositioning
 

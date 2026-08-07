@@ -15,9 +15,9 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
-export const APP_VERSION = '2.12';
-export const BUILD_NAME = 'AI-SBOS M4';
-export const BUILD_DESCRIPTION = 'Portfolio role repositioning — Library, Analytics, Collections, History & Submissions';
+export const APP_VERSION = '2.13';
+export const BUILD_NAME = 'AI-SBOS M5';
+export const BUILD_DESCRIPTION = 'Closing verification — device/responsive, offline, regression (twice), Production Workspace Guide';
 export const RELEASE_DATE = '2026-08-07';
 
 /** The real commit this build was produced from — injected at build time
@@ -36,9 +36,9 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * changelog already record; updated at each release, same convention as
  * every field above. Never computed/inferred at runtime — that would risk
  * silently drifting from what was actually verified. */
-export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission in progress';
-export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks';
-export const REGRESSION_RESULT = '512 test files / 4465 tests passing (last full regression run)';
+export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission (M1-M5) complete';
+export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks, reused as-is by Today\'s Production Workspace';
+export const REGRESSION_RESULT = 'Full suite passing, verified twice back-to-back (see PRODUCTION_WORKSPACE_GUIDE.md for exact counts)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -51,6 +51,17 @@ export interface WhatsNewEntry {
  * by the What's New dialog (which shows only `CHANGELOG[0]` once per
  * version, see `components/appIdentity/WhatsNewDialog.tsx`). */
 export const CHANGELOG: WhatsNewEntry[] = [
+  {
+    version: '2.13',
+    date: '2026-08-07',
+    title: 'AI-SBOS: การตรวจสอบปิดภารกิจ (Closing Verification)',
+    highlights: [
+      'ทดสอบทุกหน้าบนหน้าจอ Desktop, Laptop, iPad แนวตั้ง และ iPad แนวนอน — ไม่มี scroll แนวนอน, ไม่มี console error',
+      'ทดสอบ AI-SBOS แบบออฟไลน์เต็มรูปแบบ: แบรนด์, Version Center, Today\'s Production (Generate → Gallery → Export → Download), Portfolio Analytics — ทำงานได้ครบทุกจุดโดยไม่ใช้เครือข่าย',
+      'รัน Regression suite เต็มรูปแบบซ้ำ 2 ครั้งติดต่อกัน ผ่านทั้งหมด',
+      'เพิ่มเอกสาร PRODUCTION_WORKSPACE_GUIDE.md อธิบายขั้นตอนการทำงานประจำวันและจำนวนคลิกที่วัดจริง',
+    ],
+  },
   {
     version: '2.12',
     date: '2026-08-07',
