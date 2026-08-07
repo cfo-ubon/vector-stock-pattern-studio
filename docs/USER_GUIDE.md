@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.11 | AI-SBOS — M3 | *(this milestone's commit)* | Today's Production Workspace — consolidated Generate → Preview Gallery → Marketplace Export → Download Center in one screen, no Portfolio navigation required for routine production | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a new AI-SBOS mission |
 | v2.10 | AI-SBOS — M2 | *(this milestone's commit)* | What's New — a one-time-per-version dialog summarizing the latest changelog entry, with a persistent "Don't show again" opt-out | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 2 of a new AI-SBOS mission |
 | v2.09 | AI-SBOS — M1 | *(this milestone's commit)* | Product Identity + Consistent Header + Version Center — app rebranded to "AI-SBOS" (AI Stock Business Operating System) with Vector Stock Pattern Studio as its module name; every page shows a persistent identity bar (environment, project, version/build) and a clickable "About AI-SBOS" Version Center | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 1 of a new AI-SBOS mission |
 | v2.08 | Design Refinement Studio Pro — M5 | *(this milestone's commit)* | Pattern Safety — Design Inspector now surfaces the real seam-break signal (Corner Continuity, not the always-100 seamlessIntegrity constant), Approve requires explicit confirmation when it's at risk, and Preview gained a tile-border overlay toggle | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 of a 6-milestone mission |
@@ -269,7 +270,7 @@ Business Outcome, แพ็กเกจพร้อมส่ง, งานรอ
 startFactory()` ไม่มีการข้าม Factory Orchestrator) ถ้ามีงานค้างจาก Batch เดิม
 ปุ่มจะเปลี่ยนเป็น **Continue Yesterday** โดยอัตโนมัติ
 
-### แถบนำทาง 5 หน้าจอ
+### แถบนำทาง 6 หน้าจอ
 
 - **Home** — ภาพรวมวันนี้ (ด้านบน)
 - **Progress** — แถบขั้นตอนการผลิต 7 ระยะ (เตรียม → วางแผน → รออนุมัติ →
@@ -280,7 +281,18 @@ startFactory()` ไม่มีการข้าม Factory Orchestrator) ถ�
   **"✨ Generate Now"** ให้กดสร้างลายจริงและสร้าง Commercial Package Batch
   ต่อทันทีในหน้านี้เลย (Mission 7.5) — ถ้าบางชิ้นคุณภาพต่ำกว่าเกณฑ์ความ
   ปลอดภัยจะมีปุ่ม **"Skip these and continue"** ให้คัดชิ้นนั้นออกจากชุดก่อน
-  กด Mark Session Complete
+  กด Mark Session Complete — **กด Generate Now เสร็จแล้วระบบพาไปหน้า Gallery
+  ให้อัตโนมัติทันที (AI-SBOS Milestone 3)** ไม่ต้องกดเพิ่ม
+- 🆕 **Gallery** (AI-SBOS Milestone 3, "Today's Production Workspace"): เห็น
+  ทุกลายที่เพิ่งสร้างเป็นรูปทันที แต่ละใบมี **Commercial Score**, **Quality
+  Score**, ป้าย **Marketplace Ready**/**SEO Ready**, สถานะงาน และปุ่ม 👁
+  **Preview** / 🎨 **Edit** (เปิด Design Edit Mode ตรง) / 📤 **Export** —
+  เลือกหลายใบพร้อมกันได้ (กล่องกาเครื่องหมายที่มุมซ้ายบนแต่ละใบ) แล้วกด
+  "Export ที่เลือก" เพื่อส่งออกหลายชิ้นงานไปหลาย Marketplace
+  (Shutterstock/Adobe Stock/Freepik/Getty/Etsy) พร้อมกันได้เลย โดยไม่ต้อง
+  ออกจากหน้า Today's Production ไปที่ Portfolio Manager เลย — ส่งออกเสร็จ
+  แล้ว **Download Center เปิดให้อัตโนมัติ** ดาวน์โหลด ZIP ทีละไฟล์ หรือ (บน
+  เดสก์ท็อป) เปิดโฟลเดอร์ที่บันทึกไว้ได้ทันที
 - **Review** — Review Workspace: แสดงเฉพาะชิ้นงานที่ยังต้องตรวจสอบจริง (ชิ้น
   ที่พร้อมอยู่แล้วจะไม่โผล่มาให้เสียเวลา) แต่ละชิ้นมีปุ่ม **Approve / Reject /
   Repair** ทั้งแบบทีละชิ้นและแบบเลือกหลายชิ้นพร้อมกัน — Approve/Reject บันทึก
@@ -288,10 +300,23 @@ startFactory()` ไม่มีการข้าม Factory Orchestrator) ถ�
 - **Export** — ใช้หน้า Commercial Pipeline เดิม (Build 031A) ทั้งหมด: สาย
   การผลิตเชิงพาณิชย์, ตัวชี้วัดธุรกิจ, Export Readiness Dashboard, Commercial
   Package Builder — Export ยังต้องอนุมัติจากเจ้าของเสมอ ไม่มีการอัปโหลด
-  อัตโนมัติ
+  อัตโนมัติ (สำหรับ Export หลายชิ้นงาน/หลาย Marketplace พร้อมกัน ใช้แท็บ
+  Gallery ด้านบนแทน — เร็วกว่าและไม่ต้องเลือกทีละชิ้น)
 - **Dashboard** — สรุปย่อ: สถานะโรงงาน, Business Outcome, ประสิทธิภาพโรงงาน,
   จำนวนการตัดสินใจของเจ้าของวันนี้, เวลาที่ประหยัดได้, จำนวนพร้อมขายเชิง
   พาณิชย์, คำแนะนำอันดับ 1 — ไม่มีกราฟที่ไม่จำเป็น
+
+### ปรัชญา "Today's Production Workspace" (AI-SBOS Milestone 3)
+
+เจ้าของทำงานประจำวันได้ครบวงจร **Generate → Preview → Refine → Approve →
+Marketplace → Export → Download** โดยไม่ต้องออกจากหน้า Today's Production
+ไปที่ Portfolio Manager เลย — วัดจริงด้วยการทดสอบอัตโนมัติในเบราว์เซอร์จริง:
+ครบทั้งวงจรใช้เพียง **9 คลิก** (🏭 Today's Production → ▶ START FACTORY →
+Approve session → ✨ Generate Now → [ระบบพาไป Gallery อัตโนมัติ] → เลือก 2
+ชิ้นงาน (2 คลิก) → Export ที่เลือก → เลือก Marketplace → ยืนยันส่งออก) เทียบ
+กับก่อนหน้านี้ที่ต้องสลับไปหน้า Portfolio Manager เพื่อเลือก Export/Download
+ต่างหาก Portfolio Manager ยังใช้งานได้ตามปกติสำหรับงานที่ไม่ใช่รูทีนประจำวัน
+(ดูหัวข้อ "🗂 Portfolio Manager" ด้านล่าง)
 
 ### Owner Action Center
 
@@ -2036,6 +2061,43 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.11 — 7 ส.ค. 2026 — AI-SBOS, Milestone 3: Today's Production Workspace
+
+ไมล์สโตนที่ 3 ของภารกิจ AI-SBOS — **ไม่มีการเพิ่ม business logic ใหม่**
+เป็นการรวมหน้าจอที่มีอยู่แล้ว (Factory, Commercial Pipeline, Portfolio
+Export/Download) เข้าเป็นขั้นตอนเดียวใน Today's Production ตามที่ระบุไว้ใน
+สเปกอย่างเคร่งครัด — ทุกจุดเรียกฟังก์ชันเดิมที่มีอยู่แล้วเท่านั้น
+
+- 🆕 **Preview Gallery** (`components/productionExperience/
+  ProductionPreviewGallery.tsx`): เห็นทุกลายที่เพิ่งสร้างทันทีหลัง
+  "✨ Generate Now" (ระบบพาไปหน้านี้ให้อัตโนมัติ) พร้อม Commercial Score/
+  Quality Score/Marketplace Ready/SEO Ready/สถานะงาน — ทุกตัวเลขมาจาก
+  `readinessEngine.ts`/`qualitySnapshotStore.ts` เดิมที่ Commercial
+  Pipeline ใช้อยู่แล้ว ไม่มีการคำนวณคะแนนใหม่
+- 🆕 **Marketplace Export จาก Gallery**: เลือกหลายชิ้นงาน + หลาย Marketplace
+  พร้อมกัน — ดึงตรรกะจาก `commercial/bulkMarketplaceExport.ts` ที่แยกออกมา
+  จาก Portfolio Manager (ของเดิมชิ้นเดียวที่มีตรรกะนี้) ให้ทั้งสองหน้าจอเรียก
+  ใช้ฟังก์ชันเดียวกันจริง ไม่มีโค้ด export ซ้ำสองชุด
+- 🆕 **Download Center เปิดอัตโนมัติหลัง Export**: ใช้คอมโพเนนต์ Download
+  Center ตัวเดิมจาก Portfolio Manager ตรงๆ (ไม่สร้างใหม่) — ดาวน์โหลด ZIP
+  ทีละไฟล์ หรือเปิดโฟลเดอร์บนเดสก์ท็อป (ฟีเจอร์เดิมที่มีอยู่แล้ว)
+- 🆕 **Preview/Edit เต็มรูปแบบจาก Gallery**: ปุ่ม Preview เปิด Asset Preview
+  Dialog เดิม (คะแนน/สถานะ/ปุ่มปฏิบัติการครบ), ปุ่ม Edit เปิด Design Edit
+  Mode ตรง (Design Refinement Studio Pro เดิม) — ไม่มีหน้าต่างซ้ำซ้อน
+- **วัดจำนวนคลิกจริง (Part 8)**: ครบวงจร Generate → Preview → Marketplace →
+  Export → Download ใช้เพียง **9 คลิก** วัดจริงด้วย Playwright ในเบราว์เซอร์
+  จริง (ไม่ใช่ตัวเลขประมาณ) — ดูรายละเอียดในหัวข้อ "ปรัชญา Today's
+  Production Workspace" ด้านบน
+- ทดสอบแล้ว: หน่วยทดสอบใหม่ 9 เคส (Gallery แสดงคะแนน/ป้ายสถานะจากข้อมูลจริง
+  ถูกต้อง, ปุ่ม Preview/Edit/Export ส่ง assetId ถูกต้อง, bulk export สร้าง
+  ZIP จริงต่อ marketplace และบันทึกประวัติถูกต้อง, ตรวจจับการส่งซ้ำถูกต้อง)
+  พร้อมแก้ไขเทสต์เดิม 1 จุดให้สอดคล้องกับพฤติกรรมใหม่ (Generate Now พาไปหน้า
+  Gallery แทนที่จะค้างอยู่หน้า Progress) รวม regression เต็มชุดผ่านทั้งหมด
+  และตรวจสอบจริงในเบราว์เซอร์ตลอดทั้งวงจร
+  Generate → Gallery (อัตโนมัติ) → เลือกหลายชิ้น → Export → Marketplace →
+  Download Center (เปิดอัตโนมัติ) รวมถึง Preview/Edit จาก Gallery แยกต่างหาก
+  โดยไม่มี console error เลยตลอดการทดสอบ
 
 ### v2.10 — 7 ส.ค. 2026 — AI-SBOS, Milestone 2: What's New
 

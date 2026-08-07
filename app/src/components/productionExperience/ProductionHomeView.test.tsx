@@ -112,6 +112,14 @@ describe('ProductionHomeView', () => {
     const generateNowButton = await screen.findByText('✨ Generate Now', {}, { timeout: 10000 });
     fireEvent.click(generateNowButton);
 
+    // AI-SBOS Part 5 — a successful generation now auto-navigates to the
+    // Preview Gallery (real produced assets, shown immediately, no extra
+    // navigation needed to see them). Wait for that real navigation, then
+    // go back to Progress to continue this test's real completion flow.
+    await waitFor(() => expect(screen.getByRole('button', { name: /Gallery \(\d/ })).toBeInTheDocument(), { timeout: 30000 });
+    fireEvent.click(screen.getByRole('button', { name: 'Progress' }));
+    await waitFor(() => expect(screen.getByText('Production Progress')).toBeInTheDocument());
+
     // Real generation can legitimately leave some patterns below the
     // Commercial Readiness safety threshold (Build 031A Phase 9) — those
     // package/exportValidation tasks stay honestly BLOCKED rather than

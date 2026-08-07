@@ -24,6 +24,25 @@ import { loadQualitySnapshots, putQualitySnapshot, createQualitySnapshot } from 
 import type { PortfolioAsset } from '../../catalog/domain/types';
 import type { QualitySnapshot } from '../../catalog/quality/qualitySnapshotStore';
 import { latestQualitySnapshotsByAsset } from '../../productionExperience/reviewWorkspace';
+import { loadCollections } from '../../catalog/storage/collectionStore';
+import type { Collection } from '../../catalog/domain/collection';
+import { assignAssetsToCollections, removeAssetFromCollection, type BulkMembershipResult } from '../../catalog/services/collectionService';
+import { loadSubmissions } from '../../catalog/submission/submissionStore';
+import type { SubmissionRecord } from '../../catalog/submission/submissionRecord';
+import { loadCommercialPackageHistory } from '../../commercial/storage/commercialPackageHistoryStore';
+import type { CommercialPackageHistoryEntry, CommercialReadinessReport } from '../../commercial/domain/types';
+import { deriveAssetExportStatus, type ExportMarketplaceId, type BulkExportResult, type AssetExportStatus } from '../../commercial/exportWorkflow';
+import { computeDuplicateSubmissionWarnings, executeBulkMarketplaceExport } from '../../commercial/bulkMarketplaceExport';
+import { computeSeoScore, type SeoScoreReport } from '../../catalog/seo/seoScoring';
+import { AssetPreviewDialog } from '../portfolio/AssetPreviewDialog';
+import { PortfolioDetailPanel } from '../portfolio/PortfolioDetailPanel';
+import { SubmissionHistoryPanel } from '../portfolio/SubmissionHistoryPanel';
+import { MarketplaceSelectionDialog } from '../portfolio/MarketplaceSelectionDialog';
+import { DownloadCenter } from '../portfolio/DownloadCenter';
+import { DesignEditView } from '../designEdit/DesignEditView';
+import { VersionHistoryView } from '../designEdit/VersionHistoryView';
+import { CompareCenterView } from '../designEdit/CompareCenterView';
+import { ProductionPreviewGallery } from './ProductionPreviewGallery';
 import { loadAutonomousDesignRuns, putAutonomousDesignRun } from '../../autopilot/storage/autonomousDesignRunStore';
 import { createAutonomousDesignRun, transitionAutonomousDesignRun, type AutonomousDesignRun } from '../../autopilot/domain/autonomousDesignRun';
 import { buildAutonomousDesignPlan, selectEvidence, type DecisionEngineInput } from '../../autopilot/decisionEngine';
@@ -70,7 +89,7 @@ import './productionExperience.css';
 // `factoryOrchestrator/index.ts` / `productionAutopilot/index.ts` for
 // every real engine this view composes.
 
-type Screen = 'home' | 'progress' | 'review' | 'export' | 'dashboard' | 'summary';
+type Screen = 'home' | 'progress' | 'gallery' | 'review' | 'export' | 'dashboard' | 'summary';
 
 interface Props {
   onClose: () => void;
@@ -97,6 +116,30 @@ export function ProductionHomeView({ onClose }: Props) {
   const [continueYesterday, setContinueYesterday] = useState<ContinueYesterdayCheck | null>(null);
   const [completionReview, setCompletionReview] = useState<ProductionCompletionReview | null>(null);
 
+  // --- AI-SBOS, Part 4/5/6/7 — Today's Production Workspace: Preview
+  // Gallery, Marketplace Export, Download Center, all reachable here
+  // without navigating to Portfolio Manager for routine work. ---
+  const [lastGeneratedAssetIds, setLastGeneratedAssetIds] = useState<string[]>([]);
+  const [gallerySelectedIds, setGallerySelectedIds] = useState<Set<string>>(new Set());
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [submissions, setSubmissions] = useState<SubmissionRecord[]>([]);
+  const [packageHistory, setPackageHistory] = useState<CommercialPackageHistoryEntry[]>([]);
+  const [readinessByAsset, setReadinessByAsset] = useState<Map<string, CommercialReadinessReport>>(new Map());
+  const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
+  const [previewSeoScore, setPreviewSeoScore] = useState<SeoScoreReport | null>(null);
+  const [assetDetailAssetId, setAssetDetailAssetId] = useState<string | null>(null);
+  const [submissionHistoryAssetId, setSubmissionHistoryAssetId] = useState<string | null>(null);
+  const [editDesignAssetId, setEditDesignAssetId] = useState<string | null>(null);
+  const [versionHistoryAssetId, setVersionHistoryAssetId] = useState<string | null>(null);
+  const [compareAssetIds, setCompareAssetIds] = useState<[string, string] | null>(null);
+  const [marketplaceSelectionAssetIds, setMarketplaceSelectionAssetIds] = useState<string[] | null>(null);
+  const [duplicateWarnings, setDuplicateWarnings] = useState<string[] | null>(null);
+  const [pendingMarketplaceIds, setPendingMarketplaceIds] = useState<ExportMarketplaceId[] | null>(null);
+  const [bulkExportBusy, setBulkExportBusy] = useState(false);
+  const [bulkExportError, setBulkExportError] = useState<string | null>(null);
+  const [downloadPackages, setDownloadPackages] = useState<BulkExportResult[]>([]);
+  const [showDownloadCenter, setShowDownloadCenter] = useState(false);
+
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
@@ -109,7 +152,7 @@ export function ProductionHomeView({ onClose }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const [loadedTasks, loadedTimeline, assets, snapshots, autoRuns, ownerRecords, runs, pipelineCtx] = await Promise.all([
+      const [loadedTasks, loadedTimeline, assets, snapshots, autoRuns, ownerRecords, runs, pipelineCtx, loadedCollections, loadedPackageHistory] = await Promise.all([
         loadFactoryTasks(),
         loadFactoryTimeline(),
         loadPortfolioAssets(),
@@ -118,6 +161,8 @@ export function ProductionHomeView({ onClose }: Props) {
         loadOwnerDecisionRecords(),
         loadOrchestrationRuns(),
         loadCommercialPipelineContext(),
+        loadCollections(),
+        loadCommercialPackageHistory(),
       ]);
       if (!mountedRef.current) return;
       const now = Date.now();
@@ -130,6 +175,10 @@ export function ProductionHomeView({ onClose }: Props) {
       setTimeline(loadedTimeline);
       setPortfolioAssets(assets);
       setQualitySnapshots(snapshots);
+      setCollections(loadedCollections);
+      setSubmissions(loadSubmissions());
+      setPackageHistory(loadedPackageHistory);
+      setReadinessByAsset(new Map(pipelineCtx.readinessReports.map((r) => [r.assetId, r])));
       setAutonomousRuns(autoRuns);
       setRun(latestRun);
       setSession(currentSession);
@@ -148,6 +197,20 @@ export function ProductionHomeView({ onClose }: Props) {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (!previewAssetId) {
+      setPreviewSeoScore(null);
+      return;
+    }
+    const relevant = submissions.filter((s) => s.patternId === previewAssetId);
+    const best = relevant.find((s) => s.titleSnapshot.trim().length > 0 && s.keywordSnapshot.length > 0);
+    if (!best) {
+      setPreviewSeoScore(null);
+      return;
+    }
+    setPreviewSeoScore(computeSeoScore({ title: best.titleSnapshot, description: best.descriptionSnapshot, keywords: best.keywordSnapshot }, best.marketplaceId));
+  }, [previewAssetId, submissions]);
 
   async function handleStartFactory() {
     setBusy(true);
@@ -366,6 +429,10 @@ export function ProductionHomeView({ onClose }: Props) {
       if (!mountedRef.current) return;
       setRun(nextRun);
       setSession(nextSession);
+      // Part 5 — Preview Gallery shows immediately after generation, no
+      // extra navigation needed to see what was just produced.
+      setLastGeneratedAssetIds(createdAssetIds);
+      setScreen('gallery');
     } catch (err) {
       if (mountedRef.current) setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -511,6 +578,96 @@ export function ProductionHomeView({ onClose }: Props) {
     }
   }
 
+  // --- AI-SBOS, Part 4/5/6/7 — Preview Gallery / Marketplace Export /
+  // Download Center derived data + handlers. Same derivation pattern
+  // PortfolioManagerView.tsx already uses (grouping by assetId), and the
+  // same real export functions (`commercial/bulkMarketplaceExport.ts`,
+  // extracted from that component so both share one implementation). ---
+  const submissionsByAsset = new Map<string, SubmissionRecord[]>();
+  for (const submission of submissions) {
+    const list = submissionsByAsset.get(submission.patternId) ?? [];
+    list.push(submission);
+    submissionsByAsset.set(submission.patternId, list);
+  }
+  const packageHistoryByAsset = new Map<string, CommercialPackageHistoryEntry[]>();
+  for (const entry of packageHistory) {
+    const list = packageHistoryByAsset.get(entry.assetId) ?? [];
+    list.push(entry);
+    packageHistoryByAsset.set(entry.assetId, list);
+  }
+  const exportStatusByAsset = new Map<string, AssetExportStatus>();
+  for (const asset of portfolioAssets) {
+    exportStatusByAsset.set(
+      asset.assetId,
+      deriveAssetExportStatus({
+        readiness: readinessByAsset.get(asset.assetId) ?? null,
+        submissionsForAsset: submissionsByAsset.get(asset.assetId) ?? [],
+        packageHistoryForAsset: packageHistoryByAsset.get(asset.assetId) ?? [],
+      }),
+    );
+  }
+  const latestSnapshotByAsset = latestQualitySnapshotsByAsset(qualitySnapshots);
+  const galleryAssets = (lastGeneratedAssetIds.length > 0 ? portfolioAssets.filter((a) => lastGeneratedAssetIds.includes(a.assetId)) : portfolioAssets).sort((a, b) => b.createdAt - a.createdAt);
+
+  const bulkExportContext = { assets: portfolioAssets, submissions, submissionsByAsset, readinessByAsset, collections };
+
+  async function executeExport(assetIds: string[], marketplaceIds: ExportMarketplaceId[]) {
+    setBulkExportBusy(true);
+    setBulkExportError(null);
+    try {
+      const results = await executeBulkMarketplaceExport(assetIds, marketplaceIds, bulkExportContext);
+      setDownloadPackages((prev) => [...results, ...prev]);
+      setMarketplaceSelectionAssetIds(null);
+      setDuplicateWarnings(null);
+      setPendingMarketplaceIds(null);
+      setShowDownloadCenter(true);
+      await reload();
+    } catch (err) {
+      setBulkExportError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBulkExportBusy(false);
+    }
+  }
+
+  function handleExportRequested(marketplaceIds: ExportMarketplaceId[]) {
+    const assetIds = marketplaceSelectionAssetIds ?? [];
+    const warnings = computeDuplicateSubmissionWarnings(assetIds, marketplaceIds, bulkExportContext);
+    if (warnings.length > 0) {
+      setDuplicateWarnings(warnings);
+      setPendingMarketplaceIds(marketplaceIds);
+      return;
+    }
+    void executeExport(assetIds, marketplaceIds);
+  }
+
+  function toggleGallerySelect(assetId: string) {
+    setGallerySelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(assetId)) next.delete(assetId);
+      else next.add(assetId);
+      return next;
+    });
+  }
+
+  const previewAsset = portfolioAssets.find((a) => a.assetId === previewAssetId) ?? null;
+  const assetDetailAsset = portfolioAssets.find((a) => a.assetId === assetDetailAssetId) ?? null;
+
+  async function handleUpdateAsset(updated: PortfolioAsset) {
+    await putPortfolioAsset(updated);
+    await reload();
+  }
+
+  async function handleAssignSingle(assetId: string, collectionIds: string[]): Promise<BulkMembershipResult> {
+    const result = await assignAssetsToCollections([assetId], collectionIds);
+    await reload();
+    return result;
+  }
+
+  async function handleRemoveSingle(assetId: string, collectionId: string) {
+    await removeAssetFromCollection(assetId, collectionId);
+    await reload();
+  }
+
   if (loading && !dailyBrief) {
     return (
       <div className="pe">
@@ -540,6 +697,9 @@ export function ProductionHomeView({ onClose }: Props) {
         </button>
         <button type="button" className="btn" aria-current={screen === 'progress'} onClick={() => setScreen('progress')} disabled={!run}>
           Progress
+        </button>
+        <button type="button" className="btn" aria-current={screen === 'gallery'} onClick={() => setScreen('gallery')}>
+          Gallery {galleryAssets.length > 0 ? `(${galleryAssets.length})` : ''}
         </button>
         <button type="button" className="btn" aria-current={screen === 'review'} onClick={() => setScreen('review')}>
           Review {reviewWaitingCount > 0 ? `(${reviewWaitingCount})` : ''}
@@ -659,6 +819,23 @@ export function ProductionHomeView({ onClose }: Props) {
         </section>
       )}
 
+      {screen === 'gallery' && (
+        <ProductionPreviewGallery
+          assets={galleryAssets}
+          readinessByAsset={readinessByAsset}
+          latestSnapshotByAsset={latestSnapshotByAsset}
+          selectedIds={gallerySelectedIds}
+          onToggleSelect={toggleGallerySelect}
+          onSelectAll={() => setGallerySelectedIds(new Set(galleryAssets.map((a) => a.assetId)))}
+          onClearSelection={() => setGallerySelectedIds(new Set())}
+          onPreview={(assetId) => setPreviewAssetId(assetId)}
+          onEdit={(assetId) => setEditDesignAssetId(assetId)}
+          onExport={(assetId) => setMarketplaceSelectionAssetIds([assetId])}
+          onBulkExport={() => setMarketplaceSelectionAssetIds([...gallerySelectedIds])}
+          busy={bulkExportBusy}
+        />
+      )}
+
       {screen === 'review' && (
         <>
           <ReviewWorkspacePanel items={reviewItems} onApprove={handleReviewApprove} onReject={handleReviewReject} onRepair={handleReviewRepair} busy={busy} />
@@ -666,7 +843,7 @@ export function ProductionHomeView({ onClose }: Props) {
         </>
       )}
 
-      {screen === 'export' && <CommercialPipelineTab assets={[]} />}
+      {screen === 'export' && <CommercialPipelineTab assets={portfolioAssets} />}
 
       {screen === 'dashboard' && dailyBrief && (
         <FactoryDashboardPanel
@@ -682,6 +859,152 @@ export function ProductionHomeView({ onClose }: Props) {
       )}
 
       {screen === 'summary' && completionReview && <SessionSummaryPanel review={completionReview} onDone={() => setScreen('home')} />}
+
+      {previewAsset && (
+        <AssetPreviewDialog
+          asset={previewAsset}
+          readiness={readinessByAsset.get(previewAsset.assetId) ?? null}
+          seoScore={previewSeoScore}
+          collections={collections}
+          exportStatus={exportStatusByAsset.get(previewAsset.assetId) ?? { id: 'never-exported', label: 'ยังไม่เคย Export', at: null }}
+          onClose={() => setPreviewAssetId(null)}
+          onOpenEditDetails={() => {
+            setAssetDetailAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+          onExport={() => {
+            setMarketplaceSelectionAssetIds([previewAsset.assetId]);
+            setPreviewAssetId(null);
+          }}
+          onOpenSubmissionHistory={() => {
+            setSubmissionHistoryAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+          onOpenEditDesign={() => {
+            setEditDesignAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+          onOpenVersionHistory={() => {
+            setVersionHistoryAssetId(previewAsset.assetId);
+            setPreviewAssetId(null);
+          }}
+        />
+      )}
+
+      {assetDetailAsset && (
+        <div className="portfolio-modal-backdrop">
+          <div className="portfolio-modal">
+            <PortfolioDetailPanel
+              asset={assetDetailAsset}
+              isDuplicate={false}
+              onUpdate={handleUpdateAsset}
+              onDeleteRecordOnly={() => setAssetDetailAssetId(null)}
+              onDeleteRecordAndFiles={() => setAssetDetailAssetId(null)}
+              onClose={() => setAssetDetailAssetId(null)}
+              collections={collections}
+              onAssignToCollections={handleAssignSingle}
+              onRemoveFromCollection={handleRemoveSingle}
+            />
+          </div>
+        </div>
+      )}
+
+      {submissionHistoryAssetId &&
+        (() => {
+          const asset = portfolioAssets.find((a) => a.assetId === submissionHistoryAssetId);
+          if (!asset) return null;
+          return (
+            <SubmissionHistoryPanel displayName={asset.displayName} submissions={submissionsByAsset.get(asset.assetId) ?? []} onClose={() => setSubmissionHistoryAssetId(null)} />
+          );
+        })()}
+
+      {editDesignAssetId &&
+        (() => {
+          const editAsset = portfolioAssets.find((a) => a.assetId === editDesignAssetId);
+          if (!editAsset) return null;
+          return (
+            <DesignEditView
+              asset={editAsset}
+              existingAssets={portfolioAssets}
+              originalReadiness={readinessByAsset.get(editAsset.assetId) ?? null}
+              onClose={() => setEditDesignAssetId(null)}
+              onSaved={() => {
+                void reload();
+              }}
+            />
+          );
+        })()}
+
+      {versionHistoryAssetId && (
+        <VersionHistoryView
+          rootAssetId={versionHistoryAssetId}
+          allAssets={portfolioAssets}
+          readinessByAsset={readinessByAsset}
+          onClose={() => setVersionHistoryAssetId(null)}
+          onContinueEditing={(assetId) => {
+            setEditDesignAssetId(assetId);
+            setVersionHistoryAssetId(null);
+          }}
+          onCompare={(assetIdA, assetIdB) => setCompareAssetIds([assetIdA, assetIdB])}
+          onUpdateAsset={handleUpdateAsset}
+          onDeleteRecordOnly={() => void reload()}
+          onDeleteRecordAndFiles={() => void reload()}
+          onDuplicated={() => void reload()}
+        />
+      )}
+
+      {compareAssetIds &&
+        (() => {
+          const compareA = portfolioAssets.find((a) => a.assetId === compareAssetIds[0]);
+          const compareB = portfolioAssets.find((a) => a.assetId === compareAssetIds[1]);
+          if (!compareA || !compareB) return null;
+          return <CompareCenterView assetA={compareA} assetB={compareB} onClose={() => setCompareAssetIds(null)} />;
+        })()}
+
+      {marketplaceSelectionAssetIds && !duplicateWarnings && (
+        <MarketplaceSelectionDialog
+          assetCount={marketplaceSelectionAssetIds.length}
+          busy={bulkExportBusy}
+          onConfirm={handleExportRequested}
+          onClose={() => setMarketplaceSelectionAssetIds(null)}
+        />
+      )}
+
+      {duplicateWarnings && (
+        <div className="portfolio-modal-backdrop">
+          <div className="portfolio-modal">
+            <div className="portfolio-detail-header">
+              <h2>⚠ พบความเสี่ยงส่งซ้ำ</h2>
+              <button type="button" className="btn" onClick={() => { setDuplicateWarnings(null); setPendingMarketplaceIds(null); }}>
+                ยกเลิก
+              </button>
+            </div>
+            <ul>
+              {duplicateWarnings.map((w) => (
+                <li key={w}>{w}</li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="btn btn--primary"
+              disabled={bulkExportBusy}
+              onClick={() => {
+                if (pendingMarketplaceIds) void executeExport(marketplaceSelectionAssetIds ?? [], pendingMarketplaceIds);
+              }}
+            >
+              ส่งออกต่อถึงจะซ้ำ
+            </button>
+          </div>
+        </div>
+      )}
+
+      {bulkExportError && (
+        <p className="pe-error" role="alert">
+          {bulkExportError}
+        </p>
+      )}
+
+      {showDownloadCenter && <DownloadCenter packages={downloadPackages} onClose={() => setShowDownloadCenter(false)} />}
     </div>
   );
 }

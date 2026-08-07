@@ -15,9 +15,9 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
-export const APP_VERSION = '2.10';
-export const BUILD_NAME = 'AI-SBOS M2';
-export const BUILD_DESCRIPTION = "What's New dialog";
+export const APP_VERSION = '2.11';
+export const BUILD_NAME = 'AI-SBOS M3';
+export const BUILD_DESCRIPTION = "Today's Production Workspace — Preview Gallery, Marketplace Export, Download Center";
 export const RELEASE_DATE = '2026-08-07';
 
 /** The real commit this build was produced from — injected at build time
@@ -38,7 +38,7 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * silently drifting from what was actually verified. */
 export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission in progress';
 export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks';
-export const REGRESSION_RESULT = '509 test files / 4452 tests passing (last full regression run)';
+export const REGRESSION_RESULT = '511 test files / 4461 tests passing (last full regression run)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -51,6 +51,17 @@ export interface WhatsNewEntry {
  * by the What's New dialog (which shows only `CHANGELOG[0]` once per
  * version, see `components/appIdentity/WhatsNewDialog.tsx`). */
 export const CHANGELOG: WhatsNewEntry[] = [
+  {
+    version: '2.11',
+    date: '2026-08-07',
+    title: "AI-SBOS: Today's Production Workspace",
+    highlights: [
+      'รวม Generate → Preview → Refine → Approve → Marketplace → Export → Download ไว้ในหน้า "Today\'s Production" หน้าเดียว ไม่ต้องสลับไปหน้า Portfolio สำหรับงานผลิตประจำวัน',
+      'แท็บ Gallery ใหม่ — เห็นทุกลายที่เพิ่งสร้างทันทีพร้อมคะแนน Commercial/Quality, สถานะ Marketplace Ready/SEO Ready และปุ่ม Preview/Edit/Export ต่อชิ้น',
+      'เลือกหลายชิ้นงานพร้อมกันแล้ว Export ไปหลาย Marketplace (Shutterstock, Adobe Stock, Freepik, Getty, Etsy) ได้ทันทีจากแท็บ Gallery',
+      'Download Center เปิดอัตโนมัติหลัง Export — ดาวน์โหลด ZIP ทีละไฟล์หรือเปิดโฟลเดอร์ (เดสก์ท็อป) ได้จากหน้านี้เลย',
+    ],
+  },
   {
     version: '2.10',
     date: '2026-08-07',

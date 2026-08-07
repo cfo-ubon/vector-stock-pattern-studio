@@ -7,7 +7,6 @@ import {
   deletePortfolioAssetRecordOnly,
   deletePortfolioAssetAndFiles,
   portfolioStorageAvailable,
-  loadFilesForAsset,
 } from '../../catalog/storage/portfolioStore';
 import { computeDashboardSummary, type DashboardSummary } from '../../catalog/services/dashboard';
 import { runHealthCheck, duplicateAssetIdsFromReport, type HealthCheckReport } from '../../catalog/services/healthCheck';
@@ -48,21 +47,17 @@ import { DownloadCenter } from './DownloadCenter';
 import { SubmissionHistoryPanel } from './SubmissionHistoryPanel';
 import {
   deriveAssetExportStatus,
-  buildBulkExportForMarketplace,
-  findExportMarketplaceOption,
   type ExportMarketplaceId,
   type BulkExportResult,
   type AssetExportStatus,
 } from '../../commercial/exportWorkflow';
+import { computeDuplicateSubmissionWarnings, executeBulkMarketplaceExport } from '../../commercial/bulkMarketplaceExport';
 import { loadCommercialPipelineContext } from '../../commercial/loadCommercialPipelineContext';
 import type { CommercialReadinessReport, CommercialPackageHistoryEntry } from '../../commercial/domain/types';
 import { loadSubmissions } from '../../catalog/submission/submissionStore';
 import type { SubmissionRecord } from '../../catalog/submission/submissionRecord';
-import { detectDuplicateSubmission } from '../../catalog/submission/submissionDuplicateDetection';
-import { loadCommercialPackageHistory, recordCommercialPackageBuilt } from '../../commercial/storage/commercialPackageHistoryStore';
+import { loadCommercialPackageHistory } from '../../commercial/storage/commercialPackageHistoryStore';
 import { computeSeoScore, type SeoScoreReport } from '../../catalog/seo/seoScoring';
-import { saveSubmissionPackageToWorkspace } from '../../workspace/workspaceExportIntegration';
-import { downloadBlobFile } from '../../export/svgExporter';
 import './portfolio.css';
 
 interface Props {
@@ -294,64 +289,29 @@ export function PortfolioManagerView({ onClose }: Props) {
    * owner must acknowledge before the export proceeds, reusing
    * `submissionDuplicateDetection.ts`'s existing, unmodified rules rather
    * than a new check. This never blocks silently and never uploads
-   * anything — it only guards the local export action. */
+   * anything — it only guards the local export action.
+   *
+   * AI-SBOS, Part 6 — both this and the bulk-export execution below are
+   * thin wrappers over `commercial/bulkMarketplaceExport.ts`, extracted
+   * from what used to be this component's own only implementation so
+   * Today's Production Workspace can offer the identical export flow
+   * without a second copy of this logic. */
+  const bulkExportContext = useMemo(
+    () => ({ assets, submissions, submissionsByAsset, readinessByAsset, collections }),
+    [assets, submissions, submissionsByAsset, readinessByAsset, collections],
+  );
+
   const computeDuplicateWarnings = useCallback(
-    (assetIds: string[], marketplaceIds: ExportMarketplaceId[]): string[] => {
-      const warnings: string[] = [];
-      for (const assetId of assetIds) {
-        const asset = assets.find((a) => a.assetId === assetId);
-        if (!asset) continue;
-        for (const marketplaceId of marketplaceIds) {
-          const relevant = submissionsByAsset.get(assetId) ?? [];
-          const nextVersion = (relevant.filter((s) => s.marketplaceId === marketplaceId).sort((a, b) => b.version - a.version)[0]?.version ?? 0) + 1;
-          const result = detectDuplicateSubmission({ patternId: assetId, marketplaceId, version: nextVersion, productionAssetId: asset.productionAssetId }, submissions);
-          if (result.conflicts.some((c) => c.reason === 'already-approved' || c.reason === 'already-submitted')) {
-            warnings.push(`${asset.displayName} — ${findExportMarketplaceOption(marketplaceId)?.label ?? marketplaceId}: มีการส่งที่อนุมัติ/รอตรวจอยู่แล้ว`);
-          }
-        }
-      }
-      return warnings;
-    },
-    [assets, submissions, submissionsByAsset],
+    (assetIds: string[], marketplaceIds: ExportMarketplaceId[]): string[] => computeDuplicateSubmissionWarnings(assetIds, marketplaceIds, bulkExportContext),
+    [bulkExportContext],
   );
 
   const executeBulkExport = useCallback(
     async (assetIds: string[], marketplaceIds: ExportMarketplaceId[]) => {
-      const targetAssets = assets.filter((a) => assetIds.includes(a.assetId));
       setBulkExportBusy(true);
       setBulkExportError(null);
       try {
-        const results: BulkExportResult[] = [];
-        for (const marketplaceId of marketplaceIds) {
-          const option = findExportMarketplaceOption(marketplaceId);
-          if (!option) continue;
-          const inputs = await Promise.all(
-            targetAssets.map(async (asset) => {
-              const files = await loadFilesForAsset(asset.assetId);
-              const assetSubmissions = submissionsByAsset.get(asset.assetId) ?? [];
-              const submission = assetSubmissions.find((s) => s.marketplaceId === marketplaceId) ?? null;
-              return {
-                asset,
-                files,
-                readiness: readinessByAsset.get(asset.assetId) ?? null,
-                submission,
-                collections: collections.filter((c) => asset.collectionIds.includes(c.id)),
-              };
-            }),
-          );
-          const result = await buildBulkExportForMarketplace(option, inputs);
-          results.push(result);
-          downloadBlobFile(result.filename, result.blob);
-          void saveSubmissionPackageToWorkspace(option.id, result);
-          for (const assetId of result.builtAssetIds) {
-            await recordCommercialPackageBuilt({
-              assetId,
-              marketplaceId: option.id,
-              status: 'BUILT',
-              readinessScore: readinessByAsset.get(assetId)?.score ?? 0,
-            });
-          }
-        }
+        const results = await executeBulkMarketplaceExport(assetIds, marketplaceIds, bulkExportContext);
         setDownloadPackages((prev) => [...results, ...prev]);
         setMarketplaceSelectionAssetIds(null);
         setDuplicateWarnings(null);
@@ -364,7 +324,7 @@ export function PortfolioManagerView({ onClose }: Props) {
         setBulkExportBusy(false);
       }
     },
-    [assets, submissionsByAsset, readinessByAsset, collections, loadCommercialData],
+    [bulkExportContext, loadCommercialData],
   );
 
   const handleExportRequested = useCallback(
