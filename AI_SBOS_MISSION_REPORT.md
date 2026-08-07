@@ -147,10 +147,11 @@ preview gallery available at all.
 | Per-milestone (M2) | 509 | — | passed |
 | Per-milestone (M3) | 511 | — | passed |
 | Per-milestone (M4) | 512 | 4465 | passed |
-| M5 closing run 1 | *(see below)* | | |
-| M5 closing run 2 | *(see below)* | | |
+| M5 closing run 1 | 512 | 4465 | passed (483.07s) |
+| M5 closing run 2 | 512 | 4465 | passed (460.56s) |
 
-*(Exact M5 closing-run counts filled in below once both runs complete.)*
+Both closing runs are identical in file/test count with zero flakiness
+between them — the mission's "Regression passes twice" criterion is met.
 
 ## Part 15 — Success criteria
 

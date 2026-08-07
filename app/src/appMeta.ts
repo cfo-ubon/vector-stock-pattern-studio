@@ -38,7 +38,7 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * silently drifting from what was actually verified. */
 export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission (M1-M5) complete';
 export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks, reused as-is by Today\'s Production Workspace';
-export const REGRESSION_RESULT = 'Full suite passing, verified twice back-to-back (see PRODUCTION_WORKSPACE_GUIDE.md for exact counts)';
+export const REGRESSION_RESULT = '512 test files / 4465 tests passing, verified twice back-to-back (last full regression)';
 
 export interface WhatsNewEntry {
   version: string;
