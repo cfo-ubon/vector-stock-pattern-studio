@@ -189,7 +189,8 @@ Version Selector," to `VersionCenterDialog.test.tsx`.)
 
 ## 17. Regression run 2
 
-*(filled in below once the run completes)*
+**PASS.** 512 test files / 4466 tests passed (506.60s) — identical
+counts to run 1, zero flakiness between the two runs.
 
 ## 18. Production build
 
