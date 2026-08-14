@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v2.14 | AI-SBOS Multi-Version Release | *(this milestone's commit)* | Product version v2.1.0 — Version Selector (`/studio/`) + independently-deployed AI-SBOS v1 (`/studio/v1/`, Stable / Legacy, frozen at commit `6f4c048`) and v2 (`/studio/v2/`, Current) + "Switch Version" + proven bidirectional data/backup compatibility + isolated service-worker scopes | On branch `claude/build-030-ai-ceo-mission-control` |
 | v2.13 | AI-SBOS — M5 | *(this milestone's commit)* | Closing verification — Desktop/Laptop/iPad Portrait/iPad Landscape device checks, full offline verification of Today's Production + Version Center + Portfolio Analytics, full regression suite run twice back-to-back, new `PRODUCTION_WORKSPACE_GUIDE.md` | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 (final) of the AI-SBOS mission |
 | v2.12 | AI-SBOS — M4 | *(this milestone's commit)* | Portfolio role repositioning — relabeled as Library/Search/Analytics/Collections/History & Submissions, with a new dedicated Analytics tab; no longer the primary path for routine export | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a new AI-SBOS mission |
 | v2.11 | AI-SBOS — M3 | *(this milestone's commit)* | Today's Production Workspace — consolidated Generate → Preview Gallery → Marketplace Export → Download Center in one screen, no Portfolio navigation required for routine production | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 3 of a new AI-SBOS mission |
@@ -95,6 +96,60 @@ Build 005") are left as originally written — they are accurate records
 of past milestones, not errors to correct, even though the Build-numbering
 convention shown above wasn't formalized until later in the project's
 history.
+
+---
+
+## 🔀 การเลือกเวอร์ชัน AI-SBOS 🆕
+
+เมื่อเปิด **https://cfo-ubon.github.io/vector-stock-pattern-studio/studio/**
+จะเจอหน้า **"Choose Version"** ก่อนเสมอ ให้เลือกได้ว่าจะใช้ AI-SBOS เวอร์ชัน
+ไหน — ไม่ใช่แค่เปลี่ยนป้ายชื่อ แต่เป็นแอปสองตัวที่ build แยกจากกันจริง
+
+### v1 คืออะไร
+
+**AI-SBOS v1 (Stable / Legacy)** — เวอร์ชันการผลิตที่ผ่านการรับรองและทดสอบ
+regression มาแล้วก่อนที่แอปจะเปลี่ยนชื่อเป็น "AI-SBOS" ในหน้าจอจริง
+(commit `6f4c048`) ประกอบด้วย Production Mode, Commercial Pipeline,
+Decision OS, Factory Orchestrator และ Design Refinement Studio Pro
+(Design Edit Mode, AI Design Coach, Version Control + Compare Center,
+Batch Refinement, Pattern Safety) **โค้ดธุรกิจถูก freeze ไว้ ไม่มีการ
+เปลี่ยนแปลงใดๆ อีก** — เหมาะสำหรับผู้ที่ต้องการความเสถียรสูงสุด
+
+### v2 คืออะไร
+
+**AI-SBOS v2 (Current)** — เวอร์ชันการผลิตปัจจุบัน มีตัวตนแอปแบบ AI-SBOS
+เต็มรูปแบบ (Version Center, What's New) และ **Today's Production
+Workspace** ที่รวม Generate → Preview → Refine → Approve → Marketplace →
+Export → Download ไว้ในหน้าเดียว รวมถึง Portfolio ที่จัดบทบาทใหม่เป็น
+Library/Analytics/Collections/History & Submissions — **เป็นเวอร์ชันที่
+แนะนำให้ใช้งาน (Recommended)** สำหรับงานประจำวัน
+
+### เลือกใช้อย่างไร
+
+จากหน้า Choose Version กดปุ่ม **"Open v1"** หรือ **"Open v2"** ตามต้องการ
+— แต่ละเวอร์ชันจะแสดงหมายเลขเวอร์ชัน สถานะ (Stable / Legacy หรือ
+Current) ให้เห็นชัดเจนตลอดเวลาที่มุมขวาบนของหน้าจอ ไม่มีทางสับสนว่ากำลัง
+ใช้เวอร์ชันไหนอยู่
+
+### เปลี่ยนเวอร์ชันอย่างไร
+
+ทั้งสองเวอร์ชันมีปุ่ม **"🔁 Switch Version"** อยู่ในแถบหัวข้อ (และใน
+Version Center ของ v2) กดครั้งเดียวกลับไปหน้า Choose Version ได้ทันที
+ไม่ต้องล้าง cache หรือพิมพ์ URL เอง
+
+### ข้อมูล/Backup ใช้ร่วมกันได้หรือไม่
+
+**ใช้ร่วมกันได้ ไม่ต้องย้ายข้อมูลใดๆ** — ตรวจสอบแล้วว่าโครงสร้างฐานข้อมูล
+(IndexedDB) และรูปแบบไฟล์สำรอง (.vspsb) ของทั้งสองเวอร์ชัน**เหมือนกันทุก
+ประการ** (ดูหลักฐานใน `AI_SBOS_VERSION_AUDIT.md`) และได้ทดสอบจริงแล้วว่า:
+
+- สร้างโปรเจกต์ใน v1 แล้วเปิด v2 จะเห็นโปรเจกต์เดียวกันทันที (และย้อนกลับ
+  ก็เช่นกัน)
+- สร้างไฟล์สำรอง (.vspsb) จาก v1 แล้วนำไปกู้คืนใน v2 ได้สำเร็จ ข้อมูล
+  ครบถ้วน
+
+กล่าวคือ patterns, submissions, collections และไฟล์สำรอง ใช้ร่วมกันได้
+โดยไม่ต้อง migrate หรือแปลงข้อมูลใดๆ ทั้งสิ้น
 
 ---
 
@@ -2084,6 +2139,41 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### v2.14 (Product v2.1.0) — 14 ส.ค. 2026 — AI-SBOS Multi-Version Release
+
+เพิ่มระบบเลือกเวอร์ชันจริง — ไม่ใช่แค่เปลี่ยนป้ายชื่อ แต่ deploy AI-SBOS v1
+และ v2 เป็นแอปคนละตัวจริงๆ พร้อมหน้า Version Selector ให้เลือกก่อนเข้าใช้
+งาน ดูรายละเอียดเต็มใน [`AI_SBOS_VERSION_AUDIT.md`](../AI_SBOS_VERSION_AUDIT.md)
+และ [`AI_SBOS_MULTI_VERSION_REPORT.md`](../AI_SBOS_MULTI_VERSION_REPORT.md)
+
+- 🆕 **หน้า Choose Version** ที่ `/studio/` — เลือกได้ระหว่าง AI-SBOS v1
+  (Stable / Legacy, v1.5.0) กับ AI-SBOS v2 (Current, v2.1.0, มีป้าย
+  Recommended) แสดงเวอร์ชัน/วันที่ปล่อย/build/คำอธิบายของแต่ละเวอร์ชัน
+  ให้เห็นชัดเจนก่อนเลือก
+- 🆕 **AI-SBOS v1 ที่ `/studio/v1/`** — freeze business logic ไว้ที่จุด
+  ก่อนแอปเปลี่ยนแบรนด์เป็น "AI-SBOS" ในหน้าจอจริง (commit `6f4c048`,
+  Design Refinement Studio Pro Milestone 6) ไม่มีการแก้ไข business logic
+  ใดๆ เพิ่มแค่ป้ายระบุตัวตนเวอร์ชันกับปุ่ม Switch Version เท่านั้น
+- 🆕 **AI-SBOS v2 ที่ `/studio/v2/`** — เวอร์ชันปัจจุบัน (เดิมอยู่ที่
+  `/studio/` ตรงๆ) ย้ายมาอยู่ path ของตัวเอง มีหมายเลขเวอร์ชันสาธารณะ
+  (Product Version, semantic versioning) แยกจากตัวนับ Application Version
+  ภายในอย่างชัดเจน
+- 🆕 **ปุ่ม "🔁 Switch Version"** ในทุกเวอร์ชัน (แถบหัวข้อของ v1/v2 และ
+  Version Center ของ v2) กลับไปหน้า Choose Version ได้ทันที ไม่ต้องล้าง
+  cache หรือพิมพ์ URL เอง
+- ✅ **พิสูจน์ความเข้ากันได้ของข้อมูลจริง**: สร้างโปรเจกต์ใน v1 แล้ว
+  เปิด v2 เห็นทันที, สร้างโปรเจกต์ใหม่ใน v2 แล้วกลับไป v1 ก็เห็นเช่นกัน —
+  ไม่ต้อง migrate ข้อมูลใดๆ (ฐานข้อมูลเหมือนกันทุกประการ)
+- ✅ **พิสูจน์ความเข้ากันได้ของไฟล์สำรอง (.vspsb)**: สร้างไฟล์สำรองจาก v1
+  แล้วนำไปกู้คืนใน v2 ได้สำเร็จ ข้อมูลครบถ้วน
+- ✅ **แยก Service Worker ของแต่ละเวอร์ชัน**: v1/v2 มี cache/scope ของ
+  ตัวเองแยกกันชัดเจน ไม่ทับกัน และทดสอบแล้วว่าผู้ใช้เดิมที่เคยเปิดแอป
+  เวอร์ชันก่อนหน้า (ก่อนมีระบบเลือกเวอร์ชัน) เปลี่ยนผ่านมาใช้โครงสร้างใหม่
+  ได้อย่างปลอดภัยโดยไม่มีหน้าจอค้าง
+- ทดสอบแล้ว: ทุกหน้าจอ (Selector/v1/v2) บน Desktop, Laptop, iPad แนวตั้ง,
+  iPad แนวนอน ไม่มี console error เลย, ทดสอบออฟไลน์ครบทั้ง 3 หน้าจอ, รัน
+  regression เต็มชุดซ้ำ 2 ครั้ง
 
 ### v2.13 — 7 ส.ค. 2026 — AI-SBOS, Milestone 5 (ปิดภารกิจ): การตรวจสอบขั้นสุดท้าย
 
