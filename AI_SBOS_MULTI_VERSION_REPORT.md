@@ -183,7 +183,9 @@ same checks, all pass, zero console errors on either orientation.
 
 ## 16. Regression run 1
 
-*(filled in below once the run completes)*
+**PASS.** 512 test files / 4466 tests passed (523.64s). (4466, not 4465 —
+this mission added one new test, "shows a Switch Version link back to the
+Version Selector," to `VersionCenterDialog.test.tsx`.)
 
 ## 17. Regression run 2
 
