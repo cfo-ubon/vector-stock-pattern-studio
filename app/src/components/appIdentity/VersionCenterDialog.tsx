@@ -4,6 +4,9 @@ import {
   PRODUCT_NAME,
   PRODUCT_SUBTITLE,
   MODULE_NAME,
+  PRODUCT_VERSION,
+  VERSION_STATUS,
+  VERSION_SELECTOR_PATH,
   APP_VERSION,
   BUILD_NAME,
   BUILD_DESCRIPTION,
@@ -49,11 +52,13 @@ export function VersionCenterDialog({ onClose }: Props) {
           <dd>{PRODUCT_NAME}</dd>
 
           <dt>Version</dt>
-          <dd>{APP_VERSION}</dd>
+          <dd>
+            v{PRODUCT_VERSION} · {VERSION_STATUS}
+          </dd>
 
           <dt>Build</dt>
           <dd>
-            {BUILD_NAME} — {BUILD_DESCRIPTION}
+            {BUILD_NAME} (internal v{APP_VERSION}) — {BUILD_DESCRIPTION}
           </dd>
 
           <dt>Release Date</dt>
@@ -80,7 +85,22 @@ export function VersionCenterDialog({ onClose }: Props) {
 
           <dt>Regression Result</dt>
           <dd>{REGRESSION_RESULT}</dd>
+
+          <dt>Data Compatibility</dt>
+          <dd>
+            v2 shares its data (patterns, submissions, collections, backups) with AI-SBOS v1 (Stable / Legacy) — both use the same, verified-identical database schema. No migration is required to switch between them. See{' '}
+            <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/AI_SBOS_VERSION_AUDIT.md" target="_blank" rel="noreferrer">
+              AI_SBOS_VERSION_AUDIT.md
+            </a>{' '}
+            for the evidence.
+          </dd>
         </dl>
+
+        <p className="metadata-hint">
+          <a className="guide-link" href={VERSION_SELECTOR_PATH} rel="noreferrer">
+            🔁 Switch Version
+          </a>
+        </p>
 
         <section className="portfolio-detail-section">
           <h3>Latest Changes</h3>

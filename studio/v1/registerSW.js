@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/vector-stock-pattern-studio/studio/v1/sw.js', { scope: '/vector-stock-pattern-studio/studio/v1/' })})}

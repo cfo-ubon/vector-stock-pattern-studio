@@ -15,10 +15,29 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
-export const APP_VERSION = '2.13';
-export const BUILD_NAME = 'AI-SBOS M5';
-export const BUILD_DESCRIPTION = 'Closing verification — device/responsive, offline, regression (twice), Production Workspace Guide';
-export const RELEASE_DATE = '2026-08-07';
+/** The real, public, semantic product version (MAJOR.MINOR.PATCH) — see
+ * AI_SBOS_VERSION_AUDIT.md Part 2 for the policy this follows: MAJOR only
+ * for an architecture/product-generation change (this one: the AI-SBOS
+ * rebrand + Version Center + consolidated Today's Production Workspace,
+ * bumped from the v1.x "Vector Stock Pattern Studio"-branded generation).
+ * Deliberately NOT derived from `APP_VERSION` below — that is a separate,
+ * continuously-incrementing internal build counter that has never reset
+ * at a product boundary and was never meant to be shown to an owner as
+ * "the version." */
+export const PRODUCT_VERSION = '2.1.0';
+export const VERSION_STATUS: 'Stable / Legacy' | 'Current' = 'Current';
+/** Where "Switch Version" returns to — the Version Selector one level up
+ * from this build's own base path (`/vector-stock-pattern-studio/studio/v2/`). */
+export const VERSION_SELECTOR_PATH = '../';
+
+/** Internal build-tracking counter (see `docs/USER_GUIDE.md`'s own
+ * "Version and Build Numbering" section) — increments on every
+ * user-visible change regardless of product-version boundaries. Shown in
+ * the Version Center as "Build" detail, never as the headline version. */
+export const APP_VERSION = '2.14';
+export const BUILD_NAME = 'AI-SBOS Multi-Version Release';
+export const BUILD_DESCRIPTION = 'Version Selector + Switch Version + independently-scoped v1/v2 deployment (MINOR bump: real new capability, per AI_SBOS_VERSION_AUDIT.md Part 2 policy)';
+export const RELEASE_DATE = '2026-08-14';
 
 /** The real commit this build was produced from — injected at build time
  * by `vite.config.ts` (see that file's own comment on why it's always the
@@ -36,9 +55,9 @@ export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 
  * changelog already record; updated at each release, same convention as
  * every field above. Never computed/inferred at runtime — that would risk
  * silently drifting from what was actually verified. */
-export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission (M1-M5) complete';
+export const PRODUCTION_STATUS = 'Verified — Design Refinement Studio Pro (M1-M6) complete, AI-SBOS Production Workspace mission (M1-M5) complete, Multi-Version Release (v1/v2 Selector) complete';
 export const COMMERCIAL_CERTIFICATION_STATUS = 'PASS — Commercial Pipeline (readiness, SEO, package export) verified through Design Refinement Studio Pro Milestone 2/4 live-browser checks, reused as-is by Today\'s Production Workspace';
-export const REGRESSION_RESULT = '512 test files / 4465 tests passing, verified twice back-to-back (last full regression)';
+export const REGRESSION_RESULT = '512 test files / 4466 tests passing, verified twice back-to-back (last full regression)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -51,6 +70,18 @@ export interface WhatsNewEntry {
  * by the What's New dialog (which shows only `CHANGELOG[0]` once per
  * version, see `components/appIdentity/WhatsNewDialog.tsx`). */
 export const CHANGELOG: WhatsNewEntry[] = [
+  {
+    version: '2.14',
+    date: '2026-08-14',
+    title: 'AI-SBOS v2.1.0: Multi-Version Release — เลือกเวอร์ชันได้แล้ว',
+    highlights: [
+      'เปิด /studio/ จะเจอหน้า "Choose Version" — เลือกได้ระหว่าง AI-SBOS v1 (Stable / Legacy) และ AI-SBOS v2 (Current, แนะนำ)',
+      'ปุ่ม "🔁 Switch Version" ในทุกเวอร์ชัน กลับไปหน้าเลือกเวอร์ชันได้ทันที ไม่ต้องล้าง cache',
+      'v1 และ v2 ใช้ข้อมูล (โปรเจกต์, ไฟล์สำรอง .vspsb) ร่วมกันได้จริง — ทดสอบแล้วทั้งสองทิศทาง',
+      'v1 ถูก freeze ไว้ที่จุดก่อนเปลี่ยนแบรนด์เป็น AI-SBOS (Design Refinement Studio Pro M6) ไม่มีการแก้ไข business logic ใดๆ',
+      'แยก Service Worker ของแต่ละเวอร์ชันออกจากกันชัดเจน ไม่ทับ cache กัน แม้ผู้ใช้เดิมที่เคยเปิดแอปก่อนหน้านี้ก็เปลี่ยนผ่านได้อย่างปลอดภัย',
+    ],
+  },
   {
     version: '2.13',
     date: '2026-08-07',
