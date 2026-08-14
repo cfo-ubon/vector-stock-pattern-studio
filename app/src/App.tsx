@@ -65,7 +65,7 @@ import { MissionControlView, type MissionControlAutopilotAction } from './compon
 import { VersionCenterDialog } from './components/appIdentity/VersionCenterDialog';
 import { WhatsNewDialog } from './components/appIdentity/WhatsNewDialog';
 import { shouldShowWhatsNew } from './components/appIdentity/whatsNewStore';
-import { PRODUCT_NAME, PRODUCT_SUBTITLE, MODULE_NAME, APP_VERSION, BUILD_NAME, ENVIRONMENT } from './appMeta';
+import { PRODUCT_NAME, PRODUCT_SUBTITLE, MODULE_NAME, PRODUCT_VERSION, VERSION_STATUS, VERSION_SELECTOR_PATH, APP_VERSION, ENVIRONMENT } from './appMeta';
 import { applyMappedFieldsToParams, type MappedGeneratorField, type GeneratorHandoffApplication } from './design-director/handoff/applyGeneratorHandoff';
 import type { DesignSpecification } from './trend/designSpecTypes';
 import { buildTileFromDesignSpec } from './trend/designSpecToParams';
@@ -1168,8 +1168,11 @@ function App() {
           <span className={`app-env-badge app-env-badge--${ENVIRONMENT}`}>{ENVIRONMENT === 'production' ? 'Production' : 'Development'}</span>
           <span className="app-project-name">{projects.find((p) => p.id === activeProjectId)?.name ?? 'ไม่มีโปรเจกต์ที่เลือก'}</span>
           <button type="button" className="app-version-badge" onClick={() => setShowVersionCenter(true)}>
-            v{APP_VERSION} · {BUILD_NAME}
+            {PRODUCT_NAME} v{PRODUCT_VERSION} · {VERSION_STATUS}
           </button>
+          <a className="guide-link" href={VERSION_SELECTOR_PATH} rel="noreferrer">
+            🔁 Switch Version
+          </a>
           <a
             className="guide-link"
             href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"

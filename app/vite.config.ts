@@ -53,26 +53,32 @@ export default defineConfig({
         // Cache-first navigation fallback so a cold, offline load of any
         // deep path under this app's base still resolves to the cached
         // shell instead of a network-dependent 404.
-        navigateFallback: '/vector-stock-pattern-studio/studio/index.html',
+        //
+        // AI-SBOS Multi-Version Release: this is the current v2 app,
+        // deployed under its own /studio/v2/ subpath with its own
+        // service-worker scope — isolated from the frozen v1 build's own
+        // /studio/v1/ scope (Part 12). /studio/ itself is now the
+        // Version Selector, a separate hand-authored static page.
+        navigateFallback: '/vector-stock-pattern-studio/studio/v2/index.html',
       },
       manifest: {
         name: 'AI-SBOS',
         short_name: 'AI-SBOS',
         description: 'AI-SBOS — AI Stock Business Operating System (Vector Stock Pattern Studio module)',
-        start_url: '/vector-stock-pattern-studio/studio/',
-        scope: '/vector-stock-pattern-studio/studio/',
+        start_url: '/vector-stock-pattern-studio/studio/v2/',
+        scope: '/vector-stock-pattern-studio/studio/v2/',
         display: 'standalone',
         background_color: '#0f1117',
         theme_color: '#5b8dee',
       },
     }),
   ],
-  base: '/vector-stock-pattern-studio/studio/',
+  base: '/vector-stock-pattern-studio/studio/v2/',
   define: {
     __COMMIT_HASH__: JSON.stringify(readCommitHash()),
   },
   build: {
-    outDir: '../studio',
+    outDir: '../studio/v2',
     emptyOutDir: true,
   },
   test: {

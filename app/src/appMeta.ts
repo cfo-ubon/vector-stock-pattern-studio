@@ -15,6 +15,25 @@ export const PRODUCT_SUBTITLE = 'AI Stock Business Operating System';
  * name itself — shown as a module label, not the primary brand. */
 export const MODULE_NAME = 'Vector Stock Pattern Studio';
 
+/** The real, public, semantic product version (MAJOR.MINOR.PATCH) — see
+ * AI_SBOS_VERSION_AUDIT.md Part 2 for the policy this follows: MAJOR only
+ * for an architecture/product-generation change (this one: the AI-SBOS
+ * rebrand + Version Center + consolidated Today's Production Workspace,
+ * bumped from the v1.x "Vector Stock Pattern Studio"-branded generation).
+ * Deliberately NOT derived from `APP_VERSION` below — that is a separate,
+ * continuously-incrementing internal build counter that has never reset
+ * at a product boundary and was never meant to be shown to an owner as
+ * "the version." */
+export const PRODUCT_VERSION = '2.0.0';
+export const VERSION_STATUS: 'Stable / Legacy' | 'Current' = 'Current';
+/** Where "Switch Version" returns to — the Version Selector one level up
+ * from this build's own base path (`/vector-stock-pattern-studio/studio/v2/`). */
+export const VERSION_SELECTOR_PATH = '../';
+
+/** Internal build-tracking counter (see `docs/USER_GUIDE.md`'s own
+ * "Version and Build Numbering" section) — increments on every
+ * user-visible change regardless of product-version boundaries. Shown in
+ * the Version Center as "Build" detail, never as the headline version. */
 export const APP_VERSION = '2.13';
 export const BUILD_NAME = 'AI-SBOS M5';
 export const BUILD_DESCRIPTION = 'Closing verification — device/responsive, offline, regression (twice), Production Workspace Guide';

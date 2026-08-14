@@ -1,14 +1,20 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { VersionCenterDialog } from './VersionCenterDialog';
-import { APP_VERSION, COMMIT, CHANGELOG } from '../../appMeta';
+import { PRODUCT_VERSION, VERSION_STATUS, APP_VERSION, COMMIT, CHANGELOG } from '../../appMeta';
 
 describe('VersionCenterDialog', () => {
   it('shows the real product identity and version/build/commit fields from appMeta', () => {
     render(<VersionCenterDialog onClose={() => {}} />);
     expect(screen.getByText('ℹ️ About AI-SBOS')).toBeInTheDocument();
-    expect(screen.getByText(APP_VERSION)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`v${PRODUCT_VERSION.replace(/\./g, '\\.')}.*${VERSION_STATUS}`))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`internal v${APP_VERSION.replace(/\./g, '\\.')}`))).toBeInTheDocument();
     expect(screen.getByText(COMMIT)).toBeInTheDocument();
+  });
+
+  it('shows a Switch Version link back to the Version Selector', () => {
+    render(<VersionCenterDialog onClose={() => {}} />);
+    expect(screen.getByText('🔁 Switch Version')).toBeInTheDocument();
   });
 
   it('shows a real, non-empty Latest Changes section sourced from CHANGELOG', () => {

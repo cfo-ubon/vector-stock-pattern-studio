@@ -4,13 +4,151 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%235b8dee'/%3E%3Ccircle cx='11' cy='11' r='5' fill='%23fff'/%3E%3Ccircle cx='22' cy='22' r='5' fill='%23fff' opacity='.7'/%3E%3C/svg%3E" />
-    <title>AI-SBOS — AI Stock Business Operating System</title>
-    <script type="module" crossorigin src="/vector-stock-pattern-studio/studio/assets/index-CIOiSIck.js"></script>
-    <link rel="modulepreload" crossorigin href="/vector-stock-pattern-studio/studio/assets/styleDna-Sq4G3je7.js">
-    <link rel="modulepreload" crossorigin href="/vector-stock-pattern-studio/studio/assets/candidateEngine-DGGHOkGC.js">
-    <link rel="stylesheet" crossorigin href="/vector-stock-pattern-studio/studio/assets/index-ChArShdH.css">
-  <link rel="manifest" href="/vector-stock-pattern-studio/studio/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/vector-stock-pattern-studio/studio/registerSW.js"></script></head>
+    <title>AI-SBOS — Choose Version</title>
+    <style>
+      :root {
+        --bg: #14161c;
+        --panel: #1c1f28;
+        --panel-alt: #232734;
+        --border: #323848;
+        --text: #eef0f4;
+        --text-dim: #9aa1b2;
+        --accent: #5b8dee;
+        --accent-strong: #4a76d6;
+        --recommended: #37b673;
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 3rem 1.5rem 4rem;
+      }
+      header { text-align: center; margin-bottom: 2.5rem; max-width: 640px; }
+      header h1 { margin: 0 0 0.35rem; font-size: 2rem; }
+      header p.subtitle { margin: 0 0 0.75rem; color: var(--text-dim); font-size: 1.05rem; }
+      header p.choose { margin: 0; font-size: 0.95rem; color: var(--text-dim); }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+      }
+      .card--recommended { border-color: var(--recommended); }
+      .badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        border-radius: 999px;
+        padding: 0.25rem 0.65rem;
+        width: fit-content;
+      }
+      .badge--stable { background: var(--panel-alt); color: var(--text-dim); border: 1px solid var(--border); }
+      .badge--current { background: rgba(55, 182, 115, 0.15); color: var(--recommended); border: 1px solid var(--recommended); }
+      .badge--recommended { background: var(--recommended); color: #0f1117; }
+      .card h2 { margin: 0.25rem 0 0; font-size: 1.35rem; }
+      dl.meta {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.15rem 0.75rem;
+        margin: 0.25rem 0;
+        font-size: 0.85rem;
+      }
+      dl.meta dt { color: var(--text-dim); }
+      dl.meta dd { margin: 0; }
+      .desc { font-size: 0.88rem; color: var(--text-dim); line-height: 1.45; flex: 1; }
+      .btn {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.7rem 1rem;
+        font-size: 0.95rem;
+      }
+      .btn:hover { background: var(--accent-strong); }
+      .btn--secondary { background: var(--panel-alt); border: 1px solid var(--border); color: var(--text); }
+      .btn--secondary:hover { background: var(--border); }
+      footer { margin-top: 2.5rem; font-size: 0.8rem; color: var(--text-dim); text-align: center; max-width: 600px; }
+      footer a { color: var(--accent); }
+    </style>
+  </head>
   <body>
-    <div id="root"></div>
+    <header>
+      <h1>AI-SBOS</h1>
+      <p class="subtitle">AI Stock Business Operating System</p>
+      <p class="choose">Choose Version</p>
+    </header>
+
+    <main class="cards">
+      <section class="card">
+        <span class="badge badge--stable">Stable / Legacy</span>
+        <h2>AI-SBOS v1</h2>
+        <dl class="meta">
+          <dt>Version</dt>
+          <dd>v1.5.0</dd>
+          <dt>Release date</dt>
+          <dd>2026-08-07</dd>
+          <dt>Build</dt>
+          <dd>Design Refinement Studio Pro — M6 (final)</dd>
+        </dl>
+        <p class="desc">
+          The certified, regression-tested production baseline before the AI-SBOS rebrand: Production Mode, Commercial Pipeline, Decision OS, Factory Orchestrator, and Design Refinement Studio Pro (Design Edit Mode, AI Design Coach, Version Control + Compare Center, Batch Refinement, Pattern Safety).
+        </p>
+        <a class="btn btn--secondary" href="./v1/">Open v1</a>
+      </section>
+
+      <section class="card card--recommended">
+        <span class="badge badge--recommended">Recommended</span>
+        <span class="badge badge--current">Current</span>
+        <h2>AI-SBOS v2</h2>
+        <dl class="meta">
+          <dt>Version</dt>
+          <dd>v2.0.0</dd>
+          <dt>Release date</dt>
+          <dd>2026-08-07</dd>
+          <dt>Build</dt>
+          <dd>AI-SBOS M5 (internal v2.13)</dd>
+        </dl>
+        <p class="desc">
+          The current production generation: AI-SBOS product identity, Version Center, What's New, and the consolidated Today's Production Workspace — Generate → Preview → Refine → Approve → Marketplace → Export → Download in one screen, plus Portfolio's repositioned Library/Analytics/Collections/History &amp; Submissions role.
+        </p>
+        <a class="btn" href="./v2/">Open v2</a>
+      </section>
+    </main>
+
+    <footer>
+      Both versions read and write the same data (patterns, submissions, collections, backups) — verified identical database schema, no migration needed to switch. See
+      <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/AI_SBOS_VERSION_AUDIT.md" target="_blank" rel="noreferrer">AI_SBOS_VERSION_AUDIT.md</a>
+      for the evidence, or the
+      <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md" target="_blank" rel="noreferrer">User Guide</a>.
+    </footer>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js', { scope: './' });
+        });
+      }
+    </script>
   </body>
 </html>

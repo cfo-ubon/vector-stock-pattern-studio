@@ -6,9 +6,16 @@
 // records use. Every read/write is wrapped defensively: localStorage can
 // throw in private-browsing/storage-restricted contexts, and the correct
 // fallback is simply "show the dialog again next time," never a crash.
+//
+// Multi-Version Release, Part 14: localStorage is scoped by *origin*, not
+// by path — v1 (`/studio/v1/`) and v2 (`/studio/v2/`) share the same
+// origin, so an unnamespaced key would let dismissing What's New in one
+// version incorrectly suppress it in another. Namespaced by product
+// major-version line so this can never happen, including for any future
+// v3 that reuses this same module.
 
-const LAST_SEEN_VERSION_KEY = 'aisbos.whatsNew.lastSeenVersion';
-const DONT_SHOW_AGAIN_KEY = 'aisbos.whatsNew.dontShowAgain';
+const LAST_SEEN_VERSION_KEY = 'aisbos.v2.whatsNew.lastSeenVersion';
+const DONT_SHOW_AGAIN_KEY = 'aisbos.v2.whatsNew.dontShowAgain';
 
 function safeGet(key: string): string | null {
   try {
