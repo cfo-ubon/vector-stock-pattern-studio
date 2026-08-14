@@ -37,22 +37,27 @@ export default defineConfig({
         // Cache-first navigation fallback so a cold, offline load of any
         // deep path under this app's base still resolves to the cached
         // shell instead of a network-dependent 404.
-        navigateFallback: '/vector-stock-pattern-studio/studio/index.html',
+        //
+        // AI-SBOS Multi-Version Release: this is the frozen v1 build,
+        // deployed under its own /studio/v1/ subpath with its own service
+        // worker scope so it can never overwrite or be overwritten by the
+        // v2 app's cache (Part 12 — Service Worker Isolation).
+        navigateFallback: '/vector-stock-pattern-studio/studio/v1/index.html',
       },
       manifest: {
-        name: 'Vector Stock Pattern Studio',
-        short_name: 'VSP Studio',
-        start_url: '/vector-stock-pattern-studio/studio/',
-        scope: '/vector-stock-pattern-studio/studio/',
+        name: 'AI-SBOS v1 (Stable / Legacy)',
+        short_name: 'AI-SBOS v1',
+        start_url: '/vector-stock-pattern-studio/studio/v1/',
+        scope: '/vector-stock-pattern-studio/studio/v1/',
         display: 'standalone',
         background_color: '#0f1117',
         theme_color: '#5b8dee',
       },
     }),
   ],
-  base: '/vector-stock-pattern-studio/studio/',
+  base: '/vector-stock-pattern-studio/studio/v1/',
   build: {
-    outDir: '../studio',
+    outDir: '../studio/v1',
     emptyOutDir: true,
   },
   test: {

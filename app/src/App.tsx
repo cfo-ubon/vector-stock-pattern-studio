@@ -72,6 +72,7 @@ import type { TileData } from './engine/types';
 import { isDesktopRuntime, getConfiguredWorkspacePath } from './workspace/workspaceApi';
 import { WorkspaceOnboarding } from './workspace/WorkspaceOnboarding';
 import { saveExportToWorkspace } from './workspace/workspaceExportIntegration';
+import { PRODUCT_NAME, PRODUCT_VERSION, VERSION_STATUS, VERSION_SELECTOR_PATH } from './versionManifest';
 import './App.css';
 
 const GALLERY_STORAGE_KEY = 'vsp-gallery-v1';
@@ -1154,14 +1155,22 @@ function App() {
           <h1>Vector Stock Pattern Studio</h1>
           <p>Generate seamless, fully-editable SVG patterns for stock — no external AI calls, everything runs in your browser.</p>
         </div>
-        <a
-          className="guide-link"
-          href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
-          target="_blank"
-          rel="noreferrer"
-        >
-          📖 คู่มือการใช้งาน
-        </a>
+        <div className="app-identity-bar">
+          <span className="app-version-badge" aria-label="Version identity">
+            {PRODUCT_NAME} v{PRODUCT_VERSION} · {VERSION_STATUS}
+          </span>
+          <a className="guide-link" href={VERSION_SELECTOR_PATH} rel="noreferrer">
+            🔁 Switch Version
+          </a>
+          <a
+            className="guide-link"
+            href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            📖 คู่มือการใช้งาน
+          </a>
+        </div>
       </header>
       <nav aria-label="Main navigation">
         <ProjectBar
