@@ -28,12 +28,13 @@ boundaries from labels.
 
 ## 2. Proven v2 commit
 
-`94dac68` (branch tip at the time of this report) — the complete AI-SBOS
-Mission (Product Identity, Version Center, What's New, Today's Production
-Workspace, Portfolio repositioning) plus this Multi-Version Release
-mission's own Selector/Switch-Version/isolation work. First commit of the
-underlying product generation: `a2f3564` (the actual, verified point the
-running app's UI first showed "AI-SBOS" branding).
+`f0d3ddf` (final `main` tip, this mission's own closing commit) — the
+complete AI-SBOS Mission (Product Identity, Version Center, What's New,
+Today's Production Workspace, Portfolio repositioning) plus this
+Multi-Version Release mission's own Selector/Switch-Version/isolation
+work. First commit of the underlying product generation: `a2f3564` (the
+actual, verified point the running app's UI first showed "AI-SBOS"
+branding).
 
 ## 3. Tags created
 
@@ -205,21 +206,31 @@ local-verification convention).
 
 ## 19. Deployment status
 
-See §20/21 for exact commits — merged into `main` (the branch GitHub
-Pages serves directly, no Actions workflow, confirmed in the prior
-deployment-verification mission) and pushed.
+**DEPLOYED.** Merged into `main` (the branch GitHub Pages serves
+directly — no Actions workflow, `list_workflow_runs` returns
+`total_count: 0`, confirmed in the prior deployment-verification
+mission) via an explicit `--no-ff` merge commit, then re-verified the
+exact merged content locally at the identical path structure
+(`/studio/`, `/studio/v1/`, `/studio/v2/`) before and after — all
+navigation/identity checks pass, zero console errors.
 
 ## 20. Final commit
 
-*(filled in at the end of this mission, after the merge to `main`)*
+`f0d3ddf` on both `main` and `claude/build-030-ai-ceo-mission-control`
+(a small follow-up merge fixing one stale assertion in this mission's own
+verification script, caught by re-running it against the final deployed
+content — not a product bug). The substantive deploy commit is
+`e6639a8`, "Merge AI-SBOS Multi-Version Release into main for GitHub
+Pages deployment."
 
 ## 21. Push status
 
-*(filled in at the end of this mission)*
+**Both branches pushed successfully** and are identical at `f0d3ddf`:
+`origin/main` and `origin/claude/build-030-ai-ceo-mission-control`.
 
 ## 22. Working-tree status
 
-*(filled in at the end of this mission)*
+**Clean.** `git status --short` reports no changes on either branch.
 
 ## 23. Remaining limitations
 
