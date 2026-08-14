@@ -23,4 +23,4 @@ export const SHORT_DESCRIPTION =
 
 /** Where "Switch Version" returns to — the Version Selector one level up
  * from this build's own base path (`/vector-stock-pattern-studio/studio/v1/`). */
-export const VERSION_SELECTOR_PATH = '../../';
+export const VERSION_SELECTOR_PATH = '../';
