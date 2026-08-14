@@ -48,7 +48,7 @@ async function main() {
     await page.waitForTimeout(300);
   }
   const v2Body = await page.evaluate(() => document.body.innerText);
-  console.log('=== v2 header shows AI-SBOS v2.0.0 / Current ===', /AI-SBOS v2\.0\.0/.test(v2Body) && v2Body.includes('Current'));
+  console.log('=== v2 header shows AI-SBOS v2.x / Current ===', /AI-SBOS v2\.\d+\.\d+/.test(v2Body) && v2Body.includes('Current'));
 
   // 5. Switch Version from v2 back to selector.
   await page.getByRole('link', { name: '🔁 Switch Version' }).click();
