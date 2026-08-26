@@ -362,6 +362,45 @@ body {
   width: 100%;
 }
 
+.v3-refine-field select {
+  background: var(--v3-panel-alt);
+  border: 1px solid var(--v3-border);
+  color: var(--v3-text);
+  border-radius: 6px;
+  padding: 0.4rem;
+}
+
+.v3-overall-status {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.v3-overall-status--ready {
+  color: var(--v3-new);
+}
+
+.v3-overall-status--review {
+  color: #e0a83c;
+}
+
+.v3-overall-status--blocked {
+  color: #e05656;
+}
+
+.v3-gate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.v3-gate-list li {
+  font-size: 0.85rem;
+}
+
 @media (max-width: 600px) {
   .v3-brief-grid {
     grid-template-columns: 1fr;

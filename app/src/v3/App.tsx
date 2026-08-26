@@ -3,8 +3,25 @@ import { PRODUCT_NAME, PRODUCT_TAGLINE, PRODUCT_VERSION, VERSION_STATUS, VERSION
 import { analyzeKeyword, type DesignIntent } from './keywordIntent';
 import { generateConcepts, refineConcept, type Concept } from './generateFromIntent';
 import { getDesignCoachRecommendations } from './designCoach';
+import { importConcept, runCommercialQualityGate, exportConceptToMarketplace, type CommercialQaResult } from './approveAndExport';
+import type { ExportMarketplaceId, BulkExportResult } from '../commercial/exportWorkflow';
+import { DownloadCenter } from '../components/portfolio/DownloadCenter';
 import { VersionCenterDialog } from './VersionCenterDialog';
+// DownloadCenter.tsx (reused verbatim, no v3-specific copy) renders with
+// the shared `.portfolio-modal`/`.btn`/`.download-center-*` classes —
+// importing the same stylesheet v2 uses keeps it looking and working
+// identically instead of rendering unstyled or needing a duplicate CSS
+// copy that could drift.
+import '../components/portfolio/portfolio.css';
 import './v3.css';
+
+const MARKETPLACES: Array<{ id: ExportMarketplaceId; label: string }> = [
+  { id: 'shutterstock', label: 'Shutterstock' },
+  { id: 'adobestock', label: 'Adobe Stock' },
+  { id: 'freepik', label: 'Freepik' },
+  { id: 'getty', label: 'Getty / iStock' },
+  { id: 'etsy', label: 'Etsy' },
+];
 
 type Screen = 'workspace' | 'brief' | 'gallery';
 
@@ -37,6 +54,12 @@ export default function App() {
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
   const [refiningConceptId, setRefiningConceptId] = useState<string | null>(null);
   const [refineDraft, setRefineDraft] = useState<{ density: number; negativeSpace: number; motifSize: number; rotationJitter: number } | null>(null);
+  const [approvingConceptId, setApprovingConceptId] = useState<string | null>(null);
+  const [qaResult, setQaResult] = useState<CommercialQaResult | null>(null);
+  const [qaMarketplace, setQaMarketplace] = useState<ExportMarketplaceId>('etsy');
+  const [qaBusy, setQaBusy] = useState(false);
+  const [qaError, setQaError] = useState<string | null>(null);
+  const [downloadPackages, setDownloadPackages] = useState<BulkExportResult[] | null>(null);
 
   const handleAnalyze = () => {
     if (!keyword.trim()) return;
@@ -89,6 +112,40 @@ export default function App() {
     });
     setRefiningConceptId(null);
     setRefineDraft(null);
+  };
+
+  const handleApprove = async (concept: Concept) => {
+    setApprovingConceptId(concept.id);
+    setQaResult(null);
+    setQaError(null);
+    setQaBusy(true);
+    try {
+      const outcome = await importConcept(concept);
+      if (outcome.status !== 'imported') {
+        setQaError(`Import did not complete (${outcome.status}) — this asset may already exist in the Portfolio catalog.`);
+        return;
+      }
+      const qa = await runCommercialQualityGate(concept, outcome.asset, qaMarketplace);
+      setQaResult(qa);
+    } catch (err) {
+      setQaError(err instanceof Error ? err.message : 'Commercial QA failed unexpectedly.');
+    } finally {
+      setQaBusy(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!qaResult) return;
+    setQaBusy(true);
+    setQaError(null);
+    try {
+      const results = await exportConceptToMarketplace(qaResult, qaMarketplace);
+      setDownloadPackages(results);
+    } catch (err) {
+      setQaError(err instanceof Error ? err.message : 'Export failed unexpectedly.');
+    } finally {
+      setQaBusy(false);
+    }
   };
 
   return (
@@ -231,6 +288,15 @@ export default function App() {
                       Refine
                     </button>
                   </div>
+                  <button
+                    type="button"
+                    className="v3-btn v3-btn--primary"
+                    onClick={() => handleApprove(concept)}
+                    disabled={!concept.overallReady}
+                    title={concept.overallReady ? undefined : 'Vector Integrity and Seamless Integrity must both PASS before Commercial QA'}
+                  >
+                    Approve → Commercial QA
+                  </button>
                 </article>
               ))}
             </div>
@@ -349,6 +415,87 @@ export default function App() {
                   </div>
                 );
               })()}
+
+            {approvingConceptId && (
+              <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label="Commercial QA">
+                <div className="v3-modal">
+                  <div className="v3-modal-header">
+                    <h2>Commercial QA{downloadPackages ? ' — Export Ready' : ''}</h2>
+                    <button
+                      type="button"
+                      className="v3-btn"
+                      onClick={() => {
+                        setApprovingConceptId(null);
+                        setQaResult(null);
+                        setDownloadPackages(null);
+                        setQaError(null);
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  {qaBusy && <p className="v3-hint">Running Commercial QA…</p>}
+                  {qaError && <p className="v3-hint">⚠️ {qaError}</p>}
+
+                  {qaResult && !downloadPackages && (
+                    <>
+                      <p className={`v3-overall-status v3-overall-status--${qaResult.overallStatus.toLowerCase()}`}>Overall: {qaResult.overallStatus}</p>
+                      <ul className="v3-gate-list">
+                        {qaResult.gates.map((gate) => (
+                          <li key={gate.id}>
+                            <span className={`v3-gate-badge ${gate.status === 'PASS' ? 'v3-gate-badge--pass' : 'v3-gate-badge--blocked'}`}>
+                              {gate.label}: {gate.status}
+                            </span>
+                            <span className="v3-hint"> {gate.detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <label className="v3-refine-field">
+                        Marketplace
+                        <select value={qaMarketplace} onChange={(e) => setQaMarketplace(e.target.value as ExportMarketplaceId)}>
+                          {MARKETPLACES.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <p className="v3-hint">
+                        {qaResult.seoPackage.title} — {qaResult.seoPackage.keywords.length} keywords generated for {qaMarketplace}.
+                      </p>
+
+                      <button
+                        type="button"
+                        className="v3-btn v3-btn--primary"
+                        onClick={handleExport}
+                        disabled={qaBusy || qaResult.overallStatus === 'BLOCKED'}
+                        title={qaResult.overallStatus === 'BLOCKED' ? 'Resolve blocked gates before export' : undefined}
+                      >
+                        Export to {MARKETPLACES.find((m) => m.id === qaMarketplace)?.label}
+                      </button>
+                    </>
+                  )}
+
+                  {downloadPackages && (
+                    <p className="v3-hint">Export complete — {downloadPackages.length} package(s) built. Use the Download Center below.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {downloadPackages && (
+              <DownloadCenter
+                packages={downloadPackages}
+                onClose={() => {
+                  setDownloadPackages(null);
+                  setApprovingConceptId(null);
+                  setQaResult(null);
+                }}
+              />
+            )}
           </section>
         )}
       </main>
