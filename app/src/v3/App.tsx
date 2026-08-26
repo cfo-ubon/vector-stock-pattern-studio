@@ -7,6 +7,7 @@ import { getDesignCoachRecommendations } from './designCoach';
 import { importConcept, runCommercialQualityGate, exportConceptToMarketplace, type CommercialQaResult } from './approveAndExport';
 import type { ExportMarketplaceId, BulkExportResult } from '../commercial/exportWorkflow';
 import { DownloadCenter } from '../components/portfolio/DownloadCenter';
+import { useModalDismiss } from '../components/portfolio/useModalDismiss';
 import { VersionCenterDialog } from './VersionCenterDialog';
 // DownloadCenter.tsx (reused verbatim, no v3-specific copy) renders with
 // the shared `.portfolio-modal`/`.btn`/`.download-center-*` classes —
@@ -43,6 +44,215 @@ function TilePreview({ markup, repeat, tileSize, label }: { markup: string; repe
 }
 
 const EXAMPLE_KEYWORDS = ['minimal botanical', 'cute dinosaur kids', 'christmas candy', 'japanese geometric', 'luxury abstract leaves', 'boho rainbow nursery'];
+
+/** Milestone 28 — Accessibility, reusing the shared `.portfolio-modal-backdrop`
+ * Escape-to-close + focus-into-dialog behavior (`useModalDismiss`) v2's own
+ * Hotfix v1.0.2 fixes established, instead of the earlier bare
+ * `role="dialog"` divs with no keyboard dismissal. Each of v3's three
+ * modals is its own component (not an inline IIFE) specifically so this
+ * hook's mount-once focus effect actually re-fires each time the modal
+ * opens. */
+function RefineModal({
+  original,
+  refineDraft,
+  onDraftChange,
+  onClose,
+  onRegenerate,
+}: {
+  original: Concept;
+  refineDraft: { density: number; negativeSpace: number; motifSize: number; rotationJitter: number };
+  onDraftChange: (draft: { density: number; negativeSpace: number; motifSize: number; rotationJitter: number }) => void;
+  onClose: () => void;
+  onRegenerate: () => void;
+}) {
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+  const recommendations = getDesignCoachRecommendations(original.tileData, original.metrics);
+  return (
+    <div className="v3-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label={`Refine — ${original.label}`}>
+      <div className="v3-modal">
+        <div className="v3-modal-header">
+          <h2>Refine — {original.label}</h2>
+          <button type="button" className="v3-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+
+        <section>
+          <h3>AI Design Coach</h3>
+          <ul className="v3-coach-list">
+            {recommendations.map((rec) => (
+              <li key={rec.id}>{rec.message}</li>
+            ))}
+          </ul>
+        </section>
+
+        <label className="v3-refine-field">
+          Density: {refineDraft.density.toFixed(2)}
+          <input
+            type="range"
+            min={0.1}
+            max={1}
+            step={0.05}
+            value={refineDraft.density}
+            onChange={(e) => onDraftChange({ ...refineDraft, density: Number(e.target.value) })}
+          />
+        </label>
+        <label className="v3-refine-field">
+          Negative space: {refineDraft.negativeSpace.toFixed(2)}
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={refineDraft.negativeSpace}
+            onChange={(e) => onDraftChange({ ...refineDraft, negativeSpace: Number(e.target.value) })}
+          />
+        </label>
+        <label className="v3-refine-field">
+          Motif scale: {refineDraft.motifSize.toFixed(0)}
+          <input
+            type="range"
+            min={Math.max(10, refineDraft.motifSize * 0.5)}
+            max={refineDraft.motifSize * 1.5}
+            step={1}
+            value={refineDraft.motifSize}
+            onChange={(e) => onDraftChange({ ...refineDraft, motifSize: Number(e.target.value) })}
+          />
+        </label>
+        <label className="v3-refine-field">
+          Rotation jitter: {refineDraft.rotationJitter.toFixed(0)}°
+          <input
+            type="range"
+            min={0}
+            max={45}
+            step={1}
+            value={refineDraft.rotationJitter}
+            onChange={(e) => onDraftChange({ ...refineDraft, rotationJitter: Number(e.target.value) })}
+          />
+        </label>
+
+        <div className="v3-brief-actions">
+          <button type="button" className="v3-btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="button" className="v3-btn v3-btn--primary" onClick={onRegenerate}>
+            Regenerate Version
+          </button>
+        </div>
+        <p className="v3-hint">Creates a new version below the original in the gallery — the original is never overwritten.</p>
+      </div>
+    </div>
+  );
+}
+
+function PreviewModal({ concept, onClose }: { concept: Concept; onClose: () => void }) {
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+  return (
+    <div className="v3-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label={`${concept.label} — 3×3 repeat preview`}>
+      <div className="v3-modal v3-modal--wide">
+        <div className="v3-modal-header">
+          <h2>{concept.label} — 3×3 repeat preview</h2>
+          <button type="button" className="v3-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <TilePreview
+          markup={concept.seamlessIntegrity.repeatPreviewMarkup3x3}
+          repeat={3}
+          tileSize={concept.params.tileSize}
+          label={`${concept.label} 3x3 repeat`}
+        />
+        {concept.seamlessIntegrity.issues.length > 0 && (
+          <ul className="v3-hint">
+            {concept.seamlessIntegrity.issues.map((issue) => (
+              <li key={issue.code}>{issue.detail}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CommercialQaModal({
+  downloadPackages,
+  qaBusy,
+  qaError,
+  qaResult,
+  qaMarketplace,
+  onMarketplaceChange,
+  onExport,
+  onClose,
+}: {
+  downloadPackages: BulkExportResult[] | null;
+  qaBusy: boolean;
+  qaError: string | null;
+  qaResult: CommercialQaResult | null;
+  qaMarketplace: ExportMarketplaceId;
+  onMarketplaceChange: (id: ExportMarketplaceId) => void;
+  onExport: () => void;
+  onClose: () => void;
+}) {
+  const { backdropRef, onKeyDown } = useModalDismiss(onClose);
+  return (
+    <div className="v3-modal-backdrop" ref={backdropRef} tabIndex={-1} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="Commercial QA">
+      <div className="v3-modal">
+        <div className="v3-modal-header">
+          <h2>Commercial QA{downloadPackages ? ' — Export Ready' : ''}</h2>
+          <button type="button" className="v3-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+
+        {qaBusy && <p className="v3-hint">Running Commercial QA…</p>}
+        {qaError && <p className="v3-hint">⚠️ {qaError}</p>}
+
+        {qaResult && !downloadPackages && (
+          <>
+            <p className={`v3-overall-status v3-overall-status--${qaResult.overallStatus.toLowerCase()}`}>Overall: {qaResult.overallStatus}</p>
+            <ul className="v3-gate-list">
+              {qaResult.gates.map((gate) => (
+                <li key={gate.id}>
+                  <span className={`v3-gate-badge ${gate.status === 'PASS' ? 'v3-gate-badge--pass' : 'v3-gate-badge--blocked'}`}>
+                    {gate.label}: {gate.status}
+                  </span>
+                  <span className="v3-hint"> {gate.detail}</span>
+                </li>
+              ))}
+            </ul>
+
+            <label className="v3-refine-field">
+              Marketplace
+              <select value={qaMarketplace} onChange={(e) => onMarketplaceChange(e.target.value as ExportMarketplaceId)}>
+                {MARKETPLACES.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <p className="v3-hint">
+              {qaResult.seoPackage.title} — {qaResult.seoPackage.keywords.length} keywords generated for {qaMarketplace}.
+            </p>
+
+            <button
+              type="button"
+              className="v3-btn v3-btn--primary"
+              onClick={onExport}
+              disabled={qaBusy || qaResult.overallStatus === 'BLOCKED'}
+              title={qaResult.overallStatus === 'BLOCKED' ? 'Resolve blocked gates before export' : undefined}
+            >
+              Export to {MARKETPLACES.find((m) => m.id === qaMarketplace)?.label}
+            </button>
+          </>
+        )}
+
+        {downloadPackages && <p className="v3-hint">Export complete — {downloadPackages.length} package(s) built. Use the Download Center below.</p>}
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('workspace');
@@ -358,82 +568,14 @@ export default function App() {
               (() => {
                 const original = concepts.find((c) => c.id === refiningConceptId);
                 if (!original) return null;
-                const recommendations = getDesignCoachRecommendations(original.tileData, original.metrics);
                 return (
-                  <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label={`Refine — ${original.label}`}>
-                    <div className="v3-modal">
-                      <div className="v3-modal-header">
-                        <h2>Refine — {original.label}</h2>
-                        <button type="button" className="v3-btn" onClick={() => setRefiningConceptId(null)}>
-                          Close
-                        </button>
-                      </div>
-
-                      <section>
-                        <h3>AI Design Coach</h3>
-                        <ul className="v3-coach-list">
-                          {recommendations.map((rec) => (
-                            <li key={rec.id}>{rec.message}</li>
-                          ))}
-                        </ul>
-                      </section>
-
-                      <label className="v3-refine-field">
-                        Density: {refineDraft.density.toFixed(2)}
-                        <input
-                          type="range"
-                          min={0.1}
-                          max={1}
-                          step={0.05}
-                          value={refineDraft.density}
-                          onChange={(e) => setRefineDraft({ ...refineDraft, density: Number(e.target.value) })}
-                        />
-                      </label>
-                      <label className="v3-refine-field">
-                        Negative space: {refineDraft.negativeSpace.toFixed(2)}
-                        <input
-                          type="range"
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          value={refineDraft.negativeSpace}
-                          onChange={(e) => setRefineDraft({ ...refineDraft, negativeSpace: Number(e.target.value) })}
-                        />
-                      </label>
-                      <label className="v3-refine-field">
-                        Motif scale: {refineDraft.motifSize.toFixed(0)}
-                        <input
-                          type="range"
-                          min={Math.max(10, refineDraft.motifSize * 0.5)}
-                          max={refineDraft.motifSize * 1.5}
-                          step={1}
-                          value={refineDraft.motifSize}
-                          onChange={(e) => setRefineDraft({ ...refineDraft, motifSize: Number(e.target.value) })}
-                        />
-                      </label>
-                      <label className="v3-refine-field">
-                        Rotation jitter: {refineDraft.rotationJitter.toFixed(0)}°
-                        <input
-                          type="range"
-                          min={0}
-                          max={45}
-                          step={1}
-                          value={refineDraft.rotationJitter}
-                          onChange={(e) => setRefineDraft({ ...refineDraft, rotationJitter: Number(e.target.value) })}
-                        />
-                      </label>
-
-                      <div className="v3-brief-actions">
-                        <button type="button" className="v3-btn" onClick={() => setRefiningConceptId(null)}>
-                          Cancel
-                        </button>
-                        <button type="button" className="v3-btn v3-btn--primary" onClick={handleRegenerateVersion}>
-                          Regenerate Version
-                        </button>
-                      </div>
-                      <p className="v3-hint">Creates a new version below the original in the gallery — the original is never overwritten.</p>
-                    </div>
-                  </div>
+                  <RefineModal
+                    original={original}
+                    refineDraft={refineDraft}
+                    onDraftChange={setRefineDraft}
+                    onClose={() => setRefiningConceptId(null)}
+                    onRegenerate={handleRegenerateVersion}
+                  />
                 );
               })()}
 
@@ -441,101 +583,25 @@ export default function App() {
               (() => {
                 const concept = concepts.find((c) => c.id === selectedConceptId);
                 if (!concept) return null;
-                return (
-                  <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label={`${concept.label} — 3×3 repeat preview`}>
-                    <div className="v3-modal v3-modal--wide">
-                      <div className="v3-modal-header">
-                        <h2>{concept.label} — 3×3 repeat preview</h2>
-                        <button type="button" className="v3-btn" onClick={() => setSelectedConceptId(null)}>
-                          Close
-                        </button>
-                      </div>
-                      <TilePreview
-                        markup={concept.seamlessIntegrity.repeatPreviewMarkup3x3}
-                        repeat={3}
-                        tileSize={concept.params.tileSize}
-                        label={`${concept.label} 3x3 repeat`}
-                      />
-                      {concept.seamlessIntegrity.issues.length > 0 && (
-                        <ul className="v3-hint">
-                          {concept.seamlessIntegrity.issues.map((issue) => (
-                            <li key={issue.code}>{issue.detail}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                );
+                return <PreviewModal concept={concept} onClose={() => setSelectedConceptId(null)} />;
               })()}
 
             {approvingConceptId && (
-              <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label="Commercial QA">
-                <div className="v3-modal">
-                  <div className="v3-modal-header">
-                    <h2>Commercial QA{downloadPackages ? ' — Export Ready' : ''}</h2>
-                    <button
-                      type="button"
-                      className="v3-btn"
-                      onClick={() => {
-                        setApprovingConceptId(null);
-                        setQaResult(null);
-                        setDownloadPackages(null);
-                        setQaError(null);
-                      }}
-                    >
-                      Close
-                    </button>
-                  </div>
-
-                  {qaBusy && <p className="v3-hint">Running Commercial QA…</p>}
-                  {qaError && <p className="v3-hint">⚠️ {qaError}</p>}
-
-                  {qaResult && !downloadPackages && (
-                    <>
-                      <p className={`v3-overall-status v3-overall-status--${qaResult.overallStatus.toLowerCase()}`}>Overall: {qaResult.overallStatus}</p>
-                      <ul className="v3-gate-list">
-                        {qaResult.gates.map((gate) => (
-                          <li key={gate.id}>
-                            <span className={`v3-gate-badge ${gate.status === 'PASS' ? 'v3-gate-badge--pass' : 'v3-gate-badge--blocked'}`}>
-                              {gate.label}: {gate.status}
-                            </span>
-                            <span className="v3-hint"> {gate.detail}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <label className="v3-refine-field">
-                        Marketplace
-                        <select value={qaMarketplace} onChange={(e) => setQaMarketplace(e.target.value as ExportMarketplaceId)}>
-                          {MARKETPLACES.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <p className="v3-hint">
-                        {qaResult.seoPackage.title} — {qaResult.seoPackage.keywords.length} keywords generated for {qaMarketplace}.
-                      </p>
-
-                      <button
-                        type="button"
-                        className="v3-btn v3-btn--primary"
-                        onClick={handleExport}
-                        disabled={qaBusy || qaResult.overallStatus === 'BLOCKED'}
-                        title={qaResult.overallStatus === 'BLOCKED' ? 'Resolve blocked gates before export' : undefined}
-                      >
-                        Export to {MARKETPLACES.find((m) => m.id === qaMarketplace)?.label}
-                      </button>
-                    </>
-                  )}
-
-                  {downloadPackages && (
-                    <p className="v3-hint">Export complete — {downloadPackages.length} package(s) built. Use the Download Center below.</p>
-                  )}
-                </div>
-              </div>
+              <CommercialQaModal
+                downloadPackages={downloadPackages}
+                qaBusy={qaBusy}
+                qaError={qaError}
+                qaResult={qaResult}
+                qaMarketplace={qaMarketplace}
+                onMarketplaceChange={setQaMarketplace}
+                onExport={handleExport}
+                onClose={() => {
+                  setApprovingConceptId(null);
+                  setQaResult(null);
+                  setDownloadPackages(null);
+                  setQaError(null);
+                }}
+              />
             )}
 
             {downloadPackages && (
