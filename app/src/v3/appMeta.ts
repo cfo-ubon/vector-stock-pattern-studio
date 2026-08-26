@@ -9,9 +9,9 @@ export const PRODUCT_NAME = 'AI-SBOS v3';
 export const PRODUCT_TAGLINE = 'Keyword-to-Vector Seamless Factory';
 export const PRODUCT_VERSION = '3.0.0';
 export const VERSION_STATUS = 'New' as const;
-export const BUILD_NAME = 'AI-SBOS v3 — V3-A (Shell + Keyword Workspace)';
-export const BUILD_DESCRIPTION = 'Version shell, product identity, and the Keyword Workspace home screen';
-export const RELEASE_DATE = '2026-08-14';
+export const BUILD_NAME = 'AI-SBOS v3 — V3-H (Keyword-to-Vector Seamless Factory)';
+export const BUILD_DESCRIPTION = 'Full keyword-to-vector pipeline: Keyword Intent Engine, true vector + seamless generation with mandatory gates, refinement, AI Design Coach, Collection/Production Mode with similarity safety, 6-gate Commercial QA, stock SEO, marketplace export, and Download Center';
+export const RELEASE_DATE = '2026-08-26';
 
 /** Where "Switch Version" returns to — the Version Selector one level up
  * from this build's own base path (`/vector-stock-pattern-studio/studio/v3/`). */
@@ -23,8 +23,8 @@ export const COMMIT: string = typeof __COMMIT_HASH__ === 'string' ? __COMMIT_HAS
 
 export const ENVIRONMENT: 'production' | 'development' = import.meta.env.PROD ? 'production' : 'development';
 
-export const PRODUCTION_STATUS = 'In development — V3-A (Version Shell + Keyword Workspace) only; generation/gates/export not yet implemented';
-export const REGRESSION_RESULT = 'Not yet run for v3-specific code (see AI_SBOS_V3_REPORT.md for current status)';
+export const PRODUCTION_STATUS = 'Full keyword-to-vector pipeline live: generation, Vector/Seamless Integrity gates, refinement, Collection/Production Mode, 6-gate Commercial QA, SEO, and marketplace export/download are all implemented and verified live (see AI_SBOS_V3_REPORT.md)';
+export const REGRESSION_RESULT = '40/40 v3-specific tests passing; full app regression suite (4,506 tests) run twice, clean both times; live browser certification + adversarial keyword tests passed with zero console errors (see AI_SBOS_V3_REPORT.md)';
 
 export interface WhatsNewEntry {
   version: string;
@@ -40,12 +40,15 @@ export interface WhatsNewEntry {
 export const CHANGELOG: WhatsNewEntry[] = [
   {
     version: '3.0.0',
-    date: '2026-08-14',
-    title: 'AI-SBOS v3: เริ่มต้น Keyword-to-Vector Seamless Factory',
+    date: '2026-08-26',
+    title: 'AI-SBOS v3: Keyword-to-Vector Seamless Factory เปิดใช้งานเต็มรูปแบบ',
     highlights: [
-      'เปิดตัว AI-SBOS v3 — ป้อนคำค้นหรือแนวคิดสั้นๆ แล้วให้ระบบออกแบบลายเวกเตอร์ไร้รอยต่อให้',
-      'หน้าแรก Keyword Workspace เรียบง่าย — ไม่ต้องตั้งค่าพารามิเตอร์ซับซ้อนสำหรับงานทั่วไป',
-      'อยู่ระหว่างการพัฒนา — ยังไม่รองรับการสร้างลายจริงในเวอร์ชันนี้',
+      'ป้อนคำค้น/วลีสั้นๆ แล้วได้ Design Brief + ลายเวกเตอร์ seamless พร้อมขายจริง ไม่ต้องปรับพารามิเตอร์เอง',
+      'ทุกลายผ่านด่านบังคับ Vector Integrity + Seamless Integrity ก่อนอนุมัติได้เสมอ พร้อมพรีวิวต่อกัน 3×3',
+      'Refine ปรับสด + AI Design Coach ให้คำแนะนำจากปัญหาจริงที่ตรวจพบ ไม่เขียนทับต้นฉบับ',
+      'Collection Mode (10) / Production Mode (30) สร้างชุดลายภาษาการออกแบบเดียวกัน พร้อมระบบเตือนลายที่คล้ายกันเกินไปอัตโนมัติ',
+      'Commercial QA 6 ด่าน (Vector/Seamless/Quality/Commercial/Metadata/Marketplace) + สร้าง SEO จริงจากลาย + ส่งออกไป Shutterstock/Adobe Stock/Freepik/Getty/Etsy + Download Center',
+      'ใช้ฐานข้อมูลและไฟล์สำรองร่วมกับ v1/v2 ได้ทันที ไม่ต้อง migrate ข้อมูล',
     ],
   },
 ];

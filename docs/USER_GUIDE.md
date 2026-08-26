@@ -62,6 +62,7 @@ sequence and are not required to match:
 
 | Application Version | Development Build | Commit | Main Feature | Status |
 |---|---|---|---|---|
+| v3 product v3.0.0 | AI-SBOS v3 — V3-H (Keyword-to-Vector Seamless Factory) | *(this milestone's commit)* | New, independent product generation at `/studio/v3/` — keyword-to-vector pattern generation with mandatory Vector/Seamless Integrity gates, refinement + AI Design Coach, Collection/Production Mode with similarity safety, 6-gate Commercial QA, stock SEO, marketplace export/download; v1 untouched, v2 unbroken, shared IndexedDB/backup format proven compatible | On branch `claude/build-030-ai-ceo-mission-control` |
 | v2.14 | AI-SBOS Multi-Version Release | *(this milestone's commit)* | Product version v2.1.0 — Version Selector (`/studio/`) + independently-deployed AI-SBOS v1 (`/studio/v1/`, Stable / Legacy, frozen at commit `6f4c048`) and v2 (`/studio/v2/`, Current) + "Switch Version" + proven bidirectional data/backup compatibility + isolated service-worker scopes | On branch `claude/build-030-ai-ceo-mission-control` |
 | v2.13 | AI-SBOS — M5 | *(this milestone's commit)* | Closing verification — Desktop/Laptop/iPad Portrait/iPad Landscape device checks, full offline verification of Today's Production + Version Center + Portfolio Analytics, full regression suite run twice back-to-back, new `PRODUCTION_WORKSPACE_GUIDE.md` | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 5 (final) of the AI-SBOS mission |
 | v2.12 | AI-SBOS — M4 | *(this milestone's commit)* | Portfolio role repositioning — relabeled as Library/Search/Analytics/Collections/History & Submissions, with a new dedicated Analytics tab; no longer the primary path for routine export | On branch `claude/build-030-ai-ceo-mission-control`, not merged to `main`; Milestone 4 of a new AI-SBOS mission |
@@ -124,32 +125,47 @@ Export → Download ไว้ในหน้าเดียว รวมถึ�
 Library/Analytics/Collections/History & Submissions — **เป็นเวอร์ชันที่
 แนะนำให้ใช้งาน (Recommended)** สำหรับงานประจำวัน
 
+### v3 คืออะไร 🆕
+
+**AI-SBOS v3 (New) — Keyword-to-Vector Seamless Factory** — สายผลิตภัณฑ์
+ใหม่ล่าสุด แยกอิสระจาก v1/v2 โดยสิ้นเชิง (ไม่แก้โค้ดของทั้งสองเวอร์ชันเดิม
+แม้แต่บรรทัดเดียว) จุดเด่นคือ**พิมพ์แค่คำเดียวหรือวลีสั้นๆ** (เช่น "minimal
+botanical leaves") แล้วได้ลายเวกเตอร์ seamless พร้อมขายจริงออกมาโดยไม่ต้อง
+ปรับพารามิเตอร์เองเลยก็ได้ — อ่านรายละเอียดเต็มในหัวข้อ
+[AI-SBOS v3 — Keyword-to-Vector Seamless Factory](#-ai-sbos-v3--keyword-to-vector-seamless-factory-)
+ด้านล่าง
+
 ### เลือกใช้อย่างไร
 
-จากหน้า Choose Version กดปุ่ม **"Open v1"** หรือ **"Open v2"** ตามต้องการ
-— แต่ละเวอร์ชันจะแสดงหมายเลขเวอร์ชัน สถานะ (Stable / Legacy หรือ
-Current) ให้เห็นชัดเจนตลอดเวลาที่มุมขวาบนของหน้าจอ ไม่มีทางสับสนว่ากำลัง
-ใช้เวอร์ชันไหนอยู่
+จากหน้า Choose Version กดปุ่ม **"Open v1"**, **"Open v2"** หรือ
+**"Open v3"** ตามต้องการ — แต่ละเวอร์ชันจะแสดงหมายเลขเวอร์ชัน สถานะ
+(Stable / Legacy, Current หรือ New) ให้เห็นชัดเจนตลอดเวลาที่มุมขวาบนของ
+หน้าจอ ไม่มีทางสับสนว่ากำลังใช้เวอร์ชันไหนอยู่
 
 ### เปลี่ยนเวอร์ชันอย่างไร
 
-ทั้งสองเวอร์ชันมีปุ่ม **"🔁 Switch Version"** อยู่ในแถบหัวข้อ (และใน
-Version Center ของ v2) กดครั้งเดียวกลับไปหน้า Choose Version ได้ทันที
+ทั้งสามเวอร์ชันมีปุ่ม **"🔁 Switch Version"** อยู่ในแถบหัวข้อ (และใน
+Version Center ของ v2/v3) กดครั้งเดียวกลับไปหน้า Choose Version ได้ทันที
 ไม่ต้องล้าง cache หรือพิมพ์ URL เอง
 
 ### ข้อมูล/Backup ใช้ร่วมกันได้หรือไม่
 
-**ใช้ร่วมกันได้ ไม่ต้องย้ายข้อมูลใดๆ** — ตรวจสอบแล้วว่าโครงสร้างฐานข้อมูล
-(IndexedDB) และรูปแบบไฟล์สำรอง (.vspsb) ของทั้งสองเวอร์ชัน**เหมือนกันทุก
-ประการ** (ดูหลักฐานใน `AI_SBOS_VERSION_AUDIT.md`) และได้ทดสอบจริงแล้วว่า:
+**ใช้ร่วมกันได้ทั้งสามเวอร์ชัน ไม่ต้องย้ายข้อมูลใดๆ** — v3 ใช้ฐานข้อมูล
+(IndexedDB) และรูปแบบไฟล์สำรอง (.vspsb) ชุดเดียวกับ v1/v2 ทุกประการ (ดู
+หลักฐานใน `AI_SBOS_VERSION_AUDIT.md` และ `AI_SBOS_V3_REPORT.md`) และได้
+ทดสอบจริงแล้วว่า:
 
 - สร้างโปรเจกต์ใน v1 แล้วเปิด v2 จะเห็นโปรเจกต์เดียวกันทันที (และย้อนกลับ
   ก็เช่นกัน)
 - สร้างไฟล์สำรอง (.vspsb) จาก v1 แล้วนำไปกู้คืนใน v2 ได้สำเร็จ ข้อมูล
   ครบถ้วน
+- อนุมัติลาย (Approve) ใน v3 แล้วสร้างไฟล์สำรองจาก v2, ลบฐานข้อมูลจริง,
+  กู้คืนไฟล์สำรองใน v2 — ลายที่สร้างจาก v3 กลับมาครบถ้วน (ทดสอบจริงด้วย
+  Playwright ไม่ใช่การสันนิษฐาน)
 
 กล่าวคือ patterns, submissions, collections และไฟล์สำรอง ใช้ร่วมกันได้
-โดยไม่ต้อง migrate หรือแปลงข้อมูลใดๆ ทั้งสิ้น
+ทั้งสามเวอร์ชันโดยไม่ต้อง migrate หรือแปลงข้อมูลใดๆ ทั้งสิ้น (v3 ไม่ได้
+เพิ่ม object store ใหม่ หรือขยับเลข `DB_VERSION` เลย)
 
 ---
 
@@ -184,6 +200,67 @@ Center เป็นเพียงหน้าต่างแสดงข้อ�
   Changes" ใน Version Center) ปิดแล้วจะไม่ขึ้นซ้ำสำหรับเวอร์ชันเดิมอีก —
   ติ๊ก "ไม่ต้องแสดงอีก" เพื่อปิดการแจ้งเตือนนี้ถาวรได้ทุกเมื่อ (บันทึกไว้ใน
   เบราว์เซอร์เครื่องนี้เท่านั้น)
+
+---
+
+## 🧵 AI-SBOS v3 — Keyword-to-Vector Seamless Factory 🆕
+
+เปิดได้ที่ `/studio/v3/` (หรือกด "Open v3" จากหน้า Choose Version) — สาย
+ผลิตภัณฑ์ใหม่ที่แปลง**คำเดียวหรือวลีสั้นๆ**ให้กลายเป็นลายเวกเตอร์ seamless
+พร้อมขายจริง โดยยังคง v1/v2 ไว้ใช้งานได้ตามปกติทุกประการ (ไม่แก้โค้ดธุรกิจ
+ของทั้งสองเวอร์ชันเดิมแม้แต่บรรทัดเดียว)
+
+### ขั้นตอนการใช้งาน (Golden Workflow)
+
+1. **พิมพ์คำ/วลี** ในช่อง "What do you want to create?" เช่น "minimal
+   botanical leaves" หรือเลือกจากตัวอย่างคำที่ให้มา แล้วกด **Analyze &
+   Design**
+2. **Design Brief** — ระบบวิเคราะห์คำที่พิมพ์ (ทำงานในเครื่องล้วนๆ ไม่มี
+   การเชื่อมต่อเน็ต ไม่มีการอ้างข้อมูลความต้องการตลาดที่ไม่มีหลักฐาน)
+   สรุปทิศทางออกแบบ, กลุ่มลวดลาย, โทนสี, ความหนาแน่น, การใช้งานเชิง
+   พาณิชย์ที่แนะนำ และค่าความมั่นใจ (confidence) ของการจับคู่คำ — ปรับ
+   ก่อนได้ (Adjust) หรือกด **Generate** ต่อ
+3. **เลือกจำนวนชุดที่จะสร้าง** (Batch size): 5 ชิ้น (สำหรับพิจารณาเทียบ
+   แบบ), 10 ชิ้น (Collection Mode — ชุดคอลเลกชันที่มีภาษาการออกแบบร่วมกัน)
+   หรือ 30 ชิ้น (Production Mode — ผลิตจำนวนมาก) ระบบจะแสดงเวลาที่ใช้
+   สร้างจริง (วัดจริงบนเครื่อง ไม่ใช่ค่าประมาณ) และเตือนถ้าพบลายที่คล้าย
+   กันเกินไปในชุดเดียวกัน (Similarity Safety)
+4. **Preview Gallery** — เห็นภาพตัวอย่างจริงของทุกชิ้น พร้อมป้าย **VECTOR
+   PASS/BLOCKED** และ **SEAMLESS PASS/BLOCKED** ของแต่ละชิ้น (สอง gate
+   บังคับที่ต้องผ่านทั้งคู่ก่อนอนุมัติได้) กด "Open 3×3 preview" เพื่อดู
+   ลายต่อกัน 3×3 จริง ตรวจสอบความไร้รอยต่อด้วยตา
+5. **Refine** — ปรับความหนาแน่น/พื้นที่ว่าง/ขนาดลวดลาย/มุมหมุนแบบสด พร้อม
+   คำแนะนำจาก **AI Design Coach** (วิเคราะห์จากปัญหาจริงที่ตรวจพบในลาย
+   เช่น พื้นที่แน่นเกินไป/พื้นที่ว่างเกินไป/ดูเป็นกริดเกินไป) กด
+   **Regenerate Version** จะได้ชิ้นใหม่เพิ่มในแกลเลอรี **ไม่เขียนทับต้นฉบับ**
+6. **Approve → Commercial QA** — เมื่อพอใจ กด Approve จะรันการตรวจสอบ
+   บังคับ 6 ด่านจริง (ไม่มีด่านไหนถูกข้ามหรือปลอมผลผ่าน):
+   **VECTOR** (เวกเตอร์แท้ ไม่ใช่รูปถ่ายห่อ SVG), **SEAMLESS** (ต่อกันไร้
+   รอยต่อจริง), **QUALITY** (คะแนนความสวย/เชิงพาณิชย์จากตัวจำแนกเดียวกับ
+   ทั้งแอป), **COMMERCIAL** (Commercial Readiness Score เกณฑ์เดียวกับ
+   v1/v2 ไม่มีการลดมาตรฐาน), **METADATA** (มี title/description/keyword
+   จริงจากลายที่สร้าง), **MARKETPLACE** (ผ่านเงื่อนไขของตลาดที่เลือก)
+7. **เลือก Marketplace แล้ว Export** — เลือกจาก Shutterstock / Adobe
+   Stock / Freepik / Getty·iStock / Etsy แล้วกด Export จะสร้างแพ็กเกจ
+   ไฟล์พร้อมส่งขาย (**ไม่มีการอัปโหลดอัตโนมัติ** ต้องดาวน์โหลดแล้วส่งเอง
+   เสมอ) เปิด Download Center เพื่อดาวน์โหลดไฟล์จริง
+
+### สิ่งที่รับประกัน (Non-Negotiable)
+
+- ทุกไฟล์ที่ได้จาก v3 เป็น**เวกเตอร์แท้**เสมอ (ไม่ใช่รูปถ่าย/รูป raster
+  ห่อไว้ในไฟล์ SVG) และ**ต่อกันไร้รอยต่อ (seamless)** จริง — ถ้าไม่ผ่านทั้ง
+  สองด่านนี้จะกด Approve ไม่ได้เลย ปุ่มจะถูกปิดใช้งานอัตโนมัติ
+- ระบบไม่มีทางสร้างลายที่ละเมิดลิขสิทธิ์/เครื่องหมายการค้าจากคำที่พิมพ์ได้
+  โดยโครงสร้าง — เพราะคำที่พิมพ์ (เช่น ชื่อตัวการ์ตูนหรือแบรนด์) จะถูก
+  แปลงเป็นหมวดหมู่ลวดลาย/สไตล์ที่มีอยู่แล้วในระบบเท่านั้น ไม่เคยถูกฝัง
+  เป็นข้อความดิบเข้าไปใน SEO หรือชื่อสินค้าที่จะส่งขาย (ทดสอบจริงด้วยคำ
+  อย่าง "Disney Mickey Mouse", "Nike swoosh logo" ฯลฯ — ไม่มีคำเหล่านี้
+  หลุดเข้าไปในผลลัพธ์เชิงพาณิชย์เลย)
+- **Collection Mode / Production Mode (10 หรือ 30 ชิ้น)**: ทุกชิ้นในชุด
+  เดียวกันใช้หมวดหมู่/สไตล์เดียวกัน (ภาษาการออกแบบเดียวกัน) แต่จัดวาง/
+  ขนาด/ความหนาแน่นต่างกันจริง ไม่ใช่ชิ้นเดิมสุ่ม seed ใหม่ — ระบบตรวจจับ
+  และเตือนอัตโนมัติถ้าพบสองชิ้นที่คล้ายกันเกินไป (TOO SIMILAR) หรือซ้ำกัน
+  เป๊ะ (EXACT DUPLICATE)
 
 ---
 
@@ -2139,6 +2216,59 @@ seed ที่เปลี่ยนตำแหน่ง/รูปทรงแ�
 ---
 
 ## 🗒 บันทึกการอัปเดต
+
+### AI-SBOS v3 (Product v3.0.0) — 26 ส.ค. 2026 — Keyword-to-Vector Seamless Factory
+
+สายผลิตภัณฑ์ใหม่ล่าสุด เปิดที่ `/studio/v3/` (กด "Open v3" จากหน้า Choose
+Version) — แปลงคำค้น/วลีสั้นๆ ให้กลายเป็นลายเวกเตอร์ seamless พร้อมขายจริง
+**ไม่แก้โค้ดธุรกิจของ v1/v2 แม้แต่บรรทัดเดียว** ดูรายละเอียดเต็มใน
+[`AI_SBOS_V3_ARCHITECTURE_AUDIT.md`](../AI_SBOS_V3_ARCHITECTURE_AUDIT.md)
+และ [`AI_SBOS_V3_REPORT.md`](../AI_SBOS_V3_REPORT.md)
+
+- 🆕 **Keyword Intent Engine**: วิเคราะห์คำที่พิมพ์ในเครื่องล้วนๆ (ไม่มีการ
+  เชื่อมต่อเน็ต ไม่มีการอ้างข้อมูลความต้องการตลาดที่ไม่มีหลักฐาน) แปลงเป็น
+  Design Brief ที่มีทิศทางออกแบบ/หมวดหมู่/โทนสี/ความหนาแน่น/การใช้งานที่
+  แนะนำ พร้อมค่าความมั่นใจของการจับคู่
+- 🆕 **True Vector Generation + Vector Integrity Gate**: ทุกไฟล์ที่ได้เป็น
+  เวกเตอร์แท้เสมอ (ไม่ใช่รูปถ่ายห่อ SVG) ตรวจสอบจริงจากโครงสร้าง SVG AST
+  ก่อนอนุมัติได้ — ป้าย **VECTOR PASS/BLOCKED**
+- 🆕 **Seamless-First Generation + Seamless Integrity Gate**: ตรวจความ
+  ต่อเนื่องของขอบซ้าย/ขวา/บน/ล่าง/มุม พร้อมพรีวิวต่อกัน 1×1 และ 3×3 จริง —
+  ป้าย **SEAMLESS PASS/BLOCKED**
+- 🆕 **Concept Diversity**: สร้าง 5 คอนเซปต์ที่จัดวางต่างกันจริง (Airy
+  Scattered, Dense All-Over, Elegant Line Repeat, Organic Toss, Geometric
+  Arrangement) จากบรีฟเดียวกัน ไม่ใช่ลายเดิมสุ่ม seed ใหม่
+- 🆕 **Refinement + AI Design Coach**: ปรับความหนาแน่น/พื้นที่ว่าง/ขนาด/
+  มุมหมุนแบบสด พร้อมคำแนะนำจากปัญหาจริงที่ตรวจพบในลาย กด Regenerate
+  Version ได้เวอร์ชันใหม่โดยไม่เขียนทับต้นฉบับ
+- 🆕 **Collection Mode (10) / Production Mode (30)**: สร้างชุดลายที่ใช้
+  ภาษาการออกแบบเดียวกันแต่จัดวาง/ขนาด/ความหนาแน่นต่างกันจริง พร้อมระบบ
+  ตรวจจับและเตือนอัตโนมัติเมื่อพบลายคล้ายกันเกินไป (TOO SIMILAR) หรือซ้ำกัน
+  เป๊ะ (EXACT DUPLICATE) — วัดเวลาสร้างจริงแสดงบนหน้าจอ ไม่ใช่ค่าประมาณ
+- 🆕 **Commercial Quality Gate 6 ด่าน**: VECTOR / SEAMLESS / QUALITY /
+  COMMERCIAL / METADATA / MARKETPLACE ใช้เกณฑ์ Commercial Readiness
+  เดียวกับทั้งแอป (ไม่มีการลดมาตรฐาน) ไม่มีด่านไหนถูกข้ามหรือปลอมผลผ่าน
+- 🆕 **Stock SEO + Marketplace Export**: สร้าง title/description/keyword
+  จริงจากลาย ส่งออกไป Shutterstock/Adobe Stock/Freepik/Getty·iStock/Etsy
+  ผ่าน Download Center เดียวกับทั้งแอป (ไม่มีการอัปโหลดอัตโนมัติ)
+- ✅ **พิสูจน์ความเข้ากันได้ของข้อมูลจริง**: ลายที่อนุมัติใน v3 ใช้ฐานข้อมูล
+  (IndexedDB)/รูปแบบไฟล์สำรอง (.vspsb) ชุดเดียวกับ v1/v2 — ทดสอบจริงด้วย
+  Playwright: อนุมัติลายใน v3 → สร้างไฟล์สำรองจาก v2 → ลบฐานข้อมูลจริง →
+  กู้คืน → ลายจาก v3 กลับมาครบถ้วน
+- ✅ **ทดสอบออฟไลน์ครบทั้ง 4 หน้าจอ** (Selector/v1/v2/v3) โหลดซ้ำแบบ
+  offline cold boot ไม่มี console error
+- ✅ **การรับรองแบบ Real Browser Certification**: รัน golden workflow
+  ครบ (Analyze → Generate → พรีวิว 3×3 → Refine → Regenerate → Commercial
+  QA → เลือก Shutterstock → Export → Download) ด้วยคำค้นที่ต่างกันจริง 3
+  ชุด ไม่มี console error เลย
+- ✅ **Adversarial Keyword Tests**: ทดสอบคำค้นว่าง/ยาวมาก/ชื่อแบรนด์
+  ดัง/ชื่อตัวการ์ตูนดัง/สไตล์ศิลปินดัง/เจตนาภาพถ่าย/หัวข้อไม่รองรับ/
+  อักขระพิเศษพยายามแทรกโค้ด/ภาษาไทย — ไม่มีครั้งไหนที่แอปพัง ไม่มี dialog/
+  สคริปต์แปลกปลอมทำงาน และคำที่มีความเสี่ยงด้านทรัพย์สินทางปัญญาไม่เคย
+  หลุดเข้าไปในผลลัพธ์ SEO/เชิงพาณิชย์เลย (เป็นคุณสมบัติที่รับประกันได้จาก
+  โครงสร้างโค้ด ไม่ใช่แค่จากการทดสอบ)
+- รัน regression เต็มชุด (4,506 การทดสอบ) ซ้ำ 2 ครั้ง ผ่านทั้งหมด, และ
+  ชุดทดสอบเฉพาะ v3 (40 การทดสอบ) ผ่านทั้งหมด
 
 ### v2.14 (Product v2.1.0) — 14 ส.ค. 2026 — AI-SBOS Multi-Version Release
 
