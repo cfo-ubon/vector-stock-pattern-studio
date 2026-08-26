@@ -38,7 +38,7 @@
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 1.5rem;
         width: 100%;
-        max-width: 900px;
+        max-width: 1200px;
       }
       .card {
         background: var(--panel);
@@ -64,6 +64,10 @@
       .badge--stable { background: var(--panel-alt); color: var(--text-dim); border: 1px solid var(--border); }
       .badge--current { background: rgba(55, 182, 115, 0.15); color: var(--recommended); border: 1px solid var(--recommended); }
       .badge--recommended { background: var(--recommended); color: #0f1117; }
+      .badge--new { background: rgba(124, 91, 238, 0.15); color: #7c5bee; border: 1px solid #7c5bee; }
+      .card--new { border-color: #7c5bee; }
+      .btn--new { background: #7c5bee; }
+      .btn--new:hover { background: #6a48d6; }
       .card h2 { margin: 0.25rem 0 0; font-size: 1.35rem; }
       dl.meta {
         display: grid;
@@ -135,12 +139,33 @@
         </p>
         <a class="btn" href="./v2/">Open v2</a>
       </section>
+
+      <section class="card card--new">
+        <span class="badge badge--new">New</span>
+        <h2>AI-SBOS v3</h2>
+        <dl class="meta">
+          <dt>Version</dt>
+          <dd>v3.0.0</dd>
+          <dt>Release date</dt>
+          <dd>2026-08-14</dd>
+          <dt>Build</dt>
+          <dd>V3-A — Version Shell + Keyword Workspace</dd>
+        </dl>
+        <p class="desc">
+          Keyword Design — enter a keyword or short concept (e.g. "minimal botanical") and get a structured Design Brief. Under active
+          development: vector generation, seamless validation, refinement, commercial QA, and marketplace export are not yet available in
+          this version.
+        </p>
+        <a class="btn btn--new" href="./v3/">Open v3</a>
+      </section>
     </main>
 
     <footer>
-      Both versions read and write the same data (patterns, submissions, collections, backups) — verified identical database schema, no migration needed to switch. See
+      v1 and v2 read and write the same data (patterns, submissions, collections, backups) — verified identical database schema, no
+      migration needed to switch. v3 reuses the same underlying engines and data model (see
+      <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/AI_SBOS_V3_ARCHITECTURE_AUDIT.md" target="_blank" rel="noreferrer">AI_SBOS_V3_ARCHITECTURE_AUDIT.md</a>) but is a new, separate, in-development product generation. See
       <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/AI_SBOS_VERSION_AUDIT.md" target="_blank" rel="noreferrer">AI_SBOS_VERSION_AUDIT.md</a>
-      for the evidence, or the
+      for the v1/v2 evidence, or the
       <a href="https://github.com/cfo-ubon/vector-stock-pattern-studio/blob/main/docs/USER_GUIDE.md" target="_blank" rel="noreferrer">User Guide</a>.
     </footer>
     <script>
