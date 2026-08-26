@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { PRODUCT_NAME, PRODUCT_TAGLINE, PRODUCT_VERSION, VERSION_STATUS, VERSION_SELECTOR_PATH } from './appMeta';
 import { analyzeKeyword, type DesignIntent } from './keywordIntent';
-import { generateConcepts, type Concept } from './generateFromIntent';
+import { generateConcepts, refineConcept, type Concept } from './generateFromIntent';
+import { getDesignCoachRecommendations } from './designCoach';
 import { VersionCenterDialog } from './VersionCenterDialog';
 import './v3.css';
 
@@ -34,6 +35,8 @@ export default function App() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [generating, setGenerating] = useState(false);
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
+  const [refiningConceptId, setRefiningConceptId] = useState<string | null>(null);
+  const [refineDraft, setRefineDraft] = useState<{ density: number; negativeSpace: number; motifSize: number; rotationJitter: number } | null>(null);
 
   const handleAnalyze = () => {
     if (!keyword.trim()) return;
@@ -59,6 +62,33 @@ export default function App() {
       setGenerating(false);
       setScreen('gallery');
     });
+  };
+
+  const openRefine = (concept: Concept) => {
+    setRefiningConceptId(concept.id);
+    setRefineDraft({
+      density: concept.params.density,
+      negativeSpace: concept.params.negativeSpace ?? 0,
+      motifSize: concept.params.motifSize,
+      rotationJitter: concept.params.rotationJitter,
+    });
+  };
+
+  const handleRegenerateVersion = () => {
+    const original = concepts.find((c) => c.id === refiningConceptId);
+    if (!original || !refineDraft) return;
+    const refined = refineConcept(original, refineDraft);
+    // Non-destructive: the original stays in the array untouched; the new
+    // version is inserted right after it (Milestone 11 — "never overwrite
+    // the original").
+    setConcepts((prev) => {
+      const idx = prev.findIndex((c) => c.id === original.id);
+      const next = [...prev];
+      next.splice(idx + 1, 0, refined);
+      return next;
+    });
+    setRefiningConceptId(null);
+    setRefineDraft(null);
   };
 
   return (
@@ -193,12 +223,101 @@ export default function App() {
                   <p className="v3-hint">
                     Corner continuity: {concept.seamlessIntegrity.cornerContinuity} · Composition: {concept.metrics.composition}
                   </p>
-                  <button type="button" className="v3-btn" onClick={() => setSelectedConceptId(concept.id)}>
-                    Open 3×3 preview
-                  </button>
+                  <div className="v3-gallery-card-actions">
+                    <button type="button" className="v3-btn" onClick={() => setSelectedConceptId(concept.id)}>
+                      Open 3×3 preview
+                    </button>
+                    <button type="button" className="v3-btn" onClick={() => openRefine(concept)}>
+                      Refine
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
+
+            {refiningConceptId &&
+              refineDraft &&
+              (() => {
+                const original = concepts.find((c) => c.id === refiningConceptId);
+                if (!original) return null;
+                const recommendations = getDesignCoachRecommendations(original.tileData, original.metrics);
+                return (
+                  <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label={`Refine — ${original.label}`}>
+                    <div className="v3-modal">
+                      <div className="v3-modal-header">
+                        <h2>Refine — {original.label}</h2>
+                        <button type="button" className="v3-btn" onClick={() => setRefiningConceptId(null)}>
+                          Close
+                        </button>
+                      </div>
+
+                      <section>
+                        <h3>AI Design Coach</h3>
+                        <ul className="v3-coach-list">
+                          {recommendations.map((rec) => (
+                            <li key={rec.id}>{rec.message}</li>
+                          ))}
+                        </ul>
+                      </section>
+
+                      <label className="v3-refine-field">
+                        Density: {refineDraft.density.toFixed(2)}
+                        <input
+                          type="range"
+                          min={0.1}
+                          max={1}
+                          step={0.05}
+                          value={refineDraft.density}
+                          onChange={(e) => setRefineDraft({ ...refineDraft, density: Number(e.target.value) })}
+                        />
+                      </label>
+                      <label className="v3-refine-field">
+                        Negative space: {refineDraft.negativeSpace.toFixed(2)}
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={refineDraft.negativeSpace}
+                          onChange={(e) => setRefineDraft({ ...refineDraft, negativeSpace: Number(e.target.value) })}
+                        />
+                      </label>
+                      <label className="v3-refine-field">
+                        Motif scale: {refineDraft.motifSize.toFixed(0)}
+                        <input
+                          type="range"
+                          min={Math.max(10, refineDraft.motifSize * 0.5)}
+                          max={refineDraft.motifSize * 1.5}
+                          step={1}
+                          value={refineDraft.motifSize}
+                          onChange={(e) => setRefineDraft({ ...refineDraft, motifSize: Number(e.target.value) })}
+                        />
+                      </label>
+                      <label className="v3-refine-field">
+                        Rotation jitter: {refineDraft.rotationJitter.toFixed(0)}°
+                        <input
+                          type="range"
+                          min={0}
+                          max={45}
+                          step={1}
+                          value={refineDraft.rotationJitter}
+                          onChange={(e) => setRefineDraft({ ...refineDraft, rotationJitter: Number(e.target.value) })}
+                        />
+                      </label>
+
+                      <div className="v3-brief-actions">
+                        <button type="button" className="v3-btn" onClick={() => setRefiningConceptId(null)}>
+                          Cancel
+                        </button>
+                        <button type="button" className="v3-btn v3-btn--primary" onClick={handleRegenerateVersion}>
+                          Regenerate Version
+                        </button>
+                      </div>
+                      <p className="v3-hint">Creates a new version below the original in the gallery — the original is never overwritten.</p>
+                    </div>
+                  </div>
+                );
+              })()}
 
             {selectedConceptId &&
               (() => {

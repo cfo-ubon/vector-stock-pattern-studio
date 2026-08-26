@@ -59,8 +59,29 @@ function buildBaseParamsFromIntent(intent: DesignIntent, seed: string): Generate
   return params;
 }
 
-/** Real generation for one concept variant. Runs both mandatory Milestone
+/** Real generation + both mandatory gates for one fully-formed set of
+ * params — the single shared path every concept (initial generation AND
+ * refinement, Milestone 11) goes through. Runs both mandatory Milestone
  * 7/9 gates on the actual output — never fabricated, never assumed. */
+export function buildConceptFromParams(id: string, label: string, params: GenerateParams, previewInstanceId: string): Concept {
+  const result = buildTileForGenerate(params);
+  const tileData = result.tileData;
+  const metrics = computeMetrics(tileData);
+  const vectorIntegrity = runVectorIntegrityGate(tileData);
+  const seamlessIntegrity = runSeamlessIntegrityGate(tileData, metrics, previewInstanceId);
+
+  return {
+    id,
+    label,
+    params,
+    tileData,
+    metrics,
+    vectorIntegrity,
+    seamlessIntegrity,
+    overallReady: vectorIntegrity.status === 'VECTOR_PASS' && seamlessIntegrity.status === 'SEAMLESS_PASS',
+  };
+}
+
 function generateConcept(intent: DesignIntent, template: (typeof CONCEPT_TEMPLATES)[number], baseSeed: string, index: number): Concept {
   const seed = deriveSeed(baseSeed, 'v3-concept', index);
   const baseParams = buildBaseParamsFromIntent(intent, seed);
@@ -75,26 +96,30 @@ function generateConcept(intent: DesignIntent, template: (typeof CONCEPT_TEMPLAT
     seed,
   };
 
-  const result = buildTileForGenerate(params);
-  const tileData = result.tileData;
-  const metrics = computeMetrics(tileData);
-  const vectorIntegrity = runVectorIntegrityGate(tileData);
-  const seamlessIntegrity = runSeamlessIntegrityGate(tileData, metrics, `${baseSeed}-${index}`);
-
-  return {
-    id: `${baseSeed}-concept-${index}`,
-    label: template.label,
-    params,
-    tileData,
-    metrics,
-    vectorIntegrity,
-    seamlessIntegrity,
-    overallReady: vectorIntegrity.status === 'VECTOR_PASS' && seamlessIntegrity.status === 'SEAMLESS_PASS',
-  };
+  return buildConceptFromParams(`${baseSeed}-concept-${index}`, template.label, params, `${baseSeed}-${index}`);
 }
 
 export function generateConcepts(intent: DesignIntent, count = CONCEPT_TEMPLATES.length): Concept[] {
   const baseSeed = `v3-${intent.keyword.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
   const templates = CONCEPT_TEMPLATES.slice(0, Math.max(1, Math.min(count, CONCEPT_TEMPLATES.length)));
   return templates.map((template, index) => generateConcept(intent, template, baseSeed, index));
+}
+
+/** Milestone 11 — Refinement. Never mutates or overwrites the original
+ * concept; always returns a brand-new `Concept` with a fresh id/seed so
+ * the original stays in the gallery untouched (non-destructive, matching
+ * the same principle the shared Design Refinement's
+ * `saveDesignVersion`/`listDesignVersions` already established for
+ * catalog-imported assets — this is the equivalent for the pre-import,
+ * in-session concept-exploration stage). */
+export function refineConcept(original: Concept, overrides: Partial<Pick<GenerateParams, 'density' | 'negativeSpace' | 'motifSize' | 'rotationJitter' | 'paletteId'>>): Concept {
+  const versionSuffix = `refined-${Date.now().toString(36)}`;
+  const params: GenerateParams = {
+    ...original.params,
+    ...overrides,
+    density: overrides.density !== undefined ? clamp01(overrides.density) : original.params.density,
+    negativeSpace: overrides.negativeSpace !== undefined ? clamp01(overrides.negativeSpace) : original.params.negativeSpace,
+    seed: `${original.params.seed}-${versionSuffix}`,
+  };
+  return buildConceptFromParams(`${original.id}-${versionSuffix}`, `${original.label} (refined)`, params, `${original.id}-${versionSuffix}`);
 }

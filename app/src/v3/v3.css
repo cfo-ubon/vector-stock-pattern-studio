@@ -334,6 +334,34 @@ body {
   max-width: 900px;
 }
 
+.v3-gallery-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.v3-gallery-card-actions .v3-btn {
+  flex: 1;
+}
+
+.v3-coach-list {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  font-size: 0.88rem;
+  color: var(--v3-text-dim);
+}
+
+.v3-refine-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.v3-refine-field input[type='range'] {
+  width: 100%;
+}
+
 @media (max-width: 600px) {
   .v3-brief-grid {
     grid-template-columns: 1fr;
