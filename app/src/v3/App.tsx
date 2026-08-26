@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { PRODUCT_NAME, PRODUCT_TAGLINE, PRODUCT_VERSION, VERSION_STATUS, VERSION_SELECTOR_PATH } from './appMeta';
 import { analyzeKeyword, type DesignIntent } from './keywordIntent';
-import { generateConcepts, refineConcept, type Concept } from './generateFromIntent';
+import { generateConcepts, generateCollection, refineConcept, type Concept } from './generateFromIntent';
+import { checkCollectionSimilarity, type SimilarityWarning } from './similarityCheck';
 import { getDesignCoachRecommendations } from './designCoach';
 import { importConcept, runCommercialQualityGate, exportConceptToMarketplace, type CommercialQaResult } from './approveAndExport';
 import type { ExportMarketplaceId, BulkExportResult } from '../commercial/exportWorkflow';
@@ -60,6 +61,9 @@ export default function App() {
   const [qaBusy, setQaBusy] = useState(false);
   const [qaError, setQaError] = useState<string | null>(null);
   const [downloadPackages, setDownloadPackages] = useState<BulkExportResult[] | null>(null);
+  const [batchSize, setBatchSize] = useState<5 | 10 | 30>(5);
+  const [similarityWarnings, setSimilarityWarnings] = useState<SimilarityWarning[]>([]);
+  const [genElapsedMs, setGenElapsedMs] = useState<number | null>(null);
 
   const handleAnalyze = () => {
     if (!keyword.trim()) return;
@@ -78,10 +82,22 @@ export default function App() {
     // `generateBest`/`buildTileForGenerate` calls elsewhere in the app) —
     // yield one frame first so the "generating" state actually paints
     // before the main thread blocks.
-    requestAnimationFrame(() => {
-      const results = generateConcepts(intent, 5);
+    requestAnimationFrame(async () => {
+      const start = performance.now();
+      // Milestone 19/21 — Collection Mode / Production Mode: 5 real,
+      // meaningfully different composition concepts for routine review,
+      // or a larger coherent 10/30-pattern batch (same shared design
+      // language, still real per-item composition/scale differences —
+      // see generateCollection's own doc comment).
+      const results = batchSize === 5 ? generateConcepts(intent, 5) : generateCollection(intent, batchSize);
+      const elapsed = performance.now() - start;
+      setGenElapsedMs(elapsed);
       setConcepts(results);
       setSelectedConceptId(null);
+      // Milestone 20 — Duplicate/Similarity Safety: only meaningful for
+      // batches larger than the 5 already-distinct archetypes.
+      const warnings = batchSize > 5 ? await checkCollectionSimilarity(results) : [];
+      setSimilarityWarnings(warnings);
       setGenerating(false);
       setScreen('gallery');
     });
@@ -241,6 +257,22 @@ export default function App() {
               </dd>
             </dl>
 
+            <fieldset className="v3-batch-size" aria-label="Batch size">
+              <legend>Batch size</legend>
+              <label className="v3-batch-option">
+                <input type="radio" name="batchSize" checked={batchSize === 5} onChange={() => setBatchSize(5)} />
+                5 Concepts (review)
+              </label>
+              <label className="v3-batch-option">
+                <input type="radio" name="batchSize" checked={batchSize === 10} onChange={() => setBatchSize(10)} />
+                10 (Collection Mode)
+              </label>
+              <label className="v3-batch-option">
+                <input type="radio" name="batchSize" checked={batchSize === 30} onChange={() => setBatchSize(30)} />
+                30 (Production Mode)
+              </label>
+            </fieldset>
+
             <div className="v3-brief-actions">
               <button type="button" className="v3-btn" onClick={handleAdjust}>
                 Adjust
@@ -250,8 +282,9 @@ export default function App() {
               </button>
             </div>
             <p className="v3-hint">
-              Generates 5 real, meaningfully different vector seamless concepts from this brief, each checked against the mandatory
-              Vector Integrity and Seamless Integrity gates.
+              {batchSize === 5
+                ? 'Generates 5 real, meaningfully different vector seamless concepts from this brief, each checked against the mandatory Vector Integrity and Seamless Integrity gates.'
+                : `Generates a coherent ${batchSize}-pattern collection sharing this brief's design language, with real per-item composition/scale differences, each checked against both mandatory gates and screened for near-duplicates.`}
             </p>
           </section>
         )}
@@ -264,6 +297,25 @@ export default function App() {
                 ← Adjust keyword
               </button>
             </div>
+            {genElapsedMs !== null && (
+              <p className="v3-hint">
+                Generated {concepts.length} pattern{concepts.length === 1 ? '' : 's'} in {Math.round(genElapsedMs)}ms (measured, this device).
+              </p>
+            )}
+            {similarityWarnings.length > 0 && (
+              <div className="v3-similarity-banner" role="alert">
+                <strong>
+                  {similarityWarnings.length} similarity warning{similarityWarnings.length === 1 ? '' : 's'} in this batch:
+                </strong>
+                <ul>
+                  {similarityWarnings.map((w, i) => (
+                    <li key={`${w.conceptIdA}-${w.conceptIdB}-${i}`}>
+                      <strong>{w.kind === 'EXACT_DUPLICATE' ? 'EXACT DUPLICATE' : 'TOO SIMILAR'}</strong>: {w.conceptIdA} ↔ {w.conceptIdB} — {w.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="v3-gallery-grid">
               {concepts.map((concept) => (
                 <article key={concept.id} className="v3-gallery-card">

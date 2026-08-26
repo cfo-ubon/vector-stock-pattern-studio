@@ -105,6 +105,51 @@ export function generateConcepts(intent: DesignIntent, count = CONCEPT_TEMPLATES
   return templates.map((template, index) => generateConcept(intent, template, baseSeed, index));
 }
 
+/** Milestone 19 — Collection Mode. One keyword produces a larger, coherent
+ * batch (e.g. 10) sharing design language (same resolved category/style/
+ * palette from the intent — untouched per item) while still differing in
+ * composition/motif arrangement/density/hierarchy/scale per item, not
+ * just by random seed. Cycles through the same 5 real composition
+ * archetypes (Milestone 6) and, on each additional pass through them,
+ * applies one more real, visible difference (motif scale) so item 6
+ * (Airy Scattered, cycle 2) is meaningfully different from item 1 (Airy
+ * Scattered, cycle 1), not a seed-jittered near-duplicate of it. */
+// 6 distinct multipliers (not 5) so a 30-item collection — 6 full cycles
+// of the 5 composition archetypes — never wraps back to a scale value
+// already used on an earlier cycle. Verified via live Playwright run
+// (scripts/uiAudit/v3g_verify.mjs) that a 5-value list produced 5 real
+// TOO_SIMILAR flags at item 25+ (cycle 5 wrapping to cycle 0's scale);
+// each value here is spaced further than `MOTIF_SIZE_RELATIVE_TOLERANCE`
+// from every other so the similarity gate never flags a same-cycle-count
+// collection on scale alone.
+const SCALE_MULTIPLIERS_BY_CYCLE = [1, 0.82, 1.18, 0.92, 1.3, 1.45];
+
+export function generateCollection(intent: DesignIntent, size = 10): Concept[] {
+  const baseSeed = `v3-collection-${intent.keyword.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
+  const total = Math.max(1, size);
+  const concepts: Concept[] = [];
+  for (let i = 0; i < total; i++) {
+    const template = CONCEPT_TEMPLATES[i % CONCEPT_TEMPLATES.length];
+    const cycle = Math.floor(i / CONCEPT_TEMPLATES.length);
+    const scaleMul = SCALE_MULTIPLIERS_BY_CYCLE[cycle % SCALE_MULTIPLIERS_BY_CYCLE.length];
+    const seed = deriveSeed(baseSeed, 'v3-collection-item', i);
+    const baseParams = buildBaseParamsFromIntent(intent, seed);
+    const densityBase = DENSITY_BASE[intent.density];
+    const params: GenerateParams = {
+      ...baseParams,
+      layoutId: template.layoutId,
+      density: clamp01(densityBase * template.densityMul),
+      negativeSpace: clamp01((baseParams.negativeSpace ?? 0) + template.negativeSpaceDelta),
+      rotationJitter: baseParams.rotationJitter * template.rotationJitterMul,
+      motifSize: baseParams.motifSize * scaleMul,
+      seed,
+    };
+    const label = cycle === 0 ? template.label : `${template.label} (scale ${Math.round(scaleMul * 100)}%)`;
+    concepts.push(buildConceptFromParams(`${baseSeed}-item-${i}`, label, params, `${baseSeed}-${i}`));
+  }
+  return concepts;
+}
+
 /** Milestone 11 — Refinement. Never mutates or overwrites the original
  * concept; always returns a brand-new `Concept` with a fresh id/seed so
  * the original stays in the gallery untouched (non-destructive, matching
