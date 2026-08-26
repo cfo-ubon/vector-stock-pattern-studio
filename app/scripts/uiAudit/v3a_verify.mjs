@@ -8,7 +8,6 @@ const { chromium } = pkg;
 const SELECTOR_URL = 'http://localhost:8899/vector-stock-pattern-studio/studio/';
 const V1_URL = 'http://localhost:8899/vector-stock-pattern-studio/studio/v1/';
 const V2_URL = 'http://localhost:8899/vector-stock-pattern-studio/studio/v2/';
-const V3_URL = 'http://localhost:8899/vector-stock-pattern-studio/studio/v3/';
 
 async function main() {
   const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });

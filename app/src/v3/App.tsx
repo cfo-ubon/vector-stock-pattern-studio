@@ -1,10 +1,27 @@
 import { useState } from 'react';
 import { PRODUCT_NAME, PRODUCT_TAGLINE, PRODUCT_VERSION, VERSION_STATUS, VERSION_SELECTOR_PATH } from './appMeta';
 import { analyzeKeyword, type DesignIntent } from './keywordIntent';
+import { generateConcepts, type Concept } from './generateFromIntent';
 import { VersionCenterDialog } from './VersionCenterDialog';
 import './v3.css';
 
-type Screen = 'workspace' | 'brief';
+type Screen = 'workspace' | 'brief' | 'gallery';
+
+/** Real, on-screen rendering of a concept's SVG output — same
+ * <svg viewBox=...><... dangerouslySetInnerHTML .../></svg> pattern the
+ * shared `PreviewCanvas.tsx` already uses for the identical
+ * `buildPreviewMarkup()` output shape, not a re-implementation. */
+function TilePreview({ markup, repeat, tileSize, label }: { markup: string; repeat: number; tileSize: number; label: string }) {
+  return (
+    <svg
+      viewBox={`0 0 ${tileSize * repeat} ${tileSize * repeat}`}
+      role="img"
+      aria-label={label}
+      className="v3-tile-preview"
+      dangerouslySetInnerHTML={{ __html: markup }}
+    />
+  );
+}
 
 const EXAMPLE_KEYWORDS = ['minimal botanical', 'cute dinosaur kids', 'christmas candy', 'japanese geometric', 'luxury abstract leaves', 'boho rainbow nursery'];
 
@@ -14,6 +31,9 @@ export default function App() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [intent, setIntent] = useState<DesignIntent | null>(null);
   const [showVersionCenter, setShowVersionCenter] = useState(false);
+  const [concepts, setConcepts] = useState<Concept[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
 
   const handleAnalyze = () => {
     if (!keyword.trim()) return;
@@ -23,6 +43,22 @@ export default function App() {
 
   const handleAdjust = () => {
     setScreen('workspace');
+  };
+
+  const handleGenerate = () => {
+    if (!intent) return;
+    setGenerating(true);
+    // Real generation is synchronous CPU work (same as the shared
+    // `generateBest`/`buildTileForGenerate` calls elsewhere in the app) —
+    // yield one frame first so the "generating" state actually paints
+    // before the main thread blocks.
+    requestAnimationFrame(() => {
+      const results = generateConcepts(intent, 5);
+      setConcepts(results);
+      setSelectedConceptId(null);
+      setGenerating(false);
+      setScreen('gallery');
+    });
   };
 
   return (
@@ -122,14 +158,78 @@ export default function App() {
               <button type="button" className="v3-btn" onClick={handleAdjust}>
                 Adjust
               </button>
-              <button type="button" className="v3-btn v3-btn--primary" disabled title="Generation (V3-C) not yet implemented">
-                Generate
+              <button type="button" className="v3-btn v3-btn--primary" onClick={handleGenerate} disabled={generating}>
+                {generating ? 'Generating…' : 'Generate'}
               </button>
             </div>
             <p className="v3-hint">
-              Vector generation, seamless validation, and preview are implemented in the next development slice (V3-C/D) — this Design
-              Brief is real, derived from your keyword by the local Keyword Intent Engine, not a placeholder.
+              Generates 5 real, meaningfully different vector seamless concepts from this brief, each checked against the mandatory
+              Vector Integrity and Seamless Integrity gates.
             </p>
+          </section>
+        )}
+
+        {screen === 'gallery' && (
+          <section className="v3-gallery-screen" aria-label="Preview Gallery">
+            <div className="v3-gallery-header">
+              <h2>Preview Gallery</h2>
+              <button type="button" className="v3-btn" onClick={handleAdjust}>
+                ← Adjust keyword
+              </button>
+            </div>
+            <div className="v3-gallery-grid">
+              {concepts.map((concept) => (
+                <article key={concept.id} className="v3-gallery-card">
+                  <TilePreview markup={concept.seamlessIntegrity.tilePreviewMarkup1x1} repeat={1} tileSize={concept.params.tileSize} label={concept.label} />
+                  <h3>{concept.label}</h3>
+                  <div className="v3-gallery-badges">
+                    <span className={`v3-gate-badge ${concept.vectorIntegrity.status === 'VECTOR_PASS' ? 'v3-gate-badge--pass' : 'v3-gate-badge--blocked'}`}>
+                      {concept.vectorIntegrity.status === 'VECTOR_PASS' ? 'VECTOR PASS' : 'VECTOR BLOCKED'}
+                    </span>
+                    <span className={`v3-gate-badge ${concept.seamlessIntegrity.status === 'SEAMLESS_PASS' ? 'v3-gate-badge--pass' : 'v3-gate-badge--blocked'}`}>
+                      {concept.seamlessIntegrity.status === 'SEAMLESS_PASS' ? 'SEAMLESS PASS' : 'SEAMLESS BLOCKED'}
+                    </span>
+                  </div>
+                  <p className="v3-hint">
+                    Corner continuity: {concept.seamlessIntegrity.cornerContinuity} · Composition: {concept.metrics.composition}
+                  </p>
+                  <button type="button" className="v3-btn" onClick={() => setSelectedConceptId(concept.id)}>
+                    Open 3×3 preview
+                  </button>
+                </article>
+              ))}
+            </div>
+
+            {selectedConceptId &&
+              (() => {
+                const concept = concepts.find((c) => c.id === selectedConceptId);
+                if (!concept) return null;
+                return (
+                  <div className="v3-modal-backdrop" role="dialog" aria-modal="true" aria-label={`${concept.label} — 3×3 repeat preview`}>
+                    <div className="v3-modal v3-modal--wide">
+                      <div className="v3-modal-header">
+                        <h2>{concept.label} — 3×3 repeat preview</h2>
+                        <button type="button" className="v3-btn" onClick={() => setSelectedConceptId(null)}>
+                          Close
+                        </button>
+                      </div>
+                      <TilePreview
+                        markup={concept.seamlessIntegrity.repeatPreviewMarkup3x3}
+                        repeat={3}
+                        tileSize={concept.params.tileSize}
+                        label={`${concept.label} 3x3 repeat`}
+                      />
+                      {concept.seamlessIntegrity.issues.length > 0 && (
+                        <ul className="v3-hint">
+                          {concept.seamlessIntegrity.issues.map((issue) => (
+                            <li key={issue.code}>{issue.detail}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
           </section>
         )}
       </main>

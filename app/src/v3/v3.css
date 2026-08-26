@@ -268,6 +268,72 @@ body {
   font-size: 0.88rem;
 }
 
+.v3-gallery-screen {
+  max-width: 1100px;
+}
+
+.v3-gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.v3-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.v3-gallery-card {
+  background: var(--v3-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.v3-gallery-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.v3-tile-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #0b0c10;
+}
+
+.v3-gallery-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.v3-gate-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+}
+
+.v3-gate-badge--pass {
+  background: rgba(55, 182, 115, 0.18);
+  color: var(--v3-new);
+}
+
+.v3-gate-badge--blocked {
+  background: rgba(220, 70, 70, 0.18);
+  color: #e05656;
+}
+
+.v3-modal--wide {
+  max-width: 900px;
+}
+
 @media (max-width: 600px) {
   .v3-brief-grid {
     grid-template-columns: 1fr;
